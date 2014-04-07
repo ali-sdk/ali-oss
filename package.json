@@ -1,0 +1,39 @@
+{
+  "name": "ali-oss",
+  "version": "0.0.0",
+  "description": "aliyun oss(open storage service) node client",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-modules/ali-oss.git"
+  },
+  "keywords": [
+    "oss",
+    "client",
+    "file",
+    "aliyun"
+  ],
+  "author": "dead_horse",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/node-modules/ali-oss/issues"
+  },
+  "homepage": "https://github.com/node-modules/ali-oss",
+  "devDependencies": {
+    "autod": "^0.1.2",
+    "co": "^3.0.5"
+  },
+  "dependencies": {
+    "co-read": "0.0.1",
+    "co-urllib": "0.1.4",
+    "copy-to": "0.0.3",
+    "debug": "0.8.0",
+    "is-type-of": "0.2.0",
+    "mime": "1.2.11",
+    "oss-client": "0.4.0",
+    "xml2js": "0.4.2"
+  }
+}
