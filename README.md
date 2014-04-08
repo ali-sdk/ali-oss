@@ -1,5 +1,6 @@
 ali-oss
 =======
+![travis-ci](https://api.travis-ci.org/node-modules/ali-oss.svg)
 
 aliyun OSS(open storage service) node client. generator friendly.
 
@@ -91,7 +92,7 @@ client.get = co(client.get);
 client.remove = co(client.remove);
 ```
 
-then you use these APIs as common async callback APIs. checkout the [callback_example.js](blob/master/callback_example.js).
+then you use these APIs as common async callback APIs. checkout the [callback_example.js](callback_example.js).
 
 ## License
 
