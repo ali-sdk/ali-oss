@@ -28,12 +28,11 @@
   },
   "dependencies": {
     "co-read": "0.0.1",
-    "co-urllib": "0.1.4",
+    "co-urllib": "0.2.0",
     "copy-to": "0.0.3",
     "debug": "0.8.0",
     "is-type-of": "0.2.0",
     "mime": "1.2.11",
-    "oss-client": "0.4.0",
     "xml2js": "0.4.2"
   }
 }

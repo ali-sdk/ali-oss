@@ -1,6 +1,7 @@
 
 var Oss = require('./');
 var co = require('co');
+var fs = require('fs');
 
 var client = Oss.create({
   bucket: 'node-ali-oss',
@@ -10,4 +11,6 @@ var client = Oss.create({
 
 co(function* () {
   yield client.upload('./package.json', 'package.json');
+  yield client.get('package.json', 'back_package.json');
+  yield client.remove('package.json');
 })();
