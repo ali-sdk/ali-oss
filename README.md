@@ -75,6 +75,24 @@ options:
 - **options**:
   - timeout
 
+## no generator support
+
+if you do not use node v0.11+ or do not use `node --harmony`.
+this module will use [regenerator](/facebook/regenerator) to convert to es5 style.
+so you only need to use co wrap the generator function into callback style:
+
+```
+var co = require('co');
+var OSS = require('ali-oss');
+var client = OSS.create({});
+
+client.update = co(client.update);
+client.get = co(client.get);
+client.remove = co(client.remove);
+```
+
+then you use these APIs as common async callback APIs. checkout the [callback_example.js](blob/master/callback_example.js).
+
 ## License
 
 MIT
