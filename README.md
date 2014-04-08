@@ -55,11 +55,25 @@ options:
 yield* client.get(name, path, options);
 ```
 
+options:
+
+- **name**: object name in oss
+- **path**: can be filepath and stream
+- **options**:
+  - timeout
+  - headers
+
 #### remove
 
 ```
 yield* client.remove(name, options);
 ```
+
+options:
+
+- **name**: object name in oss
+- **options**:
+  - timeout
 
 ## License
 
