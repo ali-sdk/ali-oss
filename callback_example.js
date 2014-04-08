@@ -15,5 +15,12 @@ client.remove = co(client.remove);
 
 
 client.upload('./package.json', 'package.json', function (err, data) {
-  console.log(err, data);
+  if (err) throw err;
+  client.get('package.json', function (err, data) {
+    if (err) throw err;
+    console.log(data.toString());
+    client.remove('package.json', function (err, data) {
+      if (err) throw err;
+    });
+  });
 });

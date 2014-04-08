@@ -4,7 +4,8 @@
   "description": "aliyun oss(open storage service) node client",
   "main": "index.js",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "prepublish": "make clean build"
   },
   "repository": {
     "type": "git",
@@ -23,22 +24,23 @@
   },
   "homepage": "https://github.com/node-modules/ali-oss",
   "devDependencies": {
+    "ali.regenerator": "*",
     "autod": "^0.1.2",
     "co": "^3.0.5",
     "co-mocha": "*",
     "mocha": "*",
-    "should": "*",
-    "ali.regenerator": "*"
+    "should": "*"
   },
   "dependencies": {
-    "co-read": "0.0.1",
+    "co": "3.0.5",
+    "co-read": "0.0.2",
     "co-urllib": "0.2.0",
     "copy-to": "0.0.3",
     "debug": "0.8.0",
+    "generator-supported": "0.0.1",
     "is-type-of": "0.2.0",
     "mime": "1.2.11",
     "ms": "0.6.2",
-    "oss-client": "0.4.0",
     "xml2js": "0.4.2"
   }
 }

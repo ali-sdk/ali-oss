@@ -13,12 +13,11 @@ build:
 build/%.js: lib/%.js
 	@$(BIN)regenerator --include-runtime $< > $@
 
-
 install:
 	@npm install --registry=http://r.cnpmjs.org \
 		--disturl=http://dist.cnpmjs.org
 
-test: install
+test:
 	@NODE_ENV=test $(BIN)mocha \
 		--harmony-generators \
 		--reporter $(REPORTER) \
@@ -28,7 +27,7 @@ test: install
 		$(MOCHA_OPTS) \
 		$(TESTS)
 
-test-cov cov: install
+test-cov cov:
 	@NODE_ENV=test node --harmony \
 		node_modules/.bin/istanbul cover --preserve-comments \
 		$(BIN)_mocha \
@@ -41,11 +40,14 @@ test-cov cov: install
 		$(TESTS)
 	@$(BIN)cov coverage
 
-contributors: install
+contributors:
 	@$(BIN)contributors -f plain -o AUTHORS
 
-autod: install
+autod:
 	@$(BIN)autod -w -e coverage,example.js
 	@$(MAKE) install
 
-.PHONY: test
+clean:
+	@rm -rf build
+
+.PHONY: test clean
