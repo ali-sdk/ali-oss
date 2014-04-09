@@ -29,7 +29,8 @@
     "co": "^3.0.5",
     "co-mocha": "*",
     "mocha": "*",
-    "should": "*"
+    "should": "*",
+    "istanbul-harmony": "*"
   },
   "dependencies": {
     "co": "3.0.5",
