@@ -79,7 +79,7 @@ options:
 ## no generator support
 
 if you do not use node v0.11+ or do not use `node --harmony`.
-this module will use [regenerator](/facebook/regenerator) to convert to es5 style.
+this module will use [regenerator](https://github.com/facebook/regenerator) to convert to es5 style.
 so you only need to use co wrap the generator function into callback style:
 
 ```
