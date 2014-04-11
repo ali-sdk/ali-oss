@@ -35,7 +35,7 @@
   "dependencies": {
     "co": "3.0.5",
     "co-read": "0.0.2",
-    "co-urllib": "0.2.0",
+    "co-urllib": "0.2.1",
     "copy-to": "0.0.3",
     "debug": "0.8.0",
     "generator-supported": "0.0.1",

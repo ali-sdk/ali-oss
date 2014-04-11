@@ -20,6 +20,7 @@ var savePath = path.join(__dirname, 'README.md');
 var fileBuffer = fs.readFileSync(filepath);
 var fileStream = fs.createReadStream(filepath);
 var objectName = 'README.md';
+var nameWithoutExt = 'README';
 
 describe('test/client.test.js', function () {
   before(function () {
@@ -46,6 +47,12 @@ describe('test/client.test.js', function () {
 
     it('should upload stream ok', function* () {
       yield client.upload(fileStream, objectName);
+    });
+
+    it('should upload with mime ok', function* () {
+      yield client.upload(fileBuffer, objectName, {
+        mime: 'md'
+      });
     });
   });
 

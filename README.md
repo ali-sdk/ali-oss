@@ -36,7 +36,7 @@ options:
 
 ### Methods
 
-#### upload
+#### upload, put
 
 ```
 yield* client.upload(file, name, options);
@@ -49,8 +49,9 @@ options:
  - **options**:
     - timeout: request timeout
     - headers: custom headers, checkout the doc
+    - mime: file mime type, will send to `mime.lookup`
 
-#### get
+#### download, get
 
 ```
 yield* client.get(name, path, options);
@@ -64,7 +65,7 @@ options:
   - timeout
   - headers
 
-#### remove
+#### remove, delete
 
 ```
 yield* client.remove(name, options);
