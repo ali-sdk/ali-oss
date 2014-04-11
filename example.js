@@ -11,6 +11,6 @@ var client = Oss.create({
 
 co(function* () {
   yield client.upload('./package.json', 'package.json');
-  yield client.get('package.json', 'back_package.json');
+  console.log((yield client.get('package.json')).toString());
   yield client.remove('package.json');
 })();
