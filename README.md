@@ -77,7 +77,7 @@ options:
 - **options**:
   - timeout
 
-## no generator support
+## backward compatibility
 
 if you do not use node v0.11+ or do not use `node --harmony`.
 this module will use [regenerator](https://github.com/facebook/regenerator) to convert to es5 style.
