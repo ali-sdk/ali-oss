@@ -1,4 +1,12 @@
 
+1.0.0 / 2014-10-26
+==================
+
+  * use urllib replace of co-urllib
+  * fix readme
+  * ocd
+  * update examples
+
 0.0.3 / 2014-04-11
 ==================
 
