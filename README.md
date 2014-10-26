@@ -1,6 +1,21 @@
 ali-oss
 =======
-![travis-ci](https://api.travis-ci.org/alibaba/ali-oss.svg)
+[![NPM version][npm-image]][npm-url]
+[![build status][travis-image]][travis-url]
+[![David deps][david-image]][david-url]
+[![node version][node-image]][node-url]
+[![Gittip][gittip-image]][gittip-url]
+
+[npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/ali-oss
+[travis-image]: https://img.shields.io/travis/alibaba/ali-oss.svg?style=flat-square
+[travis-url]: https://travis-ci.org/alibaba/ali-oss
+[david-image]: https://img.shields.io/david/alibaba/ali-oss.svg?style=flat-square
+[david-url]: https://david-dm.org/alibaba/ali-oss
+[node-image]: https://img.shields.io/badge/node.js-%3E=_0.11-red.svg?style=flat-square
+[node-url]: http://nodejs.org/download/
+[gittip-image]: https://img.shields.io/gittip/dead-horse.svg?style=flat-square
+[gittip-url]: https://www.gittip.com/dead-horse/
 
 aliyun OSS(open storage service) node client. generator friendly.
 
@@ -9,7 +24,7 @@ a node.js wrapper for [OSS restful api](http://imgs-storage.cdn.aliyuncs.com/hel
 ## Install
 
 ```
-npm install ali-oss
+npm install ali-oss --save
 ```
 
 ## Usage

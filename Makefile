@@ -38,7 +38,6 @@ test-cov cov:
 		--require co-mocha\
 		$(MOCHA_OPTS) \
 		$(TESTS)
-	@$(BIN)cov coverage
 
 contributors:
 	@$(BIN)contributors -f plain -o AUTHORS
