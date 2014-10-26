@@ -1,6 +1,6 @@
 ali-oss
 =======
-![travis-ci](https://api.travis-ci.org/node-modules/ali-oss.svg)
+![travis-ci](https://api.travis-ci.org/alibaba/ali-oss.svg)
 
 aliyun OSS(open storage service) node client. generator friendly.
 

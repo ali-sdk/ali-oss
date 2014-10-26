@@ -43,8 +43,9 @@ test-cov cov:
 contributors:
 	@$(BIN)contributors -f plain -o AUTHORS
 
-autod:
-	@$(BIN)autod -w -e coverage,example.js
+autod: install
+	@$(BIN)autod -w --prefix="~" \
+	-e coverage,example.js \
 	@$(MAKE) install
 
 clean:
