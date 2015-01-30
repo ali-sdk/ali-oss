@@ -1,6 +1,5 @@
 test/
 logo.png
 coverage/
-.jshintignore
-.jshintrc
+.jshint*
 History.md

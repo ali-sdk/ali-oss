@@ -1,5 +1,5 @@
 TESTS = $(shell ls -S `find test -type f -name "*.test.js" -print`)
-REPORTER = tap
+REPORTER = spec
 TIMEOUT = 30000
 MOCHA_OPTS =
 BIN = node_modules/.bin/
@@ -13,13 +13,9 @@ build:
 build/%.js: lib/%.js
 	@$(BIN)regenerator --include-runtime $< > $@
 
-install:
-	@npm install --registry=http://r.cnpmjs.org \
-		--disturl=http://dist.cnpmjs.org
-
 test:
 	@NODE_ENV=test $(BIN)mocha \
-		--harmony-generators \
+		--harmony \
 		--reporter $(REPORTER) \
 		--timeout $(TIMEOUT) \
 		--require should \
@@ -39,13 +35,26 @@ test-cov cov:
 		$(MOCHA_OPTS) \
 		$(TESTS)
 
+test-travis:
+		@NODE_ENV=test \
+		node --harmony \
+		node_modules/.bin/istanbul cover --preserve-comments \
+		node_modules/.bin/_mocha \
+		--report lcovonly \
+		-- \
+		--reporter dot \
+		--timeout $(TIMEOUT) \
+		--require should \
+		--require co-mocha \
+		$(MOCHA_OPTS) \
+		$(TESTS)
+
 contributors:
 	@$(BIN)contributors -f plain -o AUTHORS
 
-autod: install
+autod:
 	@$(BIN)autod -w --prefix="~" \
-	-e coverage,example.js \
-	@$(MAKE) install
+	-e build,coverage,callback_example.js,example.js \
 
 clean:
 	@rm -rf build

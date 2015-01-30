@@ -24,24 +24,24 @@
   },
   "homepage": "https://github.com/alibaba/ali-oss",
   "devDependencies": {
+    "co": "3",
     "ali.regenerator": "*",
     "autod": "1",
-    "co": "^3.0.5",
     "co-mocha": "*",
     "istanbul-harmony": "*",
     "mocha": "*",
     "should": "*"
   },
   "dependencies": {
-    "co": "~3.1.0",
     "co-read": "~0.1.1",
     "copy-to": "~2.0.1",
-    "debug": "~2.1.0",
+    "debug": "~2.1.1",
     "generator-supported": "~0.0.1",
     "is-type-of": "~0.3.1",
     "mime": "~1.2.11",
-    "ms": "~0.6.2",
-    "urllib": "~2.0.1",
+    "ms": "~0.7.0",
+    "urllib": "~2.2.2",
+    "utility": "~1.2.1",
     "xml2js": "~0.4.4"
   }
 }
