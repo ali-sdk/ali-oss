@@ -1,9 +1,9 @@
+'use strict';
 
-var Oss = require('./');
+var oss = require('./');
 var co = require('co');
-var fs = require('fs');
 
-var client = Oss.create({
+var client = oss.create({
   bucket: 'node-ali-oss',
   accessKeyId: 'iAeyzYXtZAdM8V2V',
   accessKeySecret: 'AmieMAD5ZYuevL3UNrkeORzQ0cvqrO'
@@ -13,14 +13,19 @@ client.upload = co(client.upload);
 client.get = co(client.get);
 client.remove = co(client.remove);
 
-
-client.upload('./package.json', 'package.json', function (err, data) {
-  if (err) throw err;
+client.upload('./package.json', 'package.json', function (err) {
+  if (err) {
+    throw err;
+  }
   client.get('package.json', function (err, data) {
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
     console.log(data.toString());
-    client.remove('package.json', function (err, data) {
-      if (err) throw err;
+    client.remove('package.json', function (err) {
+      if (err) {
+        throw err;
+      }
     });
   });
 });

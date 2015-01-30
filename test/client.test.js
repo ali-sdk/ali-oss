@@ -13,6 +13,7 @@
 var OSS = require('..');
 var path = require('path');
 var fs = require('fs');
+var urllib = require('urllib');
 
 var client;
 var filepath = path.join(__dirname, '..', 'README.md');
@@ -20,14 +21,14 @@ var savePath = path.join(__dirname, 'README.md');
 var fileBuffer = fs.readFileSync(filepath);
 var fileStream = fs.createReadStream(filepath);
 var objectName = 'README.md';
-var nameWithoutExt = 'README';
 
 describe('test/client.test.js', function () {
   before(function () {
     client = OSS.create({
       bucket: 'node-ali-oss',
       accessKeyId: 'iAeyzYXtZAdM8V2V',
-      accessKeySecret: 'AmieMAD5ZYuevL3UNrkeORzQ0cvqrO'
+      accessKeySecret: 'AmieMAD5ZYuevL3UNrkeORzQ0cvqrO',
+      supportSignatureUrl: true
     });
   });
 
@@ -61,7 +62,7 @@ describe('test/client.test.js', function () {
       yield client.upload(filepath, objectName);
     });
     after(function* () {
-      yield client.remove(filepath);
+      yield client.remove(objectName);
     });
 
     afterEach(function () {
@@ -85,6 +86,23 @@ describe('test/client.test.js', function () {
 
     it('should get buffer ok', function* () {
       (yield client.get(objectName)).length.should.equal(fileBuffer.length);
+    });
+  });
+
+  describe('signatureUrl()', function () {
+    before(function* () {
+      yield client.upload(filepath, objectName);
+    });
+    after(function* () {
+      yield client.remove(objectName);
+    });
+
+    it('should get object with signature url', function* () {
+      var url = client.signatureUrl(objectName);
+      url.should.be.a.String;
+      var r = yield urllib.request(url);
+      r.status.should.equal(200);
+      r.data.toString().should.containEql('ali-oss');
     });
   });
 });
