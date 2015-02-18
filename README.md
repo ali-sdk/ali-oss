@@ -19,7 +19,7 @@ ali-oss
 
 aliyun OSS(open storage service) node client. generator friendly.
 
-a node.js wrapper for [OSS restful api](http://docs.aliyun.com/#/oss/api-reference/abstract)
+a node.js wrapper for [OSS RESTful API](http://docs.aliyun.com/#/oss/api-reference/abstract)
 
 ## Install
 
@@ -28,6 +28,8 @@ npm install ali-oss --save
 ```
 
 ## Usage
+
+@see [OSS Usage on ali-sdk](https://github.com/node-modules/ali-sdk/blob/master/docs/oss.md)
 
 ### Init
 
@@ -124,4 +126,4 @@ then you use these APIs as common async callback APIs. checkout the [callback_ex
 
 ## License
 
-MIT
+[MIT](LICENSE)

@@ -3,13 +3,19 @@
   "version": "1.1.0",
   "description": "aliyun oss(open storage service) node client",
   "main": "index.js",
+  "files": ["index.js"],
   "scripts": {
-    "test": "make test",
-    "prepublish": "make clean build"
+    "test": "mocha --harmony --check-leaks -R spec -t 5000 -r co-mocha test/*.test.js",
+    "test-cov": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- --check-leaks -t 5000 test/*.test.js",
+    "test-travis": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha --report lcovonly -- --check-leaks -t 5000 test/*.test.js",
+    "jshint": "jshint .",
+    "autod": "autod -w --prefix '~'",
+    "cnpm": "npm install --registry=https://registry.npm.taobao.org",
+    "contributors": "contributors -f plain -o AUTHORS"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/alibaba/ali-oss.git"
+    "url": "git://github.com/node-modules/ali-oss.git"
   },
   "keywords": [
     "oss",
@@ -20,28 +26,28 @@
   "author": "dead_horse",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/alibaba/ali-oss/issues"
+    "url": "https://github.com/node-modules/ali-oss/issues"
   },
-  "homepage": "https://github.com/alibaba/ali-oss",
+  "homepage": "https://github.com/node-modules/ali-oss",
   "devDependencies": {
-    "co": "3",
     "ali.regenerator": "*",
-    "autod": "1",
+    "autod": "*",
+    "co": "*",
     "co-mocha": "*",
     "istanbul-harmony": "*",
     "mocha": "*",
     "should": "*"
   },
   "dependencies": {
+    "agentkeepalive": "~1.2.0",
     "co-read": "~0.1.1",
     "copy-to": "~2.0.1",
     "debug": "~2.1.1",
-    "generator-supported": "~0.0.1",
+    "humanize-ms": "~1.0.1",
     "is-type-of": "~0.3.1",
-    "mime": "~1.2.11",
-    "ms": "~0.7.0",
-    "urllib": "~2.2.2",
-    "utility": "~1.2.1",
-    "xml2js": "~0.4.4"
+    "mime": "~1.3.4",
+    "urllib": "~2.3.0",
+    "utility": "~1.3.0",
+    "xml2js": "~0.4.5"
   }
 }

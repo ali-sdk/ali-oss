@@ -1,7 +1,12 @@
-/*!
+/**!
  * ali-oss - test/client.test.js
- * Copyright(c) 2014 dead_horse <dead_horse@qq.com>
+ *
+ * Copyright(c) node-modules and other contributors.
  * MIT Licensed
+ *
+ * Authors:
+ *   dead_horse <dead_horse@qq.com>
+ *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
  */
 
 'use strict';
@@ -22,7 +27,7 @@ var fileBuffer = fs.readFileSync(filepath);
 var fileStream = fs.createReadStream(filepath);
 var objectName = 'README.md';
 
-describe('test/client.test.js', function () {
+describe.skip('test/client.test.js', function () {
   before(function () {
     client = OSS.create({
       bucket: 'node-ali-oss',
