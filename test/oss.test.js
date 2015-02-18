@@ -74,6 +74,42 @@ describe('oss.test.js', function () {
       });
       assert.equal(info.status, 200);
     });
+
+    it('should set Content-Disposition with ascii name', function* () {
+      var name = prefix + 'ali-sdk/oss/put-Content-Disposition.js';
+      var object = yield this.store.put(name, __filename, {
+        headers: {
+          'Content-Disposition': 'ascii-name.js'
+        }
+      });
+      assert(object.name, name);
+      var info = yield this.store.head(name);
+      assert.equal(info.res.headers['content-disposition'], 'ascii-name.js');
+    });
+
+    it('should set Content-Disposition with no-ascii name', function* () {
+      var name = prefix + 'ali-sdk/oss/put-Content-Disposition.js';
+      var object = yield this.store.put(name, __filename, {
+        headers: {
+          'Content-Disposition': encodeURIComponent('non-ascii-名字.js')
+        }
+      });
+      assert(object.name, name);
+      var info = yield this.store.head(name);
+      assert.equal(info.res.headers['content-disposition'], 'non-ascii-%E5%90%8D%E5%AD%97.js');
+    });
+
+    it('should set Expires', function* () {
+      var name = prefix + 'ali-sdk/oss/put-Expires.js';
+      var object = yield this.store.put(name, __filename, {
+        headers: {
+          'Expires': 1000000
+        }
+      });
+      assert(object.name, name);
+      var info = yield this.store.head(name);
+      assert.equal(info.res.headers.expires, '1000000');
+    });
   });
 
   describe('head()', function () {
@@ -225,6 +261,28 @@ describe('oss.test.js', function () {
       assert.equal(info.meta.pid, '123');
       assert.equal(info.meta.slus, 'test.html');
       assert.equal(info.status, 200);
+    });
+  });
+
+  describe('delete()', function () {
+    it('should delete exsits object', function* () {
+      var name = prefix + 'ali-sdk/oss/delete.js';
+      yield this.store.put(name, __filename);
+
+      var info = yield this.store.delete(name);
+      assert.equal(info.res.status, 204);
+
+      try {
+        yield this.store.head(name);
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+      }
+    });
+
+    it('should delete not exists object', function* () {
+      var info = yield this.store.delete('not-exists-name');
+      assert.equal(info.res.status, 204);
     });
   });
 });

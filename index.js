@@ -331,32 +331,21 @@ proto.download = function* (name, path, options) {
   throw yield* requestError(res);
 };
 
-proto.get = proto.download;
-
-/**
- * remove an object from oss
- * @param {String} name
- * @param {Object} options
- *   - {Number} timeout
- */
-
-proto.remove = function* (name, options) {
-  options = options || {};
-  var timeout = options.timeout || this.timeout;
-
-  var res = yield* this.request({
+proto.delete = function* (name, options) {
+  name = this._objectName(name);
+  var result = yield* this.request({
     name: name,
     method: 'DELETE',
-    timeout: timeout
+    timeout: options && options.timeout
   });
 
-  if (res.status === 204) {
-    return;
+  if (result.status === 204) {
+    return {
+      res: result.res
+    };
   }
-  throw yield* requestError(res);
+  throw yield* requestError(result);
 };
-
-proto.delete = proto.remove;
 
 /**
  * get content from string(file path), buffer(file content), stream(file stream)
