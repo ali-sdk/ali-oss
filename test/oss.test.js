@@ -267,7 +267,7 @@ describe('oss.test.js', function () {
     });
   });
 
-  describe.only('get()', function () {
+  describe('get()', function () {
     before(function* () {
       this.name = prefix + 'ali-sdk/oss/get-meta.js';
       var object = yield this.store.put(this.name, __filename, {
@@ -323,6 +323,18 @@ describe('oss.test.js', function () {
       result = yield this.store.get(this.name, null);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
       assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
+    });
+
+    it('should throw NoSuchKeyError when object not exists', function* () {
+      try {
+        yield this.store.get('not-exists-key');
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert.equal(err.status, 404);
+        assert.equal(typeof err.requestId, 'string');
+        assert.equal(err.message, 'The specified key does not exist.');
+      }
     });
 
     describe('If-Modified-Since header', function () {
@@ -492,6 +504,235 @@ describe('oss.test.js', function () {
     it('should delete not exists object', function* () {
       var info = yield this.store.delete('not-exists-name');
       assert.equal(info.res.status, 204);
+    });
+  });
+
+  describe('copy()', function () {
+    before(function* () {
+      this.name = prefix + 'ali-sdk/oss/copy-meta.js';
+      var object = yield this.store.put(this.name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      this.headers = object.res.headers;
+    });
+
+    it('should copy object from same bucket', function* () {
+      var name = prefix + 'ali-sdk/oss/copy-new.js';
+      var result = yield this.store.copy(name, this.name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.ETag, 'string');
+      assert.equal(typeof result.data.LastModified, 'string');
+
+      var info = yield this.store.head(name);
+      assert.equal(info.meta.uid, '1');
+      assert.equal(info.meta.pid, '123');
+      assert.equal(info.meta.slus, 'test.html');
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object and set other meta', function* () {
+      var name = prefix + 'ali-sdk/oss/copy-new-2.js';
+      var result = yield this.store.copy(name, this.name, {
+        meta: {
+          uid: '2'
+        }
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.ETag, 'string');
+      assert.equal(typeof result.data.LastModified, 'string');
+
+      var info = yield this.store.head(name);
+      assert.equal(info.meta.uid, '2');
+      assert(!info.meta.pid);
+      assert(!info.meta.slus);
+      assert.equal(info.status, 200);
+    });
+
+    it('should throw NoSuchKeyError when source object not exists', function* () {
+      try {
+        yield this.store.copy('new-object', 'not-exists-object');
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert.equal(err.message, 'The specified key does not exist.');
+        assert.equal(err.status, 404);
+      }
+    });
+
+    describe('If-Match header', function () {
+      it('should throw PreconditionFailedError when If-Match not equal source object etag', function* () {
+        try {
+          yield this.store.copy('new-name', this.name, {
+            headers: {
+              'If-Match': 'foo-bar'
+            }
+          });
+          throw new Error('should not run this');
+        } catch (err) {
+          assert.equal(err.name, 'PreconditionFailedError');
+          assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Match)');
+          assert.equal(err.status, 412);
+        }
+      });
+
+      it('should copy object when If-Match equal source object etag', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-Match.js';
+        var result = yield this.store.copy(name, this.name, {
+          headers: {
+            'If-Match': this.headers.etag
+          }
+        });
+        assert.equal(result.res.status, 200);
+        assert.equal(typeof result.data.ETag, 'string');
+        assert.equal(typeof result.data.LastModified, 'string');
+      });
+    });
+
+    describe('If-None-Match header', function () {
+      it('should return 304 when If-None-Match equal source object etag', function* () {
+        var result = yield this.store.copy('new-name', this.name, {
+          headers: {
+            'If-None-Match': this.headers.etag
+          }
+        });
+        assert.equal(result.res.status, 304);
+        assert.equal(result.data, null);
+      });
+
+      it('should copy object when If-None-Match not equal source object etag', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-None-Match.js';
+        var result = yield this.store.copy(name, this.name, {
+          headers: {
+            'If-None-Match': 'foo-bar'
+          }
+        });
+        assert.equal(result.res.status, 200);
+        assert.equal(typeof result.data.ETag, 'string');
+        assert.equal(typeof result.data.LastModified, 'string');
+      });
+    });
+
+    describe('If-Modified-Since header', function () {
+      it('should 304 when If-Modified-Since > source object modified time', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-Modified-Since.js';
+        var nextYear = new Date(this.headers.date);
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        nextYear = nextYear.toGMTString();
+        var result = yield this.store.copy(name, this.name, {
+          headers: {
+            'If-Modified-Since': nextYear
+          }
+        });
+        assert.equal(result.res.status, 304);
+      });
+
+      it('should 304 when If-Modified-Since >= source object modified time', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-Modified-Since.js';
+        var result = yield this.store.copy(name, this.name, {
+          headers: {
+            'If-Modified-Since': this.headers.date
+          }
+        });
+        assert.equal(result.res.status, 304);
+      });
+
+      it('should 200 when If-Modified-Since < source object modified time', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-Modified-Since.js';
+        var lastYear = new Date(this.headers.date);
+        lastYear.setFullYear(lastYear.getFullYear() - 1);
+        lastYear = lastYear.toGMTString();
+        var result = yield this.store.copy(name, this.name, {
+          headers: {
+            'If-Modified-Since': lastYear
+          }
+        });
+        assert.equal(result.res.status, 200);
+      });
+    });
+
+    describe('If-Unmodified-Since header', function () {
+      it('should 200 when If-Unmodified-Since > source object modified time', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-Unmodified-Since.js';
+        var nextYear = new Date(this.headers.date);
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        nextYear = nextYear.toGMTString();
+        var result = yield this.store.copy(name, this.name, {
+          headers: {
+            'If-Unmodified-Since': nextYear
+          }
+        });
+        assert.equal(result.res.status, 200);
+      });
+
+      it('should 200 when If-Unmodified-Since >= source object modified time', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-Unmodified-Since.js';
+        var result = yield this.store.copy(name, this.name, {
+          headers: {
+            'If-Unmodified-Since': this.headers.date
+          }
+        });
+        assert.equal(result.res.status, 200);
+      });
+
+      it('should throw PreconditionFailedError when If-Unmodified-Since < source object modified time', function* () {
+        var name = prefix + 'ali-sdk/oss/copy-new-If-Unmodified-Since.js';
+        var lastYear = new Date(this.headers.date);
+        lastYear.setFullYear(lastYear.getFullYear() - 1);
+        lastYear = lastYear.toGMTString();
+        try {
+          yield this.store.copy(name, this.name, {
+            headers: {
+              'If-Unmodified-Since': lastYear
+            }
+          });
+          throw new Error('should not run this');
+        } catch (err) {
+          assert.equal(err.name, 'PreconditionFailedError');
+          assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Unmodified-Since)');
+          assert.equal(err.status, 412);
+        }
+      });
+    });
+  });
+
+  describe('updateMeta()', function () {
+    before(function* () {
+      this.name = prefix + 'ali-sdk/oss/updateMeta.js';
+      var object = yield this.store.put(this.name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      this.headers = object.res.headers;
+    });
+
+    it('should update exists object meta', function* () {
+      yield this.store.updateMeta(this.name, {
+        uid: '2'
+      });
+      var info = yield this.store.head(this.name);
+      assert.equal(info.meta.uid, '2');
+      assert(!info.meta.pid);
+      assert(!info.meta.slus);
+    });
+
+    it('should throw NoSuchKeyError when update not exists object meta', function* () {
+      try {
+        yield this.store.updateMeta(this.name + 'not-exists', {
+          uid: '2'
+        });
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert.equal(err.status, 404);
+      }
     });
   });
 });

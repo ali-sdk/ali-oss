@@ -142,17 +142,6 @@ proto.authorization = function (method, resource, headers) {
   return auth + signature;
 };
 
-proto._objectName = function (name) {
-  if (name[0] === '/') {
-    name = name.substring(1);
-  }
-  return name;
-};
-
-proto._objectUrl = function (name) {
-  return 'http://' + this.options.host + '/' + this.options.bucket + '/' + name;
-};
-
 /**
  * request oss server
  * @param {Object} params
@@ -208,11 +197,8 @@ proto.put = function* (name, file, options) {
   var content = yield* getContent(file);
 
   var headers = options.headers || {};
-  if (options.meta) {
-    for (var k in options.meta) {
-      headers['x-oss-meta-' + k] = options.meta[k];
-    }
-  }
+  this._convertMetaToHeaders(options.meta, headers);
+
   debug('start update %s with content length %d, headers: %j',
     name, content.length, headers);
   var result = yield* this.request({
@@ -324,6 +310,77 @@ proto.delete = function* (name, options) {
   throw yield* requestError(result);
 };
 
+proto.copy = function* (name, sourceName, options) {
+  name = this._objectName(name);
+  if (sourceName[0] !== '/') {
+    // copy same bucket object
+    sourceName = '/' + this.options.bucket + '/' + sourceName;
+  }
+  options = options || {};
+  var headers = options.headers || {};
+  for (var k in headers) {
+    headers['x-oss-copy-source-' + k.toLowerCase()] = headers[k];
+  }
+
+  if (options.meta) {
+    headers['x-oss-metadata-directive'] = 'REPLACE';
+  }
+  this._convertMetaToHeaders(options.meta, headers);
+
+  headers['x-oss-copy-source'] = sourceName;
+
+  var result = yield* this.request({
+    method: 'PUT',
+    name: name,
+    headers: headers,
+    timeout: options.timeout
+  });
+
+  if (result.status === 200) {
+    return {
+      data: yield parseXml(result.data.toString()),
+      res: result.res
+    };
+  }
+
+  if (result.status === 304) {
+    return {
+      data: null,
+      res: result.res,
+    };
+  }
+
+  throw yield* requestError(result);
+};
+
+proto.updateMeta = function* (name, meta, options) {
+  return yield this.copy(name, name, {
+    meta: meta || {},
+    timeout: options && options.timeout
+  });
+};
+
+proto._objectName = function (name) {
+  if (name[0] === '/') {
+    name = name.substring(1);
+  }
+  return name;
+};
+
+proto._objectUrl = function (name) {
+  return 'http://' + this.options.host + '/' + this.options.bucket + '/' + name;
+};
+
+proto._convertMetaToHeaders = function (meta, headers) {
+  if (!meta) {
+    return;
+  }
+
+  for (var k in meta) {
+    headers['x-oss-meta-' + k] = meta[k];
+  }
+};
+
 /**
  * get content from string(file path), buffer(file content), stream(file stream)
  * @param {Mix} file
@@ -393,15 +450,13 @@ function* requestError(result) {
 
     var info;
     try {
-      info = yield parseXml(message);
+      info = yield parseXml(message) || {};
     } catch (err) {
       err.message += '\nraw xml: ' + message;
       err.status = result.status;
       err.requestId = result.headers['x-oss-request-id'];
       return err;
     }
-
-    info = info && info.Error || {};
 
     var message = info.Message || ('unknow request error, status: ' + result.status);
     if (info.Condition) {
@@ -428,6 +483,9 @@ function* requestError(result) {
 
 function parseXml(str) {
   return function (done) {
-    xml.parseString(str, {explicitArray: false}, done);
+    xml.parseString(str, {
+      explicitRoot: false,
+      explicitArray: false
+    }, done);
   };
 }
