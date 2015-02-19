@@ -267,55 +267,28 @@ proto.head = function* (name, options) {
   throw yield* requestError(result);
 };
 
-/**
- * get an object from oss
- * support return a buffer, write into file and write into Stream
- *
- * ```
- * get('test.png', stream);
- *
- * get('test.png', './test.png');
- *
- * var content = get('test.png');
- *```
- *
- *
- * @param {String} name
- * @param {Mix} [path]
- *   if give a string file path, will write into this file
- *   if give a writeStream, will write into this stream
- *   if empty, will return a buffer
- * @param {String} Options
- *   - {Number} timeout
- *   - {Objects} headers
- *   ignore if writeStream exist
- * @api public
- */
-
-proto.download = function* (name, path, options) {
+proto.get = function* (name, file, options) {
+  name = this._objectName(name);
   var writeStream = null;
   var needDestroy = false;
 
-  if (is.writableStream(path)) {
-    writeStream = path;
-  } else if (is.string(path)) {
-    writeStream = fs.createWriteStream(path);
+  if (is.writableStream(file)) {
+    writeStream = file;
+  } else if (is.string(file)) {
+    writeStream = fs.createWriteStream(file);
     needDestroy = true;
   } else {
-    options = path;
+    // get(name, options)
+    options = file;
   }
 
   options = options || {};
-  var timeout = options.timeout || this.timeout;
-
-  debug('get file %s', name);
-
-  var res;
+  var result;
   try {
-    res = yield* this.request({
+    result = yield* this.request({
       name: name,
       headers: options.headers,
-      timeout: timeout,
+      timeout: options.timeout,
       method: 'GET',
       writeStream: writeStream
     });
@@ -325,10 +298,14 @@ proto.download = function* (name, path, options) {
     needDestroy && writeStream.destroy();
   }
 
-  if (res.status === 200) {
-    return res.data;
+  if ((result.status >= 200 && result.status < 300) || result.status === 304) {
+    return {
+      content: result.data,
+      res: result.res,
+    };
   }
-  throw yield* requestError(res);
+
+  throw yield* requestError(result);
 };
 
 proto.delete = function* (name, options) {
@@ -427,12 +404,15 @@ function* requestError(result) {
     info = info && info.Error || {};
 
     var message = info.Message || ('unknow request error, status: ' + result.status);
+    if (info.Condition) {
+      message += ' (condition: ' + info.Condition + ')';
+    }
     var err = new Error(message);
     err.name = info.Code ? info.Code + 'Error' : 'UnknowError';
     err.status = result.status;
     err.code = info.Code;
     err.requestId = info.RequestId;
-    err.host = info.HostId;
+    err.hostId = info.HostId;
   }
 
   debug('generate error %j', err);
@@ -448,6 +428,6 @@ function* requestError(result) {
 
 function parseXml(str) {
   return function (done) {
-    xml.parseString(str, done);
+    xml.parseString(str, {explicitArray: false}, done);
   };
 }
