@@ -1,5 +1,5 @@
 /**!
- * ali-oss - test/oss.test.js
+ * ali-oss - test/object.test.js
  *
  * Copyright(c) node-modules and other contributors.
  * MIT Licensed
@@ -17,12 +17,13 @@
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
+var utils = require('./utils');
 var oss = require('../');
 var config = require('./config');
 
 var tmpdir = path.join(__dirname, '.tmp');
 
-describe('oss.test.js', function () {
+describe('object.test.js', function () {
   var prefix = process.version + '/';
   if (process.execPath.indexOf('iojs') >= 0) {
     prefix = 'iojs-' + prefix;
@@ -130,14 +131,13 @@ describe('oss.test.js', function () {
     });
 
     it('should head not exists object throw NoSuchKeyError', function* () {
-      try {
+      yield utils.throws(function* () {
         yield this.store.head(this.name + 'not-exists');
-        throw new Error('should not run this');
-      } catch (err) {
+      }.bind(this), function (err) {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
         assert.equal(typeof err.requestId, 'string');
-      }
+      });
     });
 
     it('should head exists object with If-Modified-Since < object modified time', function* () {
@@ -181,17 +181,16 @@ describe('oss.test.js', function () {
       var lastYear = new Date(this.headers.date);
       lastYear.setFullYear(lastYear.getFullYear() - 1);
       lastYear = lastYear.toGMTString();
-      try {
+      yield utils.throws(function* () {
         yield this.store.head(this.name, {
           headers: {
             'If-Unmodified-Since': lastYear
           }
         });
-        throw new Error('should not run this');
-      } catch (err) {
+      }.bind(this), function (err) {
         assert.equal(err.name, 'PreconditionFailedError');
         assert.equal(err.status, 412);
-      }
+      });
     });
 
     it('should head exists object with If-Unmodified-Since = object modified time', function* () {
@@ -231,17 +230,16 @@ describe('oss.test.js', function () {
     });
 
     it('should head exists object with If-Match not equal etag', function* () {
-      try {
+      yield utils.throws(function* () {
         yield this.store.head(this.name, {
           headers: {
             'If-Match': '"foo-etag"'
           }
         });
-        throw new Error('should not run this');
-      } catch (err) {
+      }.bind(this), function (err) {
         assert.equal(err.name, 'PreconditionFailedError');
         assert.equal(err.status, 412);
-      }
+      });
     });
 
     it('should head exists object with If-None-Match equal etag', function* () {
@@ -290,12 +288,9 @@ describe('oss.test.js', function () {
 
     it('should throw error when save path parent dir not exists', function* () {
       var savepath = path.join(tmpdir, 'not-exists', this.name.replace(/\//g, '-'));
-      try {
+      yield utils.throws(function* () {
         yield this.store.get(this.name, savepath);
-        throw new Error('should not run this');
-      } catch (err) {
-        assert.equal(err.code, 'ENOENT');
-      }
+      }.bind(this), /ENOENT/);
     });
 
     it('should store object to writeStream', function* () {
@@ -307,12 +302,9 @@ describe('oss.test.js', function () {
 
     it('should throw error when writeStream emit error', function* () {
       var savepath = path.join(tmpdir, 'not-exists-dir', this.name.replace(/\//g, '-'));
-      try {
+      yield utils.throws(function* () {
         yield this.store.get(this.name, fs.createWriteStream(savepath));
-        throw new Error('should not run this');
-      } catch (err) {
-        assert.equal(err.code, 'ENOENT');
-      }
+      }.bind(this), /ENOENT/);
     });
 
     it('should get object content buffer', function* () {
@@ -326,15 +318,15 @@ describe('oss.test.js', function () {
     });
 
     it('should throw NoSuchKeyError when object not exists', function* () {
-      try {
-        yield this.store.get('not-exists-key');
-        throw new Error('should not run this');
-      } catch (err) {
+      var store = this.store;
+      yield utils.throws(function* () {
+        yield store.get('not-exists-key');
+      }.bind(this), function (err) {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
         assert.equal(typeof err.requestId, 'string');
         assert.equal(err.message, 'The specified key does not exist.');
-      }
+      });
     });
 
     describe('If-Modified-Since header', function () {
@@ -383,20 +375,19 @@ describe('oss.test.js', function () {
         var lastYear = new Date(this.headers.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
-        try {
+        yield utils.throws(function* () {
           yield this.store.get(this.name, {
             headers: {
               'If-Unmodified-Since': lastYear
             }
           });
-          throw new Error('should not run this');
-        } catch (err) {
+        }.bind(this), function (err) {
           assert.equal(err.status, 412);
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Unmodified-Since)');
           assert.equal(typeof err.requestId, 'string');
           assert.equal(err.hostId, 'oss.aliyuncs.com');
-        }
+        });
       });
 
       it('should 200 when If-Unmodified-Since = object modified time', function* () {
@@ -436,17 +427,16 @@ describe('oss.test.js', function () {
       });
 
       it('should throw PreconditionFailedError when If-Match not equal object etag', function* () {
-        try {
+        yield utils.throws(function* () {
           yield this.store.get(this.name, {
             headers: {
               'If-Match': 'foo'
             }
           });
-          throw new Error('should not run this');
-        } catch (err) {
+        }.bind(this), function (err) {
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.status, 412);
-        }
+        });
       });
     });
 
@@ -493,17 +483,51 @@ describe('oss.test.js', function () {
       var info = yield this.store.delete(name);
       assert.equal(info.res.status, 204);
 
-      try {
+      yield utils.throws(function* () {
         yield this.store.head(name);
-        throw new Error('should not run this');
-      } catch (err) {
-        assert.equal(err.name, 'NoSuchKeyError');
-      }
+      }.bind(this), 'NoSuchKeyError');
     });
 
     it('should delete not exists object', function* () {
       var info = yield this.store.delete('not-exists-name');
       assert.equal(info.res.status, 204);
+    });
+  });
+
+  describe('deleteMulti()', function () {
+    beforeEach(function* () {
+      this.names = [];
+      var name = prefix + 'ali-sdk/oss/deleteMulti0.js';
+      this.names.push(name);
+      yield this.store.put(name, __filename);
+
+      var name = prefix + 'ali-sdk/oss/deleteMulti1.js';
+      this.names.push(name);
+      yield this.store.put(name, __filename);
+
+      var name = prefix + 'ali-sdk/oss/deleteMulti2.js';
+      this.names.push(name);
+      yield this.store.put(name, __filename);
+    });
+
+    it('should delete 3 exists objs', function* () {
+      var result = yield this.store.deleteMulti(this.names);
+      assert.deepEqual(result.deleted, this.names);
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete 2 exists and 2 not exists objs', function* () {
+      var result = yield this.store.deleteMulti(this.names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.deepEqual(result.deleted, this.names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete in quiet mode', function* () {
+      var result = yield this.store.deleteMulti(this.names, {
+        quiet: true
+      });
+      assert.equal(result.deleted, null);
+      assert.equal(result.res.status, 200);
     });
   });
 
@@ -554,30 +578,28 @@ describe('oss.test.js', function () {
     });
 
     it('should throw NoSuchKeyError when source object not exists', function* () {
-      try {
+      yield utils.throws(function* () {
         yield this.store.copy('new-object', 'not-exists-object');
-        throw new Error('should not run this');
-      } catch (err) {
+      }.bind(this), function (err) {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.message, 'The specified key does not exist.');
         assert.equal(err.status, 404);
-      }
+      });
     });
 
     describe('If-Match header', function () {
       it('should throw PreconditionFailedError when If-Match not equal source object etag', function* () {
-        try {
+        yield utils.throws(function* () {
           yield this.store.copy('new-name', this.name, {
             headers: {
               'If-Match': 'foo-bar'
             }
           });
-          throw new Error('should not run this');
-        } catch (err) {
+        }.bind(this), function (err) {
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Match)');
           assert.equal(err.status, 412);
-        }
+        });
       });
 
       it('should copy object when If-Match equal source object etag', function* () {
@@ -684,18 +706,17 @@ describe('oss.test.js', function () {
         var lastYear = new Date(this.headers.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
-        try {
+        yield utils.throws(function* () {
           yield this.store.copy(name, this.name, {
             headers: {
               'If-Unmodified-Since': lastYear
             }
           });
-          throw new Error('should not run this');
-        } catch (err) {
+        }.bind(this), function (err) {
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Unmodified-Since)');
           assert.equal(err.status, 412);
-        }
+        });
       });
     });
   });
@@ -725,14 +746,96 @@ describe('oss.test.js', function () {
     });
 
     it('should throw NoSuchKeyError when update not exists object meta', function* () {
-      try {
+      yield utils.throws(function* () {
         yield this.store.updateMeta(this.name + 'not-exists', {
           uid: '2'
         });
-      } catch (err) {
+      }.bind(this), function (err) {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
-      }
+      });
+    });
+  });
+
+  describe('list()', function () {
+    // oss.jpg
+    // fun/test.jpg
+    // fun/movie/001.avi
+    // fun/movie/007.avi
+    before(function* () {
+      var listPrefix =  prefix + 'ali-sdk/list/';
+      yield this.store.put(listPrefix + 'oss.jpg', new Buffer('oss.jpg'));
+      yield this.store.put(listPrefix + 'fun/test.jpg', new Buffer('fun/test.jpg'));
+      yield this.store.put(listPrefix + 'fun/movie/001.avi', new Buffer('fun/movie/001.avi'));
+      yield this.store.put(listPrefix + 'fun/movie/007.avi', new Buffer('fun/movie/007.avi'));
+      this.listPrefix = listPrefix;
+    });
+
+    it('should list top 3 objects', function* () {
+      var result = yield this.store.list({
+        'max-keys': 3
+      });
+      assert.equal(result.objects.length, 3);
+      assert.equal(typeof result.nextMarker, 'string');
+      assert(result.isTruncated);
+      assert.equal(result.prefixes, null);
+
+      // next 2
+      var result2 = yield this.store.list({
+        'max-keys': 2,
+        marker: result.nextMarker
+      });
+      assert.equal(result2.objects.length, 2);
+      assert.equal(typeof result2.nextMarker, 'string');
+      assert(result2.isTruncated);
+      assert.equal(result2.prefixes, null);
+    });
+
+    it('should list with prefix', function* () {
+      var result = yield this.store.list({
+        prefix: this.listPrefix + 'fun/movie/',
+      });
+      assert.equal(result.objects.length, 2);
+      assert.equal(result.nextMarker, null);
+      assert(!result.isTruncated);
+      assert.equal(result.prefixes, null);
+
+      var result = yield this.store.list({
+        prefix: this.listPrefix + 'fun/movie',
+      });
+      assert.equal(result.objects.length, 2);
+      assert.equal(result.nextMarker, null);
+      assert(!result.isTruncated);
+      assert.equal(result.prefixes, null);
+    });
+
+    it('should list current dir files only', function* () {
+      var result = yield this.store.list({
+        prefix: this.listPrefix,
+        delimiter: '/'
+      });
+      assert.equal(result.objects.length, 1);
+      assert.equal(result.nextMarker, null);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/']);
+
+      var result = yield this.store.list({
+        prefix: this.listPrefix + 'fun/',
+        delimiter: '/'
+      });
+      assert.equal(result.objects.length, 1);
+      assert.equal(result.nextMarker, null);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/movie/']);
+
+      var result = yield this.store.list({
+        prefix: this.listPrefix + 'fun/movie/',
+        delimiter: '/'
+      });
+      assert.equal(result.objects.length, 2);
+      assert.equal(result.nextMarker, null);
+      assert(!result.isTruncated);
+      assert.equal(result.prefixes, null);
     });
   });
 });

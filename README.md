@@ -32,6 +32,37 @@ npm install ali-oss --save
 
 @see [OSS Usage on ali-sdk](https://github.com/node-modules/ali-sdk/blob/master/docs/oss.md)
 
+## TODO
+
+- Bucket
+  - [ ] putBucket
+  - [ ] putBucketACL
+  - [ ] putBucketLogging
+  - [ ] putBucketWebsite
+  - [ ] putBucketReferer
+  - [ ] putBucketLifecycle
+  - [ ] getBucketACL
+  - [ ] getBucketLocation
+  - [ ] getBucketLogging
+  - [ ] getBucketWebsite
+  - [ ] getBucketReferer
+  - [ ] getBucketLifecycle
+  - [ ] deleteBucket
+  - [ ] deleteBucketLogging
+  - [ ] deleteBucketWebsite
+  - [ ] deleteBucketReferer
+  - [ ] deleteBucketLifecycle
+  - [ ] listBuckets
+- Object
+ - [x] put
+ - [x] get
+ - [x] head
+ - [x] copy
+ - [x] delete
+ - [x] deleteMulti
+ - [ ] post
+ - [x] list(query[, options])
+
 ## License
 
 [MIT](LICENSE)
