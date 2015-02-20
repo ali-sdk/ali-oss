@@ -386,7 +386,7 @@ describe('object.test.js', function () {
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Unmodified-Since)');
           assert.equal(typeof err.requestId, 'string');
-          assert.equal(err.hostId, 'oss.aliyuncs.com');
+          assert.equal(typeof err.hostId, 'string');
         });
       });
 

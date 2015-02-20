@@ -5,9 +5,9 @@
   "main": "index.js",
   "files": ["index.js"],
   "scripts": {
-    "test": "mocha --harmony --check-leaks -R spec -t 5000 -r co-mocha test/*.test.js",
-    "test-cov": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- --check-leaks -t 5000 test/*.test.js",
-    "test-travis": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha --report lcovonly -- --check-leaks -t 5000 test/*.test.js",
+    "test": "mocha --harmony --check-leaks -R spec -t 30000 -r co-mocha test/*.test.js",
+    "test-cov": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- --check-leaks -t 30000 test/*.test.js",
+    "test-travis": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha --report lcovonly -- --check-leaks -t 30000 test/*.test.js",
     "jshint": "jshint .",
     "autod": "autod -w --prefix '~'",
     "cnpm": "npm install --registry=https://registry.npm.taobao.org",
