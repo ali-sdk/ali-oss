@@ -22,6 +22,9 @@ var oss = require('../');
 var config = require('./config');
 
 var tmpdir = path.join(__dirname, '.tmp');
+if (!fs.existsSync(tmpdir)) {
+  fs.mkdirSync(tmpdir);
+}
 
 describe('object.test.js', function () {
   var prefix = process.platform + '-' + process.version + '/';
