@@ -24,7 +24,7 @@ var config = require('./config');
 var tmpdir = path.join(__dirname, '.tmp');
 
 describe('object.test.js', function () {
-  var prefix = process.version + '/';
+  var prefix = process.platform + '-' + process.version + '/';
   if (process.execPath.indexOf('iojs') >= 0) {
     prefix = 'iojs-' + prefix;
   }

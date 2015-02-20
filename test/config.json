@@ -1,6 +1,5 @@
 {
   "bucket": "node-ali-oss",
   "accessKeyId": "iAeyzYXtZAdM8V2V",
-  "accessKeySecret": "AmieMAD5ZYuevL3UNrkeORzQ0cvqrO",
-  "supportSignatureUrl": true
+  "accessKeySecret": "AmieMAD5ZYuevL3UNrkeORzQ0cvqrO"
 }
