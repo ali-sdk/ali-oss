@@ -4,6 +4,7 @@ ali-oss
 [![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![David deps][david-image]][david-url]
+[![iojs version][iojs-image]][iojs-url]
 [![node version][node-image]][node-url]
 [![Gittip][gittip-image]][gittip-url]
 
@@ -15,6 +16,8 @@ ali-oss
 [david-url]: https://david-dm.org/alibaba/ali-oss
 [node-image]: https://img.shields.io/badge/node.js-%3E=_0.11-green.svg?style=flat-square
 [node-url]: http://nodejs.org/download/
+[iojs-image]: https://img.shields.io/badge/io.js-%3E=_1.0-green.svg?style=flat-square
+[iojs-url]: http://iojs.org/
 [gittip-image]: https://img.shields.io/gittip/dead-horse.svg?style=flat-square
 [gittip-url]: https://www.gittip.com/dead-horse/
 
@@ -35,33 +38,39 @@ npm install ali-oss --save
 ## TODO
 
 - Bucket
-  - [ ] putBucket
-  - [ ] putBucketACL
-  - [ ] putBucketLogging
-  - [ ] putBucketWebsite
-  - [ ] putBucketReferer
-  - [ ] putBucketLifecycle
-  - [ ] getBucketACL
-  - [ ] getBucketLocation
-  - [ ] getBucketLogging
-  - [ ] getBucketWebsite
-  - [ ] getBucketReferer
-  - [ ] getBucketLifecycle
-  - [ ] deleteBucket
-  - [ ] deleteBucketLogging
-  - [ ] deleteBucketWebsite
-  - [ ] deleteBucketReferer
-  - [ ] deleteBucketLifecycle
-  - [ ] listBuckets
+  - Base
+    - [x] listBuckets*
+    - [x] putBucket*
+    - [x] deleteBucket*
+  - ACL
+    - [x] putBucketACL*
+    - [x] getBucketACL*
+  - Logging
+    - [x] putBucketLogging*
+    - [x] getBucketLogging*
+    - [x] deleteBucketLogging*
+  - Website
+    - [x] putBucketWebsite*
+    - [x] getBucketWebsite*
+    - [x] deleteBucketWebsite*
+  - Referer
+    - [x] putBucketReferer*
+    - [x] getBucketReferer*
+    - [x] deleteBucketReferer*
+  - Lifecycle
+    - [x] putBucketLifecycle*
+    - [x] getBucketLifecycle*
+    - [x] deleteBucketLifecycle*
 - Object
- - [x] put
- - [x] get
- - [x] head
- - [x] copy
- - [x] delete
- - [x] deleteMulti
- - [ ] post
- - [x] list(query[, options])
+ - [x] put*
+ - [x] putMeta*
+ - [x] get*
+ - [x] head*
+ - [x] copy*
+ - [x] delete*
+ - [x] deleteMulti*
+ - [ ] post*
+ - [x] list*
 
 ## License
 

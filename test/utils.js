@@ -35,3 +35,9 @@ exports.throws = function* (block, checkError) {
   }
   throw new Error(block.toString() + ' should throws error');
 };
+
+exports.sleep = function (ms) {
+  return function (callback) {
+    setTimeout(callback, ms);
+  };
+};

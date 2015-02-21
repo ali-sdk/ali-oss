@@ -31,8 +31,16 @@ describe('object.test.js', function () {
   if (process.execPath.indexOf('iojs') >= 0) {
     prefix = 'iojs-' + prefix;
   }
-  before(function () {
+  before(function* () {
     this.store = oss(config);
+    this.bucket = 'ali-oss-test-bucket2';
+    this.region = 'oss-cn-hangzhou';
+    if (process.env.TRAVIS || process.env.APPVEYOR) {
+      this.bucket += '-ci-hk';
+      this.region = 'oss-cn-hongkong';
+    }
+    yield this.store.putBucket(this.bucket, this.region);
+    this.store.useBucket(this.bucket, this.region);
   });
 
   describe('put()', function () {
@@ -724,9 +732,9 @@ describe('object.test.js', function () {
     });
   });
 
-  describe('updateMeta()', function () {
+  describe('putMeta()', function () {
     before(function* () {
-      this.name = prefix + 'ali-sdk/oss/updateMeta.js';
+      this.name = prefix + 'ali-sdk/oss/putMeta.js';
       var object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
@@ -739,7 +747,7 @@ describe('object.test.js', function () {
     });
 
     it('should update exists object meta', function* () {
-      yield this.store.updateMeta(this.name, {
+      yield this.store.putMeta(this.name, {
         uid: '2'
       });
       var info = yield this.store.head(this.name);
@@ -750,7 +758,7 @@ describe('object.test.js', function () {
 
     it('should throw NoSuchKeyError when update not exists object meta', function* () {
       yield utils.throws(function* () {
-        yield this.store.updateMeta(this.name + 'not-exists', {
+        yield this.store.putMeta(this.name + 'not-exists', {
           uid: '2'
         });
       }.bind(this), function (err) {
