@@ -41,3 +41,16 @@ exports.sleep = function (ms) {
     setTimeout(callback, ms);
   };
 };
+
+exports.cleanBucket = function* (store, bucket, region) {
+  store.useBucket(bucket, region);
+  var result = yield store.list({
+    'max-keys': 1000
+  });
+  result.objects = result.objects || [];
+  for (var i = 0; i < result.objects.length; i++) {
+    var obj = result.objects[i];
+    yield store.delete(obj.name);
+  }
+  yield store.deleteBucket(bucket, region);
+};

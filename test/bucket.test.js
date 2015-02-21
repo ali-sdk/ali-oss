@@ -27,26 +27,29 @@ describe('bucket.test.js', function () {
 
   before(function* () {
     this.store = oss(config);
-    this.bucket = 'ali-oss-global-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = 'oss-cn-hangzhou';
-    if (process.env.TRAVIS || process.env.APPVEYOR) {
-      this.region = 'oss-cn-hongkong';
-    }
+
+    console.log('current buckets: %j',
+      (yield this.store.listBuckets()).buckets.map(function (item) {
+        return item.name + ':' + item.region;
+      })
+    );
+
     var result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
   });
 
   after(function* () {
-    var result = yield this.store.deleteBucket(this.bucket, this.region);
-    assert(result.res.status === 200 || result.res.status === 204);
+    yield utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
   describe('putBucket()', function () {
     before(function () {
       this.buckets = [];
-      var name = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
+      var name = 'ali-oss-test-putbucket-' + prefix.replace(/[\/\.]/g, '-');
       this.name = name.substring(0, name.length - 1);
     });
 
@@ -93,9 +96,12 @@ describe('bucket.test.js', function () {
     });
 
     it('should delete not empty bucket throw BucketNotEmptyError', function* () {
+      this.store.useBucket(this.bucket, this.region);
+      yield this.store.put('ali-oss-test-bucket.txt', __filename);
       yield utils.throws(function* () {
-        yield this.store.deleteBucket('node-ali-oss');
+        yield this.store.deleteBucket(this.bucket, this.region);
       }.bind(this), 'BucketNotEmptyError');
+      yield this.store.delete('ali-oss-test-bucket.txt');
     });
   });
 
@@ -111,7 +117,8 @@ describe('bucket.test.js', function () {
 
       var r = yield this.store.getBucketACL(this.bucket, this.region);
       assert.equal(typeof r.acl, 'string');
-      assert.equal(typeof r.owner.ID, 'string');
+      assert.equal(typeof r.owner.id, 'string');
+      assert.equal(typeof r.owner.displayName, 'string');
     });
 
     it('should set acl and region wrong will throw BucketAlreadyExistsError', function* () {
@@ -142,15 +149,15 @@ describe('bucket.test.js', function () {
       });
       assert(Array.isArray(result.buckets));
       assert(result.buckets.length > 0);
-      assert.equal(typeof result.buckets[0].Location, 'string');
-      assert.equal(typeof result.buckets[0].Name, 'string');
-      assert.equal(typeof result.buckets[0].CreationDate, 'string');
+      assert.equal(typeof result.buckets[0].region, 'string');
+      assert.equal(typeof result.buckets[0].name, 'string');
+      assert.equal(typeof result.buckets[0].creationDate, 'string');
 
       assert(!result.isTruncated);
       assert.equal(result.nextMarker, null);
       assert(result.owner);
-      assert.equal(typeof result.owner.ID, 'string');
-      assert.equal(typeof result.owner.DisplayName, 'string');
+      assert.equal(typeof result.owner.id, 'string');
+      assert.equal(typeof result.owner.displayName, 'string');
 
       console.log(result.buckets);
     });
@@ -187,12 +194,11 @@ describe('bucket.test.js', function () {
       });
       assert.equal(result.res.status, 200);
 
-      yield utils.sleep(2000);
+      yield utils.sleep(5000);
 
       // get
       var result = yield this.store.getBucketWebsite(this.bucket, this.region);
-      assert.equal(result.index, 'index.htm');
-      assert.equal(result.error, 'error.htm');
+      assert.equal(typeof result.index, 'string');
       assert.equal(result.res.status, 200);
 
       // delete it
@@ -227,7 +233,7 @@ describe('bucket.test.js', function () {
       ]);
       assert.equal(result.res.status, 200);
 
-      yield utils.sleep(2000);
+      yield utils.sleep(5000);
 
       // get
       var result = yield this.store.getBucketLifecycle(this.bucket, this.region);
@@ -256,7 +262,7 @@ describe('bucket.test.js', function () {
       var result = yield this.store.putBucketReferer(this.bucket, this.region, false, referers);
       assert.equal(result.res.status, 200);
 
-      yield utils.sleep(2000);
+      yield utils.sleep(5000);
 
       // get
       var result = yield this.store.getBucketReferer(this.bucket, this.region);

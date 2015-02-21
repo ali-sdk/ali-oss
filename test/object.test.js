@@ -31,16 +31,25 @@ describe('object.test.js', function () {
   if (process.execPath.indexOf('iojs') >= 0) {
     prefix = 'iojs-' + prefix;
   }
+
   before(function* () {
     this.store = oss(config);
-    this.bucket = 'ali-oss-test-bucket2';
+    this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = 'oss-cn-hangzhou';
-    if (process.env.TRAVIS || process.env.APPVEYOR) {
-      this.bucket += '-ci-hk';
-      this.region = 'oss-cn-hongkong';
-    }
+
+    console.log('current buckets: %j',
+      (yield this.store.listBuckets()).buckets.map(function (item) {
+        return item.name + ':' + item.region;
+      })
+    );
+
     yield this.store.putBucket(this.bucket, this.region);
     this.store.useBucket(this.bucket, this.region);
+  });
+
+  after(function* () {
+    yield utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
   describe('put()', function () {
@@ -533,6 +542,12 @@ describe('object.test.js', function () {
       assert.equal(result.res.status, 200);
     });
 
+    it('should delete 1 exists objs', function* () {
+      var result = yield this.store.deleteMulti(this.names.slice(0, 1));
+      assert.deepEqual(result.deleted, this.names.slice(0, 1));
+      assert.equal(result.res.status, 200);
+    });
+
     it('should delete in quiet mode', function* () {
       var result = yield this.store.deleteMulti(this.names, {
         quiet: true
@@ -560,8 +575,8 @@ describe('object.test.js', function () {
       var name = prefix + 'ali-sdk/oss/copy-new.js';
       var result = yield this.store.copy(name, this.name);
       assert.equal(result.res.status, 200);
-      assert.equal(typeof result.data.ETag, 'string');
-      assert.equal(typeof result.data.LastModified, 'string');
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
 
       var info = yield this.store.head(name);
       assert.equal(info.meta.uid, '1');
@@ -578,8 +593,8 @@ describe('object.test.js', function () {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(typeof result.data.ETag, 'string');
-      assert.equal(typeof result.data.LastModified, 'string');
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
 
       var info = yield this.store.head(name);
       assert.equal(info.meta.uid, '2');
@@ -621,8 +636,8 @@ describe('object.test.js', function () {
           }
         });
         assert.equal(result.res.status, 200);
-        assert.equal(typeof result.data.ETag, 'string');
-        assert.equal(typeof result.data.LastModified, 'string');
+        assert.equal(typeof result.data.etag, 'string');
+        assert.equal(typeof result.data.lastModified, 'string');
       });
     });
 
@@ -645,8 +660,8 @@ describe('object.test.js', function () {
           }
         });
         assert.equal(result.res.status, 200);
-        assert.equal(typeof result.data.ETag, 'string');
-        assert.equal(typeof result.data.LastModified, 'string');
+        assert.equal(typeof result.data.etag, 'string');
+        assert.equal(typeof result.data.lastModified, 'string');
       });
     });
 
@@ -782,11 +797,35 @@ describe('object.test.js', function () {
       this.listPrefix = listPrefix;
     });
 
+    function checkObjectProperties(obj) {
+      assert.equal(typeof obj.name, 'string');
+      assert.equal(typeof obj.lastModified, 'string');
+      assert.equal(typeof obj.etag, 'string');
+      assert.equal(obj.type, 'Normal');
+      assert.equal(typeof obj.size, 'number');
+      assert.equal(obj.storageClass, 'Standard');
+      assert.equal(typeof obj.owner, 'object');
+      assert.equal(typeof obj.owner.id, 'string');
+      assert.equal(typeof obj.owner.displayName, 'string');
+    }
+
+    it('should list only 1 object', function* () {
+      var result = yield this.store.list({
+        'max-keys': 1
+      });
+      assert.equal(result.objects.length, 1);
+      result.objects.map(checkObjectProperties);
+      assert.equal(typeof result.nextMarker, 'string');
+      assert(result.isTruncated);
+      assert.equal(result.prefixes, null);
+    });
+
     it('should list top 3 objects', function* () {
       var result = yield this.store.list({
         'max-keys': 3
       });
       assert.equal(result.objects.length, 3);
+      result.objects.map(checkObjectProperties);
       assert.equal(typeof result.nextMarker, 'string');
       assert(result.isTruncated);
       assert.equal(result.prefixes, null);
@@ -797,6 +836,7 @@ describe('object.test.js', function () {
         marker: result.nextMarker
       });
       assert.equal(result2.objects.length, 2);
+      result.objects.map(checkObjectProperties);
       assert.equal(typeof result2.nextMarker, 'string');
       assert(result2.isTruncated);
       assert.equal(result2.prefixes, null);
@@ -807,6 +847,7 @@ describe('object.test.js', function () {
         prefix: this.listPrefix + 'fun/movie/',
       });
       assert.equal(result.objects.length, 2);
+      result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
       assert.equal(result.prefixes, null);
@@ -815,6 +856,7 @@ describe('object.test.js', function () {
         prefix: this.listPrefix + 'fun/movie',
       });
       assert.equal(result.objects.length, 2);
+      result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
       assert.equal(result.prefixes, null);
@@ -826,6 +868,7 @@ describe('object.test.js', function () {
         delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
+      result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
       assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/']);
@@ -835,6 +878,7 @@ describe('object.test.js', function () {
         delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
+      result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
       assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/movie/']);
@@ -844,6 +888,7 @@ describe('object.test.js', function () {
         delimiter: '/'
       });
       assert.equal(result.objects.length, 2);
+      result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
       assert.equal(result.prefixes, null);
