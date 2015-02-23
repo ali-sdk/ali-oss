@@ -54,3 +54,8 @@ exports.cleanBucket = function* (store, bucket, region) {
   }
   yield store.deleteBucket(bucket, region);
 };
+
+exports.prefix = process.platform + '-' + process.version + '/';
+if (process.execPath.indexOf('iojs') >= 0) {
+  exports.prefix = 'iojs-' + exports.prefix;
+}

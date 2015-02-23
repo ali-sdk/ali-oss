@@ -20,10 +20,7 @@ var oss = require('../');
 var config = require('./config');
 
 describe('bucket.test.js', function () {
-  var prefix = process.platform + '-' + process.version + '/';
-  if (process.execPath.indexOf('iojs') >= 0) {
-    prefix = 'iojs-' + prefix;
-  }
+  var prefix = utils.prefix;
 
   before(function* () {
     this.store = oss(config);

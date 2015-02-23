@@ -17,6 +17,7 @@
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
+var cfs = require('co-fs');
 var utils = require('./utils');
 var oss = require('../');
 var config = require('./config');
@@ -27,10 +28,7 @@ if (!fs.existsSync(tmpdir)) {
 }
 
 describe('object.test.js', function () {
-  var prefix = process.platform + '-' + process.version + '/';
-  if (process.execPath.indexOf('iojs') >= 0) {
-    prefix = 'iojs-' + prefix;
-  }
+  var prefix = utils.prefix;
 
   before(function* () {
     this.store = oss(config);
@@ -72,10 +70,25 @@ describe('object.test.js', function () {
 
     it('should add object with readstream', function* () {
       var name = prefix + 'ali-sdk/oss/put-readstream';
-      var object = yield this.store.put(name, fs.createReadStream(__filename));
+      var object = yield this.store.put(name, fs.createReadStream(__filename), {
+        headers: {
+          'Content-Length': (yield cfs.stat(__filename)).size
+        }
+      });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
+      assert.equal(typeof object.res.headers.etag, 'string');
       assert(object.name, name);
+    });
+
+    it('should throw TypeError when upload stream without Content-Length', function* () {
+      yield utils.throws(function* () {
+        var name = prefix + 'ali-sdk/oss/put-readstream';
+        yield this.store.put(name, fs.createReadStream(__filename));
+      }.bind(this), function (err) {
+        assert.equal(err.name, 'TypeError');
+        assert.equal(err.message, 'streaming upload must given the `Content-Length` header');
+      });
     });
 
     it('should add object with meta', function* () {

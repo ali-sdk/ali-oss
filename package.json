@@ -3,7 +3,10 @@
   "version": "1.1.0",
   "description": "aliyun oss(open storage service) node client",
   "main": "index.js",
-  "files": ["index.js", "lib/"],
+  "files": [
+    "index.js",
+    "lib/"
+  ],
   "scripts": {
     "test": "mocha --harmony --check-leaks -R spec -t 30000 -r co-mocha test/*.test.js",
     "test-cov": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- --check-leaks -t 30000 -r co-mocha test/*.test.js",
@@ -32,6 +35,7 @@
   "devDependencies": {
     "autod": "*",
     "co": "*",
+    "co-fs": "~1.2.0",
     "co-mocha": "*",
     "istanbul-harmony": "*",
     "mocha": "*",
@@ -39,9 +43,10 @@
   },
   "dependencies": {
     "agentkeepalive": "~1.2.0",
-    "co-read": "~0.1.1",
     "copy-to": "~2.0.1",
     "debug": "~2.1.1",
+    "destroy": "~1.0.3",
+    "end-or-error": "~1.0.0",
     "humanize-ms": "~1.0.1",
     "is-type-of": "~0.3.1",
     "merge-descriptors": "~0.0.2",
