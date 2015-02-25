@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/node-modules/ali-oss.git"
+    "url": "git://github.com/ali-sdk/ali-oss.git"
   },
   "keywords": [
     "oss",
@@ -29,9 +29,9 @@
   "author": "dead_horse",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/node-modules/ali-oss/issues"
+    "url": "https://github.com/ali-sdk/ali-oss/issues"
   },
-  "homepage": "https://github.com/node-modules/ali-oss",
+  "homepage": "https://github.com/ali-sdk/ali-oss",
   "devDependencies": {
     "autod": "*",
     "co": "*",

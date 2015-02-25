@@ -1,7 +1,7 @@
 /**!
  * ali-oss - test/utils.js
  *
- * Copyright(c) fengmk2 and other contributors.
+ * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
  * Authors:

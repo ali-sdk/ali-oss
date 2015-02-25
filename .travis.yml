@@ -1,7 +1,13 @@
 language: node_js
+
 node_js:
-  - "iojs-1.3"
-  - "0.12"
-before_install: "npm install"
-script: "npm run test-travis"
-after_script: "npm install coveralls@2 && cat ./coverage/lcov.info | coveralls"
+- iojs-1.3
+- '0.12'
+
+env:
+  global:
+  - secure: QIApsVB9jLtMX5aFPOszqhlEioNkOqjslE2loqAgVxhVgRimzaFyockRSAQzOrP6297hSdUhTfdj3X6ZqitSjfZiEXhVWYs2eGfE2KtPSKGYag5akN3ZiXxqtRL0WKsMD6ihd+h8gT05IZUFZiBoflHmqCqwySseQpwNwDUcWoo=
+  - secure: d2KTOTdf0QHbTuhcwxnzuO5m1/jJEAx30a3O0xRaxl7nsVRYim9Z2bkUXqFuafU+s92iVkgrL4LEDmTx7lTdZyFtSUpvzzFZJ15LkXg3NedBY8OcA8RD5RGnDGVuru1fAvk2niZ/7GIUR9e9ktrHOG1oPtJ4tbBzWQkS+m1m8hw=
+
+script: npm run test-travis
+after_script: npm install coveralls@2 && cat ./coverage/lcov.info | coveralls
