@@ -333,6 +333,17 @@ describe('object.test.js', function () {
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
+    it('should store not exists object to file', function* () {
+      var savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
+      yield utils.throws(function* () {
+        yield this.store.get(this.name + 'not-exists', savepath);
+      }.bind(this), function (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert.equal(err.status, 404);
+        assert(!fs.existsSync(savepath));
+      });
+    });
+
     it('should throw error when writeStream emit error', function* () {
       var savepath = path.join(tmpdir, 'not-exists-dir', this.name.replace(/\//g, '-'));
       yield utils.throws(function* () {
