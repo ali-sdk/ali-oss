@@ -1,4 +1,21 @@
 
+2.0.0 / 2015-02-28
+==================
+
+  * fix get not exists object TypeError
+  * transfer to ali-sdk/ali-oss
+  * feat(object): support streaming put
+  * refactor object operations with successStatuses and xmpResponse
+  * finish bucket operations
+  * ensure tmp dir exists
+  * add appveyor.yml
+  * add bucket operations
+  * support deleteMulti
+  * support copy and updateMeta
+  * support get object
+  * support delete object
+  * totally refactor according to ali-sdk
+
 1.1.0 / 2015-01-30
 ==================
 
