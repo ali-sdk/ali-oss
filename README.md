@@ -1,25 +1,29 @@
 ali-oss
 =======
+
 [![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![David deps][david-image]][david-url]
+[![iojs version][iojs-image]][iojs-url]
 [![node version][node-image]][node-url]
 [![Gittip][gittip-image]][gittip-url]
 
 [npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ali-oss
-[travis-image]: https://img.shields.io/travis/alibaba/ali-oss.svg?style=flat-square
-[travis-url]: https://travis-ci.org/alibaba/ali-oss
-[david-image]: https://img.shields.io/david/alibaba/ali-oss.svg?style=flat-square
-[david-url]: https://david-dm.org/alibaba/ali-oss
-[node-image]: https://img.shields.io/badge/node.js-%3E=_0.11-red.svg?style=flat-square
+[travis-image]: https://img.shields.io/travis/ali-sdk/ali-oss.svg?style=flat-square
+[travis-url]: https://travis-ci.org/ali-sdk/ali-oss
+[david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
+[david-url]: https://david-dm.org/ali-sdk/ali-oss
+[node-image]: https://img.shields.io/badge/node.js-%3E=_0.11-green.svg?style=flat-square
 [node-url]: http://nodejs.org/download/
+[iojs-image]: https://img.shields.io/badge/io.js-%3E=_1.0-green.svg?style=flat-square
+[iojs-url]: http://iojs.org/
 [gittip-image]: https://img.shields.io/gittip/dead-horse.svg?style=flat-square
 [gittip-url]: https://www.gittip.com/dead-horse/
 
-aliyun OSS(open storage service) node client. generator friendly.
+aliyun OSS(open storage service) node client.
 
-a node.js wrapper for [OSS restful api](http://docs.aliyun.com/#/oss/api-reference/abstract)
+Sub module of [ali-sdk](https://github.com/ali-sdk/ali-sdk).
 
 ## Install
 
@@ -29,99 +33,45 @@ npm install ali-oss --save
 
 ## Usage
 
-### Init
+@see [OSS Usage on ali-sdk](https://github.com/ali-sdk/ali-sdk/blob/master/docs/oss.md)
 
-init a oss client, need `accessKeyId`, `accessKeySecret` and `bucket`
+## TODO
 
-```js
-var OSS = require('ali-oss');
-
-var client = OSS.create({
-  accessKeyId: 'id',
-  accessKeySecret: 'xxx',
-  bucket: 'test'
-});
-```
-
-options:
-
- - accessKeyId
- - accessKeySecret
- - [host]: default to `oss.aliyuncs.com:8080`
- - [timeout]: default to '10s'
-
-### Methods
-
-#### upload, put
-
-```js
-yield* client.upload(file, name, options);
-```
-
-options:
-
- - **file**: can be filepath, fileContent, stream
- - **name**: object name in oss
- - **options**:
-    - timeout: request timeout
-    - headers: custom headers, checkout the doc
-    - mime: file mime type, will send to `mime.lookup`
-
-#### download, get
-
-```js
-yield* client.get(name, path, options);
-```
-
-options:
-
-- **name**: object name in oss
-- **path**: can be filepath and stream
-- **options**:
-  - timeout
-  - headers
-
-#### remove, delete
-
-```js
-yield* client.remove(name, options);
-```
-
-options:
-
-- **name**: object name in oss
-- **options**:
-  - timeout
-
-#### signatureUrl
-
-```js
-var downloadUrl = client.signatureUrl(name);
-// http://oss.aliyuncs.com/oss-api.pdf?OSSAccessKeyId=xxxx&Expires=1141889120&Signature=vjbyPxybdZaNmGa%2ByT272YEAiv4%3D
-```
-
-options:
-
-- **name**: object name in oss
-
-## backward compatibility
-
-if you do not use node v0.11+ or do not use `node --harmony`.
-this module will use [regenerator](https://github.com/facebook/regenerator) to convert to es5 style.
-so you only need to use co wrap the generator function into callback style:
-
-```js
-var co = require('co');
-var OSS = require('ali-oss');
-var client = OSS.create({});
-
-client.update = co(client.update);
-client.get = co(client.get);
-client.remove = co(client.remove);
-```
-
-then you use these APIs as common async callback APIs. checkout the [callback_example.js](callback_example.js).
+- Bucket
+  - Base
+    - [x] listBuckets*
+    - [x] putBucket*
+    - [x] deleteBucket*
+  - ACL
+    - [x] putBucketACL*
+    - [x] getBucketACL*
+  - Logging
+    - [x] putBucketLogging*
+    - [x] getBucketLogging*
+    - [x] deleteBucketLogging*
+  - Website
+    - [x] putBucketWebsite*
+    - [x] getBucketWebsite*
+    - [x] deleteBucketWebsite*
+  - Referer
+    - [x] putBucketReferer*
+    - [x] getBucketReferer*
+    - [x] deleteBucketReferer*
+  - Lifecycle
+    - [x] putBucketLifecycle*
+    - [x] getBucketLifecycle*
+    - [x] deleteBucketLifecycle*
+- Object
+ - [x] put*
+ - [x] putMeta*
+ - [x] get*
+ - [x] head*
+ - [x] copy*
+ - [x] delete*
+ - [x] deleteMulti*
+ - [ ] post*
+ - [x] list*
 
 ## License
 
-MIT
+[MIT](LICENSE)
