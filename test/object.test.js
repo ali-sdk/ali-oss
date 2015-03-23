@@ -18,6 +18,7 @@ var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
 var cfs = require('co-fs');
+var Readable = require('stream').Readable;
 var utils = require('./utils');
 var oss = require('../');
 var config = require('./config');
@@ -516,6 +517,47 @@ describe('object.test.js', function () {
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
         assert.equal(result.content.toString(), '/**!\n * al');
       });
+    });
+  });
+
+  describe('getStream()', function () {
+    before(function* () {
+      this.name = prefix + 'ali-sdk/oss/get-stream.js';
+      var object = yield this.store.put(this.name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      this.headers = object.res.headers;
+    });
+
+    it('should get exists object stream', function* () {
+      var result = yield this.store.getStream(this.name);
+      assert.equal(result.res.status, 200);
+      assert(result.stream instanceof Readable);
+      var tmpfile = path.join(tmpdir, 'get-stream.js');
+      var tmpstream = fs.createWriteStream(tmpfile);
+
+      function finish() {
+        return function (callback) {
+          tmpstream.on('finish', callback);
+        };
+      }
+
+      result.stream.pipe(tmpstream);
+      yield finish();
+      assert.equal(fs.readFileSync(tmpfile, 'utf8'), fs.readFileSync(__filename, 'utf8'));
+    });
+
+    it('should throw error when object not exists', function* () {
+      try {
+        yield this.store.getStream(this.name + 'not-exists');
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+      }
     });
   });
 
