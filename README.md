@@ -65,6 +65,7 @@ npm install ali-oss --save
  - [x] put*
  - [x] putMeta*
  - [x] get*
+ - [x] getStream*
  - [x] head*
  - [x] copy*
  - [x] delete*
