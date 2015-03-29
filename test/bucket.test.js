@@ -14,9 +14,9 @@
  * Module dependencies.
  */
 
+var oss = require('../');
 var assert = require('assert');
 var utils = require('./utils');
-var oss = require('../');
 var config = require('./config');
 
 describe('bucket.test.js', function () {
