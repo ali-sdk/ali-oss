@@ -1,4 +1,9 @@
 
+2.3.0 / 2015-07-25
+==================
+
+ * feature: support custom agent by options.agent
+
 2.2.0 / 2015-04-02
 ==================
 
