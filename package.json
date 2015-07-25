@@ -35,24 +35,24 @@
   "devDependencies": {
     "autod": "*",
     "co": "*",
-    "co-fs": "~1.2.0",
+    "co-fs": "1",
     "co-mocha": "*",
     "istanbul-harmony": "*",
     "mocha": "*",
     "should": "*"
   },
   "dependencies": {
-    "agentkeepalive": "~1.2.0",
+    "agentkeepalive": "~2.0.2",
     "copy-to": "~2.0.1",
-    "debug": "~2.1.1",
+    "debug": "~2.2.0",
     "destroy": "~1.0.3",
-    "end-or-error": "~1.0.0",
+    "end-or-error": "~1.0.1",
     "humanize-ms": "~1.0.1",
     "is-type-of": "~0.3.1",
-    "merge-descriptors": "~0.0.2",
+    "merge-descriptors": "~1.0.0",
     "mime": "~1.3.4",
-    "urllib": "~2.3.0",
-    "utility": "~1.3.0",
-    "xml2js": "~0.4.5"
+    "urllib": "~2.3.9",
+    "utility": "~1.4.0",
+    "xml2js": "~0.4.9"
   }
 }
