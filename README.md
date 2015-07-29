@@ -31,7 +31,7 @@ npm install ali-oss --save
 
 # OSS Usage
 
-OSS, Open Storage Service. Equal to well know Amazon [S3](http://aws.amazon.com/s3/).
+OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com/s3/).
 
 ## Summary
 
@@ -103,8 +103,7 @@ oss-cn-shenzhen | China | ShenZhen | oss-cn-shenzhen.aliyuncs.com
 
 ## Create Account
 
-Go to [OSS website](http://www.aliyun.com/product/oss), create a new account for new user.
-Only Chinese page available right now. If you need translation, contact us.
+Go to [OSS website](http://www.aliyun.com/product/oss/?lang=en), create a new account for new user.
 
 After account created, you can create the OSS instance and get the `accessKeyId` and `accessKeySecret`.
 
@@ -334,7 +333,7 @@ console.log(result.acl);
 
 ### .putBucketLogging*(name, region, prefix[, options])
 
-Update the bucket loggging settiongs.
+Update the bucket logging settings.
 Log file will create every one hour and name format: `<prefix><bucket>-YYYY-mm-DD-HH-MM-SS-UniqueString`.
 
 parameters:
@@ -364,7 +363,7 @@ yield store.putBucketLogging('helloworld', 'oss-cn-hongkong', 'logs/');
 
 ### .getBucketLogging*(name, region[, options])
 
-Get the bucket loggging settiongs.
+Get the bucket logging settings.
 
 parameters:
 
@@ -395,7 +394,7 @@ console.log(result.enable, result.prefix);
 
 ### .deleteBucketLogging(name, region[, options])
 
-Delete the bucket loggging settiongs.
+Delete the bucket logging settings.
 
 parameters:
 
@@ -606,7 +605,7 @@ yield store.putBucketLifecycle('hello', 'oss-cn-hangzhou', [
     id: 'delete after one day',
     prefix: 'logs/',
     status: 'Enabled',
-    days: 7
+    days: 1
   },
   {
     prefix: 'logs2/',
