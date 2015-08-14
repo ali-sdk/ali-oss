@@ -1,4 +1,10 @@
 
+2.4.0 / 2015-08-15
+==================
+
+  * feat(createRequest): expose create request method
+  * deps upgrade
+
 2.3.0 / 2015-07-25
 ==================
 
