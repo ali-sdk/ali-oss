@@ -1,4 +1,10 @@
 
+2.5.0 / 2015-08-22
+==================
+
+ * chore: travis use sudo: false
+ * feat: request error add params info
+
 2.4.0 / 2015-08-15
 ==================
 
