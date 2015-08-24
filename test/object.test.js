@@ -22,6 +22,7 @@ var Readable = require('stream').Readable;
 var utils = require('./utils');
 var oss = require('../');
 var config = require('./config');
+var urllib = require('urllib');
 
 var tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -534,6 +535,50 @@ describe('object.test.js', function () {
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
         assert.equal(result.content.toString(), '/**!\n * al');
       });
+    });
+  });
+
+  describe('signatureUrl()', function () {
+    before(function* () {
+      this.name = prefix + 'ali-sdk/oss/get-meta.js';
+      var object = yield this.store.put(this.name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      this.headers = object.res.headers;
+
+      this.needEscapeName = prefix + 'ali-sdk/oss/%3get+meta.js';
+      object = yield this.store.put(this.needEscapeName, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+    });
+
+    it('should signature url get object ok', function* () {
+      var result = yield this.store.get(this.name);
+      var url = this.store.signatureUrl(this.name);
+      var urlRes = yield urllib.request(url);
+      assert.equal(urlRes.data.toString(), result.content.toString());
+    });
+
+    it('should signature url get need escape object ok', function* () {
+      var result = yield this.store.get(this.needEscapeName);
+      var url = this.store.signatureUrl(this.needEscapeName);
+      var urlRes = yield urllib.request(url);
+      assert.equal(urlRes.data.toString(), result.content.toString());
+    });
+
+    it('should signature url with custom host ok', function* () {
+      var url = this.store.signatureUrl(this.name, 'www.aliyun.com');
+      assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
   });
 
