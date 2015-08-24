@@ -311,11 +311,28 @@ describe('object.test.js', function () {
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
+
+      this.needEscapeName = prefix + 'ali-sdk/oss/%3get+meta.js';
+      object = yield this.store.put(this.needEscapeName, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
     });
 
     it('should store object to local file', function* () {
       var savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
       var result = yield this.store.get(this.name, savepath);
+      assert.equal(result.res.status, 200);
+      assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
+    });
+
+    it('should escape uri path ok', function* () {
+      var savepath = path.join(tmpdir, this.needEscapeName.replace(/\//g, '-'));
+      var result = yield this.store.get(this.needEscapeName, savepath);
       assert.equal(result.res.status, 200);
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
