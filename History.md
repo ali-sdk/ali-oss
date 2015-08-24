@@ -1,4 +1,11 @@
 
+2.5.1 / 2015-08-24
+==================
+
+ * fix: remove unnecessary decode
+ * fix: signature url
+ * fix: escape resource
+
 2.5.0 / 2015-08-22
 ==================
 
