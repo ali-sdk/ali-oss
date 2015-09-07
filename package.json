@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "test": "mocha --harmony --check-leaks -R dot -t 30000 -r co-mocha test/*.test.js",
-    "test-cov": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -R dot --check-leaks -t 30000 -r co-mocha test/*.test.js",
+    "test-cov": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -R dot --check-leaks -t 60000 -r co-mocha test/*.test.js",
     "jshint": "jshint .",
     "autod": "autod -w --prefix '~'",
     "cnpm": "npm install --registry=https://registry.npm.taobao.org",
