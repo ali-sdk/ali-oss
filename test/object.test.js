@@ -67,7 +67,7 @@ describe('object.test.js', function () {
       assert.equal(r.content.toString(), fs.readFileSync(__filename, 'utf8'));
     });
 
-    it('should add image with streaming way', function* () {
+    it.skip('should add image with streaming way', function* () {
       var name = prefix + 'ali-sdk/oss/nodejs-1024x768.png';
       var imagepath = path.join(__dirname, 'nodejs-1024x768.png');
       var object = yield this.store.putStream(name, fs.createReadStream(imagepath));
