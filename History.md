@@ -1,4 +1,12 @@
 
+2.6.0 / 2015-09-07
+==================
+
+ * test: skip image upload
+ * docs: add putStream doc
+ * test: use codecov
+ * feat: put object support streaming
+
 2.5.1 / 2015-08-24
 ==================
 
