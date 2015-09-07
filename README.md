@@ -3,7 +3,7 @@ ali-oss
 
 [![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
-[![coverage](cov-image)](cov-url)
+[![coverage][cov-image]][cov-url]
 [![David deps][david-image]][david-url]
 
 [npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
