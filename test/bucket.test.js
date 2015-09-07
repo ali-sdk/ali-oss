@@ -28,11 +28,11 @@ describe('bucket.test.js', function () {
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = 'oss-cn-hangzhou';
 
-    console.log('current buckets: %j',
-      (yield this.store.listBuckets()).buckets.map(function (item) {
-        return item.name + ':' + item.region;
-      })
-    );
+    // console.log('current buckets: %j',
+    //   (yield this.store.listBuckets()).buckets.map(function (item) {
+    //     return item.name + ':' + item.region;
+    //   })
+    // );
 
     var result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
@@ -156,7 +156,7 @@ describe('bucket.test.js', function () {
       assert.equal(typeof result.owner.id, 'string');
       assert.equal(typeof result.owner.displayName, 'string');
 
-      console.log(result.buckets);
+      // console.log(result.buckets);
     });
   });
 
