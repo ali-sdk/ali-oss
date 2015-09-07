@@ -3,17 +3,17 @@ ali-oss
 
 [![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
+[![coverage](cov-image)](cov-url)
 [![David deps][david-image]][david-url]
-[![Gittip][gittip-image]][gittip-url]
 
 [npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ali-oss
 [travis-image]: https://img.shields.io/travis/ali-sdk/ali-oss.svg?style=flat-square
 [travis-url]: https://travis-ci.org/ali-sdk/ali-oss
+[cov-image]: http://codecov.io/github/ali-sdk/ali-oss/coverage.svg?branch=master
+[cov-url]: http://codecov.io/github/ali-sdk/ali-oss?branch=master
 [david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-oss
-[gittip-image]: https://img.shields.io/gittip/dead-horse.svg?style=flat-square
-[gittip-url]: https://www.gittip.com/dead-horse/
 
 aliyun OSS(open storage service) node client.
 
@@ -67,6 +67,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
 - [Object Operations](#object-operations)
   - [.list*(query[, options])](#listquery-options)
   - [.put*(name, file[, options])](#putname-file-options)
+  - [.putStream*(name, stream[, options])](#putstreamname-stream-options)
   - [.head*(name[, options])](#headname-options)
   - [.get*(name, file[, options])](#getname-file-options)
   - [.getStream*(name[, options])](#getstreamname-options)
@@ -744,6 +745,63 @@ console.log(object);
   }
 }
 ```
+
+- Add an object through readstream
+
+```js
+var filepath = '/home/ossdemo/demo.txt';
+var object = yield store.put('ossdemo/readstream.txt', fs.createReadStream(filepath));
+console.log(object);
+
+{
+  name: 'ossdemo/readstream.txt',
+  res: {
+    status: 200,
+    headers: {
+      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+      'content-length': '0',
+      connection: 'close',
+      etag: '"BF7A03DA01440845BC5D487B369BC168"',
+      server: 'AliyunOSS',
+      'x-oss-request-id': '54E341F1707AA0275E829242'
+    },
+    size: 0,
+    rt: 92
+  }
+}
+```
+
+### .putStream*(name, stream[, options])
+
+Add a stream object to the bucket.
+
+parameters:
+
+- name {String} object name store on OSS
+- stream {ReadStream} object ReadStream content instance
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [mime] {String} custom mime
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
+    e.g.: `{ uid: 123, pid: 110 }`
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
+    - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
+    - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
+    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+
+Success will return the object information.
+
+object:
+
+- name {String} object name
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
 
 - Add an object through readstream
 
