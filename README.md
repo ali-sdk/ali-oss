@@ -92,15 +92,15 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
 
 ## Data Regions
 
-OSS current have 5 data regions.
+[OSS current data regions](http://help.aliyun.com/knowledge_detail.htm?spm=5176.775974651.2.5.zVuYfO&categoryId=8314912&knowledgeId=5974206&pos=1).
 
-name | country | city | domain
----  | ---     | ---  | ---
-oss-cn-hangzhou | China | HangZhou | oss-cn-hangzhou.aliyuncs.com
-oss-cn-qingdao | China | QingDao | oss-cn-qingdao.aliyuncs.com
-oss-cn-beijing | China | BeiJing | oss-cn-beijing.aliyuncs.com
-oss-cn-hongkong | China | HongKong | oss-cn-hongkong.aliyuncs.com
-oss-cn-shenzhen | China | ShenZhen | oss-cn-shenzhen.aliyuncs.com
+name | country | city | domain | inner domains
+---  | ---     | ---  | --- | ---
+oss-cn-hangzhou | China | HangZhou | oss-cn-hangzhou.aliyuncs.com | oss-cn-hangzhou-internal.aliyuncs.com
+oss-cn-qingdao | China | QingDao | oss-cn-qingdao.aliyuncs.com | oss-cn-qingdao-internal.aliyuncs.com
+oss-cn-beijing | China | BeiJing | oss-cn-beijing.aliyuncs.com | oss-cn-beijing-internal.aliyuncs.com
+oss-cn-hongkong | China | HongKong | oss-cn-hongkong.aliyuncs.com | oss-cn-hongkong-internal.aliyuncs.com
+oss-cn-shenzhen | China | ShenZhen | oss-cn-shenzhen.aliyuncs.com | oss-cn-shenzhen-internal.aliyuncs.com
 
 ## Create Account
 
@@ -122,6 +122,7 @@ options:
 - accessKeySecret {String} access secret you create
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
+- [endpoint] {String} oss region domain. It takes priority over `region`.
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
   default is `oss-cn-hangzhou`
   Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
