@@ -1,4 +1,10 @@
 
+2.6.1 / 2015-09-09
+==================
+
+ * add endpoint into readme
+ * chore: fix codecov link
+
 2.6.0 / 2015-09-07
 ==================
 
