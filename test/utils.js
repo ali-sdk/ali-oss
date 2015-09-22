@@ -1,6 +1,4 @@
 /**!
- * ali-oss - test/utils.js
- *
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *

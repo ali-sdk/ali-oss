@@ -731,6 +731,7 @@ console.log(object);
 
 {
   name: 'ossdemo/buffer',
+  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/buffer',
   res: {
     status: 200,
     headers: {
@@ -756,6 +757,7 @@ console.log(object);
 
 {
   name: 'ossdemo/readstream.txt',
+  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
   res: {
     status: 200,
     headers: {
@@ -813,6 +815,7 @@ console.log(object);
 
 {
   name: 'ossdemo/readstream.txt',
+  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
   res: {
     status: 200,
     headers: {

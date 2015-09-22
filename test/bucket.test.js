@@ -1,6 +1,4 @@
 /**!
- * ali-oss - test/bucket.test.js
- *
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
@@ -19,7 +17,7 @@ var utils = require('./utils');
 var oss = require('../');
 var config = require('./config');
 
-describe('bucket.test.js', function () {
+describe('test/bucket.test.js', function () {
   var prefix = utils.prefix;
 
   before(function* () {
