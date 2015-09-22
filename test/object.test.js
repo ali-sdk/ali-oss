@@ -1,6 +1,4 @@
 /**!
- * ali-oss - test/object.test.js
- *
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
@@ -29,7 +27,7 @@ if (!fs.existsSync(tmpdir)) {
   fs.mkdirSync(tmpdir);
 }
 
-describe('object.test.js', function () {
+describe('test/object.test.js', function () {
   var prefix = utils.prefix;
 
   before(function* () {
@@ -60,6 +58,7 @@ describe('object.test.js', function () {
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
       assert(object.name, name);
+      assert(object.url);
 
       // check content
       var r = yield this.store.get(name);
@@ -587,7 +586,7 @@ describe('object.test.js', function () {
         });
         assert.equal(result.res.headers['content-length'], '10');
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-        assert.equal(result.content.toString(), '/**!\n * al');
+        assert.equal(result.content.toString(), '/**!\n * Co');
       });
     });
   });
