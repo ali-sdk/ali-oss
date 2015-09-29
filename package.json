@@ -2,13 +2,12 @@
   "name": "ali-oss",
   "version": "2.7.0",
   "description": "aliyun oss(open storage service) node client",
-  "main": "index.js",
+  "main": "lib/client.js",
   "files": [
-    "index.js",
-    "lib/"
+    "lib"
   ],
   "scripts": {
-    "test": "mocha --harmony --check-leaks -R dot -t 30000 -r co-mocha -r should test/*.test.js",
+    "test": "mocha --harmony --check-leaks -t 30000 -r co-mocha -r should test/*.test.js",
     "test-cov": "node --harmony node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -R dot --check-leaks -t 60000 -r co-mocha -r should test/*.test.js",
     "jshint": "jshint .",
     "autod": "autod -w --prefix '~' -D mocha,autod,should,co-mocha,istanbul-harmony",

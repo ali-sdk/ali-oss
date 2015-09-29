@@ -1,10 +1,11 @@
 /*!
- * ali-oss - test/cluster.test.js
  * Copyright(c) ali-sdk and other contributors.
- * Author: dead_horse <dead_horse@qq.com>
+ *
+ * Authors:
+ * 	 dead_horse <dead_horse@qq.com>
  */
 
-'use strict'
+'use strict';
 
 /**
  * Module dependencies.
@@ -16,7 +17,6 @@ const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
 
-
 describe('test/cluster.test.js', function () {
   var prefix = utils.prefix;
   afterEach(mm.restore);
@@ -27,16 +27,18 @@ describe('test/cluster.test.js', function () {
     };
     this.store = cluster(options);
     this.store.on('error', function () {});
-    this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
-    this.bucket = this.bucket.substring(0, this.bucket.length - 1);
+    this.bucket1 = 'ali-oss-test-cluster1-' + prefix.replace(/[\/\.]/g, '');
+    this.bucket2 = 'ali-oss-test-cluster2-' + prefix.replace(/[\/\.]/g, '');
     this.region = 'oss-cn-hangzhou';
-    yield this.store.clients[0].putBucket(this.bucket, this.region);
-    this.store.clients[0].useBucket(this.bucket, this.region);
-    this.store.clients[1].useBucket(this.bucket, this.region);
+    yield this.store.clients[0].putBucket(this.bucket1, this.region);
+    yield this.store.clients[1].putBucket(this.bucket2, this.region);
+    this.store.clients[0].useBucket(this.bucket1, this.region);
+    this.store.clients[1].useBucket(this.bucket2, this.region);
   });
 
   after(function* () {
-    yield utils.cleanBucket(this.store.clients[0], this.bucket, this.region);
+    yield utils.cleanBucket(this.store.clients[0], this.bucket1, this.region);
+    yield utils.cleanBucket(this.store.clients[1], this.bucket2, this.region);
   });
 
   describe('init', function () {
@@ -95,16 +97,20 @@ describe('test/cluster.test.js', function () {
     });
 
     it('should RR get from clients ok', function* () {
-      mm(this.store.clients[1], 'get', 'mock error');
+      mm(this.store.clients[1], 'get', function*() {
+        throw new Error('mock error');
+      });
       function onerror(err) {
-        throw new Error('should not emit error event');
+        throw err;
       }
       this.store.on('error', onerror);
 
       let res = yield this.store.get(this.name);
       res.res.status.should.equal(200);
       mm.restore();
-      mm(this.store.clients[0], 'get', 'mock error');
+      mm(this.store.clients[0], 'get', function*() {
+        throw new Error('mock error');
+      });
       res = yield this.store.get(this.name);
       res.res.status.should.equal(200);
 
@@ -123,7 +129,7 @@ describe('test/cluster.test.js', function () {
     it('should MS always get from clients[0] ok', function* () {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store.clients[1], 'get', 'mock error');
-      function onerror(err) {
+      function onerror() {
         throw new Error('should not emit error event');
       }
       this.store.on('error', onerror);
@@ -140,7 +146,7 @@ describe('test/cluster.test.js', function () {
       mm(this.store, 'schedule', 'masterSlave');
       mm.error(this.store.clients[0], 'get', 'mock error', {status: 403});
       try {
-        let res = yield this.store.get(this.name);
+        yield this.store.get(this.name);
         throw new Error('should never exec');
       } catch (err) {
         err.status.should.equal(403);
@@ -158,7 +164,7 @@ describe('test/cluster.test.js', function () {
         });
       });
       try {
-        let res = yield this.store.get(this.name);
+        yield this.store.get(this.name);
         throw new Error('should never exec');
       } catch (err) {
         err.name.should.equal('AllServerDownError');
@@ -177,7 +183,7 @@ describe('test/cluster.test.js', function () {
         });
       });
       try {
-        let res = yield this.store.get(this.name);
+        yield this.store.get(this.name);
         throw new Error('should never exec');
       } catch (err) {
         err.name.should.equal('AllServerDownError');
@@ -201,7 +207,7 @@ describe('test/cluster.test.js', function () {
 
     it('should RR signatureUrl from clients ok', function* () {
       mm(this.store.clients[1], 'head', 'mock error');
-      function onerror(err) {
+      function onerror() {
         throw new Error('should not emit error event');
       }
       this.store.on('error', onerror);
@@ -227,7 +233,7 @@ describe('test/cluster.test.js', function () {
     it('should MS always signature from clients[0] ok', function* () {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store.clients[1], 'head', 'mock error');
-      function onerror(err) {
+      function onerror() {
         throw new Error('should not emit error event');
       }
       this.store.on('error', onerror);
