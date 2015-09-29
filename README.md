@@ -1662,6 +1662,50 @@ var url = imgClient.signatureUrl('
 // http://thumbnail.myimageservice.com/demo.jpg@200w_200h?OSSAccessKeyId=uZxyLARzYZtGwHKY&Expires=1427803849&Signature=JSPRe06%2FjQpQSj5zlx2ld1V%2B35I%3D
 ```
 
+## Cluster Mode
+
+Cluster mode now only support object operations.
+
+```js
+var Cluster = require('ali-oss').ClusterClient;
+
+var client = Cluster({
+  cluster: [{
+    host: 'host1',
+    accessKeyId: 'id1',
+    accessKeySecret: 'secret1'
+  }, {
+    host: 'host2',
+    accessKeyId: 'id2',
+    accessKeySecret: 'secret2'
+  }],
+  schedule: 'masterSlave', //default is `roundRobin`
+});
+```
+
+### Get Methods
+
+Will choose an alive client by schedule(`masterSlave` or `roundRobin`).
+
+- `client.get()`
+- `client.head()`
+- `client.getStream()`
+- `client.list()`
+- `client.signatureUrl()`
+
+___Notice: client.signatureUrl now is a generatorFunction.___
+
+### Put Methods
+
+Will put to all clients.
+
+- `client.put()`
+- `client.putStream()`
+- `client.delete()`
+- `client.deleteMulti()`
+- `client.copy()`
+- `client.putMeta()`
+
 ## Known Errors
 
 Each error return by OSS server will contains these properties:
