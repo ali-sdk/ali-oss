@@ -1,4 +1,11 @@
 
+2.8.0 / 2015-09-29
+==================
+
+ * test: cluster store to two different bucket
+ * feat: support signatureUrl
+ * feat: add clusterClient
+
 2.7.0 / 2015-09-22
 ==================
 
