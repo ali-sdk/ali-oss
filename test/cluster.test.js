@@ -1,6 +1,6 @@
 /*!
  * ali-oss - test/cluster.test.js
- * Copyright(c) @dead_horse
+ * Copyright(c) ali-sdk and other contributors.
  * Author: dead_horse <dead_horse@qq.com>
  */
 
@@ -44,12 +44,6 @@ describe('test/cluster.test.js', function () {
       (function () {
         cluster({});
       }).should.throw('require options.cluster to be an array');
-    });
-
-    it('options.cluster require accessKeyId and accessKeySecret', function () {
-      (function () {
-        cluster({cluster: [{accessKeyId: 'xxx'}]});
-      }).should.throw('options.cluster require accessKeyId and accessKeySecret');
     });
   });
 
@@ -188,6 +182,80 @@ describe('test/cluster.test.js', function () {
       } catch (err) {
         err.name.should.equal('AllServerDownError');
       }
+    });
+  });
+
+  describe('signatureUrl()', function () {
+    before(function* () {
+      this.name = prefix + 'ali-sdk/oss/get-meta.js';
+      let object = yield this.store.put(this.name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      this.headers = object.res.headers;
+    });
+
+    it('should RR signatureUrl from clients ok', function* () {
+      mm(this.store.clients[1], 'head', 'mock error');
+      function onerror(err) {
+        throw new Error('should not emit error event');
+      }
+      this.store.on('error', onerror);
+
+      let res = yield this.store.signatureUrl(this.name);
+      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      mm.restore();
+      mm(this.store.clients[0], 'head', 'mock error');
+      res = yield this.store.signatureUrl(this.name);
+      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      this.store.removeListener('error', onerror);
+    });
+
+    it('should RR signature from clients[1] when clients[0] error ok', function* () {
+      mm.error(this.store.clients[0], 'head', 'mock error');
+      let res = yield this.store.signatureUrl(this.name);
+      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      this.store.once('error', function (err) {
+        err.message.should.equal('mock error');
+      });
+    });
+
+    it('should MS always signature from clients[0] ok', function* () {
+      mm(this.store, 'schedule', 'masterSlave');
+      mm(this.store.clients[1], 'head', 'mock error');
+      function onerror(err) {
+        throw new Error('should not emit error event');
+      }
+      this.store.on('error', onerror);
+
+      let res = yield this.store.signatureUrl(this.name);
+      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      res = yield this.store.signatureUrl(this.name);
+      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+
+      this.store.removeListener('error', onerror);
+    });
+
+    it('should signature from clients[0] when clients[0] response 4xx ok', function* () {
+      mm(this.store, 'schedule', 'masterSlave');
+      mm.error(this.store.clients[0], 'head', 'mock error', {status: 403});
+      let res = yield this.store.signatureUrl(this.name);
+      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+    });
+
+    it('should signature ok when clients all down', function* () {
+      mm.error(this.store.clients[0], 'head', 'mock error');
+      mm.error(this.store.clients[1], 'head', 'mock error');
+      let store = this.store;
+      store.once('error', function (err) {
+        err.message.should.equal('mock error');
+      });
+      let res = yield this.store.signatureUrl(this.name);
+      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
   });
 });
