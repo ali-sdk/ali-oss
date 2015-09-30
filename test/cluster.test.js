@@ -317,69 +317,68 @@ describe('test/cluster.test.js', function () {
       this.headers = object.res.headers;
     });
 
-    it('should RR signatureUrl from clients ok', function* () {
+    it('should RR signatureUrl from clients ok', function () {
       mm(this.store.clients[1], 'head', 'mock error');
-      let res = yield this.store.signatureUrl(this.name);
-      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      let url = this.store.signatureUrl(this.name);
+      url.should.match(/ali-sdk\/oss\/get-meta\.js/);
       mm.restore();
       mm(this.store.clients[0], 'head', 'mock error');
-      res = yield this.store.signatureUrl(this.name);
-      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      url = this.store.signatureUrl(this.name);
+      url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should RR signature from clients[1] when clients[0] error ok', function* () {
-      mm.error(this.store.clients[0], 'head', 'mock error');
-      let res = yield this.store.signatureUrl(this.name);
-      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+    it('should RR signature from clients[1] when clients[0] error ok', function () {
+      let url = this.store.signatureUrl(this.name);
+      url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should MS always signature from clients[0] ok', function* () {
+    it('should MS always signature from clients[0] ok', function () {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store.clients[1], 'head', 'mock error');
-      let res = yield this.store.signatureUrl(this.name);
-      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
-      res = yield this.store.signatureUrl(this.name);
-      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      let url = this.store.signatureUrl(this.name);
+      url.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      url = this.store.signatureUrl(this.name);
+      url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should signature from clients[0] when clients[0] response 4xx ok', function* () {
+    it('should signature from clients[0] when clients[0] response 4xx ok', function () {
       mm(this.store, 'schedule', 'masterSlave');
       mm.error(this.store.clients[0], 'head', 'mock error', {status: 403});
-      let res = yield this.store.signatureUrl(this.name);
-      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      let url = this.store.signatureUrl(this.name);
+      url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should signature ok when clients all down', function* () {
+    it('should signature ok when clients all down', function () {
       mm.error(this.store.clients[0], 'head', 'mock error');
       mm.error(this.store.clients[1], 'head', 'mock error');
-      let res = yield this.store.signatureUrl(this.name);
-      res.should.match(/ali-sdk\/oss\/get-meta\.js/);
+      let url = this.store.signatureUrl(this.name);
+      url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should RR use the first client when all server down', function* () {
+    it('should RR use the first client when all server down', function () {
       mm(this.store.availables, '0', false);
       mm(this.store.availables, '1', false);
 
       this.store.index = 0;
-      let url = yield this.store.signatureUrl(this.name);
+      let url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
 
       this.store.index = 1;
-      url = yield this.store.signatureUrl(this.name);
+      url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should masterSlave use the first client when all server down', function* () {
+    it('should masterSlave use the first client when all server down', function () {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store.availables, '0', false);
       mm(this.store.availables, '1', false);
 
       this.store.index = 0;
-      let url = yield this.store.signatureUrl(this.name);
+      let url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
 
       this.store.index = 1;
-      url = yield this.store.signatureUrl(this.name);
+      url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
   });
