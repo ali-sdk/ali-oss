@@ -1703,8 +1703,6 @@ Will choose an alive client by schedule(`masterSlave` or `roundRobin`).
 - `client.list()`
 - `client.signatureUrl()`
 
-___Notice: client.signatureUrl now is a generatorFunction.___
-
 ### Put Methods
 
 Will put to all clients.
