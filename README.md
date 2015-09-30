@@ -1681,6 +1681,16 @@ var client = Cluster({
   }],
   schedule: 'masterSlave', //default is `roundRobin`
 });
+
+// listen error event to logging error
+client.on('error', function(err) {
+  console.error(err.stack);
+});
+
+// client init ready
+client.ready(function() {
+  console.log('cluster client init ready, go ahead!');
+});
 ```
 
 ### Get Methods
