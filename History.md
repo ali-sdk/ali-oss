@@ -1,4 +1,10 @@
 
+3.0.0 / 2015-09-30 
+==================
+
+  * refactor: change signatureUrl to normal function
+  * feat: add available checking
+
 2.8.0 / 2015-09-29
 ==================
 
