@@ -1,5 +1,10 @@
 
-3.0.0 / 2015-09-30 
+3.0.1 / 2015-09-30
+==================
+
+  * deps: urllib@2.5.0
+
+3.0.0 / 2015-09-30
 ==================
 
   * refactor: change signatureUrl to normal function
