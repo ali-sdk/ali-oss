@@ -1702,6 +1702,7 @@ Will choose an alive client by schedule(`masterSlave` or `roundRobin`).
 - `client.getStream()`
 - `client.list()`
 - `client.signatureUrl()`
+- `client.chooseAvailable()` - choose an available client by schedule.
 
 ### Put Methods
 
