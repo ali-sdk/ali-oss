@@ -1,4 +1,4 @@
-ali-oss
+oss-nodejs-sdk
 =======
 
 [![NPM version][npm-image]][npm-url]
@@ -8,16 +8,14 @@ ali-oss
 
 [npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ali-oss
-[travis-image]: https://img.shields.io/travis/ali-sdk/ali-oss.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ali-sdk/ali-oss
-[cov-image]: http://codecov.io/github/ali-sdk/ali-oss/coverage.svg?branch=master
-[cov-url]: http://codecov.io/github/ali-sdk/ali-oss?branch=master
-[david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
-[david-url]: https://david-dm.org/ali-sdk/ali-oss
+[travis-image]: https://img.shields.io/travis/aliyun/oss-nodejs-sdk.svg?style=flat-square
+[travis-url]: https://travis-ci.org/aliyun/oss-nodejs-sdk
+[cov-image]: http://codecov.io/github/aliyun/oss-nodejs-sdk/coverage.svg?branch=master
+[cov-url]: http://codecov.io/github/aliyun/oss-nodejs-sdk?branch=master
+[david-image]: https://img.shields.io/david/aliyun/oss-nodejs-sdk.svg?style=flat-square
+[david-url]: https://david-dm.org/aliyun/oss-nodejs-sdk
 
-aliyun OSS(open storage service) node client.
-
-Sub module of [ali-sdk](https://github.com/ali-sdk/ali-sdk).
+aliyun OSS(open storage service) Node.js client.
 
 ## Install
 

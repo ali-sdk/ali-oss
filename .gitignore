@@ -26,3 +26,4 @@ node_modules
 
 build
 test/.tmp
+test/demo.js

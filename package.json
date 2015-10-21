@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/ali-sdk/ali-oss.git"
+    "url": "git://github.com/aliyun/oss-nodejs-sdk.git"
   },
   "keywords": [
     "oss",
@@ -25,9 +25,9 @@
   "author": "dead_horse",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ali-sdk/ali-oss/issues"
+    "url": "https://github.com/aliyun/oss-nodejs-sdk/issues"
   },
-  "homepage": "https://github.com/ali-sdk/ali-oss",
+  "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
   "devDependencies": {
     "autod": "^2.1.3",
     "co-fs": "^1.2.0",
