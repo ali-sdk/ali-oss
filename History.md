@@ -1,4 +1,10 @@
 
+3.1.0 / 2015-10-23
+==================
+
+ * feat: support custom urllib client
+ * chore: add node required on package.json
+
 3.0.3 / 2015-10-03
 ==================
 
