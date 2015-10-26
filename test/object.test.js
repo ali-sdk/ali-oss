@@ -202,6 +202,18 @@ describe('test/object.test.js', function () {
       var info = yield this.store.head(name);
       assert.equal(info.res.headers.expires, '1000000');
     });
+
+    it('should set custom Content-Type', function* () {
+      var name = prefix + 'ali-sdk/oss/put-Content-Type.js';
+      var object = yield this.store.put(name, __filename, {
+        headers: {
+          'Content-Type': 'text/plain; charset=gbk'
+        }
+      });
+      assert(object.name, name);
+      var info = yield this.store.head(name);
+      assert.equal(info.res.headers['content-type'], 'text/plain; charset=gbk');
+    });
   });
 
   describe('head()', function () {
