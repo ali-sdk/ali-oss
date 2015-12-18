@@ -1,4 +1,10 @@
 
+3.1.3 / 2015-12-18
+==================
+
+  * fix(object): custom content-type support lower case
+  * deps: update dependencies
+
 3.1.2 / 2015-10-26
 ==================
 
