@@ -214,6 +214,18 @@ describe('test/object.test.js', function () {
       var info = yield this.store.head(name);
       assert.equal(info.res.headers['content-type'], 'text/plain; charset=gbk');
     });
+
+    it('should set custom content-type lower case', function* () {
+      var name = prefix + 'ali-sdk/oss/put-Content-Type.js';
+      var object = yield this.store.put(name, __filename, {
+        headers: {
+          'content-type': 'application/javascript; charset=utf8'
+        }
+      });
+      assert(object.name, name);
+      var info = yield this.store.head(name);
+      assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
+    });
   });
 
   describe('head()', function () {
