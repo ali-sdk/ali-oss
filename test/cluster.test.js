@@ -39,11 +39,13 @@ describe('test/cluster.test.js', function () {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket1,
+	  endpoint: config.endpoint
         },
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket2,
+	  endpoint: config.endpoint
         },
       ]
     };
