@@ -41,6 +41,7 @@
     "thunk-mocha": "^1.0.1"
   },
   "dependencies": {
+    "ip": "~1.1.0",
     "address": "~1.0.0",
     "agentkeepalive": "~2.0.3",
     "co": "~4.6.0",

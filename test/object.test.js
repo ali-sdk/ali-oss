@@ -21,6 +21,7 @@ var utils = require('./utils');
 var oss = require('../');
 var config = require('./config');
 var urllib = require('urllib');
+var copy = require('copy-to');
 
 var tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -654,7 +655,13 @@ describe('test/object.test.js', function () {
     });
 
     it('should signature url with custom host ok', function* () {
-      var url = this.store.signatureUrl(this.name, 'www.aliyun.com');
+      var conf = {};
+      copy(config).to(conf);
+      conf.endpoint = 'www.aliyun.com';
+      conf.cname = true;
+      var store = oss(conf);
+
+      var url = store.signatureUrl(this.name);
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
   });

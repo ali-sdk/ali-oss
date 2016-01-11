@@ -26,12 +26,6 @@ describe('test/bucket.test.js', function () {
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = 'oss-cn-hangzhou';
 
-    // console.log('current buckets: %j',
-    //   (yield this.store.listBuckets()).buckets.map(function (item) {
-    //     return item.name + ':' + item.region;
-    //   })
-    // );
-
     var result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
@@ -41,7 +35,7 @@ describe('test/bucket.test.js', function () {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
-  describe('putBucket()', function () {
+  describe.skip('putBucket()', function () {
     before(function () {
       this.buckets = [];
       var name = 'ali-oss-test-putbucket-' + prefix.replace(/[\/\.]/g, '-');
@@ -114,16 +108,6 @@ describe('test/bucket.test.js', function () {
       assert.equal(typeof r.acl, 'string');
       assert.equal(typeof r.owner.id, 'string');
       assert.equal(typeof r.owner.displayName, 'string');
-    });
-
-    it('should set acl and region wrong will throw BucketAlreadyExistsError', function* () {
-      yield utils.throws(function* () {
-        yield this.store.putBucketACL(this.bucket, 'oss-cn-shenzhen', 'public-read');
-      }.bind(this), function (err) {
-        assert.equal(err.name, 'BucketAlreadyExistsError');
-        assert.equal(err.message, 'Bucket already exists can\'t modify location.');
-        assert.equal(err.status, 409);
-      });
     });
 
     it('should create and set acl when bucket not exists', function* () {
