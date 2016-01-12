@@ -50,6 +50,15 @@ exports.cleanBucket = function* (store, bucket, region) {
     var obj = result.objects[i];
     yield store.delete(obj.name);
   }
+
+  var result = yield store.listUploads({
+    'max-uploads': 1000
+  });
+  var uploads = result.uploads || [];
+  for (var i = 0; i < uploads.length; i++) {
+    var up = uploads[i];
+    yield store.abortMultipartUpload(up.name, up.uploadId);
+  }
   yield store.deleteBucket(bucket, region);
 };
 
