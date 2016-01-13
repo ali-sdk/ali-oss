@@ -1,9 +1,9 @@
-/*!
+/**
  * Copyright(c) ali-sdk and other contributors.
  *
  * Authors:
- *       dead_horse <dead_horse@qq.com>
- *       fengmk2 <m@fengmk2.com> (http://fengmk2.com)
+ *   dead_horse <dead_horse@qq.com>
+ *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
  */
 
 'use strict';
