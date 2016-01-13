@@ -16,20 +16,20 @@ var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
 var cfs = require('co-fs');
-var Readable = require('stream').Readable;
 var utils = require('./utils');
 var oss = require('../');
 var config = require('./config');
 var urllib = require('urllib');
 var copy = require('copy-to');
-var randomstring = require('randomstring');
+var md5 = require('md5');
+
 
 describe('test/multipart.test.js', function () {
   var prefix = utils.prefix;
 
   before(function* () {
     this.store = oss(config);
-    this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = 'ali-oss-test-multipart-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = 'oss-cn-hangzhou';
 
@@ -177,11 +177,13 @@ describe('test/multipart.test.js', function () {
       // create a file with 1M random data
       var filepath = '/tmp/file-to-upload';
       yield new Promise(function (resolve, reject) {
-	var stream = fs.createWriteStream(filepath);
-	for (var i = 0; i < 1024; i++) {
-	  stream.write(randomstring.generate(1024));
-	}
-	stream.end(function (err, res) {
+	var rs = fs.createReadStream('/dev/random', {
+	  start: 0,
+	  end: 1024 * 1024 - 1
+	});
+	var ws = fs.createWriteStream(filepath);
+	rs.pipe(ws);
+	ws.on('finish', function (err, res) {
 	  if (err) {
 	    reject(err);
 	  } else {
@@ -192,15 +194,16 @@ describe('test/multipart.test.js', function () {
 
       var name = prefix + 'multipart/upload';
       var result = yield this.store.multipartUpload(name, filepath, {
-	partsize: 100 * 1024,
+	partSize: 100 * 1024,
       });
       assert.equal(result.res.status, 200);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
-      var buf = fs.readFileSync(filepath);
-      assert.equal(object.content.length, buf.length);
-      assert.deepEqual(object.content, buf);
+      var fileBuf = fs.readFileSync(filepath);
+      assert.equal(object.content.length, fileBuf.length);
+      // avoid comparing buffers directly for it may hang when generating diffs
+      assert.deepEqual(md5(object.content), md5(fileBuf));
     });
   });
 });
