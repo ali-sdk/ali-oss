@@ -22,7 +22,7 @@ var config = require('./config');
 var urllib = require('urllib');
 var copy = require('copy-to');
 var md5 = require('md5');
-
+var mm = require('mm');
 
 describe('test/multipart.test.js', function () {
   var prefix = utils.prefix;
@@ -173,15 +173,20 @@ describe('test/multipart.test.js', function () {
   });
 
   describe('multipartUpload()', function () {
-    it('should upload file using multipart upload', function* () {
-      // create a file with 1M random data
-      var filepath = '/tmp/file-to-upload';
+    beforeEach(mm.restore);
+
+    var createFile = function* (name, size) {
+      var tmpdir = '/tmp/.oss/';
+      if (!fs.existsSync(tmpdir)) {
+	fs.mkdirSync(tmpdir);
+      }
+
       yield new Promise(function (resolve, reject) {
 	var rs = fs.createReadStream('/dev/random', {
 	  start: 0,
-	  end: 1024 * 1024 - 1
+	  end: size - 1
 	});
-	var ws = fs.createWriteStream(filepath);
+	var ws = fs.createWriteStream(tmpdir + name);
 	rs.pipe(ws);
 	ws.on('finish', function (err, res) {
 	  if (err) {
@@ -192,15 +197,54 @@ describe('test/multipart.test.js', function () {
 	});
       });
 
+      return tmpdir + name;
+    };
+
+    it('should fallback to putData when file size is smaller than 100KB', function* () {
+      var fileName = yield* createFile('multipart-fallback', 100 * 1024 - 1);
+
+      mm(this.store, '_putData', function* () {
+	assert.ok(true);
+      });
+      mm(this.store, '_uploadPart', function* () {
+	assert.ok(false);
+      });
+
+      var name = prefix + 'multipart/fallback';
+      yield this.store.multipartUpload(name, fileName);
+    });
+
+    it('should use default partSize when not specified', function* () {
+      var partSize = this.store._getPartSize(1024 * 1024, null);
+      assert.equal(partSize, 1 * 1024 * 1024);
+    });
+
+    it('should use user specified partSize', function* () {
+      var partSize = this.store._getPartSize(1024 * 1024, 200 * 1024);
+      assert.equal(partSize, 200 * 1024);
+    });
+
+    it('should not exceeds max part number', function* () {
+      var fileSize = 10 * 1024 * 1024 * 1024;
+      var maxNumParts = 10 * 1000;
+
+      var partSize = this.store._getPartSize(fileSize, 100 * 1024);
+      assert.equal(partSize, Math.ceil(fileSize / maxNumParts));
+    });
+
+    it('should upload file using multipart upload', function* () {
+      // create a file with 1M random data
+      var fileName = yield* createFile('multipart-upload', 1024 * 1024);
+
       var name = prefix + 'multipart/upload';
-      var result = yield this.store.multipartUpload(name, filepath, {
+      var result = yield this.store.multipartUpload(name, fileName, {
 	partSize: 100 * 1024,
       });
       assert.equal(result.res.status, 200);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
-      var fileBuf = fs.readFileSync(filepath);
+      var fileBuf = fs.readFileSync(fileName);
       assert.equal(object.content.length, fileBuf.length);
       // avoid comparing buffers directly for it may hang when generating diffs
       assert.deepEqual(md5(object.content), md5(fileBuf));
