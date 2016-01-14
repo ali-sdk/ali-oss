@@ -172,7 +172,7 @@ describe('test/multipart.test.js', function () {
     });
   });
 
-  describe.only('multipartUpload()', function () {
+  describe('multipartUpload()', function () {
     it('should upload file using multipart upload', function* () {
       // create a file with 1M random data
       var filepath = '/tmp/file-to-upload';
