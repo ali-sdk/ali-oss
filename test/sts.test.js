@@ -3,7 +3,7 @@
  * MIT Licensed
  *
  * Authors:
- *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
+ *   rockuw <rockuw@gmail.com> (https://github.com/rockuw)
  */
 
 'use strict';
@@ -38,18 +38,18 @@ describe('test/sts.test.js', function () {
       assert.equal(result.res.status, 200);
 
       var ossClient = oss({
-	region: 'oss-cn-hangzhou',
-	accessKeyId: result.credentials.AccessKeyId,
-	accessKeySecret: result.credentials.AccessKeySecret,
-	stsToken: result.credentials.SecurityToken,
-	bucket: stsConfig.bucket,
+        region: 'oss-cn-hangzhou',
+        accessKeyId: result.credentials.AccessKeyId,
+        accessKeySecret: result.credentials.AccessKeySecret,
+        stsToken: result.credentials.SecurityToken,
+        bucket: stsConfig.bucket,
       });
 
       var result = yield ossClient.put('sts/hello', __filename);
       assert.equal(result.res.status, 200);
 
       var result = yield ossClient.list({
-	'max-keys': 10
+        'max-keys': 10
       });
 
       assert.equal(result.res.status, 200);

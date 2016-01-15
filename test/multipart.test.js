@@ -3,7 +3,7 @@
  * MIT Licensed
  *
  * Authors:
- *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
+ *   rockuw <rockuw@gmail.com> (https://github.com/rockuw)
  */
 
 'use strict';
@@ -44,12 +44,12 @@ describe('test/multipart.test.js', function () {
   describe('listUploads()', function () {
     beforeEach(function* () {
       var result = yield this.store.listUploads({
-	'max-uploads': 1000
+        'max-uploads': 1000
       });
       var uploads = result.uploads || [];
       for (var i = 0; i < uploads.length; i++) {
-	var up = uploads[i];
-	yield this.store.abortMultipartUpload(up.name, up.uploadId);
+        var up = uploads[i];
+        yield this.store.abortMultipartUpload(up.name, up.uploadId);
       }
     });
 
@@ -57,35 +57,35 @@ describe('test/multipart.test.js', function () {
       var name = prefix + 'multipart/list-key';
       var ids = [];
       for (var i = 0; i < 5; i ++) {
-	var result = yield this.store._initMultipartUpload(name + i);
-	ids.push(result.uploadId);
+        var result = yield this.store._initMultipartUpload(name + i);
+        ids.push(result.uploadId);
       }
       // list all uploads
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
+        'max-uploads': 10,
       });
       var all = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       assert.deepEqual(all, ids);
 
       // after 1
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
-	'key-marker': name + 0
+        'max-uploads': 10,
+        'key-marker': name + 0
       });
       var after_1 = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       assert.deepEqual(after_1, ids.slice(1));
 
       // after 5
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
-	'key-marker': name + 4
+        'max-uploads': 10,
+        'key-marker': name + 4
       });
       var after_5 = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       assert.deepEqual(after_5.length, 0);
     });
@@ -94,37 +94,37 @@ describe('test/multipart.test.js', function () {
       var name = prefix + 'multipart/list-id';
       var ids = [];
       for (var i = 0; i < 5; i ++) {
-	var result = yield this.store._initMultipartUpload(name);
-	ids.push(result.uploadId);
+        var result = yield this.store._initMultipartUpload(name);
+        ids.push(result.uploadId);
       }
       ids.sort();
 
       // list all uploads
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
+        'max-uploads': 10,
       });
       var all = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       assert.deepEqual(all, ids);
 
       // after 1: upload id marker alone is ignored
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
-	'upload-id-marker': ids[1]
+        'max-uploads': 10,
+        'upload-id-marker': ids[1]
       });
       var after_1 = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       assert.deepEqual(after_1, ids);
 
       // after 5: upload id marker alone is ignored
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
-	'upload-id-marker': ids[4]
+        'max-uploads': 10,
+        'upload-id-marker': ids[4]
       });
       var after_5 = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       assert.deepEqual(after_5, ids);
     });
@@ -133,27 +133,27 @@ describe('test/multipart.test.js', function () {
       var foo_name = prefix + 'multipart/list-foo';
       var foo_ids = [];
       for (var i = 0; i < 5; i ++) {
-	var result = yield this.store._initMultipartUpload(foo_name);
-	foo_ids.push(result.uploadId);
+        var result = yield this.store._initMultipartUpload(foo_name);
+        foo_ids.push(result.uploadId);
       }
       foo_ids.sort();
 
       var bar_name = prefix + 'multipart/list-bar';
       var bar_ids = [];
       for (var i = 0; i < 5; i ++) {
-	var result = yield this.store._initMultipartUpload(bar_name);
-	bar_ids.push(result.uploadId);
+        var result = yield this.store._initMultipartUpload(bar_name);
+        bar_ids.push(result.uploadId);
       }
       bar_ids.sort();
 
       // after 1
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
-	'key-marker': bar_name,
-	'upload-id-marker': bar_ids[0]
+        'max-uploads': 10,
+        'key-marker': bar_name,
+        'upload-id-marker': bar_ids[0]
       });
       var after_1 = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       after_1.sort();
       var should = bar_ids.slice(1).concat(foo_ids).sort();
@@ -161,12 +161,12 @@ describe('test/multipart.test.js', function () {
 
       // after 5
       var result = yield this.store.listUploads({
-	'max-uploads': 10,
-	'key-marker': bar_name,
-	'upload-id-marker': bar_ids[4]
+        'max-uploads': 10,
+        'key-marker': bar_name,
+        'upload-id-marker': bar_ids[4]
       });
       var after_5 = result.uploads.map(function (up) {
-	return up.uploadId;
+        return up.uploadId;
       });
       assert.deepEqual(after_5, foo_ids);
     });
@@ -178,23 +178,23 @@ describe('test/multipart.test.js', function () {
     var createFile = function* (name, size) {
       var tmpdir = '/tmp/.oss/';
       if (!fs.existsSync(tmpdir)) {
-	fs.mkdirSync(tmpdir);
+        fs.mkdirSync(tmpdir);
       }
 
       yield new Promise(function (resolve, reject) {
-	var rs = fs.createReadStream('/dev/random', {
-	  start: 0,
-	  end: size - 1
-	});
-	var ws = fs.createWriteStream(tmpdir + name);
-	rs.pipe(ws);
-	ws.on('finish', function (err, res) {
-	  if (err) {
-	    reject(err);
-	  } else {
-	    resolve(res);
-	  }
-	});
+        var rs = fs.createReadStream('/dev/random', {
+          start: 0,
+          end: size - 1
+        });
+        var ws = fs.createWriteStream(tmpdir + name);
+        rs.pipe(ws);
+        ws.on('finish', function (err, res) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
+        });
       });
 
       return tmpdir + name;
@@ -204,10 +204,10 @@ describe('test/multipart.test.js', function () {
       var fileName = yield* createFile('multipart-fallback', 100 * 1024 - 1);
 
       mm(this.store, '_putData', function* () {
-	assert.ok(true);
+        assert.ok(true);
       });
       mm(this.store, '_uploadPart', function* () {
-	assert.ok(false);
+        assert.ok(false);
       });
 
       var name = prefix + 'multipart/fallback';
@@ -238,7 +238,7 @@ describe('test/multipart.test.js', function () {
 
       var name = prefix + 'multipart/upload';
       var result = yield this.store.multipartUpload(name, fileName, {
-	partSize: 100 * 1024,
+        partSize: 100 * 1024,
       });
       assert.equal(result.res.status, 200);
 
