@@ -2,8 +2,8 @@
  * Copyright(c) ali-sdk and other contributors.
  *
  * Authors:
- * 	 dead_horse <dead_horse@qq.com>
- * 	 fengmk2 <m@fengmk2.com> (http://fengmk2.com)
+ *       dead_horse <dead_horse@qq.com>
+ *       fengmk2 <m@fengmk2.com> (http://fengmk2.com)
  */
 
 'use strict';
@@ -14,7 +14,7 @@
 
 const oss = require('../');
 const cluster = require('../').ClusterClient;
-const config = require('./config');
+const config = require('./config').oss;
 const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
@@ -39,13 +39,13 @@ describe('test/cluster.test.js', function () {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket1,
-	  endpoint: config.endpoint
+          endpoint: config.endpoint
         },
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket2,
-	  endpoint: config.endpoint
+          endpoint: config.endpoint
         },
       ]
     };

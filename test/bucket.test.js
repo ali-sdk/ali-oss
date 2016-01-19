@@ -15,7 +15,7 @@
 var assert = require('assert');
 var utils = require('./utils');
 var oss = require('../');
-var config = require('./config');
+var config = require('./config').oss;
 
 describe('test/bucket.test.js', function () {
   var prefix = utils.prefix;

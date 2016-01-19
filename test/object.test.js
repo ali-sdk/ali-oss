@@ -19,7 +19,9 @@ var cfs = require('co-fs');
 var Readable = require('stream').Readable;
 var utils = require('./utils');
 var oss = require('../');
-var config = require('./config');
+var sts = require('../').STS;
+var config = require('./config').oss;
+var stsConfig = require('./config').sts;
 var urllib = require('urllib');
 var copy = require('copy-to');
 
@@ -663,6 +665,46 @@ describe('test/object.test.js', function () {
 
       var url = store.signatureUrl(this.name);
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
+    });
+  });
+
+  describe('signatureUrl() with sts', function () {
+    before(function* () {
+      var stsClient = sts(stsConfig);
+      var result = yield stsClient.assumeRole(stsConfig.roleArn);
+      assert.equal(result.res.status, 200);
+
+      this.ossClient = oss({
+        region: 'oss-cn-hangzhou',
+        accessKeyId: result.credentials.AccessKeyId,
+        accessKeySecret: result.credentials.AccessKeySecret,
+        stsToken: result.credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+      });
+
+      this.name = 'sts/signature';
+      this.content = 'Get signature url with STS token.';
+      var result = yield this.ossClient.putData(this.name, {
+        content: this.content
+      });
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should signature url with sts', function* () {
+      var url = this.ossClient.signatureUrl(this.name);
+      var urlRes = yield urllib.request(url);
+      assert.equal(urlRes.data.toString(), this.content);
+    });
+
+    it('should overwrite response content-type & content-disposition', function* () {
+      var url = this.ossClient.signatureUrl(this.name, {
+        'content-type': 'text/custom',
+        'content-disposition': 'attachment'
+      });
+      var urlRes = yield urllib.request(url);
+      assert.equal(urlRes.data.toString(), this.content);
+      assert.equal(urlRes.headers['content-type'], 'text/custom');
+      assert.equal(urlRes.headers['content-disposition'], 'attachment');
     });
   });
 

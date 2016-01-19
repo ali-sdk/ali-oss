@@ -15,16 +15,9 @@
 var assert = require('assert');
 var sts = require('../').STS;
 var oss = require('..');
-var env = process.env;
+var stsConfig = require('./config').sts;
 
 describe('test/sts.test.js', function () {
-  var stsConfig = {
-    accessKeyId: env.ALI_SDK_STS_ID,
-    accessKeySecret: env.ALI_SDK_STS_SECRET,
-    roleArn: env.ALI_SDK_STS_ROLE,
-    bucket: env.ALI_SDK_STS_BUCKET
-  };
-
   describe('assumeRole()', function () {
     it('should assume role', function* () {
       var stsClient = sts(stsConfig);
