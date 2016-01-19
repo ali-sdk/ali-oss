@@ -69,10 +69,12 @@ describe('test/object.test.js', function () {
       assert.equal(r.content.toString(), fs.readFileSync(__filename, 'utf8'));
     });
 
-    it.skip('should add image with streaming way', function* () {
+    it('should add image with streaming way', function* () {
       var name = prefix + 'ali-sdk/oss/nodejs-1024x768.png';
       var imagepath = path.join(__dirname, 'nodejs-1024x768.png');
-      var object = yield this.store.putStream(name, fs.createReadStream(imagepath));
+      var object = yield this.store.putStream(name, fs.createReadStream(imagepath), {
+        mime: 'image/png'
+      });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
@@ -87,7 +89,7 @@ describe('test/object.test.js', function () {
       assert.deepEqual(r.content, buf);
     });
 
-    it.skip('should add very big file: 10mb with streaming way', function* () {
+    it('should add very big file: 10mb with streaming way', function* () {
       var name = prefix + 'ali-sdk/oss/bigfile-10mb.bin';
       var bigfile = path.join(__dirname, '.tmp', 'bigfile-10mb.bin');
       fs.writeFileSync(bigfile, new Buffer(10 * 1024 * 1024).fill('a\n'));
@@ -228,6 +230,71 @@ describe('test/object.test.js', function () {
       assert(object.name, name);
       var info = yield this.store.head(name);
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
+    });
+  });
+
+  describe('mimetype', function () {
+    var createFile = function* (name, size) {
+      size = size || 200 * 1024;
+      yield new Promise(function (resolve, reject) {
+        var rs = fs.createReadStream('/dev/random', {
+          start: 0,
+          end: size - 1
+        });
+        var ws = fs.createWriteStream(name);
+        rs.pipe(ws);
+        ws.on('finish', function (err, res) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
+        });
+      });
+
+      return name;
+    };
+
+    it('should set mimetype by file ext', function* () {
+      var filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      yield createFile(filepath);
+      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      yield this.store.put(name, filepath);
+
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/jpeg');
+
+      yield this.store.multipartUpload(name, filepath);
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/jpeg');
+    });
+
+    it('should set mimetype by object key', function* () {
+      var filepath = path.join(tmpdir, 'content-type-by-file');
+      yield createFile(filepath);
+      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      yield this.store.put(name, filepath);
+
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/png');
+      yield this.store.multipartUpload(name, filepath);
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/png');
+    });
+
+    it('should set user-specified mimetype', function* () {
+      var filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      yield createFile(filepath);
+      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      yield this.store.put(name, filepath, {mime: 'text/plain'});
+
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'text/plain');
+      yield this.store.multipartUpload(name, filepath, {
+        mime: 'text/plain'
+      });
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'text/plain');
     });
   });
 
