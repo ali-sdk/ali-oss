@@ -86,6 +86,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [imgClient.listStyle*([options])](#imgclientliststyleoptions)
   - [imgClient.deleteStyle*(name[, options])](#imgclientdeletestylename-options)
   - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
+- [For Browser Usage](#browser-usage)
 - [Known Errors](#known-errors)
 
 ## Data Regions
@@ -131,13 +132,13 @@ options:
 example:
 
 ```js
-var oss = require('ali-sdk').oss;
+var oss = require('ali-oss');
 
 var store = oss({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name'
-  region: 'oss-cn-hongkong'
+  region: 'oss-cn-hangzhou'
 });
 ```
 
@@ -1713,6 +1714,124 @@ Will put to all clients.
 - `client.copy()`
 - `client.putMeta()`
 
+## Browser Usage
+
+You can use most of the functionalities of `ali-oss` in browser with
+some exceptions:
+
+- put object with streaming: no chunked encoding, we use multipart
+  upload instead
+- get object to local file: we cannot manipulate file system in
+  browser, we provide signed object url for downloading needs
+- bucket operations(listBuckets, putBucketLogging, etc) will fail: OSS
+  server currently do not support CORS requests for bucket operations
+  (will probably be fixed later)
+
+### Setup
+
+#### Bucket setup
+
+As browser-side javascript involves CORS operations. You need to setup
+your bucket CORS rules to allow CORS operations:
+
+- include your domain in allowed origins
+- include your HTTP methods in allowed methods
+- include 'x-oss-date' and 'Authorization' in allowed headers
+- expose 'ETag' in expose headers
+
+#### STS setup
+
+As we don't want to expose the accessKeyId/accessKeySecret in the
+browser, a [common practice][oss-sts] is to use STS to grant temporary
+access.
+
+### Basic usage
+
+Include the sdk lib in the `<script>` tag and wrap your application
+logic in `upload.js`:
+
+```html
+<script type="javascript" src="https://pubcdn.oss.aliyuncs.com/aliyun-oss-sdk.min.js"></script>
+<script type="javascript" src="upload.js"></script>
+```
+In `upload.js` we have:
+
+```js
+var applyToken = function* () {
+  var url = appServer;
+  var result = yield OSS.urllib.requestThunk(url, {
+    method: 'GET'
+  });
+  return JSON.parse(result.data);
+};
+
+var progress = function* (p) {
+  var bar = document.getElementById('progress-bar');
+  bar.style.width = Math.floor(p * 100) + '%';
+  bar.innerHTML = Math.floor(p * 100) + '%';
+};
+
+var withStore = function (func) {
+  return function () {
+    OSS.co(function* () {
+      var creds = yield applyToken();
+      var store = new OSS({
+        region: region,
+        accessKeyId: creds.AccessKeyId,
+        accessKeySecret: creds.AccessKeySecret,
+        stsToken: creds.Security,
+        bucket: bucket
+      });
+
+      var result = yield func(store);
+
+      console.log(result);
+    }).then(function () {
+      // pass
+    }).catch(function (err) {
+      console.log(err);
+    });
+  };
+};
+
+var uploadFile = function* (store) {
+  var file = document.getElementById('file').files[0];
+  var key = document.getElementById('object-key-file').value.trim() || 'object';
+  console.log(file.name + ' => ' + key);
+
+  var result = yield store.multipartUpload(key, file, {progress: progress});
+  yield listFiles(store);
+
+  return result;
+};
+
+window.onload = function () {
+  document.getElementById('file-button').onclick = withStore(uploadFile);
+};
+```
+
+The full sample can be found [here][browser-sample].
+
+### How to build
+
+To build your own lib for browser usage, we need `browserify`. To be
+accepted by most browsers we need `babel`:
+
+```bash
+npm install -g browserify
+npm install --save-dev babelify
+npm install babel-preset-es2015 --save-dev
+echo '{ "presets": ["es2015"] }' > .babelrc
+browserify browser.js -t babelify -s OSS > aliyun-oss-sdk.js
+```
+
+Optionally, you may want to minimumize the script size:
+
+```
+npm install -g uglify-js
+uglifyjs aliyun-oss-sdk.js -c > aliyun-oss-sdk.min.js
+```
+
 ## Known Errors
 
 Each error return by OSS server will contains these properties:
@@ -1769,3 +1888,5 @@ TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数
 
 
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
+[oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
+[browser-sample]: https://github.com/rockuw/oss-in-browser
