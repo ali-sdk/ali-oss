@@ -21,7 +21,7 @@ var oss = require('../');
 var config = require('./config').oss;
 var urllib = require('urllib');
 var copy = require('copy-to');
-var md5 = require('md5');
+var md5 = require('utility').md5;
 var mm = require('mm');
 
 describe('test/multipart.test.js', function () {
