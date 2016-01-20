@@ -1215,4 +1215,41 @@ describe('test/object.test.js', function () {
       assert.equal(result.prefixes, null);
     });
   });
+
+  describe('object key encoding', function () {
+    it('should encode variant object keys', function* () {
+      var prefix = 'ali-oss-test-key-';
+      var keys = {
+        simple: 'simple_key',
+        chinese: '杭州・中国',
+        space: '是 空格 yeah +-/\\&*#(1) ',
+        invisible: '\x01\x0a\x0c\x07\x50\x63',
+        xml: 'a<b&c>d +'
+      };
+
+      var names = [];
+      for (var k in keys) {
+        var key = prefix + keys[k];
+        var result = yield this.store.put(key, new Buffer(''));
+        assert.equal(result.res.status, 200);
+
+        var result = yield this.store.list({
+          prefix: prefix
+        });
+        var objects = result.objects.map(function (obj) {
+          return obj.name;
+        });
+        assert(objects.indexOf(key) >= 0);
+
+        var result = yield this.store.head(key);
+        assert.equal(result.res.status, 200);
+
+        names.push(keys[k]);
+      }
+
+      var result = yield this.store.deleteMulti(names);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.deleted, names);
+    });
+  });
 });
