@@ -1751,7 +1751,7 @@ Include the sdk lib in the `<script>` tag and wrap your application
 logic in `upload.js`:
 
 ```html
-<script type="javascript" src="https://pubcdn.oss.aliyuncs.com/aliyun-oss-sdk.min.js"></script>
+<script type="javascript" src="https://gosspublic.alicdn.com/aliyun-oss-sdk.min.js"></script>
 <script type="javascript" src="upload.js"></script>
 ```
 In `upload.js` we have:
