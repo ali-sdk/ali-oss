@@ -24,7 +24,7 @@ describe('test/cluster.test.js', function () {
   afterEach(mm.restore);
 
   before(function* () {
-    this.region = 'oss-cn-hangzhou';
+    this.region = config.region;
     this.bucket1 = 'ali-oss-test-cluster1-' + prefix.replace(/[\/\.]/g, '');
     this.bucket2 = 'ali-oss-test-cluster2-' + prefix.replace(/[\/\.]/g, '');
     const client = oss(config);

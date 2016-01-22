@@ -31,7 +31,7 @@ describe('test/multipart.test.js', function () {
     this.store = oss(config);
     this.bucket = 'ali-oss-test-multipart-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    this.region = 'oss-cn-hangzhou';
+    this.region = config.region;
 
     yield this.store.putBucket(this.bucket, this.region);
     this.store.useBucket(this.bucket, this.region);

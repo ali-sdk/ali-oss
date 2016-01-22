@@ -37,7 +37,7 @@ describe('test/object.test.js', function () {
     this.store = oss(config);
     this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    this.region = 'oss-cn-hangzhou';
+    this.region = config.region;
 
     // console.log('current buckets: %j',
     //   (yield this.store.listBuckets()).buckets.map(function (item) {
@@ -742,7 +742,7 @@ describe('test/object.test.js', function () {
       assert.equal(result.res.status, 200);
 
       this.ossClient = oss({
-        region: 'oss-cn-hangzhou',
+        region: stsConfig.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,

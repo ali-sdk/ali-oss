@@ -13,6 +13,8 @@ env:
   - secure: A5B0GOXgKRNLc1+EAISSpxZeD9ZlPHJlv1vGUMXWv9qiR9KnZofh1GZYDbVKgOdbfPKSWgvb9vp8m1WPebOj8q/rT+DyfqRuKhqhQ2AudP2AcOBOATaOvLIMFrh4E+qdcvFq65A+nhg0b6EkINQjxrRyts/6gaAnQbshrYbElsc=
   - secure: bf2G/bsk8+7xBU3zVF47/U5+kfpcyBv14dNkiQzax9r9fyhUlyKSyDsoWbGKijWYYmp9vjQlo9ymhmnRP5+zKho9XhJ5qteZmElCtQkwvAmKVIeZPbTcYA+ofagU2WCggF4k3R/YtXRX8P+Ie/+ge1dhq4YX1fmbDWXalRdhO7M=
   - secure: F8d9Ix7IlWTA0XcxgxTlqzyIBkGJ0fT2YAa3GbpknU4KfrgK5rTzWNmN8N7Q2acxArjFRp2pYjFL/RlL8pI2skvj1HDK3FTABQh0cyBShhiuQLgm0xUSC3JSltpPBF4wEoC6Pdjd9oF1moc900A4g+pjCf/fx7vYm5GxnyHTKHI=
+  - secure: Og1xl8+NoUfc3ZlWT/yVOPy/8YhRHVNT2M+LVZ81iRwJNBxwm1cj40cck41Py2eG3AwH0yCj0K3u+o74fOHbTuYLzNskB1gYbA8m6v2vuMnGRblb6+UYEm3yUcYHJ4VXFMmFTMKyNoe/iqEpetgoKffbCAk3Xa7kZbbQR7T03tI=
+  - secure: U3H5UPqaGp0aaN9kPiNEE5HIVNcXViwO0M4SEfiRLxst6S/O6ANYolBQouwQRHHNg7FXOGhDETOHoCxgJO2W1uJOZ8lWMG+qE8RhesR7LE8tBkszNCaoCi11QQfGZtt68EbHXNaV6ibPSdoALBznxIOLmFOZaKkeS1HUaai+h2M=
 script: npm run test-cov
 after_script:
 - npm i codecov.io && cat ./coverage/coverage.json | ./node_modules/codecov.io/bin/codecov.io.js

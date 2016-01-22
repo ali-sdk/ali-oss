@@ -68,7 +68,7 @@ describe('test/sts.test.js', function () {
       assert.equal(result.res.status, 200);
 
       var ossClient = oss({
-        region: 'oss-cn-hangzhou',
+        region: stsConfig.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,

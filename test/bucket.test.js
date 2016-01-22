@@ -24,7 +24,7 @@ describe('test/bucket.test.js', function () {
     this.store = oss(config);
     this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    this.region = 'oss-cn-hangzhou';
+    this.region = config.region;
 
     var result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
@@ -61,7 +61,7 @@ describe('test/bucket.test.js', function () {
   describe('deleteBucket()', function () {
     it('should delete not exists bucket throw NoSuchBucketError', function* () {
       yield utils.throws(function* () {
-        yield this.store.deleteBucket('not-exists-bucket', 'oss-cn-hongkong');
+        yield this.store.deleteBucket('not-exists-bucket');
       }.bind(this), 'NoSuchBucketError');
     });
 
