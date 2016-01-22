@@ -21,6 +21,8 @@
  * </script>
  */
 
+require('babel-polyfill');
+
 var OSS = require('.');
 OSS.co = require('co');
 OSS.urllib = require('urllib');
