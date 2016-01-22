@@ -1,4 +1,56 @@
 
+4.0.0 / 2016-01-22 
+==================
+
+  * build: only test on 4&5
+  * Merge pull request #55 from rockuw/master
+  * add .babelrc
+  * use readAsArrayBuffer for IE11 doesn't support readAsBinaryString
+  * reduce putBucketACL() case
+  * avoid putBucketACL() timeout
+  * sleep logger in bucket.test.js
+  * add node 5 and tidy .travis.yml
+  * use ms to tidy code
+  * Wait some time in test for bucket meta sync
+  * make region configurable
+  * test travis ci
+  * Set sts client default timeout to 60s
+  * test travis ci
+  * handle policy string in STS
+  * Merge pull request #57 from ali-sdk/greenkeeper-autod-2.4.2
+  * fix cdn addr
+  * use utility.escape
+  * chore(package): update autod to version 2.4.2
+  * refine as review comments
+  * add object key encoding test
+  * refine bucket test
+  * add content type test
+  * add browser usage in README
+  * signatureUrl() supports STS
+  * refine as review comments
+  * Merge pull request #56 from ali-sdk/greenkeeper-merge-descriptors-1.0.1
+  * chore(package): update merge-descriptors to version 1.0.1
+  * add policy to STS assumeRole
+  * correct author & cont. remove indent tabs
+  * expose .putData as public function
+  * remove indent tabs
+  * add comments to browser.js
+  * add browser.js and change 'let' to 'var'
+  * move multipart into a separate file
+  * refine subres
+  * rich multipart test
+  * support STS in oss client
+  * add STS client, test pass
+  * fix bug in uploadPart, and refine multipart test
+  * support generator progress callback
+  * add progress callback
+  * browser multipartUpload test pass
+  * multipart for server test pass
+  * fix object url
+  * pass all tests
+  * refine client constructor to handle endpoint/ip/cname/region
+  * Change 'Date' header to 'x-oss-date' for browser compatibility
+
 3.1.3 / 2015-12-18
 ==================
 
