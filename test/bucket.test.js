@@ -110,7 +110,7 @@ describe('test/bucket.test.js', function () {
       assert.equal(result.res.status, 200);
       assert.equal(result.bucket, bucket);
 
-      yield utils.sleep(ms('30s'));
+      yield utils.sleep(ms('5s'));
 
       var result = yield this.store.getBucketACL(bucket);
       assert.equal(result.res.status, 200);
