@@ -1,16 +1,17 @@
 sudo: false
 language: node_js
-
 node_js:
 - '4'
 - '2'
 - '1'
-
 env:
   global:
   - secure: QIApsVB9jLtMX5aFPOszqhlEioNkOqjslE2loqAgVxhVgRimzaFyockRSAQzOrP6297hSdUhTfdj3X6ZqitSjfZiEXhVWYs2eGfE2KtPSKGYag5akN3ZiXxqtRL0WKsMD6ihd+h8gT05IZUFZiBoflHmqCqwySseQpwNwDUcWoo=
   - secure: d2KTOTdf0QHbTuhcwxnzuO5m1/jJEAx30a3O0xRaxl7nsVRYim9Z2bkUXqFuafU+s92iVkgrL4LEDmTx7lTdZyFtSUpvzzFZJ15LkXg3NedBY8OcA8RD5RGnDGVuru1fAvk2niZ/7GIUR9e9ktrHOG1oPtJ4tbBzWQkS+m1m8hw=
-
+  - secure: PP8tdmZQr//7CPm09REyoocZj3u4plNpqmaeS0YqE1qb/yf9cwv+ZSgmvATuMwg3cfQtsVwsg5yCPm9Ugd9dndrCQFvevGnYKeCPgsQLJiB/gJccZC3iAMvTxK6amP+tO1ssVLPqQxxMmWO5Uu21mSokI0ZdYfydZKSPkVYm6Rw=
+  - secure: Sj56ZeEZ48Sms7+jEI0qvrtEZoGc5ywotxYxvZ3EHg42Xpv6HBE6aEl3AZhz8ggQgmtJ/AneWLAZGOnZHpQiVrMetUa46HcAzCJ0h/wJXechpyu/KRTqaDjHkn3lD0yi+WnvBTYUIBr+Db8VwLbbcRVM2h/GxgBnWBTaE6jlmag=
+  - secure: WixkbIJUiMfk4YZ+6Unlya1zxBl0i8X90O6xjd+gGogTf2IHeNUM8alLAMe9uFajbQnej8vKI+Lx9DTfaICtEoacjuG0UX8udZgMMyGxwBc36FJbUxeTtXpXp/PIz0rjmEGdIlFrjReMFcPjgOvyPdSNtUXYPACfGQFEhy69nJM=
+  - secure: PADJkH7wZP4vfIhvobEW66vmqQuIu6LZH2fcQ+aFRPiOCLU18jRiyKIMzAT9+igQTS5/nLGOJP1O94rD0wXpf7A07fK3DUYOGvC/kzD/Gdh/EkcjeyrL/EX7vITeVZJIxlUVE/F5WHDs04Xpezi4DlsE0v1WBj/Im+JKR7yyoZA=
 script: npm run test-cov
 after_script:
-  - "npm i codecov.io && cat ./coverage/coverage.json | ./node_modules/codecov.io/bin/codecov.io.js"
+- npm i codecov.io && cat ./coverage/coverage.json | ./node_modules/codecov.io/bin/codecov.io.js
