@@ -91,17 +91,6 @@ describe('test/bucket.test.js', function () {
       var r = yield this.store.getBucketACL(this.bucket, this.region);
       assert.equal(r.res.status, 200);
       assert.equal(r.acl, 'public-read-write');
-
-      // again should work and change acl
-      var result = yield this.store.putBucketACL(this.bucket, this.region, 'public-read');
-      assert.equal(result.res.status, 200);
-      assert.equal(result.bucket, this.bucket);
-
-      yield utils.sleep(ms('30s'));
-
-      var r = yield this.store.getBucketACL(this.bucket, this.region);
-      assert.equal(r.res.status, 200);
-      assert.equal(r.acl, 'public-read');
     });
 
     it('should create and set acl when bucket not exists', function* () {
@@ -110,7 +99,7 @@ describe('test/bucket.test.js', function () {
       assert.equal(result.res.status, 200);
       assert.equal(result.bucket, bucket);
 
-      yield utils.sleep(ms('5s'));
+      yield utils.sleep(ms('10s'));
 
       var result = yield this.store.getBucketACL(bucket);
       assert.equal(result.res.status, 200);
