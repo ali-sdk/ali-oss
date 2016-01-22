@@ -1,16 +1,21 @@
 sudo: false
 language: node_js
-
 node_js:
-- '4'
-- '2'
-- '1'
-
+  - '5'
+  - '4'
+  - '2'
+  - '1'
 env:
   global:
-  - secure: QIApsVB9jLtMX5aFPOszqhlEioNkOqjslE2loqAgVxhVgRimzaFyockRSAQzOrP6297hSdUhTfdj3X6ZqitSjfZiEXhVWYs2eGfE2KtPSKGYag5akN3ZiXxqtRL0WKsMD6ihd+h8gT05IZUFZiBoflHmqCqwySseQpwNwDUcWoo=
-  - secure: d2KTOTdf0QHbTuhcwxnzuO5m1/jJEAx30a3O0xRaxl7nsVRYim9Z2bkUXqFuafU+s92iVkgrL4LEDmTx7lTdZyFtSUpvzzFZJ15LkXg3NedBY8OcA8RD5RGnDGVuru1fAvk2niZ/7GIUR9e9ktrHOG1oPtJ4tbBzWQkS+m1m8hw=
-
+    - secure: PP8tdmZQr//7CPm09REyoocZj3u4plNpqmaeS0YqE1qb/yf9cwv+ZSgmvATuMwg3cfQtsVwsg5yCPm9Ugd9dndrCQFvevGnYKeCPgsQLJiB/gJccZC3iAMvTxK6amP+tO1ssVLPqQxxMmWO5Uu21mSokI0ZdYfydZKSPkVYm6Rw=
+    - secure: Sj56ZeEZ48Sms7+jEI0qvrtEZoGc5ywotxYxvZ3EHg42Xpv6HBE6aEl3AZhz8ggQgmtJ/AneWLAZGOnZHpQiVrMetUa46HcAzCJ0h/wJXechpyu/KRTqaDjHkn3lD0yi+WnvBTYUIBr+Db8VwLbbcRVM2h/GxgBnWBTaE6jlmag=
+    - secure: WixkbIJUiMfk4YZ+6Unlya1zxBl0i8X90O6xjd+gGogTf2IHeNUM8alLAMe9uFajbQnej8vKI+Lx9DTfaICtEoacjuG0UX8udZgMMyGxwBc36FJbUxeTtXpXp/PIz0rjmEGdIlFrjReMFcPjgOvyPdSNtUXYPACfGQFEhy69nJM=
+    - secure: PADJkH7wZP4vfIhvobEW66vmqQuIu6LZH2fcQ+aFRPiOCLU18jRiyKIMzAT9+igQTS5/nLGOJP1O94rD0wXpf7A07fK3DUYOGvC/kzD/Gdh/EkcjeyrL/EX7vITeVZJIxlUVE/F5WHDs04Xpezi4DlsE0v1WBj/Im+JKR7yyoZA=
+    - secure: A5B0GOXgKRNLc1+EAISSpxZeD9ZlPHJlv1vGUMXWv9qiR9KnZofh1GZYDbVKgOdbfPKSWgvb9vp8m1WPebOj8q/rT+DyfqRuKhqhQ2AudP2AcOBOATaOvLIMFrh4E+qdcvFq65A+nhg0b6EkINQjxrRyts/6gaAnQbshrYbElsc=
+    - secure: bf2G/bsk8+7xBU3zVF47/U5+kfpcyBv14dNkiQzax9r9fyhUlyKSyDsoWbGKijWYYmp9vjQlo9ymhmnRP5+zKho9XhJ5qteZmElCtQkwvAmKVIeZPbTcYA+ofagU2WCggF4k3R/YtXRX8P+Ie/+ge1dhq4YX1fmbDWXalRdhO7M=
+    - secure: F8d9Ix7IlWTA0XcxgxTlqzyIBkGJ0fT2YAa3GbpknU4KfrgK5rTzWNmN8N7Q2acxArjFRp2pYjFL/RlL8pI2skvj1HDK3FTABQh0cyBShhiuQLgm0xUSC3JSltpPBF4wEoC6Pdjd9oF1moc900A4g+pjCf/fx7vYm5GxnyHTKHI=
+    - secure: Og1xl8+NoUfc3ZlWT/yVOPy/8YhRHVNT2M+LVZ81iRwJNBxwm1cj40cck41Py2eG3AwH0yCj0K3u+o74fOHbTuYLzNskB1gYbA8m6v2vuMnGRblb6+UYEm3yUcYHJ4VXFMmFTMKyNoe/iqEpetgoKffbCAk3Xa7kZbbQR7T03tI=
+    - secure: U3H5UPqaGp0aaN9kPiNEE5HIVNcXViwO0M4SEfiRLxst6S/O6ANYolBQouwQRHHNg7FXOGhDETOHoCxgJO2W1uJOZ8lWMG+qE8RhesR7LE8tBkszNCaoCi11QQfGZtt68EbHXNaV6ibPSdoALBznxIOLmFOZaKkeS1HUaai+h2M=
 script: npm run test-cov
 after_script:
-  - "npm i codecov.io && cat ./coverage/coverage.json | ./node_modules/codecov.io/bin/codecov.io.js"
+  - npm i codecov.io && cat ./coverage/coverage.json | ./node_modules/codecov.io/bin/codecov.io.js

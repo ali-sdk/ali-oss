@@ -19,8 +19,11 @@ var cfs = require('co-fs');
 var Readable = require('stream').Readable;
 var utils = require('./utils');
 var oss = require('../');
-var config = require('./config');
+var sts = require('../').STS;
+var config = require('./config').oss;
+var stsConfig = require('./config').sts;
 var urllib = require('urllib');
+var copy = require('copy-to');
 
 var tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -34,7 +37,7 @@ describe('test/object.test.js', function () {
     this.store = oss(config);
     this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    this.region = 'oss-cn-hangzhou';
+    this.region = config.region;
 
     // console.log('current buckets: %j',
     //   (yield this.store.listBuckets()).buckets.map(function (item) {
@@ -66,10 +69,12 @@ describe('test/object.test.js', function () {
       assert.equal(r.content.toString(), fs.readFileSync(__filename, 'utf8'));
     });
 
-    it.skip('should add image with streaming way', function* () {
+    it('should add image with streaming way', function* () {
       var name = prefix + 'ali-sdk/oss/nodejs-1024x768.png';
       var imagepath = path.join(__dirname, 'nodejs-1024x768.png');
-      var object = yield this.store.putStream(name, fs.createReadStream(imagepath));
+      var object = yield this.store.putStream(name, fs.createReadStream(imagepath), {
+        mime: 'image/png'
+      });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
@@ -84,7 +89,7 @@ describe('test/object.test.js', function () {
       assert.deepEqual(r.content, buf);
     });
 
-    it.skip('should add very big file: 10mb with streaming way', function* () {
+    it('should add very big file: 10mb with streaming way', function* () {
       var name = prefix + 'ali-sdk/oss/bigfile-10mb.bin';
       var bigfile = path.join(__dirname, '.tmp', 'bigfile-10mb.bin');
       fs.writeFileSync(bigfile, new Buffer(10 * 1024 * 1024).fill('a\n'));
@@ -225,6 +230,71 @@ describe('test/object.test.js', function () {
       assert(object.name, name);
       var info = yield this.store.head(name);
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
+    });
+  });
+
+  describe('mimetype', function () {
+    var createFile = function* (name, size) {
+      size = size || 200 * 1024;
+      yield new Promise(function (resolve, reject) {
+        var rs = fs.createReadStream('/dev/random', {
+          start: 0,
+          end: size - 1
+        });
+        var ws = fs.createWriteStream(name);
+        rs.pipe(ws);
+        ws.on('finish', function (err, res) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
+        });
+      });
+
+      return name;
+    };
+
+    it('should set mimetype by file ext', function* () {
+      var filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      yield createFile(filepath);
+      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      yield this.store.put(name, filepath);
+
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/jpeg');
+
+      yield this.store.multipartUpload(name, filepath);
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/jpeg');
+    });
+
+    it('should set mimetype by object key', function* () {
+      var filepath = path.join(tmpdir, 'content-type-by-file');
+      yield createFile(filepath);
+      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      yield this.store.put(name, filepath);
+
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/png');
+      yield this.store.multipartUpload(name, filepath);
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/png');
+    });
+
+    it('should set user-specified mimetype', function* () {
+      var filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      yield createFile(filepath);
+      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      yield this.store.put(name, filepath, {mime: 'text/plain'});
+
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'text/plain');
+      yield this.store.multipartUpload(name, filepath, {
+        mime: 'text/plain'
+      });
+      var result = yield this.store.head(name);
+      assert.equal(result.res.headers['content-type'], 'text/plain');
     });
   });
 
@@ -654,8 +724,54 @@ describe('test/object.test.js', function () {
     });
 
     it('should signature url with custom host ok', function* () {
-      var url = this.store.signatureUrl(this.name, 'www.aliyun.com');
+      var conf = {};
+      copy(config).to(conf);
+      conf.endpoint = 'www.aliyun.com';
+      conf.cname = true;
+      var store = oss(conf);
+
+      var url = store.signatureUrl(this.name);
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
+    });
+  });
+
+  describe('signatureUrl() with sts', function () {
+    before(function* () {
+      var stsClient = sts(stsConfig);
+      var result = yield stsClient.assumeRole(stsConfig.roleArn);
+      assert.equal(result.res.status, 200);
+
+      this.ossClient = oss({
+        region: stsConfig.region,
+        accessKeyId: result.credentials.AccessKeyId,
+        accessKeySecret: result.credentials.AccessKeySecret,
+        stsToken: result.credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+      });
+
+      this.name = 'sts/signature';
+      this.content = 'Get signature url with STS token.';
+      var result = yield this.ossClient.putData(this.name, {
+        content: this.content
+      });
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should signature url with sts', function* () {
+      var url = this.ossClient.signatureUrl(this.name);
+      var urlRes = yield urllib.request(url);
+      assert.equal(urlRes.data.toString(), this.content);
+    });
+
+    it('should overwrite response content-type & content-disposition', function* () {
+      var url = this.ossClient.signatureUrl(this.name, {
+        'content-type': 'text/custom',
+        'content-disposition': 'attachment'
+      });
+      var urlRes = yield urllib.request(url);
+      assert.equal(urlRes.data.toString(), this.content);
+      assert.equal(urlRes.headers['content-type'], 'text/custom');
+      assert.equal(urlRes.headers['content-disposition'], 'attachment');
     });
   });
 
@@ -1097,6 +1213,43 @@ describe('test/object.test.js', function () {
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
       assert.equal(result.prefixes, null);
+    });
+  });
+
+  describe('object key encoding', function () {
+    it('should encode variant object keys', function* () {
+      var prefix = 'ali-oss-test-key-';
+      var keys = {
+        simple: 'simple_key',
+        chinese: '杭州・中国',
+        space: '是 空格 yeah +-/\\&*#(1) ',
+        invisible: '\x01\x0a\x0c\x07\x50\x63',
+        xml: 'a<b&c>d +'
+      };
+
+      var names = [];
+      for (var k in keys) {
+        var key = prefix + keys[k];
+        var result = yield this.store.put(key, new Buffer(''));
+        assert.equal(result.res.status, 200);
+
+        var result = yield this.store.list({
+          prefix: prefix
+        });
+        var objects = result.objects.map(function (obj) {
+          return obj.name;
+        });
+        assert(objects.indexOf(key) >= 0);
+
+        var result = yield this.store.head(key);
+        assert.equal(result.res.status, 200);
+
+        names.push(keys[k]);
+      }
+
+      var result = yield this.store.deleteMulti(names);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.deleted, names);
     });
   });
 });

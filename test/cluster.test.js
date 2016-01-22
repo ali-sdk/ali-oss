@@ -2,8 +2,8 @@
  * Copyright(c) ali-sdk and other contributors.
  *
  * Authors:
- * 	 dead_horse <dead_horse@qq.com>
- * 	 fengmk2 <m@fengmk2.com> (http://fengmk2.com)
+ *       dead_horse <dead_horse@qq.com>
+ *       fengmk2 <m@fengmk2.com> (http://fengmk2.com)
  */
 
 'use strict';
@@ -14,7 +14,7 @@
 
 const oss = require('../');
 const cluster = require('../').ClusterClient;
-const config = require('./config');
+const config = require('./config').oss;
 const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
@@ -24,7 +24,7 @@ describe('test/cluster.test.js', function () {
   afterEach(mm.restore);
 
   before(function* () {
-    this.region = 'oss-cn-hangzhou';
+    this.region = config.region;
     this.bucket1 = 'ali-oss-test-cluster1-' + prefix.replace(/[\/\.]/g, '');
     this.bucket2 = 'ali-oss-test-cluster2-' + prefix.replace(/[\/\.]/g, '');
     const client = oss(config);
@@ -39,11 +39,13 @@ describe('test/cluster.test.js', function () {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket1,
+          endpoint: config.endpoint
         },
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket2,
+          endpoint: config.endpoint
         },
       ]
     };
