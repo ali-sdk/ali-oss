@@ -17,6 +17,7 @@ var utils = require('./utils');
 var oss = require('../');
 var config = require('./config').oss;
 var ms = require('humanize-ms');
+var metaSyncTime = require('./config').metaSyncTime;
 
 describe('test/bucket.test.js', function () {
   var prefix = utils.prefix;
@@ -86,7 +87,7 @@ describe('test/bucket.test.js', function () {
       assert.equal(result.bucket, this.bucket);
 
       // Need wait some time for bucket meta sync
-      yield utils.sleep(ms('30s'));
+      yield utils.sleep(ms(metaSyncTime));
 
       var r = yield this.store.getBucketACL(this.bucket, this.region);
       assert.equal(r.res.status, 200);
@@ -99,7 +100,7 @@ describe('test/bucket.test.js', function () {
       assert.equal(result.res.status, 200);
       assert.equal(result.bucket, bucket);
 
-      yield utils.sleep(ms('10s'));
+      yield utils.sleep(ms(metaSyncTime));
 
       var result = yield this.store.getBucketACL(bucket);
       assert.equal(result.res.status, 200);
@@ -180,7 +181,7 @@ describe('test/bucket.test.js', function () {
       });
       assert.equal(result.res.status, 200);
 
-      yield utils.sleep(ms('30s'));
+      yield utils.sleep(ms(metaSyncTime));
 
       // get
       var result = yield this.store.getBucketWebsite(this.bucket, this.region);
@@ -219,7 +220,7 @@ describe('test/bucket.test.js', function () {
       ]);
       assert.equal(result.res.status, 200);
 
-      yield utils.sleep(ms('30s'));
+      yield utils.sleep(ms(metaSyncTime));
 
       // get
       var result = yield this.store.getBucketLifecycle(this.bucket, this.region);
@@ -248,7 +249,7 @@ describe('test/bucket.test.js', function () {
       var result = yield this.store.putBucketReferer(this.bucket, this.region, false, referers);
       assert.equal(result.res.status, 200);
 
-      yield utils.sleep(ms('30s'));
+      yield utils.sleep(ms(metaSyncTime));
 
       // get
       var result = yield this.store.getBucketReferer(this.bucket, this.region);
