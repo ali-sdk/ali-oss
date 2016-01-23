@@ -1727,6 +1727,12 @@ some exceptions:
   server currently do not support CORS requests for bucket operations
   (will probably be fixed later)
 
+### Compatibility
+
+- IE >= 10 & Edge
+- Major versions of Chrome/Firefox/Safari
+- Major versions of Android/iOS/WP
+
 ### Setup
 
 #### Bucket setup

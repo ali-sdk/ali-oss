@@ -182,7 +182,7 @@ describe('test/multipart.test.js', function () {
       }
 
       yield new Promise(function (resolve, reject) {
-        var rs = fs.createReadStream('/dev/random', {
+        var rs = fs.createReadStream('/dev/urandom', {
           start: 0,
           end: size - 1
         });
