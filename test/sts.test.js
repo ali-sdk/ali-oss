@@ -15,6 +15,7 @@
 var assert = require('assert');
 var sts = require('../').STS;
 var oss = require('..');
+var config = require('./config').oss;
 var stsConfig = require('./config').sts;
 
 describe('test/sts.test.js', function () {
@@ -92,7 +93,7 @@ describe('test/sts.test.js', function () {
       assert.equal(result.res.status, 200);
 
       var ossClient = oss({
-        region: stsConfig.region,
+        region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,

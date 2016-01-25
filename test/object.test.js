@@ -742,11 +742,11 @@ describe('test/object.test.js', function () {
       assert.equal(result.res.status, 200);
 
       this.ossClient = oss({
-        region: stsConfig.region,
+        region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,
-        bucket: stsConfig.bucket,
+        bucket: stsConfig.bucket
       });
 
       this.name = 'sts/signature';

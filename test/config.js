@@ -10,11 +10,11 @@ config.oss = {
 };
 
 config.sts = {
-  region: env.ALI_SDK_STS_REGION || 'oss-cn-hangzhou',
   accessKeyId: env.ALI_SDK_STS_ID,
   accessKeySecret: env.ALI_SDK_STS_SECRET,
   roleArn: env.ALI_SDK_STS_ROLE,
-  bucket: env.ALI_SDK_STS_BUCKET
+  bucket: env.ALI_SDK_STS_BUCKET,
+  endpoint: env.TRAVIS ? 'https://sts.us-west-1.aliyuncs.com/' : null
 };
 
 config.metaSyncTime = env.TRAVIS ? '30s' : '10ms';
