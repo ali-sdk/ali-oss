@@ -234,9 +234,9 @@ describe('test/multipart.test.js', function () {
 
     it('should upload file using multipart upload', function* () {
       // create a file with 1M random data
-      var fileName = yield* createFile('multipart-upload', 1024 * 1024);
+      var fileName = yield* createFile('multipart-upload-file', 1024 * 1024);
 
-      var name = prefix + 'multipart/upload';
+      var name = prefix + 'multipart/upload-file';
       var result = yield this.store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
       });
@@ -248,6 +248,42 @@ describe('test/multipart.test.js', function () {
       assert.equal(object.content.length, fileBuf.length);
       // avoid comparing buffers directly for it may hang when generating diffs
       assert.deepEqual(md5(object.content), md5(fileBuf));
+    });
+
+    it('should upload web file using multipart upload', function* () {
+      var File = function (name, content) {
+        this.name = name;
+        this.buffer = content;
+        this.size = this.buffer.length;
+
+        this.slice = function (start, end) {
+          return new File(this.name, this.buffer.slice(start, end));
+        }
+      };
+      var FileReader = require('filereader');
+
+      mm(global, 'File', File);
+      mm(global, 'FileReader', FileReader);
+
+      // create a file with 1M random data
+      var fileName = yield* createFile('multipart-upload-webfile', 1024 * 1024);
+      var fileBuf = fs.readFileSync(fileName);
+      var webFile = new File(fileName, fileBuf);
+
+      var name = prefix + 'multipart/upload-webfile';
+      var result = yield this.store.multipartUpload(name, webFile, {
+        partSize: 100 * 1024,
+      });
+      assert.equal(result.res.status, 200);
+
+      var object = yield this.store.get(name);
+      assert.equal(object.res.status, 200);
+
+      assert.equal(object.content.length, fileBuf.length);
+      // avoid comparing buffers directly for it may hang when generating diffs
+      assert.deepEqual(md5(object.content), md5(fileBuf));
+
+      mm.restore();
     });
   });
 });
