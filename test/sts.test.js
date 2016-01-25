@@ -62,6 +62,30 @@ describe('test/sts.test.js', function () {
       assert.equal(result.res.status, 200);
     });
 
+    it('should handle error in assume role', function*() {
+      var stsClient = sts(stsConfig);
+      var policy = `
+      {
+        "Statements": [
+          {
+            "Action": [
+              "oss:*"
+            ],
+            "Effect": "Allow",
+            "Resource": ["acs:oss:*:*:*"]
+          }
+        ],
+        "Version": "1"
+      }`;
+
+      try {
+        yield* stsClient.assumeRole(stsConfig.roleArn, policy);
+        assert(false);
+      } catch (err) {
+        err.message.should.match(/InvalidParameter.PolicyGrammar/);
+      }
+    });
+
     it('should list objects using STS', function* () {
       var stsClient = sts(stsConfig);
       var result = yield* stsClient.assumeRole(stsConfig.roleArn);
