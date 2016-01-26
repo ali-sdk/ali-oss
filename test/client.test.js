@@ -163,7 +163,7 @@ describe('test/client.test.js', function () {
     var store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: '127.0.0.1'
+      endpoint: 'http://127.0.0.1:6000'
     });
 
     var params = {
@@ -171,7 +171,7 @@ describe('test/client.test.js', function () {
     };
 
     var url = store._getReqUrl(params);
-    assert.equal(url, 'http://127.0.0.1/gems/');
+    assert.equal(url, 'http://127.0.0.1:6000/gems/');
   });
 
   it('should create request url with bucket/object/subres', function() {
@@ -230,7 +230,7 @@ describe('test/client.test.js', function () {
     var store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: '127.0.0.1'
+      endpoint: 'http://127.0.0.1:3000'
     });
 
     var params = {
@@ -239,6 +239,6 @@ describe('test/client.test.js', function () {
     };
 
     var url = store._getReqUrl(params);
-    assert.equal(url, 'http://127.0.0.1/gems/hello');
+    assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
   });
 });

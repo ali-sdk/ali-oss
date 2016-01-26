@@ -24,6 +24,7 @@ var config = require('./config').oss;
 var stsConfig = require('./config').sts;
 var urllib = require('urllib');
 var copy = require('copy-to');
+var mm = require('mm');
 
 var tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -54,6 +55,8 @@ describe('test/object.test.js', function () {
   });
 
   describe('putStream()', function () {
+    afterEach(mm.restore);
+
     it('should add object with streaming way', function* () {
       var name = prefix + 'ali-sdk/oss/putStream-localfile.js';
       var object = yield this.store.putStream(name, fs.createReadStream(__filename));
@@ -67,6 +70,40 @@ describe('test/object.test.js', function () {
       var r = yield this.store.get(name);
       assert.equal(r.res.status, 200);
       assert.equal(r.content.toString(), fs.readFileSync(__filename, 'utf8'));
+    });
+
+    it('should use chunked encoding', function* () {
+      var name = prefix + 'ali-sdk/oss/chunked-encoding.js';
+      var headers;
+      var req = this.store.urllib.requestThunk;
+      mm(this.store.urllib, 'requestThunk', function (url, args) {
+        headers = args.headers;
+        return req(url, args);
+      });
+
+      var result = yield this.store.putStream(name, fs.createReadStream(__filename));
+
+      assert.equal(result.res.status, 200);
+      assert.equal(headers['Transfer-Encoding'], 'chunked');
+    });
+
+    it('should NOT use chunked encoding', function* () {
+      var name = prefix + 'ali-sdk/oss/no-chunked-encoding.js';
+      var headers;
+      var req = this.store.urllib.requestThunk;
+      mm(this.store.urllib, 'requestThunk', function (url, args) {
+        headers = args.headers;
+        return req(url, args);
+      });
+
+      var options = {
+        contentLength: fs.statSync(__filename).size
+      };
+      var result = yield this.store.putStream(
+        name, fs.createReadStream(__filename), options);
+
+      assert(!headers['Transfer-Encoding']);
+      assert.equal(result.res.status, 200);
     });
 
     it('should add image with streaming way', function* () {
@@ -139,16 +176,6 @@ describe('test/object.test.js', function () {
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(typeof object.res.headers.etag, 'string');
       assert(object.name, name);
-    });
-
-    it.skip('should throw TypeError when upload stream without Content-Length', function* () {
-      yield utils.throws(function* () {
-        var name = prefix + 'ali-sdk/oss/put-readstream';
-        yield this.store.put(name, fs.createReadStream(__filename));
-      }.bind(this), function (err) {
-        assert.equal(err.name, 'TypeError');
-        assert.equal(err.message, 'streaming upload must given the `Content-Length` header');
-      });
     });
 
     it('should add object with meta', function* () {
@@ -751,9 +778,7 @@ describe('test/object.test.js', function () {
 
       this.name = 'sts/signature';
       this.content = 'Get signature url with STS token.';
-      var result = yield this.ossClient.putData(this.name, {
-        content: this.content
-      });
+      var result = yield this.ossClient.put(this.name, new Buffer(this.content));
       assert.equal(result.res.status, 200);
     });
 
@@ -1250,6 +1275,29 @@ describe('test/object.test.js', function () {
       var result = yield this.store.deleteMulti(names);
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.deleted, names);
+    });
+  });
+
+  describe('putACL(), getACL()', function () {
+    it('should put and get object ACL', function* () {
+      var name = prefix + 'object/acl';
+      var result = yield this.store.put(name, new Buffer('hello world'));
+      assert.equal(result.res.status, 200);
+
+      var result = yield this.store.getACL(name);
+      assert.equal(result.res.status, 200);
+      assert.equal(result.acl, 'default');
+
+      var result = yield this.store.putACL(name, 'public-read');
+      assert.equal(result.res.status, 200);
+
+      var result = yield this.store.getACL(name);
+      assert.equal(result.res.status, 200);
+      assert.equal(result.acl, 'public-read');
+
+      var result = yield this.store.get(name);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.content, new Buffer('hello world'));
     });
   });
 });

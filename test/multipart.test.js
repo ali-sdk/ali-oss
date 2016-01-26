@@ -173,7 +173,7 @@ describe('test/multipart.test.js', function () {
   });
 
   describe('multipartUpload()', function () {
-    beforeEach(mm.restore);
+    afterEach(mm.restore);
 
     var createFile = function* (name, size) {
       var tmpdir = '/tmp/.oss/';
@@ -200,18 +200,28 @@ describe('test/multipart.test.js', function () {
       return tmpdir + name;
     };
 
-    it('should fallback to putData when file size is smaller than 100KB', function* () {
+    it('should fallback to putStream when file size is smaller than 100KB', function* () {
       var fileName = yield* createFile('multipart-fallback', 100 * 1024 - 1);
 
-      mm(this.store, '_putData', function* () {
-        assert.ok(true);
+      var putStreamCalled = false;
+      mm(this.store, 'putStream', function* () {
+        putStreamCalled = true;
       });
+      var uploadPartCalled = false;
       mm(this.store, '_uploadPart', function* () {
-        assert.ok(false);
+        uploadPartCalled = true;
       });
 
       var name = prefix + 'multipart/fallback';
-      yield this.store.multipartUpload(name, fileName);
+      var progress = 0;
+      yield this.store.multipartUpload(name, fileName, {
+        progress: function () {
+          progress++;
+        }
+      });
+      assert(putStreamCalled);
+      assert(!uploadPartCalled);
+      assert.equal(progress, 1);
     });
 
     it('should use default partSize when not specified', function* () {
@@ -237,10 +247,15 @@ describe('test/multipart.test.js', function () {
       var fileName = yield* createFile('multipart-upload-file', 1024 * 1024);
 
       var name = prefix + 'multipart/upload-file';
+      var progress = 0;
       var result = yield this.store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
+        progress: function () {
+          progress++;
+        }
       });
       assert.equal(result.res.status, 200);
+      assert.equal(progress, 11);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
