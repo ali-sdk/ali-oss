@@ -1252,4 +1252,27 @@ describe('test/object.test.js', function () {
       assert.deepEqual(result.deleted, names);
     });
   });
+
+  describe.only('putACL(), getACL()', function () {
+    it('should put and get object ACL', function* () {
+      var name = prefix + 'object/acl';
+      var result = yield this.store.put(name, new Buffer('hello world'));
+      assert.equal(result.res.status, 200);
+
+      var result = yield this.store.getACL(name);
+      assert.equal(result.res.status, 200);
+      assert.equal(result.acl, 'default');
+
+      var result = yield this.store.putACL(name, 'public-read');
+      assert.equal(result.res.status, 200);
+
+      var result = yield this.store.getACL(name);
+      assert.equal(result.res.status, 200);
+      assert.equal(result.acl, 'public-read');
+
+      var result = yield this.store.get(name);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.content, new Buffer('hello world'));
+    });
+  });
 });
