@@ -115,6 +115,15 @@ describe('test/object.test.js', function () {
       assert(object.name, name);
     });
 
+    it('should add object with local file path with chinese', function* () {
+      var name = prefix + 'ali-sdk/oss/测试.js';
+      var object = yield this.store.put(name, __filename);
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert(object.name, name);
+    });
+
     it('should add object with content buffer', function* () {
       var name = prefix + 'ali-sdk/oss/put-buffer';
       var object = yield this.store.put('/' + name, new Buffer('foo content'));
