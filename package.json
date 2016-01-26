@@ -40,6 +40,9 @@
     "should": "^7.1.0",
     "thunk-mocha": "^1.0.1"
   },
+  "publishConfig": {
+    "tag": "release-3"
+  },
   "dependencies": {
     "address": "~1.0.0",
     "agentkeepalive": "~2.0.3",
