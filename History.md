@@ -1,4 +1,11 @@
 
+4.1.0 / 2016-01-26
+==================
+
+  * refine put/putStream interfaces
+  * add putACL & getACL
+  * fix bug when endpoint is IP with port
+
 4.0.1 / 2016-01-25
 ==================
 
