@@ -1,4 +1,11 @@
 
+4.1.1 / 2016-01-27
+==================
+
+  * deps: update dependencies
+  * update dist
+  * add build-dist script
+
 4.1.0 / 2016-01-26
 ==================
 
