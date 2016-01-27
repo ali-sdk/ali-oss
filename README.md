@@ -1261,7 +1261,7 @@ var url = store.signatureUrl('ossdemo.txt');
 console.log(url);
 ```
 
-### .putACL(name, acl[, options])
+### .putACL*(name, acl[, options])
 
 Set object's ACL.
 
@@ -1288,7 +1288,7 @@ example:
 yield store.putACL('ossdemo.txt', 'public-read');
 ```
 
-### .getACL(name[, options])
+### .getACL*(name[, options])
 
 Get object's ACL.
 
