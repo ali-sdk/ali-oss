@@ -14,6 +14,9 @@
 
 var assert = require('assert');
 var oss = require('../');
+var config = require('./config').oss;
+var mm = require('mm');
+var pkg = require('../package.json');
 
 describe('test/client.test.js', function () {
   it('should init with region', function () {
@@ -240,5 +243,24 @@ describe('test/client.test.js', function () {
 
     var url = store._getReqUrl(params);
     assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
+  });
+
+  it('should set User-Agent', function* () {
+    after(mm.restore);
+
+    var store = oss(config);
+    var headers;
+    var req = store.urllib.requestThunk;
+    mm(store.urllib, 'requestThunk', function (url, args) {
+      headers = args.headers;
+      return req(url, args);
+    });
+
+    var result = yield store.listBuckets();
+    assert.equal(result.res.status, 200);
+    assert(headers['User-Agent']);
+    assert(headers['User-Agent'].startsWith('aliyun-sdk-nodejs/' + pkg.version));
+    assert(headers['x-oss-user-agent']);
+    assert(headers['x-oss-user-agent'].startsWith('aliyun-sdk-nodejs/' + pkg.version));
   });
 });
