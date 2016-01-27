@@ -637,7 +637,7 @@ proto._bucketRequestParams = function (method, bucket, subres, options) {
 };
 
 },{}],3:[function(require,module,exports){
-(function (Buffer){
+(function (process,Buffer){
 /**
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
@@ -665,6 +665,7 @@ var AgentKeepalive = require('agentkeepalive');
 var merge = require('merge-descriptors');
 var urlutil = require('url');
 var is = require('is-type-of');
+var pkg = require('../package.json');
 
 /**
  * Expose `Client`
@@ -844,10 +845,16 @@ proto.authorization = function (method, resource, subres, headers) {
  */
 
 proto.createRequest = function (params) {
+  // User-Agent: aliyun-sdk-(nodejs|js)/4.1.2 node-v5.3.0/darwin
+  var agent = process && process.browser ? 'js' : 'nodejs';
+  var userAgent = 'aliyun-sdk-' + agent + '/' + pkg.version + ' node-' + process.version + '/' + process.platform;
+
   var headers = {
     // For compatibility with IE10
     // Also MDN says `toGMTString()` is deprecated
-    'x-oss-date': new Date().toUTCString().replace('UTC', 'GMT')
+    'x-oss-date': new Date().toUTCString().replace('UTC', 'GMT'),
+    'x-oss-user-agent': userAgent,
+    'User-Agent': userAgent
   };
 
   if (this.options.stsToken) {
@@ -1160,8 +1167,8 @@ function getHeader(headers, name) {
   return headers[name] || headers[name.toLowerCase()];
 }
 
-}).call(this,require("buffer").Buffer)
-},{"./bucket":2,"./cluster":4,"./image":5,"./multipart":6,"./object":7,"./sts":8,"agentkeepalive":10,"buffer":219,"copy-to":459,"crypto":224,"debug":460,"humanize-ms":466,"is-type-of":468,"merge-descriptors":472,"mime":473,"path":422,"querystring":427,"url":450,"urllib":476,"xml2js":523}],4:[function(require,module,exports){
+}).call(this,require('_process'),require("buffer").Buffer)
+},{"../package.json":651,"./bucket":2,"./cluster":4,"./image":5,"./multipart":6,"./object":7,"./sts":8,"_process":423,"agentkeepalive":10,"buffer":219,"copy-to":459,"crypto":224,"debug":460,"humanize-ms":466,"is-type-of":468,"merge-descriptors":472,"mime":473,"path":422,"querystring":427,"url":450,"urllib":476,"xml2js":523}],4:[function(require,module,exports){
 (function (Buffer){
 /**!
  * Copyright(c) ali-sdk and other contributors.
@@ -59850,5 +59857,82 @@ function toString(value) {
 
 module.exports = toString;
 
-},{"./internal/Symbol":554,"./isSymbol":640}]},{},[1])(1)
+},{"./internal/Symbol":554,"./isSymbol":640}],651:[function(require,module,exports){
+module.exports={
+  "name": "ali-oss",
+  "version": "4.1.3",
+  "description": "aliyun oss(open storage service) node client",
+  "main": "lib/client.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "mocha --check-leaks -t 30000 -r thunk-mocha -r should test/*.test.js",
+    "test-cov": "istanbul cover node_modules/.bin/_mocha -- -R dot --check-leaks -t 60000 -r thunk-mocha -r should test/*.test.js",
+    "jshint": "jshint .",
+    "autod": "autod",
+    "build-dist": "browserify browser.js -t babelify -s OSS > dist/aliyun-oss-sdk.js && uglifyjs dist/aliyun-oss-sdk.js -c > dist/aliyun-oss-sdk.min.js"
+  },
+  "git-pre-hooks": {
+    "pre-release": "npm run build-dist",
+    "post-release": "npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aliyun/oss-nodejs-sdk.git"
+  },
+  "keywords": [
+    "oss",
+    "client",
+    "file",
+    "aliyun"
+  ],
+  "author": "dead_horse",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aliyun/oss-nodejs-sdk/issues"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
+  "devDependencies": {
+    "autod": "^2.4.2",
+    "babel-polyfill": "^6.3.14",
+    "babel-preset-es2015": "^6.3.13",
+    "babelify": "^7.2.0",
+    "bluebird": "^3.1.5",
+    "browserify": "^13.0.0",
+    "co-fs": "^1.2.0",
+    "filereader": "^0.10.3",
+    "git-pre-hooks": "^1.2.0",
+    "istanbul": "^0.4.2",
+    "mm": "^1.3.5",
+    "mocha": "^2.4.2",
+    "should": "^8.2.0",
+    "thunk-mocha": "^1.0.2",
+    "uglifyjs": "^2.4.10"
+  },
+  "dependencies": {
+    "address": "~1.0.0",
+    "agentkeepalive": "~2.0.3",
+    "co": "~4.6.0",
+    "co-defer": "~1.0.0",
+    "copy-to": "~2.0.1",
+    "debug": "~2.2.0",
+    "destroy": "~1.0.4",
+    "end-or-error": "~1.0.1",
+    "get-ready": "~1.0.0",
+    "humanize-ms": "~1.0.1",
+    "is-type-of": "~1.0.0",
+    "merge-descriptors": "~1.0.1",
+    "mime": "~1.3.4",
+    "sdk-base": "~1.1.0",
+    "urllib": "~2.7.0",
+    "utility": "~1.6.0",
+    "xml2js": "~0.4.16"
+  }
+}
+
+},{}]},{},[1])(1)
 });
