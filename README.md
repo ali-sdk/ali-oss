@@ -74,6 +74,8 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [.putMeta*(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti*(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name)](#signatureurlname)
+  - [.putACL*(name, acl[, options])](#putaclname-acl-options)
+  - [.getACL*(name[, options])](#getaclname-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
   - [#oss.ImageClient(options)](#ossimageclientoptions)
 - [Image Operations](#image-operations)
@@ -86,7 +88,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [imgClient.listStyle*([options])](#imgclientliststyleoptions)
   - [imgClient.deleteStyle*(name[, options])](#imgclientdeletestylename-options)
   - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
-- [For Browser Usage](#browser-usage)
+- [Browser Usage](#browser-usage)
 - [Known Errors](#known-errors)
 
 ## Data Regions
@@ -782,6 +784,7 @@ parameters:
 - name {String} object name store on OSS
 - stream {ReadStream} object ReadStream content instance
 - [options] {Object} optional parameters
+  - [contentLength] {Number} the stream length, `chunked encoding` will be used if absent
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
@@ -1256,6 +1259,61 @@ example:
 ```js
 var url = store.signatureUrl('ossdemo.txt');
 console.log(url);
+```
+
+### .putACL(name, acl[, options])
+
+Set object's ACL.
+
+parameters:
+
+- name {String} object name
+- acl {String} acl (private/public-read/public-read-write)
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- Set an object's ACL
+
+```js
+yield store.putACL('ossdemo.txt', 'public-read');
+```
+
+### .getACL(name[, options])
+
+Get object's ACL.
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- acl {String} acl settiongs string
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- Get an object's ACL
+
+```js
+var result = yield store.getACL('ossdemo.txt');
+console.log(result.acl);
 ```
 
 ## Create A Image Service Instance
@@ -1740,9 +1798,9 @@ some exceptions:
 As browser-side javascript involves CORS operations. You need to setup
 your bucket CORS rules to allow CORS operations:
 
-- include your domain in allowed origins
-- include your HTTP methods in allowed methods
-- include 'x-oss-date' and 'Authorization' in allowed headers
+- set allowed origins to '\*'
+- allowed methods to 'PUT, GET, POST, DELETE, HEAD'
+- set allowed headers to '\*'
 - expose 'ETag' in expose headers
 
 #### STS setup
@@ -1781,19 +1839,17 @@ var withStore = function (func) {
   return function () {
     OSS.co(function* () {
       var creds = yield applyToken();
+
       var store = new OSS({
-        region: region,
+        region: '<region>',
         accessKeyId: creds.AccessKeyId,
         accessKeySecret: creds.AccessKeySecret,
         stsToken: creds.Security,
-        bucket: bucket
+        bucket: '<bucket-name>'
       });
-
       var result = yield func(store);
 
       console.log(result);
-    }).then(function () {
-      // pass
     }).catch(function (err) {
       console.log(err);
     });
@@ -1806,7 +1862,6 @@ var uploadFile = function* (store) {
   console.log(file.name + ' => ' + key);
 
   var result = yield store.multipartUpload(key, file, {progress: progress});
-  yield listFiles(store);
 
   return result;
 };
@@ -1820,23 +1875,11 @@ The full sample can be found [here][browser-sample].
 
 ### How to build
 
-To build your own lib for browser usage, we need `browserify`. To be
-accepted by most browsers we need `babel`:
-
 ```bash
-npm install -g browserify
-npm install --save-dev babelify
-npm install babel-preset-es2015 --save-dev
-echo '{ "presets": ["es2015"] }' > .babelrc
-browserify browser.js -t babelify -s OSS > aliyun-oss-sdk.js
+npm run build-dist
 ```
 
-Optionally, you may want to minimumize the script size:
-
-```
-npm install -g uglify-js
-uglifyjs aliyun-oss-sdk.js -c > aliyun-oss-sdk.min.js
-```
+And see the build artifacts under `dist/`.
 
 ## Known Errors
 
