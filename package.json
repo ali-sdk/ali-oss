@@ -16,7 +16,7 @@
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
-    "post-release": "npm publish && npm run publish-to-cdn"
+    "post-release": ["npm publish", "npm run publish-to-cdn"]
   },
   "repository": {
     "type": "git",
