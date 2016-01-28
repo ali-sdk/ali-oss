@@ -259,8 +259,10 @@ describe('test/client.test.js', function () {
     var result = yield store.listBuckets();
     assert.equal(result.res.status, 200);
     assert(headers['User-Agent']);
-    assert(headers['User-Agent'].startsWith('aliyun-sdk-nodejs/' + pkg.version));
+    assert(headers['User-Agent'].startsWith(
+      'aliyun-sdk-nodejs/' + pkg.version + ' Node.js ' + process.version.slice(1)));
     assert(headers['x-oss-user-agent']);
-    assert(headers['x-oss-user-agent'].startsWith('aliyun-sdk-nodejs/' + pkg.version));
+    assert(headers['x-oss-user-agent'].startsWith(
+      'aliyun-sdk-nodejs/' + pkg.version + ' Node.js ' + process.version.slice(1)));
   });
 });
