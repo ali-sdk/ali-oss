@@ -1,4 +1,11 @@
 
+4.1.4 / 2016-01-28
+==================
+
+  * improve user-agent test
+  * use platform to detect browser user agent
+  * add script to publish dist/ to cdn after each release
+
 4.1.3 / 2016-01-27
 ==================
 
