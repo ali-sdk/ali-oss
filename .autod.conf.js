@@ -12,6 +12,7 @@ module.exports = {
   ],
   exclude: [
     'dist',
-    'browser.js'
+    'browser.js',
+    'publish.js'
   ],
 };

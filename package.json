@@ -11,11 +11,12 @@
     "test-cov": "istanbul cover node_modules/.bin/_mocha -- -R dot --check-leaks -t 60000 -r thunk-mocha -r should test/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
-    "build-dist": "browserify browser.js -t babelify -s OSS > dist/aliyun-oss-sdk.js && uglifyjs dist/aliyun-oss-sdk.js -c > dist/aliyun-oss-sdk.min.js"
+    "build-dist": "browserify browser.js -t babelify -s OSS > dist/aliyun-oss-sdk.js && uglifyjs dist/aliyun-oss-sdk.js -c > dist/aliyun-oss-sdk.min.js",
+    "publish-to-cdn": "node publish.js"
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
-    "post-release": "npm publish"
+    "post-release": "npm publish && npm run publish-to-cdn"
   },
   "repository": {
     "type": "git",
