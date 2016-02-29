@@ -7,8 +7,8 @@
     "lib"
   ],
   "scripts": {
-    "test": "mocha --check-leaks -t 30000 -r thunk-mocha -r should test/*.test.js",
-    "test-cov": "istanbul cover node_modules/.bin/_mocha -- -R dot --check-leaks -t 60000 -r thunk-mocha -r should test/*.test.js",
+    "test": "mocha -t 30000 -r thunk-mocha -r should test/*.test.js",
+    "test-cov": "istanbul cover node_modules/.bin/_mocha -- -R dot -t 60000 -r thunk-mocha -r should test/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
     "build-dist": "browserify browser.js -t babelify -s OSS > dist/aliyun-oss-sdk.js && uglifyjs dist/aliyun-oss-sdk.js -c > dist/aliyun-oss-sdk.min.js",
