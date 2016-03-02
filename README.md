@@ -76,7 +76,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
-  - [.multipartUpload*(name, file[, options)](#multipartuploadname-file-options)
+  - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
   - [.listUploads*(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
