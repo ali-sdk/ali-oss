@@ -1239,7 +1239,7 @@ var result = yield store.list({
 console.log(result.objects);
 ```
 
-### .signatureUrl(name[, method, options])
+### .signatureUrl(name[, options])
 
 Create a signature url for download or upload object.
 
