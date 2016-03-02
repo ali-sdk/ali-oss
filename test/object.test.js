@@ -743,6 +743,12 @@ describe('test/object.test.js', function () {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
+    it('should signature url for PUT', function* () {
+      var url = this.store.signatureUrl(this.name, {method: 'PUT'});
+      var res = yield urllib.request(url, {method: 'PUT'});
+      assert.equal(res.status, 200);
+    });
+
     it('should signature url get need escape object ok', function* () {
       var result = yield this.store.get(this.needEscapeName);
       var url = this.store.signatureUrl(this.needEscapeName);
@@ -790,8 +796,11 @@ describe('test/object.test.js', function () {
 
     it('should overwrite response content-type & content-disposition', function* () {
       var url = this.ossClient.signatureUrl(this.name, {
-        'content-type': 'text/custom',
-        'content-disposition': 'attachment'
+        expires: 3600,
+        response: {
+          'content-type': 'text/custom',
+          'content-disposition': 'attachment'
+        }
       });
       var urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), this.content);

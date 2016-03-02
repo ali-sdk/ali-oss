@@ -73,7 +73,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [.copy*(name, sourceName[, options])](#copyname-sourcename-options)
   - [.putMeta*(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti*(names[, options])](#deletemultinames-options)
-  - [.signatureUrl(name)](#signatureurlname)
+  - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
@@ -1239,25 +1239,45 @@ var result = yield store.list({
 console.log(result.objects);
 ```
 
-### .signatureUrl(name)
+### .signatureUrl(name[, options])
 
-Create a signature url for directly download.
+Create a signature url for download or upload object.
 
 parameters:
 
 - name {String} object name store on OSS
 - [options] {Object} optional parameters
   - [expires] {Number} after expires seconds, the url will become invalid, default is `1800`
-  - [timeout] {Number} the operation timeout
+  - [method] {String} the HTTP method, default is 'GET'
+  - [response] {Object} set the response headers for download
+    - [content-type] {String} set the response content type
+    - [content-disposition] {String} set the response content disposition
+    - [cache-control] {String} set the response cache control
+    - See more: https://help.aliyun.com/document_detail/oss/api-reference/object/GetObject.html
 
 Success will return signature url.
 
 example:
 
-- Get an object signature url for download
+- Get signature url for object
 
 ```js
 var url = store.signatureUrl('ossdemo.txt');
+console.log(url);
+
+var url = store.signatureUrl('ossdemo.txt', {
+  expires: 3600,
+  method: 'PUT'
+});
+console.log(url);
+
+var url = store.signatureUrl('ossdemo.txt', {
+  expires: 3600,
+  response: {
+    'content-type': 'text/custom',
+    'content-disposition': 'attachment'
+  }
+});
 console.log(url);
 ```
 
