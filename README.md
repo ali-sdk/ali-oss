@@ -73,7 +73,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [.copy*(name, sourceName[, options])](#copyname-sourcename-options)
   - [.putMeta*(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti*(names[, options])](#deletemultinames-options)
-  - [.signatureUrl(name[, method, options])](#signatureurlname-method-options)
+  - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
@@ -1241,33 +1241,36 @@ console.log(result.objects);
 
 ### .signatureUrl(name[, method, options])
 
-Create a signature url for download or upload.
+Create a signature url for directly download.
 
 parameters:
 
 - name {String} object name store on OSS
-- [method] {String} the HTTP method
 - [options] {Object} optional parameters
   - [expires] {Number} after expires seconds, the url will become invalid, default is `1800`
-  - [content-type] {String} (only for GET) set the response content type
-  - [content-disposition] {String} (only for GET) set the response content disposition
-  - [cache-control] {String} (only for GET) set the response cache control
+  - [content-type] {String} set the response content type
+  - [content-disposition] {String} set the response content disposition
+  - [cache-control] {String} set the response cache control
   - See more: https://help.aliyun.com/document_detail/oss/api-reference/object/GetObject.html
 
 Success will return signature url.
 
 example:
 
-- Get signature url
+- Get an object signature url for download
 
 ```js
 var url = store.signatureUrl('ossdemo.txt');
 console.log(url);
 
-var url = store.signatureUrl('ossdemo.txt', 'PUT');
+var url = store.signatureUrl('ossdemo.txt', {expires: 3600});
 console.log(url);
 
-var url = store.signatureUrl('ossdemo.txt', {expires: 3600});
+var url = store.signatureUrl('ossdemo.txt', {
+  'expires': 3600,
+  'content-type': 'text/custom',
+  'content-disposition': 'attachment'
+});
 console.log(url);
 ```
 
