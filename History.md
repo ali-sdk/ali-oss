@@ -1,4 +1,16 @@
 
+4.1.5 / 2016-03-02
+==================
+
+  * add README for multipart
+  * provide checkpoint in multipart upload progress
+  * allow more HTTP methods in signatureUrl
+  * allow config expires in signatureUrl
+  * ignore image-client coverage
+  * stop check leaks in test, work around #74
+  * chore(package): update urllib to version 2.8.0
+  * fix post-release
+
 4.1.4 / 2016-01-28
 ==================
 
