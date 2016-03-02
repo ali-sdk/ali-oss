@@ -300,5 +300,51 @@ describe('test/multipart.test.js', function () {
 
       mm.restore();
     });
+
+    it('should resume upload using checkpoint', function* () {
+      var _uploadPart = this.store._uploadPart;
+      mm(this.store, '_uploadPart', function* (name, uploadId, partNo, data) {
+        if (partNo == 5) {
+          throw new Error('mock upload part fail.');
+        } else {
+          return _uploadPart.call(this, name, uploadId, partNo, data);
+        }
+      });
+
+      // create a file with 1M random data
+      var fileName = yield* createFile('multipart-upload-file', 1024 * 1024);
+
+      var name = prefix + 'multipart/upload-file';
+      var cptFile = '/tmp/.oss/cpt.json';
+      var progress = 0;
+      try {
+        var result = yield this.store.multipartUpload(name, fileName, {
+          partSize: 100 * 1024,
+          progress: function (percent, cpt) {
+            progress ++;
+            fs.writeFileSync(cptFile, JSON.stringify(cpt));
+          }
+        });
+      } catch (err) {
+        // pass
+      }
+
+      mm.restore();
+      var result = yield this.store.multipartUpload(name, fileName, {
+        checkpoint: JSON.parse(fs.readFileSync(cptFile)),
+        progress: function () {
+          progress ++;
+        }
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(progress, 11);
+
+      var object = yield this.store.get(name);
+      assert.equal(object.res.status, 200);
+      var fileBuf = fs.readFileSync(fileName);
+      assert.equal(object.content.length, fileBuf.length);
+      // avoid comparing buffers directly for it may hang when generating diffs
+      assert.deepEqual(md5(object.content), md5(fileBuf));
+    });
   });
 });

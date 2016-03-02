@@ -76,6 +76,9 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
+  - [.multipartUpload*(name, file[, options)](#multipartuploadname-file-options)
+  - [.listUploads*(query[, options])](#listuploadsquery-options)
+  - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
   - [#oss.ImageClient(options)](#ossimageclientoptions)
 - [Image Operations](#image-operations)
@@ -1336,6 +1339,101 @@ var result = yield store.getACL('ossdemo.txt');
 console.log(result.acl);
 ```
 
+### .multipartUpload*(name, file[, options)
+
+Upload file with [OSS multipart][oss-multipart].
+
+parameters:
+
+- name {String} object name
+- file {String|File} file path or HTML5 Web File
+- [options] {Object} optional args
+  - [partSize] {Number} the suggested size for each part
+  - [progress] {Function} the progress callback called after each
+    successful upload of one part, it will be given two parameters:
+    (percentage {Number}, checkpoint {Object})
+  - [checkpoint] {Object} the checkpoint to resume upload, if this is
+    provided, it will continue the upload from where interrupted,
+    otherwise a new multipart upload will be created.
+
+example:
+
+- Upload using multipart
+
+```js
+var result = yield store.multipartUpload('object', '/tmp/file');
+console.log(result);
+
+var result = yield store.multipartUpload('object', '/tmp/file', {
+  partSize: 1024 * 1024,
+  progress: function* (p, cpt) {
+    console.log(p);
+    console.log(cpt);
+  }
+});
+
+var result = yield store.multipartUpload('object', '/tmp/file', {
+  checkpoint: savedCpt,
+  progress: function* (p, cpt) {
+    console.log(p);
+    console.log(cpt);
+  }
+});
+
+```
+
+### .listUploads*(query[, options])
+
+List on-going multipart uploads, i.e.: those not completed and not
+aborted.
+
+parameters:
+
+- query {Object} query parameters
+  - [prefix] {String} the object key prefix
+  - [max-uploads] {Number} the max uploads to return
+  - [key-marker] {String} the object key marker, if `upload-id-marker`
+    is not provided, return uploads with `key > marker`, otherwise
+    return uploads with `key >= marker && uploadId > id-marker`
+  - [upload-id-marker] {String} the upload id marker, must be used
+    **WITH** `key-marker`
+- [options] {Object} optional args
+  - [timeout] {Number} the operation timeout
+
+example:
+
+- List on-going multipart uploads
+
+```js
+
+var result = yield store.listUploads({
+  'max-uploads': 100,
+  'key-marker': 'my-object',
+  'upload-id-marker': 'upload-id'
+});
+console.log(result);
+```
+
+### .abortMultipartUpload*(name, uploadId[, options])
+
+Abort a multipart upload for object.
+
+parameters:
+
+- name {String} the object name
+- uploadId {String} the upload id
+- [options] {Object} optional args
+  - [timeout] {Number} the operation timeout
+
+example:
+
+- Abort a multipart upload
+
+```js
+var result = yield store.abortMultipartUpload('object', 'upload-id');
+console.log(result);
+```
+
 ## Create A Image Service Instance
 
 Each Image Service instance required `accessKeyId`, `accessKeySecret`, `bucket` and `imageHost`.
@@ -1959,3 +2057,4 @@ TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
 [browser-sample]: https://github.com/rockuw/oss-in-browser
+[oss-multipart]: https://help.aliyun.com/document_detail/oss/api-reference/multipart-upload/InitiateMultipartUpload.html
