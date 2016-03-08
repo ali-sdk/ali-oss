@@ -22,7 +22,7 @@ describe('test/bucket.test.js', function () {
 
   before(function* () {
     this.store = oss(config);
-    this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = 'ali-oss-bucket-test-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = 'oss-cn-hangzhou';
 
