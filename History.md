@@ -1,4 +1,11 @@
 
+4.1.6 / 2016-03-16
+==================
+
+  * Replace babel-polyfill with babel-runtime to avoid conflict with react
+  * chore(package): update sdk-base to version 2.0.1
+  * chore(package): update sdk-base to version 2.0.0
+
 4.1.5 / 2016-03-02
 ==================
 
