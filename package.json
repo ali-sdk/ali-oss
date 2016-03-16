@@ -42,7 +42,8 @@
   "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
   "devDependencies": {
     "autod": "^2.4.2",
-    "babel-polyfill": "^6.3.14",
+    "babel-runtime": "^6.6.1",
+    "babel-plugin-transform-runtime": "^6.6.0",
     "babel-preset-es2015": "^6.3.13",
     "babelify": "^7.2.0",
     "bluebird": "^3.1.5",
