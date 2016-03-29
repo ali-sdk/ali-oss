@@ -265,4 +265,15 @@ describe('test/client.test.js', function () {
     assert(headers['x-oss-user-agent'].startsWith(
       'aliyun-sdk-nodejs/' + pkg.version + ' Node.js ' + process.version.slice(1)));
   });
+
+  it('should trim access id/key', function* () {
+    var store = oss({
+      accessKeyId: '  \tfoo\t\n  ',
+      accessKeySecret: '  \tbar\n\r   ',
+      region: 'oss-cn-hangzhou',
+    });
+
+    assert.equal(store.options.accessKeyId, 'foo');
+    assert.equal(store.options.accessKeySecret, 'bar');
+  });
 });
