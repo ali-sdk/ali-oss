@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "address": "~1.0.0",
-    "agentkeepalive": "~2.0.3",
+    "agentkeepalive": "~2.1.0",
     "co": "~4.6.0",
     "co-defer": "~1.0.0",
     "copy-to": "~2.0.1",
