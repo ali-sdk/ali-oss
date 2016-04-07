@@ -680,6 +680,7 @@ var merge = require('merge-descriptors');
 var urlutil = require('url');
 var is = require('is-type-of');
 var platform = require('platform');
+var utility = require('utility');
 var pkg = require('../package.json');
 
 /**
@@ -719,7 +720,7 @@ function Client(options) {
   } else if (this.options.region) {
     this.options.endpoint = this._setRegion(this.options.region, this.options.internal, this.options.secure);
   } else {
-    throw new Error('require region or endpoint.');
+    throw new Error('require options.endpoint or options.region');
   }
 
   // support custom agent and urllib client
@@ -1013,10 +1014,13 @@ proto._setRegion = function (region, internal, secure) {
   return urlutil.parse(protocol + region + suffix);
 };
 
+proto._escape = function (name) {
+  return utility.encodeURIComponent(name).replace(/%2F/g, '/');
+};
+
 proto._getReqUrl = function (params) {
   var ep = {};
   copy(this.options.endpoint).to(ep);
-
   var isIP = this._isIP(ep.hostname);
   var isCname = this.options.cname;
   if (params.bucket && !isCname && !isIP) {
@@ -1030,7 +1034,7 @@ proto._getReqUrl = function (params) {
 
   if (params.object) {
     // Preserve '/' in result url
-    path += encodeURIComponent(params.object).replace(/%2F/g, '/');
+    path += this._escape(params.object);
   }
   ep.pathname = path;
 
@@ -1189,7 +1193,7 @@ function getHeader(headers, name) {
 }
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"../package.json":564,"./bucket":2,"./cluster":4,"./image":5,"./multipart":6,"./object":7,"./sts":8,"_process":329,"agentkeepalive":10,"babel-runtime/core-js/object/keys":17,"babel-runtime/regenerator":108,"buffer":126,"copy-to":366,"crypto":131,"debug":367,"humanize-ms":373,"is-type-of":375,"merge-descriptors":379,"mime":380,"path":328,"platform":382,"querystring":333,"url":357,"urllib":384,"xml2js":435}],4:[function(require,module,exports){
+},{"../package.json":564,"./bucket":2,"./cluster":4,"./image":5,"./multipart":6,"./object":7,"./sts":8,"_process":329,"agentkeepalive":10,"babel-runtime/core-js/object/keys":17,"babel-runtime/regenerator":108,"buffer":126,"copy-to":366,"crypto":131,"debug":367,"humanize-ms":373,"is-type-of":375,"merge-descriptors":379,"mime":380,"path":328,"platform":382,"querystring":333,"url":357,"urllib":384,"utility":430,"xml2js":435}],4:[function(require,module,exports){
 (function (Buffer){
 /**!
  * Copyright(c) ali-sdk and other contributors.
@@ -2501,7 +2505,7 @@ proto._divideParts = function (file, fileSize, partSize) {
 
 }).call(this,require("buffer").Buffer)
 },{"babel-runtime/regenerator":108,"buffer":126,"debug":367,"destroy":370,"end-or-error":371,"fs":110,"is-type-of":375,"mime":380,"path":328,"stream":348,"util":360}],7:[function(require,module,exports){
-/**!
+/**
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
@@ -3174,6 +3178,21 @@ proto.signatureUrl = function (name, options) {
   copy(query).to(url.query);
 
   return url.format();
+};
+
+/**
+ * Get Object url by name
+ * @param {String} name - object name
+ * @param {String} [baseUrl] - If provide `baseUrl`, will use `baseUrl` instead the default `endpoint`.
+ * @return {String} object url
+ */
+proto.getObjectUrl = function (name, baseUrl) {
+  if (!baseUrl) {
+    baseUrl = this.options.endpoint.format();
+  } else if (baseUrl[baseUrl.length - 1] !== '/') {
+    baseUrl += '/';
+  }
+  return baseUrl + this._escape(this._objectName(name));
 };
 
 proto._objectUrl = function (name) {
@@ -55009,7 +55028,7 @@ module.exports = toString;
 },{"./_Symbol":459,"./isSymbol":554}],564:[function(require,module,exports){
 module.exports={
   "name": "ali-oss",
-  "version": "4.1.7",
+  "version": "4.2.0",
   "description": "aliyun oss(open storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -55069,7 +55088,7 @@ module.exports={
   },
   "dependencies": {
     "address": "~1.0.0",
-    "agentkeepalive": "~2.0.3",
+    "agentkeepalive": "~2.1.1",
     "co": "~4.6.0",
     "co-defer": "~1.0.0",
     "copy-to": "~2.0.1",
@@ -55077,14 +55096,14 @@ module.exports={
     "destroy": "~1.0.4",
     "end-or-error": "~1.0.1",
     "get-ready": "~1.0.0",
-    "humanize-ms": "~1.0.1",
+    "humanize-ms": "~1.0.2",
     "is-type-of": "~1.0.0",
     "merge-descriptors": "~1.0.1",
     "mime": "~1.3.4",
     "platform": "~1.3.1",
     "sdk-base": "~2.0.1",
     "urllib": "~2.8.0",
-    "utility": "~1.6.0",
+    "utility": "~1.7.0",
     "xml2js": "~0.4.16"
   }
 }
