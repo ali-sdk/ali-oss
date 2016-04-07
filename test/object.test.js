@@ -1,4 +1,4 @@
-/**!
+/**
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
@@ -144,6 +144,20 @@ describe('test/object.test.js', function () {
       var buf = fs.readFileSync(bigfile);
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
+    });
+  });
+
+  describe('getObjectUrl()', function() {
+    it('should return object url', function() {
+      var name = 'test.js';
+      var url = this.store.getObjectUrl(name);
+      assert.equal(url, this.store.options.endpoint.format() + name);
+
+      var name = '/foo/bar/a%2Faa/test&+-123~!.js';
+      var url = this.store.getObjectUrl(name, 'https://foo.com');
+      assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      var url2 = this.store.getObjectUrl(name, 'https://foo.com/');
+      assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
     });
   });
 
@@ -707,7 +721,7 @@ describe('test/object.test.js', function () {
         });
         assert.equal(result.res.headers['content-length'], '10');
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-        assert.equal(result.content.toString(), '/**!\n * Co');
+        assert.equal(result.content.toString(), '/**\n * Cop');
       });
     });
   });
@@ -756,7 +770,7 @@ describe('test/object.test.js', function () {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-    it('should signature url with custom host ok', function* () {
+    it('should signature url with custom host ok', function() {
       var conf = {};
       copy(config).to(conf);
       conf.endpoint = 'www.aliyun.com';
@@ -764,6 +778,7 @@ describe('test/object.test.js', function () {
       var store = oss(conf);
 
       var url = store.signatureUrl(this.name);
+      // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
   });

@@ -66,6 +66,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [.list*(query[, options])](#listquery-options)
   - [.put*(name, file[, options])](#putname-file-options)
   - [.putStream*(name, stream[, options])](#putstreamname-stream-options)
+  - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
   - [.head*(name[, options])](#headname-options)
   - [.get*(name, file[, options])](#getname-file-options)
   - [.getStream*(name[, options])](#getstreamname-options)
@@ -96,15 +97,18 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
 
 ## Data Regions
 
-[OSS current data regions](http://help.aliyun.com/knowledge_detail.htm?spm=5176.775974651.2.5.zVuYfO&categoryId=8314912&knowledgeId=5974206&pos=1).
+[OSS current data regions](https://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html).
 
-name | country | city | domain | inner domains
+region | country | city | endpoint | internal endpoint
 ---  | ---     | ---  | --- | ---
 oss-cn-hangzhou | China | HangZhou | oss-cn-hangzhou.aliyuncs.com | oss-cn-hangzhou-internal.aliyuncs.com
+oss-cn-shanghai | China | ShangHai | oss-cn-shanghai.aliyuncs.com | oss-cn-shanghai-internal.aliyuncs.com
 oss-cn-qingdao | China | QingDao | oss-cn-qingdao.aliyuncs.com | oss-cn-qingdao-internal.aliyuncs.com
 oss-cn-beijing | China | BeiJing | oss-cn-beijing.aliyuncs.com | oss-cn-beijing-internal.aliyuncs.com
-oss-cn-hongkong | China | HongKong | oss-cn-hongkong.aliyuncs.com | oss-cn-hongkong-internal.aliyuncs.com
 oss-cn-shenzhen | China | ShenZhen | oss-cn-shenzhen.aliyuncs.com | oss-cn-shenzhen-internal.aliyuncs.com
+oss-cn-hongkong | China | HongKong | oss-cn-hongkong.aliyuncs.com | oss-cn-hongkong-internal.aliyuncs.com
+oss-us-west-1 | US | Silicon Valley | oss-us-west-1.aliyuncs.com | oss-us-west-1-internal.aliyuncs.com
+oss-ap-southeast-1 | Singapore | Singapore | oss-ap-southeast-1.aliyuncs.com | oss-ap-southeast-1-internal.aliyuncs.com
 
 ## Create Account
 
@@ -128,9 +132,8 @@ options:
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`.
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
-  default is `oss-cn-hangzhou`
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
-- [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`
+  default is `oss-cn-hangzhou`.
+- [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
   If your servers are running on aliyun too, you can set `true` to save lot of money.
 - [timeout] {String|Number} instance level timeout for all operations, default is `60s`
 
@@ -835,6 +838,18 @@ console.log(object);
     rt: 92
   }
 }
+```
+
+### .getObjectUrl(name[, baseUrl])
+
+Get the Object url.
+If provide `baseUrl`, will use `baseUrl` instead the default `endpoint`.
+
+e.g.:
+
+```js
+const cdnUrl = client.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+// cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
 ### .head*(name[, options])

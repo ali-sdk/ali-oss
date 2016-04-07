@@ -1,4 +1,4 @@
-/**!
+/**
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
