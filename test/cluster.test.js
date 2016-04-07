@@ -305,7 +305,7 @@ describe('test/cluster.test.js', function () {
     });
   });
 
-  describe('signatureUrl()', function () {
+  describe('signatureUrl(), getObjectUrl()', function () {
     before(function* () {
       this.name = prefix + 'ali-sdk/oss/get-meta.js';
       let object = yield this.store.put(this.name, __filename, {
@@ -317,6 +317,16 @@ describe('test/cluster.test.js', function () {
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
+    });
+
+    it('should get object cdn url', function() {
+      const url = this.store.getObjectUrl(this.name);
+      assert(/\.aliyuncs\.com\//.test(url), url);
+      assert(/\/ali-sdk\/oss\/get-meta\.js$/.test(url), url);
+
+      const cdnurl = this.store.getObjectUrl(this.name, 'https://foo.com');
+      assert(/^https:\/\/foo\.com\//.test(cdnurl), cdnurl);
+      assert(/\/ali-sdk\/oss\/get-meta\.js$/.test(cdnurl), cdnurl);
     });
 
     it('should RR signatureUrl from clients ok', function () {
