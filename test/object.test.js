@@ -973,6 +973,28 @@ describe('test/object.test.js', function () {
       assert.equal(info.status, 200);
     });
 
+    it('should use copy to change exists object headers', function* () {
+      var name = prefix + 'ali-sdk/oss/copy-new-3.js';
+      var result = yield this.store.copy(name, this.name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+      var info = yield this.store.head(name);
+      assert(!info.res.headers['cache-control']);
+
+      // add Cache-Control header to a exists object
+      var result = yield this.store.copy(name, name, {
+        headers: {
+          'Cache-Control': 'max-age=0, s-maxage=86400',
+        },
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+      var info = yield this.store.head(name);
+      assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
+    });
+
     it('should throw NoSuchKeyError when source object not exists', function* () {
       yield utils.throws(function* () {
         yield this.store.copy('new-object', 'not-exists-object');
