@@ -1,4 +1,11 @@
 
+4.2.2 / 2016-04-12
+==================
+
+  * Rework browser build to reduce dist size (#94)
+  * chore(package): update babel-plugin-transform-runtime to version 6.7.5
+  * test: add update exists object headers test case
+
 4.2.1 / 2016-04-07
 ==================
 
