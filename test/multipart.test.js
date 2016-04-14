@@ -175,33 +175,8 @@ describe('test/multipart.test.js', function () {
   describe('multipartUpload()', function () {
     afterEach(mm.restore);
 
-    var createFile = function* (name, size) {
-      var tmpdir = '/tmp/.oss/';
-      if (!fs.existsSync(tmpdir)) {
-        fs.mkdirSync(tmpdir);
-      }
-
-      yield new Promise(function (resolve, reject) {
-        var rs = fs.createReadStream('/dev/urandom', {
-          start: 0,
-          end: size - 1
-        });
-        var ws = fs.createWriteStream(tmpdir + name);
-        rs.pipe(ws);
-        ws.on('finish', function (err, res) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res);
-          }
-        });
-      });
-
-      return tmpdir + name;
-    };
-
     it('should fallback to putStream when file size is smaller than 100KB', function* () {
-      var fileName = yield* createFile('multipart-fallback', 100 * 1024 - 1);
+      var fileName = yield utils.createTempFile('multipart-fallback', 100 * 1024 - 1);
 
       var putStreamCalled = false;
       mm(this.store, 'putStream', function* () {
@@ -244,7 +219,7 @@ describe('test/multipart.test.js', function () {
 
     it('should upload file using multipart upload', function* () {
       // create a file with 1M random data
-      var fileName = yield* createFile('multipart-upload-file', 1024 * 1024);
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
 
       var name = prefix + 'multipart/upload-file';
       var progress = 0;
@@ -281,7 +256,7 @@ describe('test/multipart.test.js', function () {
       mm(global, 'FileReader', FileReader);
 
       // create a file with 1M random data
-      var fileName = yield* createFile('multipart-upload-webfile', 1024 * 1024);
+      var fileName = yield utils.createTempFile('multipart-upload-webfile', 1024 * 1024);
       var fileBuf = fs.readFileSync(fileName);
       var webFile = new File(fileName, fileBuf);
 
@@ -312,7 +287,7 @@ describe('test/multipart.test.js', function () {
       });
 
       // create a file with 1M random data
-      var fileName = yield* createFile('multipart-upload-file', 1024 * 1024);
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
 
       var name = prefix + 'multipart/upload-file';
       var cptFile = '/tmp/.oss/cpt.json';

@@ -1905,6 +1905,44 @@ Will put to all clients.
 - `client.copy()`
 - `client.putMeta()`
 
+## Wrapper Usage
+
+We provide an async wrapper which can be used without `co`. All the
+methods are preserved, just in a async way:
+
+```js
+
+var OSS = require('ali-oss').Wrapper;
+var STS = OSS.STS;
+
+var client = new OSS({ /* same options */});
+
+client.put('hello', new Buffer('world')).then(function (val) {
+  console.log('result: %j', val);
+}).catch (function (err) {
+  console.log('error: %j', err);
+});
+
+client.get('helloxxxx').then(function (val) {
+  console.log('result: %j', val);
+}).catch (function (err) {
+  console.log('error: %j', err);
+});
+
+var url = client.signatureUrl('hello');
+console.log(url);
+
+var stsClient = new STS({ /* same options */});
+
+var role = 'role';
+
+stsClient.assumeRole(role).then(function (val) {
+  console.log('result: %j', val);
+}).catch (function (err) {
+  console.log('error: %j', err);
+});
+```
+
 ## Browser Usage
 
 You can use most of the functionalities of `ali-oss` in browser with

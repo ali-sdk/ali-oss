@@ -13,6 +13,7 @@
  */
 
 var assert = require('assert');
+var fs = require('fs');
 
 exports.throws = function* (block, checkError) {
   try {
@@ -66,3 +67,28 @@ exports.prefix = process.platform + '-' + process.version + '/';
 if (process.execPath.indexOf('iojs') >= 0) {
   exports.prefix = 'iojs-' + exports.prefix;
 }
+
+exports.createTempFile = function* (name, size) {
+  var tmpdir = '/tmp/.oss/';
+  if (!fs.existsSync(tmpdir)) {
+    fs.mkdirSync(tmpdir);
+  }
+
+  yield new Promise(function (resolve, reject) {
+    var rs = fs.createReadStream('/dev/urandom', {
+      start: 0,
+      end: size - 1
+    });
+    var ws = fs.createWriteStream(tmpdir + name);
+    rs.pipe(ws);
+    ws.on('finish', function (err, res) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+
+  return tmpdir + name;
+};
