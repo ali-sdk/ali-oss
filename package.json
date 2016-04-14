@@ -43,9 +43,9 @@
   "devDependencies": {
     "aliasify": "^1.9.0",
     "autod": "^2.4.2",
-    "babel-runtime": "^6.6.1",
     "babel-plugin-transform-runtime": "^6.7.5",
     "babel-preset-es2015": "^6.3.13",
+    "babel-runtime": "^6.6.1",
     "babelify": "^7.2.0",
     "bluebird": "^3.1.5",
     "browserify": "^13.0.0",
@@ -57,7 +57,8 @@
     "mm": "^1.3.5",
     "mocha": "^2.4.2",
     "should": "^8.2.0",
-    "thunk-mocha": "^1.0.2"
+    "thunk-mocha": "^1.0.2",
+    "uglify-js": "^2.6.2"
   },
   "dependencies": {
     "address": "~1.0.0",
