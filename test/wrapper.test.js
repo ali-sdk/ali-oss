@@ -65,10 +65,10 @@ describe('test/wrapper.test.js', function () {
       assert.equal(val.res.status, 200);
       assert.equal(val.name, name);
 
-      return store.get(name).then(function (val) {
-        assert.equal(val.res.status, 200);
-        assert.equal(val.content.toString(), content);
-      });
+      return store.get(name);
+    }).then(function (val) {
+      assert.equal(val.res.status, 200);
+      assert.equal(val.content.toString(), content);
     });
   });
 
@@ -77,16 +77,26 @@ describe('test/wrapper.test.js', function () {
     var fileName = yield utils.createTempFile(name, 1024 * 1024);
 
     var store = this.store;
-    return store.multipartUpload(name, fileName).then(function (val) {
+    var count = 0;
+    return store.multipartUpload(name, fileName, {
+      partSize: 100 * 1024,
+      progress: function (p) {
+        return function (done) {
+          count++;
+          done();
+        }
+      }
+    }).then(function (val) {
       assert.equal(val.res.status, 200);
+      assert.equal(count, Math.ceil(1024 / 100));
 
-      return store.get(name).then(function (val) {
-        assert.equal(val.res.status, 200);
-        var fileBuf = fs.readFileSync(fileName);
-        assert.equal(val.content.length, fileBuf.length);
-        // avoid comparing buffers directly for it may hang when generating diffs
-        assert.equal(md5(val.content), md5(fileBuf));
-      });
+      return store.get(name);
+    }).then(function (val) {
+      assert.equal(val.res.status, 200);
+      var fileBuf = fs.readFileSync(fileName);
+      assert.equal(val.content.length, fileBuf.length);
+      // avoid comparing buffers directly for it may hang when generating diffs
+      assert.equal(md5(val.content), md5(fileBuf));
     });
   });
 
