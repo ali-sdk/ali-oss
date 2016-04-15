@@ -92,6 +92,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [imgClient.listStyle*([options])](#imgclientliststyleoptions)
   - [imgClient.deleteStyle*(name[, options])](#imgclientdeletestylename-options)
   - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
+- [Wrapper Usage](#wrapper-usage)
 - [Browser Usage](#browser-usage)
 - [Known Errors](#known-errors)
 
@@ -1923,7 +1924,7 @@ client.put('hello', new Buffer('world')).then(function (val) {
   console.log('error: %j', err);
 });
 
-client.get('helloxxxx').then(function (val) {
+client.get('hello').then(function (val) {
   console.log('result: %j', val);
 }).catch (function (err) {
   console.log('error: %j', err);
@@ -1982,66 +1983,30 @@ access.
 
 ### Basic usage
 
-Include the sdk lib in the `<script>` tag and wrap your application
-logic in `upload.js`:
+Include the sdk lib in the `<script>` tag and you have `OSS` available
+for creating client. We use `OSS.Wrapper` here to avoid using `co`:
 
 ```html
-<script type="javascript" src="https://gosspublic.alicdn.com/aliyun-oss-sdk.min.js"></script>
-<script type="javascript" src="upload.js"></script>
-```
-In `upload.js` we have:
-
-```js
-var applyToken = function* () {
-  var url = appServer;
-  var result = yield OSS.urllib.requestThunk(url, {
-    method: 'GET'
+<script src="http://gosspublic.alicdn.com/aliyun-oss-sdk.min.js"></script>
+<script type="text/javascript">
+  var client = new OSS.Wrapper({
+    region: 'oss-cn-hangzhou',
+    accessKeyId: '<access-key-id>',
+    accessKeySecret: '<access-key-secret>',
+    bucket: '<bucket-name>'
   });
-  return JSON.parse(result.data);
-};
 
-var progress = function* (p) {
-  var bar = document.getElementById('progress-bar');
-  bar.style.width = Math.floor(p * 100) + '%';
-  bar.innerHTML = Math.floor(p * 100) + '%';
-};
-
-var withStore = function (func) {
-  return function () {
-    OSS.co(function* () {
-      var creds = yield applyToken();
-
-      var store = new OSS({
-        region: '<region>',
-        accessKeyId: creds.AccessKeyId,
-        accessKeySecret: creds.AccessKeySecret,
-        stsToken: creds.Security,
-        bucket: '<bucket-name>'
-      });
-      var result = yield func(store);
-
-      console.log(result);
-    }).catch(function (err) {
-      console.log(err);
-    });
-  };
-};
-
-var uploadFile = function* (store) {
-  var file = document.getElementById('file').files[0];
-  var key = document.getElementById('object-key-file').value.trim() || 'object';
-  console.log(file.name + ' => ' + key);
-
-  var result = yield store.multipartUpload(key, file, {progress: progress});
-
-  return result;
-};
-
-window.onload = function () {
-  document.getElementById('file-button').onclick = withStore(uploadFile);
-};
+  client.list().then(function (result) {
+    console.log('objects: %j', result.objects);
+    return client.put('my-obj', new OSS.Buffer('hello world'));
+  }).then(function (result) {
+    console.log('put result: %j', result);
+    return client.get('my-obj');
+  }).then(function (result) {
+    console.log('get result: %j', result.content.toString());
+  });
+</script>
 ```
-
 The full sample can be found [here][browser-sample].
 
 ### How to build
