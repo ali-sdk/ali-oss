@@ -8,7 +8,7 @@ oss-nodejs-sdk
 
 [npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ali-oss
-[travis-image]: https://img.shields.io/travis/ali-sdk/ali-oss.svg?style=flat-square
+[travis-image]: https://img.shields.io/travis/ali-sdk/ali-oss/master.svg?style=flat-square
 [travis-url]: https://travis-ci.org/ali-sdk/ali-oss.svg?branch=master
 [cov-image]: http://codecov.io/github/ali-sdk/ali-oss/coverage.svg?branch=master
 [cov-url]: http://codecov.io/github/ali-sdk/ali-oss?branch=master
