@@ -80,6 +80,19 @@ describe('test/cluster.test.js', function () {
       mm.error(this.store, '_checkAvailable', 'mock error');
       this.store._init();
     });
+
+    it('should throw warning when use read only account _init() _checkAvailable ', function(done) {
+      this.store.once('warning', function(err) {
+        err.status.should.equal(403);
+        err.code.should.equal('AccessDenied');
+        done();
+      });
+      mm.error(this.store, '_checkAvailable', 'AccessDenied', {
+        status: 403,
+        code: 'AccessDenied'
+      });
+      this.store._init();
+    });
   });
 
   describe('put()', function () {
