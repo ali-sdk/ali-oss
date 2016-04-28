@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.3.0
+// Aliyun OSS SDK for JavaScript v4.4.0
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -1262,7 +1262,8 @@ module.exports = function (oss) {
 
     var heartbeatInterval = options.heartbeatInterval || 10000;
     this._checkAvailableLock = false;
-    this._timerId = defer.setInterval(this._checkAvailable.bind(this), heartbeatInterval);
+    this._timerId = defer.setInterval(this._checkAvailable.bind(this, true), heartbeatInterval);
+    this._ignoreStatusFile = options.ignoreStatusFile || false;
     this._init();
   }
 
@@ -1419,7 +1420,7 @@ module.exports = function (oss) {
           switch (_context3.prev = _context3.next) {
             case 0:
               _context3.next = 2;
-              return that._checkAvailable(true);
+              return that._checkAvailable(that._ignoreStatusFile);
 
             case 2:
               that.ready(true);
@@ -1435,7 +1436,7 @@ module.exports = function (oss) {
     });
   };
 
-  proto._checkAvailable = _regenerator2.default.mark(function _callee4(first) {
+  proto._checkAvailable = _regenerator2.default.mark(function _callee4(ignoreStatusFile) {
     var name, downStatusFiles, i, client, available, err;
     return _regenerator2.default.wrap(function _callee4$(_context4) {
       while (1) {
@@ -1443,7 +1444,7 @@ module.exports = function (oss) {
           case 0:
             name = '._ali-oss/check.status.' + currentIP + '.txt';
 
-            if (!first) {
+            if (ignoreStatusFile) {
               _context4.next = 4;
               break;
             }
@@ -29438,7 +29439,7 @@ module.exports = toString;
 },{"./_Symbol":242,"./isSymbol":339}],349:[function(require,module,exports){
 module.exports={
   "name": "ali-oss",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "aliyun oss(open storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -29479,7 +29480,7 @@ module.exports={
   },
   "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
   "devDependencies": {
-    "aliasify": "^1.9.0",
+    "aliasify": "^2.0.0",
     "autod": "^2.4.2",
     "babel-plugin-transform-runtime": "^6.7.5",
     "babel-preset-es2015": "^6.3.13",
@@ -29514,7 +29515,7 @@ module.exports={
     "mime": "~1.3.4",
     "platform": "~1.3.1",
     "sdk-base": "~2.0.1",
-    "urllib": "~2.8.0",
+    "urllib": "~2.9.0",
     "utility": "~1.7.0",
     "xml2js": "~0.4.16"
   }

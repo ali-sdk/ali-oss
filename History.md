@@ -1,4 +1,9 @@
 
+4.4.0 / 2016-04-28
+==================
+
+  * add options.ignoreStatusFile to ignore put status file for status check (#100)
+
 4.3.0 / 2016-04-14
 ==================
 
