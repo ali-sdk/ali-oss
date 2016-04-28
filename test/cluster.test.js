@@ -80,6 +80,11 @@ describe('test/cluster.test.js', function () {
       mm.error(this.store, '_checkAvailable', 'mock error');
       this.store._init();
     });
+
+    it('should skip put status file when ignoreStatusFile is set', function* () {
+      mm.error(this.store, 'put', 'mock error');
+      yield this.store._checkAvailable(true);
+    });
   });
 
   describe('put()', function () {
