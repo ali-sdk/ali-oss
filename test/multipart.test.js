@@ -322,7 +322,7 @@ describe('test/multipart.test.js', function () {
       assert.deepEqual(md5(object.content), md5(fileBuf));
     });
 
-    it.only('should parse response with callback', function* () {
+    it('should parse response with callback', function* () {
       // create a file with 1M random data
       var fileName = yield utils.createTempFile('upload-with-callback', 1024 * 1024);
 
