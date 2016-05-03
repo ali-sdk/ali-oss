@@ -14,6 +14,7 @@
 
 var assert = require('assert');
 var fs = require('fs');
+var urlutil = require('url');
 
 exports.throws = function* (block, checkError) {
   try {
@@ -91,4 +92,26 @@ exports.createTempFile = function* (name, size) {
   });
 
   return tmpdir + name;
+};
+
+/*
+ * cb = {
+ *   url: 'd.rockuw.com:4567',
+ *   query: {user: 'me'},
+ *   contentType: 'application/json',
+ *   body: '{"hello": "world"}'
+ * };
+ */
+exports.encodeCallback = function (cb) {
+  var url = urlutil.parse(cb.url);
+  url.query = cb.query;
+
+  var json = {
+    callbackUrl: url.format(),
+    callbackBody: cb.body,
+    callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded'
+  };
+
+  console.log('callback: %j', json);
+  return new Buffer(JSON.stringify(json)).toString('base64');
 };
