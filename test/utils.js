@@ -112,6 +112,5 @@ exports.encodeCallback = function (cb) {
     callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded'
   };
 
-  console.log('callback: %j', json);
   return new Buffer(JSON.stringify(json)).toString('base64');
 };
