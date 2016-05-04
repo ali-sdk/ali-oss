@@ -1,4 +1,10 @@
 
+4.4.1 / 2016-05-04
+==================
+
+  * fix: Correctly parse Put/MultipartUpload response when using upload callback (#104)
+  * chore(package): update babel-plugin-transform-runtime to version 6.8.0 (#103)
+
 4.4.0 / 2016-04-28
 ==================
 

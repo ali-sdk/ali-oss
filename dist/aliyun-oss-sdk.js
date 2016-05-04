@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.4.0
+// Aliyun OSS SDK for JavaScript v4.4.1
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -2352,7 +2352,7 @@ proto._uploadPart = _regenerator2.default.mark(function _callee6(name, uploadId,
  * @param {Object} options
  */
 proto._completeMultipartUpload = _regenerator2.default.mark(function _callee7(name, uploadId, parts, options) {
-  var xml, i, p, params, result;
+  var xml, i, p, params, result, ret;
   return _regenerator2.default.wrap(function _callee7$(_context7) {
     while (1) {
       switch (_context7.prev = _context7.next) {
@@ -2375,21 +2375,30 @@ proto._completeMultipartUpload = _regenerator2.default.mark(function _callee7(na
 
           params.mime = 'xml';
           params.content = xml;
-          params.xmlResponse = true;
+          if (!(options.headers && options.headers['x-oss-callback'])) {
+            params.xmlResponse = true;
+          }
           params.successStatuses = [200];
           _context7.next = 12;
           return this.request(params);
 
         case 12:
           result = _context7.sent;
-          return _context7.abrupt('return', {
+          ret = {
             res: result.res,
-            bucket: result.data.Bucket,
-            name: result.data.Key,
-            etag: result.data.ETag
-          });
+            bucket: params.bucket,
+            name: name,
+            etag: result.res.headers['etag']
+          };
 
-        case 14:
+
+          if (options.headers && options.headers['x-oss-callback']) {
+            ret.data = JSON.parse(result.data.toString());
+          }
+
+          return _context7.abrupt('return', ret);
+
+        case 16:
         case 'end':
           return _context7.stop();
       }
@@ -2568,7 +2577,7 @@ var proto = exports;
  * @return {Object}
  */
 proto.put = _regenerator2.default.mark(function _callee(name, file, options) {
-  var content, stream, params, result;
+  var content, stream, params, result, ret;
   return _regenerator2.default.wrap(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -2635,13 +2644,20 @@ proto.put = _regenerator2.default.mark(function _callee(name, file, options) {
 
         case 31:
           result = _context.sent;
-          return _context.abrupt('return', {
+          ret = {
             name: name,
             url: this._objectUrl(name),
             res: result.res
-          });
+          };
 
-        case 33:
+
+          if (options.headers && options.headers['x-oss-callback']) {
+            ret.data = JSON.parse(result.data.toString());
+          }
+
+          return _context.abrupt('return', ret);
+
+        case 35:
         case 'end':
           return _context.stop();
       }
@@ -2658,7 +2674,7 @@ proto.put = _regenerator2.default.mark(function _callee(name, file, options) {
  * @return {Object}
  */
 proto.putStream = _regenerator2.default.mark(function _callee2(name, stream, options) {
-  var params, result;
+  var params, result, ret;
   return _regenerator2.default.wrap(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
@@ -2683,13 +2699,20 @@ proto.putStream = _regenerator2.default.mark(function _callee2(name, stream, opt
 
         case 10:
           result = _context2.sent;
-          return _context2.abrupt('return', {
+          ret = {
             name: name,
             url: this._objectUrl(name),
             res: result.res
-          });
+          };
 
-        case 12:
+
+          if (options.headers && options.headers['x-oss-callback']) {
+            ret.data = JSON.parse(result.data.toString());
+          }
+
+          return _context2.abrupt('return', ret);
+
+        case 14:
         case 'end':
           return _context2.stop();
       }
@@ -29439,7 +29462,7 @@ module.exports = toString;
 },{"./_Symbol":242,"./isSymbol":339}],349:[function(require,module,exports){
 module.exports={
   "name": "ali-oss",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "description": "aliyun oss(open storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -29482,7 +29505,7 @@ module.exports={
   "devDependencies": {
     "aliasify": "^2.0.0",
     "autod": "^2.4.2",
-    "babel-plugin-transform-runtime": "^6.7.5",
+    "babel-plugin-transform-runtime": "^6.8.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-runtime": "^6.6.1",
     "babelify": "^7.2.0",
