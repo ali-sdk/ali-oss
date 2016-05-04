@@ -145,6 +145,22 @@ describe('test/object.test.js', function () {
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
     });
+
+    it('should parse response with callback', function* () {
+      var name = prefix + 'ali-sdk/oss/putstream-callback.js';
+      var result = yield this.store.putStream(name, fs.createReadStream(__filename), {
+        headers: {
+          'x-oss-callback': utils.encodeCallback({
+            url: config.callbackServer,
+            query: {user: 'js-sdk'},
+            body: 'bucket=${bucket}&object=${object}'
+          })
+        }
+      });
+
+      assert.equal(result.res.status, 200);
+      assert.equal(result.data.Status, 'OK');
+    });
   });
 
   describe('getObjectUrl()', function() {
@@ -271,6 +287,22 @@ describe('test/object.test.js', function () {
       assert(object.name, name);
       var info = yield this.store.head(name);
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
+    });
+
+    it('should parse response with callback', function* () {
+      var name = prefix + 'ali-sdk/oss/put-callback.js';
+      var result = yield this.store.put(name, __filename, {
+        headers: {
+          'x-oss-callback': utils.encodeCallback({
+            url: config.callbackServer,
+            query: {user: 'js-sdk'},
+            body: 'bucket=${bucket}&object=${object}'
+          })
+        }
+      });
+
+      assert.equal(result.res.status, 200);
+      assert.equal(result.data.Status, 'OK');
     });
   });
 

@@ -6,7 +6,8 @@ config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
   endpoint: env.ALI_SDK_OSS_ENDPOINT,
-  region: env.ALI_SDK_OSS_REGION || 'oss-cn-hangzhou'
+  region: env.ALI_SDK_OSS_REGION || 'oss-cn-hangzhou',
+  callbackServer: 'http://d.rockuw.com:4567'
 };
 
 config.sts = {

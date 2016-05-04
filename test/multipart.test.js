@@ -321,5 +321,24 @@ describe('test/multipart.test.js', function () {
       // avoid comparing buffers directly for it may hang when generating diffs
       assert.deepEqual(md5(object.content), md5(fileBuf));
     });
+
+    it('should parse response with callback', function* () {
+      // create a file with 1M random data
+      var fileName = yield utils.createTempFile('upload-with-callback', 1024 * 1024);
+
+      var name = prefix + 'multipart/upload-with-callback';
+      var result = yield this.store.multipartUpload(name, fileName, {
+        partSize: 100 * 1024,
+        headers: {
+          'x-oss-callback': utils.encodeCallback({
+            url: config.callbackServer,
+            query: {user: 'js-sdk'},
+            body: 'bucket=${bucket}&object=${object}'
+          })
+        }
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(result.data.Status, 'OK');
+    });
   });
 });
