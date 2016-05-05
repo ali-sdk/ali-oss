@@ -27,3 +27,9 @@ node_modules
 build
 test/.tmp
 test/demo.js
+
+# Ide
+.idea/
+
+#mac temp file
+.DS_Store
