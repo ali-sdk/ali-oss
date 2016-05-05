@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.4.1
+// Aliyun OSS SDK for JavaScript v4.4.2
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -885,7 +885,7 @@ proto.createRequest = function (params) {
     if (params.mime && params.mime.indexOf('/') > 0) {
       headers['Content-Type'] = params.mime;
     } else {
-      headers['Content-Type'] = mime.lookup(params.mime || path.extname(params.object));
+      headers['Content-Type'] = mime.lookup(params.mime || path.extname(params.object || ''));
     }
   }
 
@@ -29462,7 +29462,7 @@ module.exports = toString;
 },{"./_Symbol":242,"./isSymbol":339}],349:[function(require,module,exports){
 module.exports={
   "name": "ali-oss",
-  "version": "4.4.1",
+  "version": "4.4.2",
   "description": "aliyun oss(open storage service) node client",
   "main": "lib/client.js",
   "files": [
