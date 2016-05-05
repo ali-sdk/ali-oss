@@ -1243,7 +1243,7 @@ console.log(result.objects);
 
 ```js
 var result = yield store.list({
-  perfix: 'fun/'
+  prefix: 'fun/'
 });
 console.log(result.objects);
 ```
@@ -1252,7 +1252,7 @@ console.log(result.objects);
 
 ```js
 var result = yield store.list({
-  perfix: 'fun/',
+  prefix: 'fun/',
   delimiter: '/'
 });
 console.log(result.objects);
