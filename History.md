@@ -1,4 +1,11 @@
 
+4.4.3 / 2016-05-17
+==================
+
+  * fix: memory leak in multipart (#113) (#114)
+  * chore(package): update utility to version 1.8.0
+  * chore(package): update urllib to version 2.9.1 (#111)
+
 4.4.2 / 2016-05-05
 ==================
 

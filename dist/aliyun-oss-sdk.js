@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.4.2
+// Aliyun OSS SDK for JavaScript v4.4.3
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -2100,7 +2100,7 @@ proto.multipartUpload = _regenerator2.default.mark(function _callee(name, file, 
  * @param {Object} options
  */
 proto._resumeMultipart = _regenerator2.default.mark(function _callee2(checkpoint, options) {
-  var file, fileSize, partSize, uploadId, doneParts, nextPart, name, partDatas, numParts, i, partNo, result;
+  var file, fileSize, partSize, uploadId, doneParts, nextPart, name, partOffs, numParts, i, partNo, pi, data, result;
   return _regenerator2.default.wrap(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
@@ -2112,21 +2112,26 @@ proto._resumeMultipart = _regenerator2.default.mark(function _callee2(checkpoint
           doneParts = checkpoint.doneParts;
           nextPart = checkpoint.nextPart;
           name = checkpoint.name;
-          partDatas = this._divideParts(file, fileSize, partSize);
-          numParts = partDatas.length;
+          partOffs = this._divideParts(fileSize, partSize);
+          numParts = partOffs.length;
           i = nextPart;
 
         case 10:
           if (!(i < numParts)) {
-            _context2.next = 23;
+            _context2.next = 25;
             break;
           }
 
           partNo = i + 1;
-          _context2.next = 14;
-          return this._uploadPart(name, uploadId, partNo, partDatas[i]);
+          pi = partOffs[i];
+          data = {
+            stream: this._createStream(file, pi.start, pi.end),
+            size: pi.end - pi.start
+          };
+          _context2.next = 16;
+          return this._uploadPart(name, uploadId, partNo, data);
 
-        case 14:
+        case 16:
           result = _context2.sent;
 
           doneParts.push({
@@ -2136,26 +2141,26 @@ proto._resumeMultipart = _regenerator2.default.mark(function _callee2(checkpoint
           checkpoint.nextPart = i + 1;
 
           if (!(options && options.progress)) {
-            _context2.next = 20;
+            _context2.next = 22;
             break;
           }
 
-          _context2.next = 20;
+          _context2.next = 22;
           return options.progress(partNo / numParts, checkpoint);
 
-        case 20:
+        case 22:
           i++;
           _context2.next = 10;
           break;
 
-        case 23:
-          _context2.next = 25;
+        case 25:
+          _context2.next = 27;
           return this._completeMultipartUpload(name, uploadId, doneParts, options);
 
-        case 25:
+        case 27:
           return _context2.abrupt('return', _context2.sent);
 
-        case 26:
+        case 28:
         case 'end':
           return _context2.stop();
       }
@@ -2511,21 +2516,21 @@ proto._getPartSize = function (fileSize, partSize) {
   return Math.max(Math.ceil(fileSize / maxNumParts), partSize);
 };
 
-proto._divideParts = function (file, fileSize, partSize) {
+proto._divideParts = function (fileSize, partSize) {
   var numParts = Math.ceil(fileSize / partSize);
 
-  var partDatas = [];
+  var partOffs = [];
   for (var i = 0; i < numParts; i++) {
     var start = partSize * i;
     var end = Math.min(start + partSize, fileSize);
 
-    partDatas.push({
-      stream: this._createStream(file, start, end),
-      size: end - start
+    partOffs.push({
+      start: start,
+      end: end
     });
   }
 
-  return partDatas;
+  return partOffs;
 };
 
 }).call(this,require("buffer").Buffer)
@@ -29462,7 +29467,7 @@ module.exports = toString;
 },{"./_Symbol":242,"./isSymbol":339}],349:[function(require,module,exports){
 module.exports={
   "name": "ali-oss",
-  "version": "4.4.2",
+  "version": "4.4.3",
   "description": "aliyun oss(open storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -29538,8 +29543,8 @@ module.exports={
     "mime": "~1.3.4",
     "platform": "~1.3.1",
     "sdk-base": "~2.0.1",
-    "urllib": "~2.9.0",
-    "utility": "~1.7.0",
+    "urllib": "~2.9.1",
+    "utility": "~1.8.0",
     "xml2js": "~0.4.16"
   }
 }
