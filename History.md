@@ -1,4 +1,11 @@
 
+4.4.4 / 2016-06-04
+==================
+
+  * deps: use ^
+  * Fix isGeneratorFunction and Date format problems in IE10 (#118)
+  * chore(package): update humanize-ms to version 1.2.0
+
 4.4.3 / 2016-05-17
 ==================
 
