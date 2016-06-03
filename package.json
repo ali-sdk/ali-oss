@@ -66,7 +66,7 @@
     "co": "~4.6.0",
     "co-defer": "~1.0.0",
     "copy-to": "~2.0.1",
-    "date-format-lite": "^0.8.0",
+    "dateformat": "^1.0.12",
     "debug": "~2.2.0",
     "destroy": "~1.0.4",
     "end-or-error": "~1.0.1",
