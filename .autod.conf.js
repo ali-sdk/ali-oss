@@ -1,7 +1,6 @@
 module.exports = {
   write: true,
-  prefix: '~',
-  devprefix: '^',
+  prefix: '^',
   devdep: [
     'mocha',
     'autod',
@@ -13,6 +12,10 @@ module.exports = {
   exclude: [
     'dist',
     'browser.js',
-    'publish.js'
+    'publish.js',
+    'shims',
+  ],
+  test: [
+    'browser-build.js'
   ],
 };
