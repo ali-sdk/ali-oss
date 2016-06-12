@@ -1371,6 +1371,12 @@ parameters:
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
     provided, it will continue the upload from where interrupted,
     otherwise a new multipart upload will be created.
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
+    - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
+    - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
+    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
 
 example:
 
@@ -2076,3 +2082,4 @@ TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
 [browser-sample]: https://github.com/rockuw/oss-in-browser
 [oss-multipart]: https://help.aliyun.com/document_detail/oss/api-reference/multipart-upload/InitiateMultipartUpload.html
+[disabled-browser-headers]: https://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
