@@ -54,7 +54,7 @@
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
     "istanbul": "^0.4.3",
-    "mm": "^1.5.1",
+    "mm": "^2.0.0",
     "mocha": "^2.5.3",
     "should": "^10.0.0",
     "thunk-mocha": "^1.0.3",
