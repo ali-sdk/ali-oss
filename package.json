@@ -58,7 +58,7 @@
     "mocha": "^3.0.0",
     "should": "^11.0.0",
     "thunk-mocha": "^1.0.3",
-    "uglify-js": "^2.6.2"
+    "uglify-js": "^2.7.1"
   },
   "dependencies": {
     "address": "^1.0.0",
