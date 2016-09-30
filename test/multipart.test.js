@@ -1,16 +1,4 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   rockuw <rockuw@gmail.com> (https://github.com/rockuw)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 var fs = require('fs');
 var path = require('path');
@@ -322,6 +310,7 @@ describe('test/multipart.test.js', function () {
       assert.deepEqual(md5(object.content), md5(fileBuf));
     });
 
+    // callback server on EC2, maybe fail on China, bug pass on travis ci
     it('should parse response with callback', function* () {
       // create a file with 1M random data
       var fileName = yield utils.createTempFile('upload-with-callback', 1024 * 1024);

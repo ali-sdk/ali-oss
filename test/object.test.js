@@ -1,16 +1,4 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 var fs = require('fs');
 var path = require('path');
@@ -75,8 +63,8 @@ describe('test/object.test.js', function () {
     it('should use chunked encoding', function* () {
       var name = prefix + 'ali-sdk/oss/chunked-encoding.js';
       var headers;
-      var req = this.store.urllib.requestThunk;
-      mm(this.store.urllib, 'requestThunk', function (url, args) {
+      var req = this.store.urllib.request;
+      mm(this.store.urllib, 'request', function (url, args) {
         headers = args.headers;
         return req(url, args);
       });
@@ -90,8 +78,8 @@ describe('test/object.test.js', function () {
     it('should NOT use chunked encoding', function* () {
       var name = prefix + 'ali-sdk/oss/no-chunked-encoding.js';
       var headers;
-      var req = this.store.urllib.requestThunk;
-      mm(this.store.urllib, 'requestThunk', function (url, args) {
+      var req = this.store.urllib.request;
+      mm(this.store.urllib, 'request', function (url, args) {
         headers = args.headers;
         return req(url, args);
       });
@@ -753,7 +741,7 @@ describe('test/object.test.js', function () {
         });
         assert.equal(result.res.headers['content-length'], '10');
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-        assert.equal(result.content.toString(), '/**\n * Cop');
+        assert.equal(result.content.toString(), '\'use stric');
       });
     });
   });

@@ -1,16 +1,4 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 var assert = require('assert');
 var oss = require('../');
@@ -250,8 +238,8 @@ describe('test/client.test.js', function () {
 
     var store = oss(config);
     var headers;
-    var req = store.urllib.requestThunk;
-    mm(store.urllib, 'requestThunk', function (url, args) {
+    var req = store.urllib.request;
+    mm(store.urllib, 'request', function (url, args) {
       headers = args.headers;
       return req(url, args);
     });

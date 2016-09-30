@@ -7,6 +7,12 @@ var config = require('./config').oss;
 var ms = require('humanize-ms');
 var metaSyncTime = require('./config').metaSyncTime;
 
+// only run on travis ci
+
+if (!process.env.CI) {
+  return;
+}
+
 describe('test/bucket.test.js', () => {
   var prefix = utils.prefix;
 
@@ -114,9 +120,9 @@ describe('test/bucket.test.js', () => {
 
   describe('listBuckets()', function () {
     before(function* () {
-      // create 5 buckets
+      // create 2 buckets
       this.listBucketsPrefix = 'ali-oss-list-buckets-';
-      for (var i = 0; i < 5; i ++) {
+      for (var i = 0; i < 2; i ++) {
         var name = this.listBucketsPrefix + i;
         var result = yield this.store.putBucket(name);
         assert.equal(result.res.status, 200);
@@ -130,24 +136,25 @@ describe('test/bucket.test.js', () => {
       });
 
       assert(Array.isArray(result.buckets));
-      assert.equal(result.buckets.length, 5);
+      assert.equal(result.buckets.length, 2);
       assert(!result.isTruncated);
       assert.equal(result.nextMarker, null);
       assert(result.owner);
       assert.equal(typeof result.owner.id, 'string');
       assert.equal(typeof result.owner.displayName, 'string');
 
-      for (var i = 0; i < 5; i ++) {
+      for (var i = 0; i < 2; i ++) {
         var name = this.listBucketsPrefix + i;
         assert.equal(result.buckets[i].name, name);
       }
     });
 
     after(function* () {
-      for (var i = 0; i < 5; i ++) {
+      for (var i = 0; i < 2; i ++) {
         var name = this.listBucketsPrefix + i;
-        var result = yield this.store.deleteBucket(name);
-        assert.equal(result.res.status, 204);
+        try {
+          yield this.store.deleteBucket(name);
+        } catch (_) {}
       }
     });
   });
