@@ -2,7 +2,6 @@ sudo: false
 language: node_js
 node_js:
   - '6'
-  - '5'
   - '4'
 env:
   global:
@@ -16,4 +15,4 @@ env:
     - secure: Og1xl8+NoUfc3ZlWT/yVOPy/8YhRHVNT2M+LVZ81iRwJNBxwm1cj40cck41Py2eG3AwH0yCj0K3u+o74fOHbTuYLzNskB1gYbA8m6v2vuMnGRblb6+UYEm3yUcYHJ4VXFMmFTMKyNoe/iqEpetgoKffbCAk3Xa7kZbbQR7T03tI=
 script: npm run test-cov
 after_script:
-  - npm i codecov.io && cat ./coverage/coverage.json | ./node_modules/codecov.io/bin/codecov.io.js
+  - npm i codecov && codecov
