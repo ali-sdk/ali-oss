@@ -61,7 +61,7 @@
     "uglify-js": "^2.7.1"
   },
   "dependencies": {
-    "address": "^1.0.0",
+    "address": "^1.0.1",
     "agentkeepalive": "^2.1.1",
     "co": "^4.6.0",
     "co-defer": "^1.0.0",
