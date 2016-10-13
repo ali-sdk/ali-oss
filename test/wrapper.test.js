@@ -1,16 +1,4 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 var assert = require('assert');
 var config = require('./config').oss;
@@ -22,7 +10,7 @@ var fs = require('fs');
 var md5 = require('utility').md5;
 var urllib = require('urllib');
 
-describe('test/wrapper.test.js', function () {
+describe('test/wrapper.test.js', () => {
   var prefix = utils.prefix;
 
   before(function* () {

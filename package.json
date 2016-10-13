@@ -47,6 +47,8 @@
     "babel-preset-es2015": "^6.3.13",
     "babel-runtime": "^6.6.1",
     "babelify": "^7.3.0",
+    "beautify-benchmark": "^0.2.4",
+    "benchmark": "^2.1.1",
     "bluebird": "^3.1.5",
     "browserify": "^13.0.1",
     "co-fs": "^1.2.0",

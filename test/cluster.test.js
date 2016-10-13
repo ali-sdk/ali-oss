@@ -1,16 +1,4 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- *
- * Authors:
- *   dead_horse <dead_horse@qq.com>
- *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 const oss = require('../');
 const cluster = require('../').ClusterClient;
@@ -19,7 +7,7 @@ const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
 
-describe('test/cluster.test.js', function () {
+describe('test/cluster.test.js', () => {
   var prefix = utils.prefix;
   afterEach(mm.restore);
 
