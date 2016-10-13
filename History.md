@@ -1,4 +1,18 @@
 
+4.5.0 / 2016-10-13
+==================
+
+  * feat: add options.ctx for every request params (#144)
+  * chore(package): update urllib to version 2.16.1 (#146)
+  * chore(package): update uglify-js to version 2.7.1
+  * chore(package): update should to version 11.0.0
+  * chore(package): update mocha to version 3.0.0
+  * chore(package): update mm to version 2.0.0
+  * chore(package): update mm to version 1.5.1
+  * chore(package): update should to version 10.0.0 (#125)
+  * doc: Update API doc for .multipartUpload
+  * chore(package): update should to version 9.0.2
+
 4.4.4 / 2016-06-04
 ==================
 
