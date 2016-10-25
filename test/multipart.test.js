@@ -288,6 +288,8 @@ describe('test/multipart.test.js', function () {
             fs.writeFileSync(cptFile, JSON.stringify(cpt));
           }
         });
+        // should not succeed
+        assert(false);
       } catch (err) {
         // pass
       }

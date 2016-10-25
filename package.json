@@ -67,6 +67,7 @@
     "agentkeepalive": "^2.1.1",
     "co": "^4.6.0",
     "co-defer": "^1.0.0",
+    "co-gather": "^0.0.1",
     "copy-to": "^2.0.1",
     "dateformat": "^1.0.12",
     "debug": "^2.2.0",

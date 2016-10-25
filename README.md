@@ -1364,6 +1364,7 @@ parameters:
 - name {String} object name
 - file {String|File} file path or HTML5 Web File
 - [options] {Object} optional args
+  - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
   - [progress] {Function} the progress callback called after each
     successful upload of one part, it will be given two parameters:
@@ -1387,6 +1388,7 @@ var result = yield store.multipartUpload('object', '/tmp/file');
 console.log(result);
 
 var result = yield store.multipartUpload('object', '/tmp/file', {
+  parallel: 4,
   partSize: 1024 * 1024,
   progress: function* (p, cpt) {
     console.log(p);
