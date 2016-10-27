@@ -1,4 +1,9 @@
 
+4.6.0 / 2016-10-27
+==================
+
+  * feat: implement parallel uploading for multipartUpload (#149)
+
 4.5.0 / 2016-10-13
 ==================
 
