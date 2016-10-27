@@ -28,6 +28,7 @@ function build(options, callback) {
   };
   browserify(brOpts).add('./browser.js')
     .transform(babelify, {
+        "global": true,
         "presets": ["es2015"],
         "plugins": ["transform-runtime"]
     }).transform(aliasify, {
