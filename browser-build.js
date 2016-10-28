@@ -28,9 +28,10 @@ function build(options, callback) {
   };
   browserify(brOpts).add('./browser.js')
     .transform(babelify, {
-        "global": true,
-        "presets": ["es2015"],
-        "plugins": ["transform-runtime"]
+      "global": true,
+      "presets": ["es2015"],
+      "plugins": ["transform-runtime"],
+      "only": ['lib/*', 'node_modules/co-gather/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {
