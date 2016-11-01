@@ -27,13 +27,11 @@ describe('test/object.test.js', function () {
     this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
-
     // console.log('current buckets: %j',
     //   (yield this.store.listBuckets()).buckets.map(function (item) {
     //     return item.name + ':' + item.region;
     //   })
     // );
-
     yield this.store.putBucket(this.bucket, this.region);
     this.store.useBucket(this.bucket, this.region);
   });
@@ -588,6 +586,31 @@ describe('test/object.test.js', function () {
       assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
     });
 
+    it('should get object content buffer with image process', function* () {
+      var name = prefix + 'ali-sdk/oss/nodejs-test-get-image-1024x768.png';
+      var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
+      var object = yield this.store.put(name, originImagePath, {
+        mime: 'image/png'
+      });
+
+      var result = yield this.store.get(name, {process: 'image/resize,w_200'});
+      assert.equal(result.res.status, 200);
+      assert(Buffer.isBuffer(result.content), 'content should be Buffer');
+      assert(result.content.toString() == fs.readFileSync(processedImagePath, 'utf8'),
+        'get content should be same as test/nodejs-processed-w200.png');
+
+      // it should use the value of process 
+      // when 'subres.x-oss-process' coexists with 'process'.
+      result = yield this.store.get(name, 
+        {process: 'image/resize,w_200', subres: {'x-oss-process': 'image/resize,w_100'}});
+      assert.equal(result.res.status, 200);
+      assert(Buffer.isBuffer(result.content), 'content should be Buffer');
+      assert(result.content.toString() == fs.readFileSync(processedImagePath, 'utf8'),
+        'get content should be same as test/nodejs-processed-w200.png');
+
+    });
+
     it('should throw NoSuchKeyError when object not exists', function* () {
       var store = this.store;
       yield utils.throws(function* () {
@@ -775,6 +798,23 @@ describe('test/object.test.js', function () {
       var url = this.store.signatureUrl(this.name);
       var urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
+    });
+
+    it('should signature url with image processed and get object ok', function* () {
+      var name = prefix + 'ali-sdk/oss/nodejs-test-signature-1024x768.png';
+      var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
+      var object = yield this.store.put(name, originImagePath, {
+        mime: 'image/png'
+      });
+
+      var signUrl = this.store.signatureUrl(name, {expires: 3600, process: 'image/resize,w_200'});
+      var processedKeyword = "x-oss-process=image%2Fresize%2Cw_200";
+      assert.equal(signUrl.match(processedKeyword), processedKeyword);
+      var urlRes = yield urllib.request(signUrl);
+      assert.equal(urlRes.status, 200);
+      assert(urlRes.data.toString() == fs.readFileSync(processedImagePath, 'utf8'),
+        'response content should be same as test/nodejs-processed-w200.png');
     });
 
     it('should signature url for PUT', function* () {

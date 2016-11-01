@@ -927,6 +927,8 @@ parameters:
   If `file` is null or ignore this parameter, function will return info contains `content` property.
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [process] {String} image process params, will send with `x-oss-process`
+    e.g.: `{process: 'image/resize,w_200'}`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Range' get specifying range bytes content, e.g.: `Range: bytes=0-9`
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
@@ -971,6 +973,13 @@ yield store.get('ossdemo/demo.txt', somestream);
 ```js
 var result = yield store.get('ossdemo/demo.txt');
 console.log(Buffer.isBuffer(result.content));
+```
+
+- Get a processed image and store it to the local file
+
+```js
+var filepath = '/home/ossdemo/demo.png';
+yield store.get('ossdemo/demo.png', filepath, {process: 'image/resize,w_200'});
 ```
 
 - Get a not exists object
@@ -1268,6 +1277,8 @@ parameters:
 - [options] {Object} optional parameters
   - [expires] {Number} after expires seconds, the url will become invalid, default is `1800`
   - [method] {String} the HTTP method, default is 'GET'
+  - [process] {String} image process params, will send with `x-oss-process`
+    e.g.: `{process: 'image/resize,w_200'}`
   - [response] {Object} set the response headers for download
     - [content-type] {String} set the response content type
     - [content-disposition] {String} set the response content disposition
@@ -1296,6 +1307,21 @@ var url = store.signatureUrl('ossdemo.txt', {
     'content-type': 'text/custom',
     'content-disposition': 'attachment'
   }
+});
+console.log(url);
+```
+
+- Get a signature url for a processed image
+
+```js
+var url = store.signatureUrl('ossdemo.png', {
+  process: 'image/resize,w_200'
+});
+console.log(url);
+
+var url = store.signatureUrl('ossdemo.png', {
+  expires: 3600,
+  process: 'image/resize,w_200'
 });
 console.log(url);
 ```
