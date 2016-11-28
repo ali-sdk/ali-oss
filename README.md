@@ -916,7 +916,7 @@ var object = this.store.head('ossdemo/head-meta');
 // will throw NoSuchKeyError
 ```
 
-### .get*(name, file[, options])
+### .get*(name[, file, options])
 
 Get an object from the bucket.
 
