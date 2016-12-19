@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "address": "^1.0.0",
-    "agentkeepalive": "^2.1.1",
+    "agentkeepalive": "^3.0.0",
     "co": "^4.6.0",
     "co-defer": "^1.0.0",
     "co-gather": "^0.0.1",
