@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.6.2
+// Aliyun OSS SDK for JavaScript v4.6.3
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -2359,13 +2359,17 @@ proto._uploadPart = _regenerator2.default.mark(function _uploadPart(name, upload
 
         case 9:
           result = _context7.sent;
+
+
+          data.stream = null;
+          params.stream = null;
           return _context7.abrupt('return', {
             name: name,
             etag: result.res.headers.etag,
             res: result.res
           });
 
-        case 11:
+        case 13:
         case 'end':
           return _context7.stop();
       }
@@ -2503,19 +2507,50 @@ function WebFileReadStream(file, options) {
   Readable.call(this, options);
 
   this.file = file;
-  this.reader = null;
+  this.reader = new FileReader();
+  this.start = 0;
+  this.finish = false;
+  this.fileBuffer;
 };
 util.inherits(WebFileReadStream, Readable);
 
-WebFileReadStream.prototype._read = function _read() {
-  if (!this.reader) {
-    var that = this;
-    that.reader = new FileReader();
-    that.reader.onload = function (e) {
-      that.push(new Buffer(new Uint8Array(e.target.result)));
-      that.push(null);
-    };
-    that.reader.readAsArrayBuffer(that.file);
+WebFileReadStream.prototype.readFileAndPush = function readFileAndPush(size) {
+  if (this.fileBuffer) {
+    var pushRet = true;
+    while (this.start < this.fileBuffer.length && pushRet) {
+      var start = this.start;
+      var end = start + size;
+      end = end > this.fileBuffer.length ? this.fileBuffer.length : end;
+      this.start = end;
+      pushRet = this.push(this.fileBuffer.slice(start, end));
+    }
+  }
+};
+
+WebFileReadStream.prototype._read = function _read(size) {
+  if (this.file && this.start >= this.file.size || this.fileBuffer && this.start >= this.fileBuffer.length || this.finish || 0 == this.start && !this.file) {
+    if (!this.finish) {
+      this.fileBuffer = null;
+      this.finish = true;
+    }
+    this.push(null);
+    return;
+  }
+
+  var defaultReadSize = 16 * 1024;
+  size = size ? size : defaultReadSize;
+
+  var that = this;
+  this.reader.onload = function (e) {
+    that.fileBuffer = new Buffer(new Uint8Array(e.target.result));
+    that.file = null;
+    that.readFileAndPush(size);
+  };
+
+  if (0 == this.start) {
+    this.reader.readAsArrayBuffer(this.file);
+  } else {
+    this.readFileAndPush(size);
   }
 };
 
@@ -4009,14 +4044,14 @@ var _symbol = require("../core-js/symbol");
 
 var _symbol2 = _interopRequireDefault(_symbol);
 
-var _typeof = typeof _symbol2.default === "function" && typeof _iterator2.default === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof _symbol2.default === "function" && typeof _iterator2.default === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default ? "symbol" : typeof obj; };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.default) === "symbol" ? function (obj) {
   return typeof obj === "undefined" ? "undefined" : _typeof(obj);
 } : function (obj) {
-  return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj);
+  return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj);
 };
 },{"../core-js/symbol":26,"../core-js/symbol/iterator":27}],29:[function(require,module,exports){
 module.exports = require("regenerator-runtime");
@@ -6214,15 +6249,17 @@ module.exports = _regenerator2.default.mark(function gather(thunks, n) {
                     ret[i].isError = true;
 
                   case 12:
+                    thunks[i] = null;
+
                     if (!(index < thunks.length)) {
-                      _context.next = 15;
+                      _context.next = 16;
                       break;
                     }
 
-                    _context.next = 15;
+                    _context.next = 16;
                     return next;
 
-                  case 15:
+                  case 16:
                   case 'end':
                     return _context.stop();
                 }
@@ -23345,7 +23382,7 @@ function populateStatusesMap (statuses, codes) {
  * the status message.
  *
  * @param {string|number} code
- * @returns {string}
+ * @returns {number}
  * @public
  */
 
@@ -25882,8 +25919,12 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   } catch (err) {
     return done(err);
   }
-  // start connect timer just after `request` return
-  startConnectTimer();
+
+  // environment detection: browser or nodejs
+  if (typeof window === 'undefined') {
+    // start connect timer just after `request` return, and just in nodejs environment
+    startConnectTimer();
+  }
 
   function abortRequest() {
     debug('Request#%d %s abort, connected: %s', reqId, url, connected);
@@ -26130,55 +26171,46 @@ function parseContentType(str) {
 module.exports={
   "_args": [
     [
-      {
-        "raw": "urllib@^2.16.1",
-        "scope": null,
-        "escapedName": "urllib",
-        "name": "urllib",
-        "rawSpec": "^2.16.1",
-        "spec": ">=2.16.1 <3.0.0",
-        "type": "range"
-      },
-      "/Users/deadhorse/git/ali-oss"
+      "urllib@^2.17.1",
+      "/Users/rockuw/freeman/work/aliyun-oss-js-sdk"
     ]
   ],
-  "_cnpm_publish_time": 1476348058960,
-  "_from": "urllib@>=2.16.1 <3.0.0",
-  "_id": "urllib@2.17.0",
+  "_from": "urllib@>=2.17.1 <3.0.0",
+  "_id": "urllib@2.17.1",
   "_inCache": true,
+  "_installable": true,
   "_location": "/urllib",
   "_nodeVersion": "4.4.7",
   "_npmOperationalInternal": {
-    "host": "packages-16-east.internal.npmjs.com",
-    "tmp": "tmp/urllib-2.17.0.tgz_1476348057935_0.42674178583547473"
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/urllib-2.17.1.tgz_1480065369317_0.9001144364010543"
   },
   "_npmUser": {
-    "name": "dead_horse",
-    "email": "dead_horse@qq.com"
+    "email": "dead_horse@qq.com",
+    "name": "dead_horse"
   },
   "_npmVersion": "3.10.3",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "urllib@^2.16.1",
-    "scope": null,
-    "escapedName": "urllib",
     "name": "urllib",
-    "rawSpec": "^2.16.1",
-    "spec": ">=2.16.1 <3.0.0",
+    "raw": "urllib@^2.17.1",
+    "rawSpec": "^2.17.1",
+    "scope": null,
+    "spec": ">=2.17.1 <3.0.0",
     "type": "range"
   },
   "_requiredBy": [
     "/",
     "/autod"
   ],
-  "_resolved": "http://registry.npm.taobao.org/urllib/download/urllib-2.17.0.tgz",
-  "_shasum": "062264d52f1713deddecc7dd8e0e9000864099a9",
+  "_resolved": "https://registry.npmjs.org/urllib/-/urllib-2.17.1.tgz",
+  "_shasum": "6bf357839c41761121a640d220acd07a38209d72",
   "_shrinkwrap": null,
-  "_spec": "urllib@^2.16.1",
-  "_where": "/Users/deadhorse/git/ali-oss",
+  "_spec": "urllib@^2.17.1",
+  "_where": "/Users/rockuw/freeman/work/aliyun-oss-js-sdk",
   "author": {
-    "name": "fengmk2",
     "email": "m@fengmk2.com",
+    "name": "fengmk2",
     "url": "http://fengmk2.com"
   },
   "bugs": {
@@ -26186,73 +26218,73 @@ module.exports={
   },
   "contributors": [
     {
-      "name": "fengmk2",
       "email": "fengmk2@gmail.com",
+      "name": "fengmk2",
       "url": "http://fengmk2.com"
     },
     {
-      "name": "aleafs",
       "email": "zhangxc83@gmail.com",
+      "name": "aleafs",
       "url": "https://github.com/aleafs"
     },
     {
-      "name": "Jackson Tian",
       "email": "shyvo1987@gmail.com",
+      "name": "Jackson Tian",
       "url": "https://github.com/JacksonTian"
     },
     {
-      "name": "ibigbug",
       "email": "x1aoba@icloud.com",
+      "name": "ibigbug",
       "url": "https://github.com/ibigbug"
     },
     {
-      "name": "XiNGRZ",
       "email": "chenxingyu92@gmail.com",
+      "name": "XiNGRZ",
       "url": "https://github.com/XiNGRZ"
     },
     {
-      "name": "dead_horse",
       "email": "dead_horse@qq.com",
+      "name": "dead_horse",
       "url": "http://deadhorse.me/"
     },
     {
-      "name": "coderhaoxin",
       "email": "coderhaoxin@outlook.com",
+      "name": "coderhaoxin",
       "url": "https://github.com/coderhaoxin"
     },
     {
-      "name": "alsotang",
       "email": "alsotang@gmail.com",
+      "name": "alsotang",
       "url": "https://github.com/alsotang"
     },
     {
-      "name": "Jonathan Dahan",
       "email": "jonathan@jedahan.com",
+      "name": "Jonathan Dahan",
       "url": "https://github.com/jedahan"
     },
     {
-      "name": "popomore",
       "email": "sakura9515@gmail.com",
+      "name": "popomore",
       "url": "https://github.com/popomore"
     },
     {
-      "name": "fishbar",
       "email": "zhengxinlin@gmail.com",
+      "name": "fishbar",
       "url": "https://github.com/fishbar"
     },
     {
-      "name": "coolme200",
       "email": "tangyao@taobao.com",
+      "name": "coolme200",
       "url": "https://github.com/coolme200"
     },
     {
-      "name": "amunu",
       "email": "panyilinlove@qq.com",
+      "name": "amunu",
       "url": "https://github.com/Amunu"
     },
     {
-      "name": "Yuwei Ba",
       "email": "xiaobayuwei@gmail.com",
+      "name": "Yuwei Ba",
       "url": "https://github.com/ibigbug"
     }
   ],
@@ -26288,10 +26320,8 @@ module.exports={
   },
   "directories": {},
   "dist": {
-    "shasum": "062264d52f1713deddecc7dd8e0e9000864099a9",
-    "size": 16235,
-    "noattachment": false,
-    "tarball": "http://registry.npm.taobao.org/urllib/download/urllib-2.17.0.tgz"
+    "shasum": "6bf357839c41761121a640d220acd07a38209d72",
+    "tarball": "https://registry.npmjs.org/urllib/-/urllib-2.17.1.tgz"
   },
   "engines": {
     "node": ">= 0.10.0"
@@ -26299,7 +26329,7 @@ module.exports={
   "files": [
     "lib"
   ],
-  "gitHead": "13662ea1367bc7fac6bff9950c638f53a6d9207b",
+  "gitHead": "20894d4e6dee0d45637839aacb8d85f3919eb4e0",
   "homepage": "http://github.com/node-modules/urllib",
   "keywords": [
     "urllib",
@@ -26314,17 +26344,16 @@ module.exports={
   "main": "lib/urllib.js",
   "maintainers": [
     {
-      "name": "dead_horse",
-      "email": "dead_horse@qq.com"
+      "email": "fengmk2@gmail.com",
+      "name": "fengmk2"
     },
     {
-      "name": "fengmk2",
-      "email": "fengmk2@gmail.com"
+      "email": "dead_horse@qq.com",
+      "name": "dead_horse"
     }
   ],
   "name": "urllib",
   "optionalDependencies": {},
-  "publish_time": 1476348058960,
   "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
@@ -26337,7 +26366,7 @@ module.exports={
     "test": "mocha -R spec -t 30000 -r should -r should-http -r intelli-espower-loader test/*.test.js",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- -t 30000 -r should -r should-http -r intelli-espower-loader test/*.test.js"
   },
-  "version": "2.17.0"
+  "version": "2.17.1"
 }
 
 },{}],344:[function(require,module,exports){
@@ -30222,7 +30251,7 @@ function extend() {
 },{}],382:[function(require,module,exports){
 module.exports={
   "name": "ali-oss",
-  "version": "4.6.2",
+  "version": "4.6.3",
   "description": "aliyun oss(open storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -30291,7 +30320,7 @@ module.exports={
     "co-defer": "^1.0.0",
     "co-gather": "^0.0.1",
     "copy-to": "^2.0.1",
-    "dateformat": "^1.0.12",
+    "dateformat": "^2.0.0",
     "debug": "^2.2.0",
     "destroy": "^1.0.4",
     "end-or-error": "^1.0.1",
@@ -30302,7 +30331,7 @@ module.exports={
     "mime": "^1.3.4",
     "platform": "^1.3.1",
     "sdk-base": "^2.0.1",
-    "urllib": "^2.16.1",
+    "urllib": "^2.17.1",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16"
   }

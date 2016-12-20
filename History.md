@@ -1,4 +1,11 @@
 
+4.6.3 / 2016-12-20
+==================
+
+  * fix request stream bug of the multipart upload feature (#155)
+  * chore(package): update dateformat to version 2.0.0 (#156)
+  * doc: param "file" of `*get` method is optional (#158)
+
 4.6.2 / 2016-10-28
 ==================
 
