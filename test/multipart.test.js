@@ -11,6 +11,7 @@ var urllib = require('urllib');
 var copy = require('copy-to');
 var md5 = require('utility').md5;
 var mm = require('mm');
+var sinon = require('sinon');
 
 describe('test/multipart.test.js', function () {
   var prefix = utils.prefix;
@@ -228,6 +229,29 @@ describe('test/multipart.test.js', function () {
       assert.deepEqual(md5(object.content), md5(fileBuf));
     });
 
+    it('should upload file using multipart upload with exception', function* () {
+      // create a file with 1M random data
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
+
+      var name = prefix + 'multipart/upload-file-exception';
+      var progress = 0;
+      var clientTmp = oss(config);
+      clientTmp.useBucket(this.bucket, this.region);
+
+      var stubUploadPart = sinon.stub(clientTmp, '_uploadPart');
+      stubUploadPart.throws("TestUploadPartException");
+
+
+      var error_msg = "";
+      try {
+        yield clientTmp.multipartUpload(name, fileName);
+      } catch (err) {
+        error_msg = err.toString();
+      }
+      assert.equal(error_msg,
+        "Error: Failed to upload some parts with error: TestUploadPartException");
+    });
+
     it('should upload web file using multipart upload', function* () {
       var File = function (name, content) {
         this.name = name;
@@ -255,6 +279,47 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.res.status, 200);
 
       var object = yield this.store.get(name);
+      assert.equal(object.res.status, 200);
+
+      assert.equal(object.content.length, fileBuf.length);
+      // avoid comparing buffers directly for it may hang when generating diffs
+      assert.deepEqual(md5(object.content), md5(fileBuf));
+
+      mm.restore();
+    });
+
+    it('should upload web file using multipart upload in IE10', function* () {
+      
+      var File = function (name, content) {
+        this.name = name;
+        this.buffer = content;
+        this.size = this.buffer.length;
+
+        this.slice = function (start, end) {
+          return new File(this.name, this.buffer.slice(start, end));
+        }
+      };
+      var FileReader = require('filereader');
+
+      mm(global, 'File', File);
+      mm(global, 'FileReader', FileReader);
+
+      // create a file with 1M random data
+      var fileName = yield utils.createTempFile('multipart-upload-webfile', 1024 * 1024);
+      var fileBuf = fs.readFileSync(fileName);
+      var webFile = new File(fileName, fileBuf);
+      var name = prefix + 'multipart/upload-webfile-ie10';
+      var clientTmp = oss(config);
+      clientTmp.useBucket(this.bucket, this.region);
+      sinon.stub(clientTmp, 'checkBrowserAndVersion', function(browser, version) {
+        return (browser == "Internet Explorer" && version == "10");
+      });
+      var result = yield clientTmp.multipartUpload(name, webFile, {
+        partSize: 100 * 1024,
+      });
+      assert.equal(result.res.status, 200);
+
+      var object = yield clientTmp.get(name);
       assert.equal(object.res.status, 200);
 
       assert.equal(object.content.length, fileBuf.length);

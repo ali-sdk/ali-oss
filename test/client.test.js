@@ -254,6 +254,13 @@ describe('test/client.test.js', function () {
       'aliyun-sdk-nodejs/' + pkg.version + ' Node.js ' + process.version.slice(1)));
   });
 
+  it('should check browser and version', function* () {
+    var store = oss(config);
+    assert(store.checkBrowserAndVersion("", ""));
+    assert(!store.checkBrowserAndVersion("non-nodejs", ""));
+    assert(!store.checkBrowserAndVersion("", "error-version"));
+  });
+
   it('should trim access id/key', function* () {
     var store = oss({
       accessKeyId: '  \tfoo\t\n  ',

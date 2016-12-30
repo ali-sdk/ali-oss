@@ -50,6 +50,7 @@
     "beautify-benchmark": "^0.2.4",
     "benchmark": "^2.1.1",
     "bluebird": "^3.1.5",
+    "bowser": "^1.6.0",
     "browserify": "^13.0.1",
     "co-fs": "^1.2.0",
     "crypto-browserify": "^1.0.9",
@@ -59,6 +60,7 @@
     "mm": "^2.0.0",
     "mocha": "^3.0.0",
     "should": "^11.0.0",
+    "sinon": "^1.17.6",
     "thunk-mocha": "^1.0.3",
     "uglify-js": "^2.7.1"
   },
