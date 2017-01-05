@@ -1015,6 +1015,59 @@ describe('test/object.test.js', function () {
       assert.equal(info.status, 200);
     });
 
+    it('should copy object with non-english name', function* () {
+      var source_name = prefix + 'ali-sdk/oss/copy-meta_测试.js';
+      var result = yield this.store.put(source_name, __filename, {
+        meta: {
+          uid: 2,
+          pid: '1234',
+          slus: 'test1.html'
+        }
+      });
+
+      var name = prefix + 'ali-sdk/oss/copy-new_测试.js';
+      result = yield this.store.copy(name, source_name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+
+      var info = yield this.store.head(name);
+      assert.equal(info.meta.uid, '2');
+      assert.equal(info.meta.pid, '1234');
+      assert.equal(info.meta.slus, 'test1.html');
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object with non-english name and bucket', function* () {
+      var source_name = prefix + 'ali-sdk/oss/copy-meta_测试2.js';
+      var result = yield this.store.put(source_name, __filename, {
+        meta: {
+          uid: 3,
+          pid: '12345',
+          slus: 'test2.html'
+        }
+      });
+
+      var info = yield this.store.head(source_name);
+      assert.equal(info.meta.uid, '3');
+      assert.equal(info.meta.pid, '12345');
+      assert.equal(info.meta.slus, 'test2.html');
+      assert.equal(info.status, 200);
+
+      source_name = '/' + this.bucket + '/' + source_name;
+      var name = prefix + 'ali-sdk/oss/copy-new_测试2.js';
+      result = yield this.store.copy(name, source_name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+
+      info = yield this.store.head(name);
+      assert.equal(info.meta.uid, '3');
+      assert.equal(info.meta.pid, '12345');
+      assert.equal(info.meta.slus, 'test2.html');
+      assert.equal(info.status, 200);
+    });
+
     it('should copy object and set other meta', function* () {
       var name = prefix + 'ali-sdk/oss/copy-new-2.js';
       var result = yield this.store.copy(name, this.name, {
