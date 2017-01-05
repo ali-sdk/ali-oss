@@ -1,4 +1,11 @@
 
+4.7.0 / 2017-01-05
+==================
+
+  * fix: the copy object api bug which can not use non-English source object name (#166)
+  * feat: add process params to signatureUrl and get api for image process (#170)
+  * fix: multipartUpload can not work with IE10 bug (#167)
+
 4.6.3 / 2016-12-20
 ==================
 
