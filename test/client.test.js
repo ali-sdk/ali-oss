@@ -40,6 +40,39 @@ describe('test/client.test.js', function () {
     assert.equal(
       store.options.endpoint.format(),
       'https://oss-cn-hangzhou-internal.aliyuncs.com/');
+
+    store = oss({
+      accessKeyId: 'foo',
+      accessKeySecret: 'bar',
+      region: 'vpc100-oss-cn-beijing',
+    });
+
+    assert.equal(
+      store.options.endpoint.format(),
+      'http://vpc100-oss-cn-beijing.aliyuncs.com/');
+
+    store = oss({
+      accessKeyId: 'foo',
+      accessKeySecret: 'bar',
+      region: 'vpc100-oss-cn-shenzhen',
+      internal: true,
+    });
+
+    assert.equal(
+      store.options.endpoint.format(),
+      'http://vpc100-oss-cn-shenzhen.aliyuncs.com/');
+
+    store = oss({
+      accessKeyId: 'foo',
+      accessKeySecret: 'bar',
+      region: 'vpc100-oss-cn-hangzhou',
+      internal: true,
+      secure: true
+    });
+
+    assert.equal(
+      store.options.endpoint.format(),
+      'https://vpc100-oss-cn-hangzhou.aliyuncs.com/');
   });
 
   it('should init with cname: foo.bar.com', function () {
