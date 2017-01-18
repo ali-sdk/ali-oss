@@ -1,4 +1,10 @@
 
+4.8.0 / 2017-01-19
+==================
+
+  * feat: support VPC region #181 (#183)
+  * fix comment typo and add object check to avoid call properties of null object (#176)
+
 4.7.3 / 2017-01-06
 ==================
 
