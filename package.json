@@ -72,7 +72,7 @@
     "co-gather": "^0.0.1",
     "copy-to": "^2.0.1",
     "dateformat": "^2.0.0",
-    "debug": "^2.2.0",
+    "debug": "^2.4.0",
     "destroy": "^1.0.4",
     "end-or-error": "^1.0.1",
     "get-ready": "^1.0.0",
