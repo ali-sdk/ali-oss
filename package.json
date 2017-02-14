@@ -50,7 +50,7 @@
     "beautify-benchmark": "^0.2.4",
     "benchmark": "^2.1.1",
     "bluebird": "^3.1.5",
-    "browserify": "^13.0.1",
+    "browserify": "^14.1.0",
     "co-fs": "^1.2.0",
     "crypto-browserify": "^1.0.9",
     "filereader": "^0.10.3",
