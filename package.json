@@ -61,7 +61,7 @@
     "should": "^11.0.0",
     "sinon": "^1.17.6",
     "thunk-mocha": "^1.0.3",
-    "uglify-js": "^2.7.1"
+    "uglify-js": "^3.0.12"
   },
   "dependencies": {
     "address": "^1.0.0",
