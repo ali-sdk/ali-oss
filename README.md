@@ -137,7 +137,8 @@ options:
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
   If your servers are running on aliyun too, you can set `true` to save lot of money.
 - [secure] {Boolean} instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol.
-- [timeout] {String|Number} instance level timeout for all operations, default is `60s`
+- [timeout] {String|Number} instance level timeout for all operations, default is `60s`.
+- [gzip] {Boolean} accept gzip response content and auto decode it, default is false.
 
 example:
 
