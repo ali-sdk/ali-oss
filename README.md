@@ -877,10 +877,10 @@ object:
 example:
 
 ```js
-var object = yield store.put('ossdemo/buffer', new Buffer('foo'));
+var object = yield store.apend('ossdemo/buffer', new Buffer('foo'));
 
 // append content to the existing object
-object = yield store.put('ossdemo/buffer', new Buffer('bar'), {
+object = yield store.apend('ossdemo/buffer', new Buffer('bar'), {
   position: object.nextAppendPosition,
 });
 ```

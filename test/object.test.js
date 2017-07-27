@@ -19,7 +19,7 @@ if (!fs.existsSync(tmpdir)) {
   fs.mkdirSync(tmpdir);
 }
 
-describe.only('test/object.test.js', function () {
+describe('test/object.test.js', function () {
   var prefix = utils.prefix;
 
   before(function* () {
@@ -1460,7 +1460,7 @@ describe.only('test/object.test.js', function () {
     });
   });
 
-  describe.only('append()', function () {
+  describe('append()', function () {
     var name = '/' + prefix + 'ali-sdk/oss/apend' + Date.now();
     afterEach(function* () {
       yield this.store.delete(name);
