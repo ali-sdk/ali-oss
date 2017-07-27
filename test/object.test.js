@@ -600,9 +600,9 @@ describe('test/object.test.js', function () {
       assert(result.content.toString() == fs.readFileSync(processedImagePath, 'utf8'),
         'get content should be same as test/nodejs-processed-w200.png');
 
-      // it should use the value of process 
+      // it should use the value of process
       // when 'subres.x-oss-process' coexists with 'process'.
-      result = yield this.store.get(name, 
+      result = yield this.store.get(name,
         {process: 'image/resize,w_200', subres: {'x-oss-process': 'image/resize,w_100'}});
       assert.equal(result.res.status, 200);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
@@ -1458,5 +1458,79 @@ describe('test/object.test.js', function () {
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.content, new Buffer('hello world'));
     });
+  });
+
+  describe('append()', function () {
+    var name = '/' + prefix + 'ali-sdk/oss/apend' + Date.now();
+    afterEach(function* () {
+      yield this.store.delete(name);
+    });
+
+    it('should apend object with content buffer', function* () {
+      var object = yield this.store.append(name, new Buffer('foo'));
+      var url = object.url;
+      assert(object.res.status === 200);
+      assert(object.nextAppendPosition === '3');
+      assert(object.res.headers['x-oss-next-append-position'] === '3');
+
+      var res = yield urllib.request(url);
+      assert(res.data.toString() === 'foo');
+      assert(res.headers['x-oss-next-append-position'] === '3');
+
+      object = yield this.store.append(name, new Buffer('bar'), {
+        position: 3,
+      });
+      url = object.url;
+      assert(object.res.status === 200);
+      assert(object.nextAppendPosition === '6');
+      assert(object.res.headers['x-oss-next-append-position'] === '6');
+
+      res = yield urllib.request(url);
+      assert(res.data.toString() === 'foobar');
+      assert(res.headers['x-oss-next-append-position'] === '6');
+    });
+
+    it('should apend object with local file path', function* () {
+      const file = path.join(__dirname, 'fixtures/foo.js');
+      var object = yield this.store.append(name, file);
+      assert(object.nextAppendPosition === '16');
+
+      object = yield this.store.append(name, file, { position: 16 });
+      assert(object.nextAppendPosition === '32');
+    });
+
+    it('should apend object with readstream', function* () {
+      const file = path.join(__dirname, 'fixtures/foo.js');
+      var object = yield this.store.append(name, fs.createReadStream(file));
+      assert(object.nextAppendPosition === '16');
+
+      object = yield this.store.append(name, fs.createReadStream(file), {
+        position: 16,
+      });
+      assert(object.nextAppendPosition === '32');
+    });
+
+    it('should error when positio not match', function* () {
+      yield this.store.append(name, new Buffer('foo'));
+
+      try {
+        yield this.store.append(name, new Buffer('foo'));
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'Position is not equal to file length');
+        assert(err.name === 'PositionNotEqualToLengthError');
+      }
+    });
+
+    it('should error when position is not number', function* () {
+      try {
+        yield this.store.append(name, new Buffer('foo'), {
+          position: '',
+        });
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'options.position should be number');
+      }
+    })
   });
 });
