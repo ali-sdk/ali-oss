@@ -66,6 +66,7 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
   - [.list*(query[, options])](#listquery-options)
   - [.put*(name, file[, options])](#putname-file-options)
   - [.putStream*(name, stream[, options])](#putstreamname-stream-options)
+  - [.append*(name, file[, options])](#apendname-file-options)
   - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
   - [.head*(name[, options])](#headname-options)
   - [.get*(name, file[, options])](#getname-file-options)
@@ -840,6 +841,48 @@ console.log(object);
     rt: 92
   }
 }
+```
+
+### .append*(name, file[, options])
+
+Append an object to the bucket, it's almost same as put, but it can add content to existing object rather than override it.
+
+All parameters are same as put except for options.position
+
+- name {String} object name store on OSS
+- file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance
+- [options] {Object} optional parameters
+  - [position] {Number} specify the position which is the content length of the latest object
+  - [timeout] {Number} the operation timeout
+  - [mime] {String} custom mime
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
+    e.g.: `{ uid: 123, pid: 110 }`
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
+    - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
+    - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
+    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+
+object:
+
+- name {String} object name
+- url {String} the url of oss
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- nextAppendPosition {String} the next position
+
+example:
+
+```js
+var object = yield store.put('ossdemo/buffer', new Buffer('foo'));
+
+// append content to the existing object
+object = yield store.put('ossdemo/buffer', new Buffer('bar'), {
+  position: object.nextAppendPosition,
+});
 ```
 
 ### .getObjectUrl(name[, baseUrl])
