@@ -1307,7 +1307,7 @@ describe('test/object.test.js', function () {
       assert.equal(typeof obj.name, 'string');
       assert.equal(typeof obj.lastModified, 'string');
       assert.equal(typeof obj.etag, 'string');
-      assert.equal(obj.type, 'Normal');
+      assert(obj.type === 'Normal' || obj.type === 'Multipart');
       assert.equal(typeof obj.size, 'number');
       assert.equal(obj.storageClass, 'Standard');
       assert.equal(typeof obj.owner, 'object');
