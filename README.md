@@ -852,7 +852,7 @@ All parameters are same as put except for options.position
 - name {String} object name store on OSS
 - file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance
 - [options] {Object} optional parameters
-  - [position] {Number} specify the position which is the content length of the latest object
+  - [position] {String} specify the position which is the content length of the latest object
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
