@@ -1460,4 +1460,85 @@ describe('test/object.test.js', function () {
       assert.deepEqual(result.content, new Buffer('hello world'));
     });
   });
+
+  describe('append()', function () {
+    var name = '/' + prefix + 'ali-sdk/oss/apend' + Date.now();
+    afterEach(function* () {
+      yield this.store.delete(name);
+    });
+
+    it('should apend object with content buffer', function* () {
+      var object = yield this.store.append(name, new Buffer('foo'));
+      var url = object.url;
+      assert(object.res.status === 200);
+      assert(object.nextAppendPosition === '3');
+      assert(object.res.headers['x-oss-next-append-position'] === '3');
+
+      var res = yield urllib.request(this.store.signatureUrl(name));
+      assert(res.data.toString() === 'foo');
+      assert(res.headers['x-oss-next-append-position'] === '3');
+
+      object = yield this.store.append(name, new Buffer('bar'), {
+        position: 3,
+      });
+      url = object.url;
+      assert(object.res.status === 200);
+      assert(object.nextAppendPosition === '6');
+      assert(object.res.headers['x-oss-next-append-position'] === '6');
+
+      res = yield urllib.request(this.store.signatureUrl(name));
+      assert(res.data.toString() === 'foobar');
+      assert(res.headers['x-oss-next-append-position'] === '6');
+    });
+
+    it('should apend object with local file path', function* () {
+      const file = path.join(__dirname, 'fixtures/foo.js');
+      var object = yield this.store.append(name, file);
+      assert(object.nextAppendPosition === '16');
+
+      object = yield this.store.append(name, file, { position: 16 });
+      assert(object.nextAppendPosition === '32');
+    });
+
+    it('should apend object with readstream', function* () {
+      const file = path.join(__dirname, 'fixtures/foo.js');
+      var object = yield this.store.append(name, fs.createReadStream(file));
+      assert(object.nextAppendPosition === '16');
+
+      object = yield this.store.append(name, fs.createReadStream(file), {
+        position: 16,
+      });
+      assert(object.nextAppendPosition === '32');
+    });
+
+    it('should error when positio not match', function* () {
+      yield this.store.append(name, new Buffer('foo'));
+
+      try {
+        yield this.store.append(name, new Buffer('foo'));
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'Position is not equal to file length');
+        assert(err.name === 'PositionNotEqualToLengthError');
+      }
+    });
+
+    it('should use nextAppendPosition to append next', function* () {
+      var object = yield this.store.append(name, new Buffer('foo'));
+      assert(object.nextAppendPosition === '3');
+
+      object = yield this.store.append(name, new Buffer('bar'), {
+        position: object.nextAppendPosition,
+      });
+
+      object = yield this.store.append(name, new Buffer('baz'), {
+        position: object.nextAppendPosition,
+      });
+
+      var res = yield urllib.request(this.store.signatureUrl(name));
+      assert(res.data.toString() === 'foobarbaz');
+      assert(res.headers['x-oss-next-append-position'] === '9');
+    });
+
+  });
 });
