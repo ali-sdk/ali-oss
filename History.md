@@ -1,4 +1,14 @@
 
+4.9.0 / 2017-07-28
+==================
+
+  * feat: support oss.append  (#275)
+  * test: add node 8
+  * test: skip callbackurl test cases
+  * test: set default platform on user-agent
+  * docs: Document `secure` option when creating bucket store. (#252)
+  * chore: add dist build files
+
 4.8.0 / 2017-01-19
 ==================
 
