@@ -280,15 +280,14 @@ describe('test/bucket.test.js', () => {
     });
 
     it('should create, get and delete the cors', function* () {
-      var result = yield this.store.putBucketCORS(this.bucket, this.region, {
-        rules: [{
-          allowedOrigin: '*',
-          allowedMethod: 'GET',
-          allowedHeader: '*',
-          exposeHeader: 'Content-Length',
-          maxAgeSeconds: '30',
-        }],
-      });
+      var rules = [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+        allowedHeader: '*',
+        exposeHeader: 'Content-Length',
+        maxAgeSeconds: '30',
+      }];
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
       assert.equal(result.res.status, 200);
 
       result = yield this.store.getBucketCORS(this.bucket, this.region);
@@ -303,12 +302,11 @@ describe('test/bucket.test.js', () => {
     });
 
     it('should overwrite cors', function* () {
-      var result = yield this.store.putBucketCORS(this.bucket, this.region, {
-        rules: [{
-          allowedOrigin: '*',
-          allowedMethod: 'GET',
-        }],
-      });
+      var rules = [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+      }];
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
       assert.equal(result.res.status, 200);
 
       result = yield this.store.getBucketCORS(this.bucket, this.region);
@@ -318,12 +316,11 @@ describe('test/bucket.test.js', () => {
         allowedMethod: 'GET',
       }]);
 
-      var result = yield this.store.putBucketCORS(this.bucket, this.region, {
-        rules: [{
-          allowedOrigin: 'localhost',
-          allowedMethod: 'HEAD',
-        }],
-      });
+      rules = [{
+        allowedOrigin: 'localhost',
+        allowedMethod: 'HEAD',
+      }];
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
       assert.equal(result.res.status, 200);
 
       result = yield this.store.getBucketCORS(this.bucket, this.region);
@@ -339,15 +336,13 @@ describe('test/bucket.test.js', () => {
         yield this.store.putBucketCORS(this.bucket, this.region);
         throw new Error('should not run');
       } catch (err) {
-        assert(err.message === 'options.rules is required');
+        assert(err.message === 'rules is required');
       }
     });
 
     it('should check allowedOrigin', function* () {
       try {
-        yield this.store.putBucketCORS(this.bucket, this.region, {
-          rules: [{}],
-        });
+        yield this.store.putBucketCORS(this.bucket, this.region, [{}]);
         throw new Error('should not run');
       } catch (err) {
         assert(err.message === 'allowedOrigin is required');
@@ -356,11 +351,10 @@ describe('test/bucket.test.js', () => {
 
     it('should check allowedMethod', function* () {
       try {
-        yield this.store.putBucketCORS(this.bucket, this.region, {
-          rules: [{
-            allowedOrigin: '*',
-          }],
-        });
+        var rules = [{
+          allowedOrigin: '*',
+        }];
+        yield this.store.putBucketCORS(this.bucket, this.region, rules);
         throw new Error('should not run');
       } catch (err) {
         assert(err.message === 'allowedMethod is required');

@@ -62,6 +62,10 @@ OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com
     - [.putBucketLifecycle*(name, region, rules[, options])](#putbucketlifecyclename-region-rules-options)
     - [.getBucketLifecycle*(name, region[, options])](#getbucketlifecyclename-region-options)
     - [.deleteBucketLifecycle*(name, region[, options])](#deletebucketlifecyclename-region-options)
+  - CORS
+    - [.putBucketCORS*(name, region, rules[, options])](#putbucketcorsname-region-rules-options)
+    - [.getBucketCORS*(name, region[, options])](#getbucketcorsname-region-options)
+    - [.deleteBucketCORS*(name, region[, options])](#deletebucketcorsname-region-options)
 - [Object Operations](#object-operations)
   - [.list*(query[, options])](#listquery-options)
   - [.put*(name, file[, options])](#putname-file-options)
@@ -651,6 +655,89 @@ Success will return:
 ### .deleteBucketLifecycle*(name, region[, options])
 
 Delete the bucket object lifecycle.
+
+parameters:
+
+- name {String} bucket name
+- region {String} the bucket data region location, please see [Data Regions](#data-regions),
+  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+---
+
+### .putBucketCORS*(name, region, rules[, options])
+
+Set CORS rules of the bucket object
+
+parameters:
+
+- name {String} bucket name
+- region {String} the bucket data region location, please see [Data Regions](#data-regions),
+  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
+- rules {Array<Rule>} rule config list, each `Rule` will contains below properties:
+  - allowedOrigin {String/Array} configure for Access-Control-Allow-Origin header
+  - allowedMethod {String/Array} configure for Access-Control-Allow-Methods header
+  - [allowedHeader] {String/Array} configure for Access-Control-Allow-Headers header
+  - [exposeHeader] {String/Array} configure for Access-Control-Expose-Headers header
+  - [maxAgeSeconds] {String} configure for Access-Control-Max-Age header
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+yield store.putBucketCORS('hello', 'oss-cn-hangzhou', [
+  {
+    allowedOrigin: '*',
+    allowedMethod: [
+      'GET',
+      'HEAD',
+    ],
+  }
+]);
+```
+
+### .getBucketCORS*(name, region[, options])
+
+Get CORS rules of the bucket object.
+
+parameters:
+
+- name {String} bucket name
+- region {String} the bucket data region location, please see [Data Regions](#data-regions),
+  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- rules {Array<Rule>} the CORS rule list
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+### .deleteBucketCORS*(name, region[, options])
+
+Delete CORS rules of the bucket object.
 
 parameters:
 
