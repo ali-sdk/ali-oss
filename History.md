@@ -1,4 +1,13 @@
 
+4.10.0 / 2017-08-07
+==================
+
+**features**
+  * [[`8b176d6`](http://github.com/ali-sdk/ali-oss/commit/8b176d6d53f204310230b4495fc15a24be6f3370)] - feat: manage cors for bucket (#279) (Haoliang Gao <<sakura9515@gmail.com>>)
+
+**fixes**
+  * [[`915b196`](http://github.com/ali-sdk/ali-oss/commit/915b196380da8c8fd31bcf5fd69bae99aea08361)] - fix: add missing dist (fengmk2 <<fengmk2@gmail.com>>)
+
 4.9.0 / 2017-07-28
 ==================
 
