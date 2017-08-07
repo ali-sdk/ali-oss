@@ -284,6 +284,9 @@ describe('test/bucket.test.js', () => {
         rules: [{
           allowedOrigin: '*',
           allowedMethod: 'GET',
+          allowedHeader: '*',
+          exposeHeader: 'Content-Length',
+          maxAgeSeconds: '30',
         }],
       });
       assert.equal(result.res.status, 200);
@@ -293,6 +296,9 @@ describe('test/bucket.test.js', () => {
       assert.deepEqual(result.rules, [{
         allowedOrigin: '*',
         allowedMethod: 'GET',
+        allowedHeader: '*',
+        exposeHeader: 'Content-Length',
+        maxAgeSeconds: '30',
       }]);
     });
 
@@ -326,6 +332,48 @@ describe('test/bucket.test.js', () => {
         allowedOrigin: 'localhost',
         allowedMethod: 'HEAD',
       }]);
+    });
+
+    it('should check rules', function* () {
+      try {
+        yield this.store.putBucketCORS(this.bucket, this.region);
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'options.rules is required');
+      }
+    });
+
+    it('should check allowedOrigin', function* () {
+      try {
+        yield this.store.putBucketCORS(this.bucket, this.region, {
+          rules: [{}],
+        });
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'allowedOrigin is required');
+      }
+    });
+
+    it('should check allowedMethod', function* () {
+      try {
+        yield this.store.putBucketCORS(this.bucket, this.region, {
+          rules: [{
+            allowedOrigin: '*',
+          }],
+        });
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'allowedMethod is required');
+      }
+    });
+
+    it('should throw error when rules not exist', function* () {
+      try {
+        yield this.store.getBucketCORS(this.bucket, this.region);
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'The CORS Configuration does not exist.');
+      }
     });
   });
 });
