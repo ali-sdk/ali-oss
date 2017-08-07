@@ -271,4 +271,61 @@ describe('test/bucket.test.js', () => {
       assert.equal(result.res.status, 200);
     });
   });
+
+  describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', function () {
+    afterEach(function* () {
+      // delete it
+      var result = yield this.store.deleteBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 204);
+    });
+
+    it('should create, get and delete the cors', function* () {
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, {
+        rules: [{
+          allowedOrigin: '*',
+          allowedMethod: 'GET',
+        }],
+      });
+      assert.equal(result.res.status, 200);
+
+      result = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.rules, [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+      }]);
+    });
+
+    it('should overwrite cors', function* () {
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, {
+        rules: [{
+          allowedOrigin: '*',
+          allowedMethod: 'GET',
+        }],
+      });
+      assert.equal(result.res.status, 200);
+
+      result = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.rules, [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+      }]);
+
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, {
+        rules: [{
+          allowedOrigin: 'localhost',
+          allowedMethod: 'HEAD',
+        }],
+      });
+      assert.equal(result.res.status, 200);
+
+      result = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.rules, [{
+        allowedOrigin: 'localhost',
+        allowedMethod: 'HEAD',
+      }]);
+    });
+  });
 });
