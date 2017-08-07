@@ -271,4 +271,103 @@ describe('test/bucket.test.js', () => {
       assert.equal(result.res.status, 200);
     });
   });
+
+  describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', function () {
+    afterEach(function* () {
+      // delete it
+      var result = yield this.store.deleteBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 204);
+    });
+
+    it('should create, get and delete the cors', function* () {
+      var rules = [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+        allowedHeader: '*',
+        exposeHeader: 'Content-Length',
+        maxAgeSeconds: '30',
+      }];
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
+      assert.equal(result.res.status, 200);
+
+      result = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.rules, [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+        allowedHeader: '*',
+        exposeHeader: 'Content-Length',
+        maxAgeSeconds: '30',
+      }]);
+    });
+
+    it('should overwrite cors', function* () {
+      var rules = [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+      }];
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
+      assert.equal(result.res.status, 200);
+
+      result = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.rules, [{
+        allowedOrigin: '*',
+        allowedMethod: 'GET',
+      }]);
+
+      rules = [{
+        allowedOrigin: 'localhost',
+        allowedMethod: 'HEAD',
+      }];
+      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
+      assert.equal(result.res.status, 200);
+
+      result = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(result.res.status, 200);
+      assert.deepEqual(result.rules, [{
+        allowedOrigin: 'localhost',
+        allowedMethod: 'HEAD',
+      }]);
+    });
+
+    it('should check rules', function* () {
+      try {
+        yield this.store.putBucketCORS(this.bucket, this.region);
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'rules is required');
+      }
+    });
+
+    it('should check allowedOrigin', function* () {
+      try {
+        yield this.store.putBucketCORS(this.bucket, this.region, [{}]);
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'allowedOrigin is required');
+      }
+    });
+
+    it('should check allowedMethod', function* () {
+      try {
+        var rules = [{
+          allowedOrigin: '*',
+        }];
+        yield this.store.putBucketCORS(this.bucket, this.region, rules);
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'allowedMethod is required');
+      }
+    });
+
+    it('should throw error when rules not exist', function* () {
+      try {
+        yield this.store.getBucketCORS(this.bucket, this.region);
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'The CORS Configuration does not exist.');
+      }
+    });
+  });
 });
