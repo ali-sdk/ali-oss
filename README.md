@@ -15,7 +15,7 @@ oss-nodejs-sdk
 [david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-oss
 
-aliyun OSS(open storage service) Node.js client.
+aliyun OSS(object storage service) Node.js client.
 
 ## Install
 
@@ -29,7 +29,7 @@ npm install ali-oss --save
 
 # OSS Usage
 
-OSS, Open Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com/s3/).
+OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com/s3/).
 
 ## Summary
 
