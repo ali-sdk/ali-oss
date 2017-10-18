@@ -1,21 +1,13 @@
 #! /usr/bin/env node
+"use strict";
 
 var path = require('path');
-var pkg = require('./package.json');
-
-var license = [
-  '// Aliyun OSS SDK for JavaScript v' + pkg.version,
-  '// Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.',
-  '// License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE'
-].join('\n') + '\n';
 
 function build(options, callback) {
   if (arguments.length === 1) {
     callback = options;
-    options = {};
+    // options = {};
   }
-
-  console.error('Building with options: %j', options);
 
   var browserify = require('browserify');
   var aliasify = require('aliasify');
@@ -24,14 +16,13 @@ function build(options, callback) {
   var brOpts = {
     basedir: path.resolve(__dirname, '.'),
     fullPaths: false,
-    standalone: 'OSS'
   };
-  browserify(brOpts).add('./lib/browser.js')
+  browserify(brOpts).add(['../test/browser.tests.js', ])
     .transform(babelify, {
       "global": true,
       "presets": ["es2015"],
       "plugins": ["transform-runtime"],
-      "only": ['browser/*','lib/*', 'node_modules/co-gather/*', 'shims/*'],
+      "only": ['test/*', 'browser/*','lib/*', 'node_modules/co-gather/*', 'shims/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {
@@ -44,12 +35,12 @@ function build(options, callback) {
       if (err) return callback(err);
 
       var code = (data || '').toString();
-      if (options.minify) {
-        var uglify = require('uglify-js');
-        var minified = uglify.minify(code, {fromString: true});
-        code = minified.code;
-      }
-      code = license + code;
+      // if (options.minify) {
+      //   var uglify = require('uglify-js');
+      //   var minified = uglify.minify(code, {fromString: true});
+      //   code = minified.code;
+      // }
+      // code = license + code;
       callback(null, code);
   });
 }

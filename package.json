@@ -6,11 +6,20 @@
   "files": [
     "lib"
   ],
+  "browser": {
+    "lib/client.js": "./lib/browser.js",
+    "mime": "./shims/mime.js",
+    "urllib": "./shims/xhr.js",
+    "fs": false,
+    "child_process": false
+  },
   "scripts": {
     "test": "mocha -t 60000 -r thunk-mocha -r should test/*.test.js",
     "test-cov": "istanbul cover node_modules/.bin/_mocha -- -R dot -t 60000 -r thunk-mocha -r should test/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
+    "build-test": "node browser-build.js > test/browser/build/aliyun-oss-sdk.js && node task/browser-test-build.js > test/browser/build/tests.js",
+    "browser-test": "npm run build-test && karma start",
     "build-dist": "node browser-build.js > dist/aliyun-oss-sdk.js && MINIFY=1 node browser-build.js > dist/aliyun-oss-sdk.min.js",
     "publish-to-cdn": "node publish.js"
   },
@@ -44,24 +53,32 @@
     "aliasify": "^2.0.0",
     "autod": "^2.6.1",
     "babel-plugin-transform-runtime": "^6.8.0",
-    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-es2015": "^6.24.1",
     "babel-runtime": "^6.6.1",
     "babelify": "^7.3.0",
     "beautify-benchmark": "^0.2.4",
     "benchmark": "^2.1.1",
     "bluebird": "^3.1.5",
-    "browserify": "^13.0.1",
+    "browserify": "^13.3.0",
     "co-fs": "^1.2.0",
+    "co-mocha": "^1.2.1",
     "crypto-browserify": "^1.0.9",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
     "istanbul": "^0.4.3",
+    "karma": "^1.7.1",
+    "karma-browserify": "^5.1.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-firefox-launcher": "^1.0.1",
+    "karma-mocha": "^1.3.0",
     "mm": "^2.0.0",
-    "mocha": "^3.0.0",
+    "mocha": "^3.5.3",
+    "platform": "^1.3.4",
+    "promise-polyfill": "^6.0.2",
     "should": "^11.0.0",
-    "sinon": "^1.17.6",
+    "sinon": "^1.17.7",
     "thunk-mocha": "^1.0.3",
-    "uglify-js": "^2.7.1"
+    "uglify-js": "^2.8.29"
   },
   "dependencies": {
     "address": "^1.0.0",

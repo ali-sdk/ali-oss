@@ -15,6 +15,7 @@
 var assert = require('assert');
 var fs = require('fs');
 var urlutil = require('url');
+var platform = require('platform');
 
 exports.throws = function* (block, checkError) {
   try {
@@ -64,8 +65,9 @@ exports.cleanBucket = function* (store, bucket, region) {
   yield store.deleteBucket(bucket, region);
 };
 
-exports.prefix = process.platform + '-' + process.version + '/';
-if (process.execPath.indexOf('iojs') >= 0) {
+if (process && process.browser) {
+  exports.prefix = platform.name + '-' + platform.version + '/';
+} else if (process && process.execPath.indexOf('iojs') >= 0) {
   exports.prefix = 'iojs-' + exports.prefix;
 }
 
