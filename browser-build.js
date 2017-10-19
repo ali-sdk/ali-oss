@@ -31,7 +31,7 @@ function build(options, callback) {
       "global": true,
       "presets": ["es2015"],
       "plugins": ["transform-runtime"],
-      "only": ['browser/*','lib/*', 'node_modules/co-gather/*', 'shims/*'],
+      "only": ['lib/*', 'node_modules/co-gather/*', 'shims/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {

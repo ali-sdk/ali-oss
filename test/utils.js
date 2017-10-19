@@ -67,8 +67,11 @@ exports.cleanBucket = function* (store, bucket, region) {
 
 if (process && process.browser) {
   exports.prefix = platform.name + '-' + platform.version + '/';
-} else if (process && process.execPath.indexOf('iojs') >= 0) {
-  exports.prefix = 'iojs-' + exports.prefix;
+} else {
+  exports.prefix = process.platform + '-' + process.version + '/';
+  if (process && process.execPath.indexOf('iojs') >= 0) {
+    exports.prefix = 'iojs-' + exports.prefix;
+  }
 }
 
 exports.createTempFile = function* (name, size) {
