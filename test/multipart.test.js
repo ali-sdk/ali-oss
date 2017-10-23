@@ -182,8 +182,8 @@ describe('test/multipart.test.js', function () {
       assert.equal(uploadPartSpy.callCount, 0);
       assert.equal(progress, 1);
 
-      assert(result.bucket);
-      assert(result.etag);
+      assert.equal(typeof result.bucket, 'string');
+      assert.equal(typeof result.etag, 'string');
 
       this.store.putStream.restore();
       this.store._uploadPart.restore();
