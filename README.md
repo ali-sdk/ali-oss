@@ -1130,6 +1130,7 @@ parameters:
 - name {String} object name store on OSS
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [process] {String} image process params, will send with `x-oss-process`
   - [headers] {Object} extra headers
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
         otherwise return 304 not modified
@@ -1535,6 +1536,17 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- bucket {String} bucket name
+- name name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
 
 example:
 
