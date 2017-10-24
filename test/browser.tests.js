@@ -17,10 +17,6 @@ var ossConfig;
 
 describe('browser', function () {
   before(function* () {
-    // var url = '/sts';
-    // var url = 'http://localhost:19876/sts';
-    // var result = yield urllib.request(url);
-    // var creds = JSON.parse(result.data);
     ossConfig = {
         region: stsConfig.region,
         accessKeyId: stsConfig.Credentials.AccessKeyId,

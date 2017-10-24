@@ -18,18 +18,14 @@ module.exports = function(config) {
     //   type : 'html',
     //   dir : 'coverage-browser/'
     // },
-    proxies: {
-      '/sts': {
-        'target': 'http://127.0.0.1:3000',
-        'changeOrigin': true
-      }
-    },
     // reporters: ['progress', 'coverage'],
     reporters: ['progress'],
     port: 19876,
     colors: true,
     logLevel: config.LOG_INFO,
     singleRun: true,
+    browserDisconnectTolerance: 3,
+    browserNoActivityTimeout: 30000,
     concurrency: Infinity
   });
 }
