@@ -4,7 +4,7 @@
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
-    "lib"
+    "lib","shims"
   ],
   "browser": {
     "lib/client.js": "./lib/browser.js",
