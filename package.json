@@ -10,6 +10,7 @@
     "lib/client.js": "./lib/browser.js",
     "mime": "./shims/mime.js",
     "urllib": "./shims/xhr.js",
+    "utility": "./shims/utility.js",
     "fs": false,
     "child_process": false
   },
