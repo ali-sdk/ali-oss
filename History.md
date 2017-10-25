@@ -1,4 +1,10 @@
 
+4.11.0 / 2017-10-25
+==================
+
+**features**
+  * [[`c50cc9e`](http://github.com/ali-sdk/ali-oss/commit/c50cc9e83166f56c24455f84c72106e00e0bed13)] - feat: handle browser compatibility alone (饶培泽 <<peizerao@gmail.com>>)
+
 4.10.2 / 2017-10-20
 ==================
 
