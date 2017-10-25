@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "4.10.1",
+  "version": "4.10.2",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -80,6 +80,7 @@
     "promise-polyfill": "^6.0.2",
     "should": "^11.0.0",
     "sinon": "^1.17.7",
+    "stream-equal": "^1.1.0",
     "thunk-mocha": "^1.0.3",
     "uglify-js": "^2.8.29",
     "watchify": "^3.9.0"

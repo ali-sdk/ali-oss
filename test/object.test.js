@@ -13,6 +13,7 @@ var stsConfig = require('./config').sts;
 var urllib = require('urllib');
 var copy = require('copy-to');
 var mm = require('mm');
+const streamEqual = require('stream-equal');
 
 var tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -912,6 +913,25 @@ describe('test/object.test.js', function () {
       result.stream.pipe(tmpstream);
       yield finish();
       assert.equal(fs.readFileSync(tmpfile, 'utf8'), fs.readFileSync(__filename, 'utf8'));
+    });
+
+    it('should get image stream with image process', function* () {
+      var name = prefix + 'ali-sdk/oss/nodejs-test-getstream-image-1024x768.png';
+      var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
+      var object = yield this.store.put(name, originImagePath, {
+        mime: 'image/png'
+      });
+
+      var result = yield this.store.getStream(name, {process: 'image/resize,w_200'});
+      assert.equal(result.res.status, 200);
+      var isEqual = yield streamEqual(result.stream, fs.createReadStream(processedImagePath));
+      assert(isEqual);
+      result = yield this.store.getStream(name,
+        {process: 'image/resize,w_200', subres: {'x-oss-process': 'image/resize,w_100'}});
+      assert.equal(result.res.status, 200);
+      isEqual = yield streamEqual(result.stream, fs.createReadStream(processedImagePath));
+      assert(isEqual);
     });
 
     it('should throw error when object not exists', function* () {

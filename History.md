@@ -1,4 +1,13 @@
 
+4.10.2 / 2017-10-20
+==================
+
+**fixes**
+  * [[`22fbad2`](http://github.com/ali-sdk/ali-oss/commit/22fbad2664f75c70c52e2db1ded31e762abf43d4)] - fix: getStream support options.process (#304) (饶培泽 <<peizerao@gmail.com>>)
+
+**others**
+  * [[`fc3cd7f`](http://github.com/ali-sdk/ali-oss/commit/fc3cd7fc394de5cbc98aada7bf95e7344451d505)] - docs: update the full name of OSS (#297) (David Chen <<tianniu_chen@163.com>>)
+
 4.10.1 / 2017-08-30
 ==================
 
