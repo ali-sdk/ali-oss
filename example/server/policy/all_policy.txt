@@ -1,0 +1,12 @@
+{
+  "Statement": [
+    {
+      "Action": [
+        "oss:*"
+      ],
+      "Effect": "Allow",
+      "Resource": ["acs:oss:*:*:*"]
+    }
+  ],
+  "Version": "1"
+}

@@ -1,0 +1,17 @@
+{
+  "Statement": [
+    {
+      "Action": [
+        "oss:GetObject",
+        "oss:PutObject",
+        "oss:DeleteObject",
+        "oss:ListParts",
+        "oss:AbortMultipartUpload",
+        "oss:ListObjects"
+      ],
+      "Effect": "Allow",
+      "Resource": ["acs:oss:*:*:$BUCKET_NAME/*", "acs:oss:*:*:$BUCKET_NAME"]
+    }
+  ],
+  "Version": "1"
+}
