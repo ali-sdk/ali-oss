@@ -34,3 +34,5 @@ yarn.lock
 
 #mac temp file
 .DS_Store
+/example/node_modules/
+/example/public/index.js

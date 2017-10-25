@@ -2,6 +2,7 @@
 
 var path = require('path');
 var pkg = require('./package.json');
+var fs = require('fs');
 
 var license = [
   '// Aliyun OSS SDK for JavaScript v' + pkg.version,
@@ -17,6 +18,8 @@ function build(options, callback) {
 
   console.error('Building with options: %j', options);
 
+  fs.writeFileSync(path.resolve(__dirname + '/lib/browser/version.js')
+    , 'exports.version="' + pkg.version+'"');
   var browserify = require('browserify');
   var aliasify = require('aliasify');
   var babelify = require('babelify');
@@ -26,12 +29,12 @@ function build(options, callback) {
     fullPaths: false,
     standalone: 'OSS'
   };
-  browserify(brOpts).add('./browser.js')
+  browserify(brOpts).add('./lib/browser.js')
     .transform(babelify, {
       "global": true,
       "presets": ["es2015"],
       "plugins": ["transform-runtime"],
-      "only": ['lib/*', 'node_modules/co-gather/*'],
+      "only": ['lib/*', 'node_modules/co-gather/*', 'shims/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {

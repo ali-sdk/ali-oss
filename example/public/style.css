@@ -1,0 +1,20 @@
+body {
+    text-align: center;
+}
+
+#main {
+    text-align: left;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+table tr td > div {
+    width: 480px;
+    height: 300px;
+    margin: 10px;
+}
+
+table tr td > div > div.panel-body {
+    margin-left: 5px;
+    margin-right: 5px;
+}
