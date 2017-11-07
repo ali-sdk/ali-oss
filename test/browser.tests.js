@@ -14,6 +14,8 @@ var prefix = utisl.prefix;
 var sinon = require('sinon');
 var md5 = require('crypto-js/md5')
 var ossConfig;
+var timemachine = require('timemachine');
+timemachine.reset();
 
 describe('browser', function () {
   before(function* () {
@@ -780,5 +782,36 @@ describe('browser', function () {
       //   this.store._uploadPart().restore();
       // });
     });
+  });
+
+  describe('request time is skew', function() {
+    before(function* () {
+      this.store = oss(ossConfig);
+    });
+    it('When the client\'s date is skew, the request will calibration time and retry', function* () {
+      var name = prefix + 'put/skew_date';
+      var body = new Buffer('body');
+      var requestSpy = sinon.spy(this.store, 'request');
+      var requestErrorSpy = sinon.spy(this.store, 'requestError')
+
+      timemachine.config({
+        dateString: 'December 25, 1991 13:12:59',
+        tick: true
+      });
+      var resultPut = yield this.store.put(name, body);
+      assert.equal(resultPut.res.status, 200);
+
+      assert.equal(requestSpy.callCount, 2);
+      assert.equal(requestErrorSpy.callCount, 1);
+
+      var resultGet = yield this.store.get(name);
+      assert.equal(resultGet.res.status, 200);
+
+      assert.equal(resultGet.content.toString(), body.toString());
+
+      var resultDel = yield this.store.delete(name);
+      assert.equal(resultDel.res.status, 204);
+      timemachine.reset();
+    })
   });
 });
