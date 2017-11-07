@@ -686,7 +686,7 @@ describe('browser', function () {
         var progress = 0;
         var putStreamSpy = sinon.spy(this.store, 'putStream');
         var uploadPartSpy = sinon.spy(this.store, '_uploadPart');
-        yield this.store.multipartUpload(name, file, {
+        var result = yield this.store.multipartUpload(name, file, {
             progress: function () {
               return function (done) {
                 progress++;
@@ -697,6 +697,10 @@ describe('browser', function () {
         );
         assert.equal(putStreamSpy.callCount, 1);
         assert.equal(uploadPartSpy.callCount, 0);
+        assert.equal(typeof result.name, 'string');
+        assert.equal(typeof result.bucket, 'string');
+        assert.equal(typeof result.etag, 'string');
+
         assert.equal(progress, 1);
         this.store.putStream.restore();
         this.store._uploadPart.restore();

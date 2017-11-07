@@ -166,26 +166,27 @@ describe('test/multipart.test.js', function () {
 
     it('should fallback to putStream when file size is smaller than 100KB', function* () {
       var fileName = yield utils.createTempFile('multipart-fallback', 100 * 1024 - 1);
-
-      var putStreamCalled = false;
-      mm(this.store, 'putStream', function* () {
-        putStreamCalled = true;
-      });
-      var uploadPartCalled = false;
-      mm(this.store, '_uploadPart', function* () {
-        uploadPartCalled = true;
-      });
-
       var name = prefix + 'multipart/fallback';
       var progress = 0;
-      yield this.store.multipartUpload(name, fileName, {
+      
+      var putStreamSpy = sinon.spy(this.store, 'putStream');
+      var uploadPartSpy = sinon.spy(this.store, '_uploadPart');
+      
+      var result = yield this.store.multipartUpload(name, fileName, {
         progress: function () {
           progress++;
         }
       });
-      assert(putStreamCalled);
-      assert(!uploadPartCalled);
+      assert.equal(result.res.status, 200);
+      assert.equal(putStreamSpy.callCount, 1);
+      assert.equal(uploadPartSpy.callCount, 0);
       assert.equal(progress, 1);
+
+      assert.equal(typeof result.bucket, 'string');
+      assert.equal(typeof result.etag, 'string');
+
+      this.store.putStream.restore();
+      this.store._uploadPart.restore();
     });
 
     it('should use default partSize when not specified', function* () {
