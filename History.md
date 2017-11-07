@@ -1,4 +1,10 @@
 
+4.11.2 / 2017-11-07
+==================
+
+**fixes**
+  * [[`c062249`](http://github.com/ali-sdk/ali-oss/commit/c062249bb8c8570411dbb3912c3a312826d86027)] - fix: the multipartUpload return value has same structure (#306) (饶培泽 <<peizerao@gmail.com>>)
+
 4.11.1 / 2017-11-07
 ==================
 
