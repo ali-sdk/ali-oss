@@ -1,4 +1,10 @@
 
+4.11.1 / 2017-11-07
+==================
+
+**fixes**
+  * [[`029dcc2`](http://github.com/ali-sdk/ali-oss/commit/029dcc2374c1d4cbb1589a4b15bae1d3057228e0)] - fix: process the client's local time is skew (#314) (饶培泽 <<peizerao@gmail.com>>)
+
 4.11.0 / 2017-10-25
 ==================
 
