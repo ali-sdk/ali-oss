@@ -82,6 +82,7 @@
     "sinon": "^1.17.7",
     "stream-equal": "^1.1.0",
     "thunk-mocha": "^1.0.3",
+    "timemachine": "^0.3.0",
     "uglify-js": "^2.8.29",
     "watchify": "^3.9.0"
   },
