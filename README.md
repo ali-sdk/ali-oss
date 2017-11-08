@@ -40,12 +40,12 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
 - [Bucket Operations](#bucket-operations)
   - Base
     - [.listBuckets*(query[, options])](#listbucketsquery-options)
-    - [.putBucket*(name, region[, options])](#putbucketname-region-options)
+    - [.putBucket*(name[, options])](#putbucketname-region-options)
     - [.useBucket(name, region)](#usebucketname-region)
     - [.deleteBucket*(name, region[, options])](#deletebucketname-region-options)
   - ACL
     - [.putBucketACL*(name, region, acl[, options])](#putbucketaclname-region-acl-options)
-    - [.getBucketACL*(name, region[, options])](#getbucketaclname-region-options)
+    - [.getBucketACL*(name[, options])](#getbucketaclname-region-options)
   - Logging
     - [.putBucketLogging*(name, region, prefix[, options])](#putbucketloggingname-region-prefix-options)
     - [.getBucketLogging*(name, region[, options])](#getbucketloggingname-region-options)
@@ -179,6 +179,7 @@ Success will return buckets list on `buckets` properties.
     - name {String} bucket name
     - region {String} bucket store data region, e.g.: `oss-cn-hangzhou-a`
     - creationDate {String} bucket create GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+    - storageClass {String} storage class type, current available: `Standard`, `IA` and `Archive` 
 - owner {Object} object owner, including `id` and `displayName`
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
@@ -199,7 +200,7 @@ var result = yield store.listBuckets({
 console.log(result);
 ```
 
-### .putBucket*(name, region[, options])
+### .putBucket*(name[, options])
 
 Create a new bucket.
 
@@ -208,11 +209,9 @@ parameters:
 - name {String} bucket name
   If bucket exists and not belong to current account, will throw BucketAlreadyExistsError.
   If bucket not exists, will create a new bucket and set it's ACL.
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
-  If change exists bucket region, will throw BucketAlreadyExistsError.
-  If region value invalid, will throw InvalidLocationConstraintError.
 - [options] {Object} optional parameters
+  - [acl] {String} access control list, current available: `public-read-write`, `public-read` and `private`, default is `private`
+  - [storageClass] {String} storage class type, current available: `Standard`, `IA` and `Archive` 
   - [timeout] {Number} the operation timeout
 
 Success will return the bucket name on `bucket` properties.
@@ -229,7 +228,7 @@ example:
 - Create a bucket name `helloworld` location on HongKong
 
 ```js
-yield store.putBucket('helloworld', 'oss-cn-hongkong');
+yield store.putBucket('helloworld');
 // use it by default
 store.useBucket('helloworld', 'oss-cn-hongkong');
 ```
@@ -315,15 +314,13 @@ example:
 yield store.putBucketACL('helloworld', 'oss-cn-hongkong', 'public-read-write');
 ```
 
-### .getBucketACL*(name, region[, options])
+### .getBucketACL*(name[, options])
 
 Get the bucket ACL.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -341,7 +338,7 @@ example:
 - Get bucket `helloworld`
 
 ```js
-var result = yield store.getBucketACL('helloworld', 'oss-cn-hongkong');
+var result = yield store.getBucketACL('helloworld');
 console.log(result.acl);
 ```
 

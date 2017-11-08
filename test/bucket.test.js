@@ -33,9 +33,8 @@ describe('test/bucket.test.js', () => {
 
     this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    this.region = config.region;
 
-    var result = yield this.store.putBucket(this.bucket, this.region);
+    var result = yield this.store.putBucket(this.bucket);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
   });
@@ -45,24 +44,58 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('putBucket()', function () {
-    before(function () {
-      this.name = 'ali-oss-test-putbucket-' + prefix.replace(/[\/\.]/g, '-');
-      this.name = this.name.substring(0, this.name.length - 1);
-    });
 
     it('should create a new bucket', function* () {
-      var result = yield this.store.putBucket(this.name);
-      assert.equal(result.bucket, this.name);
+      var name = 'ali-oss-test-putbucket-' + prefix.replace(/[\/\.]/g, '-');
+      name = name.substring(0, name.length - 1);
+
+      var result = yield this.store.putBucket(name);
+      assert.equal(result.bucket, name);
       assert.equal(result.res.status, 200);
 
       // create a exists should work
-      var result = yield this.store.putBucket(this.name);
+      var result = yield this.store.putBucket(name);
       assert.equal(result.res.status, 200);
-      assert.equal(result.bucket, this.name);
+      assert.equal(result.bucket, name);
+
+      var result = yield this.store.deleteBucket(name);
+      assert(result.res.status === 200 || result.res.status === 204);
     });
 
-    after(function* () {
-      var result = yield this.store.deleteBucket(this.name);
+    it('should create a new bucket with acl', function* () {
+      var name = 'ali-oss-test-putbucket-acl-' + prefix.replace(/[\/\.]/g, '-');
+      name = name.substring(0, name.length - 1);
+
+      var acl = 'public-read'
+
+      var result = yield this.store.putBucket(name, {acl: acl});
+      assert.equal(result.bucket, name);
+      assert.equal(result.res.status, 200);
+
+      result = yield  this.store.getBucketACL(name);
+      assert.equal(result.acl, acl);
+      assert.equal(result.res.status, 200);
+
+      result = yield this.store.deleteBucket(name);
+      assert(result.res.status === 200 || result.res.status === 204);
+    });
+
+    it('should create a new bucket with storage class', function* () {
+      var name = 'ali-oss-test-putbucket-storageclass-' + prefix.replace(/[\/\.]/g, '-');
+      name = name.substring(0, name.length - 1);
+
+      var storageClass = 'Archive'
+
+      var result = yield this.store.putBucket(name, {storageClass: storageClass});
+      assert.equal(result.bucket, name);
+      assert.equal(result.res.status, 200);
+      
+      // TODO: use GetBuckInfo
+      result = yield this.store.listBuckets({prefix: name});
+      assert.equal(result.res.status, 200);
+      assert.equal(result.buckets[0].storageClass, storageClass);
+
+      result = yield this.store.deleteBucket(name);
       assert(result.res.status === 200 || result.res.status === 204);
     });
   });
@@ -96,7 +129,7 @@ describe('test/bucket.test.js', () => {
       // Need wait some time for bucket meta sync
       yield utils.sleep(ms(metaSyncTime));
 
-      var r = yield this.store.getBucketACL(this.bucket, this.region);
+      var r = yield this.store.getBucketACL(this.bucket);
       assert.equal(r.res.status, 200);
       // skip it, data will be delay
       // assert.equal(r.acl, 'public-read-write');

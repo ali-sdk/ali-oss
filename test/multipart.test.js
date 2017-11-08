@@ -22,7 +22,7 @@ describe('test/multipart.test.js', function () {
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
-    yield this.store.putBucket(this.bucket, this.region);
+    yield this.store.putBucket(this.bucket);
     this.store.useBucket(this.bucket, this.region);
   });
 
