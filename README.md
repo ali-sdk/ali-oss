@@ -41,7 +41,7 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - Base
     - [.listBuckets*(query[, options])](#listbucketsquery-options)
     - [.putBucket*(name[, options])](#putbucketname-region-options)
-    - [.useBucket(name, region)](#usebucketname-region)
+    - [.useBucket(name)](#usebucketname-region)
     - [.deleteBucket*(name, region[, options])](#deletebucketname-region-options)
   - ACL
     - [.putBucketACL*(name, region, acl[, options])](#putbucketaclname-region-acl-options)
@@ -230,7 +230,7 @@ example:
 ```js
 yield store.putBucket('helloworld');
 // use it by default
-store.useBucket('helloworld', 'oss-cn-hongkong');
+store.useBucket('helloworld');
 ```
 
 ### .deleteBucket*(name, region[, options])
@@ -265,22 +265,20 @@ yield store.deleteBucket('helloworld', {
 });
 ```
 
-### .useBucket(name, region)
+### .useBucket(name)
 
 Use the bucket.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 
 example:
 
 - Use `helloworld` as the default bucket
 
 ```js
-store.useBucket('helloworld', 'oss-cn-hongkong');
+store.useBucket('helloworld');
 ```
 
 ---

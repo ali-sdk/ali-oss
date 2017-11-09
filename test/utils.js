@@ -44,7 +44,7 @@ exports.sleep = function (ms) {
 };
 
 exports.cleanBucket = function* (store, bucket, region) {
-  store.useBucket(bucket, region);
+  store.useBucket(bucket);
   var result = yield store.list({
     'max-keys': 1000
   });

@@ -22,8 +22,8 @@ describe('test/wrapper.test.js', () => {
     var SyncClient = require('..');
     this.syncClient = new SyncClient(config);
     yield this.syncClient.putBucket(this.bucket);
-    this.syncClient.useBucket(this.bucket, this.region);
-    this.store.useBucket(this.bucket, this.region);
+    this.syncClient.useBucket(this.bucket);
+    this.store.useBucket(this.bucket);
   });
 
   after(function* () {

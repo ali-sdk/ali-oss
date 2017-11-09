@@ -23,7 +23,7 @@ describe('test/multipart.test.js', function () {
     this.region = config.region;
 
     yield this.store.putBucket(this.bucket);
-    this.store.useBucket(this.bucket, this.region);
+    this.store.useBucket(this.bucket);
   });
 
   after(function* () {
@@ -237,7 +237,7 @@ describe('test/multipart.test.js', function () {
       var name = prefix + 'multipart/upload-file-exception';
       var progress = 0;
       var clientTmp = oss(config);
-      clientTmp.useBucket(this.bucket, this.region);
+      clientTmp.useBucket(this.bucket);
 
       var stubUploadPart = sinon.stub(clientTmp, '_uploadPart');
       stubUploadPart.throws("TestUploadPartException");
@@ -311,7 +311,7 @@ describe('test/multipart.test.js', function () {
       var webFile = new File(fileName, fileBuf);
       var name = prefix + 'multipart/upload-webfile-ie10';
       var clientTmp = oss(config);
-      clientTmp.useBucket(this.bucket, this.region);
+      clientTmp.useBucket(this.bucket);
       sinon.stub(clientTmp, 'checkBrowserAndVersion', function(browser, version) {
         return (browser == "Internet Explorer" && version == "10");
       });

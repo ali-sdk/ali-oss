@@ -34,7 +34,7 @@ describe('test/object.test.js', function () {
     //   })
     // );
     yield this.store.putBucket(this.bucket);
-    this.store.useBucket(this.bucket, this.region);
+    this.store.useBucket(this.bucket);
   });
 
   after(function* () {
