@@ -1,4 +1,4 @@
-oss-nodejs-sdk
+OSS-JavaScript-SDK
 =======
 
 [![NPM version][npm-image]][npm-url]
@@ -15,7 +15,7 @@ oss-nodejs-sdk
 [david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-oss
 
-aliyun OSS(object storage service) Node.js client.
+aliyun OSS(object storage service) for Node and Browser
 
 ## Install
 
