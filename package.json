@@ -5,7 +5,8 @@
   "main": "lib/client.js",
   "files": [
     "lib",
-    "shims"
+    "shims",
+    "dist"
   ],
   "browser": {
     "lib/client.js": "./lib/browser.js",
