@@ -12,6 +12,7 @@
     "mime": "./shims/mime.js",
     "urllib": "./shims/xhr.js",
     "utility": "./shims/utility.js",
+    "crypto": "./shims/crypto.js",
     "fs": false,
     "child_process": false
   },
