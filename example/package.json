@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/rockuw/oss-in-browser#readme",
   "dependencies": {
+    "ali-oss": "^4.11.2",
     "babel-polyfill": "^6.26.0",
     "co": "^4.6.0",
     "express": "^4.16.2",
