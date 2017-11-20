@@ -222,6 +222,7 @@ describe('test/bucket.test.js', () => {
         index: 'index.html'
       });
       assert.equal(result.res.status, 200);
+      yield utils.sleep(ms(metaSyncTime));
       // put again will be fine
       var result = yield this.store.putBucketWebsite(this.bucket, {
         index: 'index.htm',
@@ -249,32 +250,50 @@ describe('test/bucket.test.js', () => {
         id: 'delete after one day',
         prefix: 'logs/',
         status: 'Enabled',
-        days: 1
+        expiration: { days: 1 }
       }]);
       assert.equal(result.res.status, 200);
 
       // put again will be fine
-      var result = yield this.store.putBucketLifecycle(this.bucket, [
+      var rules = [
         {
           id: 'delete after one day',
           prefix: 'logs/',
           status: 'Enabled',
-          days: 1
+          expiration: { days: 1 },
+          abortMultipartUpload: { days: 1 }
         },
         {
           prefix: 'logs2/',
           status: 'Disabled',
-          date: '2022-10-11T00:00:00.000Z'
+          expiration: { days: 70 },
+          transition: [{ days: 30, storageClass: 'IA'}, { days: 60, storageClass: 'Archive'}]
+        },
+        {
+          prefix: 'logs3/',
+          status: 'Enabled',
+          expiration: { createdBeforeDate: '2022-10-12T00:00:00.000Z' },
+          abortMultipartUpload: { createdBeforeDate: '2022-10-11T00:00:00.000Z' },
+          transition: [{ createdBeforeDate: '2022-10-11T00:00:00.000Z', storageClass: 'IA'}]
         }
-      ]);
+      ]
+      var result = yield this.store.putBucketLifecycle(this.bucket, rules);
       assert.equal(result.res.status, 200);
 
       yield utils.sleep(ms(metaSyncTime));
 
       // get
       var result = yield this.store.getBucketLifecycle(this.bucket);
-      assert(result.rules.length > 0);
+
       assert.equal(result.res.status, 200);
+      // remove id
+      rules.forEach(function(item, index) {
+        if (!item.id) {
+          assert.equal(typeof result.rules[index].id, 'string');
+          delete result.rules[index].id
+        }
+      })
+      assert.deepEqual(rules, result.rules);
 
       // delete it
       var result = yield this.store.deleteBucketLifecycle(this.bucket);

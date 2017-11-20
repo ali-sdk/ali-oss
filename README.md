@@ -485,7 +485,7 @@ Success will return:
 
 ---
 
-### .putBucketReferer*(bucket, allowEmpty, referers[, options])
+### .putBucketReferer*(bucket, allowEmpty[, referers, options])
 
 Set the bucket request `Referer` white list.
 
@@ -493,7 +493,7 @@ parameters:
 
 - bucket {String} bucket name
 - allowEmpty {Boolean} allow empty request referer or not
-- referers {Array<String>} `Referer` white list, e.g.:
+- [referers] {Array<String>} `Referer` white list, e.g.:
   ```js
   [
     'https://npm.taobao.org',
@@ -571,9 +571,13 @@ parameters:
   - [id] {String} rule id, if not set, OSS will auto create it with random string.
   - prefix {String} store prefix
   - status {String} rule status, allow values: `Enabled` or `Disabled`
-  - [days] {Number|String} expire after the `days`
-  - [date] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
-    `date` and `days` only set one.
+  - [expiration]
+    - days {Number} expire after the `days` or createdBeforeDate {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
+  - [transition] {Array}
+    - days {Number}  or createdBeforeDate {String}, same as above
+    - storageClass {String} storage class type, allow values: `IA` or `Archive`
+  - [abortMultipartUpload]
+    - days {Number} or createdBeforeDate {String}, same as above
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -593,12 +597,14 @@ yield store.putBucketLifecycle('hello', [
     id: 'delete after one day',
     prefix: 'logs/',
     status: 'Enabled',
-    days: 1
+    expiration: { days: 1 }
   },
   {
     prefix: 'logs2/',
     status: 'Disabled',
-    date: '2022-10-11T00:00:00.000Z'
+    expiration: { createdBeforeDate: '2022-10-12T00:00:00.000Z' },
+    abortMultipartUpload: { createdBeforeDate: '2022-10-11T00:00:00.000Z' },
+    transition: [{ createdBeforeDate: '2022-10-11T00:00:00.000Z', storageClass: 'IA'}]
   }
 ]);
 ```
