@@ -1,4 +1,13 @@
 
+4.11.3 / 2017-12-21
+==================
+
+**fixes**
+  * [[`12a4271`](http://github.com/ali-sdk/ali-oss/commit/12a427197ec29bd1bafb1d1286e3b5a7f86645c1)] - fix: add shims for browser (#316) (饶培泽 <<peizerao@gmail.com>>)
+
+**others**
+  * [[`060df98`](http://github.com/ali-sdk/ali-oss/commit/060df98d72d1ae8b85f9cca4e35c3222ef447c57)] - chore: update dist version to 4.11.2 (fengmk2 <<fengmk2@gmail.com>>)
+
 4.11.2 / 2017-11-07
 ==================
 
