@@ -2,7 +2,7 @@
 // require("babel-polyfill")
 
 var $ = require('jquery');
-var OSS = require('..');
+var OSS = require('ali-oss');
 
 var appServer = '/sts';
 var bucket = '<bucket-name>';
