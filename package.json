@@ -1,17 +1,19 @@
 {
   "name": "ali-oss",
-  "version": "4.11.2",
+  "version": "4.11.3",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
     "lib",
-    "shims"
+    "shims",
+    "dist"
   ],
   "browser": {
     "lib/client.js": "./lib/browser.js",
     "mime": "./shims/mime.js",
     "urllib": "./shims/xhr.js",
     "utility": "./shims/utility.js",
+    "crypto": "./shims/crypto.js",
     "fs": false,
     "child_process": false
   },
