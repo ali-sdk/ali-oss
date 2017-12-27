@@ -400,18 +400,16 @@ describe('test/multipart.test.js', function () {
     });
 
     it('return requestId in init, upload part, complete', function* () {
-      var fileName = yield utils.createTempFile('multipart-fallback', 100 * 1024 - 1);
-      var name = prefix + 'multipart/fallback';
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      var name = prefix + 'multipart/upload-file';
 
       var result = yield this.store.multipartUpload(name, fileName, {
           progress: function (p, checkpoint, res) {
-            return function () {
-              assert.equal(true, res.headers.hasOwnProperty('x-oss-request-id'));
-            };
+            assert.equal(true, res.headers.hasOwnProperty('x-oss-request-id'));
           }
         }
       );
-      assert.equal(true, result.headers.hasOwnProperty('x-oss-request-id'));
+      assert.equal(true, result.res.headers.hasOwnProperty('x-oss-request-id'));
       assert.equal(result.res.status, 200);
 
     });
