@@ -399,30 +399,24 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.data.Status, 'OK');
     });
 
-    if('return requestId in init, upload part, complete', function* () {
-        var fileName = yield utils.createTempFile('multipart-fallback', 100 * 1024 - 1);
-        var name = prefix + 'multipart/fallback';
-        var progress = 0;
+    it('return requestId in init, upload part, complete', function* () {
+      var fileName = yield utils.createTempFile('multipart-fallback', 100 * 1024 - 1);
+      var name = prefix + 'multipart/fallback';
 
-        var result = yield this.store.multipartUpload(name, fileName, {
-            progress: function (p, checkpoint, res) {
-              return function () {
-                assert.equal(true, res.headers.contains('x-oss-request-id'));
-                progress++;
-              };
-            }
+      var result = yield this.store.multipartUpload(name, fileName, {
+          progress: function (p, checkpoint, res) {
+            return function () {
+              var requestId = res.headers['x-oss-request-id'];
+              assert.equal(true, requestId != 'undefined');
+            };
           }
-        );
-        assert.equal(true, result.res.headers.contains('x-oss-request-id'));
-        assert.equal(result.res.status, 200);
-        assert.equal(progress, 1);
+        }
+      );
+      var requestId = result.headers['x-oss-request-id'];
+      assert.equal(true, requestId != 'undefined');
+      assert.equal(result.res.status, 200);
 
-        assert.equal(typeof result.bucket, 'string');
-        assert.equal(typeof result.etag, 'string');
-
-        this.store.putStream.restore();
-        this.store._uploadPart.restore();
-      });
+    });
 
   });
 });

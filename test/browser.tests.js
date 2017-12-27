@@ -20,11 +20,11 @@ timemachine.reset();
 describe('browser', function () {
   before(function* () {
     ossConfig = {
-        region: stsConfig.region,
-        accessKeyId: stsConfig.Credentials.AccessKeyId,
-        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
-        stsToken: stsConfig.Credentials.SecurityToken,
-        bucket: stsConfig.bucket
+      region: stsConfig.region,
+      accessKeyId: stsConfig.Credentials.AccessKeyId,
+      accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+      stsToken: stsConfig.Credentials.SecurityToken,
+      bucket: stsConfig.bucket
     };
     // this.store = oss({
     //   region: stsConfig.region,
@@ -423,7 +423,7 @@ describe('browser', function () {
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [ this.listPrefix + 'fun/', this.listPrefix + 'other/' ]);
+      assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/', this.listPrefix + 'other/']);
 
       var result = yield this.store.list({
         prefix: this.listPrefix + 'fun/',
@@ -447,7 +447,7 @@ describe('browser', function () {
     });
   });
 
-  describe('put', function() {
+  describe('put', function () {
     before(function* () {
       this.store = oss(ossConfig);
     });
@@ -531,7 +531,7 @@ describe('browser', function () {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-    it('should signature url with custom host ok', function() {
+    it('should signature url with custom host ok', function () {
       var store = oss(Object.assign({}, ossConfig, {
         endpoint: 'www.aliyun.com',
         cname: true
@@ -543,7 +543,7 @@ describe('browser', function () {
     });
   });
 
-  describe('multipart', function() {
+  describe('multipart', function () {
     before(function* () {
       this.store = oss(ossConfig);
     });
@@ -727,7 +727,7 @@ describe('browser', function () {
       it('should upload file using multipart upload', function* () {
         // create a file with 1M random data
         // var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
-        var fileContent = Array(1024*1024).fill('a').join('')
+        var fileContent = Array(1024 * 1024).fill('a').join('')
         var file = new File([fileContent], 'multipart-fallback');
 
         var name = prefix + 'multipart/upload-file.js';
@@ -748,9 +748,9 @@ describe('browser', function () {
         var object = yield this.store.get(name);
         assert.equal(object.res.status, 200);
 
-        var fileBuf=new Uint8Array(fileContent.length);
-        for(var i=0,j=fileContent.length;i<j;++i){
-          fileBuf[i]=fileContent.charCodeAt(i);
+        var fileBuf = new Uint8Array(fileContent.length);
+        for (var i = 0, j = fileContent.length; i < j; ++i) {
+          fileBuf[i] = fileContent.charCodeAt(i);
         }
 
         assert.equal(object.content.length, fileBuf.length);
@@ -758,22 +758,22 @@ describe('browser', function () {
         assert.deepEqual(md5(object.content), md5(fileBuf));
       });
 
-      if('return requestId in init, upload part, complete', function* () {
-          var file = new File(['multipart-fallback-test'], 'multipart-fallback');
-          var name = prefix + 'multipart/fallback';
-          var result = yield this.store.multipartUpload(name, file, {
-              progress: function (p, checkpoint, res) {
-                return function (done) {
-                  assert.equal(true, res.headers.contains('x-oss-request-id'));
-                  progress++;
-                  done();
-                };
+      it('return requestId in init, upload part, complete', function* () {
+        var fileContent = Array(1024 * 1024).fill('a').join('')
+        var file = new File([fileContent], 'multipart-fallback');
+        var name = prefix + 'multipart/fallback';
+        var result = yield this.store.multipartUpload(name, file, {
+            progress: function (p, checkpoint, res) {
+              return function (done) {
+                var requestId = res.headers['x-oss-request-id'];
+                assert.equal(true, requestId != 'undefined');
+                done();
               }
             }
-          );
-          assert.equal(true, result.res.headers.contains('x-oss-request-id'));
-          this.store.putStream.restore();
-          this.store._uploadPart.restore();
+          }
+        );
+        var requestId = result.res.headers['x-oss-request-id'];
+        assert.equal(true, requestId != 'undefined');
       });
 
       // it('should upload file using multipart upload with exception', function* () {
@@ -806,7 +806,7 @@ describe('browser', function () {
     });
   });
 
-  describe('request time is skew', function() {
+  describe('request time is skew', function () {
     before(function* () {
       this.store = oss(ossConfig);
     });
