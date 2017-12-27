@@ -743,7 +743,7 @@ describe('browser', function () {
         });
         sinon.restore();
         assert.equal(result.res.status, 200);
-        assert.equal(progress, 11);
+        assert.equal(progress, 12);
 
         var object = yield this.store.get(name);
         assert.equal(object.res.status, 200);
@@ -756,6 +756,24 @@ describe('browser', function () {
         assert.equal(object.content.length, fileBuf.length);
         // avoid comparing buffers directly for it may hang when generating diffs
         assert.deepEqual(md5(object.content), md5(fileBuf));
+      });
+
+      if('return requestId in init, upload part, complete', function* () {
+          var file = new File(['multipart-fallback-test'], 'multipart-fallback');
+          var name = prefix + 'multipart/fallback';
+          var result = yield this.store.multipartUpload(name, file, {
+              progress: function (p, checkpoint, res) {
+                return function (done) {
+                  assert.equal(true, res.headers.contains('x-oss-request-id'));
+                  progress++;
+                  done();
+                };
+              }
+            }
+          );
+          assert.equal(true, result.res.headers.contains('x-oss-request-id'));
+          this.store.putStream.restore();
+          this.store._uploadPart.restore();
       });
 
       // it('should upload file using multipart upload with exception', function* () {
