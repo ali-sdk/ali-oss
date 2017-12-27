@@ -406,14 +406,12 @@ describe('test/multipart.test.js', function () {
       var result = yield this.store.multipartUpload(name, fileName, {
           progress: function (p, checkpoint, res) {
             return function () {
-              var requestId = res.headers['x-oss-request-id'];
-              assert.equal(true, requestId != 'undefined');
+              assert.equal(true, res.headers.hasOwnProperty('x-oss-request-id'));
             };
           }
         }
       );
-      var requestId = result.headers['x-oss-request-id'];
-      assert.equal(true, requestId != 'undefined');
+      assert.equal(true, result.headers.hasOwnProperty('x-oss-request-id'));
       assert.equal(result.res.status, 200);
 
     });
