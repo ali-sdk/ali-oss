@@ -235,7 +235,6 @@ describe('test/multipart.test.js', function () {
       var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
 
       var name = prefix + 'multipart/upload-file-exception';
-      var progress = 0;
       var clientTmp = oss(config);
       clientTmp.useBucket(this.bucket, this.region);
 
@@ -244,13 +243,17 @@ describe('test/multipart.test.js', function () {
 
 
       var error_msg = "";
+      var partNum;
       try {
         yield clientTmp.multipartUpload(name, fileName);
       } catch (err) {
-        error_msg = err.toString();
+        error_msg = err.message;
+        partNum = err.partNum;
       }
       assert.equal(error_msg,
-        "Error: Failed to upload some parts with error: TestUploadPartException");
+        "Failed to upload some parts with error: TestUploadPartException part_num: 0");
+      assert.equal(partNum, 0);
+      this.store._uploadPart.restore();
     });
 
     it('should upload web file using multipart upload', function* () {
