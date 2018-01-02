@@ -758,33 +758,36 @@ describe('browser', function () {
         assert.deepEqual(md5(object.content), md5(fileBuf));
       });
 
-      // it('should upload file using multipart upload with exception', function* () {
-      //   // create a file with 1M random data
-      //   var fileContent = Array(1024*1024).fill('a').join('')
-      //   var file = new File([fileContent], 'multipart-upload-file');
-      //
-      //   var name = prefix + 'multipart/upload-file-exception';
-      //
-      //   var stubUploadPart = sinon.stub(this.store, '_uploadPart');
-      //   stubUploadPart.throws("TestUploadPartException");
-      //
-      //
-      //   var error_msg = "";
-      //   try {
-      //     yield this.store.multipartUpload(name, file, {
-      //       progress: function () {
-      //         return function (done) {
-      //           done();
-      //         };
-      //       }
-      //     });
-      //   } catch (err) {
-      //     error_msg = err.toString();
-      //   }
-      //   assert.equal(error_msg,
-      //     "Error: Failed to upload some parts with error: TestUploadPartException");
-      //   this.store._uploadPart().restore();
-      // });
+      it('should upload file using multipart upload with exception', function* () {
+        // create a file with 1M random data
+        var fileContent = Array(1024*1024).fill('a').join('')
+        var file = new File([fileContent], 'multipart-upload-file');
+
+        var name = prefix + 'multipart/upload-file-exception';
+
+        debugger
+        var stubUploadPart = sinon.stub(this.store, '_uploadPart');
+        stubUploadPart.throws("TestUploadPartException");
+
+        var error_msg = "";
+        var partNum;
+        try {
+          yield this.store.multipartUpload(name, file, {
+            progress: function () {
+              return function (done) {
+                done();
+              };
+            }
+          });
+        } catch (err) {
+          error_msg = err.message;
+          partNum = err.partNum;
+        }
+        assert.equal(error_msg,
+          "Failed to upload some parts with error: TestUploadPartException part_num: 0");
+        assert.equal(partNum, 0);
+        this.store._uploadPart.restore();
+      });
     });
   });
 
