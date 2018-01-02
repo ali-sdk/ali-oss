@@ -1525,8 +1525,8 @@ parameters:
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
   - [progress] {Function} the progress callback called after each
-    successful upload of one part, it will be given two parameters:
-    (percentage {Number}, checkpoint {Object})
+    successful upload of one part, it will be given three parameters:
+    (percentage {Number}, checkpoint {Object}, res {Object})
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
     provided, it will continue the upload from where interrupted,
     otherwise a new multipart upload will be created.
@@ -1559,17 +1559,19 @@ console.log(result);
 var result = yield store.multipartUpload('object', '/tmp/file', {
   parallel: 4,
   partSize: 1024 * 1024,
-  progress: function* (p, cpt) {
+  progress: function* (p, cpt, res) {
     console.log(p);
     console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
   }
 });
 
 var result = yield store.multipartUpload('object', '/tmp/file', {
   checkpoint: savedCpt,
-  progress: function* (p, cpt) {
+  progress: function* (p, cpt, res) {
     console.log(p);
     console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
   }
 });
 
