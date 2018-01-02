@@ -765,13 +765,14 @@ describe('browser', function () {
         var result = yield this.store.multipartUpload(name, file, {
             progress: function (p, checkpoint, res) {
               return function (done) {
-                assert.equal(true, res.headers.hasOwnProperty('x-oss-request-id'));
+                assert.equal(true, res !== {});
                 done();
               }
             }
           }
         );
-        assert.equal(true, result.res.headers.hasOwnProperty('x-oss-request-id'));
+        assert.equal(true, result.res !== {});
+        assert.equal(result.res.status, 200);
       });
 
       // it('should upload file using multipart upload with exception', function* () {

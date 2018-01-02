@@ -405,11 +405,11 @@ describe('test/multipart.test.js', function () {
 
       var result = yield this.store.multipartUpload(name, fileName, {
           progress: function (p, checkpoint, res) {
-            assert.equal(true, res.headers.hasOwnProperty('x-oss-request-id'));
+            assert.equal(true, res !== {});
           }
         }
       );
-      assert.equal(true, result.res.headers.hasOwnProperty('x-oss-request-id'));
+      assert.equal(true, result.res !== {});
       assert.equal(result.res.status, 200);
 
     });
