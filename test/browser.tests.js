@@ -765,13 +765,13 @@ describe('browser', function () {
         var result = yield this.store.multipartUpload(name, file, {
             progress: function (p, checkpoint, res) {
               return function (done) {
-                assert.equal(true, res !== {});
+                assert.equal(true, res && Object.keys(res).length !== 0);
                 done();
               }
             }
           }
         );
-        assert.equal(true, result.res !== {});
+        assert.equal(true, result.res && Object.keys(result.res).length !== 0);
         assert.equal(result.res.status, 200);
       });
 
