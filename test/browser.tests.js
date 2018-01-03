@@ -765,7 +765,6 @@ describe('browser', function () {
 
         var name = prefix + 'multipart/upload-file-exception';
 
-        debugger
         var stubUploadPart = sinon.stub(this.store, '_uploadPart');
         stubUploadPart.throws("TestUploadPartException");
 
@@ -819,6 +818,40 @@ describe('browser', function () {
       var resultDel = yield this.store.delete(name);
       assert.equal(resultDel.res.status, 204);
       timemachine.reset();
+    })
+  });
+
+  describe('request timeout', function() {
+    before(function* () {
+      var ossConfig = {
+        region: stsConfig.region,
+        accessKeyId: stsConfig.Credentials.AccessKeyId,
+        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+        stsToken: stsConfig.Credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+        timeout: 1
+      };
+      this.store = oss(ossConfig);
+    });
+    it('request timeout exception', function* () {
+      var fileContent = Array(1024*1024).fill('a').join('')
+      var file = new File([fileContent], 'multipart-upload-file');
+
+      var name = prefix + 'multipart/upload-file-timeout';
+
+      var timeout_err = "";
+      try {
+        yield this.store.multipartUpload(name, file, {
+          progress: function () {
+            return function (done) {
+              done();
+            };
+          }
+        });
+      } catch (err) {
+        timeout_err = err;
+      }
+      assert.equal(timeout_err.status, -2);
     })
   });
 });
