@@ -868,6 +868,7 @@ describe('browser', function () {
       } catch (err) {
         timeout_err = err;
       }
+      assert.equal(true, timeout_err && Object.keys(timeout_err).length !== 0);
       assert.equal(timeout_err.status, -2);
     })
   });

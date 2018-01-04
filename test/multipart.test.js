@@ -418,4 +418,29 @@ describe('test/multipart.test.js', function () {
     });
 
   });
+
+  describe('request timeout', function() {
+    before(function* () {
+      var ossConfig = require('./config').oss_timeout;
+      this.store = oss(ossConfig);
+    });
+    it('request timeout exception', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      var name = prefix + 'multipart/upload-file';
+
+      let timeout_err;
+      try {
+        yield this.store.multipartUpload(name, fileName, {
+            progress: function (p, checkpoint, res) {
+            }
+          }
+        );
+      } catch (err) {
+        timeout_err = err;
+      }
+
+      assert.equal(true, timeout_err && Object.keys(timeout_err).length !== 0);
+      assert.equal(timeout_err.status, -2);
+    })
+  });
 });
