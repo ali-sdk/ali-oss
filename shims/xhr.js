@@ -737,7 +737,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   });
 
   req.on('error', function (err) {
-    if (err.name === 'Error' || err.name === 'TypeError') {
+    if (err.name === 'Error' || err.name === 'TypeError') {   // TypeError for browser
       err.name = connected ? 'ResponseError' : 'RequestError';
     }
     err.message += ' (req "error")';
