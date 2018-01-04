@@ -434,7 +434,8 @@ describe('test/multipart.test.js', function () {
       var stubNetError = sinon.stub(this.store.urllib, 'request');
       var netErr = new Error('TestNetErrorException');
       netErr.status = -1;
-      netErr.code = -1;
+      netErr.code = 'RequestError';
+      netErr.name = 'RequestError';
       stubNetError.throws(netErr);
 
       let net_err;
