@@ -10,7 +10,7 @@ config.oss = {
   callbackServer: 'http://d.rockuw.com:4567'
 };
 
-config.oss_timeout = {
+config.oss_net_err = {
   accessKeyId: env.ALI_SDK_OSS_ID,
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
   endpoint: env.ALI_SDK_OSS_ENDPOINT,

@@ -403,9 +403,9 @@ describe('test/multipart.test.js', function () {
     });
   });
 
-  describe('request timeout', function() {
+  describe('request error', function() {
     before(function* () {
-      var ossConfig = require('./config').oss_timeout;
+      var ossConfig = require('./config').oss_net_err;
       this.store = oss(ossConfig);
     });
     it('request timeout exception', function* () {
@@ -425,6 +425,33 @@ describe('test/multipart.test.js', function () {
 
       assert.equal(true, timeout_err && Object.keys(timeout_err).length !== 0);
       assert.equal(timeout_err.status, -2);
+    })
+
+    it('request net exception', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      var name = prefix + 'multipart/upload-file';
+
+      var stubNetError = sinon.stub(this.store.urllib, 'request');
+      var netErr = new Error('TestNetErrorException');
+      netErr.status = -1;
+      netErr.code = -1;
+      stubNetError.throws(netErr);
+
+      let net_err;
+      try {
+        yield this.store.multipartUpload(name, fileName, {
+            progress: function (p, checkpoint, res) {
+            }
+          }
+        );
+      } catch (err) {
+        net_err = err;
+      }
+
+      assert.equal(true, net_err && Object.keys(net_err).length !== 0);
+      assert.equal(net_err.status, -1);
+
+      this.store.urllib.request.restore();
     })
   });
 });
