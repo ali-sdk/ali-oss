@@ -220,7 +220,7 @@ describe('test/multipart.test.js', function () {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 11);
+      assert.equal(progress, 12);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
@@ -368,7 +368,7 @@ describe('test/multipart.test.js', function () {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 11);
+      assert.equal(progress, 12);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
