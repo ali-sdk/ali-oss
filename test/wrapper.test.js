@@ -15,7 +15,7 @@ describe('test/wrapper.test.js', () => {
 
   before(function* () {
     this.store = OSS(config);
-    this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = 'ali-oss-test-wrapper-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
