@@ -10,16 +10,6 @@ config.oss = {
   callbackServer: 'http://d.rockuw.com:4567'
 };
 
-config.oss_net_err = {
-  accessKeyId: env.ALI_SDK_OSS_ID,
-  accessKeySecret: env.ALI_SDK_OSS_SECRET,
-  endpoint: env.ALI_SDK_OSS_ENDPOINT,
-  region: env.ALI_SDK_OSS_REGION || 'oss-cn-hangzhou',
-  callbackServer: 'http://d.rockuw.com:4567',
-  bucket:env.ALI_SDK_STS_BUCKET,
-  timeout: 1 // set 1ms to timeout
-};
-
 config.sts = {
   accessKeyId: env.ALI_SDK_STS_ID,
   accessKeySecret: env.ALI_SDK_STS_SECRET,
