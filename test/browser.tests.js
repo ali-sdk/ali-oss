@@ -841,19 +841,13 @@ describe('browser', function () {
 
       var timeout_err = "";
       try {
-        yield this.store.multipartUpload(name, file, {
-          progress: function () {
-            return function (done) {
-              done();
-            };
-          }
-        });
+        yield this.store.multipartUpload(name, file);
       } catch (err) {
         timeout_err = err;
       }
       assert.equal(true, timeout_err && Object.keys(timeout_err).length !== 0);
       assert.equal(timeout_err.status, -2);
-    })
+    });
 
     it('request net exception', function* () {
       var fileContent = Array(1024*1024).fill('a').join('')
@@ -868,13 +862,7 @@ describe('browser', function () {
       stubNetError.throws(netErr);
       var net_err = "";
       try {
-        yield this.store.multipartUpload(name, file, {
-          progress: function () {
-            return function (done) {
-              done();
-            };
-          }
-        });
+        yield this.store.multipartUpload(name, file);
       } catch (err) {
         net_err = err;
       }
@@ -882,6 +870,6 @@ describe('browser', function () {
       assert.equal(net_err.status, -1);
 
       this.store.urllib.request.restore();
-    })
+    });
   });
 });
