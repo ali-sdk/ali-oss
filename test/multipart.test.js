@@ -220,7 +220,7 @@ describe('test/multipart.test.js', function () {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 11);
+      assert.equal(progress, 12);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
@@ -368,7 +368,7 @@ describe('test/multipart.test.js', function () {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 11);
+      assert.equal(progress, 12);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
@@ -398,5 +398,21 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
     });
+
+    it('return requestId in init, upload part, complete', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      var name = prefix + 'multipart/upload-file';
+
+      var result = yield this.store.multipartUpload(name, fileName, {
+          progress: function (p, checkpoint, res) {
+            assert.equal(true, res && Object.keys(res).length !== 0);
+          }
+        }
+      );
+      assert.equal(true, result.res && Object.keys(result.res).length !== 0);
+      assert.equal(result.res.status, 200);
+
+    });
+
   });
 });

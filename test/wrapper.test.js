@@ -15,7 +15,7 @@ describe('test/wrapper.test.js', () => {
 
   before(function* () {
     this.store = OSS(config);
-    this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = 'ali-oss-test-wrapper-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
@@ -76,7 +76,7 @@ describe('test/wrapper.test.js', () => {
       }
     }).then(function (val) {
       assert.equal(val.res.status, 200);
-      assert.equal(count, Math.ceil(1024 / 100));
+      assert.equal(count, 12);
 
       return store.get(name);
     }).then(function (val) {
