@@ -1,3 +1,12 @@
+4.11.4 / 2018-01-09
+==================
+
+**features**
+  * [[`2021661`](https://github.com/ali-sdk/ali-oss/commit/2021661a259f66516e51549ce2158fca55b51b05)] - feat: add net error code (#332) (binghaiwang <<binghaiwang@gmail.com>>)
+  * [[`ceae401`](https://github.com/ali-sdk/ali-oss/commit/ceae401c3dd3d9e1f64fef172bcf42a291402dc6)] - feat: multipartUpload add the return parameter for resoponse (#335) (binghaiwang <<binghaiwang@gmail.com>>)
+
+**others**
+  * chore: update version to 4.11.4 (饶培泽 <<peizerao@gmail.com>>)
 
 4.11.3 / 2017-12-21
 ==================

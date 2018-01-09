@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.11.2
+// Aliyun OSS SDK for JavaScript v4.11.4
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -85,7 +85,6 @@ Client.initOptions = function initOptions(options) {
     region: 'oss-cn-hangzhou',
     internal: false,
     secure: false,
-    timeout: 60000, // 60s
     bucket: null,
     endpoint: null,
     cname: false
@@ -98,7 +97,9 @@ Client.initOptions = function initOptions(options) {
   opts.accessKeyId = opts.accessKeyId.trim();
   opts.accessKeySecret = opts.accessKeySecret.trim();
 
-  opts.timeout = ms(opts.timeout);
+  if (opts.timeout) {
+    opts.timeout = ms(opts.timeout);
+  }
 
   if (opts.endpoint) {
     opts.endpoint = setEndpoint(opts.endpoint);
@@ -318,66 +319,99 @@ proto.createRequest = function createRequest(params) {
  */
 
 proto.request = /*#__PURE__*/_regenerator2.default.mark(function request(params) {
-  var reqParams, result, err;
+  var reqParams, result, reqErr, err;
   return _regenerator2.default.wrap(function request$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           reqParams = this.createRequest(params);
-          _context.next = 3;
+          _context.prev = 1;
+          _context.next = 4;
           return this.urllib.request(reqParams.url, reqParams.params);
 
-        case 3:
+        case 4:
           result = _context.sent;
 
           debug('response %s %s, got %s, headers: %j', params.method, reqParams.url, result.status, result.headers);
+          _context.next = 11;
+          break;
 
-          if (!(params.successStatuses && params.successStatuses.indexOf(result.status) === -1)) {
-            _context.next = 14;
+        case 8:
+          _context.prev = 8;
+          _context.t0 = _context['catch'](1);
+
+          reqErr = _context.t0;
+
+        case 11:
+          if (!(result && params.successStatuses && params.successStatuses.indexOf(result.status) === -1)) {
+            _context.next = 23;
             break;
           }
 
-          return _context.delegateYield(this.requestError(result), 't0', 7);
+          _context.next = 14;
+          return this.requestError(result);
 
-        case 7:
-          err = _context.t0;
+        case 14:
+          err = _context.sent;
 
           if (!(err.code === 'RequestTimeTooSkewed')) {
-            _context.next = 12;
+            _context.next = 20;
             break;
           }
 
           this.amendTimeSkewed = +new Date(err.serverTime) - new Date();
-          return _context.delegateYield(this.request(params), 't1', 11);
+          _context.next = 19;
+          return this.request(params);
 
-        case 11:
-          return _context.abrupt('return', _context.t1);
+        case 19:
+          return _context.abrupt('return', _context.sent);
 
-        case 12:
+        case 20:
           err.params = params;
-          throw err;
+          _context.next = 27;
+          break;
 
-        case 14:
-          if (!params.xmlResponse) {
-            _context.next = 18;
+        case 23:
+          if (!reqErr) {
+            _context.next = 27;
             break;
           }
 
-          _context.next = 17;
+          _context.next = 26;
+          return this.requestError(reqErr);
+
+        case 26:
+          err = _context.sent;
+
+        case 27:
+          if (!err) {
+            _context.next = 29;
+            break;
+          }
+
+          throw err;
+
+        case 29:
+          if (!params.xmlResponse) {
+            _context.next = 33;
+            break;
+          }
+
+          _context.next = 32;
           return this.parseXML(result.data);
 
-        case 17:
+        case 32:
           result.data = _context.sent;
 
-        case 18:
+        case 33:
           return _context.abrupt('return', result);
 
-        case 19:
+        case 34:
         case 'end':
           return _context.stop();
       }
     }
-  }, request, this);
+  }, request, this, [[1, 8]]);
 });
 
 proto._getResource = function _getResource(params) {
@@ -506,48 +540,56 @@ proto.requestError = /*#__PURE__*/_regenerator2.default.mark(function requestErr
       switch (_context2.prev = _context2.next) {
         case 0:
           if (!(!result.data || !result.data.length)) {
-            _context2.next = 6;
+            _context2.next = 4;
             break;
           }
 
-          // HEAD not exists resource
-          if (result.status === 404) {
-            err = new Error('Object not exists');
-            err.name = 'NoSuchKeyError';
-            err.status = 404;
-            err.code = 'NoSuchKey';
-          } else if (result.status === 412) {
-            err = new Error('Pre condition failed');
-            err.name = 'PreconditionFailedError';
-            err.status = 412;
-            err.code = 'PreconditionFailed';
-          } else {
-            err = new Error('Unknow error, status: ' + result.status);
-            err.name = 'UnknowError';
+          if (result.status === -1 || result.status === -2) {
+            //-1 is net error , -2 is timeout
+            err = new Error(result.message);
+            err.name = result.name;
             err.status = result.status;
+            err.code = result.name;
+          } else {
+            // HEAD not exists resource
+            if (result.status === 404) {
+              err = new Error('Object not exists');
+              err.name = 'NoSuchKeyError';
+              err.status = 404;
+              err.code = 'NoSuchKey';
+            } else if (result.status === 412) {
+              err = new Error('Pre condition failed');
+              err.name = 'PreconditionFailedError';
+              err.status = 412;
+              err.code = 'PreconditionFailed';
+            } else {
+              err = new Error('Unknow error, status: ' + result.status);
+              err.name = 'UnknowError';
+              err.status = result.status;
+            }
+            err.requestId = result.headers['x-oss-request-id'];
+            err.host = '';
           }
-          err.requestId = result.headers['x-oss-request-id'];
-          err.host = '';
-          _context2.next = 30;
+          _context2.next = 28;
           break;
 
-        case 6:
+        case 4:
           message = String(result.data);
 
           debug('request response error data: %s', message);
 
-          _context2.prev = 8;
-          _context2.next = 11;
+          _context2.prev = 6;
+          _context2.next = 9;
           return this.parseXML(message) || {};
 
-        case 11:
+        case 9:
           info = _context2.sent;
-          _context2.next = 21;
+          _context2.next = 19;
           break;
 
-        case 14:
-          _context2.prev = 14;
-          _context2.t0 = _context2['catch'](8);
+        case 12:
+          _context2.prev = 12;
+          _context2.t0 = _context2['catch'](6);
 
           debug(message);
           _context2.t0.message += '\nraw xml: ' + message;
@@ -555,7 +597,7 @@ proto.requestError = /*#__PURE__*/_regenerator2.default.mark(function requestErr
           _context2.t0.requestId = result.headers['x-oss-request-id'];
           return _context2.abrupt('return', _context2.t0);
 
-        case 21:
+        case 19:
           message = info.Message || 'unknow request error, status: ' + result.status;
 
           if (info.Condition) {
@@ -570,17 +612,17 @@ proto.requestError = /*#__PURE__*/_regenerator2.default.mark(function requestErr
           err.hostId = info.HostId;
           err.serverTime = info.ServerTime;
 
-        case 30:
+        case 28:
 
           debug('generate error %j', err);
           return _context2.abrupt('return', err);
 
-        case 32:
+        case 30:
         case 'end':
           return _context2.stop();
       }
     }
-  }, requestError, this, [[8, 14]]);
+  }, requestError, this, [[6, 12]]);
 });
 
 function getHeader(headers, name) {
@@ -744,13 +786,23 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
             uploadId: uploadId,
             doneParts: []
           };
-          _context.next = 35;
-          return this._resumeMultipart(checkpoint, options);
 
-        case 35:
-          return _context.abrupt('return', _context.sent);
+          if (!(options && options.progress)) {
+            _context.next = 36;
+            break;
+          }
+
+          _context.next = 36;
+          return options.progress(0, checkpoint, result.res);
 
         case 36:
+          _context.next = 38;
+          return this._resumeMultipart(checkpoint, options);
+
+        case 38:
+          return _context.abrupt('return', _context.sent);
+
+        case 39:
         case 'end':
           return _context.stop();
       }
@@ -765,7 +817,7 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
  * @param {Object} options
  */
 proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resumeMultipart(checkpoint, options) {
-  var file, fileSize, partSize, uploadId, doneParts, name, partOffs, numParts, uploadPartJob, all, done, todo, i, jobs, defaultParallel, parallel, results;
+  var file, fileSize, partSize, uploadId, doneParts, name, partOffs, numParts, uploadPartJob, all, done, todo, i, jobs, defaultParallel, parallel, results, error;
   return _regenerator2.default.wrap(function _resumeMultipart$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
@@ -807,7 +859,7 @@ proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resum
                     }
 
                     _context2.next = 10;
-                    return options.progress(doneParts.length / numParts, checkpoint);
+                    return options.progress(doneParts.length / numParts, checkpoint, result.res);
 
                   case 10:
                   case 'end':
@@ -848,7 +900,7 @@ proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resum
           break;
 
         case 20:
-          _context3.next = 36;
+          _context3.next = 39;
           break;
 
         case 22:
@@ -869,30 +921,34 @@ proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resum
 
         case 30:
           if (!(i < results.length)) {
-            _context3.next = 36;
+            _context3.next = 39;
             break;
           }
 
           if (!results[i].isError) {
-            _context3.next = 33;
+            _context3.next = 36;
             break;
           }
 
-          throw new Error('Failed to upload some parts with error: ' + results[i].error.toString());
+          error = results[i].error;
 
-        case 33:
+          error.partNum = i;
+          error.message = 'Failed to upload some parts with error: ' + results[i].error.toString() + " part_num: " + i;
+          throw error;
+
+        case 36:
           i++;
           _context3.next = 30;
           break;
 
-        case 36:
-          _context3.next = 38;
+        case 39:
+          _context3.next = 41;
           return this._completeMultipartUpload(name, uploadId, doneParts, options);
 
-        case 38:
+        case 41:
           return _context3.abrupt('return', _context3.sent);
 
-        case 39:
+        case 42:
         case 'end':
           return _context3.stop();
       }
@@ -2128,7 +2184,7 @@ proto._deleteFileSafe = function (filepath) {
 },{"babel-runtime/regenerator":27,"copy-to":38,"debug":142,"fs":30,"is-type-of":152,"mime":227,"path":156,"url":191,"utility":228}],5:[function(require,module,exports){
 "use strict";
 
-exports.version = "4.11.2";
+exports.version = "4.11.4";
 
 },{}],6:[function(require,module,exports){
 'use strict';
@@ -23120,6 +23176,10 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     lookup: args.lookup
   };
 
+  if (args.timeout) {
+    options.timeout = args.timeout;
+  }
+
   var sslNames = ['pfx', 'key', 'passphrase', 'cert', 'ca', 'ciphers', 'rejectUnauthorized', 'secureProtocol', 'secureOptions'];
   for (var i = 0; i < sslNames.length; i++) {
     var name = sslNames[i];
@@ -23602,6 +23662,18 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   if (typeof window === 'undefined') {
     // start connect timer just after `request` return, and just in nodejs environment
     startConnectTimer();
+  } else {
+    req.on('timeout', function () {
+      if (statusCode === -1) {
+        statusCode = -2;
+      }
+      var msg = 'Connect timeout for ' + connectTimeout + 'ms';
+      var errorName = 'ConnectionTimeoutError';
+      __err = new Error(msg);
+      __err.name = errorName;
+      __err.requestId = reqId;
+      abortRequest();
+    });
   }
 
   function abortRequest() {
@@ -23679,7 +23751,8 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   });
 
   req.on('error', function (err) {
-    if (err.name === 'Error') {
+    //TypeError for browser fetch api, Error for browser xmlhttprequest api
+    if (err.name === 'Error' || err.name === 'TypeError') {
       err.name = connected ? 'ResponseError' : 'RequestError';
     }
     err.message += ' (req "error")';
