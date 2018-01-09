@@ -2249,7 +2249,8 @@ RequestTimeoutError | 400 | Request timeout | 请求超时
 RequestIsNotMultiPartContentError | 400 | Invalid post content-type | Post 请求 content-type 非法
 SignatureDoesNotMatchError | 403 | Invalid signature | 签名错误
 TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
-
+RequestError | -1 | network error | 网络出现中断或异常
+ConnectionTimeout | -2 | request connect timeout | 请求连接超时
 
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
