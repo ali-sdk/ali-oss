@@ -1530,6 +1530,7 @@ parameters:
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
     provided, it will continue the upload from where interrupted,
     otherwise a new multipart upload will be created.
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
