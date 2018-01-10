@@ -2252,6 +2252,7 @@ SignatureDoesNotMatchError | 403 | Invalid signature | 签名错误
 TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
 RequestError | -1 | network error | 网络出现中断或异常
 ConnectionTimeout | -2 | request connect timeout | 请求连接超时
+SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
