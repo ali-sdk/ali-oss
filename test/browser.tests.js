@@ -20,11 +20,11 @@ timemachine.reset();
 describe('browser', function () {
   before(function* () {
     ossConfig = {
-        region: stsConfig.region,
-        accessKeyId: stsConfig.Credentials.AccessKeyId,
-        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
-        stsToken: stsConfig.Credentials.SecurityToken,
-        bucket: stsConfig.bucket
+      region: stsConfig.region,
+      accessKeyId: stsConfig.Credentials.AccessKeyId,
+      accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+      stsToken: stsConfig.Credentials.SecurityToken,
+      bucket: stsConfig.bucket
     };
     // this.store = oss({
     //   region: stsConfig.region,
@@ -423,7 +423,7 @@ describe('browser', function () {
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [ this.listPrefix + 'fun/', this.listPrefix + 'other/' ]);
+      assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/', this.listPrefix + 'other/']);
 
       var result = yield this.store.list({
         prefix: this.listPrefix + 'fun/',
@@ -447,7 +447,7 @@ describe('browser', function () {
     });
   });
 
-  describe('put', function() {
+  describe('put', function () {
     before(function* () {
       this.store = oss(ossConfig);
     });
@@ -531,7 +531,7 @@ describe('browser', function () {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-    it('should signature url with custom host ok', function() {
+    it('should signature url with custom host ok', function () {
       var store = oss(Object.assign({}, ossConfig, {
         endpoint: 'www.aliyun.com',
         cname: true
@@ -543,7 +543,7 @@ describe('browser', function () {
     });
   });
 
-  describe('multipart', function() {
+  describe('multipart', function () {
     before(function* () {
       this.store = oss(ossConfig);
     });
@@ -727,7 +727,7 @@ describe('browser', function () {
       it('should upload file using multipart upload', function* () {
         // create a file with 1M random data
         // var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
-        var fileContent = Array(1024*1024).fill('a').join('')
+        var fileContent = Array(1024 * 1024).fill('a').join('')
         var file = new File([fileContent], 'multipart-fallback');
 
         var name = prefix + 'multipart/upload-file.js';
@@ -743,14 +743,14 @@ describe('browser', function () {
         });
         sinon.restore();
         assert.equal(result.res.status, 200);
-        assert.equal(progress, 11);
+        assert.equal(progress, 12);
 
         var object = yield this.store.get(name);
         assert.equal(object.res.status, 200);
 
-        var fileBuf=new Uint8Array(fileContent.length);
-        for(var i=0,j=fileContent.length;i<j;++i){
-          fileBuf[i]=fileContent.charCodeAt(i);
+        var fileBuf = new Uint8Array(fileContent.length);
+        for (var i = 0, j = fileContent.length; i < j; ++i) {
+          fileBuf[i] = fileContent.charCodeAt(i);
         }
 
         assert.equal(object.content.length, fileBuf.length);
@@ -758,37 +758,56 @@ describe('browser', function () {
         assert.deepEqual(md5(object.content), md5(fileBuf));
       });
 
-      // it('should upload file using multipart upload with exception', function* () {
-      //   // create a file with 1M random data
-      //   var fileContent = Array(1024*1024).fill('a').join('')
-      //   var file = new File([fileContent], 'multipart-upload-file');
-      //
-      //   var name = prefix + 'multipart/upload-file-exception';
-      //
-      //   var stubUploadPart = sinon.stub(this.store, '_uploadPart');
-      //   stubUploadPart.throws("TestUploadPartException");
-      //
-      //
-      //   var error_msg = "";
-      //   try {
-      //     yield this.store.multipartUpload(name, file, {
-      //       progress: function () {
-      //         return function (done) {
-      //           done();
-      //         };
-      //       }
-      //     });
-      //   } catch (err) {
-      //     error_msg = err.toString();
-      //   }
-      //   assert.equal(error_msg,
-      //     "Error: Failed to upload some parts with error: TestUploadPartException");
-      //   this.store._uploadPart().restore();
-      // });
+      it('return requestId in init, upload part, complete', function* () {
+        var fileContent = Array(1024 * 1024).fill('a').join('')
+        var file = new File([fileContent], 'multipart-fallback');
+        var name = prefix + 'multipart/fallback';
+        var result = yield this.store.multipartUpload(name, file, {
+            progress: function (p, checkpoint, res) {
+              return function (done) {
+                assert.equal(true, res && Object.keys(res).length !== 0);
+                done();
+              };
+            }
+          }
+        );
+        assert.equal(true, result.res && Object.keys(result.res).length !== 0);
+        assert.equal(result.res.status, 200);
+      });
+
+      it('should upload file using multipart upload with exception', function* () {
+        // create a file with 1M random data
+        var fileContent = Array(1024*1024).fill('a').join('')
+        var file = new File([fileContent], 'multipart-upload-file');
+
+        var name = prefix + 'multipart/upload-file-exception';
+
+        var stubUploadPart = sinon.stub(this.store, '_uploadPart');
+        stubUploadPart.throws("TestUploadPartException");
+
+        var error_msg = "";
+        var partNum;
+        try {
+          yield this.store.multipartUpload(name, file, {
+            progress: function () {
+              return function (done) {
+                done();
+              };
+            }
+          });
+        } catch (err) {
+          error_msg = err.message;
+          partNum = err.partNum;
+        }
+        assert.equal(error_msg,
+          "Failed to upload some parts with error: TestUploadPartException part_num: 0");
+        assert.equal(partNum, 0);
+        this.store._uploadPart.restore();
+      });
     });
   });
 
-  describe('request time is skew', function() {
+  describe('request time is skew', function () {
     before(function* () {
       this.store = oss(ossConfig);
     });
@@ -817,5 +836,57 @@ describe('browser', function () {
       assert.equal(resultDel.res.status, 204);
       timemachine.reset();
     })
+  });
+
+  describe('request err', function() {
+    before(function* () {
+      var ossConfig = {
+        region: stsConfig.region,
+        accessKeyId: stsConfig.Credentials.AccessKeyId,
+        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+        stsToken: stsConfig.Credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+        timeout: 1
+      };
+      this.store = oss(ossConfig);
+    });
+    it('request timeout exception', function* () {
+      var fileContent = Array(1024*1024).fill('a').join('')
+      var file = new File([fileContent], 'multipart-upload-file');
+
+      var name = prefix + 'multipart/upload-file-timeout';
+
+      var timeout_err = "";
+      try {
+        yield this.store.multipartUpload(name, file);
+      } catch (err) {
+        timeout_err = err;
+      }
+      assert.equal(true, timeout_err && Object.keys(timeout_err).length !== 0);
+      assert.equal(timeout_err.status, -2);
+    });
+
+    it('request net exception', function* () {
+      var fileContent = Array(1024*1024).fill('a').join('')
+      var file = new File([fileContent], 'multipart-upload-file');
+
+      var name = prefix + 'multipart/upload-file-timeout';
+      var stubNetError = sinon.stub(this.store.urllib, 'request');
+      var netErr = new Error('TestNetErrorException');
+      netErr.status = -1;
+      netErr.code = 'RequestError';
+      netErr.name = 'RequestError';
+      stubNetError.throws(netErr);
+      var net_err = "";
+      try {
+        yield this.store.multipartUpload(name, file);
+      } catch (err) {
+        net_err = err;
+      }
+      assert.equal(true, net_err && Object.keys(net_err).length !== 0);
+      assert.equal(net_err.status, -1);
+
+      this.store.urllib.request.restore();
+    });
   });
 });

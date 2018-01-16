@@ -138,6 +138,10 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     lookup: args.lookup,
   };
 
+  if (args.timeout) {
+    options.timeout = args.timeout;
+  }
+
   var sslNames = [
     'pfx',
     'key',
@@ -644,6 +648,18 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   if (typeof(window) === 'undefined') {
     // start connect timer just after `request` return, and just in nodejs environment
     startConnectTimer();
+  } else {
+    req.on('timeout', function () {
+      if (statusCode === -1) {
+        statusCode = -2;
+      }
+      var msg = 'Connect timeout for ' + connectTimeout + 'ms';
+      var errorName = 'ConnectionTimeoutError';
+      __err = new Error(msg);
+      __err.name = errorName;
+      __err.requestId = reqId;
+      abortRequest();
+    });
   }
 
   function abortRequest() {
@@ -721,7 +737,8 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   });
 
   req.on('error', function (err) {
-    if (err.name === 'Error') {
+    //TypeError for browser fetch api, Error for browser xmlhttprequest api
+    if (err.name === 'Error' || err.name === 'TypeError') {
       err.name = connected ? 'ResponseError' : 'RequestError';
     }
     err.message += ' (req "error")';

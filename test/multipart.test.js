@@ -220,7 +220,7 @@ describe('test/multipart.test.js', function () {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 11);
+      assert.equal(progress, 12);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
@@ -235,7 +235,6 @@ describe('test/multipart.test.js', function () {
       var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
 
       var name = prefix + 'multipart/upload-file-exception';
-      var progress = 0;
       var clientTmp = oss(config);
       clientTmp.useBucket(this.bucket, this.region);
 
@@ -244,13 +243,17 @@ describe('test/multipart.test.js', function () {
 
 
       var error_msg = "";
+      var partNum;
       try {
         yield clientTmp.multipartUpload(name, fileName);
       } catch (err) {
-        error_msg = err.toString();
+        error_msg = err.message;
+        partNum = err.partNum;
       }
       assert.equal(error_msg,
-        "Error: Failed to upload some parts with error: TestUploadPartException");
+        "Failed to upload some parts with error: TestUploadPartException part_num: 0");
+      assert.equal(partNum, 0);
+      clientTmp._uploadPart.restore();
     });
 
     it('should upload web file using multipart upload', function* () {
@@ -368,7 +371,7 @@ describe('test/multipart.test.js', function () {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 11);
+      assert.equal(progress, 12);
 
       var object = yield this.store.get(name);
       assert.equal(object.res.status, 200);
@@ -398,5 +401,71 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
     });
+
+    it('return requestId in init, upload part, complete', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      var name = prefix + 'multipart/upload-file';
+
+      var result = yield this.store.multipartUpload(name, fileName, {
+          progress: function (p, checkpoint, res) {
+            assert.equal(true, res && Object.keys(res).length !== 0);
+          }
+        }
+      );
+      assert.equal(true, result.res && Object.keys(result.res).length !== 0);
+      assert.equal(result.res.status, 200);
+
+    });
+
   });
+
+  describe('request error', function() {
+
+    it('request timeout exception', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      var name = prefix + 'multipart/upload-file';
+
+      var stubNetError = sinon.stub(this.store.urllib, 'request');
+      var netErr = new Error('TestTimeoutErrorException');
+      netErr.status = -2;
+      netErr.code = 'ConnectionTimeoutError';
+      netErr.name = 'ConnectionTimeoutError';
+      stubNetError.throws(netErr);
+      var timeout_err;
+      try {
+        yield this.store.multipartUpload(name, fileName);
+      } catch (err) {
+        timeout_err = err;
+      }
+
+      assert.equal(true, timeout_err && Object.keys(timeout_err).length !== 0);
+      assert.equal(timeout_err.status, -2);
+      this.store.urllib.request.restore();
+    });
+
+    it('request net exception', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      var name = prefix + 'multipart/upload-file';
+
+      var stubNetError = sinon.stub(this.store.urllib, 'request');
+      var netErr = new Error('TestNetErrorException');
+      netErr.status = -1;
+      netErr.code = 'RequestError';
+      netErr.name = 'RequestError';
+      stubNetError.throws(netErr);
+
+      var net_err;
+      try {
+        yield this.store.multipartUpload(name, fileName);
+      } catch (err) {
+        net_err = err;
+      }
+
+      assert.equal(true, net_err && Object.keys(net_err).length !== 0);
+      assert.equal(net_err.status, -1);
+
+      this.store.urllib.request.restore();
+    });
+  });
+
 });
