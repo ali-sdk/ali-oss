@@ -773,7 +773,7 @@ parameters:
 - file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [mime] {String} custom mime
+  - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -882,7 +882,7 @@ parameters:
 - [options] {Object} optional parameters
   - [contentLength] {Number} the stream length, `chunked encoding` will be used if absent
   - [timeout] {Number} the operation timeout
-  - [mime] {String} custom mime
+  - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -941,7 +941,7 @@ All parameters are same as put except for options.position
 - [options] {Object} optional parameters
   - [position] {String} specify the position which is the content length of the latest object
   - [timeout] {Number} the operation timeout
-  - [mime] {String} custom mime
+  - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -1530,6 +1530,8 @@ parameters:
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
     provided, it will continue the upload from where interrupted,
     otherwise a new multipart upload will be created.
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
+  - [mime] {String} custom mime , will send with `Content-Type` entity header
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
@@ -2249,7 +2251,9 @@ RequestTimeoutError | 400 | Request timeout | 请求超时
 RequestIsNotMultiPartContentError | 400 | Invalid post content-type | Post 请求 content-type 非法
 SignatureDoesNotMatchError | 403 | Invalid signature | 签名错误
 TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
-
+RequestError | -1 | network error | 网络出现中断或异常
+ConnectionTimeout | -2 | request connect timeout | 请求连接超时
+SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
