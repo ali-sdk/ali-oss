@@ -139,7 +139,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   };
 
   if (args.timeout) {
-    options.timeout = args.timeout;
+    options.requestTimeout = args.timeout;
   }
 
   var sslNames = [
@@ -649,7 +649,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     // start connect timer just after `request` return, and just in nodejs environment
     startConnectTimer();
   } else {
-    req.on('timeout', function () {
+    req.on('requestTimeout', function () {
       if (statusCode === -1) {
         statusCode = -2;
       }
