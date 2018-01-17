@@ -835,7 +835,7 @@ describe('browser', function () {
       var resultDel = yield this.store.delete(name);
       assert.equal(resultDel.res.status, 204);
       timemachine.reset();
-    })
+    });
   });
 
   describe('request err', function() {
