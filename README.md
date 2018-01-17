@@ -1538,6 +1538,7 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
+  - [timeout] {Number} the operation timeout, Milliseconds before a request is considered to be timed out
 
 Success will return:
 
