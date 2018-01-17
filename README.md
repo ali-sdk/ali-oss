@@ -773,7 +773,7 @@ parameters:
 - file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [mime] {String} custom mime
+  - [mime] {String} custom mime, , will send with `content-type` prefix string
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -882,7 +882,7 @@ parameters:
 - [options] {Object} optional parameters
   - [contentLength] {Number} the stream length, `chunked encoding` will be used if absent
   - [timeout] {Number} the operation timeout
-  - [mime] {String} custom mime
+  - [mime] {String} custom mime, , will send with `content-type` prefix string
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -941,7 +941,7 @@ All parameters are same as put except for options.position
 - [options] {Object} optional parameters
   - [position] {String} specify the position which is the content length of the latest object
   - [timeout] {Number} the operation timeout
-  - [mime] {String} custom mime
+  - [mime] {String} custom mime, , will send with `content-type` prefix string
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -1531,7 +1531,7 @@ parameters:
     provided, it will continue the upload from where interrupted,
     otherwise a new multipart upload will be created.
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
-  - [mime] {String} custom mime
+  - [mime] {String} custom mime , will send with `content-type` prefix string
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
