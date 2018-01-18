@@ -119,7 +119,7 @@ var uploadBase64Img = function (client) {
   var imgFile = new FileReader();
   imgFile.readAsDataURL(file);
   imgFile.onload = function () {
-    var imgData = this.result; //base64数据
+    var imgData = this.result; //DataUrl:   base64 data
     var imgfile = dataURLtoFile(imgData, file.name);
     return client.multipartUpload(key, imgfile, {
       progress: base64progress
