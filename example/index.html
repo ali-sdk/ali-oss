@@ -73,21 +73,37 @@
       </tr>
       <tr>
         <td>
-          <div class="panel panel-info">
-            <div class="panel-heading">List files
-              <input type="button" class="btn btn-primary" id="list-files-button" value="Refresh" style="margin-left: 10px"/>
-            </div>
+          <div class="panel panel-danger">
+            <div class="panel-heading">Upload with base64 img</div>
             <div class="panel-body">
-              <table class="table table-striped" id="list-files-table">
-                <tr>
-                  <th>Key</th>
-                  <th>Size</th>
-                  <th>LastModified</th>
-                </tr>
-              </table>
+              <form action="" class="form-horizontal">
+                <div class="form-group">
+                  <label>Select file</label>
+                  <input type="file" id="base64file" accept="image/*"/>
+                </div>
+                <div class="form-group">
+                  <label>Store as</label>
+                  <input type="text" class="form-control" id="base64-object-key-file" value="object" />
+                </div>
+                <div class="form-group">
+                  <input type="button" class="btn btn-primary" id="base64-file-button" value="Upload" />
+                </div>
+              </form>
+              <br />
+              <div class="progress">
+                <div id="base64-progress-bar"
+                     class="progress-bar"
+                     role="progressbar"
+                     aria-valuenow="0"
+                     aria-valuemin="0"
+                     aria-valuemax="100" style="min-width: 2em;">
+                  0%
+                </div>
+              </div>
             </div>
           </div>
         </td>
+
         <td>
           <div class="panel panel-warning">
             <div class="panel-heading">Download file</div>
@@ -105,6 +121,23 @@
                   <input type="button" class="btn btn-primary" id="dl-button" value="Download" />
                 </div>
               </form>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="panel panel-info">
+            <div class="panel-heading">List files</div>
+            <div class="panel-body">
+              <table class="table table-striped" id="list-files-table">
+                <tr>
+                  <th>Key</th>
+                  <th>Size</th>
+                  <th>LastModified</th>
+                </tr>
+              </table>
+              <input type="button" class="btn btn-primary" id="list-files-button" value="Refresh" />
             </div>
           </div>
         </td>

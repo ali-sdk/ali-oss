@@ -92,6 +92,44 @@ var uploadFile = function (client) {
 
 };
 
+var base64progress = function (p) {
+  return function (done) {
+    var bar = document.getElementById('base64-progress-bar');
+    bar.style.width = Math.floor(p * 100) + '%';
+    bar.innerHTML = Math.floor(p * 100) + '%';
+    done();
+  };
+};
+
+function dataURLtoFile(dataurl, filename) {
+  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while(n--){
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, {type:mime});
+}
+
+
+var uploadBase64Img = function (client) {
+  var file = document.getElementById('base64file').files[0];
+  var key = document.getElementById('base64-object-key-file').value.trim() || 'object';
+  console.log(file.name + ' => ' + key);
+
+  var imgFile = new FileReader();
+  imgFile.readAsDataURL(file);
+  imgFile.onload = function () {
+    var imgData = this.result; //base64数据
+    var imgfile = dataURLtoFile(imgData, file.name);
+    return client.multipartUpload(key, imgfile, {
+      progress: base64progress
+    }).then(function (res) {
+      console.log('upload success: %j', res);
+      return listFiles(client);
+    });
+  };
+};
+
 var uploadContent = function (client) {
   var content = document.getElementById('file-content').value.trim();
   var key = document.getElementById('object-key-content').value.trim() || 'object';
@@ -171,6 +209,10 @@ window.onload = function () {
 
   document.getElementById('dl-button').onclick = function () {
     applyTokenDo(downloadFile);
+  };
+
+  document.getElementById('base64-file-button').onclick = function () {
+    applyTokenDo(uploadBase64Img);
   };
 
   applyTokenDo(listFiles);
