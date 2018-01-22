@@ -1,3 +1,5 @@
+'use strict';
+
 var util = require('util');
 var urlutil = require('url');
 var http = require('http');
