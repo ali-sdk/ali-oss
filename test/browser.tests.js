@@ -800,8 +800,8 @@ describe('browser', function () {
           partNum = err.partNum;
         }
         assert.equal(error_msg,
-          "Failed to upload some parts with error: TestUploadPartException part_num: 0");
-        assert.equal(partNum, 0);
+          "Failed to upload some parts with error: TestUploadPartException part_num: 1");
+        assert.equal(partNum, 1);
         this.store._uploadPart.restore();
       });
 
