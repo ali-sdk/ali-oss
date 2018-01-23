@@ -101,6 +101,12 @@ var base64progress = function (p) {
   };
 };
 
+/**
+ * base64 to file
+ * @param dataurl   base64 content
+ * @param filename  set up a meaningful suffix, or you can set mime type in options
+ * @returns {File|*}
+ */
 function dataURLtoFile(dataurl, filename) {
   var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
     bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -112,22 +118,20 @@ function dataURLtoFile(dataurl, filename) {
 
 
 var uploadBase64Img = function (client) {
-  var file = document.getElementById('base64file').files[0];
+  var base64Content = document.getElementById('base64-file-content').value.trim();
   var key = document.getElementById('base64-object-key-file').value.trim() || 'object';
-  console.log(file.name + ' => ' + key);
-
-  var imgFile = new FileReader();
-  imgFile.readAsDataURL(file);
-  imgFile.onload = function () {
-    var imgData = this.result; //DataUrl:   base64 data
-    var imgfile = dataURLtoFile(imgData, file.name);
+  if (base64Content.startsWith('data:image')) {
+    var imgfile = dataURLtoFile(base64Content, 'img.png');
     return client.multipartUpload(key, imgfile, {
       progress: base64progress
     }).then(function (res) {
       console.log('upload success: %j', res);
-      return listFiles(client);
+    }).catch(function (err) {
+      console.error(err);
     });
-  };
+  } else {
+    alert('Please fill in the correct Base64 img');
+  }
 };
 
 var uploadContent = function (client) {
