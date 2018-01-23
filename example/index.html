@@ -86,20 +86,21 @@
                   <input type="text" class="form-control" id="base64-object-key-file" value="object" />
                 </div>
                 <div class="form-group">
-                  <input type="button" class="btn btn-primary" id="base64-file-button" value="Upload" />
+                  <input type="button" class="btn btn-primary" id="base64-file-button" value="Upload" style="float: left"/>
+                  <div class="progress">
+                    <div id="base64-progress-bar"
+                         class="progress-bar"
+                         role="progressbar"
+                         aria-valuenow="0"
+                         aria-valuemin="0"
+                         aria-valuemax="100" style="min-width: 2em;">
+                      0%
+                    </div>
+                  </div>
                 </div>
               </form>
               <br />
-              <div class="progress">
-                <div id="base64-progress-bar"
-                     class="progress-bar"
-                     role="progressbar"
-                     aria-valuenow="0"
-                     aria-valuemin="0"
-                     aria-valuemax="100" style="min-width: 2em;">
-                  0%
-                </div>
-              </div>
+
             </div>
           </div>
         </td>
