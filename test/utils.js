@@ -44,7 +44,7 @@ exports.sleep = function (ms) {
 };
 
 exports.cleanBucket = function* (store, bucket, region) {
-  store.useBucket(bucket, region);
+  store.useBucket(bucket);
   var result = yield store.list({
     'max-keys': 1000
   });
@@ -62,7 +62,7 @@ exports.cleanBucket = function* (store, bucket, region) {
     var up = uploads[i];
     yield store.abortMultipartUpload(up.name, up.uploadId);
   }
-  yield store.deleteBucket(bucket, region);
+  yield store.deleteBucket(bucket);
 };
 
 if (process && process.browser) {

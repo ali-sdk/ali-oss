@@ -33,8 +33,8 @@ describe('test/object.test.js', function () {
     //     return item.name + ':' + item.region;
     //   })
     // );
-    yield this.store.putBucket(this.bucket, this.region);
-    this.store.useBucket(this.bucket, this.region);
+    yield this.store.putBucket(this.bucket);
+    this.store.useBucket(this.bucket);
   });
 
   after(function* () {

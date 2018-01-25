@@ -16,8 +16,8 @@ describe('test/cluster.test.js', () => {
     this.bucket1 = 'ali-oss-test-cluster1-' + prefix.replace(/[\/\.]/g, '');
     this.bucket2 = 'ali-oss-test-cluster2-' + prefix.replace(/[\/\.]/g, '');
     const client = oss(config);
-    yield client.putBucket(this.bucket1, this.region);
-    yield client.putBucket(this.bucket2, this.region);
+    yield client.putBucket(this.bucket1);
+    yield client.putBucket(this.bucket2);
   });
 
   before(function(done) {
