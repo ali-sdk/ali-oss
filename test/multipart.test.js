@@ -381,27 +381,6 @@ describe('test/multipart.test.js', function () {
       assert.deepEqual(md5(object.content), md5(fileBuf));
     });
 
-    // callback server on EC2, maybe fail on China, bug pass on travis ci
-    // callback server down, skip it
-    it.skip('should parse response with callback', function* () {
-      // create a file with 1M random data
-      var fileName = yield utils.createTempFile('upload-with-callback', 1024 * 1024);
-
-      var name = prefix + 'multipart/upload-with-callback';
-      var result = yield this.store.multipartUpload(name, fileName, {
-        partSize: 100 * 1024,
-        headers: {
-          'x-oss-callback': utils.encodeCallback({
-            url: config.callbackServer,
-            query: {user: 'js-sdk'},
-            body: 'bucket=${bucket}&object=${object}'
-          })
-        }
-      });
-      assert.equal(result.res.status, 200);
-      assert.equal(result.data.Status, 'OK');
-    });
-
     it('return requestId in init, upload part, complete', function* () {
       var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
       var name = prefix + 'multipart/upload-file';
