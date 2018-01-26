@@ -15,6 +15,7 @@ var sinon = require('sinon');
 var md5 = require('crypto-js/md5')
 var ossConfig;
 var timemachine = require('timemachine');
+var co = require('co');
 timemachine.reset();
 
 describe('browser', function () {
@@ -849,6 +850,40 @@ describe('browser', function () {
 
         assert.equal(result.res.status, 200);
 
+      });
+
+      it('multipart upload file with abort', function* () {
+        var client = this.store;
+        // create a file with 1M random data
+        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        var file = new File([fileContent], 'multipart-upload-file');
+
+        var name = prefix + 'multipart/upload-file-cancel';
+
+        var tempCheckpoint = null;
+        var uploadId = null;
+        var options = {
+          progress: function (p, checkpoint) {
+            return function (done) {
+              tempCheckpoint = checkpoint;
+              if (p === 0) {
+                uploadId = checkpoint.uploadId;
+              }
+              if (p > 0.5) {
+                co(function *() {
+                  yield client.abortMultipartUpload(name, uploadId);
+                });
+              }
+              done();
+            };
+          },
+          partSize: 100 * 1024
+        }
+        try {
+          yield client.multipartUpload(name, file, options);
+        } catch (err) {
+          assert.equal(true, client.isCancel());
+        }
       });
     });
   });
