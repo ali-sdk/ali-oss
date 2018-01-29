@@ -1,7 +1,31 @@
-4.11.4 / 2018-01-09
+4.12.1 / 2018-02-29
 ==================
 
 **features**
+  * [[`b7c5daaf812`](https://github.com/ali-sdk/ali-oss/commit/b7c5daaf812ae9a9d46ffdccd008158b7fbcffd5)] - feat: add local protocol check for web (#347) (binghaiwang <<binghaiwang@gmail.com>>)
+  * [[`02f9ba7ed87935`](https://github.com/ali-sdk/ali-oss/commit/02f9ba7ed8793573e3a16e4534b7b10d92e8b6b9)] - feat: cancel multipartUpload (#356) (binghaiwang <<binghaiwang@gmail.com>>)
+
+**fixs**
+  * [[`b62bd2eea`](https://github.com/ali-sdk/ali-oss/commit/b62bd2eea0e52b64257c2d1b60f0c8b02243fc2c)] - fix: multipartUpload small file upload by callback data (#358) (binghaiwang <<binghaiwang@gmail.com>>)
+
+**others**
+  * chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
+  * docs: add timeout doc about multipart (#353) (binghaiwang <<binghaiwang@gmail.com>>)
+  
+4.11.5 / 2018-02-17
+==================
+
+**fixes**
+  * [[`dda7ff6`](https://github.com/ali-sdk/ali-oss/commit/dda7ff6f9b30affadccff389995d29841266abf7)] - fix: safari blob fail case (#346) (binghaiwang <<binghaiwang@gmail.com>>)
+  * [[`ed68ba3d7c9`](https://github.com/ali-sdk/ali-oss/commit/ed68ba3d7c9bc251584c0c9189a5eba0704f94a4)] - fix: RequestTimeTooSkewed(#341) (binghaiwang <<binghaiwang@gmail.com>>)
+
+**others**
+  * chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
+  
+4.11.4 / 2018-01-09
+==================
+
+**fixes**
   * [[`2021661`](https://github.com/ali-sdk/ali-oss/commit/2021661a259f66516e51549ce2158fca55b51b05)] - feat: add net error code (#332) (binghaiwang <<binghaiwang@gmail.com>>)
   * [[`ceae401`](https://github.com/ali-sdk/ali-oss/commit/ceae401c3dd3d9e1f64fef172bcf42a291402dc6)] - feat: multipartUpload add the return parameter for resoponse (#335) (binghaiwang <<binghaiwang@gmail.com>>)
 
