@@ -15,6 +15,7 @@ var sinon = require('sinon');
 var md5 = require('crypto-js/md5')
 var ossConfig;
 var timemachine = require('timemachine');
+var co = require('co');
 timemachine.reset();
 
 describe('browser', function () {
@@ -478,7 +479,7 @@ describe('browser', function () {
         }
       });
       assert.equal(object.res.status, 200);
-      // TODO: 不允许跨域获取 x-oss-request-id
+      // 不允许跨域获取 x-oss-request-id
       // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       // this.headers = object.res.headers;
 
@@ -800,9 +801,89 @@ describe('browser', function () {
           partNum = err.partNum;
         }
         assert.equal(error_msg,
-          "Failed to upload some parts with error: TestUploadPartException part_num: 0");
-        assert.equal(partNum, 0);
+          "Failed to upload some parts with error: TestUploadPartException part_num: 1");
+        assert.equal(partNum, 1);
         this.store._uploadPart.restore();
+      });
+
+      //multipart cancel test
+      it('upload file with cancel', function* () {
+        var client = this.store;
+        // create a file with 1M random data
+        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        var file = new File([fileContent], 'multipart-upload-file');
+
+        var name = prefix + 'multipart/upload-file-cancel';
+
+        var tempCheckpoint = null;
+        var options = {
+          progress: function (p, checkpoint) {
+            return function (done) {
+              tempCheckpoint = checkpoint;
+              if (p > 0.5) {
+                client.cancel();
+              }
+              done();
+            };
+          },
+          partSize: 100 * 1024
+        }
+        try {
+          yield client.multipartUpload(name, file, options);
+        } catch (err) {
+          assert.equal(true, client.isCancel());
+        }
+
+        assert.equal(true, tempCheckpoint && Object.keys(tempCheckpoint).length !== 0);
+
+        var options2 = {
+          progress: function (p) {
+            return function (done) {
+              assert.equal(true, p > 0.5);
+              done();
+            };
+          },
+          partSize: 100 * 1024,
+          checkpoint: tempCheckpoint
+        }
+        var result = yield client.multipartUpload(name, file, options2);
+
+        assert.equal(result.res.status, 200);
+
+      });
+
+      it('multipart upload file with abort', function* () {
+        var client = this.store;
+        // create a file with 1M random data
+        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        var file = new File([fileContent], 'multipart-upload-file');
+
+        var name = prefix + 'multipart/upload-file-cancel';
+
+        var tempCheckpoint = null;
+        var uploadId = null;
+        var options = {
+          progress: function (p, checkpoint) {
+            return function (done) {
+              tempCheckpoint = checkpoint;
+              if (p === 0) {
+                uploadId = checkpoint.uploadId;
+              }
+              if (p > 0.5) {
+                co(function *() {
+                  yield client.abortMultipartUpload(name, uploadId);
+                });
+              }
+              done();
+            };
+          },
+          partSize: 100 * 1024
+        }
+        try {
+          yield client.multipartUpload(name, file, options);
+        } catch (err) {
+          assert.equal(true, client.isCancel());
+        }
       });
     });
   });

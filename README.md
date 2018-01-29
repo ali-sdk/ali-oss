@@ -1579,6 +1579,34 @@ var result = yield store.multipartUpload('object', '/tmp/file', {
 });
 
 ```
+- multipartUpload with cancel
+
+>tips: cancel multipartUpload, now only support browser.
+
+```js
+
+//start upload
+try {
+  var result = yield store.multipartUpload('object', '/tmp/file', {
+    checkpoint: savedCpt,
+    progress: function* (p, cpt, res) {
+      console.log(p);
+      console.log(cpt);
+      console.log(res.headers['x-oss-request-id']);
+    }
+  });
+} catch (err) {
+  //if cancel will catch cancel event
+  if (store.isCancel()) {
+    //do something
+  }
+}
+
+//the other event to cancel, for example: click event
+//to cancel upload must use the same client instance 
+store.cancel();
+
+```
 
 ### .listUploads*(query[, options])
 

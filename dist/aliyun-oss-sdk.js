@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.11.5
+// Aliyun OSS SDK for JavaScript v4.12.1
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -11,7 +11,7 @@ OSS.urllib = require('../shims/xhr');
 
 module.exports = OSS;
 
-},{"../shims/xhr":242,"./browser/client":2,"buffer":33,"co":37}],2:[function(require,module,exports){
+},{"../shims/xhr":242,"./browser/client":2,"buffer":34,"co":37}],2:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -42,7 +42,6 @@ var urllib = require('urllib');
 var pkg = require('./version');
 var dateFormat = require('dateformat');
 var bowser = require('bowser');
-
 var globalHttpAgent = new AgentKeepalive();
 
 /**
@@ -55,12 +54,13 @@ function Client(options, ctx) {
   if (!(this instanceof Client)) {
     return new Client(options, ctx);
   }
-
   if (options && options.inited) {
     this.options = options;
   } else {
     this.options = Client.initOptions(options);
   }
+
+  this.options.cancelFlag = false; //cancel flag: if true need to be cancelled, default false
 
   // support custom agent and urllib client
   if (this.options.urllib) {
@@ -81,17 +81,20 @@ Client.initOptions = function initOptions(options) {
     throw new Error('require accessKeyId, accessKeySecret');
   }
 
+  var isHttpsProtocol = isHttpsWebProtocol();
   var opts = {
     region: 'oss-cn-hangzhou',
     internal: false,
-    secure: false,
+    secure: isHttpsProtocol,
     bucket: null,
     endpoint: null,
     cname: false
   };
 
   for (var key in options) {
-    if (options[key] === undefined) continue;
+    if (options[key] === undefined) {
+      continue;
+    }
     opts[key] = options[key];
   }
   opts.accessKeyId = opts.accessKeyId.trim();
@@ -102,7 +105,7 @@ Client.initOptions = function initOptions(options) {
   }
 
   if (opts.endpoint) {
-    opts.endpoint = setEndpoint(opts.endpoint);
+    opts.endpoint = setEndpoint(opts.endpoint, opts.secure);
   } else if (opts.region) {
     opts.endpoint = setRegion(opts.region, opts.internal, opts.secure);
   } else {
@@ -131,6 +134,11 @@ merge(proto, require('./object'));
  * Multipart operations
  */
 merge(proto, require('./multipart'));
+
+/**
+ * Common module
+ */
+merge(proto, require('../common/thunkpool.js'));
 
 /**
  * ImageClient class
@@ -629,14 +637,15 @@ function getHeader(headers, name) {
   return headers[name] || headers[name.toLowerCase()];
 }
 
-function setEndpoint(endpoint) {
+function setEndpoint(endpoint, secure) {
   var url = urlutil.parse(endpoint);
 
   if (!url.protocol) {
-    url = urlutil.parse('http://' + endpoint);
+    var protocol = secure ? 'https://' : 'http://';
+    url = urlutil.parse(protocol + endpoint);
   }
 
-  if (url.protocol != 'http:' && url.protocol != 'https:') {
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     throw new Error('Endpoint protocol must be http or https.');
   }
 
@@ -655,8 +664,13 @@ function setRegion(region, internal, secure) {
   return urlutil.parse(protocol + region + suffix);
 }
 
+//check local web protocol,if https secure default set true , if http secure default set false
+function isHttpsWebProtocol() {
+  return document && document.location && document.location.protocol === 'https:';
+}
+
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./../../shims/crypto.js":239,"./multipart":3,"./object":4,"./version":5,"./wrapper":6,"_process":174,"agentkeepalive":7,"babel-runtime/core-js/object/keys":18,"babel-runtime/regenerator":28,"bowser":30,"buffer":33,"copy-to":39,"dateformat":155,"debug":156,"humanize-ms":161,"is-type-of":166,"merge-descriptors":169,"mime":240,"path":171,"platform":172,"url":204,"urllib":242,"utility":241,"xml2js":215}],3:[function(require,module,exports){
+},{"../common/thunkpool.js":7,"./../../shims/crypto.js":239,"./multipart":3,"./object":4,"./version":5,"./wrapper":6,"_process":174,"agentkeepalive":8,"babel-runtime/core-js/object/keys":19,"babel-runtime/regenerator":29,"bowser":31,"buffer":34,"copy-to":39,"dateformat":155,"debug":156,"humanize-ms":161,"is-type-of":166,"merge-descriptors":169,"mime":240,"path":171,"platform":172,"url":204,"urllib":242,"utility":241,"xml2js":215}],3:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -679,8 +693,6 @@ var is = require('is-type-of');
 var util = require('util');
 var path = require('path');
 var mime = require('mime');
-var gather = require('co-gather');
-
 var proto = exports;
 
 /**
@@ -699,20 +711,21 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
+          this.resetCancelFlag();
           options = options || {};
 
           if (!(options.checkpoint && options.checkpoint.uploadId)) {
-            _context.next = 5;
+            _context.next = 6;
             break;
           }
 
-          _context.next = 4;
+          _context.next = 5;
           return this._resumeMultipart(options.checkpoint, options);
 
-        case 4:
+        case 5:
           return _context.abrupt('return', _context.sent);
 
-        case 5:
+        case 6:
           minPartSize = 100 * 1024;
           filename = is.file(file) ? file.name : file;
 
@@ -720,14 +733,14 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
           options.headers = options.headers || {};
           this._convertMetaToHeaders(options.meta, options.headers);
 
-          _context.next = 12;
+          _context.next = 13;
           return this._getFileSize(file);
 
-        case 12:
+        case 13:
           fileSize = _context.sent;
 
           if (!(fileSize < minPartSize)) {
-            _context.next = 25;
+            _context.next = 26;
             break;
           }
 
@@ -735,21 +748,21 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
 
           options.contentLength = fileSize;
 
-          _context.next = 18;
+          _context.next = 19;
           return this.putStream(name, stream, options);
 
-        case 18:
+        case 19:
           result = _context.sent;
 
           if (!(options && options.progress)) {
-            _context.next = 22;
+            _context.next = 23;
             break;
           }
 
-          _context.next = 22;
+          _context.next = 23;
           return options.progress(1);
 
-        case 22:
+        case 23:
           ret = {
             res: result.res,
             bucket: this.options.bucket,
@@ -757,24 +770,26 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
             etag: result.res.headers.etag
           };
 
+
           if (options.headers && options.headers['x-oss-callback']) {
-            ret.data = JSON.parse(result.data.toString());
+            ret.data = result.data;
           }
+
           return _context.abrupt('return', ret);
 
-        case 25:
+        case 26:
           if (!(options.partSize && options.partSize < minPartSize)) {
-            _context.next = 27;
+            _context.next = 28;
             break;
           }
 
           throw new Error('partSize must not be smaller than ' + minPartSize);
 
-        case 27:
-          _context.next = 29;
+        case 28:
+          _context.next = 30;
           return this._initMultipartUpload(name, options);
 
-        case 29:
+        case 30:
           result = _context.sent;
           uploadId = result.uploadId;
           partSize = this._getPartSize(fileSize, options.partSize);
@@ -788,21 +803,21 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
           };
 
           if (!(options && options.progress)) {
-            _context.next = 36;
+            _context.next = 37;
             break;
           }
 
-          _context.next = 36;
+          _context.next = 37;
           return options.progress(0, checkpoint, result.res);
 
-        case 36:
-          _context.next = 38;
+        case 37:
+          _context.next = 39;
           return this._resumeMultipart(checkpoint, options);
 
-        case 38:
+        case 39:
           return _context.abrupt('return', _context.sent);
 
-        case 39:
+        case 40:
         case 'end':
           return _context.stop();
       }
@@ -817,11 +832,19 @@ proto.multipartUpload = /*#__PURE__*/_regenerator2.default.mark(function multipa
  * @param {Object} options
  */
 proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resumeMultipart(checkpoint, options) {
-  var file, fileSize, partSize, uploadId, doneParts, name, partOffs, numParts, uploadPartJob, all, done, todo, i, jobs, defaultParallel, parallel, results, error;
+  var file, fileSize, partSize, uploadId, doneParts, name, partOffs, numParts, uploadPartJob, all, done, todo, defaultParallel, parallel, i, jobs, errors, err;
   return _regenerator2.default.wrap(function _resumeMultipart$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
+          if (!this.isCancel()) {
+            _context3.next = 2;
+            break;
+          }
+
+          throw this._makeCancelEvent();
+
+        case 2:
           file = checkpoint.file;
           fileSize = checkpoint.fileSize;
           partSize = checkpoint.partSize;
@@ -836,15 +859,21 @@ proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resum
               while (1) {
                 switch (_context2.prev = _context2.next) {
                   case 0:
+                    if (self.isCancel()) {
+                      _context2.next = 18;
+                      break;
+                    }
+
+                    _context2.prev = 1;
                     pi = partOffs[partNo - 1];
                     data = {
                       stream: self._createStream(file, pi.start, pi.end),
                       size: pi.end - pi.start
                     };
-                    _context2.next = 4;
+                    _context2.next = 6;
                     return self._uploadPart(name, uploadId, partNo, data);
 
-                  case 4:
+                  case 6:
                     result = _context2.sent;
 
                     doneParts.push({
@@ -853,20 +882,31 @@ proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resum
                     });
                     checkpoint.doneParts = doneParts;
 
-                    if (!(options && options.progress)) {
-                      _context2.next = 10;
+                    if (!(!self.isCancel() && options && options.progress)) {
+                      _context2.next = 12;
                       break;
                     }
 
-                    _context2.next = 10;
+                    _context2.next = 12;
                     return options.progress(doneParts.length / numParts, checkpoint, result.res);
 
-                  case 10:
+                  case 12:
+                    _context2.next = 18;
+                    break;
+
+                  case 14:
+                    _context2.prev = 14;
+                    _context2.t0 = _context2['catch'](1);
+
+                    _context2.t0.partNum = partNo;
+                    throw _context2.t0;
+
+                  case 18:
                   case 'end':
                     return _context2.stop();
                 }
               }
-            }, uploadPartJob, this);
+            }, uploadPartJob, this, [[1, 14]]);
           });
           all = (0, _from2.default)(new Array(numParts), function (x, i) {
             return i + 1;
@@ -877,78 +917,84 @@ proto._resumeMultipart = /*#__PURE__*/_regenerator2.default.mark(function _resum
           todo = all.filter(function (p) {
             return done.indexOf(p) < 0;
           });
+          defaultParallel = 5;
+          parallel = options.parallel || defaultParallel;
 
-          if (!this.checkBrowserAndVersion('Internet Explorer', '10')) {
-            _context3.next = 22;
+          if (!(this.checkBrowserAndVersion('Internet Explorer', '10') || parallel === 1)) {
+            _context3.next = 28;
             break;
           }
 
           i = 0;
 
-        case 14:
+        case 18:
           if (!(i < todo.length)) {
-            _context3.next = 20;
+            _context3.next = 26;
             break;
           }
 
-          _context3.next = 17;
+          if (!this.isCancel()) {
+            _context3.next = 21;
+            break;
+          }
+
+          throw this._makeCancelEvent();
+
+        case 21:
+          _context3.next = 23;
           return uploadPartJob(this, todo[i]);
 
-        case 17:
+        case 23:
           i++;
-          _context3.next = 14;
+          _context3.next = 18;
           break;
 
-        case 20:
-          _context3.next = 39;
+        case 26:
+          _context3.next = 40;
           break;
 
-        case 22:
+        case 28:
           // upload in parallel
           jobs = [];
 
           for (i = 0; i < todo.length; i++) {
             jobs.push(uploadPartJob(this, todo[i]));
           }
-          defaultParallel = 5;
-          parallel = options.parallel || defaultParallel;
-          _context3.next = 28;
-          return gather(jobs, parallel);
 
-        case 28:
-          results = _context3.sent;
-          i = 0;
+          // start uploads jobs
+          _context3.next = 32;
+          return this._thunkPool(jobs, parallel);
 
-        case 30:
-          if (!(i < results.length)) {
-            _context3.next = 39;
-            break;
-          }
+        case 32:
+          errors = _context3.sent;
 
-          if (!results[i].isError) {
+          if (!this.isCancel()) {
             _context3.next = 36;
             break;
           }
 
-          error = results[i].error;
-
-          error.partNum = i;
-          error.message = 'Failed to upload some parts with error: ' + results[i].error.toString() + " part_num: " + i;
-          throw error;
+          jobs = null;
+          throw this._makeCancelEvent();
 
         case 36:
-          i++;
-          _context3.next = 30;
-          break;
+          if (!(errors && errors.length > 0)) {
+            _context3.next = 40;
+            break;
+          }
 
-        case 39:
-          _context3.next = 41;
+          err = errors[0];
+
+          err.message = 'Failed to upload some parts with error: ' + err.toString() + " part_num: " + err.partNum;
+          throw err;
+
+        case 40:
+          _context3.next = 42;
           return this._completeMultipartUpload(name, uploadId, doneParts, options);
 
-        case 41:
+        case 42:
           return _context3.abrupt('return', _context3.sent);
 
-        case 42:
+        case 43:
         case 'end':
           return _context3.stop();
       }
@@ -1023,22 +1069,23 @@ proto.abortMultipartUpload = /*#__PURE__*/_regenerator2.default.mark(function ab
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
+          this.cancel();
           options = options || {};
           options.subres = { uploadId: uploadId };
           params = this._objectRequestParams('DELETE', name, options);
 
           params.successStatuses = [204];
 
-          _context5.next = 6;
+          _context5.next = 7;
           return this.request(params);
 
-        case 6:
+        case 7:
           result = _context5.sent;
           return _context5.abrupt('return', {
             res: result.res
           });
 
-        case 8:
+        case 9:
         case 'end':
           return _context5.stop();
       }
@@ -1361,8 +1408,17 @@ proto._divideParts = function _divideParts(fileSize, partSize) {
   return partOffs;
 };
 
+//cancel is not error , so create an object
+proto._makeCancelEvent = function () {
+  var cancelEvent = {
+    status: 0,
+    name: 'cancel'
+  };
+  return cancelEvent;
+};
+
 }).call(this,require("buffer").Buffer)
-},{"babel-runtime/core-js/array/from":11,"babel-runtime/regenerator":28,"buffer":33,"co-gather":35,"is-type-of":166,"mime":240,"path":171,"stream":196,"util":209}],4:[function(require,module,exports){
+},{"babel-runtime/core-js/array/from":12,"babel-runtime/regenerator":29,"buffer":34,"is-type-of":166,"mime":240,"path":171,"stream":196,"util":209}],4:[function(require,module,exports){
 'use strict';
 
 var _regenerator = require('babel-runtime/regenerator');
@@ -2181,10 +2237,10 @@ proto._deleteFileSafe = function (filepath) {
   };
 };
 
-},{"babel-runtime/regenerator":28,"copy-to":39,"debug":156,"fs":31,"is-type-of":166,"mime":240,"path":171,"url":204,"utility":241}],5:[function(require,module,exports){
+},{"babel-runtime/regenerator":29,"copy-to":39,"debug":156,"fs":32,"is-type-of":166,"mime":240,"path":171,"url":204,"utility":241}],5:[function(require,module,exports){
 "use strict";
 
-exports.version = "4.11.5";
+exports.version = "4.12.1";
 
 },{}],6:[function(require,module,exports){
 'use strict';
@@ -2247,17 +2303,177 @@ Client.STS = function STSClient(options) {
   wrap.call(this, OssClient.STS, options);
 };
 
-},{"./client":2,"babel-runtime/core-js/object/get-prototype-of":17,"babel-runtime/core-js/object/keys":18,"co":37}],7:[function(require,module,exports){
+},{"./client":2,"babel-runtime/core-js/object/get-prototype-of":18,"babel-runtime/core-js/object/keys":19,"co":37}],7:[function(require,module,exports){
+'use strict';
+
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var co = require('co');
+var Queue = require('co-priority-queue');
+var proto = exports;
+
+/**
+ * use parallel operations pools
+ * @param thunks
+ * @param parallel  concurrent number
+ * @returns {Promise | Promise<any>}
+ * @private
+ */
+proto._thunkPool = function thunkPool(thunks, parallel) {
+  var that = this;
+  var _Promise = require('any-promise');
+  var _done = 0;
+  var _errs = [];
+
+  function checkFinish(thunks, resolve) {
+    _done++;
+    if (_done === thunks.length) {
+      resolve(_errs);
+    }
+  }
+
+  function Limiter(concurrency, resolve) {
+    var queue = new Queue();
+    var endQueueSum = 0;
+    // Create consumers
+    for (var i = 0; i < concurrency; i++) {
+      co( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
+        var yieldable;
+        return _regenerator2.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (that.isCancel()) {
+                  _context.next = 8;
+                  break;
+                }
+
+                _context.next = 3;
+                return queue.next();
+
+              case 3:
+                yieldable = _context.sent;
+                _context.next = 6;
+                return yieldable();
+
+              case 6:
+                _context.next = 0;
+                break;
+
+              case 8:
+                endQueueSum += 1;
+                if (endQueueSum === concurrency) {
+                  queue.fns = [];
+                  queue.buffer = [];
+                  resolve();
+                }
+
+              case 10:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      })).catch(function (err) {
+        console.error(err.stack);
+      });
+    }
+
+    var limit = function limit(generator, priority) {
+      return function (cb) {
+        queue.push( /*#__PURE__*/_regenerator2.default.mark(function _callee2() {
+          return _regenerator2.default.wrap(function _callee2$(_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  _context2.prev = 0;
+                  _context2.t0 = cb;
+                  _context2.next = 4;
+                  return generator;
+
+                case 4:
+                  _context2.t1 = _context2.sent;
+                  (0, _context2.t0)(null, _context2.t1);
+                  _context2.next = 11;
+                  break;
+
+                case 8:
+                  _context2.prev = 8;
+                  _context2.t2 = _context2['catch'](0);
+
+                  cb(_context2.t2);
+
+                case 11:
+                case 'end':
+                  return _context2.stop();
+              }
+            }
+          }, _callee2, this, [[0, 8]]);
+        }), priority);
+      };
+    };
+
+    return limit;
+  }
+
+  return new _Promise(function (resolve) {
+    var _limit = new Limiter(parallel, resolve);
+    for (var i = 0; i < thunks.length; i++) {
+      co( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
+        return _regenerator2.default.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return _limit(thunks[i]);
+
+              case 2:
+                checkFinish(thunks, resolve);
+
+              case 3:
+              case 'end':
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      })).catch(function (err) {
+        _errs.push(err);
+        checkFinish(thunks, resolve);
+      });
+    }
+  });
+};
+
+/**
+ * cancel operation, now can use with multipartUpload
+ */
+proto.cancel = function () {
+  this.options.cancelFlag = true;
+};
+
+proto.isCancel = function () {
+  return this.options.cancelFlag;
+};
+
+proto.resetCancelFlag = function () {
+  this.options.cancelFlag = false;
+};
+
+},{"any-promise":9,"babel-runtime/regenerator":29,"co":37,"co-priority-queue":36}],8:[function(require,module,exports){
 module.exports = noop;
 module.exports.HttpsAgent = noop;
 
 // Noop function for browser since native api's don't use agents.
 function noop () {}
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = require('./register')().Promise
 
-},{"./register":10}],9:[function(require,module,exports){
+},{"./register":11}],10:[function(require,module,exports){
 "use strict"
     // global key for user preferred registration
 var REGISTRATION_KEY = '@@any-promise/REGISTRATION',
@@ -2337,7 +2553,7 @@ module.exports = function(root, loadImplementation){
   }
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 module.exports = require('./loader')(window, loadImplementation)
 
@@ -2357,35 +2573,35 @@ function loadImplementation(){
   }
 }
 
-},{"./loader":9}],11:[function(require,module,exports){
+},{"./loader":10}],12:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/array/from"), __esModule: true };
-},{"core-js/library/fn/array/from":40}],12:[function(require,module,exports){
+},{"core-js/library/fn/array/from":40}],13:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/json/stringify"), __esModule: true };
-},{"core-js/library/fn/json/stringify":41}],13:[function(require,module,exports){
+},{"core-js/library/fn/json/stringify":41}],14:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/assign"), __esModule: true };
-},{"core-js/library/fn/object/assign":42}],14:[function(require,module,exports){
+},{"core-js/library/fn/object/assign":42}],15:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/create"), __esModule: true };
-},{"core-js/library/fn/object/create":43}],15:[function(require,module,exports){
+},{"core-js/library/fn/object/create":43}],16:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/define-property"), __esModule: true };
-},{"core-js/library/fn/object/define-property":44}],16:[function(require,module,exports){
+},{"core-js/library/fn/object/define-property":44}],17:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/get-own-property-names"), __esModule: true };
-},{"core-js/library/fn/object/get-own-property-names":45}],17:[function(require,module,exports){
+},{"core-js/library/fn/object/get-own-property-names":45}],18:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/get-prototype-of"), __esModule: true };
-},{"core-js/library/fn/object/get-prototype-of":46}],18:[function(require,module,exports){
+},{"core-js/library/fn/object/get-prototype-of":46}],19:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/keys"), __esModule: true };
-},{"core-js/library/fn/object/keys":47}],19:[function(require,module,exports){
+},{"core-js/library/fn/object/keys":47}],20:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/promise"), __esModule: true };
-},{"core-js/library/fn/promise":48}],20:[function(require,module,exports){
+},{"core-js/library/fn/promise":48}],21:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/set-immediate"), __esModule: true };
-},{"core-js/library/fn/set-immediate":49}],21:[function(require,module,exports){
+},{"core-js/library/fn/set-immediate":49}],22:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/string/from-code-point"), __esModule: true };
-},{"core-js/library/fn/string/from-code-point":50}],22:[function(require,module,exports){
+},{"core-js/library/fn/string/from-code-point":50}],23:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/symbol"), __esModule: true };
-},{"core-js/library/fn/symbol":52}],23:[function(require,module,exports){
+},{"core-js/library/fn/symbol":52}],24:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/symbol/has-instance"), __esModule: true };
-},{"core-js/library/fn/symbol/has-instance":51}],24:[function(require,module,exports){
+},{"core-js/library/fn/symbol/has-instance":51}],25:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/symbol/iterator"), __esModule: true };
-},{"core-js/library/fn/symbol/iterator":53}],25:[function(require,module,exports){
+},{"core-js/library/fn/symbol/iterator":53}],26:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2395,7 +2611,7 @@ exports.default = function (instance, Constructor) {
     throw new TypeError("Cannot call a class as a function");
   }
 };
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2423,7 +2639,7 @@ exports.default = function () {
     return Constructor;
   };
 }();
-},{"../core-js/object/define-property":15}],27:[function(require,module,exports){
+},{"../core-js/object/define-property":16}],28:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2445,10 +2661,10 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 } : function (obj) {
   return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj);
 };
-},{"../core-js/symbol":22,"../core-js/symbol/iterator":24}],28:[function(require,module,exports){
+},{"../core-js/symbol":23,"../core-js/symbol/iterator":25}],29:[function(require,module,exports){
 module.exports = require("regenerator-runtime");
 
-},{"regenerator-runtime":192}],29:[function(require,module,exports){
+},{"regenerator-runtime":192}],30:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -2564,7 +2780,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*!
  * Bowser - a browser detector
  * https://github.com/ded/bowser
@@ -3186,9 +3402,9 @@ function fromByteArray (uint8) {
   return bowser
 });
 
-},{}],31:[function(require,module,exports){
-
 },{}],32:[function(require,module,exports){
+
+},{}],33:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3411,7 +3627,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":33}],33:[function(require,module,exports){
+},{"buffer":34}],34:[function(require,module,exports){
 (function (global){
 /*!
  * The buffer module from node.js, for the browser.
@@ -5204,7 +5420,7 @@ function isnan (val) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"base64-js":29,"ieee754":162,"isarray":167}],34:[function(require,module,exports){
+},{"base64-js":30,"ieee754":162,"isarray":167}],35:[function(require,module,exports){
 module.exports = {
   "100": "Continue",
   "101": "Switching Protocols",
@@ -5270,117 +5486,52 @@ module.exports = {
   "511": "Network Authentication Required"
 }
 
-},{}],35:[function(require,module,exports){
-/*!
- * co-gather - index.js
- * Copyright(c) 2014 dead_horse <dead_horse@qq.com>
- * MIT Licensed
- */
+},{}],36:[function(require,module,exports){
+"use strict";
 
-'use strict';
+// Most of the code comes from co-queue created by Julian Gruber
+// https://github.com/segmentio/co-queue
 
-/**
- * Module dependencies.
- */
+var Queue = function() {
+  this.buffer = [];
+  this.fns = [];
+};
 
-var _regenerator = require('babel-runtime/regenerator');
+Queue.prototype.push = function(data, priority) {
+  if (this.fns.length)
+    return this.fns.shift()(null, data);
+  var item = { data: data, priority: priority };
+  var index = sortedIndex(this.buffer, item, function(item) {
+    return item.priority;
+  });
+  this.buffer.splice(index, 0, item);
+};
 
-var _regenerator2 = _interopRequireDefault(_regenerator);
+Queue.prototype.next = function() {
+  var that = this;
+  return function(fn) {
+    if (that.buffer.length)
+      return fn(null, that.buffer.pop().data);
+    that.fns.push(fn);
+  };
+};
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var thread = require('co-thread');
-
-module.exports = /*#__PURE__*/_regenerator2.default.mark(function gather(thunks, n) {
-  var _marked, ret, index, next;
-
-  return _regenerator2.default.wrap(function gather$(_context2) {
-    while (1) {
-      switch (_context2.prev = _context2.next) {
-        case 0:
-          next = function next() {
-            var i;
-            return _regenerator2.default.wrap(function next$(_context) {
-              while (1) {
-                switch (_context.prev = _context.next) {
-                  case 0:
-                    i = index++;
-
-                    ret[i] = { isError: false };
-                    _context.prev = 2;
-                    _context.next = 5;
-                    return thunks[i];
-
-                  case 5:
-                    ret[i].value = _context.sent;
-                    _context.next = 12;
-                    break;
-
-                  case 8:
-                    _context.prev = 8;
-                    _context.t0 = _context['catch'](2);
-
-                    ret[i].error = _context.t0;
-                    ret[i].isError = true;
-
-                  case 12:
-                    if (!(index < thunks.length)) {
-                      _context.next = 15;
-                      break;
-                    }
-
-                    _context.next = 15;
-                    return next;
-
-                  case 15:
-                  case 'end':
-                    return _context.stop();
-                }
-              }
-            }, _marked, this, [[2, 8]]);
-          };
-
-          _marked = /*#__PURE__*/_regenerator2.default.mark(next);
-
-          n = Math.min(n || 5, thunks.length);
-          ret = [];
-          index = 0;
-          _context2.next = 7;
-          return thread(next, n);
-
-        case 7:
-          return _context2.abrupt('return', ret);
-
-        case 8:
-        case 'end':
-          return _context2.stop();
-      }
-    }
-  }, gather, this);
-});
-
-},{"babel-runtime/regenerator":28,"co-thread":36}],36:[function(require,module,exports){
-
-/**
- * Expose `thread`.
- */
-
-module.exports = thread;
-
-/**
- * Run `fn` `n` times in parallel.
- *
- * @param {Function} fn
- * @param {Number} n
- * @return {Array}
- * @api public
- */
-
-function thread(fn, n) {
-  var gens = [];
-  while (n--) gens.push(fn);
-  return gens;
+var sortedIndex = function(array, value, transformer) {
+  // Copied from https://github.com/lodash/lodash
+  value = transformer(value);
+  var low = 0;
+  var high = array ? array.length : low;
+  while (low < high) {
+    var mid = (low + high) >>> 1;
+    (transformer(array[mid]) < value)
+      ? (low = mid + 1)
+      : (high = mid);
+  }
+  return low;
 }
+
+module.exports = Queue;
+
 },{}],37:[function(require,module,exports){
 
 /**
@@ -7349,8 +7500,8 @@ require('./_object-sap')('keys', function () {
 });
 
 },{"./_object-keys":102,"./_object-sap":104,"./_to-object":121}],137:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],138:[function(require,module,exports){
+arguments[4][32][0].apply(exports,arguments)
+},{"dup":32}],138:[function(require,module,exports){
 'use strict';
 var LIBRARY = require('./_library');
 var global = require('./_global');
@@ -8091,7 +8242,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":164,"babel-runtime/helpers/typeof":27}],149:[function(require,module,exports){
+},{"../../is-buffer/index.js":164,"babel-runtime/helpers/typeof":28}],149:[function(require,module,exports){
 var Buffer = require('buffer').Buffer;
 var intSize = 4;
 var zeroBuffer = new Buffer(intSize); zeroBuffer.fill(0);
@@ -8128,7 +8279,7 @@ function hash(buf, fn, hashSize, bigEndian) {
 
 module.exports = { hash: hash };
 
-},{"buffer":33}],150:[function(require,module,exports){
+},{"buffer":34}],150:[function(require,module,exports){
 var Buffer = require('buffer').Buffer
 var sha = require('./sha')
 var sha256 = require('./sha256')
@@ -8227,7 +8378,7 @@ each(['createCredentials'
   }
 })
 
-},{"./md5":151,"./rng":152,"./sha":153,"./sha256":154,"buffer":33}],151:[function(require,module,exports){
+},{"./md5":151,"./rng":152,"./sha":153,"./sha256":154,"buffer":34}],151:[function(require,module,exports){
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
  * Digest Algorithm, as defined in RFC 1321.
@@ -8836,7 +8987,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }
 })(undefined);
 
-},{"babel-runtime/helpers/typeof":27}],156:[function(require,module,exports){
+},{"babel-runtime/helpers/typeof":28}],156:[function(require,module,exports){
 (function (process){
 /**
  * This is the web browser implementation of `debug()`.
@@ -10431,7 +10582,7 @@ var substr = 'ab'.substr(-1) === 'b'
 (function (global){
 /*!
  * Platform.js <https://mths.be/platform>
- * Copyright 2014-2016 Benjamin Tan <https://demoneaux.github.io/>
+ * Copyright 2014-2018 Benjamin Tan <https://bnjmnt4n.now.sh/>
  * Copyright 2011-2013 John-David Dalton <http://allyoucanleet.com/>
  * Available under MIT license <https://mths.be/mit>
  */
@@ -11173,16 +11324,18 @@ var substr = 'ab'.substr(-1) === 'b'
           arch = data.getProperty('os.arch');
           os = os || data.getProperty('os.name') + ' ' + data.getProperty('os.version');
         }
-        if (isModuleScope && isHostType(context, 'system') && (data = [context.system])[0]) {
-          os || (os = data[0].os || null);
+        if (rhino) {
           try {
-            data[1] = context.require('ringo/engine').version;
-            version = data[1].join('.');
+            version = context.require('ringo/engine').version.join('.');
             name = 'RingoJS';
           } catch(e) {
-            if (data[0].global.system == context.system) {
+            if ((data = context.system) && data.global.system == context.system) {
               name = 'Narwhal';
+              os || (os = data[0].os || null);
             }
+          }
+          if (!name) {
+            name = 'Rhino';
           }
         }
         else if (
@@ -11199,16 +11352,14 @@ var substr = 'ab'.substr(-1) === 'b'
               name = 'NW.js';
               version = data.versions.nw;
             }
-          } else {
+          }
+          if (!name) {
             name = 'Node.js';
             arch = data.arch;
             os = data.platform;
-            version = /[\d.]+/.exec(data.version)
-            version = version ? version[0] : 'unknown';
+            version = /[\d.]+/.exec(data.version);
+            version = version ? version[0] : null;
           }
-        }
-        else if (rhino) {
-          name = 'Rhino';
         }
       }
       // Detect Adobe AIR.
@@ -12732,7 +12883,7 @@ function forEach(xs, f) {
   }
 }
 
-},{"./_stream_readable":182,"./_stream_writable":184,"babel-runtime/core-js/object/keys":18,"core-util-is":148,"inherits":163,"process-nextick-args":173}],181:[function(require,module,exports){
+},{"./_stream_readable":182,"./_stream_writable":184,"babel-runtime/core-js/object/keys":19,"core-util-is":148,"inherits":163,"process-nextick-args":173}],181:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -13798,7 +13949,7 @@ function indexOf(xs, x) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":180,"./internal/streams/BufferList":185,"./internal/streams/destroy":186,"./internal/streams/stream":187,"_process":174,"babel-runtime/core-js/object/get-prototype-of":17,"core-util-is":148,"events":159,"inherits":163,"isarray":167,"process-nextick-args":173,"safe-buffer":194,"string_decoder/":201,"util":31}],183:[function(require,module,exports){
+},{"./_stream_duplex":180,"./internal/streams/BufferList":185,"./internal/streams/destroy":186,"./internal/streams/stream":187,"_process":174,"babel-runtime/core-js/object/get-prototype-of":18,"core-util-is":148,"events":159,"inherits":163,"isarray":167,"process-nextick-args":173,"safe-buffer":194,"string_decoder/":201,"util":32}],183:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14700,7 +14851,7 @@ Writable.prototype._destroy = function (err, cb) {
 };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":180,"./internal/streams/destroy":186,"./internal/streams/stream":187,"_process":174,"babel-runtime/core-js/object/define-property":15,"babel-runtime/core-js/set-immediate":20,"babel-runtime/core-js/symbol":22,"babel-runtime/core-js/symbol/has-instance":23,"core-util-is":148,"inherits":163,"process-nextick-args":173,"safe-buffer":194,"util-deprecate":206}],185:[function(require,module,exports){
+},{"./_stream_duplex":180,"./internal/streams/destroy":186,"./internal/streams/stream":187,"_process":174,"babel-runtime/core-js/object/define-property":16,"babel-runtime/core-js/set-immediate":21,"babel-runtime/core-js/symbol":23,"babel-runtime/core-js/symbol/has-instance":24,"core-util-is":148,"inherits":163,"process-nextick-args":173,"safe-buffer":194,"util-deprecate":206}],185:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -15707,7 +15858,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":33}],195:[function(require,module,exports){
+},{"buffer":34}],195:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -17278,7 +17429,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 })(typeof exports === 'undefined' ? undefined.sax = {} : exports);
 
 }).call(this,require("buffer").Buffer)
-},{"babel-runtime/core-js/json/stringify":12,"babel-runtime/core-js/object/create":14,"babel-runtime/core-js/object/define-property":15,"babel-runtime/core-js/object/keys":18,"babel-runtime/core-js/string/from-code-point":21,"babel-runtime/helpers/typeof":27,"buffer":33,"stream":196,"string_decoder":32}],196:[function(require,module,exports){
+},{"babel-runtime/core-js/json/stringify":13,"babel-runtime/core-js/object/create":15,"babel-runtime/core-js/object/define-property":16,"babel-runtime/core-js/object/keys":19,"babel-runtime/core-js/string/from-code-point":22,"babel-runtime/helpers/typeof":28,"buffer":34,"stream":196,"string_decoder":33}],196:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -17493,7 +17644,7 @@ http.METHODS = [
 	'UNSUBSCRIBE'
 ]
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/request":199,"./lib/response":200,"builtin-status-codes":34,"url":204,"xtend":238}],198:[function(require,module,exports){
+},{"./lib/request":199,"./lib/response":200,"builtin-status-codes":35,"url":204,"xtend":238}],198:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -17868,7 +18019,7 @@ ClientRequest.prototype.setSocketKeepAlive = function () {};
 var unsafeHeaders = ['accept-charset', 'accept-encoding', 'access-control-request-headers', 'access-control-request-method', 'connection', 'content-length', 'cookie', 'cookie2', 'date', 'dnt', 'expect', 'host', 'keep-alive', 'origin', 'referer', 'te', 'trailer', 'transfer-encoding', 'upgrade', 'user-agent', 'via'];
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":198,"./response":200,"_process":174,"babel-runtime/core-js/object/keys":18,"buffer":33,"inherits":163,"readable-stream":189,"to-arraybuffer":203}],200:[function(require,module,exports){
+},{"./capability":198,"./response":200,"_process":174,"babel-runtime/core-js/object/keys":19,"buffer":34,"inherits":163,"readable-stream":189,"to-arraybuffer":203}],200:[function(require,module,exports){
 (function (process,global,Buffer){
 'use strict';
 
@@ -18092,7 +18243,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":198,"_process":174,"babel-runtime/core-js/promise":19,"buffer":33,"inherits":163,"readable-stream":189}],201:[function(require,module,exports){
+},{"./capability":198,"_process":174,"babel-runtime/core-js/promise":20,"buffer":34,"inherits":163,"readable-stream":189}],201:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -18472,7 +18623,7 @@ module.exports = function (buf) {
 	}
 }
 
-},{"buffer":33}],204:[function(require,module,exports){
+},{"buffer":34}],204:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -20054,7 +20205,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }();
 }).call(undefined);
 
-},{"./defaults":212,"babel-runtime/core-js/object/keys":18,"babel-runtime/helpers/typeof":27,"xmlbuilder":237}],212:[function(require,module,exports){
+},{"./defaults":212,"babel-runtime/core-js/object/keys":19,"babel-runtime/helpers/typeof":28,"xmlbuilder":237}],212:[function(require,module,exports){
 "use strict";
 
 // Generated by CoffeeScript 1.12.7
@@ -20520,7 +20671,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   };
 }).call(undefined);
 
-},{"./bom":210,"./defaults":212,"./processors":214,"babel-runtime/core-js/object/get-own-property-names":16,"babel-runtime/core-js/object/keys":18,"babel-runtime/helpers/typeof":27,"events":159,"sax":195,"timers":202}],214:[function(require,module,exports){
+},{"./bom":210,"./defaults":212,"./processors":214,"babel-runtime/core-js/object/get-own-property-names":17,"babel-runtime/core-js/object/keys":19,"babel-runtime/helpers/typeof":28,"events":159,"sax":195,"timers":202}],214:[function(require,module,exports){
 'use strict';
 
 // Generated by CoffeeScript 1.12.7
@@ -20702,7 +20853,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   module.exports.isPlainObject = isPlainObject;
 }).call(undefined);
 
-},{"babel-runtime/core-js/object/assign":13,"babel-runtime/core-js/object/get-prototype-of":17,"babel-runtime/helpers/typeof":27}],217:[function(require,module,exports){
+},{"babel-runtime/core-js/object/assign":14,"babel-runtime/core-js/object/get-prototype-of":18,"babel-runtime/helpers/typeof":28}],217:[function(require,module,exports){
 "use strict";
 
 var _create = require("babel-runtime/core-js/object/create");
@@ -20741,7 +20892,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }();
 }).call(undefined);
 
-},{"babel-runtime/core-js/object/create":14}],218:[function(require,module,exports){
+},{"babel-runtime/core-js/object/create":15}],218:[function(require,module,exports){
 "use strict";
 
 var _create = require("babel-runtime/core-js/object/create");
@@ -20788,7 +20939,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }(XMLNode);
 }).call(undefined);
 
-},{"./XMLNode":229,"babel-runtime/core-js/object/create":14}],219:[function(require,module,exports){
+},{"./XMLNode":229,"babel-runtime/core-js/object/create":15}],219:[function(require,module,exports){
 "use strict";
 
 var _create = require("babel-runtime/core-js/object/create");
@@ -20835,7 +20986,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }(XMLNode);
 }).call(undefined);
 
-},{"./XMLNode":229,"babel-runtime/core-js/object/create":14}],220:[function(require,module,exports){
+},{"./XMLNode":229,"babel-runtime/core-js/object/create":15}],220:[function(require,module,exports){
 "use strict";
 
 // Generated by CoffeeScript 1.12.6
@@ -21834,7 +21985,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }(XMLNode);
 }).call(undefined);
 
-},{"./Utility":216,"./XMLAttribute":217,"./XMLNode":229,"babel-runtime/core-js/object/create":14}],229:[function(require,module,exports){
+},{"./Utility":216,"./XMLAttribute":217,"./XMLNode":229,"babel-runtime/core-js/object/create":15}],229:[function(require,module,exports){
 'use strict';
 
 // Generated by CoffeeScript 1.12.6
@@ -22330,7 +22481,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }(XMLNode);
 }).call(undefined);
 
-},{"./XMLNode":229,"babel-runtime/core-js/object/create":14}],231:[function(require,module,exports){
+},{"./XMLNode":229,"babel-runtime/core-js/object/create":15}],231:[function(require,module,exports){
 "use strict";
 
 var _create = require("babel-runtime/core-js/object/create");
@@ -22377,7 +22528,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }(XMLNode);
 }).call(undefined);
 
-},{"./XMLNode":229,"babel-runtime/core-js/object/create":14}],232:[function(require,module,exports){
+},{"./XMLNode":229,"babel-runtime/core-js/object/create":15}],232:[function(require,module,exports){
 'use strict';
 
 // Generated by CoffeeScript 1.12.6
@@ -23248,7 +23399,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }(XMLNode);
 }).call(undefined);
 
-},{"./XMLNode":229,"babel-runtime/core-js/object/create":14}],236:[function(require,module,exports){
+},{"./XMLNode":229,"babel-runtime/core-js/object/create":15}],236:[function(require,module,exports){
 'use strict';
 
 // Generated by CoffeeScript 1.12.6
@@ -23571,7 +23722,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"babel-runtime/core-js/object/create":14,"babel-runtime/helpers/classCallCheck":25,"babel-runtime/helpers/createClass":26,"babel-runtime/helpers/typeof":27}],241:[function(require,module,exports){
+},{"babel-runtime/core-js/object/create":15,"babel-runtime/helpers/classCallCheck":26,"babel-runtime/helpers/createClass":27,"babel-runtime/helpers/typeof":28}],241:[function(require,module,exports){
 'use strict';
 
 // copy from https://github.com/node-modules/utility for browser
@@ -24360,5 +24511,5 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 };
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":174,"any-promise":8,"babel-runtime/core-js/json/stringify":12,"babel-runtime/helpers/typeof":27,"buffer":33,"constants":38,"debug":156,"http":197,"https":160,"humanize-ms":161,"url":204,"util":209}]},{},[1])(1)
+},{"_process":174,"any-promise":9,"babel-runtime/core-js/json/stringify":13,"babel-runtime/helpers/typeof":28,"buffer":34,"constants":38,"debug":156,"http":197,"https":160,"humanize-ms":161,"url":204,"util":209}]},{},[1])(1)
 });
