@@ -575,7 +575,7 @@ describe('browser', function () {
         // var name = '/'
         var ids = [];
         for (var i = 0; i < 5; i++) {
-          var result = yield this.store._initMultipartUpload(name + i);
+          var result = yield this.store.initMultipartUpload(name + i);
           ids.push(result.uploadId);
         }
         // list all uploads
@@ -612,7 +612,7 @@ describe('browser', function () {
         var name = prefix + 'multipart/list-id';
         var ids = [];
         for (var i = 0; i < 5; i++) {
-          var result = yield this.store._initMultipartUpload(name);
+          var result = yield this.store.initMultipartUpload(name);
           ids.push(result.uploadId);
         }
         ids.sort();
@@ -649,7 +649,7 @@ describe('browser', function () {
         var foo_name = prefix + 'multipart/list-foo';
         var foo_ids = [];
         for (var i = 0; i < 5; i++) {
-          var result = yield this.store._initMultipartUpload(foo_name);
+          var result = yield this.store.initMultipartUpload(foo_name);
           foo_ids.push(result.uploadId);
         }
         foo_ids.sort();
@@ -657,7 +657,7 @@ describe('browser', function () {
         var bar_name = prefix + 'multipart/list-bar';
         var bar_ids = [];
         for (var i = 0; i < 5; i++) {
-          var result = yield this.store._initMultipartUpload(bar_name);
+          var result = yield this.store.initMultipartUpload(bar_name);
           bar_ids.push(result.uploadId);
         }
         bar_ids.sort();
@@ -694,7 +694,7 @@ describe('browser', function () {
         var name = prefix + 'multipart/fallback';
         var progress = 0;
         var putStreamSpy = sinon.spy(this.store, 'putStream');
-        var uploadPartSpy = sinon.spy(this.store, '_uploadPart');
+        var uploadPartSpy = sinon.spy(this.store, 'uploadPart');
         var result = yield this.store.multipartUpload(name, file, {
             progress: function () {
               return function (done) {
@@ -712,7 +712,7 @@ describe('browser', function () {
 
         assert.equal(progress, 1);
         this.store.putStream.restore();
-        this.store._uploadPart.restore();
+        this.store.uploadPart.restore();
       });
 
       it('should use default partSize when not specified', function* () {
@@ -767,7 +767,7 @@ describe('browser', function () {
         assert.deepEqual(md5(object.content), md5(fileBuf));
       });
 
-      it('return requestId in init, upload part, complete', function* () {
+      it('should return requestId in init, upload part, complete', function* () {
         var fileContent = Array(1024 * 1024).fill('a').join('')
         var file = new File([fileContent], 'multipart-fallback');
         var name = prefix + 'multipart/fallback';
@@ -791,7 +791,7 @@ describe('browser', function () {
 
         var name = prefix + 'multipart/upload-file-exception';
 
-        var stubUploadPart = sinon.stub(this.store, '_uploadPart');
+        var stubUploadPart = sinon.stub(this.store, 'uploadPart');
         stubUploadPart.throws("TestUploadPartException");
 
         var error_msg = "";
@@ -811,11 +811,11 @@ describe('browser', function () {
         assert.equal(error_msg,
           "Failed to upload some parts with error: TestUploadPartException part_num: 1");
         assert.equal(partNum, 1);
-        this.store._uploadPart.restore();
+        this.store.uploadPart.restore();
       });
 
       //multipart cancel test
-      it('upload file with cancel', function* () {
+      it('should upload file with cancel', function* () {
         var client = this.store;
         // create a file with 1M random data
         var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
@@ -860,7 +860,7 @@ describe('browser', function () {
 
       });
 
-      it('multipart upload file with abort', function* () {
+      it('should multipart upload file with abort', function* () {
         var client = this.store;
         // create a file with 1M random data
         var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
@@ -927,7 +927,7 @@ describe('browser', function () {
     });
   });
 
-  describe('request err', function() {
+  describe('requestErr()', function() {
     before(function* () {
       var ossConfig = {
         region: stsConfig.region,
@@ -939,7 +939,7 @@ describe('browser', function () {
       };
       this.store = oss(ossConfig);
     });
-    it('request timeout exception', function* () {
+    it('should request timeout exception', function* () {
       var fileContent = Array(1024*1024).fill('a').join('')
       var file = new File([fileContent], 'multipart-upload-file');
 
@@ -955,7 +955,7 @@ describe('browser', function () {
       assert.equal(timeout_err.status, -2);
     });
 
-    it('request net exception', function* () {
+    it('should request net exception', function* () {
       var fileContent = Array(1024*1024).fill('a').join('')
       var file = new File([fileContent], 'multipart-upload-file');
 

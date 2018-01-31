@@ -82,6 +82,10 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
+  - [.initMultipartUpload*(name[, options])](#initmultipartuploadname-options)
+  - [.uploadPart*(name, uploadId, partNo, data[, options])](#uploadpartname-uploadid-partno-data-options)
+  - [.uploadPartCopy*(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
+  - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
   - [.listUploads*(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
@@ -1524,7 +1528,156 @@ var result = yield store.getACL('ossdemo.txt');
 console.log(result.acl);
 ```
 
-### .multipartUpload*(name, file[, options)
+### .initMultipartUpload(name[, options])
+Before transmitting data in the Multipart Upload mode, 
+you must call the Initiate Multipart Upload interface to notify the OSS to initiate a Multipart Upload event. 
+The Initiate Multipart Upload interface returns a globally unique Upload ID created by the OSS server to identify this Multipart Upload event.
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
+    - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
+    - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
+    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'x-oss-server-side-encryption' 
+    Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`
+    
+example:    
+
+```js
+  var result = yield store.initMultipartUpload('object');
+  console.log(result);
+```
+
+### .uploadPart(name, uploadId, partNo, data[, options])
+After initiating a Multipart Upload event, you can upload data in parts based on the specified object name and Upload ID. 
+
+parameters:
+
+- name {String} object name
+- uploadId {String} get by initMultipartUpload api
+- partNo (Integer) range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- data {object} the part of file data, Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+    
+example:    
+
+```js
+  var name = 'object';
+  var result = yield store.initMultipartUpload(name);
+ 
+  var file; //the data you want to upload, this example size is 10 * 100 * 1024
+  var fileSize;//you need to calculate
+  var partSize = 100 * 1024;//100kb 
+  //if file part is 10
+  for (var i = 1; i <= 10; i++) {
+    var start = partSize * (i -1);
+    var end = Math.min(start + partSize, fileSize);
+    var data = file.slice(start, end);
+    var part = yield store.uploadPart(name, result.uploadId, i, data);
+    console.log(part);
+  }
+  
+  //end need complete api
+```
+
+### .uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])
+Using Upload Part Copy, you can copy data from an existing object and upload a part of the data. 
+
+parameters:
+
+- name {String} object name
+- uploadId {String} get by initMultipartUpload api
+- partNo (Integer) range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- range {String} Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB, range value like `0-102400`
+- sourceData {Object} 
+  - sourceKey {String} the source object name
+  - sourceBucketName {String} the source bucket name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'x-oss-copy-source-if-match' <br>
+    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - 'x-oss-copy-source-if-none-match' <br>
+    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - 'x-oss-copy-source-if-unmodified-since' <br>
+    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
+    - 'x-oss-copy-source-if-modified-since' <br>
+    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+  
+    
+example:    
+
+```js
+  var name = 'object';
+  var result = yield store.initMultipartUpload(name);
+ 
+  var partSize = 100 * 1024;//100kb 
+  //if file part is 10
+  for (var i = 1; i <= 10; i++) {
+    var start = partSize * (i -1);
+    var end = Math.min(start + partSize, fileSize);
+    var range = start + '-' + (end - 1);
+    var part = yield store.uploadPartCopy(name, result.uploadId, i, range, {
+      sourceKey: 'sourceKey',
+      sourceBucketName: 'sourceBucketName'
+    });
+    console.log(part);
+  }
+  
+  //end need complete api
+```
+
+### .completeMultipartUpload(name, uploadId, parts[, options])
+After uploading all data parts, you must call the Complete Multipart Upload API to complete Multipart Upload for the entire file.
+
+parameters:
+
+- name {String} object name
+- uploadId {String} get by initMultipartUpload api
+- parts (Array) 
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+    
+example:    
+
+```js
+    
+  //init multipart
+  var name = 'object';
+  var result = yield store.initMultipartUpload(name);
+ 
+  //upload part
+  var file; //the data you want to upload, this example size is 10 * 100 * 1024
+  var fileSize;//you need to calculate
+  var partSize = 100 * 1024;//100kb 
+  var done = [];
+  //if file part is 10
+  for (var i = 1; i <= 10; i++) {
+    var start = partSize * (i -1);
+    var end = Math.min(start + partSize, fileSize);
+    var data = file.slice(start, end);
+    var part = yield store.uploadPart(name, result.uploadId, i, data);
+    console.log(part);
+    done.push({
+          number: i,
+          etag: part.res.headers.etag
+        });
+  }
+  
+  //complete
+  var completeData = yield store.completeMultipartUpload(name, result.uploadId, done);
+  console.log(completeData);
+```
+
+
+### .multipartUpload*(name, file[, options])
 
 Upload file with [OSS multipart][oss-multipart].
 
