@@ -1,4 +1,14 @@
-4.12.1 / 2018-02-29
+4.12.2 / 2018-02-01
+==================
+
+**fix**
+  * move 'stream-http' to devDependencies (饶培泽 <<peizerao@gmail.com>>)
+  
+**others**
+  * chore: update version to 4.12.2 (饶培泽 <<peizerao@gmail.com>>)
+
+
+4.12.1 / 2018-01-29
 ==================
 
 **features**
@@ -12,7 +22,7 @@
   * chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
   * docs: add timeout doc about multipart (#353) (binghaiwang <<binghaiwang@gmail.com>>)
   
-4.11.5 / 2018-02-17
+4.11.5 / 2018-01-17
 ==================
 
 **fixes**

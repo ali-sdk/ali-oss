@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v4.12.1
+// Aliyun OSS SDK for JavaScript v4.12.2
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -2240,7 +2240,7 @@ proto._deleteFileSafe = function (filepath) {
 },{"babel-runtime/regenerator":29,"copy-to":39,"debug":156,"fs":32,"is-type-of":166,"mime":240,"path":171,"url":204,"utility":241}],5:[function(require,module,exports){
 "use strict";
 
-exports.version = "4.12.1";
+exports.version = "4.12.2";
 
 },{}],6:[function(require,module,exports){
 'use strict';
