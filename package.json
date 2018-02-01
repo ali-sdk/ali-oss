@@ -86,7 +86,8 @@
     "thunk-mocha": "^1.0.3",
     "timemachine": "^0.3.0",
     "uglify-js": "^2.8.29",
-    "watchify": "^3.9.0"
+    "watchify": "^3.9.0",
+    "stream-http": "^2.8.0"
   },
   "dependencies": {
     "address": "^1.0.0",
@@ -110,7 +111,6 @@
     "sdk-base": "^2.0.1",
     "urllib": "^2.17.1",
     "utility": "^1.8.0",
-    "xml2js": "^0.4.16",
-    "stream-http": "https://github.com/jhiesey/stream-http.git#16c1baf1781bd345083adc84bdad5012b6450e57"
+    "xml2js": "^0.4.16"
   }
 }
