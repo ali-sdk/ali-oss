@@ -87,6 +87,7 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.uploadPartCopy*(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
+  - [.multipartUploadCopy*(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
   - [.listUploads*(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
 - [RTMP Operations](#rtmp-operations)
@@ -1589,6 +1590,7 @@ example:
 
 ### .uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])
 Using Upload Part Copy, you can copy data from an existing object and upload a part of the data. 
+When copying a file larger than 1 GB, you must use the Upload Part Copy method. If you want to copy a file smaller than 1 GB, see Copy Object.
 
 parameters:
 
@@ -1601,14 +1603,14 @@ parameters:
   - sourceBucketName {String} the source bucket name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
-    - 'x-oss-copy-source-if-match' <br>
+  - [headers] {Object} The following request header is used for the source objects specified by x-oss-copy-source.
+    - 'x-oss-copy-source-if-match'   default none<br>
     If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
-    - 'x-oss-copy-source-if-none-match' <br>
+    - 'x-oss-copy-source-if-none-match'   default none<br>
     If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
-    - 'x-oss-copy-source-if-unmodified-since' <br>
+    - 'x-oss-copy-source-if-unmodified-since'   default none<br>
     If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
-    - 'x-oss-copy-source-if-modified-since' <br>
+    - 'x-oss-copy-source-if-modified-since'   default none<br>
     If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
   
     
@@ -1783,6 +1785,123 @@ var result2 = yield store.multipartUpload('object', '/tmp/file', {
 //start upload
 try {
   var result = yield store.multipartUpload('object', '/tmp/file', {
+    checkpoint: savedCpt,
+    progress: function* (p, cpt, res) {
+      console.log(p);
+      console.log(cpt);
+      console.log(res.headers['x-oss-request-id']);
+    }
+  });
+} catch (err) {
+  //if cancel will catch cancel event
+  if (store.isCancel()) {
+    //do something
+  }
+}
+
+//the other event to cancel, for example: click event
+//to cancel upload must use the same client instance 
+store.cancel();
+
+```
+
+### .multipartUploadCopy*(name, sourceData[, options])
+
+Copy file with [OSS multipart][oss-multipart].
+When copying a file larger than 1 GB, you should use the Upload Part Copy method. If you want to copy a file smaller than 1 GB, see Copy Object.
+
+parameters:
+
+- name {String} object name
+- file {String|File} file path or HTML5 Web File
+- [options] {Object} optional args
+  - [timeout] {Number} Milliseconds before a request is considered to be timed out
+  - [parallel] {Number} the number of parts to be uploaded in parallel
+  - [partSize] {Number} the suggested size for each part
+  - [progress] {thunk generator} the progress callback called after each
+    successful upload of one part, it will be given three parameters:
+    (percentage {Number}, checkpoint {Object}, res {Object})
+  - [checkpoint] {Object} the checkpoint to resume upload, if this is
+    provided, it will continue the upload from where interrupted,
+    otherwise a new multipart upload will be created.
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
+    - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
+    - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
+    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
+  - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
+    - 'x-oss-copy-source-if-match'  only uploadPartCopy api used, default none<br>
+    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - 'x-oss-copy-source-if-none-match'  only uploadPartCopy api used, default none<br>
+    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - 'x-oss-copy-source-if-unmodified-since'  only uploadPartCopy api used, default none<br>
+    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
+    - 'x-oss-copy-source-if-modified-since'  only uploadPartCopy api used, default none<br>
+    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- bucket {String} bucket name
+- name name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+
+example:
+
+- Copy using multipart 
+
+```js
+var result = yield store.multipartUploadCopy('object', {
+  sourceKey: 'sourceKey',
+  sourceBucketName: 'sourceBucketName'
+});
+console.log(result);
+
+var result = yield store.multipartUploadCopy('object', {
+  sourceKey: 'sourceKey',
+  sourceBucketName: 'sourceBucketName'
+}, {
+  parallel: 4,
+  partSize: 1024 * 1024,
+  progress: function* (p, cpt, res) {
+    console.log(p);
+    console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
+  }
+});
+
+console.log(result);
+
+var result = yield store.multipartUploadCopy('object', {
+  sourceKey: 'sourceKey',
+  sourceBucketName: 'sourceBucketName'
+}, {
+  checkpoint: savedCpt,
+  progress: function* (p, cpt, res) {
+    console.log(p);
+    console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
+  }
+});
+
+console.log(result);
+
+```
+- multipartUploadCopy with cancel
+
+```js
+
+//start upload
+try {
+  var result = yield store.multipartUploadCopy('object', {
+    sourceKey: 'sourceKey',
+    sourceBucketName: 'sourceBucketName'
+  }, {
     checkpoint: savedCpt,
     progress: function* (p, cpt, res) {
       console.log(p);
