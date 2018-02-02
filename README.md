@@ -144,6 +144,7 @@ options:
 
 - accessKeyId {String} access key you create on aliyun console website
 - accessKeySecret {String} access secret you create
+- stsToken {String} used by temporary authorization, detail [see](https://help.aliyun.com/document_detail/64053.html)
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`.
@@ -1534,7 +1535,7 @@ parameters:
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
-  - [progress] {Function} the progress callback called after each
+  - [progress] {thunk generator} the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
