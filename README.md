@@ -144,7 +144,7 @@ options:
 
 - accessKeyId {String} access key you create on aliyun console website
 - accessKeySecret {String} access secret you create
-- stsToken {String} used by temporary authorization, detail [see](https://help.aliyun.com/document_detail/64053.html)
+- stsToken {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`.
