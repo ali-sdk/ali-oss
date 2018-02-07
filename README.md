@@ -85,6 +85,16 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
   - [.listUploads*(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+- [RTMP Operations](#rtmp-operations)
+  - [.putChannel*(id, conf[, options])](#putchannelid-conf-options)
+  - [.getChannel*(id[, options])](#getchannelid-options)
+  - [.deleteChannel*(id[, options])](#deletechannelid-options)
+  - [.putChannelStatus*(id, status[, options])](#putchannelstatusid-status-options)
+  - [.getChannelStatus*(id[, options])](#getchannelstatusid-options)
+  - [.listChannels*(query[, options])](#listchannelsquery-options)
+  - [.getChannelHistory*(id[, options])](#getchannelhistoryid-options)
+  - [.createVod*(id, name, time[, options])](#createvodid-name-time-options)
+  - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
   - [#oss.ImageClient(options)](#ossimageclientoptions)
 - [Image Operations](#image-operations)
@@ -1658,6 +1668,323 @@ example:
 ```js
 var result = yield store.abortMultipartUpload('object', 'upload-id');
 console.log(result);
+```
+
+## RTMP Operations
+
+All operations function is [generator], except `getRtmpUrl`.
+
+generator function format: `functionName*(...)`.
+
+### .putChannel*(id, conf[, options])
+
+Create a live channel.
+
+parameters:
+
+- id {String} the channel id
+- conf {Object} the channel config
+  - [Description] {String} the channel description
+  - [Status] {String} the channel status: 'enabled' or 'disabled'
+  - [Target] {Object}
+    - [Type] {String} the data type for the channel, only 'HLS' is supported now
+    - [FragDuration] {Number} duration of a 'ts' segment
+    - [FragCount] {Number} the number of 'ts' segments in a 'm3u8'
+    - [PlaylistName] {String} the 'm3u8' name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the channel information.
+
+object:
+
+- publishUrls {Array} the publish urls
+- playUrls {Array} the play urls
+- res {Object} response info
+
+example:
+
+- Create a live channel
+
+```js
+var cid = 'my-channel';
+var conf = {
+  Description: 'this is channel 1',
+  Status: 'enabled',
+  Target: {
+    Type: 'HLS',
+    FragDuration: '10',
+    FragCount: '5',
+    PlaylistName: 'playlist.m3u8'
+  }
+};
+
+var r = yield this.store.putChannel(cid, conf);
+console.log(r);
+```
+
+### .getChannel*(id[, options])
+
+Get live channel info.
+
+parameters:
+
+- id {String} the channel id
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the channel information.
+
+object:
+
+- data {Object} channel info, same as conf in [.putChannel](#putchannelid-conf-options)
+- res {Object} response info
+
+example:
+
+- Get live channel info
+
+```js
+var cid = 'my-channel';
+
+var r = yield this.store.getChannel(cid);
+console.log(r);
+```
+
+### .deleteChannel*(id[, options])
+
+Delete a live channel.
+
+parameters:
+
+- id {String} the channel id
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the response infomation.
+
+object:
+
+- res {Object} response info
+
+example:
+
+- Delete a live channel
+
+```js
+var cid = 'my-channel';
+
+var r = yield this.store.deleteChannel(cid);
+console.log(r);
+```
+
+### .putChannelStatus*(id, status[, options])
+
+Change the live channel status.
+
+parameters:
+
+- id {String} the channel id
+- status {String} the status: 'enabled' or 'disabled'
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the response information.
+
+object:
+
+- res {Object} response info
+
+example:
+
+- Disable a live channel
+
+```js
+var cid = 'my-channel';
+
+var r = yield this.store.putChannelStatus(cid, 'disabled');
+console.log(r);
+```
+
+### .getChannelStatus*(id[, options])
+
+Get the live channel status.
+
+parameters:
+
+- id {String} the channel id
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the channel status information.
+
+object:
+
+- data {Object}
+  - Status {String} the channel status: 'Live' or 'Idle'
+  - [ConnectedTime] {String} the connected time of rtmp pushing
+  - [RemoteAddr] {String} the remote addr of rtmp pushing
+  - [Video] {Object} the video parameters (Width/Height/FrameRate/Bandwidth/Codec)
+  - [Audio] {Object} the audio parameters (Bandwidth/SampleRate/Codec)
+- res {Object} response info
+
+example:
+
+- Get a live channel status
+
+```js
+var cid = 'my-channel';
+
+var r = yield this.store.getChannelStatus(cid);
+console.log(r);
+
+// { Status: 'Live',
+//   ConnectedTime: '2016-04-12T11:51:03.000Z',
+//   RemoteAddr: '42.120.74.98:53931',
+//   Video:
+//   { Width: '672',
+//     Height: '378',
+//     FrameRate: '29',
+//     Bandwidth: '60951',
+//     Codec: 'H264' },
+//   Audio: { Bandwidth: '5959', SampleRate: '22050', Codec: 'AAC' }
+// }
+```
+
+### .listChannels*(query[, options])
+
+List channels.
+
+parameters:
+
+- query {Object} parameters for list
+  - prefix {String}: the channel id prefix (returns channels with this prefix)
+  - marker {String}: the channle id marker (returns channels after this id)
+  - max-keys {Number}: max number of channels to return
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the channel list.
+
+object:
+
+- channels {Array} the channels, each in the structure:
+  - Name {String} the channel id
+  - Description {String} the channel description
+  - Status {String} the channel status
+  - LastModified {String} the last modification time of the channel
+  - PublishUrls {Array} the publish urls for the channel
+  - PlayUrls {Array} the play urls for the channel
+- nextMarker: result.data.NextMarker || null,
+- isTruncated: result.data.IsTruncated === 'true'
+- res {Object} response info
+
+example:
+
+- List live channels
+
+```js
+var r = yield this.store.listChannels({
+  prefix: 'my-channel',
+  'max-keys': 3
+});
+console.log(r);
+```
+
+### .getChannelHistory*(id[, options])
+
+Get the live channel history.
+
+parameters:
+
+- id {String} the channel id
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the history information.
+
+object:
+
+- records {Object} the pushing records, each in the structure:
+  - StartTime {String} the start time
+  - EndTime {String} the end time
+  - RemoteAddr {String} the remote addr
+- res {Object} response info
+
+example:
+
+- Get the live channel history
+
+```js
+var cid = 'my-channel';
+
+var r = yield this.store.getChannelHistory(cid);
+console.log(r);
+```
+
+### .createVod*(id, name, time[, options])
+
+Create a VOD playlist for the channel.
+
+parameters:
+
+- id {String} the channel id
+- name {String} the playlist name
+- time {Object} the duration time
+  - startTime {Number} the start time in epoch seconds
+  - endTime {Number} the end time in epoch seconds
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return the response information.
+
+object:
+
+- res {Object} response info
+
+example:
+
+- Create a vod playlist of a live channel
+
+```js
+var cid = 'my-channel';
+
+var r = yield this.store.createVod(cid, 're-play', {
+  startTime: 1460464870,
+  endTime: 1460465877
+});
+console.log(r);
+```
+
+### .getRtmpUrl(channelId[, options])
+
+Get signatured rtmp url for publishing.
+
+parameters:
+
+- channelId {String} the channel id
+- [options] {Object} optional parameters
+  - [expires] {Number} the expire time in seconds of the url
+  - [params] {Object} the additional paramters for url, e.g.: {playlistName: 'play.m3u8'}
+  - [timeout] {Number} the operation timeout
+
+Success will return the rtmp url.
+
+example:
+
+- Get a rtmp url.
+
+```js
+var cid = 'my-channel';
+
+var url = this.store.getRtmpUrl(this.cid, {
+  params: {
+    playlistName: 'play.m3u8'
+  },
+  expires: 3600
+});
+console.log(url);
+// rtmp://ossliveshow.oss-cn-hangzhou.aliyuncs.com/live/tl-channel?OSSAccessKeyId=T0cqQWBk2ThfRS6m&Expires=1460466188&Signature=%2BnzTtpyxUWDuQn924jdS6b51vT8%3D
 ```
 
 ## Create A Image Service Instance
