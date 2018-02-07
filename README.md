@@ -1582,7 +1582,7 @@ var result = yield store.multipartUpload('object', '/tmp/file', {
 
 var result = yield store.multipartUpload('object', '/tmp/file', {
   checkpoint: savedCpt,
-  progress: function* (p, cpt, res) {
+  progress: function* (p, cpt, res) { //progress is generator
     console.log(p);
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
@@ -1590,6 +1590,37 @@ var result = yield store.multipartUpload('object', '/tmp/file', {
 });
 
 ```
+
+- multipartUpload progress example
+
+```js
+//thunk
+function thunkProgress(p, cpt, res) {
+  return function(done) {
+    console.log(p);
+    console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
+    done();
+  }
+}
+
+var result1 = yield store.multipartUpload('object', '/tmp/file', {
+  progress: thunkProgress
+});
+
+//generator
+function* generatorProgress(p, cpt, res) {
+    console.log(p);
+    console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
+}
+
+var result2 = yield store.multipartUpload('object', '/tmp/file', {
+  progress: generatorProgress
+});
+
+```
+
 - multipartUpload with cancel
 
 >tips: cancel multipartUpload, now only support browser.
