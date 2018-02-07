@@ -1535,7 +1535,7 @@ parameters:
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
-  - [progress] {Function} thunk or generator, the progress callback called after eachls
+  - [progress] {Function} thunk or generator, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
