@@ -307,6 +307,14 @@ describe('browser', function () {
         'aliyun-sdk-js/' + pkg.version + ' ' + platform.description));
     });
 
+    it('should check beta or alpha User-Agent', function () {
+      var store = oss(ossConfig);
+      var ua_beta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
+      assert.equal(ua_beta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
+      var ua_alpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
+      assert.equal(ua_alpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
+    });
+
 
     it('should trim access id/key', function () {
       var store = oss({
