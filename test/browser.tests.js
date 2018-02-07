@@ -26,7 +26,7 @@ describe('browser', function () {
       accessKeySecret: stsConfig.Credentials.AccessKeySecret,
       stsToken: stsConfig.Credentials.SecurityToken,
       bucket: stsConfig.bucket,
-      callbackServer: 'http://oss-demo.aliyuncs.com:23450'
+      callbackServer: 'http://oss-demo.aliyuncs.com:23450' //oss demo callback server an ecs, used with PutObject、PostObject、CompleteMultipartUpload
     };
     // this.store = oss({
     //   region: stsConfig.region,
