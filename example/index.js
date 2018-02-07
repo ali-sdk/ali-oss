@@ -2,7 +2,7 @@
 // require("babel-polyfill")
 
 var $ = require('jquery');
-//if use in react , you can use require('ali-oss/dist/xxxx.js'), or see webpack.prod.js
+//if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
 var OSS = require('ali-oss');
 var appServer = '/sts';
 var bucket = '<bucket-name>';
