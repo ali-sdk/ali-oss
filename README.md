@@ -83,7 +83,7 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
   - [.initMultipartUpload*(name[, options])](#initmultipartuploadname-options)
-  - [.uploadPart*(name, uploadId, partNo, data[, options])](#uploadpartname-uploadid-partno-data-options)
+  - [.uploadPart*(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
   - [.uploadPartCopy*(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
@@ -797,12 +797,31 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'x-oss-callback' The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+        e.g.:
+        ```json
+            {
+              "callbackUrl":"121.101.166.30/test.php",     //Required
+              "callbackHost":"oss-cn-hangzhou.aliyuncs.com",  //Optional
+              "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",   //Required
+              "callbackBodyType":"application/json" //Optional
+            }
+        ```
+    - 'x-oss-callback-var' Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+        e.g.: need to use Base64 to encode
+        ```json
+            {
+              "x:var1":"value1",
+              "x:var2":"value2"
+            }
+        ```
 
 Success will return the object information.
 
 object:
 
 - name {String} object name
+- data {Object} callback server response data, sdk use JSON.parse() return
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1539,6 +1558,7 @@ parameters:
 - name {String} object name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [mime] Mime file type e.g.: application/octet-stream
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
@@ -1547,7 +1567,18 @@ parameters:
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
     - 'x-oss-server-side-encryption' 
     Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`
-    
+
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- bucket {String} bucket name
+- name {String} object name store on OSS
+- uploadId {String} upload id, use for uploadPart, completeMultipart
+
 example:    
 
 ```js
@@ -1555,7 +1586,7 @@ example:
   console.log(result);
 ```
 
-### .uploadPart(name, uploadId, partNo, data[, options])
+### .uploadPart(name, uploadId, partNo, file, start, end[, options])
 After initiating a Multipart Upload event, you can upload data in parts based on the specified object name and Upload ID. 
 
 parameters:
@@ -1563,29 +1594,47 @@ parameters:
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
 - partNo (Integer) range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
-- data {object} the part of file data, Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB
+- file {File|String}  is File or FileName, the whole file<br>
+ Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB. <br>
+ In Node you can use File or FileName, but in browser you only can use File.
+- start {Integer} part start bytes  e.g: 102400
+- end {Integer} part end bytes  e.g: 204800
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-    
+
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+
 example:    
 
 ```js
   var name = 'object';
   var result = yield store.initMultipartUpload(name);
- 
-  var file; //the data you want to upload, this example size is 10 * 100 * 1024
-  var fileSize;//you need to calculate
-  var partSize = 100 * 1024;//100kb 
-  //if file part is 10
+  var uploadId = result.uploadId;
+  var file; //the data you want to upload, is a File or FileName(only in node)
+  //if file part is 10  
+  var partSize = 100 * 1024;
+  var fileSize = 10 * partSize;//you need to calculate
+  var dones = [];
   for (var i = 1; i <= 10; i++) {
     var start = partSize * (i -1);
     var end = Math.min(start + partSize, fileSize);
-    var data = file.slice(start, end);
-    var part = yield store.uploadPart(name, result.uploadId, i, data);
+    var part = yield store.uploadPart(name, uploadId, i, file, start, end);
+    dones.push({
+      number: i,
+      etag: part.etag
+    });
     console.log(part);
   }
   
-  //end need complete api
+  //end need to call completeMultipartUpload api
 ```
 
 ### .uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])
@@ -1613,6 +1662,15 @@ parameters:
     - 'x-oss-copy-source-if-modified-since'   default none<br>
     If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
   
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
     
 example:    
 
@@ -1643,9 +1701,44 @@ parameters:
 
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
-- parts (Array) 
+- parts (Array) more part {Object} from uploadPartCopy
+  - part {Object} the result from uploadPartCopy
+     - number {Integer} partNo
+     - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'x-oss-callback' The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+    e.g.:
+        ```json
+        {
+          "callbackUrl":"121.101.166.30/test.php",     //Required
+          "callbackHost":"oss-cn-hangzhou.aliyuncs.com",  //Optional
+          "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",   //Required
+          "callbackBodyType":"application/json" //Optional
+        }
+        ```
+    - 'x-oss-callback-var' Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+    e.g.: need to use Base64 to encode
+        ```json
+        {
+          "x:var1":"value1",
+          "x:var2":"value2"
+        }
+        ```
+        
+  
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- bucket {String} bucket name
+- name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+- data {Object} callback server response data , sdk use JSON.parse() return
     
 example:    
 
@@ -1681,7 +1774,8 @@ example:
 
 ### .multipartUpload*(name, file[, options])
 
-Upload file with [OSS multipart][oss-multipart].
+Upload file with [OSS multipart][oss-multipart].<br>
+this function contains initMultipartUpload, uploadPartCopy, completeMultipartUpload.
 
 parameters:
 
@@ -1704,6 +1798,24 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
+    - 'x-oss-callback' The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+        e.g.:
+        ```json
+            {
+               "callbackUrl":"121.101.166.30/test.php",     //Required
+               "callbackHost":"oss-cn-hangzhou.aliyuncs.com",  //Optional
+               "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",   //Required
+               "callbackBodyType":"application/json" //Optional
+            }
+        ```
+    - 'x-oss-callback-var' Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+        e.g.: need to use Base64 to encode
+        ```json
+            {
+            "x:var1":"value1",
+            "x:var2":"value2"
+            }
+        ```
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
 
 Success will return:
@@ -1716,6 +1828,7 @@ Success will return:
 - bucket {String} bucket name
 - name name {String} object name store on OSS
 - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+- data {Object} callback server response data, sdk use JSON.parse() return
 
 example:
 
@@ -1807,7 +1920,8 @@ store.cancel();
 
 ### .multipartUploadCopy*(name, sourceData[, options])
 
-Copy file with [OSS multipart][oss-multipart].
+Copy file with [OSS multipart][oss-multipart]. <br>
+this function contains head, initMultipartUpload, uploadPartCopy, completeMultipartUpload.<br>
 When copying a file larger than 1 GB, you should use the Upload Part Copy method. If you want to copy a file smaller than 1 GB, see Copy Object.
 
 parameters:

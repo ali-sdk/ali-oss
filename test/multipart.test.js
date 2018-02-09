@@ -170,7 +170,7 @@ describe('test/multipart.test.js', function () {
       var progress = 0;
 
       var putStreamSpy = sinon.spy(this.store, 'putStream');
-      var uploadPartSpy = sinon.spy(this.store, 'uploadPart');
+      var uploadPartSpy = sinon.spy(this.store, '_uploadPart');
 
       var result = yield this.store.multipartUpload(name, fileName, {
         progress: function () {
@@ -186,7 +186,7 @@ describe('test/multipart.test.js', function () {
       assert.equal(typeof result.etag, 'string');
 
       this.store.putStream.restore();
-      this.store.uploadPart.restore();
+      this.store._uploadPart.restore();
     });
 
     it('should use default partSize when not specified', function* () {
@@ -238,7 +238,7 @@ describe('test/multipart.test.js', function () {
       var clientTmp = oss(config);
       clientTmp.useBucket(this.bucket, this.region);
 
-      var stubUploadPart = sinon.stub(clientTmp, 'uploadPart');
+      var stubUploadPart = sinon.stub(clientTmp, '_uploadPart');
       stubUploadPart.throws("TestUploadPartException");
 
 
@@ -253,7 +253,7 @@ describe('test/multipart.test.js', function () {
       assert.equal(error_msg,
         "Failed to upload some parts with error: TestUploadPartException part_num: 0");
       assert.equal(partNum, 0);
-      clientTmp.uploadPart.restore();
+      clientTmp._uploadPart.restore();
     });
 
     it('should upload web file using multipart upload', function* () {
@@ -334,8 +334,8 @@ describe('test/multipart.test.js', function () {
     });
 
     it('should resume upload using checkpoint', function* () {
-      var uploadPart = this.store.uploadPart;
-      mm(this.store, 'uploadPart', function* (name, uploadId, partNo, data) {
+      var uploadPart = this.store._uploadPart;
+      mm(this.store, '_uploadPart', function* (name, uploadId, partNo, data) {
         if (partNo == 5) {
           throw new Error('mock upload part fail.');
         } else {
@@ -417,6 +417,29 @@ describe('test/multipart.test.js', function () {
 
     });
 
+    it('should upload with uploadPart', function* () {
+      var fileName = yield utils.createTempFile('upload-with-upload-part', 10 * 100 * 1024);
+
+      var name = prefix + 'multipart/upload-with-upload-part';
+
+      var init = yield this.store.initMultipartUpload(name);
+      var uploadId = init.uploadId;
+      var partSize = 100 * 1024;
+      var dones = [];
+      for (var i = 1; i <= 10; i++) {
+        var start = (i-1) * partSize;
+        var end = Math.min(i * partSize, 10 * 100 * 1024);
+        var part = yield this.store.uploadPart(name, uploadId, i, fileName, start, end);
+        dones.push({
+          number: i,
+          etag: part.etag
+        });
+      }
+
+      var result = yield this.store.completeMultipartUpload(name, uploadId, dones);
+      assert.equal(result.res.status, 200);
+    });
+
   });
 
   describe('requestError()', function() {
@@ -473,7 +496,7 @@ describe('test/multipart.test.js', function () {
     var fileName;
     var name;
     before(function* () {
-      fileName = yield utils.createTempFile('multipart-upload-file', 2 * 1024 * 1024);
+      fileName = yield utils.createTempFile('multipart-upload-file-copy', 2 * 1024 * 1024);
       name = prefix + 'multipart/upload-file-with-copy';
       yield this.store.multipartUpload(name, fileName);
     });
@@ -517,6 +540,47 @@ describe('test/multipart.test.js', function () {
     });
 
     it('should copy with upload part copy', function* () {
+      var client = this.store;
+
+      // create a file with 1M random data
+      var fileName = yield utils.createTempFile('multipart-upload-file-temp-copy', 10 * 100 * 1024);
+
+      var name = prefix + 'multipart/upload-file-temp-copy';
+      yield client.multipartUpload(name, fileName);
+
+      var copyName = prefix + 'multipart/upload-file-with-copy-new';
+      var sourceData = {
+        sourceKey: name,
+        sourceBucketName: this.bucket
+      }
+      var objectMeta = yield client._getObjectMeta(sourceData.sourceBucketName, sourceData.sourceKey, {});
+      var fileSize = objectMeta.res.headers['content-length'];
+
+      var result = yield client.initMultipartUpload(copyName);
+
+      var partSize = 100 * 1024;//100kb
+      var dones = [];
+      //if file part is 10
+      for (var i = 1; i <= 10; i++) {
+        var start = partSize * (i -1);
+        var end = Math.min(start + partSize, fileSize);
+        var range = start + '-' + (end - 1);
+        var part = yield client.uploadPartCopy(copyName, result.uploadId, i, range, sourceData, {});
+        dones.push({
+          number: i,
+          etag: part.res.headers.etag
+        });
+      }
+
+      var complete = yield client.completeMultipartUpload(copyName, result.uploadId, dones);
+
+      assert.equal(complete.res.status, 200);
+
+    });
+
+
+
+    it('should copy with multipart upload copy', function* () {
       var client = this.store;
       var copyName = prefix + 'multipart/upload-file-with-copy-new';
       var result = yield client.multipartUploadCopy(copyName, {

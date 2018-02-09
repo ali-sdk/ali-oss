@@ -694,7 +694,7 @@ describe('browser', function () {
         var name = prefix + 'multipart/fallback';
         var progress = 0;
         var putStreamSpy = sinon.spy(this.store, 'putStream');
-        var uploadPartSpy = sinon.spy(this.store, 'uploadPart');
+        var uploadPartSpy = sinon.spy(this.store, '_uploadPart');
         var result = yield this.store.multipartUpload(name, file, {
             progress: function () {
               return function (done) {
@@ -712,7 +712,7 @@ describe('browser', function () {
 
         assert.equal(progress, 1);
         this.store.putStream.restore();
-        this.store.uploadPart.restore();
+        this.store._uploadPart.restore();
       });
 
       it('should use default partSize when not specified', function* () {
@@ -791,7 +791,7 @@ describe('browser', function () {
 
         var name = prefix + 'multipart/upload-file-exception';
 
-        var stubUploadPart = sinon.stub(this.store, 'uploadPart');
+        var stubUploadPart = sinon.stub(this.store, '_uploadPart');
         stubUploadPart.throws("TestUploadPartException");
 
         var error_msg = "";
@@ -811,7 +811,7 @@ describe('browser', function () {
         assert.equal(error_msg,
           "Failed to upload some parts with error: TestUploadPartException part_num: 1");
         assert.equal(partNum, 1);
-        this.store.uploadPart.restore();
+        this.store._uploadPart.restore();
       });
 
       //multipart cancel test
@@ -893,6 +893,30 @@ describe('browser', function () {
           assert.equal(true, client.isCancel());
         }
       });
+
+      it('should upload with uploadPart', function* () {
+        var fileContent = Array(10 * 100 * 1024).fill('a').join('');
+        var file = new File([fileContent], 'multipart-upload-part');
+
+        var name = prefix + 'multipart/upload-part-file.js';
+        var init = yield this.store.initMultipartUpload(name);
+        var uploadId = init.uploadId;
+        var partSize = 100 * 1024;
+        var dones = [];
+        for (var i = 1; i <= 10; i++) {
+          var start = (i-1) * partSize;
+          var end = Math.min(i * partSize, file.size);
+          var part = yield this.store.uploadPart(name, uploadId, i, file, start, end);
+          dones.push({
+            number: i,
+            etag: part.res.headers.etag
+          });
+        }
+
+        var result = yield this.store.completeMultipartUpload(name, uploadId, dones);
+        assert.equal(result.res.status, 200);
+      });
+
     });
   });
 
