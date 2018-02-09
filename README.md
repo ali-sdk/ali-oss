@@ -1593,7 +1593,7 @@ parameters:
 
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
-- partNo (Integer) range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- partNo {Integer} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
 - file {File|String}  is File or FileName, the whole file<br>
  Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB. <br>
  In Node you can use File or FileName, but in browser you only can use File.
@@ -1645,7 +1645,7 @@ parameters:
 
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
-- partNo (Integer) range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- partNo {Integer} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
 - range {String} Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB, range value like `0-102400`
 - sourceData {Object} 
   - sourceKey {String} the source object name
@@ -1701,7 +1701,7 @@ parameters:
 
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
-- parts (Array) more part {Object} from uploadPartCopy
+- parts {Array} more part {Object} from uploadPartCopy
   - part {Object} the result from uploadPartCopy
      - number {Integer} partNo
      - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
@@ -1932,7 +1932,7 @@ parameters:
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
-  - [progress] {thunk generator} the progress callback called after each
+  - [progress] {Function} is thunk or generator, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
