@@ -17,7 +17,7 @@ var ossConfig;
 var timemachine = require('timemachine');
 var co = require('co');
 timemachine.reset();
-
+var utils = require('./utils');
 describe('browser', function () {
   before(function* () {
     ossConfig = {
@@ -25,7 +25,8 @@ describe('browser', function () {
       accessKeyId: stsConfig.Credentials.AccessKeyId,
       accessKeySecret: stsConfig.Credentials.AccessKeySecret,
       stsToken: stsConfig.Credentials.SecurityToken,
-      bucket: stsConfig.bucket
+      bucket: stsConfig.bucket,
+      callbackServer: 'http://oss-demo.aliyuncs.com:23450' //oss demo callback server an ecs, used with PutObject、PostObject、CompleteMultipartUpload
     };
     // this.store = oss({
     //   region: stsConfig.region,
@@ -893,6 +894,24 @@ describe('browser', function () {
           assert.equal(true, client.isCancel());
         }
       });
+
+      it('upload no more 100k file with callback server', function* () {
+        var fileContent = Array(50 * 1024).fill('a').join('')
+        var file = new File([fileContent], 'multipart-callback-server');
+        var name = prefix + 'multipart/callback-server';
+        var result = yield this.store.multipartUpload(name, file, {
+            partSize: 100 * 1024,
+            headers: {
+              'x-oss-callback': utils.encodeCallback({
+                url: ossConfig.callbackServer,
+                query: {user: 'js-sdk'},
+                body: 'bucket=${bucket}&object=${object}'
+              })
+            }
+          }
+        );
+        assert.equal(result.res.status, 200);
+        assert.equal(result.data.Status, 'OK');
     });
   });
 
