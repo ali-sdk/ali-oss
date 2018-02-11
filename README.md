@@ -1593,12 +1593,12 @@ parameters:
 
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
-- partNo {Integer} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- partNo {Number} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
 - file {File|String}  is File or FileName, the whole file<br>
  Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB. <br>
  In Node you can use File or FileName, but in browser you only can use File.
-- start {Integer} part start bytes  e.g: 102400
-- end {Integer} part end bytes  e.g: 204800
+- start {Number} part start bytes  e.g: 102400
+- end {Number} part end bytes  e.g: 204800
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -1645,7 +1645,7 @@ parameters:
 
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
-- partNo {Integer} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- partNo {Number} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
 - range {String} Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB, range value like `0-102400`
 - sourceData {Object} 
   - sourceKey {String} the source object name
@@ -1703,7 +1703,7 @@ parameters:
 - uploadId {String} get by initMultipartUpload api
 - parts {Array} more part {Object} from uploadPartCopy
   - part {Object} the result from uploadPartCopy
-     - number {Integer} partNo
+     - number {Number} partNo
      - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
