@@ -689,6 +689,19 @@ describe('browser', function () {
     });
 
     describe('multipartUpload()', function () {
+
+      it.skip('should initMultipartUpload with x-oss-server-side-encryption', function* () {
+        //wait server bucket cors on line
+        var name = 'multipart-x-oss-server-side-encryption';
+        var result = yield this.store.initMultipartUpload(name, {
+          headers: {
+            'x-oss-server-side-encryption': 'AES256'
+          }
+        });
+
+        assert.equal(result.res.headers['x-oss-server-side-encryption'], 'AES256');
+      });
+
       it('should fallback to putStream when file size is smaller than 100KB', function* () {
         var file = new File(['multipart-fallback-test'], 'multipart-fallback');
         var name = prefix + 'multipart/fallback';

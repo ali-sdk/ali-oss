@@ -88,7 +88,7 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
   - [.multipartUploadCopy*(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-  - [.listParts*(name, uploadId, query[, options])](#listparts-name-uploadid-query-options)
+  - [.listParts*(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
   - [.listUploads*(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
 - [RTMP Operations](#rtmp-operations)
@@ -798,7 +798,7 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
-    - 'x-oss-callback' The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+    - [x-oss-callback] The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
         e.g.:
         ```json
             {
@@ -808,7 +808,7 @@ parameters:
               "callbackBodyType":"application/json" //Optional
             }
         ```
-    - 'x-oss-callback-var' Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+    - [x-oss-callback-var] Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
         e.g.: need to use Base64 to encode
         ```json
             {
@@ -1566,14 +1566,16 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
-    - 'x-oss-server-side-encryption' 
-    Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`
+    - [x-oss-server-side-encryption]
+    Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
+    if use in browser you should be set cors expose header x-oss-server-side-encryption
 
 Success will return:
   
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
+    - [x-oss-server-side-encryption] if set request header x-oss-server-side-encryption, will return 
   - size {Number} response size
   - rt {Number} request total use time (ms)
 - bucket {String} bucket name
@@ -1654,13 +1656,13 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [headers] {Object} The following request header is used for the source objects specified by x-oss-copy-source.
-    - 'x-oss-copy-source-if-match'   default none<br>
+    - [x-oss-copy-source-if-match]  default none<br>
     If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
-    - 'x-oss-copy-source-if-none-match'   default none<br>
+    - [x-oss-copy-source-if-none-match]   default none<br>
     If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
-    - 'x-oss-copy-source-if-unmodified-since'   default none<br>
+    - [x-oss-copy-source-if-unmodified-since]   default none<br>
     If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
-    - 'x-oss-copy-source-if-modified-since'   default none<br>
+    - [x-oss-copy-source-if-modified-since]   default none<br>
     If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
   
 Success will return:
@@ -1708,7 +1710,7 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
-    - 'x-oss-callback' The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+    - [x-oss-callback] The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
     e.g.:
         ```json
         {
@@ -1718,7 +1720,7 @@ parameters:
           "callbackBodyType":"application/json" //Optional
         }
         ```
-    - 'x-oss-callback-var' Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+    - [x-oss-callback-var] Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
     e.g.: need to use Base64 to encode
         ```json
         {
@@ -1798,7 +1800,7 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
-    - 'x-oss-callback' The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+    - [x-oss-callback] The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
         e.g.:
         ```json
             {
@@ -1808,7 +1810,7 @@ parameters:
                "callbackBodyType":"application/json" //Optional
             }
         ```
-    - 'x-oss-callback-var' Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+    - [x-oss-callback-var] Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
         e.g.: need to use Base64 to encode
         ```json
             {
@@ -1945,13 +1947,13 @@ parameters:
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
-    - 'x-oss-copy-source-if-match'  only uploadPartCopy api used, default none<br>
+    - [x-oss-copy-source-if-match]  only uploadPartCopy api used, default none<br>
     If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
-    - 'x-oss-copy-source-if-none-match'  only uploadPartCopy api used, default none<br>
+    - [x-oss-copy-source-if-none-match]  only uploadPartCopy api used, default none<br>
     If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
-    - 'x-oss-copy-source-if-unmodified-since'  only uploadPartCopy api used, default none<br>
+    - [x-oss-copy-source-if-unmodified-since]  only uploadPartCopy api used, default none<br>
     If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
-    - 'x-oss-copy-source-if-modified-since'  only uploadPartCopy api used, default none<br>
+    - [x-oss-copy-source-if-modified-since] only uploadPartCopy api used, default none<br>
     If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
 
 Success will return:
@@ -2036,7 +2038,7 @@ store.cancel();
 
 ```
 
-### .listParts*(name, uploadId, query[, options])
+### .listParts*(name, uploadId[, query, options])
 
 The ListParts command can be used to list all successfully uploaded parts mapped to a specific upload ID, i.e.: those not completed and not
 aborted.
@@ -2045,8 +2047,8 @@ parameters:
 
 - name {String} object key
 - uploadId {String} upload ID from initMultipartUpload api
-- query {Object} query parameters
-  - [max-parts] {Number} The maximum part number in the response of the OSS. 
+- [query] {Object} query parameters
+  - [max-parts] {Number} The maximum part number in the response of the OSS. default value: 1000.
   - [part-number-marker] {Number} Starting position of a specific list. A part is listed only when the part number is greater than the value of this parameter.  
   - [encoding-type] {String} Specify the encoding of the returned content and the encoding type. Optional value: url
 - [options] {Object} optional args

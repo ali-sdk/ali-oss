@@ -164,6 +164,17 @@ describe('test/multipart.test.js', function () {
   describe('multipartUpload()', function () {
     afterEach(mm.restore);
 
+    it('should initMultipartUpload with x-oss-server-side-encryption', function* () {
+      var name = 'multipart-x-oss-server-side-encryption';
+      var result = yield this.store.initMultipartUpload(name, {
+        headers: {
+          'x-oss-server-side-encryption': 'AES256'
+        }
+      });
+
+      assert.equal(result.res.headers['x-oss-server-side-encryption'], 'AES256');
+    });
+
     it('should fallback to putStream when file size is smaller than 100KB', function* () {
       var fileName = yield utils.createTempFile('multipart-fallback', 100 * 1024 - 1);
       var name = prefix + 'multipart/fallback';
