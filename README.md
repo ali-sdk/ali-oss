@@ -88,6 +88,7 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
   - [.multipartUploadCopy*(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
+  - [.listParts*(name, uploadId, query[, options])](#listparts-name-uploadid-query-options)
   - [.listUploads*(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
 - [RTMP Operations](#rtmp-operations)
@@ -1701,10 +1702,9 @@ parameters:
 
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
-- parts {Array} more part {Object} from uploadPartCopy
-  - part {Object} the result from uploadPartCopy
-     - number {Number} partNo
-     - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+- parts {Array} more part {Object} from uploadPartCopy, , each in the structure:
+  - number {Number} partNo
+  - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -2034,6 +2034,54 @@ try {
 //to cancel upload must use the same client instance 
 store.cancel();
 
+```
+
+### .listParts*(name, uploadId, query[, options])
+
+The ListParts command can be used to list all successfully uploaded parts mapped to a specific upload ID, i.e.: those not completed and not
+aborted.
+
+parameters:
+
+- name {String} object key
+- uploadId {String} upload ID from initMultipartUpload api
+- query {Object} query parameters
+  - [max-parts] {Number} The maximum part number in the response of the OSS. 
+  - [part-number-marker] {Number} Starting position of a specific list. A part is listed only when the part number is greater than the value of this parameter.  
+  - [encoding-type] {String} Specify the encoding of the returned content and the encoding type. Optional value: url
+- [options] {Object} optional args
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- uploadId {String} upload ID
+- bucket {String} Specify the bucket name. 
+- name {String} object name
+- PartNumberMarker {Number} Starting position of the part numbers in the listing result. 
+- nextPartNumberMarker {Number} If not all results are returned this time, the response request includes the NextPartNumberMarker element to indicate the value of PartNumberMarker in the next request. 
+- maxParts {Number} upload ID
+- isTruncated {Boolean} Whether the returned result list for List Parts is truncated. The “true” indicates that not all results are returned; “false” indicates that all results are returned. 
+- parts {Array} The container that saves part information, each in the structure:
+  - PartNumber {Number} Part number. 
+  - LastModified {Date} Time when a part is uploaded. 
+  - ETag {String} ETag value in the content of the uploaded part. 
+  - Size {Number} Size of the uploaded part. 
+
+example:
+
+- List uploaded part
+
+```js
+
+var result = yield store.listParts('objcet', 'uploadId', {
+  'max-parts': 1000
+});
+console.log(result);
 ```
 
 ### .listUploads*(query[, options])

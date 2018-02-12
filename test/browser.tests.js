@@ -917,6 +917,42 @@ describe('browser', function () {
         assert.equal(result.res.status, 200);
       });
 
+      it('should upload with list part', function* () {
+        var client = this.store;
+        // create a file with 1M random data
+        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        var file = new File([fileContent], 'multipart-upload-list-part');
+
+        var name = prefix + 'multipart/upload-list-part';
+
+        var uploadId = null;
+        var options = {
+          progress: function (p, checkpoint) {
+            return function (done) {
+              if (p === 0) {
+                uploadId = checkpoint.uploadId;
+              }
+              if (p > 0.5) {
+                client.cancel();
+              }
+              done();
+            };
+          },
+          partSize: 100 * 1024
+        }
+        try {
+          yield client.multipartUpload(name, file, options);
+        } catch (err) {
+        }
+
+        var result = yield this.store.listParts(name, uploadId, {
+          'max-parts': 1000
+        }, {});
+
+        assert.equal(result.res.status, 200);
+
+      });
+
     });
   });
 

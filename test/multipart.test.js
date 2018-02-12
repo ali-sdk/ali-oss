@@ -440,6 +440,43 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.res.status, 200);
     });
 
+    it('should upload with list part', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-list-part', 2 * 1024 * 1024);
+      var name = prefix + 'multipart/upload-list-part';
+      yield this.store.multipartUpload(name, fileName);
+      var client = this.store;
+      var copyName = prefix + 'multipart/upload-list-part-copy';
+      var uploadId = null;
+      try {
+        yield client.multipartUploadCopy(copyName, {
+          sourceKey: name,
+          sourceBucketName: this.bucket
+        }, {
+          parallel: 1,
+          partSize: 100 *1024,
+          progress: function (p, checkpoint) {
+            return function (done) {
+              if (p === 0) {
+                uploadId = checkpoint.uploadId;
+              }
+              if (p > 0.5) {
+                client.cancel();
+              }
+              done();
+            };
+          }
+        });
+      } catch (err) {
+      }
+
+      var result = yield this.store.listParts(copyName, uploadId, {
+        'max-parts': 1000
+      }, {});
+
+      assert.equal(result.res.status, 200);
+
+    });
+
   });
 
   describe('requestError()', function() {
