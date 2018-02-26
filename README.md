@@ -82,7 +82,13 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
+  - [.initMultipartUpload*(name[, options])](#initmultipartuploadname-options)
+  - [.uploadPart*(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
+  - [.uploadPartCopy*(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
+  - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
+  - [.multipartUploadCopy*(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
+  - [.listParts*(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
   - [.listUploads*(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
 - [RTMP Operations](#rtmp-operations)
@@ -792,12 +798,31 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - [x-oss-callback] The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+        e.g.:
+        ```json
+            {
+              "callbackUrl":"121.101.166.30/test.php",     //Required
+              "callbackHost":"oss-cn-hangzhou.aliyuncs.com",  //Optional
+              "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",   //Required
+              "callbackBodyType":"application/json" //Optional
+            }
+        ```
+    - [x-oss-callback-var] Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+        e.g.: need to use Base64 to encode
+        ```json
+            {
+              "x:var1":"value1",
+              "x:var2":"value2"
+            }
+        ```
 
 Success will return the object information.
 
 object:
 
 - name {String} object name
+- data {Object} callback server response data, sdk use JSON.parse() return
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1524,9 +1549,235 @@ var result = yield store.getACL('ossdemo.txt');
 console.log(result.acl);
 ```
 
-### .multipartUpload*(name, file[, options)
+### .initMultipartUpload(name[, options])
+Before transmitting data in the Multipart Upload mode, 
+you must call the Initiate Multipart Upload interface to notify the OSS to initiate a Multipart Upload event. 
+The Initiate Multipart Upload interface returns a globally unique Upload ID created by the OSS server to identify this Multipart Upload event.
 
-Upload file with [OSS multipart][oss-multipart].
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [mime] Mime file type e.g.: application/octet-stream
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
+    - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
+    - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
+    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - [x-oss-server-side-encryption]
+    Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
+    if use in browser you should be set cors expose header x-oss-server-side-encryption
+
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+    - [x-oss-server-side-encryption] if set request header x-oss-server-side-encryption, will return 
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- bucket {String} bucket name
+- name {String} object name store on OSS
+- uploadId {String} upload id, use for uploadPart, completeMultipart
+
+example:    
+
+```js
+  var result = yield store.initMultipartUpload('object');
+  console.log(result);
+```
+
+### .uploadPart(name, uploadId, partNo, file, start, end[, options])
+After initiating a Multipart Upload event, you can upload data in parts based on the specified object name and Upload ID. 
+
+parameters:
+
+- name {String} object name
+- uploadId {String} get by initMultipartUpload api
+- partNo {Number} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- file {File|String}  is File or FileName, the whole file<br>
+ Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB. <br>
+ In Node you can use File or FileName, but in browser you only can use File.
+- start {Number} part start bytes  e.g: 102400
+- end {Number} part end bytes  e.g: 204800
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+
+example:    
+
+```js
+  var name = 'object';
+  var result = yield store.initMultipartUpload(name);
+  var uploadId = result.uploadId;
+  var file; //the data you want to upload, is a File or FileName(only in node)
+  //if file part is 10  
+  var partSize = 100 * 1024;
+  var fileSize = 10 * partSize;//you need to calculate
+  var dones = [];
+  for (var i = 1; i <= 10; i++) {
+    var start = partSize * (i -1);
+    var end = Math.min(start + partSize, fileSize);
+    var part = yield store.uploadPart(name, uploadId, i, file, start, end);
+    dones.push({
+      number: i,
+      etag: part.etag
+    });
+    console.log(part);
+  }
+  
+  //end need to call completeMultipartUpload api
+```
+
+### .uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])
+Using Upload Part Copy, you can copy data from an existing object and upload a part of the data. 
+When copying a file larger than 1 GB, you must use the Upload Part Copy method. If you want to copy a file smaller than 1 GB, see Copy Object.
+
+parameters:
+
+- name {String} object name
+- uploadId {String} get by initMultipartUpload api
+- partNo {Number} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
+- range {String} Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB, range value like `0-102400`
+- sourceData {Object} 
+  - sourceKey {String} the source object name
+  - sourceBucketName {String} the source bucket name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [headers] {Object} The following request header is used for the source objects specified by x-oss-copy-source.
+    - [x-oss-copy-source-if-match]  default none<br>
+    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - [x-oss-copy-source-if-none-match]   default none<br>
+    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - [x-oss-copy-source-if-unmodified-since]   default none<br>
+    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
+    - [x-oss-copy-source-if-modified-since]   default none<br>
+    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+  
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+    
+example:    
+
+```js
+  var name = 'object';
+  var result = yield store.initMultipartUpload(name);
+ 
+  var partSize = 100 * 1024;//100kb 
+  //if file part is 10
+  for (var i = 1; i <= 10; i++) {
+    var start = partSize * (i -1);
+    var end = Math.min(start + partSize, fileSize);
+    var range = start + '-' + (end - 1);
+    var part = yield store.uploadPartCopy(name, result.uploadId, i, range, {
+      sourceKey: 'sourceKey',
+      sourceBucketName: 'sourceBucketName'
+    });
+    console.log(part);
+  }
+  
+  //end need complete api
+```
+
+### .completeMultipartUpload(name, uploadId, parts[, options])
+After uploading all data parts, you must call the Complete Multipart Upload API to complete Multipart Upload for the entire file.
+
+parameters:
+
+- name {String} object name
+- uploadId {String} get by initMultipartUpload api
+- parts {Array} more part {Object} from uploadPartCopy, , each in the structure:
+  - number {Number} partNo
+  - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - [x-oss-callback] The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+    e.g.:
+        ```json
+        {
+          "callbackUrl":"121.101.166.30/test.php",     //Required
+          "callbackHost":"oss-cn-hangzhou.aliyuncs.com",  //Optional
+          "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",   //Required
+          "callbackBodyType":"application/json" //Optional
+        }
+        ```
+    - [x-oss-callback-var] Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+    e.g.: need to use Base64 to encode
+        ```json
+        {
+          "x:var1":"value1",
+          "x:var2":"value2"
+        }
+        ```
+        
+  
+Success will return:
+  
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- bucket {String} bucket name
+- name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+- data {Object} callback server response data , sdk use JSON.parse() return
+    
+example:    
+
+```js
+    
+  //init multipart
+  var name = 'object';
+  var result = yield store.initMultipartUpload(name);
+ 
+  //upload part
+  var file; //the data you want to upload, this example size is 10 * 100 * 1024
+  var fileSize;//you need to calculate
+  var partSize = 100 * 1024;//100kb 
+  var done = [];
+  //if file part is 10
+  for (var i = 1; i <= 10; i++) {
+    var start = partSize * (i -1);
+    var end = Math.min(start + partSize, fileSize);
+    var data = file.slice(start, end);
+    var part = yield store.uploadPart(name, result.uploadId, i, data);
+    console.log(part);
+    done.push({
+          number: i,
+          etag: part.res.headers.etag
+        });
+  }
+  
+  //complete
+  var completeData = yield store.completeMultipartUpload(name, result.uploadId, done);
+  console.log(completeData);
+```
+
+
+### .multipartUpload*(name, file[, options])
+
+Upload file with [OSS multipart][oss-multipart].<br>
+this function contains initMultipartUpload, uploadPartCopy, completeMultipartUpload.
 
 parameters:
 
@@ -1549,6 +1800,24 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
+    - [x-oss-callback] The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
+        e.g.:
+        ```json
+            {
+               "callbackUrl":"121.101.166.30/test.php",     //Required
+               "callbackHost":"oss-cn-hangzhou.aliyuncs.com",  //Optional
+               "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",   //Required
+               "callbackBodyType":"application/json" //Optional
+            }
+        ```
+    - [x-oss-callback-var] Custom parameters are a map of key-values. You can configure the required parameters to the map. When initiating a POST callback request, the OSS puts these parameters and the system parameters described in the preceding section in the body of the POST request, so that these parameters can be easily obtained by the callback recipient.detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm) Custom parameters<br>
+        e.g.: need to use Base64 to encode
+        ```json
+            {
+            "x:var1":"value1",
+            "x:var2":"value2"
+            }
+        ```
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
 
 Success will return:
@@ -1561,6 +1830,7 @@ Success will return:
 - bucket {String} bucket name
 - name name {String} object name store on OSS
 - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+- data {Object} callback server response data, sdk use JSON.parse() return
 
 example:
 
@@ -1648,6 +1918,172 @@ try {
 //to cancel upload must use the same client instance 
 store.cancel();
 
+```
+
+### .multipartUploadCopy*(name, sourceData[, options])
+
+Copy file with [OSS multipart][oss-multipart]. <br>
+this function contains head, initMultipartUpload, uploadPartCopy, completeMultipartUpload.<br>
+When copying a file larger than 1 GB, you should use the Upload Part Copy method. If you want to copy a file smaller than 1 GB, see Copy Object.
+
+parameters:
+
+- name {String} object name
+- file {String|File} file path or HTML5 Web File
+- [options] {Object} optional args
+  - [timeout] {Number} Milliseconds before a request is considered to be timed out
+  - [parallel] {Number} the number of parts to be uploaded in parallel
+  - [partSize] {Number} the suggested size for each part
+  - [progress] {Function} is thunk or generator, the progress callback called after each
+    successful upload of one part, it will be given three parameters:
+    (percentage {Number}, checkpoint {Object}, res {Object})
+  - [checkpoint] {Object} the checkpoint to resume upload, if this is
+    provided, it will continue the upload from where interrupted,
+    otherwise a new multipart upload will be created.
+  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+    - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
+    - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
+    - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
+    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
+  - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
+    - [x-oss-copy-source-if-match]  only uploadPartCopy api used, default none<br>
+    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - [x-oss-copy-source-if-none-match]  only uploadPartCopy api used, default none<br>
+    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    - [x-oss-copy-source-if-unmodified-since]  only uploadPartCopy api used, default none<br>
+    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
+    - [x-oss-copy-source-if-modified-since] only uploadPartCopy api used, default none<br>
+    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- bucket {String} bucket name
+- name name {String} object name store on OSS
+- etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
+
+example:
+
+- Copy using multipart 
+
+```js
+var result = yield store.multipartUploadCopy('object', {
+  sourceKey: 'sourceKey',
+  sourceBucketName: 'sourceBucketName'
+});
+console.log(result);
+
+var result = yield store.multipartUploadCopy('object', {
+  sourceKey: 'sourceKey',
+  sourceBucketName: 'sourceBucketName'
+}, {
+  parallel: 4,
+  partSize: 1024 * 1024,
+  progress: function* (p, cpt, res) {
+    console.log(p);
+    console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
+  }
+});
+
+console.log(result);
+
+var result = yield store.multipartUploadCopy('object', {
+  sourceKey: 'sourceKey',
+  sourceBucketName: 'sourceBucketName'
+}, {
+  checkpoint: savedCpt,
+  progress: function* (p, cpt, res) {
+    console.log(p);
+    console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
+  }
+});
+
+console.log(result);
+
+```
+- multipartUploadCopy with cancel
+
+```js
+
+//start upload
+try {
+  var result = yield store.multipartUploadCopy('object', {
+    sourceKey: 'sourceKey',
+    sourceBucketName: 'sourceBucketName'
+  }, {
+    checkpoint: savedCpt,
+    progress: function* (p, cpt, res) {
+      console.log(p);
+      console.log(cpt);
+      console.log(res.headers['x-oss-request-id']);
+    }
+  });
+} catch (err) {
+  //if cancel will catch cancel event
+  if (store.isCancel()) {
+    //do something
+  }
+}
+
+//the other event to cancel, for example: click event
+//to cancel upload must use the same client instance 
+store.cancel();
+
+```
+
+### .listParts*(name, uploadId[, query, options])
+
+The ListParts command can be used to list all successfully uploaded parts mapped to a specific upload ID, i.e.: those not completed and not
+aborted.
+
+parameters:
+
+- name {String} object key
+- uploadId {String} upload ID from initMultipartUpload api
+- [query] {Object} query parameters
+  - [max-parts] {Number} The maximum part number in the response of the OSS. default value: 1000.
+  - [part-number-marker] {Number} Starting position of a specific list. A part is listed only when the part number is greater than the value of this parameter.  
+  - [encoding-type] {String} Specify the encoding of the returned content and the encoding type. Optional value: url
+- [options] {Object} optional args
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- uploadId {String} upload ID
+- bucket {String} Specify the bucket name. 
+- name {String} object name
+- PartNumberMarker {Number} Starting position of the part numbers in the listing result. 
+- nextPartNumberMarker {Number} If not all results are returned this time, the response request includes the NextPartNumberMarker element to indicate the value of PartNumberMarker in the next request. 
+- maxParts {Number} upload ID
+- isTruncated {Boolean} Whether the returned result list for List Parts is truncated. The “true” indicates that not all results are returned; “false” indicates that all results are returned. 
+- parts {Array} The container that saves part information, each in the structure:
+  - PartNumber {Number} Part number. 
+  - LastModified {Date} Time when a part is uploaded. 
+  - ETag {String} ETag value in the content of the uploaded part. 
+  - Size {Number} Size of the uploaded part. 
+
+example:
+
+- List uploaded part
+
+```js
+
+var result = yield store.listParts('objcet', 'uploadId', {
+  'max-parts': 1000
+});
+console.log(result);
 ```
 
 ### .listUploads*(query[, options])
