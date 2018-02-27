@@ -800,7 +800,7 @@ describe('browser', function () {
 
       it('should upload file using multipart upload with exception', function* () {
         // create a file with 1M random data
-        var fileContent = Array(1024*1024).fill('a').join('')
+        var fileContent = Array(1024 * 1024).fill('a').join('')
         var file = new File([fileContent], 'multipart-upload-file');
 
         var name = prefix + 'multipart/upload-file-exception';
@@ -892,7 +892,7 @@ describe('browser', function () {
                 uploadId = checkpoint.uploadId;
               }
               if (p > 0.5) {
-                co(function *() {
+                co(function* () {
                   yield client.abortMultipartUpload(name, uploadId);
                 });
               }
@@ -918,7 +918,7 @@ describe('browser', function () {
         var partSize = 100 * 1024;
         var dones = [];
         for (var i = 1; i <= 10; i++) {
-          var start = (i-1) * partSize;
+          var start = (i - 1) * partSize;
           var end = Math.min(i * partSize, file.size);
           var part = yield this.store.uploadPart(name, uploadId, i, file, start, end);
           dones.push({
@@ -967,8 +967,8 @@ describe('browser', function () {
 
       });
 
-      it('upload no more 100k file with callback server', function* () {
-        var fileContent = Array(50 * 1024).fill('a').join('')
+      it('should upload no more 100k file with callback server', function* () {
+        var fileContent = Array(50 * 1024).fill('a').join('');
         var file = new File([fileContent], 'multipart-callback-server');
         var name = prefix + 'multipart/callback-server';
         var result = yield this.store.multipartUpload(name, file, {
@@ -984,6 +984,8 @@ describe('browser', function () {
         );
         assert.equal(result.res.status, 200);
         assert.equal(result.data.Status, 'OK');
+      });
+
     });
   });
 

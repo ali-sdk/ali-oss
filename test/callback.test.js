@@ -35,7 +35,7 @@ describe('test/multipart.test.js', function () {
     afterEach(mm.restore);
     // callback server on EC2, maybe fail on China, bug pass on travis ci
     // callback server down, skip it
-    it('multipart upload should parse response with callback', function* () {
+    it('should multipart upload parse response with callback', function* () {
       // create a file with 1M random data
       var fileName = yield utils.createTempFile('upload-with-callback', 1024 * 1024);
 
@@ -54,7 +54,35 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.data.Status, 'OK');
     });
 
-    it('multipart upload with no more 100k file should parse response with callback', function* () {
+    it('should multipart upload copy with callback', function* () {
+      var fileName = yield utils.createTempFile('multipart-upload-file-copy-callback', 2 * 1024 * 1024);
+      var name = prefix + 'multipart/upload-file-with-copy-callback';
+      yield this.store.multipartUpload(name, fileName);
+
+      var client = this.store;
+      var copyName = prefix + 'multipart/upload-file-with-copy-new-callback';
+      var result = yield client.multipartUploadCopy(copyName, {
+        sourceKey: name,
+        sourceBucketName: this.bucket
+      }, {
+        partSize: 256 *1024,
+        headers: {
+          'x-oss-callback': utils.encodeCallback({
+            url: config.callbackServer,
+            query: {user: 'js-sdk'},
+            body: 'bucket=${bucket}&object=${object}'
+          })
+        },
+        copyheaders: {
+          'x-oss-copy-source-if-match':''
+        }
+      });
+
+      assert.equal(result.res.status, 200);
+      assert.equal(result.data.Status, 'OK');
+    });
+
+    it('should multipart upload with no more 100k file parse response with callback', function* () {
       // create a file with 1M random data
       var fileName = yield utils.createTempFile('upload-with-callback', 50 * 1024);
 
@@ -73,7 +101,7 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.data.Status, 'OK');
     });
 
-    it('putStream should parse response with callback', function* () {
+    it('should putStream parse response with callback', function* () {
       var name = prefix + 'ali-sdk/oss/putstream-callback.js';
       var result = yield this.store.putStream(name, fs.createReadStream(__filename), {
         headers: {
@@ -89,7 +117,7 @@ describe('test/multipart.test.js', function () {
       assert.equal(result.data.Status, 'OK');
     });
 
-    it('put should parse response with callback', function* () {
+    it('should put parse response with callback', function* () {
       var name = prefix + 'ali-sdk/oss/put-callback.js';
       var result = yield this.store.put(name, __filename, {
         headers: {
