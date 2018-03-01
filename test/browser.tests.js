@@ -973,12 +973,37 @@ describe('browser', function () {
         var name = prefix + 'multipart/callback-server';
         var result = yield this.store.multipartUpload(name, file, {
             partSize: 100 * 1024,
-            headers: {
-              'x-oss-callback': utils.encodeCallback({
-                url: ossConfig.callbackServer,
-                query: {user: 'js-sdk'},
-                body: 'bucket=${bucket}&object=${object}'
-              })
+            callback: {
+              callbackUrl: ossConfig.callbackServer,
+              callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
+              callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+              callbackBodyType: 'application/x-www-form-urlencoded'
+            },
+            callbackVar: {
+              var1: 'value1',
+              var2: 'value2'
+            }
+          }
+        );
+        assert.equal(result.res.status, 200);
+        assert.equal(result.data.Status, 'OK');
+      });
+
+      it('should multipart upload file with callback server', function* () {
+        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        var file = new File([fileContent], 'multipart-callback-server');
+        var name = prefix + 'multipart/callback-server';
+        var result = yield this.store.multipartUpload(name, file, {
+            partSize: 100 * 1024,
+            callback: {
+              callbackUrl: ossConfig.callbackServer,
+              callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
+              callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+              callbackBodyType: 'application/x-www-form-urlencoded'
+            },
+            callbackVar: {
+              var1: 'value1',
+              var2: 'value2'
             }
           }
         );

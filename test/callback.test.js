@@ -1,17 +1,11 @@
 'use strict';
 
 var fs = require('fs');
-var path = require('path');
 var assert = require('assert');
-var cfs = require('co-fs');
 var utils = require('./utils');
 var oss = require('../');
 var config = require('./config').oss;
-var urllib = require('urllib');
-var copy = require('copy-to');
-var md5 = require('utility').md5;
 var mm = require('mm');
-var sinon = require('sinon');
 
 describe('test/multipart.test.js', function () {
   var prefix = utils.prefix;
@@ -42,12 +36,15 @@ describe('test/multipart.test.js', function () {
       var name = prefix + 'multipart/upload-with-callback';
       var result = yield this.store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
-        headers: {
-          'x-oss-callback': utils.encodeCallback({
-            url: config.callbackServer,
-            query: {user: 'js-sdk'},
-            body: 'bucket=${bucket}&object=${object}'
-          })
+        callback: {
+          callbackUrl: config.callbackServer,
+          callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
+          callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+          callbackBodyType: 'application/x-www-form-urlencoded'
+        },
+        callbackVar: {
+          var1: 'value1',
+          var2: 'value2'
         }
       });
       assert.equal(result.res.status, 200);
@@ -66,12 +63,15 @@ describe('test/multipart.test.js', function () {
         sourceBucketName: this.bucket
       }, {
         partSize: 256 *1024,
-        headers: {
-          'x-oss-callback': utils.encodeCallback({
-            url: config.callbackServer,
-            query: {user: 'js-sdk'},
-            body: 'bucket=${bucket}&object=${object}'
-          })
+        callback: {
+          callbackUrl: config.callbackServer,
+          callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
+          callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+          callbackBodyType: 'application/x-www-form-urlencoded'
+        },
+        callbackVar: {
+          var1: 'value1',
+          var2: 'value2'
         },
         copyheaders: {
           'x-oss-copy-source-if-match':''
@@ -89,12 +89,15 @@ describe('test/multipart.test.js', function () {
       var name = prefix + 'multipart/upload-with-callback';
       var result = yield this.store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
-        headers: {
-          'x-oss-callback': utils.encodeCallback({
-            url: config.callbackServer,
-            query: {user: 'js-sdk'},
-            body: 'bucket=${bucket}&object=${object}'
-          })
+        callback: {
+          callbackUrl: config.callbackServer,
+          callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
+          callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+          callbackBodyType: 'application/x-www-form-urlencoded'
+        },
+        callbackVar: {
+          var1: 'value1',
+          var2: 'value2'
         }
       });
       assert.equal(result.res.status, 200);
@@ -104,12 +107,15 @@ describe('test/multipart.test.js', function () {
     it('should putStream parse response with callback', function* () {
       var name = prefix + 'ali-sdk/oss/putstream-callback.js';
       var result = yield this.store.putStream(name, fs.createReadStream(__filename), {
-        headers: {
-          'x-oss-callback': utils.encodeCallback({
-            url: config.callbackServer,
-            query: {user: 'js-sdk'},
-            body: 'bucket=${bucket}&object=${object}'
-          })
+        callback: {
+          callbackUrl: config.callbackServer,
+          callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
+          callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+          callbackBodyType: 'application/x-www-form-urlencoded'
+        },
+        callbackVar: {
+          var1: 'value1',
+          var2: 'value2'
         }
       });
 
@@ -120,12 +126,15 @@ describe('test/multipart.test.js', function () {
     it('should put parse response with callback', function* () {
       var name = prefix + 'ali-sdk/oss/put-callback.js';
       var result = yield this.store.put(name, __filename, {
-        headers: {
-          'x-oss-callback': utils.encodeCallback({
-            url: config.callbackServer,
-            query: {user: 'js-sdk'},
-            body: 'bucket=${bucket}&object=${object}'
-          })
+        callback: {
+          callbackUrl: config.callbackServer,
+          callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
+          callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+          callbackBodyType: 'application/x-www-form-urlencoded'
+        },
+        callbackVar: {
+          var1: 'value1',
+          var2: 'value2'
         }
       });
 
