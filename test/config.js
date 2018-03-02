@@ -6,8 +6,7 @@ config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
   endpoint: env.ALI_SDK_OSS_ENDPOINT,
-  region: env.ALI_SDK_OSS_REGION || 'oss-cn-hangzhou',
-  callbackServer: 'http://oss-demo.aliyuncs.com:23450' //oss demo callback server an ecs, used with PutObject、PostObject、CompleteMultipartUpload
+  region: env.ALI_SDK_OSS_REGION || 'oss-cn-hangzhou'
 };
 
 config.sts = {

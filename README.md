@@ -794,15 +794,15 @@ parameters:
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - callbackUrl {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
-    - [callbackHost] {String} The host header value for initiating callback requests.
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+    - [host] {String} The host header value for initiating callback requests.
     - callbackBody {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [callbackBodyType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
-  - [callbackVar] {Object} Custom parameters are a map of key-values<br>
-      e.g.:
-     ```js
-       var callbackVar = {var1: 'value1', var2: 'value2'}
-     ```
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - [customValue] {Object} Custom parameters are a map of key-values<br>
+         e.g.:
+        ```js
+           var customValue = {var1: 'value1', var2: 'value2'}
+        ```
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
@@ -914,15 +914,15 @@ parameters:
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - callbackUrl {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
-    - [callbackHost] {String} The host header value for initiating callback requests.
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+    - [host] {String} The host header value for initiating callback requests.
     - callbackBody {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [callbackBodyType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
-  - [callbackVar] {Object} Custom parameters are a map of key-values<br>
-      e.g.:
-     ```js
-       var callbackVar = {var1: 'value1', var2: 'value2'}
-     ```
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - [customValue] {Object} Custom parameters are a map of key-values<br>
+         e.g.:
+        ```js
+           var customValue = {var1: 'value1', var2: 'value2'}
+        ```
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
@@ -1712,15 +1712,15 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - callbackUrl {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
-    - [callbackHost] {String} The host header value for initiating callback requests.
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+    - [host] {String} The host header value for initiating callback requests.
     - callbackBody {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [callbackBodyType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
-  - [callbackVar] {Object} Custom parameters are a map of key-values<br>
-      e.g.:
-     ```js
-       var callbackVar = {var1: 'value1', var2: 'value2'}
-     ```
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - [customValue] {Object} Custom parameters are a map of key-values<br>
+         e.g.:
+        ```js
+           var customValue = {var1: 'value1', var2: 'value2'}
+        ```
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
         
   
@@ -1789,15 +1789,15 @@ parameters:
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
   - [mime] {String} custom mime , will send with `Content-Type` entity header
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - callbackUrl {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
-    - [callbackHost] {String} The host header value for initiating callback requests.
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+    - [host] {String} The host header value for initiating callback requests.
     - callbackBody {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [callbackBodyType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
-  - [callbackVar] {Object} Custom parameters are a map of key-values<br>
-      e.g.:
-     ```js
-       var callbackVar = {var1: 'value1', var2: 'value2'}
-     ```
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - [customValue] {Object} Custom parameters are a map of key-values<br>
+          e.g.:
+         ```js
+           var customValue = {var1: 'value1', var2: 'value2'}
+         ```
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`

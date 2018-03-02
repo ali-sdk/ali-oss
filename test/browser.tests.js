@@ -7,6 +7,7 @@ var oss = OSS;
 // var sts = oss.STS;
 var urllib = require('urllib');
 var stsConfig = require('./.tmp/stsConfig.json');
+var callbackServer = require('./const').callbackServer;
 var pkg = require('../package.json');
 var platform = require('platform');
 var utisl = require('./utils');
@@ -25,8 +26,7 @@ describe('browser', function () {
       accessKeyId: stsConfig.Credentials.AccessKeyId,
       accessKeySecret: stsConfig.Credentials.AccessKeySecret,
       stsToken: stsConfig.Credentials.SecurityToken,
-      bucket: stsConfig.bucket,
-      callbackServer: 'http://oss-demo.aliyuncs.com:23450' //oss demo callback server an ecs, used with PutObject、PostObject、CompleteMultipartUpload
+      bucket: stsConfig.bucket
     };
     // this.store = oss({
     //   region: stsConfig.region,
@@ -974,14 +974,14 @@ describe('browser', function () {
         var result = yield this.store.multipartUpload(name, file, {
             partSize: 100 * 1024,
             callback: {
-              callbackUrl: ossConfig.callbackServer,
-              callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
-              callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
-              callbackBodyType: 'application/x-www-form-urlencoded'
-            },
-            callbackVar: {
-              var1: 'value1',
-              var2: 'value2'
+              url: callbackServer,
+              host: 'oss-cn-hangzhou.aliyuncs.com',
+              body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+              contentType: 'application/x-www-form-urlencoded',
+              customValue: {
+                var1: 'value1',
+                var2: 'value2'
+              }
             }
           }
         );
@@ -996,14 +996,14 @@ describe('browser', function () {
         var result = yield this.store.multipartUpload(name, file, {
             partSize: 100 * 1024,
             callback: {
-              callbackUrl: ossConfig.callbackServer,
-              callbackHost: 'oss-cn-hangzhou.aliyuncs.com',
-              callbackBody: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
-              callbackBodyType: 'application/x-www-form-urlencoded'
-            },
-            callbackVar: {
-              var1: 'value1',
-              var2: 'value2'
+              url: callbackServer,
+              host: 'oss-cn-hangzhou.aliyuncs.com',
+              body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+              contentType: 'application/x-www-form-urlencoded',
+              customValue: {
+                var1: 'value1',
+                var2: 'value2'
+              }
             }
           }
         );
