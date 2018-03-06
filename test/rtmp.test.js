@@ -1,4 +1,4 @@
-/**!
+/** !
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
@@ -12,22 +12,22 @@
  * Module dependencies.
  */
 
-var assert = require('assert');
-var utils = require('./utils');
-var is = require('is-type-of');
-var oss = require('../');
-var config = require('./config').oss;
+const assert = require('assert');
+const utils = require('./utils');
+const is = require('is-type-of');
+const oss = require('../');
+const config = require('./config').oss;
 
-describe('test/rtmp.test.js', function () {
-  var prefix = utils.prefix;
+describe('test/rtmp.test.js', () => {
+  const { prefix } = utils;
 
   before(function* () {
     this.store = oss(config);
-    this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.store.useBucket(this.bucket);
 
-    var result = yield this.store.putBucket(this.bucket, this.region);
+    const result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
 
@@ -48,34 +48,34 @@ describe('test/rtmp.test.js', function () {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
-  describe('put/get/deleteChannel()', function () {
+  describe('put/get/deleteChannel()', () => {
     it('should create a new channel', function* () {
-      var cid = this.cid;
-      var conf = this.conf;
+      const { cid } = this;
+      const { conf } = this;
 
-      var result = yield this.store.putChannel(cid, conf);
+      let result = yield this.store.putChannel(cid, conf);
       assert.equal(result.res.status, 200);
       assert(is.array(result.publishUrls));
       assert(result.publishUrls.length > 0);
       assert(is.array(result.playUrls));
       assert(result.playUrls.length > 0);
 
-      var result = yield this.store.getChannel(cid);
+      result = yield this.store.getChannel(cid);
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.data, conf);
 
-      var result = yield this.store.deleteChannel(cid);
+      result = yield this.store.deleteChannel(cid);
       assert.equal(result.res.status, 204);
 
       yield utils.throws(function* () {
-        var result = yield this.store.getChannel(cid);
-      }.bind(this), function (err) {
+        yield this.store.getChannel(cid);
+      }.bind(this), (err) => {
         assert.equal(err.status, 404);
       });
     });
   });
 
-  describe('put/getChannelStatus()', function () {
+  describe('put/getChannelStatus()', () => {
     before(function* () {
       this.cid = 'live channel 2';
       this.conf.Description = 'this is live channel 2';
@@ -87,60 +87,60 @@ describe('test/rtmp.test.js', function () {
     });
 
     it('should disable channel', function* () {
-      var result = yield this.store.getChannelStatus(this.cid);
+      let result = yield this.store.getChannelStatus(this.cid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Idle');
 
       // TODO: verify ConnectedTime/RemoteAddr/Video/Audio when not idle
 
-      var result = yield this.store.putChannelStatus(this.cid, 'disabled');
+      result = yield this.store.putChannelStatus(this.cid, 'disabled');
       assert.equal(result.res.status, 200);
 
-      var result = yield this.store.getChannelStatus(this.cid);
+      result = yield this.store.getChannelStatus(this.cid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Disabled');
     });
   });
 
-  describe('listChannels()', function () {
+  describe('listChannels()', () => {
     before(function* () {
       this.channelNum = 10;
       this.channelPrefix = 'channel-list-';
 
-      for (var i = 0; i < this.channelNum; i ++) {
+      for (let i = 0; i < this.channelNum; i++) {
         this.conf.Description = i;
         yield this.store.putChannel(this.channelPrefix + i, this.conf);
       }
     });
 
     after(function* () {
-      for (var i = 0; i < this.channelNum; i ++) {
+      for (let i = 0; i < this.channelNum; i++) {
         yield this.store.deleteChannel(this.channelPrefix + i);
       }
     });
 
     it('list channels using prefix/marker/max-keys', function* () {
-      var query = {
+      const query = {
         prefix: 'channel-list-',
         marker: 'channel-list-4',
         'max-keys': 3
       };
 
-      var result = yield this.store.listChannels(query);
+      const result = yield this.store.listChannels(query);
 
       assert.equal(result.res.status, 200);
       assert.equal(result.nextMarker, 'channel-list-7');
       assert.equal(result.isTruncated, true);
 
-      var channels = result.channels;
+      const { channels } = result;
       assert.equal(channels.length, 3);
-      assert.equal(channels[0].Name, this.channelPrefix + 5)
-      assert.equal(channels[1].Name, this.channelPrefix + 6)
-      assert.equal(channels[2].Name, this.channelPrefix + 7)
+      assert.equal(channels[0].Name, this.channelPrefix + 5);
+      assert.equal(channels[1].Name, this.channelPrefix + 6);
+      assert.equal(channels[2].Name, this.channelPrefix + 7);
     });
   });
 
-  describe('getChannelHistory()', function () {
+  describe('getChannelHistory()', () => {
     before(function* () {
       this.cid = 'channel-3';
       this.conf.Description = 'this is live channel 3';
@@ -152,24 +152,24 @@ describe('test/rtmp.test.js', function () {
     });
 
     it('should get channel history', function* () {
-      var result = yield this.store.getChannelHistory(this.cid);
+      const result = yield this.store.getChannelHistory(this.cid);
 
       assert.equal(result.res.status, 200);
       assert(is.array(result.records));
       assert.equal(result.records.length, 0);
 
       // TODO: verify LiveRecord when history exists
-      //verify wish OBS or ffmpeg
+      // verify wish OBS or ffmpeg
     });
   });
 
-  describe('createVod()', function () {
+  describe('createVod()', () => {
     before(function* () {
       this.cid = 'channel-4';
       this.conf.Description = 'this is live channel 4';
-      var result = yield this.store.putChannel(this.cid, this.conf);
+      const result = yield this.store.putChannel(this.cid, this.conf);
       console.log(result);
-      var url = this.store.getRtmpUrl(this.cid, {
+      const url = this.store.getRtmpUrl(this.cid, {
         params: {
           playlistName: 'vod.m3u8'
         },
@@ -184,11 +184,11 @@ describe('test/rtmp.test.js', function () {
 
     // this case need have data in server
     it.skip('should create vod playlist', function* () {
-      var name = 'vod.m3u8';
-      var now = Date.now();
+      const name = 'vod.m3u8';
+      const now = Date.now();
 
       try {
-        var result = yield this.store.createVod(this.cid, name, {
+        const result = yield this.store.createVod(this.cid, name, {
           startTime: Math.floor((now - 100) / 1000),
           endTime: Math.floor(now / 1000)
         });
@@ -197,15 +197,14 @@ describe('test/rtmp.test.js', function () {
       } catch (err) {
         console.error(err);
       }
-
     });
   });
 
-  describe('getRtmpUrl()', function () {
+  describe('getRtmpUrl()', () => {
     before(function* () {
       this.cid = 'channel-5';
       this.conf.Description = 'this is live channel 5';
-      var result = yield this.store.putChannel(this.cid, this.conf);
+      const result = yield this.store.putChannel(this.cid, this.conf);
       console.log(result);
     });
 
@@ -213,16 +212,17 @@ describe('test/rtmp.test.js', function () {
       yield this.store.deleteChannel(this.cid);
     });
 
+    /* eslint require-yield: [0] */
     it('should get rtmp url', function* () {
-      var name = 'vod.m3u8';
-      var url = this.store.getRtmpUrl(this.cid, {
+      const name = 'vod.m3u8';
+      const url = this.store.getRtmpUrl(this.cid, {
         params: {
           playlistName: name
         },
         expires: 3600
       });
       console.log(url);
-      //verify the url is ok used by OBS or ffmpeg
+      // verify the url is ok used by OBS or ffmpeg
     });
   });
 });

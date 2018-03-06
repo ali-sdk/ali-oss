@@ -1,25 +1,26 @@
 'use strict';
 
-var assert = require('assert');
-var config = require('./config').oss;
-var stsConfig = require('./config').sts;
-var OSS = require('../').Wrapper;
-var STS = OSS.STS;
-var utils = require('./utils');
-var fs = require('fs');
-var md5 = require('utility').md5;
-var urllib = require('urllib');
+const assert = require('assert');
+const config = require('./config').oss;
+const stsConfig = require('./config').sts;
+const OSS = require('../').Wrapper;
+
+const { STS } = OSS;
+const utils = require('./utils');
+const fs = require('fs');
+const { md5 } = require('utility');
+const urllib = require('urllib');
+const SyncClient = require('..');
 
 describe('test/wrapper.test.js', () => {
-  var prefix = utils.prefix;
+  const { prefix } = utils;
 
   before(function* () {
     this.store = OSS(config);
-    this.bucket = 'ali-oss-test-wrapper-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = `ali-oss-test-wrapper-bucket-${prefix.replace(/[\/\.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
-    var SyncClient = require('..');
     this.syncClient = new SyncClient(config);
     yield this.syncClient.putBucket(this.bucket, this.region);
     this.syncClient.useBucket(this.bucket, this.region);
@@ -31,12 +32,12 @@ describe('test/wrapper.test.js', () => {
   });
 
   it('should work for bucket operations', function () {
-    var bucket = this.bucket;
+    const { bucket } = this;
 
     return this.store.listBuckets({
       prefix: bucket,
       'max-keys': 1
-    }).then(function (val) {
+    }).then((val) => {
       assert.equal(val.res.status, 200);
       assert.equal(Array.isArray(val.buckets), true);
       assert.equal(val.buckets.length, 1);
@@ -45,43 +46,43 @@ describe('test/wrapper.test.js', () => {
   });
 
   it('should work for object operations', function () {
-    var name = 'async-put-object';
-    var content = 'should work for object operations';
+    const name = 'async-put-object';
+    const content = 'should work for object operations';
 
-    var store = this.store;
-    return store.put(name, new Buffer(content)).then(function (val) {
+    const { store } = this;
+    return store.put(name, new Buffer(content)).then((val) => {
       assert.equal(val.res.status, 200);
       assert.equal(val.name, name);
 
       return store.get(name);
-    }).then(function (val) {
+    }).then((val) => {
       assert.equal(val.res.status, 200);
       assert.equal(val.content.toString(), content);
     });
   });
 
   it('should work for multipart operations', function* () {
-    var name = 'async-multipart-upload';
-    var fileName = yield utils.createTempFile(name, 1024 * 1024);
+    const name = 'async-multipart-upload';
+    const fileName = yield utils.createTempFile(name, 1024 * 1024);
 
-    var store = this.store;
-    var count = 0;
+    const { store } = this;
+    let count = 0;
     return store.multipartUpload(name, fileName, {
       partSize: 100 * 1024,
-      progress: function (p) {
+      progress(p) {
         return function (done) {
           count++;
           done();
-        }
+        };
       }
-    }).then(function (val) {
+    }).then((val) => {
       assert.equal(val.res.status, 200);
       assert.equal(count, 12);
 
       return store.get(name);
-    }).then(function (val) {
+    }).then((val) => {
       assert.equal(val.res.status, 200);
-      var fileBuf = fs.readFileSync(fileName);
+      const fileBuf = fs.readFileSync(fileName);
       assert.equal(val.content.length, fileBuf.length);
       // avoid comparing buffers directly for it may hang when generating diffs
       assert.equal(md5(val.content), md5(fileBuf));
@@ -89,31 +90,31 @@ describe('test/wrapper.test.js', () => {
   });
 
   it('should work for signature url', function* () {
-    var name = 'object-sig-url';
-    var content = 'should work for signature url';
+    const name = 'object-sig-url';
+    const content = 'should work for signature url';
 
     yield this.syncClient.put(name, new Buffer(content));
 
-    var url = this.store.signatureUrl(name);
-    var urlRes = yield urllib.request(url);
+    const url = this.store.signatureUrl(name);
+    const urlRes = yield urllib.request(url);
     assert.equal(urlRes.data.toString(), content);
   });
 
   it('should work on error', function () {
-    var name = 'file-not-exist';
+    const name = 'file-not-exist';
 
-    return this.store.get(name).then(function (val) {
+    return this.store.get(name).then((val) => {
       assert(false);
-    }).catch(function (err) {
+    }).catch((err) => {
       assert.equal(err.name, 'NoSuchKeyError');
       assert.equal(err.status, 404);
       assert.equal(typeof err.requestId, 'string');
     });
   });
 
-  it('should work for sts operations', function () {
-    var stsClient = new STS(stsConfig);
-    return stsClient.assumeRole(stsConfig.roleArn).then(function (val) {
+  it('should work for sts operations', () => {
+    const stsClient = new STS(stsConfig);
+    return stsClient.assumeRole(stsConfig.roleArn).then((val) => {
       assert.equal(val.res.status, 200);
       assert.equal(typeof val.credentials.AccessKeyId, 'string');
       assert.equal(typeof val.credentials.AccessKeySecret, 'string');

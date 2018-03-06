@@ -12,41 +12,41 @@
  * Module dependencies.
  */
 
-var assert = require('assert');
-var sts = require('../').STS;
-var oss = require('..');
-var config = require('./config').oss;
-var stsConfig = require('./config').sts;
+const assert = require('assert');
+const sts = require('../').STS;
+const oss = require('..');
+const config = require('./config').oss;
+const stsConfig = require('./config').sts;
 
-describe('test/sts.test.js', function () {
-  describe('assumeRole()', function () {
+describe('test/sts.test.js', () => {
+  describe('assumeRole()', () => {
     it('should assume role', function* () {
-      var stsClient = sts(stsConfig);
-      var result = yield* stsClient.assumeRole(stsConfig.roleArn);
+      const stsClient = sts(stsConfig);
+      const result = yield* stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
     });
 
-    it('should assume role with policy', function*() {
-      var stsClient = sts(stsConfig);
-      var policy = {
-        "Statement": [
+    it('should assume role with policy', function* () {
+      const stsClient = sts(stsConfig);
+      const policy = {
+        Statement: [
           {
-            "Action": [
-              "oss:*"
+            Action: [
+              'oss:*'
             ],
-            "Effect": "Allow",
-            "Resource": ["acs:oss:*:*:*"]
+            Effect: 'Allow',
+            Resource: ['acs:oss:*:*:*']
           }
         ],
-        "Version": "1"
+        Version: '1'
       };
-      var result = yield* stsClient.assumeRole(stsConfig.roleArn, policy);
+      const result = yield* stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
     });
 
-    it('should assume role with policy string', function*() {
-      var stsClient = sts(stsConfig);
-      var policy = `
+    it('should assume role with policy string', function* () {
+      const stsClient = sts(stsConfig);
+      const policy = `
       {
         "Statement": [
           {
@@ -59,13 +59,13 @@ describe('test/sts.test.js', function () {
         ],
         "Version": "1"
       }`;
-      var result = yield* stsClient.assumeRole(stsConfig.roleArn, policy);
+      const result = yield* stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
     });
 
-    it('should handle error in assume role', function*() {
-      var stsClient = sts(stsConfig);
-      var policy = `
+    it('should handle error in assume role', function* () {
+      const stsClient = sts(stsConfig);
+      const policy = `
       {
         "Statements": [
           {
@@ -88,22 +88,22 @@ describe('test/sts.test.js', function () {
     });
 
     it('should list objects using STS', function* () {
-      var stsClient = sts(stsConfig);
-      var result = yield* stsClient.assumeRole(stsConfig.roleArn);
+      const stsClient = sts(stsConfig);
+      let result = yield* stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
 
-      var ossClient = oss({
+      const ossClient = oss({
         region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,
-        bucket: stsConfig.bucket,
+        bucket: stsConfig.bucket
       });
 
-      var result = yield ossClient.put('sts/hello', __filename);
+      result = yield ossClient.put('sts/hello', __filename);
       assert.equal(result.res.status, 200);
 
-      var result = yield ossClient.list({
+      result = yield ossClient.list({
         'max-keys': 10
       });
 

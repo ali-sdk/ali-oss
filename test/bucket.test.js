@@ -1,29 +1,31 @@
 'use strict';
 
-var assert = require('assert');
-var utils = require('./utils');
-var oss = require('../');
-var config = require('./config').oss;
-var ms = require('humanize-ms');
-var metaSyncTime = require('./config').metaSyncTime;
+const assert = require('assert');
+const utils = require('./utils');
+const oss = require('../');
+const config = require('./config').oss;
+const ms = require('humanize-ms');
+const { metaSyncTime } = require('./config');
 
 // only run on travis ci
 
-if (!process.env.CI) {
-  return;
-}
+// if (!process.env.CI) {
+//   return;
+// }
 
 describe('test/bucket.test.js', () => {
-  var prefix = utils.prefix;
+  const { prefix } = utils;
 
   before(function* () {
     this.store = oss(config);
 
-    var bucketResult = yield this.store.listBuckets({
+    const bucketResult = yield this.store.listBuckets({
       // prefix: '',
-      "max-keys": 20
+      'max-keys': 20
     });
     console.log(bucketResult.buckets);
+
+    /* eslint no-restricted-syntax: [0] */
     for (const bucket of bucketResult.buckets) {
       if (bucket.name.startsWith('ali-oss-test-bucket-') || bucket.name.startsWith('ali-oss-list-buckets-')) {
         yield this.store.deleteBucket(bucket.name);
@@ -31,11 +33,11 @@ describe('test/bucket.test.js', () => {
       }
     }
 
-    this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = `ali-oss-test-bucket-${prefix.replace(/[\/\.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
-    var result = yield this.store.putBucket(this.bucket, this.region);
+    const result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
   });
@@ -44,30 +46,30 @@ describe('test/bucket.test.js', () => {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
-  describe('putBucket()', function () {
+  describe('putBucket()', () => {
     before(function () {
-      this.name = 'ali-oss-test-putbucket-' + prefix.replace(/[\/\.]/g, '-');
+      this.name = `ali-oss-test-putbucket-${prefix.replace(/[/.]/g, '-')}`;
       this.name = this.name.substring(0, this.name.length - 1);
     });
 
     it('should create a new bucket', function* () {
-      var result = yield this.store.putBucket(this.name);
-      assert.equal(result.bucket, this.name);
-      assert.equal(result.res.status, 200);
+      const result1 = yield this.store.putBucket(this.name);
+      assert.equal(result1.bucket, this.name);
+      assert.equal(result1.res.status, 200);
 
       // create a exists should work
-      var result = yield this.store.putBucket(this.name);
-      assert.equal(result.res.status, 200);
-      assert.equal(result.bucket, this.name);
+      const result2 = yield this.store.putBucket(this.name);
+      assert.equal(result2.res.status, 200);
+      assert.equal(result2.bucket, this.name);
     });
 
     after(function* () {
-      var result = yield this.store.deleteBucket(this.name);
+      const result = yield this.store.deleteBucket(this.name);
       assert(result.res.status === 200 || result.res.status === 204);
     });
   });
 
-  describe('deleteBucket()', function () {
+  describe('deleteBucket()', () => {
     it('should delete not exists bucket throw NoSuchBucketError', function* () {
       yield utils.throws(function* () {
         yield this.store.deleteBucket('not-exists-bucket');
@@ -84,55 +86,55 @@ describe('test/bucket.test.js', () => {
     });
   });
 
-  describe('putBucketACL()', function () {
+  describe('putBucketACL()', () => {
     it('should set bucket acl to public-read-write', function* () {
-      var result = yield this.store.putBucket(this.bucket);
+      const result = yield this.store.putBucket(this.bucket);
       assert.equal(result.res.status, 200);
 
-      var result = yield this.store.putBucketACL(this.bucket, this.region, 'public-read-write');
-      assert.equal(result.res.status, 200);
-      assert.equal(result.bucket, this.bucket);
+      const resultAcl = yield this.store.putBucketACL(this.bucket, this.region, 'public-read-write');
+      assert.equal(resultAcl.res.status, 200);
+      assert.equal(resultAcl.bucket, this.bucket);
 
       // Need wait some time for bucket meta sync
       yield utils.sleep(ms(metaSyncTime));
 
-      var r = yield this.store.getBucketACL(this.bucket, this.region);
+      const r = yield this.store.getBucketACL(this.bucket, this.region);
       assert.equal(r.res.status, 200);
       // skip it, data will be delay
       // assert.equal(r.acl, 'public-read-write');
     });
 
     it('should create and set acl when bucket not exists', function* () {
-      var bucket = this.bucket + '-new';
-      var result = yield this.store.putBucketACL(bucket, this.region, 'public-read');
-      assert.equal(result.res.status, 200);
-      assert.equal(result.bucket, bucket);
+      const bucket = `${this.bucket}-new`;
+      const putresult = yield this.store.putBucketACL(bucket, this.region, 'public-read');
+      assert.equal(putresult.res.status, 200);
+      assert.equal(putresult.bucket, bucket);
 
       yield utils.sleep(ms(metaSyncTime));
 
-      var result = yield this.store.getBucketACL(bucket);
-      assert.equal(result.res.status, 200);
-      assert.equal(result.acl, 'public-read');
+      const getresult = yield this.store.getBucketACL(bucket);
+      assert.equal(getresult.res.status, 200);
+      assert.equal(getresult.acl, 'public-read');
 
       yield this.store.deleteBucket(bucket, this.region);
     });
   });
 
-  describe('listBuckets()', function () {
+  describe('listBuckets()', () => {
     before(function* () {
       // create 2 buckets
       this.listBucketsPrefix = 'ali-oss-list-buckets-';
-      for (var i = 0; i < 2; i ++) {
-        var name = this.listBucketsPrefix + i;
-        var result = yield this.store.putBucket(name);
+      for (let i = 0; i < 2; i++) {
+        const name = this.listBucketsPrefix + i;
+        const result = yield this.store.putBucket(name);
         assert.equal(result.res.status, 200);
       }
     });
 
     it('should list buckets by prefix', function* () {
-      var result = yield this.store.listBuckets({
+      const result = yield this.store.listBuckets({
         prefix: this.listBucketsPrefix,
-        "max-keys": 20
+        'max-keys': 20
       });
 
       assert(Array.isArray(result.buckets));
@@ -143,48 +145,49 @@ describe('test/bucket.test.js', () => {
       assert.equal(typeof result.owner.id, 'string');
       assert.equal(typeof result.owner.displayName, 'string');
 
-      for (var i = 0; i < 2; i ++) {
-        var name = this.listBucketsPrefix + i;
+      for (let i = 0; i < 2; i++) {
+        const name = this.listBucketsPrefix + i;
         assert.equal(result.buckets[i].name, name);
       }
     });
 
+    /* eslint no-empty: [0] */
     after(function* () {
-      for (var i = 0; i < 2; i ++) {
-        var name = this.listBucketsPrefix + i;
+      for (let i = 0; i < 2; i++) {
+        const name = this.listBucketsPrefix + i;
         try {
           yield this.store.deleteBucket(name);
-        } catch (_) {}
+        } catch (err) {}
       }
     });
   });
 
-  describe('putBucketLogging(), getBucketLogging(), deleteBucketLogging()', function () {
+  describe('putBucketLogging(), getBucketLogging(), deleteBucketLogging()', () => {
     it('should create, get and delete the logging', function* () {
-      var result = yield this.store.putBucketLogging(this.bucket, this.region, 'logs/');
+      let result = yield this.store.putBucketLogging(this.bucket, this.region, 'logs/');
       assert.equal(result.res.status, 200);
       // put again will be fine
-      var result = yield this.store.putBucketLogging(this.bucket, this.region, 'logs/');
+      result = yield this.store.putBucketLogging(this.bucket, this.region, 'logs/');
       assert.equal(result.res.status, 200);
 
       // get the logging setttings
-      var result = yield this.store.getBucketLogging(this.bucket, this.region);
+      result = yield this.store.getBucketLogging(this.bucket, this.region);
       assert.equal(result.res.status, 200);
 
       // delete it
-      var result = yield this.store.deleteBucketLogging(this.bucket, this.region);
+      result = yield this.store.deleteBucketLogging(this.bucket, this.region);
       assert.equal(result.res.status, 204);
     });
   });
 
-  describe('putBucketWebsite(), getBucketWebsite(), deleteBucketWebsite()', function () {
+  describe('putBucketWebsite(), getBucketWebsite(), deleteBucketWebsite()', () => {
     it('should create, get and delete the website settings', function* () {
-      var result = yield this.store.putBucketWebsite(this.bucket, this.region, {
+      let result = yield this.store.putBucketWebsite(this.bucket, this.region, {
         index: 'index.html'
       });
       assert.equal(result.res.status, 200);
       // put again will be fine
-      var result = yield this.store.putBucketWebsite(this.bucket, this.region, {
+      result = yield this.store.putBucketWebsite(this.bucket, this.region, {
         index: 'index.htm',
         error: 'error.htm'
       });
@@ -193,28 +196,28 @@ describe('test/bucket.test.js', () => {
       yield utils.sleep(ms(metaSyncTime));
 
       // get
-      var result = yield this.store.getBucketWebsite(this.bucket, this.region);
+      result = yield this.store.getBucketWebsite(this.bucket, this.region);
       assert.equal(typeof result.index, 'string');
       assert.equal(result.res.status, 200);
 
       // delete it
-      var result = yield this.store.deleteBucketWebsite(this.bucket, this.region);
+      result = yield this.store.deleteBucketWebsite(this.bucket, this.region);
       assert.equal(result.res.status, 204);
     });
   });
 
-  describe('putBucketLifecycle(), getBucketLifecycle(), deleteBucketLifecycle()', function () {
+  describe('putBucketLifecycle(), getBucketLifecycle(), deleteBucketLifecycle()', () => {
     it('should create, get and delete the lifecycle', function* () {
-      var result = yield this.store.putBucketLifecycle(this.bucket, this.region, [{
+      const putresult1 = yield this.store.putBucketLifecycle(this.bucket, this.region, [{
         id: 'delete after one day',
         prefix: 'logs/',
         status: 'Enabled',
         days: 1
       }]);
-      assert.equal(result.res.status, 200);
+      assert.equal(putresult1.res.status, 200);
 
       // put again will be fine
-      var result = yield this.store.putBucketLifecycle(this.bucket, this.region, [
+      const putresult2 = yield this.store.putBucketLifecycle(this.bucket, this.region, [
         {
           id: 'delete after one day',
           prefix: 'logs/',
@@ -227,107 +230,107 @@ describe('test/bucket.test.js', () => {
           date: '2022-10-11T00:00:00.000Z'
         }
       ]);
-      assert.equal(result.res.status, 200);
+      assert.equal(putresult2.res.status, 200);
 
       yield utils.sleep(ms(metaSyncTime));
 
       // get
-      var result = yield this.store.getBucketLifecycle(this.bucket, this.region);
-      assert(result.rules.length > 0);
-      assert.equal(result.res.status, 200);
+      const putresult3 = yield this.store.getBucketLifecycle(this.bucket, this.region);
+      assert(putresult3.rules.length > 0);
+      assert.equal(putresult3.res.status, 200);
 
       // delete it
-      var result = yield this.store.deleteBucketLifecycle(this.bucket, this.region);
-      assert.equal(result.res.status, 204);
+      const deleteResult = yield this.store.deleteBucketLifecycle(this.bucket, this.region);
+      assert.equal(deleteResult.res.status, 204);
     });
   });
 
-  describe('putBucketReferer(), getBucketReferer(), deleteBucketReferer()', function () {
+  describe('putBucketReferer(), getBucketReferer(), deleteBucketReferer()', () => {
     it('should create, get and delete the referer', function* () {
-      var result = yield this.store.putBucketReferer(this.bucket, this.region, true, [
+      const putresult = yield this.store.putBucketReferer(this.bucket, this.region, true, [
         'http://npm.taobao.org'
       ]);
-      assert.equal(result.res.status, 200);
+      assert.equal(putresult.res.status, 200);
 
       // put again will be fine
-      var referers = [
+      const referers = [
         'http://npm.taobao.org',
         'https://npm.taobao.org',
         'http://cnpmjs.org'
       ];
-      var result = yield this.store.putBucketReferer(this.bucket, this.region, false, referers);
-      assert.equal(result.res.status, 200);
+      const putReferer = yield this.store.putBucketReferer(this.bucket, this.region, false, referers);
+      assert.equal(putReferer.res.status, 200);
 
       yield utils.sleep(ms(metaSyncTime));
 
       // get
-      var result = yield this.store.getBucketReferer(this.bucket, this.region);
-      assert(Array.isArray(result.referers));
-      assert.equal(typeof result.allowEmpty, 'boolean');
-      assert.equal(result.res.status, 200);
+      const getReferer = yield this.store.getBucketReferer(this.bucket, this.region);
+      assert(Array.isArray(getReferer.referers));
+      assert.equal(typeof getReferer.allowEmpty, 'boolean');
+      assert.equal(getReferer.res.status, 200);
 
       // delete it
-      var result = yield this.store.deleteBucketReferer(this.bucket, this.region);
-      assert.equal(result.res.status, 200);
+      const deleteResult = yield this.store.deleteBucketReferer(this.bucket, this.region);
+      assert.equal(deleteResult.res.status, 200);
     });
   });
 
-  describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', function () {
+  describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', () => {
     afterEach(function* () {
       // delete it
-      var result = yield this.store.deleteBucketCORS(this.bucket, this.region);
+      const result = yield this.store.deleteBucketCORS(this.bucket, this.region);
       assert.equal(result.res.status, 204);
     });
 
     it('should create, get and delete the cors', function* () {
-      var rules = [{
+      const rules = [{
         allowedOrigin: '*',
         allowedMethod: 'GET',
         allowedHeader: '*',
         exposeHeader: 'Content-Length',
-        maxAgeSeconds: '30',
+        maxAgeSeconds: '30'
       }];
-      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
-      assert.equal(result.res.status, 200);
+      const putResult = yield this.store.putBucketCORS(this.bucket, this.region, rules);
+      assert.equal(putResult.res.status, 200);
 
-      result = yield this.store.getBucketCORS(this.bucket, this.region);
-      assert.equal(result.res.status, 200);
-      assert.deepEqual(result.rules, [{
+      const getResult = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(getResult.res.status, 200);
+      assert.deepEqual(getResult.rules, [{
         allowedOrigin: '*',
         allowedMethod: 'GET',
         allowedHeader: '*',
         exposeHeader: 'Content-Length',
-        maxAgeSeconds: '30',
+        maxAgeSeconds: '30'
       }]);
     });
 
     it('should overwrite cors', function* () {
-      var rules = [{
+      let rules = [{
         allowedOrigin: '*',
-        allowedMethod: 'GET',
+        allowedMethod: 'GET'
       }];
-      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
-      assert.equal(result.res.status, 200);
+      const putCorsResult1 = yield this.store.putBucketCORS(this.bucket, this.region, rules);
+      assert.equal(putCorsResult1.res.status, 200);
 
-      result = yield this.store.getBucketCORS(this.bucket, this.region);
-      assert.equal(result.res.status, 200);
-      assert.deepEqual(result.rules, [{
+      const getCorsResult1 = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(getCorsResult1.res.status, 200);
+      assert.deepEqual(getCorsResult1.rules, [{
         allowedOrigin: '*',
-        allowedMethod: 'GET',
+        allowedMethod: 'GET'
       }]);
 
       rules = [{
         allowedOrigin: 'localhost',
-        allowedMethod: 'HEAD',
+        allowedMethod: 'HEAD'
       }];
-      var result = yield this.store.putBucketCORS(this.bucket, this.region, rules);
-      assert.equal(result.res.status, 200);
+      const putCorsResult2 = yield this.store.putBucketCORS(this.bucket, this.region, rules);
+      assert.equal(putCorsResult2.res.status, 200);
 
-      result = yield this.store.getBucketCORS(this.bucket, this.region);
-      assert.equal(result.res.status, 200);
-      assert.deepEqual(result.rules, [{
+      const getCorsResult2 = yield this.store.getBucketCORS(this.bucket, this.region);
+      assert.equal(getCorsResult2.res.status, 200);
+      assert.deepEqual(getCorsResult2.rules, [{
         allowedOrigin: 'localhost',
-        allowedMethod: 'HEAD',
+        allowedMethod: 'HEAD'
       }]);
     });
 
@@ -351,8 +354,8 @@ describe('test/bucket.test.js', () => {
 
     it('should check allowedMethod', function* () {
       try {
-        var rules = [{
-          allowedOrigin: '*',
+        const rules = [{
+          allowedOrigin: '*'
         }];
         yield this.store.putBucketCORS(this.bucket, this.region, rules);
         throw new Error('should not run');

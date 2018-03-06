@@ -1,14 +1,15 @@
 'use strict';
+
 // require("babel-polyfill")
 
-var $ = require('jquery');
-//if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
-var OSS = require('ali-oss');
-var appServer = '/sts';
-var bucket = '<bucket-name>';
-var region = 'oss-cn-hangzhou';
-var Buffer = OSS.Buffer;
+const $ = require('jquery');
+// if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
+const OSS = require('ali-oss');
 
+const appServer = '/sts';
+const bucket = '<bucket-name>';
+const region = 'oss-cn-hangzhou';
+const { Buffer } = OSS;
 // Play without STS. NOT SAFE! Because access key id/secret are
 // exposed in web page.
 
@@ -22,81 +23,80 @@ var Buffer = OSS.Buffer;
 // var applyTokenDo = function (func) {
 //   return func(client);
 // };
-var applyTokenDo = function (func, refreshSts) {
-  var refresh = typeof(refreshSts) !== 'undefined' ? refreshSts : true;
+
+const applyTokenDo = function (func, refreshSts) {
+  const refresh = typeof (refreshSts) !== 'undefined' ? refreshSts : true;
   if (refresh) {
-    var url = appServer;
+    const url = appServer;
     return $.ajax({
-      url: url
-    }).then(function (result) {
-      var creds = result;
-      var client = new OSS.Wrapper({
-        region: region,
+      url
+    }).then((result) => {
+      const creds = result;
+      const client = new OSS.Wrapper({
+        region,
         accessKeyId: creds.AccessKeyId,
         accessKeySecret: creds.AccessKeySecret,
         stsToken: creds.SecurityToken,
-        bucket: bucket
+        bucket
       });
 
       console.log(OSS.version);
       return func(client);
     });
-  } else {
-    return func();
   }
+  return func();
 };
-var current_checkpoint;
-var progress = function (p, checkpoint) {
+let currentCheckpoint;
+const progress = function (p, checkpoint) {
   return function (done) {
-    current_checkpoint = checkpoint;
-    var bar = document.getElementById('progress-bar');
-    bar.style.width = Math.floor(p * 100) + '%';
-    bar.innerHTML = Math.floor(p * 100) + '%';
+    currentCheckpoint = checkpoint;
+    const bar = document.getElementById('progress-bar');
+    bar.style.width = `${Math.floor(p * 100)}%`;
+    bar.innerHTML = `${Math.floor(p * 100)}%`;
     done();
   };
 };
 
-var uploadFileClient;
+let uploadFileClient;
 
-var uploadFile = function (client) {
+const uploadFile = function (client) {
   if (!uploadFileClient || Object.keys(uploadFileClient).length === 0) {
     uploadFileClient = client;
   }
 
-  var file = document.getElementById('file').files[0];
-  var key = document.getElementById('object-key-file').value.trim() || 'object';
+  const file = document.getElementById('file').files[0];
+  const key = document.getElementById('object-key-file').value.trim() || 'object';
 
-  console.log(file.name + ' => ' + key);
-  var options = {
-    progress: progress,
+  console.log(`${file.name} => ${key}`);
+  const options = {
+    progress,
     partSize: 100 * 1024,
     meta: {
       year: 2017,
       people: 'test'
     }
+  };
+  if (currentCheckpoint) {
+    options.checkpoint = currentCheckpoint;
   }
-  if (current_checkpoint) {
-    options.checkpoint = current_checkpoint;
-  }
-  return uploadFileClient.multipartUpload(key, file, options).then(function (res) {
+  return uploadFileClient.multipartUpload(key, file, options).then((res) => {
     console.log('upload success: %j', res);
-    current_checkpoint = null;
+    currentCheckpoint = null;
     uploadFileClient = null;
-  }).catch(function (err) {
+  }).catch((err) => {
     if (uploadFileClient && uploadFileClient.isCancel()) {
       console.log('stop-upload!');
     } else {
       console.error(err);
     }
   });
-
 };
 
-var base64progress = function (p) {
+const base64progress = function (p) {
   return function (done) {
-    var bar = document.getElementById('base64-progress-bar');
-    bar.style.width = Math.floor(p * 100) + '%';
-    bar.innerHTML = Math.floor(p * 100) + '%';
+    const bar = document.getElementById('base64-progress-bar');
+    bar.style.width = `${Math.floor(p * 100)}%`;
+    bar.innerHTML = `${Math.floor(p * 100)}%`;
     done();
   };
 };
@@ -108,64 +108,56 @@ var base64progress = function (p) {
  * @returns {File|*}
  */
 function dataURLtoFile(dataurl, filename) {
-  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-  while(n--){
+  const arr = dataurl.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
-  return new File([u8arr], filename, {type:mime});
+  return new File([u8arr], filename, { type: mime });
 }
 
 
-var uploadBase64Img = function (client) {
-  var base64Content = document.getElementById('base64-file-content').value.trim();
-  var key = document.getElementById('base64-object-key-file').value.trim() || 'object';
+const uploadBase64Img = function (client) {
+  const base64Content = document.getElementById('base64-file-content').value.trim();
+  const key = document.getElementById('base64-object-key-file').value.trim() || 'object';
   if (base64Content.startsWith('data:image')) {
-    var imgfile = dataURLtoFile(base64Content, 'img.png');
-    return client.multipartUpload(key, imgfile, {
+    const imgfile = dataURLtoFile(base64Content, 'img.png');
+    client.multipartUpload(key, imgfile, {
       progress: base64progress
-    }).then(function (res) {
+    }).then((res) => {
       console.log('upload success: %j', res);
-    }).catch(function (err) {
+    }).catch((err) => {
       console.error(err);
     });
-  } else {
-    alert('Please fill in the correct Base64 img');
   }
+  alert('Please fill in the correct Base64 img');
 };
 
-var uploadContent = function (client) {
-  var content = document.getElementById('file-content').value.trim();
-  var key = document.getElementById('object-key-content').value.trim() || 'object';
-  console.log('content => ' + key);
-
-  return client.put(key, new Buffer(content)).then(function (res) {
-    return listFiles(client);
-  });
-};
-
-var listFiles = function (client) {
-  var table = document.getElementById('list-files-table');
+const listFiles = function (client) {
+  const table = document.getElementById('list-files-table');
   console.log('list files');
 
   return client.list({
     'max-keys': 100
-  }).then(function (result) {
-    var objects = result.objects.sort(function (a, b) {
-      var ta = new Date(a.lastModified);
-      var tb = new Date(b.lastModified);
+  }).then((result) => {
+    const objects = result.objects.sort((a, b) => {
+      const ta = new Date(a.lastModified);
+      const tb = new Date(b.lastModified);
       if (ta > tb) return -1;
       if (ta < tb) return 1;
       return 0;
     });
 
-    var numRows = table.rows.length;
-    for (var i = 1; i < numRows; i++) {
+    const numRows = table.rows.length;
+    for (let i = 1; i < numRows; i++) {
       table.deleteRow(table.rows.length - 1);
     }
 
-    for (var i = 0; i < Math.min(3, objects.length); i++) {
-      var row = table.insertRow(table.rows.length);
+    for (let i = 0; i < Math.min(3, objects.length); i++) {
+      const row = table.insertRow(table.rows.length);
       row.insertCell(0).innerHTML = objects[i].name;
       row.insertCell(1).innerHTML = objects[i].size;
       row.insertCell(2).innerHTML = objects[i].lastModified;
@@ -173,14 +165,24 @@ var listFiles = function (client) {
   });
 };
 
-var downloadFile = function (client) {
-  var object = document.getElementById('dl-object-key').value.trim();
-  var filename = document.getElementById('dl-file-name').value.trim();
-  console.log(object + ' => ' + filename);
+/* eslint no-unused-vars: [0] */
+const uploadContent = function (client) {
+  const content = document.getElementById('file-content').value.trim();
+  const key = document.getElementById('object-key-content').value.trim() || 'object';
+  console.log(`content => ${key}`);
 
-  var result = client.signatureUrl(object, {
+  return client.put(key, new Buffer(content)).then(res => listFiles(client));
+};
+
+
+const downloadFile = function (client) {
+  const object = document.getElementById('dl-object-key').value.trim();
+  const filename = document.getElementById('dl-file-name').value.trim();
+  console.log(`${object} => ${filename}`);
+
+  const result = client.signatureUrl(object, {
     response: {
-      'content-disposition': 'attachment; filename="' + filename + '"'
+      'content-disposition': `attachment; filename="${filename}"`
     }
   });
   window.location = result;

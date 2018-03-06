@@ -1,33 +1,35 @@
 'use strict';
 
-var assert = require('assert');
-var oss = require('../');
-var config = require('./config').oss;
-var mm = require('mm');
-var pkg = require('../package.json');
+const assert = require('assert');
+const oss = require('../');
+const config = require('./config').oss;
+const mm = require('mm');
+const pkg = require('../package.json');
 
-describe('test/client.test.js', function () {
-  it('should init with region', function () {
-    var store = oss({
+describe('test/client.test.js', () => {
+  it('should init with region', () => {
+    let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'oss-cn-hangzhou',
+      region: 'oss-cn-hangzhou'
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://oss-cn-hangzhou.aliyuncs.com/');
+      'http://oss-cn-hangzhou.aliyuncs.com/'
+    );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou',
-      internal: true,
+      internal: true
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://oss-cn-hangzhou-internal.aliyuncs.com/');
+      'http://oss-cn-hangzhou-internal.aliyuncs.com/'
+    );
 
     store = oss({
       accessKeyId: 'foo',
@@ -39,28 +41,31 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'https://oss-cn-hangzhou-internal.aliyuncs.com/');
+      'https://oss-cn-hangzhou-internal.aliyuncs.com/'
+    );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'vpc100-oss-cn-beijing',
+      region: 'vpc100-oss-cn-beijing'
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://vpc100-oss-cn-beijing.aliyuncs.com/');
+      'http://vpc100-oss-cn-beijing.aliyuncs.com/'
+    );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'vpc100-oss-cn-shenzhen',
-      internal: true,
+      internal: true
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://vpc100-oss-cn-shenzhen.aliyuncs.com/');
+      'http://vpc100-oss-cn-shenzhen.aliyuncs.com/'
+    );
 
     store = oss({
       accessKeyId: 'foo',
@@ -72,11 +77,12 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'https://vpc100-oss-cn-hangzhou.aliyuncs.com/');
+      'https://vpc100-oss-cn-hangzhou.aliyuncs.com/'
+    );
   });
 
-  it('should init with cname: foo.bar.com', function () {
-    var store = oss({
+  it('should init with cname: foo.bar.com', () => {
+    let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
@@ -85,9 +91,10 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://foo.bar.com/');
+      'http://foo.bar.com/'
+    );
 
-    var store = oss({
+    store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://foo.bar.com',
@@ -96,11 +103,12 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://foo.bar.com/');
+      'http://foo.bar.com/'
+    );
   });
 
-  it('should init with endpoint: http://test.oss.com', function () {
-    var store = oss({
+  it('should init with endpoint: http://test.oss.com', () => {
+    let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'test.oss.com'
@@ -108,7 +116,8 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://test.oss.com/');
+      'http://test.oss.com/'
+    );
 
     store = oss({
       accessKeyId: 'foo',
@@ -118,7 +127,8 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://test.oss.com/');
+      'http://test.oss.com/'
+    );
 
     store = oss({
       accessKeyId: 'foo',
@@ -128,11 +138,12 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'https://test.oss.com/');
+      'https://test.oss.com/'
+    );
   });
 
-  it('should init with ip address: http://127.0.0.1', function () {
-    var store = oss({
+  it('should init with ip address: http://127.0.0.1', () => {
+    const store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: '127.0.0.1'
@@ -140,173 +151,173 @@ describe('test/client.test.js', function () {
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://127.0.0.1/');
+      'http://127.0.0.1/'
+    );
   });
 
-  it('should create request url with bucket', function() {
-    var store = oss({
+  it('should create request url with bucket', () => {
+    let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'oss-cn-hangzhou',
+      region: 'oss-cn-hangzhou'
     });
 
-    var params = {
+    let params = {
       bucket: 'gems'
     };
 
-    var url = store._getReqUrl(params);
+    let url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/');
 
-    var store = oss({
+    store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'test.oss.com'
     });
 
-    var params = {
+    params = {
       bucket: 'gems'
     };
 
-    var url = store._getReqUrl(params);
+    url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.test.oss.com/');
 
-    var store = oss({
+    store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
       cname: true
     });
 
-    var params = {
+    params = {
       bucket: 'gems'
     };
 
-    var url = store._getReqUrl(params);
+    url = store._getReqUrl(params);
     assert.equal(url, 'http://foo.bar.com/');
 
-    var store = oss({
+    store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://127.0.0.1:6000'
     });
 
-    var params = {
+    params = {
       bucket: 'gems'
     };
 
-    var url = store._getReqUrl(params);
+    url = store._getReqUrl(params);
     assert.equal(url, 'http://127.0.0.1:6000/gems/');
   });
 
-  it('should create request url with bucket/object/subres', function() {
-    var store = oss({
+  it('should create request url with bucket/object/subres', () => {
+    let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'oss-cn-hangzhou',
+      region: 'oss-cn-hangzhou'
     });
 
-    var params = {
+    let params = {
       bucket: 'gems',
       object: 'hello'
     };
 
-    var url = store._getReqUrl(params);
+    let url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/hello');
 
-    var params = {
+    params = {
       bucket: 'gems',
       object: 'hello',
-      subres: {acl: '', mime: ''}
+      subres: { acl: '', mime: '' }
     };
 
-    var url = store._getReqUrl(params);
+    url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/hello?acl=&mime=');
 
-    var store = oss({
+    store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'test.oss.com'
     });
 
-    var params = {
+    params = {
       bucket: 'gems',
       object: 'hello'
     };
 
-    var url = store._getReqUrl(params);
+    url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.test.oss.com/hello');
 
-    var store = oss({
+    store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
       cname: true
     });
 
-    var params = {
+    params = {
       bucket: 'gems',
       object: 'hello'
     };
 
-    var url = store._getReqUrl(params);
+    url = store._getReqUrl(params);
     assert.equal(url, 'http://foo.bar.com/hello');
 
-    var store = oss({
+    store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://127.0.0.1:3000'
     });
 
-    var params = {
+    params = {
       bucket: 'gems',
       object: 'hello'
     };
 
-    var url = store._getReqUrl(params);
+    url = store._getReqUrl(params);
     assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
   });
 
   it('should set User-Agent', function* () {
     after(mm.restore);
 
-    var store = oss(config);
-    var headers;
-    var req = store.urllib.request;
-    mm(store.urllib, 'request', function (url, args) {
-      headers = args.headers;
+    const store = oss(config);
+    let header;
+    const req = store.urllib.request;
+    mm(store.urllib, 'request', (url, args) => {
+      header = args.headers;
       return req(url, args);
     });
 
-    var result = yield store.listBuckets();
+    const result = yield store.listBuckets();
     assert.equal(result.res.status, 200);
-    assert(headers['User-Agent']);
-    assert(headers['User-Agent'].startsWith(
-      'aliyun-sdk-nodejs/' + pkg.version + ' Node.js ' + process.version.slice(1)));
-    assert(headers['x-oss-user-agent']);
-    assert(headers['x-oss-user-agent'].startsWith(
-      'aliyun-sdk-nodejs/' + pkg.version + ' Node.js ' + process.version.slice(1)));
+    assert(header['User-Agent']);
+    assert(header['User-Agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
+    assert(header['x-oss-user-agent']);
+    assert(header['x-oss-user-agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
   });
 
-  it('should check beta or alpha User-Agent', function () {
-    var store = oss(config);
-    var ua_beta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
-    assert.equal(ua_beta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
-    var ua_alpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
-    assert.equal(ua_alpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
+  it('should check beta or alpha User-Agent', () => {
+    const store = oss(config);
+    const uaBeta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
+    assert.equal(uaBeta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
+    const uaAlpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
+    assert.equal(uaAlpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
   });
 
+  /* eslint require-yield: [0] */
   it('should check browser and version', function* () {
-    var store = oss(config);
-    assert(store.checkBrowserAndVersion("", ""));
-    assert(!store.checkBrowserAndVersion("non-nodejs", ""));
-    assert(!store.checkBrowserAndVersion("", "error-version"));
+    const store = oss(config);
+    assert(store.checkBrowserAndVersion('', ''));
+    assert(!store.checkBrowserAndVersion('non-nodejs', ''));
+    assert(!store.checkBrowserAndVersion('', 'error-version'));
   });
 
   it('should trim access id/key', function* () {
-    var store = oss({
+    const store = oss({
       accessKeyId: '  \tfoo\t\n  ',
       accessKeySecret: '  \tbar\n\r   ',
-      region: 'oss-cn-hangzhou',
+      region: 'oss-cn-hangzhou'
     });
 
     assert.equal(store.options.accessKeyId, 'foo');

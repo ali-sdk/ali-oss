@@ -1,31 +1,31 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var assert = require('assert');
-var cfs = require('co-fs');
-var Readable = require('stream').Readable;
-var utils = require('./utils');
-var oss = require('../');
-var sts = require('../').STS;
-var config = require('./config').oss;
-var stsConfig = require('./config').sts;
-var urllib = require('urllib');
-var copy = require('copy-to');
-var mm = require('mm');
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+const cfs = require('co-fs');
+const { Readable } = require('stream');
+const utils = require('./utils');
+const oss = require('../');
+const sts = require('../').STS;
+const config = require('./config').oss;
+const stsConfig = require('./config').sts;
+const urllib = require('urllib');
+const copy = require('copy-to');
+const mm = require('mm');
 const streamEqual = require('stream-equal');
 
-var tmpdir = path.join(__dirname, '.tmp');
+const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
   fs.mkdirSync(tmpdir);
 }
 
-describe('test/object.test.js', function () {
-  var prefix = utils.prefix;
+describe('test/object.test.js', () => {
+  const { prefix } = utils;
 
   before(function* () {
     this.store = oss(config);
-    this.bucket = 'ali-oss-test-object-bucket-' + prefix.replace(/[\/\.]/g, '-');
+    this.bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
     // console.log('current buckets: %j',
@@ -41,12 +41,12 @@ describe('test/object.test.js', function () {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
-  describe('putStream()', function () {
+  describe('putStream()', () => {
     afterEach(mm.restore);
 
     it('should add object with streaming way', function* () {
-      var name = prefix + 'ali-sdk/oss/putStream-localfile.js';
-      var object = yield this.store.putStream(name, fs.createReadStream(__filename));
+      const name = `${prefix}ali-sdk/oss/putStream-localfile.js`;
+      const object = yield this.store.putStream(name, fs.createReadStream(__filename));
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
@@ -54,49 +54,48 @@ describe('test/object.test.js', function () {
       assert(object.url);
 
       // check content
-      var r = yield this.store.get(name);
+      const r = yield this.store.get(name);
       assert.equal(r.res.status, 200);
       assert.equal(r.content.toString(), fs.readFileSync(__filename, 'utf8'));
     });
 
     it('should use chunked encoding', function* () {
-      var name = prefix + 'ali-sdk/oss/chunked-encoding.js';
-      var headers;
-      var req = this.store.urllib.request;
-      mm(this.store.urllib, 'request', function (url, args) {
-        headers = args.headers;
+      const name = `${prefix}ali-sdk/oss/chunked-encoding.js`;
+      let header;
+      const req = this.store.urllib.request;
+      mm(this.store.urllib, 'request', (url, args) => {
+        header = args.headers;
         return req(url, args);
       });
 
-      var result = yield this.store.putStream(name, fs.createReadStream(__filename));
+      const result = yield this.store.putStream(name, fs.createReadStream(__filename));
 
       assert.equal(result.res.status, 200);
-      assert.equal(headers['Transfer-Encoding'], 'chunked');
+      assert.equal(header['Transfer-Encoding'], 'chunked');
     });
 
     it('should NOT use chunked encoding', function* () {
-      var name = prefix + 'ali-sdk/oss/no-chunked-encoding.js';
-      var headers;
-      var req = this.store.urllib.request;
-      mm(this.store.urllib, 'request', function (url, args) {
-        headers = args.headers;
+      const name = `${prefix}ali-sdk/oss/no-chunked-encoding.js`;
+      let header;
+      const req = this.store.urllib.request;
+      mm(this.store.urllib, 'request', (url, args) => {
+        header = args.headers;
         return req(url, args);
       });
 
-      var options = {
+      const options = {
         contentLength: fs.statSync(__filename).size
       };
-      var result = yield this.store.putStream(
-        name, fs.createReadStream(__filename), options);
+      const result = yield this.store.putStream(name, fs.createReadStream(__filename), options);
 
-      assert(!headers['Transfer-Encoding']);
+      assert(!header['Transfer-Encoding']);
       assert.equal(result.res.status, 200);
     });
 
     it('should add image with streaming way', function* () {
-      var name = prefix + 'ali-sdk/oss/nodejs-1024x768.png';
-      var imagepath = path.join(__dirname, 'nodejs-1024x768.png');
-      var object = yield this.store.putStream(name, fs.createReadStream(imagepath), {
+      const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
+      const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+      const object = yield this.store.putStream(name, fs.createReadStream(imagepath), {
         mime: 'image/png'
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
@@ -105,53 +104,53 @@ describe('test/object.test.js', function () {
       assert(object.name, name);
 
       // check content
-      var r = yield this.store.get(name);
+      const r = yield this.store.get(name);
       assert.equal(r.res.status, 200);
       assert.equal(r.res.headers['content-type'], 'image/png');
-      var buf = fs.readFileSync(imagepath);
+      const buf = fs.readFileSync(imagepath);
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
     });
 
     it('should add very big file: 4mb with streaming way', function* () {
-      var name = prefix + 'ali-sdk/oss/bigfile-4mb.bin';
-      var bigfile = path.join(__dirname, '.tmp', 'bigfile-4mb.bin');
+      const name = `${prefix}ali-sdk/oss/bigfile-4mb.bin`;
+      const bigfile = path.join(__dirname, '.tmp', 'bigfile-4mb.bin');
       fs.writeFileSync(bigfile, Buffer.alloc(4 * 1024 * 1024).fill('a\n'));
-      var object = yield this.store.putStream(name, fs.createReadStream(bigfile));
+      const object = yield this.store.putStream(name, fs.createReadStream(bigfile));
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
       assert(object.name, name);
 
       // check content
-      var r = yield this.store.get(name);
+      const r = yield this.store.get(name);
       assert.equal(r.res.status, 200);
       assert.equal(r.res.headers['content-type'], 'application/octet-stream');
       assert.equal(r.res.size, 4 * 1024 * 1024);
-      var buf = fs.readFileSync(bigfile);
+      const buf = fs.readFileSync(bigfile);
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
     });
   });
 
-  describe('getObjectUrl()', function() {
-    it('should return object url', function() {
-      var name = 'test.js';
-      var url = this.store.getObjectUrl(name);
+  describe('getObjectUrl()', () => {
+    it('should return object url', function () {
+      let name = 'test.js';
+      let url = this.store.getObjectUrl(name);
       assert.equal(url, this.store.options.endpoint.format() + name);
 
-      var name = '/foo/bar/a%2Faa/test&+-123~!.js';
-      var url = this.store.getObjectUrl(name, 'https://foo.com');
+      name = '/foo/bar/a%2Faa/test&+-123~!.js';
+      url = this.store.getObjectUrl(name, 'https://foo.com');
       assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-      var url2 = this.store.getObjectUrl(name, 'https://foo.com/');
+      const url2 = this.store.getObjectUrl(name, 'https://foo.com/');
       assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
     });
   });
 
-  describe('put()', function () {
+  describe('put()', () => {
     it('should add object with local file path', function* () {
-      var name = prefix + 'ali-sdk/oss/put-localfile.js';
-      var object = yield this.store.put(name, __filename);
+      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      const object = yield this.store.put(name, __filename);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
@@ -159,16 +158,16 @@ describe('test/object.test.js', function () {
     });
 
     it('should add object with content buffer', function* () {
-      var name = prefix + 'ali-sdk/oss/put-buffer';
-      var object = yield this.store.put('/' + name, new Buffer('foo content'));
+      const name = `${prefix}ali-sdk/oss/put-buffer`;
+      const object = yield this.store.put(`/${name}`, new Buffer('foo content'));
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert(object.name, name);
     });
 
     it('should add object with readstream', function* () {
-      var name = prefix + 'ali-sdk/oss/put-readstream';
-      var object = yield this.store.put(name, fs.createReadStream(__filename), {
+      const name = `${prefix}ali-sdk/oss/put-readstream`;
+      const object = yield this.store.put(name, fs.createReadStream(__filename), {
         headers: {
           'Content-Length': (yield cfs.stat(__filename)).size
         }
@@ -180,8 +179,8 @@ describe('test/object.test.js', function () {
     });
 
     it('should add object with meta', function* () {
-      var name = prefix + 'ali-sdk/oss/put-meta.js';
-      var object = yield this.store.put(name, __filename, {
+      const name = `${prefix}ali-sdk/oss/put-meta.js`;
+      const object = yield this.store.put(name, __filename, {
         meta: {
           uid: 1,
           slus: 'test.html'
@@ -192,7 +191,7 @@ describe('test/object.test.js', function () {
       assert.equal(object.res.size, 0);
       assert(object.name, name);
 
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.deepEqual(info.meta, {
         uid: '1',
         slus: 'test.html'
@@ -201,135 +200,135 @@ describe('test/object.test.js', function () {
     });
 
     it('should set Content-Disposition with ascii name', function* () {
-      var name = prefix + 'ali-sdk/oss/put-Content-Disposition.js';
-      var object = yield this.store.put(name, __filename, {
+      const name = `${prefix}ali-sdk/oss/put-Content-Disposition.js`;
+      const object = yield this.store.put(name, __filename, {
         headers: {
           'Content-Disposition': 'ascii-name.js'
         }
       });
       assert(object.name, name);
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.res.headers['content-disposition'], 'ascii-name.js');
     });
 
     it('should set Content-Disposition with no-ascii name', function* () {
-      var name = prefix + 'ali-sdk/oss/put-Content-Disposition.js';
-      var object = yield this.store.put(name, __filename, {
+      const name = `${prefix}ali-sdk/oss/put-Content-Disposition.js`;
+      const object = yield this.store.put(name, __filename, {
         headers: {
           'Content-Disposition': encodeURIComponent('non-ascii-名字.js')
         }
       });
       assert(object.name, name);
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.res.headers['content-disposition'], 'non-ascii-%E5%90%8D%E5%AD%97.js');
     });
 
     it('should set Expires', function* () {
-      var name = prefix + 'ali-sdk/oss/put-Expires.js';
-      var object = yield this.store.put(name, __filename, {
+      const name = `${prefix}ali-sdk/oss/put-Expires.js`;
+      const object = yield this.store.put(name, __filename, {
         headers: {
-          'Expires': 1000000
+          Expires: 1000000
         }
       });
       assert(object.name, name);
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.res.headers.expires, '1000000');
     });
 
     it('should set custom Content-Type', function* () {
-      var name = prefix + 'ali-sdk/oss/put-Content-Type.js';
-      var object = yield this.store.put(name, __filename, {
+      const name = `${prefix}ali-sdk/oss/put-Content-Type.js`;
+      const object = yield this.store.put(name, __filename, {
         headers: {
           'Content-Type': 'text/plain; charset=gbk'
         }
       });
       assert(object.name, name);
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.res.headers['content-type'], 'text/plain; charset=gbk');
     });
 
     it('should set custom content-type lower case', function* () {
-      var name = prefix + 'ali-sdk/oss/put-Content-Type.js';
-      var object = yield this.store.put(name, __filename, {
+      const name = `${prefix}ali-sdk/oss/put-Content-Type.js`;
+      const object = yield this.store.put(name, __filename, {
         headers: {
           'content-type': 'application/javascript; charset=utf8'
         }
       });
       assert(object.name, name);
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
     });
   });
 
-  describe('mimetype', function () {
-    var createFile = function* (name, size) {
+  describe('mimetype', () => {
+    const createFile = function* (name, size) {
       size = size || 200 * 1024;
-      yield new Promise(function (resolve, reject) {
-        var rs = fs.createReadStream('/dev/random', {
+      yield new Promise(((resolve, reject) => {
+        const rs = fs.createReadStream('/dev/random', {
           start: 0,
           end: size - 1
         });
-        var ws = fs.createWriteStream(name);
+        const ws = fs.createWriteStream(name);
         rs.pipe(ws);
-        ws.on('finish', function (err, res) {
+        ws.on('finish', (err, res) => {
           if (err) {
             reject(err);
           } else {
             resolve(res);
           }
         });
-      });
+      }));
 
       return name;
     };
 
     it('should set mimetype by file ext', function* () {
-      var filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      const filepath = path.join(tmpdir, 'content-type-by-file.jpg');
       yield createFile(filepath);
-      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
       yield this.store.put(name, filepath);
 
-      var result = yield this.store.head(name);
+      let result = yield this.store.head(name);
       assert.equal(result.res.headers['content-type'], 'image/jpeg');
 
       yield this.store.multipartUpload(name, filepath);
-      var result = yield this.store.head(name);
+      result = yield this.store.head(name);
       assert.equal(result.res.headers['content-type'], 'image/jpeg');
     });
 
     it('should set mimetype by object key', function* () {
-      var filepath = path.join(tmpdir, 'content-type-by-file');
+      const filepath = path.join(tmpdir, 'content-type-by-file');
       yield createFile(filepath);
-      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
+      const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
       yield this.store.put(name, filepath);
 
-      var result = yield this.store.head(name);
+      let result = yield this.store.head(name);
       assert.equal(result.res.headers['content-type'], 'image/png');
       yield this.store.multipartUpload(name, filepath);
-      var result = yield this.store.head(name);
+      result = yield this.store.head(name);
       assert.equal(result.res.headers['content-type'], 'image/png');
     });
 
     it('should set user-specified mimetype', function* () {
-      var filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      const filepath = path.join(tmpdir, 'content-type-by-file.jpg');
       yield createFile(filepath);
-      var name = prefix + 'ali-sdk/oss/content-type-by-file.png';
-      yield this.store.put(name, filepath, {mime: 'text/plain'});
+      const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
+      yield this.store.put(name, filepath, { mime: 'text/plain' });
 
-      var result = yield this.store.head(name);
+      let result = yield this.store.head(name);
       assert.equal(result.res.headers['content-type'], 'text/plain');
       yield this.store.multipartUpload(name, filepath, {
         mime: 'text/plain'
       });
-      var result = yield this.store.head(name);
+      result = yield this.store.head(name);
       assert.equal(result.res.headers['content-type'], 'text/plain');
     });
   });
 
-  describe('head()', function () {
+  describe('head()', () => {
     before(function* () {
-      this.name = prefix + 'ali-sdk/oss/head-meta.js';
-      var object = yield this.store.put(this.name, __filename, {
+      this.name = `${prefix}ali-sdk/oss/head-meta.js`;
+      const object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -342,8 +341,8 @@ describe('test/object.test.js', function () {
 
     it('should head not exists object throw NoSuchKeyError', function* () {
       yield utils.throws(function* () {
-        yield this.store.head(this.name + 'not-exists');
-      }.bind(this), function (err) {
+        yield this.store.head(`${this.name}not-exists`);
+      }.bind(this), (err) => {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
         assert.equal(typeof err.requestId, 'string');
@@ -351,10 +350,10 @@ describe('test/object.test.js', function () {
     });
 
     it('should head exists object with If-Modified-Since < object modified time', function* () {
-      var lastYear = new Date(this.headers.date);
+      let lastYear = new Date(this.headers.date);
       lastYear.setFullYear(lastYear.getFullYear() - 1);
       lastYear = lastYear.toGMTString();
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-Modified-Since': lastYear
         }
@@ -364,7 +363,7 @@ describe('test/object.test.js', function () {
     });
 
     it('should head exists object with If-Modified-Since = object modified time', function* () {
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-Modified-Since': this.headers.date
         }
@@ -374,11 +373,11 @@ describe('test/object.test.js', function () {
     });
 
     it('should head exists object with If-Modified-Since > object modified time', function* () {
-      var nextYear = new Date(this.headers.date);
+      let nextYear = new Date(this.headers.date);
       nextYear.setFullYear(nextYear.getFullYear() + 1);
       nextYear = nextYear.toGMTString();
 
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-Modified-Since': nextYear
         }
@@ -388,7 +387,7 @@ describe('test/object.test.js', function () {
     });
 
     it('should head exists object with If-Unmodified-Since < object modified time', function* () {
-      var lastYear = new Date(this.headers.date);
+      let lastYear = new Date(this.headers.date);
       lastYear.setFullYear(lastYear.getFullYear() - 1);
       lastYear = lastYear.toGMTString();
       yield utils.throws(function* () {
@@ -397,14 +396,14 @@ describe('test/object.test.js', function () {
             'If-Unmodified-Since': lastYear
           }
         });
-      }.bind(this), function (err) {
+      }.bind(this), (err) => {
         assert.equal(err.name, 'PreconditionFailedError');
         assert.equal(err.status, 412);
       });
     });
 
     it('should head exists object with If-Unmodified-Since = object modified time', function* () {
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-Unmodified-Since': this.headers.date
         }
@@ -414,11 +413,11 @@ describe('test/object.test.js', function () {
     });
 
     it('should head exists object with If-Unmodified-Since > object modified time', function* () {
-      var nextYear = new Date(this.headers.date);
+      let nextYear = new Date(this.headers.date);
       nextYear.setFullYear(nextYear.getFullYear() + 1);
       nextYear = nextYear.toGMTString();
 
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-Unmodified-Since': nextYear
         }
@@ -428,7 +427,7 @@ describe('test/object.test.js', function () {
     });
 
     it('should head exists object with If-Match equal etag', function* () {
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-Match': this.headers.etag
         }
@@ -446,14 +445,14 @@ describe('test/object.test.js', function () {
             'If-Match': '"foo-etag"'
           }
         });
-      }.bind(this), function (err) {
+      }.bind(this), (err) => {
         assert.equal(err.name, 'PreconditionFailedError');
         assert.equal(err.status, 412);
       });
     });
 
     it('should head exists object with If-None-Match equal etag', function* () {
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-None-Match': this.headers.etag
         }
@@ -463,7 +462,7 @@ describe('test/object.test.js', function () {
     });
 
     it('should head exists object with If-None-Match not equal etag', function* () {
-      var info = yield this.store.head(this.name, {
+      const info = yield this.store.head(this.name, {
         headers: {
           'If-None-Match': '"foo-etag"'
         }
@@ -475,10 +474,10 @@ describe('test/object.test.js', function () {
     });
   });
 
-  describe('get()', function () {
+  describe('get()', () => {
     before(function* () {
-      this.name = prefix + 'ali-sdk/oss/get-meta.js';
-      var object = yield this.store.put(this.name, __filename, {
+      this.name = `${prefix}ali-sdk/oss/get-meta.js`;
+      let object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -488,7 +487,7 @@ describe('test/object.test.js', function () {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
 
-      this.needEscapeName = prefix + 'ali-sdk/oss/%3get+meta.js';
+      this.needEscapeName = `${prefix}ali-sdk/oss/%3get+meta.js`;
       object = yield this.store.put(this.needEscapeName, __filename, {
         meta: {
           uid: 1,
@@ -500,38 +499,38 @@ describe('test/object.test.js', function () {
     });
 
     it('should store object to local file', function* () {
-      var savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
-      var result = yield this.store.get(this.name, savepath);
+      const savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
+      const result = yield this.store.get(this.name, savepath);
       assert.equal(result.res.status, 200);
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
     it('should escape uri path ok', function* () {
-      var savepath = path.join(tmpdir, this.needEscapeName.replace(/\//g, '-'));
-      var result = yield this.store.get(this.needEscapeName, savepath);
+      const savepath = path.join(tmpdir, this.needEscapeName.replace(/\//g, '-'));
+      const result = yield this.store.get(this.needEscapeName, savepath);
       assert.equal(result.res.status, 200);
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
     it('should throw error when save path parent dir not exists', function* () {
-      var savepath = path.join(tmpdir, 'not-exists', this.name.replace(/\//g, '-'));
+      const savepath = path.join(tmpdir, 'not-exists', this.name.replace(/\//g, '-'));
       yield utils.throws(function* () {
         yield this.store.get(this.name, savepath);
       }.bind(this), /ENOENT/);
     });
 
     it('should store object to writeStream', function* () {
-      var savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
-      var result = yield this.store.get(this.name, fs.createWriteStream(savepath));
+      const savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
+      const result = yield this.store.get(this.name, fs.createWriteStream(savepath));
       assert.equal(result.res.status, 200);
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
     it('should store not exists object to file', function* () {
-      var savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
+      const savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
       yield utils.throws(function* () {
-        yield this.store.get(this.name + 'not-exists', savepath);
-      }.bind(this), function (err) {
+        yield this.store.get(`${this.name}not-exists`, savepath);
+      }.bind(this), (err) => {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
         assert(!fs.existsSync(savepath));
@@ -539,14 +538,14 @@ describe('test/object.test.js', function () {
     });
 
     it('should throw error when writeStream emit error', function* () {
-      var savepath = path.join(tmpdir, 'not-exists-dir', this.name.replace(/\//g, '-'));
+      const savepath = path.join(tmpdir, 'not-exists-dir', this.name.replace(/\//g, '-'));
       yield utils.throws(function* () {
         yield this.store.get(this.name, fs.createWriteStream(savepath));
       }.bind(this), /ENOENT/);
     });
 
     it('should get object content buffer', function* () {
-      var result = yield this.store.get(this.name);
+      let result = yield this.store.get(this.name);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
       assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
 
@@ -556,14 +555,14 @@ describe('test/object.test.js', function () {
     });
 
     it('should get object content buffer with image process', function* () {
-      var name = prefix + 'ali-sdk/oss/nodejs-test-get-image-1024x768.png';
-      var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-      var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-      var object = yield this.store.put(name, originImagePath, {
+      const name = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
+      const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      path.join(__dirname, 'nodejs-processed-w200.png');
+      yield this.store.put(name, originImagePath, {
         mime: 'image/png'
       });
 
-      var result = yield this.store.get(name, {process: 'image/resize,w_200'});
+      let result = yield this.store.get(name, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
       // assert.deepEqual(result.content == fs.readFileSync(processedImagePath),
@@ -571,17 +570,19 @@ describe('test/object.test.js', function () {
 
       // it should use the value of process
       // when 'subres.x-oss-process' coexists with 'process'.
-      result = yield this.store.get(name,
-        {process: 'image/resize,w_200', subres: {'x-oss-process': 'image/resize,w_100'}});
+      result = yield this.store.get(
+        name,
+        { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } }
+      );
       assert.equal(result.res.status, 200);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
     });
 
     it('should throw NoSuchKeyError when object not exists', function* () {
-      var store = this.store;
+      const { store } = this;
       yield utils.throws(function* () {
         yield store.get('not-exists-key');
-      }.bind(this), function (err) {
+      }, (err) => {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
         assert.equal(typeof err.requestId, 'string');
@@ -589,12 +590,12 @@ describe('test/object.test.js', function () {
       });
     });
 
-    describe('If-Modified-Since header', function () {
+    describe('If-Modified-Since header', () => {
       it('should 200 when If-Modified-Since < object modified time', function* () {
-        var lastYear = new Date(this.headers.date);
+        let lastYear = new Date(this.headers.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-Modified-Since': lastYear
           }
@@ -605,7 +606,7 @@ describe('test/object.test.js', function () {
       });
 
       it('should 304 when If-Modified-Since = object modified time', function* () {
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-Modified-Since': this.headers.date
           }
@@ -616,10 +617,10 @@ describe('test/object.test.js', function () {
       });
 
       it('should 304 when If-Modified-Since > object modified time', function* () {
-        var nextYear = new Date(this.headers.date);
+        let nextYear = new Date(this.headers.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-Modified-Since': nextYear
           }
@@ -630,9 +631,9 @@ describe('test/object.test.js', function () {
       });
     });
 
-    describe('If-Unmodified-Since header', function () {
+    describe('If-Unmodified-Since header', () => {
       it('should throw PreconditionFailedError when If-Unmodified-Since < object modified time', function* () {
-        var lastYear = new Date(this.headers.date);
+        let lastYear = new Date(this.headers.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
         yield utils.throws(function* () {
@@ -641,7 +642,7 @@ describe('test/object.test.js', function () {
               'If-Unmodified-Since': lastYear
             }
           });
-        }.bind(this), function (err) {
+        }.bind(this), (err) => {
           assert.equal(err.status, 412);
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Unmodified-Since)');
@@ -651,7 +652,7 @@ describe('test/object.test.js', function () {
       });
 
       it('should 200 when If-Unmodified-Since = object modified time', function* () {
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-Unmodified-Since': this.headers.date
           }
@@ -662,10 +663,10 @@ describe('test/object.test.js', function () {
       });
 
       it('should 200 when If-Unmodified-Since > object modified time', function* () {
-        var nextYear = new Date(this.headers.date);
+        let nextYear = new Date(this.headers.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-Unmodified-Since': nextYear
           }
@@ -676,9 +677,9 @@ describe('test/object.test.js', function () {
       });
     });
 
-    describe('If-Match header', function () {
+    describe('If-Match header', () => {
       it('should 200 when If-Match equal object etag', function* () {
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-Match': this.headers.etag
           }
@@ -693,16 +694,16 @@ describe('test/object.test.js', function () {
               'If-Match': 'foo'
             }
           });
-        }.bind(this), function (err) {
+        }.bind(this), (err) => {
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.status, 412);
         });
       });
     });
 
-    describe('If-None-Match header', function () {
+    describe('If-None-Match header', () => {
       it('should 200 when If-None-Match not equal object etag', function* () {
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-None-Match': 'foo'
           }
@@ -711,7 +712,7 @@ describe('test/object.test.js', function () {
       });
 
       it('should 304 when If-None-Match equal object etag', function* () {
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             'If-None-Match': this.headers.etag
           }
@@ -721,9 +722,9 @@ describe('test/object.test.js', function () {
       });
     });
 
-    describe('Range header', function () {
+    describe('Range header', () => {
       it('should work with Range header and get top 10 bytes content', function* () {
-        var result = yield this.store.get(this.name, {
+        const result = yield this.store.get(this.name, {
           headers: {
             Range: 'bytes=0-9'
           }
@@ -735,10 +736,10 @@ describe('test/object.test.js', function () {
     });
   });
 
-  describe('signatureUrl()', function () {
+  describe('signatureUrl()', () => {
     before(function* () {
-      this.name = prefix + 'ali-sdk/oss/signatureUrl.js';
-      var object = yield this.store.put(this.name, __filename, {
+      this.name = `${prefix}ali-sdk/oss/signatureUrl.js`;
+      let object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -748,7 +749,7 @@ describe('test/object.test.js', function () {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
 
-      this.needEscapeName = prefix + 'ali-sdk/oss/%3get+meta-signatureUrl.js';
+      this.needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
       object = yield this.store.put(this.needEscapeName, __filename, {
         meta: {
           uid: 1,
@@ -760,60 +761,60 @@ describe('test/object.test.js', function () {
     });
 
     it('should signature url get object ok', function* () {
-      var result = yield this.store.get(this.name);
-      var url = this.store.signatureUrl(this.name);
-      var urlRes = yield urllib.request(url);
+      const result = yield this.store.get(this.name);
+      const url = this.store.signatureUrl(this.name);
+      const urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
     it('should signature url with image processed and get object ok', function* () {
-      var name = prefix + 'ali-sdk/oss/nodejs-test-signature-1024x768.png';
-      var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-      var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-      var object = yield this.store.put(name, originImagePath, {
+      const name = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
+      const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      path.join(__dirname, 'nodejs-processed-w200.png');
+      yield this.store.put(name, originImagePath, {
         mime: 'image/png'
       });
 
-      var signUrl = this.store.signatureUrl(name, {expires: 3600, process: 'image/resize,w_200'});
-      var processedKeyword = "x-oss-process=image%2Fresize%2Cw_200";
+      const signUrl = this.store.signatureUrl(name, { expires: 3600, process: 'image/resize,w_200' });
+      const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
       assert.equal(signUrl.match(processedKeyword), processedKeyword);
-      var urlRes = yield urllib.request(signUrl);
+      const urlRes = yield urllib.request(signUrl);
       assert.equal(urlRes.status, 200);
       // assert(urlRes.data.toString() == fs.readFileSync(processedImagePath, 'utf8'),
       //   'response content should be same as test/nodejs-processed-w200.png');
     });
 
     it('should signature url for PUT', function* () {
-      var url = this.store.signatureUrl(this.name, {method: 'PUT'});
-      var res = yield urllib.request(url, {method: 'PUT'});
+      const url = this.store.signatureUrl(this.name, { method: 'PUT' });
+      const res = yield urllib.request(url, { method: 'PUT' });
       assert.equal(res.status, 200);
     });
 
     it('should signature url get need escape object ok', function* () {
-      var result = yield this.store.get(this.needEscapeName);
-      var url = this.store.signatureUrl(this.needEscapeName);
-      var urlRes = yield urllib.request(url);
+      const result = yield this.store.get(this.needEscapeName);
+      const url = this.store.signatureUrl(this.needEscapeName);
+      const urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-    it('should signature url with custom host ok', function() {
-      var conf = {};
+    it('should signature url with custom host ok', function () {
+      const conf = {};
       copy(config).to(conf);
       conf.endpoint = 'www.aliyun.com';
       conf.cname = true;
-      var store = oss(conf);
+      const store = oss(conf);
 
-      var url = store.signatureUrl(this.name);
+      const url = store.signatureUrl(this.name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
   });
 
   // FIXME: why not work?
-  describe.skip('signatureUrl() with sts', function () {
+  describe.skip('signatureUrl() with sts', () => {
     before(function* () {
-      var stsClient = sts(stsConfig);
-      var result = yield stsClient.assumeRole(stsConfig.roleArn);
+      const stsClient = sts(stsConfig);
+      let result = yield stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
       console.log(result);
 
@@ -827,35 +828,35 @@ describe('test/object.test.js', function () {
 
       this.name = 'sts/signature';
       this.content = 'Get signature url with STS token.';
-      var result = yield this.ossClient.put(this.name, new Buffer(this.content));
+      result = yield this.ossClient.put(this.name, new Buffer(this.content));
       assert.equal(result.res.status, 200);
     });
 
     it('should signature url with sts', function* () {
-      var url = this.ossClient.signatureUrl(this.name);
-      var urlRes = yield urllib.request(url);
+      const url = this.ossClient.signatureUrl(this.name);
+      const urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), this.content);
     });
 
     it('should overwrite response content-type & content-disposition', function* () {
-      var url = this.ossClient.signatureUrl(this.name, {
+      const url = this.ossClient.signatureUrl(this.name, {
         expires: 3600,
         response: {
           'content-type': 'text/custom',
           'content-disposition': 'attachment'
         }
       });
-      var urlRes = yield urllib.request(url);
+      const urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), this.content);
       assert.equal(urlRes.headers['content-type'], 'text/custom');
       assert.equal(urlRes.headers['content-disposition'], 'attachment');
     });
   });
 
-  describe('getStream()', function () {
+  describe('getStream()', () => {
     before(function* () {
-      this.name = prefix + 'ali-sdk/oss/get-stream.js';
-      var object = yield this.store.put(this.name, __filename, {
+      this.name = `${prefix}ali-sdk/oss/get-stream.js`;
+      const object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -866,11 +867,11 @@ describe('test/object.test.js', function () {
     });
 
     it('should get exists object stream', function* () {
-      var result = yield this.store.getStream(this.name);
+      const result = yield this.store.getStream(this.name);
       assert.equal(result.res.status, 200);
       assert(result.stream instanceof Readable);
-      var tmpfile = path.join(tmpdir, 'get-stream.js');
-      var tmpstream = fs.createWriteStream(tmpfile);
+      const tmpfile = path.join(tmpdir, 'get-stream.js');
+      const tmpstream = fs.createWriteStream(tmpfile);
 
       function finish() {
         return function (callback) {
@@ -884,19 +885,21 @@ describe('test/object.test.js', function () {
     });
 
     it('should get image stream with image process', function* () {
-      var name = prefix + 'ali-sdk/oss/nodejs-test-getstream-image-1024x768.png';
-      var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-      var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-      var object = yield this.store.put(name, originImagePath, {
+      const name = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
+      const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      const processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
+      yield this.store.put(name, originImagePath, {
         mime: 'image/png'
       });
 
-      var result = yield this.store.getStream(name, {process: 'image/resize,w_200'});
+      let result = yield this.store.getStream(name, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
-      var isEqual = yield streamEqual(result.stream, fs.createReadStream(processedImagePath));
+      let isEqual = yield streamEqual(result.stream, fs.createReadStream(processedImagePath));
       assert(isEqual);
-      result = yield this.store.getStream(name,
-        {process: 'image/resize,w_200', subres: {'x-oss-process': 'image/resize,w_100'}});
+      result = yield this.store.getStream(
+        name,
+        { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } }
+      );
       assert.equal(result.res.status, 200);
       isEqual = yield streamEqual(result.stream, fs.createReadStream(processedImagePath));
       assert(isEqual);
@@ -904,7 +907,7 @@ describe('test/object.test.js', function () {
 
     it('should throw error when object not exists', function* () {
       try {
-        yield this.store.getStream(this.name + 'not-exists');
+        yield this.store.getStream(`${this.name}not-exists`);
         throw new Error('should not run this');
       } catch (err) {
         assert.equal(err.name, 'NoSuchKeyError');
@@ -912,12 +915,12 @@ describe('test/object.test.js', function () {
     });
   });
 
-  describe('delete()', function () {
+  describe('delete()', () => {
     it('should delete exsits object', function* () {
-      var name = prefix + 'ali-sdk/oss/delete.js';
+      const name = `${prefix}ali-sdk/oss/delete.js`;
       yield this.store.put(name, __filename);
 
-      var info = yield this.store.delete(name);
+      const info = yield this.store.delete(name);
       assert.equal(info.res.status, 204);
 
       yield utils.throws(function* () {
@@ -926,47 +929,47 @@ describe('test/object.test.js', function () {
     });
 
     it('should delete not exists object', function* () {
-      var info = yield this.store.delete('not-exists-name');
+      const info = yield this.store.delete('not-exists-name');
       assert.equal(info.res.status, 204);
     });
   });
 
-  describe('deleteMulti()', function () {
+  describe('deleteMulti()', () => {
     beforeEach(function* () {
       this.names = [];
-      var name = prefix + 'ali-sdk/oss/deleteMulti0.js';
+      let name = `${prefix}ali-sdk/oss/deleteMulti0.js`;
       this.names.push(name);
       yield this.store.put(name, __filename);
 
-      var name = prefix + 'ali-sdk/oss/deleteMulti1.js';
+      name = `${prefix}ali-sdk/oss/deleteMulti1.js`;
       this.names.push(name);
       yield this.store.put(name, __filename);
 
-      var name = prefix + 'ali-sdk/oss/deleteMulti2.js';
+      name = `${prefix}ali-sdk/oss/deleteMulti2.js`;
       this.names.push(name);
       yield this.store.put(name, __filename);
     });
 
     it('should delete 3 exists objs', function* () {
-      var result = yield this.store.deleteMulti(this.names);
+      const result = yield this.store.deleteMulti(this.names);
       assert.deepEqual(result.deleted, this.names);
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 2 exists and 2 not exists objs', function* () {
-      var result = yield this.store.deleteMulti(this.names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      const result = yield this.store.deleteMulti(this.names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.deepEqual(result.deleted, this.names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 1 exists objs', function* () {
-      var result = yield this.store.deleteMulti(this.names.slice(0, 1));
+      const result = yield this.store.deleteMulti(this.names.slice(0, 1));
       assert.deepEqual(result.deleted, this.names.slice(0, 1));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete in quiet mode', function* () {
-      var result = yield this.store.deleteMulti(this.names, {
+      const result = yield this.store.deleteMulti(this.names, {
         quiet: true
       });
       assert.equal(result.deleted, null);
@@ -974,10 +977,10 @@ describe('test/object.test.js', function () {
     });
   });
 
-  describe('copy()', function () {
+  describe('copy()', () => {
     before(function* () {
-      this.name = prefix + 'ali-sdk/oss/copy-meta.js';
-      var object = yield this.store.put(this.name, __filename, {
+      this.name = `${prefix}ali-sdk/oss/copy-meta.js`;
+      const object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -989,13 +992,13 @@ describe('test/object.test.js', function () {
     });
 
     it('should copy object from same bucket', function* () {
-      var name = prefix + 'ali-sdk/oss/copy-new.js';
-      var result = yield this.store.copy(name, this.name);
+      const name = `${prefix}ali-sdk/oss/copy-new.js`;
+      const result = yield this.store.copy(name, this.name);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
 
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.meta.uid, '1');
       assert.equal(info.meta.pid, '123');
       assert.equal(info.meta.slus, 'test.html');
@@ -1003,8 +1006,8 @@ describe('test/object.test.js', function () {
     });
 
     it('should copy object with non-english name', function* () {
-      var source_name = prefix + 'ali-sdk/oss/copy-meta_测试.js';
-      var result = yield this.store.put(source_name, __filename, {
+      const sourceName = `${prefix}ali-sdk/oss/copy-meta_测试.js`;
+      let result = yield this.store.put(sourceName, __filename, {
         meta: {
           uid: 2,
           pid: '1234',
@@ -1012,13 +1015,13 @@ describe('test/object.test.js', function () {
         }
       });
 
-      var name = prefix + 'ali-sdk/oss/copy-new_测试.js';
-      result = yield this.store.copy(name, source_name);
+      const name = `${prefix}ali-sdk/oss/copy-new_测试.js`;
+      result = yield this.store.copy(name, sourceName);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
 
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.meta.uid, '2');
       assert.equal(info.meta.pid, '1234');
       assert.equal(info.meta.slus, 'test1.html');
@@ -1026,8 +1029,8 @@ describe('test/object.test.js', function () {
     });
 
     it('should copy object with non-english name and bucket', function* () {
-      var source_name = prefix + 'ali-sdk/oss/copy-meta_测试2.js';
-      var result = yield this.store.put(source_name, __filename, {
+      let sourceName = `${prefix}ali-sdk/oss/copy-meta_测试2.js`;
+      let result = yield this.store.put(sourceName, __filename, {
         meta: {
           uid: 3,
           pid: '12345',
@@ -1035,15 +1038,15 @@ describe('test/object.test.js', function () {
         }
       });
 
-      var info = yield this.store.head(source_name);
+      let info = yield this.store.head(sourceName);
       assert.equal(info.meta.uid, '3');
       assert.equal(info.meta.pid, '12345');
       assert.equal(info.meta.slus, 'test2.html');
       assert.equal(info.status, 200);
 
-      source_name = '/' + this.bucket + '/' + source_name;
-      var name = prefix + 'ali-sdk/oss/copy-new_测试2.js';
-      result = yield this.store.copy(name, source_name);
+      sourceName = `/${this.bucket}/${sourceName}`;
+      const name = `${prefix}ali-sdk/oss/copy-new_测试2.js`;
+      result = yield this.store.copy(name, sourceName);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
@@ -1056,8 +1059,8 @@ describe('test/object.test.js', function () {
     });
 
     it('should copy object and set other meta', function* () {
-      var name = prefix + 'ali-sdk/oss/copy-new-2.js';
-      var result = yield this.store.copy(name, this.name, {
+      const name = `${prefix}ali-sdk/oss/copy-new-2.js`;
+      const result = yield this.store.copy(name, this.name, {
         meta: {
           uid: '2'
         }
@@ -1066,7 +1069,7 @@ describe('test/object.test.js', function () {
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
 
-      var info = yield this.store.head(name);
+      const info = yield this.store.head(name);
       assert.equal(info.meta.uid, '2');
       assert(!info.meta.pid);
       assert(!info.meta.slus);
@@ -1074,38 +1077,38 @@ describe('test/object.test.js', function () {
     });
 
     it('should use copy to change exists object headers', function* () {
-      var name = prefix + 'ali-sdk/oss/copy-new-3.js';
-      var result = yield this.store.copy(name, this.name);
+      const name = `${prefix}ali-sdk/oss/copy-new-3.js`;
+      let result = yield this.store.copy(name, this.name);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
-      var info = yield this.store.head(name);
+      let info = yield this.store.head(name);
       assert(!info.res.headers['cache-control']);
 
       // add Cache-Control header to a exists object
-      var result = yield this.store.copy(name, name, {
+      result = yield this.store.copy(name, name, {
         headers: {
-          'Cache-Control': 'max-age=0, s-maxage=86400',
-        },
+          'Cache-Control': 'max-age=0, s-maxage=86400'
+        }
       });
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
-      var info = yield this.store.head(name);
+      info = yield this.store.head(name);
       assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
     });
 
     it('should throw NoSuchKeyError when source object not exists', function* () {
       yield utils.throws(function* () {
         yield this.store.copy('new-object', 'not-exists-object');
-      }.bind(this), function (err) {
+      }.bind(this), (err) => {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.message, 'The specified key does not exist.');
         assert.equal(err.status, 404);
       });
     });
 
-    describe('If-Match header', function () {
+    describe('If-Match header', () => {
       it('should throw PreconditionFailedError when If-Match not equal source object etag', function* () {
         yield utils.throws(function* () {
           yield this.store.copy('new-name', this.name, {
@@ -1113,7 +1116,7 @@ describe('test/object.test.js', function () {
               'If-Match': 'foo-bar'
             }
           });
-        }.bind(this), function (err) {
+        }.bind(this), (err) => {
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Match)');
           assert.equal(err.status, 412);
@@ -1121,8 +1124,8 @@ describe('test/object.test.js', function () {
       });
 
       it('should copy object when If-Match equal source object etag', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-Match.js';
-        var result = yield this.store.copy(name, this.name, {
+        const name = `${prefix}ali-sdk/oss/copy-new-If-Match.js`;
+        const result = yield this.store.copy(name, this.name, {
           headers: {
             'If-Match': this.headers.etag
           }
@@ -1133,9 +1136,9 @@ describe('test/object.test.js', function () {
       });
     });
 
-    describe('If-None-Match header', function () {
+    describe('If-None-Match header', () => {
       it('should return 304 when If-None-Match equal source object etag', function* () {
-        var result = yield this.store.copy('new-name', this.name, {
+        const result = yield this.store.copy('new-name', this.name, {
           headers: {
             'If-None-Match': this.headers.etag
           }
@@ -1145,8 +1148,8 @@ describe('test/object.test.js', function () {
       });
 
       it('should copy object when If-None-Match not equal source object etag', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-None-Match.js';
-        var result = yield this.store.copy(name, this.name, {
+        const name = `${prefix}ali-sdk/oss/copy-new-If-None-Match.js`;
+        const result = yield this.store.copy(name, this.name, {
           headers: {
             'If-None-Match': 'foo-bar'
           }
@@ -1157,13 +1160,13 @@ describe('test/object.test.js', function () {
       });
     });
 
-    describe('If-Modified-Since header', function () {
+    describe('If-Modified-Since header', () => {
       it('should 304 when If-Modified-Since > source object modified time', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-Modified-Since.js';
-        var nextYear = new Date(this.headers.date);
+        const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
+        let nextYear = new Date(this.headers.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        var result = yield this.store.copy(name, this.name, {
+        const result = yield this.store.copy(name, this.name, {
           headers: {
             'If-Modified-Since': nextYear
           }
@@ -1172,8 +1175,8 @@ describe('test/object.test.js', function () {
       });
 
       it('should 304 when If-Modified-Since >= source object modified time', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-Modified-Since.js';
-        var result = yield this.store.copy(name, this.name, {
+        const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
+        const result = yield this.store.copy(name, this.name, {
           headers: {
             'If-Modified-Since': this.headers.date
           }
@@ -1182,11 +1185,11 @@ describe('test/object.test.js', function () {
       });
 
       it('should 200 when If-Modified-Since < source object modified time', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-Modified-Since.js';
-        var lastYear = new Date(this.headers.date);
+        const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
+        let lastYear = new Date(this.headers.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
-        var result = yield this.store.copy(name, this.name, {
+        const result = yield this.store.copy(name, this.name, {
           headers: {
             'If-Modified-Since': lastYear
           }
@@ -1195,13 +1198,13 @@ describe('test/object.test.js', function () {
       });
     });
 
-    describe('If-Unmodified-Since header', function () {
+    describe('If-Unmodified-Since header', () => {
       it('should 200 when If-Unmodified-Since > source object modified time', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-Unmodified-Since.js';
-        var nextYear = new Date(this.headers.date);
+        const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
+        let nextYear = new Date(this.headers.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        var result = yield this.store.copy(name, this.name, {
+        const result = yield this.store.copy(name, this.name, {
           headers: {
             'If-Unmodified-Since': nextYear
           }
@@ -1210,8 +1213,8 @@ describe('test/object.test.js', function () {
       });
 
       it('should 200 when If-Unmodified-Since >= source object modified time', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-Unmodified-Since.js';
-        var result = yield this.store.copy(name, this.name, {
+        const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
+        const result = yield this.store.copy(name, this.name, {
           headers: {
             'If-Unmodified-Since': this.headers.date
           }
@@ -1220,8 +1223,8 @@ describe('test/object.test.js', function () {
       });
 
       it('should throw PreconditionFailedError when If-Unmodified-Since < source object modified time', function* () {
-        var name = prefix + 'ali-sdk/oss/copy-new-If-Unmodified-Since.js';
-        var lastYear = new Date(this.headers.date);
+        const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
+        let lastYear = new Date(this.headers.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
         yield utils.throws(function* () {
@@ -1230,7 +1233,7 @@ describe('test/object.test.js', function () {
               'If-Unmodified-Since': lastYear
             }
           });
-        }.bind(this), function (err) {
+        }.bind(this), (err) => {
           assert.equal(err.name, 'PreconditionFailedError');
           assert.equal(err.message, 'At least one of the pre-conditions you specified did not hold. (condition: If-Unmodified-Since)');
           assert.equal(err.status, 412);
@@ -1239,10 +1242,10 @@ describe('test/object.test.js', function () {
     });
   });
 
-  describe('putMeta()', function () {
+  describe('putMeta()', () => {
     before(function* () {
-      this.name = prefix + 'ali-sdk/oss/putMeta.js';
-      var object = yield this.store.put(this.name, __filename, {
+      this.name = `${prefix}ali-sdk/oss/putMeta.js`;
+      const object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -1257,7 +1260,7 @@ describe('test/object.test.js', function () {
       yield this.store.putMeta(this.name, {
         uid: '2'
       });
-      var info = yield this.store.head(this.name);
+      const info = yield this.store.head(this.name);
       assert.equal(info.meta.uid, '2');
       assert(!info.meta.pid);
       assert(!info.meta.slus);
@@ -1265,29 +1268,29 @@ describe('test/object.test.js', function () {
 
     it('should throw NoSuchKeyError when update not exists object meta', function* () {
       yield utils.throws(function* () {
-        yield this.store.putMeta(this.name + 'not-exists', {
+        yield this.store.putMeta(`${this.name}not-exists`, {
           uid: '2'
         });
-      }.bind(this), function (err) {
+      }.bind(this), (err) => {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
       });
     });
   });
 
-  describe('list()', function () {
+  describe('list()', () => {
     // oss.jpg
     // fun/test.jpg
     // fun/movie/001.avi
     // fun/movie/007.avi
     before(function* () {
-      var listPrefix = prefix + 'ali-sdk/list/';
-      yield this.store.put(listPrefix + 'oss.jpg', new Buffer('oss.jpg'));
-      yield this.store.put(listPrefix + 'fun/test.jpg', new Buffer('fun/test.jpg'));
-      yield this.store.put(listPrefix + 'fun/movie/001.avi', new Buffer('fun/movie/001.avi'));
-      yield this.store.put(listPrefix + 'fun/movie/007.avi', new Buffer('fun/movie/007.avi'));
-      yield this.store.put(listPrefix + 'other/movie/007.avi', new Buffer('other/movie/007.avi'));
-      yield this.store.put(listPrefix + 'other/movie/008.avi', new Buffer('other/movie/008.avi'));
+      const listPrefix = `${prefix}ali-sdk/list/`;
+      yield this.store.put(`${listPrefix}oss.jpg`, new Buffer('oss.jpg'));
+      yield this.store.put(`${listPrefix}fun/test.jpg`, new Buffer('fun/test.jpg'));
+      yield this.store.put(`${listPrefix}fun/movie/001.avi`, new Buffer('fun/movie/001.avi'));
+      yield this.store.put(`${listPrefix}fun/movie/007.avi`, new Buffer('fun/movie/007.avi'));
+      yield this.store.put(`${listPrefix}other/movie/007.avi`, new Buffer('other/movie/007.avi'));
+      yield this.store.put(`${listPrefix}other/movie/008.avi`, new Buffer('other/movie/008.avi'));
       this.listPrefix = listPrefix;
     });
 
@@ -1304,7 +1307,7 @@ describe('test/object.test.js', function () {
     }
 
     it('should list only 1 object', function* () {
-      var result = yield this.store.list({
+      const result = yield this.store.list({
         'max-keys': 1
       });
       assert.equal(result.objects.length, 1);
@@ -1315,7 +1318,7 @@ describe('test/object.test.js', function () {
     });
 
     it('should list top 3 objects', function* () {
-      var result = yield this.store.list({
+      const result = yield this.store.list({
         'max-keys': 3
       });
       assert.equal(result.objects.length, 3);
@@ -1325,7 +1328,7 @@ describe('test/object.test.js', function () {
       assert.equal(result.prefixes, null);
 
       // next 2
-      var result2 = yield this.store.list({
+      const result2 = yield this.store.list({
         'max-keys': 2,
         marker: result.nextMarker
       });
@@ -1337,8 +1340,8 @@ describe('test/object.test.js', function () {
     });
 
     it('should list with prefix', function* () {
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/movie/',
+      let result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/movie/`
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -1346,8 +1349,8 @@ describe('test/object.test.js', function () {
       assert(!result.isTruncated);
       assert.equal(result.prefixes, null);
 
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/movie',
+      result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/movie`
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -1357,7 +1360,7 @@ describe('test/object.test.js', function () {
     });
 
     it('should list current dir files only', function* () {
-      var result = yield this.store.list({
+      let result = yield this.store.list({
         prefix: this.listPrefix,
         delimiter: '/'
       });
@@ -1365,20 +1368,20 @@ describe('test/object.test.js', function () {
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [ this.listPrefix + 'fun/', this.listPrefix + 'other/' ]);
+      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/`, `${this.listPrefix}other/`]);
 
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/',
+      result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/`,
         delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/movie/']);
+      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/movie/`]);
 
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/movie/',
+      result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/movie/`,
         delimiter: '/'
       });
       assert.equal(result.objects.length, 2);
@@ -1389,10 +1392,10 @@ describe('test/object.test.js', function () {
     });
   });
 
-  describe('object key encoding', function () {
+  describe('object key encoding', () => {
     it('should encode variant object keys', function* () {
-      var prefix = 'ali-oss-test-key-';
-      var keys = {
+      const prefixz = 'ali-oss-test-key-';
+      const keys = {
         simple: 'simple_key',
         chinese: '杭州・中国',
         space: '是 空格 yeah +-/\\&*#(1) ',
@@ -1400,76 +1403,73 @@ describe('test/object.test.js', function () {
         xml: 'a<b&c>d +'
       };
 
-      var names = [];
-      for (var k in keys) {
-        var key = prefix + keys[k];
-        var result = yield this.store.put(key, new Buffer(''));
+      const names = [];
+      /* eslint no-restricted-syntax: [0] */
+      for (const k in keys) {
+        const key = prefixz + keys[k];
+        let result = yield this.store.put(key, new Buffer(''));
         assert.equal(result.res.status, 200);
 
-        var result = yield this.store.list({
-          prefix: prefix
+        result = yield this.store.list({
+          prefixz
         });
-        var objects = result.objects.map(function (obj) {
-          return obj.name;
-        });
+        const objects = result.objects.map(obj => obj.name);
         assert(objects.indexOf(key) >= 0);
 
-        var result = yield this.store.head(key);
+        result = yield this.store.head(key);
         assert.equal(result.res.status, 200);
 
         names.push(keys[k]);
       }
 
-      var result = yield this.store.deleteMulti(names);
+      const result = yield this.store.deleteMulti(names);
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.deleted, names);
     });
   });
 
-  describe('putACL(), getACL()', function () {
+  describe('putACL(), getACL()', () => {
     it('should put and get object ACL', function* () {
-      var name = prefix + 'object/acl';
-      var result = yield this.store.put(name, new Buffer('hello world'));
+      const name = `${prefix}object/acl`;
+      let result = yield this.store.put(name, new Buffer('hello world'));
       assert.equal(result.res.status, 200);
 
-      var result = yield this.store.getACL(name);
+      result = yield this.store.getACL(name);
       assert.equal(result.res.status, 200);
       assert.equal(result.acl, 'default');
 
-      var result = yield this.store.putACL(name, 'public-read');
+      result = yield this.store.putACL(name, 'public-read');
       assert.equal(result.res.status, 200);
 
-      var result = yield this.store.getACL(name);
+      result = yield this.store.getACL(name);
       assert.equal(result.res.status, 200);
       assert.equal(result.acl, 'public-read');
 
-      var result = yield this.store.get(name);
+      result = yield this.store.get(name);
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.content, new Buffer('hello world'));
     });
   });
 
-  describe('append()', function () {
-    var name = '/' + prefix + 'ali-sdk/oss/apend' + Date.now();
+  describe('append()', () => {
+    const name = `/${prefix}ali-sdk/oss/apend${Date.now()}`;
     afterEach(function* () {
       yield this.store.delete(name);
     });
 
     it('should apend object with content buffer', function* () {
-      var object = yield this.store.append(name, new Buffer('foo'));
-      var url = object.url;
+      let object = yield this.store.append(name, new Buffer('foo'));
       assert(object.res.status === 200);
       assert(object.nextAppendPosition === '3');
       assert(object.res.headers['x-oss-next-append-position'] === '3');
 
-      var res = yield urllib.request(this.store.signatureUrl(name));
+      let res = yield urllib.request(this.store.signatureUrl(name));
       assert(res.data.toString() === 'foo');
       assert(res.headers['x-oss-next-append-position'] === '3');
 
       object = yield this.store.append(name, new Buffer('bar'), {
-        position: 3,
+        position: 3
       });
-      url = object.url;
       assert(object.res.status === 200);
       assert(object.nextAppendPosition === '6');
       assert(object.res.headers['x-oss-next-append-position'] === '6');
@@ -1481,7 +1481,7 @@ describe('test/object.test.js', function () {
 
     it('should apend object with local file path', function* () {
       const file = path.join(__dirname, 'fixtures/foo.js');
-      var object = yield this.store.append(name, file);
+      let object = yield this.store.append(name, file);
       assert(object.nextAppendPosition === '16');
 
       object = yield this.store.append(name, file, { position: 16 });
@@ -1490,11 +1490,11 @@ describe('test/object.test.js', function () {
 
     it('should apend object with readstream', function* () {
       const file = path.join(__dirname, 'fixtures/foo.js');
-      var object = yield this.store.append(name, fs.createReadStream(file));
+      let object = yield this.store.append(name, fs.createReadStream(file));
       assert(object.nextAppendPosition === '16');
 
       object = yield this.store.append(name, fs.createReadStream(file), {
-        position: 16,
+        position: 16
       });
       assert(object.nextAppendPosition === '32');
     });
@@ -1512,21 +1512,20 @@ describe('test/object.test.js', function () {
     });
 
     it('should use nextAppendPosition to append next', function* () {
-      var object = yield this.store.append(name, new Buffer('foo'));
+      let object = yield this.store.append(name, new Buffer('foo'));
       assert(object.nextAppendPosition === '3');
 
       object = yield this.store.append(name, new Buffer('bar'), {
-        position: object.nextAppendPosition,
+        position: object.nextAppendPosition
       });
 
       object = yield this.store.append(name, new Buffer('baz'), {
-        position: object.nextAppendPosition,
+        position: object.nextAppendPosition
       });
 
-      var res = yield urllib.request(this.store.signatureUrl(name));
+      const res = yield urllib.request(this.store.signatureUrl(name));
       assert(res.data.toString() === 'foobarbaz');
       assert(res.headers['x-oss-next-append-position'] === '9');
     });
-
   });
 });

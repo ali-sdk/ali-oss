@@ -1,0 +1,17 @@
+node_modules/
+coverage/
+.tmp/
+.git/
+lib/cluster.js
+lib/image.js
+lib/browser/version.js
+shims/
+example/node_modules/
+example/public/
+example/public/index.js
+test/.tmp/
+test/browser/
+test/benchmark/
+test/fixtures/
+test/cluster.test.js
+task/

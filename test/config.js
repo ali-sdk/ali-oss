@@ -1,6 +1,6 @@
-var env = process.env;
+const { env } = process;
 
-var config = module.exports;
+const config = module.exports;
 
 config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,

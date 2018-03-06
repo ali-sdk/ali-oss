@@ -1,15 +1,15 @@
-"use strict";
+'use strict';
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'browserify'],
     browsers: ['Chrome'],
     // browsers: ['Firefox'],
     files: [
-      'test/browser/build/aliyun-oss-sdk.js',
+      'testbrowser/build/aliyun-oss-sdk.js',
 
       'node_modules/co-mocha/co-mocha.js',
-      'test/browser/build/tests.js'
+      'testbrowser/build/tests.js'
     ],
     preprocessors: {
       // 'dist/aliyun-oss-sdk.js': ['coverage']
@@ -29,8 +29,8 @@ module.exports = function(config) {
     concurrency: Infinity,
     client: {
       mocha: {
-        timeout : 6000
+        timeout: 6000
       }
     }
   });
-}
+};

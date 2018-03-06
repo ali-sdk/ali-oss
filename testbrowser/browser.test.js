@@ -1,25 +1,32 @@
 'use strict';
 
-var assert = require('assert');
+const assert = require('assert');
 // var oss = require('../');
 // var oss = OSS.Wrapper;
-var oss = OSS;
+/* eslint no-undef: [0] */
+const oss = OSS;
 // var sts = oss.STS;
-var urllib = require('urllib');
-var stsConfig = require('./.tmp/stsConfig.json');
-var callbackServer = require('./const').callbackServer;
-var pkg = require('../package.json');
-var platform = require('platform');
-var utisl = require('./utils');
-var prefix = utisl.prefix;
-var sinon = require('sinon');
-var md5 = require('crypto-js/md5')
-var ossConfig;
-var timemachine = require('timemachine');
-var co = require('co');
+const urllib = require('urllib');
+/* eslint import/no-unresolved: [0] */
+const stsConfig = require('./.tmp/stsConfig.json');
+const pkg = require('../package.json');
+const platform = require('platform');
+const utisl = require('../test/utils');
+const { callbackServer } = require('../test/const');
+
+const { prefix } = utisl;
+const sinon = require('sinon');
+const md5 = require('crypto-js/md5');
+
+
+let ossConfig;
+const timemachine = require('timemachine');
+const co = require('co');
+
 timemachine.reset();
-var utils = require('./utils');
-describe('browser', function () {
+
+describe('browser', () => {
+  /* eslint require-yield: [0] */
   before(function* () {
     ossConfig = {
       region: stsConfig.region,
@@ -36,31 +43,30 @@ describe('browser', function () {
     //   bucket: stsConfig.bucket
     // });
   });
-  after(function* () {
-
-  });
-  describe('endpoint', function () {
-    it('should init with region', function () {
-      var store = oss({
+  describe('endpoint', () => {
+    it('should init with region', () => {
+      let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://oss-cn-hangzhou.aliyuncs.com/');
+        'http://oss-cn-hangzhou.aliyuncs.com/'
+      );
 
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou',
-        internal: true,
+        internal: true
       });
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://oss-cn-hangzhou-internal.aliyuncs.com/');
+        'http://oss-cn-hangzhou-internal.aliyuncs.com/'
+      );
 
       store = oss({
         accessKeyId: 'foo',
@@ -72,28 +78,31 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'https://oss-cn-hangzhou-internal.aliyuncs.com/');
+        'https://oss-cn-hangzhou-internal.aliyuncs.com/'
+      );
 
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'vpc100-oss-cn-beijing',
+        region: 'vpc100-oss-cn-beijing'
       });
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://vpc100-oss-cn-beijing.aliyuncs.com/');
+        'http://vpc100-oss-cn-beijing.aliyuncs.com/'
+      );
 
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'vpc100-oss-cn-shenzhen',
-        internal: true,
+        internal: true
       });
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://vpc100-oss-cn-shenzhen.aliyuncs.com/');
+        'http://vpc100-oss-cn-shenzhen.aliyuncs.com/'
+      );
 
       store = oss({
         accessKeyId: 'foo',
@@ -105,11 +114,12 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'https://vpc100-oss-cn-hangzhou.aliyuncs.com/');
+        'https://vpc100-oss-cn-hangzhou.aliyuncs.com/'
+      );
     });
 
-    it('should init with cname: foo.bar.com', function () {
-      var store = oss({
+    it('should init with cname: foo.bar.com', () => {
+      let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
@@ -118,9 +128,10 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://foo.bar.com/');
+        'http://foo.bar.com/'
+      );
 
-      var store = oss({
+      store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://foo.bar.com',
@@ -129,11 +140,12 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://foo.bar.com/');
+        'http://foo.bar.com/'
+      );
     });
 
-    it('should init with endpoint: http://test.oss.com', function () {
-      var store = oss({
+    it('should init with endpoint: http://test.oss.com', () => {
+      let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'test.oss.com'
@@ -141,7 +153,8 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://test.oss.com/');
+        'http://test.oss.com/'
+      );
 
       store = oss({
         accessKeyId: 'foo',
@@ -151,7 +164,8 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://test.oss.com/');
+        'http://test.oss.com/'
+      );
 
       store = oss({
         accessKeyId: 'foo',
@@ -161,11 +175,12 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'https://test.oss.com/');
+        'https://test.oss.com/'
+      );
     });
 
-    it('should init with ip address: http://127.0.0.1', function () {
-      var store = oss({
+    it('should init with ip address: http://127.0.0.1', () => {
+      const store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: '127.0.0.1'
@@ -173,155 +188,154 @@ describe('browser', function () {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://127.0.0.1/');
+        'http://127.0.0.1/'
+      );
     });
 
-    it('should create request url with bucket', function () {
-      var store = oss({
+    it('should create request url with bucket', () => {
+      let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
-      var params = {
+      let params = {
         bucket: 'gems'
       };
 
-      var url = store._getReqUrl(params);
+      let url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/');
 
-      var store = oss({
+      store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'test.oss.com'
       });
 
-      var params = {
+      params = {
         bucket: 'gems'
       };
 
-      var url = store._getReqUrl(params);
+      url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.test.oss.com/');
 
-      var store = oss({
+      store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
         cname: true
       });
 
-      var params = {
+      params = {
         bucket: 'gems'
       };
 
-      var url = store._getReqUrl(params);
+      url = store._getReqUrl(params);
       assert.equal(url, 'http://foo.bar.com/');
 
-      var store = oss({
+      store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://127.0.0.1:6000'
       });
 
-      var params = {
+      params = {
         bucket: 'gems'
       };
 
-      var url = store._getReqUrl(params);
+      url = store._getReqUrl(params);
       assert.equal(url, 'http://127.0.0.1:6000/gems/');
     });
 
-    it('should create request url with bucket/object/subres', function () {
-      var store = oss({
+    it('should create request url with bucket/object/subres', () => {
+      let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
-      var params = {
+      let params = {
         bucket: 'gems',
         object: 'hello'
       };
 
-      var url = store._getReqUrl(params);
+      let url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/hello');
 
-      var params = {
+      params = {
         bucket: 'gems',
         object: 'hello',
-        subres: {acl: '', mime: ''}
+        subres: { acl: '', mime: '' }
       };
 
-      var url = store._getReqUrl(params);
+      url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/hello?acl=&mime=');
 
-      var store = oss({
+      store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'test.oss.com'
       });
 
-      var params = {
+      params = {
         bucket: 'gems',
         object: 'hello'
       };
 
-      var url = store._getReqUrl(params);
+      url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.test.oss.com/hello');
 
-      var store = oss({
+      store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
         cname: true
       });
 
-      var params = {
+      params = {
         bucket: 'gems',
         object: 'hello'
       };
 
-      var url = store._getReqUrl(params);
+      url = store._getReqUrl(params);
       assert.equal(url, 'http://foo.bar.com/hello');
 
-      var store = oss({
+      store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://127.0.0.1:3000'
       });
 
-      var params = {
+      params = {
         bucket: 'gems',
         object: 'hello'
       };
 
-      var url = store._getReqUrl(params);
+      url = store._getReqUrl(params);
       assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
     });
 
-    it('should set User-Agent', function () {
+    it('should set User-Agent', () => {
+      const store = oss(ossConfig);
+      const { userAgent } = store;
 
-      var store = oss(ossConfig);
-      var userAgent = store.userAgent;
-
-      assert(userAgent.startsWith(
-        'aliyun-sdk-js/' + pkg.version + ' ' + platform.description));
+      assert(userAgent.startsWith(`aliyun-sdk-js/${pkg.version} ${platform.description}`));
     });
 
-    it('should check beta or alpha User-Agent', function () {
-      var store = oss(ossConfig);
-      var ua_beta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
-      assert.equal(ua_beta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
-      var ua_alpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
-      assert.equal(ua_alpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
+    it('should check beta or alpha User-Agent', () => {
+      const store = oss(ossConfig);
+      const uaBeta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
+      assert.equal(uaBeta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
+      const uaAlpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
+      assert.equal(uaAlpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
     });
 
 
-    it('should trim access id/key', function () {
-      var store = oss({
+    it('should trim access id/key', () => {
+      const store = oss({
         accessKeyId: '  \tfoo\t\n  ',
         accessKeySecret: '  \tbar\n\r   ',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
       assert.equal(store.options.accessKeyId, 'foo');
@@ -329,33 +343,20 @@ describe('browser', function () {
     });
   });
 
-  // describe('bucket', function() {
-  //   before(function* () {
-  //     this.store = oss(Object.assign({}, ossConfig, { region: 'oss-cn-hangzhou'}));
-  //   });
-  //   it('listBuckets', function* () {
-  //     var bucketResult = yield this.store.listBuckets({
-  //       // prefix: '',
-  //       "max-keys": 20
-  //     });
-  //     console.log(bucketResult.buckets);
-  //   });
-  // });
-
-  describe('list()', function () {
+  describe('list()', () => {
     // oss.jpg
     // fun/test.jpg
     // fun/movie/001.avi
     // fun/movie/007.avi
     before(function* () {
       this.store = oss(ossConfig);
-      var listPrefix = prefix + 'ali-sdk/list/';
-      yield this.store.put(listPrefix + 'oss.jpg', new Buffer('oss.jpg'));
-      yield this.store.put(listPrefix + 'fun/test.jpg', new Buffer('fun/test.jpg'));
-      yield this.store.put(listPrefix + 'fun/movie/001.avi', new Buffer('fun/movie/001.avi'));
-      yield this.store.put(listPrefix + 'fun/movie/007.avi', new Buffer('fun/movie/007.avi'));
-      yield this.store.put(listPrefix + 'other/movie/007.avi', new Buffer('other/movie/007.avi'));
-      yield this.store.put(listPrefix + 'other/movie/008.avi', new Buffer('other/movie/008.avi'));
+      const listPrefix = `${prefix}ali-sdk/list/`;
+      yield this.store.put(`${listPrefix}oss.jpg`, new Buffer('oss.jpg'));
+      yield this.store.put(`${listPrefix}fun/test.jpg`, new Buffer('fun/test.jpg'));
+      yield this.store.put(`${listPrefix}fun/movie/001.avi`, new Buffer('fun/movie/001.avi'));
+      yield this.store.put(`${listPrefix}fun/movie/007.avi`, new Buffer('fun/movie/007.avi'));
+      yield this.store.put(`${listPrefix}other/movie/007.avi`, new Buffer('other/movie/007.avi'));
+      yield this.store.put(`${listPrefix}other/movie/008.avi`, new Buffer('other/movie/008.avi'));
       this.listPrefix = listPrefix;
     });
 
@@ -372,7 +373,7 @@ describe('browser', function () {
     }
 
     it('should list only 1 object', function* () {
-      var result = yield this.store.list({
+      const result = yield this.store.list({
         'max-keys': 1
       });
       assert.equal(result.objects.length, 1);
@@ -383,7 +384,7 @@ describe('browser', function () {
     });
 
     it('should list top 3 objects', function* () {
-      var result = yield this.store.list({
+      const result = yield this.store.list({
         'max-keys': 3
       });
       assert.equal(result.objects.length, 3);
@@ -393,7 +394,7 @@ describe('browser', function () {
       assert.equal(result.prefixes, null);
 
       // next 2
-      var result2 = yield this.store.list({
+      const result2 = yield this.store.list({
         'max-keys': 2,
         marker: result.nextMarker
       });
@@ -405,8 +406,8 @@ describe('browser', function () {
     });
 
     it('should list with prefix', function* () {
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/movie/',
+      let result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/movie/`
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -414,8 +415,8 @@ describe('browser', function () {
       assert(!result.isTruncated);
       assert.equal(result.prefixes, null);
 
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/movie',
+      result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/movie`
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -425,7 +426,7 @@ describe('browser', function () {
     });
 
     it('should list current dir files only', function* () {
-      var result = yield this.store.list({
+      let result = yield this.store.list({
         prefix: this.listPrefix,
         delimiter: '/'
       });
@@ -433,20 +434,20 @@ describe('browser', function () {
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/', this.listPrefix + 'other/']);
+      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/`, `${this.listPrefix}other/`]);
 
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/',
+      result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/`,
         delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [this.listPrefix + 'fun/movie/']);
+      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/movie/`]);
 
-      var result = yield this.store.list({
-        prefix: this.listPrefix + 'fun/movie/',
+      result = yield this.store.list({
+        prefix: `${this.listPrefix}fun/movie/`,
         delimiter: '/'
       });
       assert.equal(result.objects.length, 2);
@@ -457,30 +458,30 @@ describe('browser', function () {
     });
   });
 
-  describe('put', function () {
+  describe('put', () => {
     before(function* () {
       this.store = oss(ossConfig);
     });
     it('GETs and PUTs objects to a bucket', function* () {
-      var name = prefix + 'put/test';
-      var body = new Buffer('body');
-      var resultPut = yield this.store.put(name, body);
+      const name = `${prefix}put/test`;
+      const body = new Buffer('body');
+      const resultPut = yield this.store.put(name, body);
       assert.equal(resultPut.res.status, 200);
-      var resultGet = yield this.store.get(name);
+      const resultGet = yield this.store.get(name);
       assert.equal(resultGet.res.status, 200);
 
       assert.equal(resultGet.content.toString(), body.toString());
 
-      var resultDel = yield this.store.delete(name);
+      const resultDel = yield this.store.delete(name);
       assert.equal(resultDel.res.status, 204);
     });
   });
 
-  describe('signatureUrl()', function () {
+  describe('signatureUrl()', () => {
     before(function* () {
       this.store = oss(ossConfig);
-      this.name = prefix + 'ali-sdk/oss/signatureUrl.js';
-      var object = yield this.store.put(this.name, new Buffer('signatureUrl'), {
+      this.name = `${prefix}ali-sdk/oss/signatureUrl.js`;
+      let object = yield this.store.put(this.name, new Buffer('signatureUrl'), {
         meta: {
           uid: 1,
           pid: '123',
@@ -492,7 +493,7 @@ describe('browser', function () {
       // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       // this.headers = object.res.headers;
 
-      this.needEscapeName = prefix + 'ali-sdk/oss/%3get+meta-signatureUrl.js';
+      this.needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
       object = yield this.store.put(this.needEscapeName, new Buffer('%3get+meta-signatureUrl'), {
         meta: {
           uid: 1,
@@ -505,9 +506,9 @@ describe('browser', function () {
     });
 
     it('should signature url get object ok', function* () {
-      var result = yield this.store.get(this.name);
-      var url = this.store.signatureUrl(this.name);
-      var urlRes = yield urllib.request(url);
+      const result = yield this.store.get(this.name);
+      const url = this.store.signatureUrl(this.name);
+      const urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
@@ -529,172 +530,154 @@ describe('browser', function () {
     // });
     //
     it('should signature url for PUT', function* () {
-      var url = this.store.signatureUrl(this.name, {method: 'PUT'});
-      var res = yield urllib.request(url, {method: 'PUT'});
+      const url = this.store.signatureUrl(this.name, { method: 'PUT' });
+      const res = yield urllib.request(url, { method: 'PUT' });
       assert.equal(res.status, 200);
     });
 
     it('should signature url get need escape object ok', function* () {
-      var result = yield this.store.get(this.needEscapeName);
-      var url = this.store.signatureUrl(this.needEscapeName);
-      var urlRes = yield urllib.request(url);
+      const result = yield this.store.get(this.needEscapeName);
+      const url = this.store.signatureUrl(this.needEscapeName);
+      const urlRes = yield urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
     it('should signature url with custom host ok', function () {
-      var store = oss(Object.assign({}, ossConfig, {
+      const store = oss(Object.assign({}, ossConfig, {
         endpoint: 'www.aliyun.com',
         cname: true
       }));
 
-      var url = store.signatureUrl(this.name);
+      const url = store.signatureUrl(this.name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
   });
 
-  describe('multipart', function () {
+  describe('multipart', () => {
     before(function* () {
       this.store = oss(ossConfig);
     });
 
-    describe('listUploads()', function () {
-
+    describe('listUploads()', () => {
       beforeEach(function* () {
-        var result = yield this.store.listUploads({
+        const result = yield this.store.listUploads({
           'max-uploads': 1000
         });
-        var uploads = result.uploads || [];
-        for (var i = 0; i < uploads.length; i++) {
-          var up = uploads[i];
+        const uploads = result.uploads || [];
+        for (let i = 0; i < uploads.length; i++) {
+          const up = uploads[i];
           yield this.store.abortMultipartUpload(up.name, up.uploadId);
         }
       });
 
       it('should list by key marker', function* () {
-        var name = prefix + 'multipart/list-key';
+        const name = `${prefix}multipart/list-key`;
         // var name = '/'
-        var ids = [];
-        for (var i = 0; i < 5; i++) {
-          var result = yield this.store.initMultipartUpload(name + i);
-          ids.push(result.uploadId);
+        const ids = [];
+        for (let i = 0; i < 5; i++) {
+          const init = yield this.store.initMultipartUpload(name + i);
+          ids.push(init.uploadId);
         }
         // list all uploads
-        var result = yield this.store.listUploads({
-          'max-uploads': 10,
+        let result = yield this.store.listUploads({
+          'max-uploads': 10
         });
-        var all = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
+        const all = result.uploads.map(up => up.uploadId);
         assert.deepEqual(all, ids);
 
         // after 1
-        var result = yield this.store.listUploads({
+        result = yield this.store.listUploads({
           'max-uploads': 10,
           'key-marker': name + 0
         });
-        var after_1 = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
-        assert.deepEqual(after_1, ids.slice(1));
+        const after1 = result.uploads.map(up => up.uploadId);
+        assert.deepEqual(after1, ids.slice(1));
         //
         // // after 5
-        var result = yield this.store.listUploads({
+        result = yield this.store.listUploads({
           'max-uploads': 10,
           'key-marker': name + 4
         });
-        var after_5 = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
-        assert.deepEqual(after_5.length, 0);
+        const after5 = result.uploads.map(up => up.uploadId);
+        assert.deepEqual(after5.length, 0);
       });
 
       it('should list by id marker', function* () {
-        var name = prefix + 'multipart/list-id';
-        var ids = [];
-        for (var i = 0; i < 5; i++) {
-          var result = yield this.store.initMultipartUpload(name);
-          ids.push(result.uploadId);
+        const name = `${prefix}multipart/list-id`;
+        const ids = [];
+        for (let i = 0; i < 5; i++) {
+          const init = yield this.store.initMultipartUpload(name);
+          ids.push(init.uploadId);
         }
         ids.sort();
         // list all uploads
-        var result = yield this.store.listUploads({
-          'max-uploads': 10,
+        let result = yield this.store.listUploads({
+          'max-uploads': 10
         });
-        var all = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
+        const all = result.uploads.map(up => up.uploadId);
         assert.deepEqual(all, ids);
         // after 1: upload id marker alone is ignored
-        var result = yield this.store.listUploads({
+        result = yield this.store.listUploads({
           'max-uploads': 10,
           'upload-id-marker': ids[1]
         });
-        var after_1 = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
-        assert.deepEqual(after_1, ids);
+        const after1 = result.uploads.map(up => up.uploadId);
+        assert.deepEqual(after1, ids);
 
         // after 5: upload id marker alone is ignored
-        var result = yield this.store.listUploads({
+        result = yield this.store.listUploads({
           'max-uploads': 10,
           'upload-id-marker': ids[4]
         });
-        var after_5 = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
-        assert.deepEqual(after_5, ids);
+        const after5 = result.uploads.map(up => up.uploadId);
+        assert.deepEqual(after5, ids);
       });
       //
       it('should list by id & key marker', function* () {
-        var foo_name = prefix + 'multipart/list-foo';
-        var foo_ids = [];
-        for (var i = 0; i < 5; i++) {
-          var result = yield this.store.initMultipartUpload(foo_name);
-          foo_ids.push(result.uploadId);
+        const fooName = `${prefix}multipart/list-foo`;
+        const fooIds = [];
+        for (let i = 0; i < 5; i++) {
+          const init = yield this.store.initMultipartUpload(fooName);
+          fooIds.push(init.uploadId);
         }
-        foo_ids.sort();
+        fooIds.sort();
 
-        var bar_name = prefix + 'multipart/list-bar';
-        var bar_ids = [];
-        for (var i = 0; i < 5; i++) {
-          var result = yield this.store.initMultipartUpload(bar_name);
-          bar_ids.push(result.uploadId);
+        const barName = `${prefix}multipart/list-bar`;
+        const barIds = [];
+        for (let i = 0; i < 5; i++) {
+          const result = yield this.store.initMultipartUpload(barName);
+          barIds.push(result.uploadId);
         }
-        bar_ids.sort();
+        barIds.sort();
 
         // after 1
-        var result = yield this.store.listUploads({
+        const result = yield this.store.listUploads({
           'max-uploads': 10,
-          'key-marker': bar_name,
-          'upload-id-marker': bar_ids[0]
+          'key-marker': barName,
+          'upload-id-marker': barIds[0]
         });
-        var after_1 = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
-        after_1.sort();
-        var should = bar_ids.slice(1).concat(foo_ids).sort();
-        assert.deepEqual(after_1, should);
+        const after1 = result.uploads.map(up => up.uploadId);
+        after1.sort();
+        const should = barIds.slice(1).concat(fooIds).sort();
+        assert.deepEqual(after1, should);
 
         // after 5
-        var result = yield this.store.listUploads({
+        const result5 = yield this.store.listUploads({
           'max-uploads': 10,
-          'key-marker': bar_name,
-          'upload-id-marker': bar_ids[4]
+          'key-marker': barName,
+          'upload-id-marker': barIds[4]
         });
-        var after_5 = result.uploads.map(function (up) {
-          return up.uploadId;
-        });
-        assert.deepEqual(after_5, foo_ids);
+        const after5 = result5.uploads.map(up => up.uploadId);
+        assert.deepEqual(after5, fooIds);
       });
     });
 
-    describe('multipartUpload()', function () {
-
+    describe('multipartUpload()', () => {
       it.skip('should initMultipartUpload with x-oss-server-side-encryption', function* () {
-        //wait server bucket cors on line
-        var name = 'multipart-x-oss-server-side-encryption';
-        var result = yield this.store.initMultipartUpload(name, {
+        // wait server bucket cors on line
+        const name = 'multipart-x-oss-server-side-encryption';
+        const result = yield this.store.initMultipartUpload(name, {
           headers: {
             'x-oss-server-side-encryption': 'AES256'
           }
@@ -704,20 +687,19 @@ describe('browser', function () {
       });
 
       it('should fallback to putStream when file size is smaller than 100KB', function* () {
-        var file = new File(['multipart-fallback-test'], 'multipart-fallback');
-        var name = prefix + 'multipart/fallback';
-        var progress = 0;
-        var putStreamSpy = sinon.spy(this.store, 'putStream');
-        var uploadPartSpy = sinon.spy(this.store, '_uploadPart');
-        var result = yield this.store.multipartUpload(name, file, {
-            progress: function () {
-              return function (done) {
-                progress++;
-                done();
-              };
-            }
+        const file = new File(['multipart-fallback-test'], 'multipart-fallback');
+        const name = `${prefix}multipart/fallback`;
+        let progress = 0;
+        const putStreamSpy = sinon.spy(this.store, 'putStream');
+        const uploadPartSpy = sinon.spy(this.store, '_uploadPart');
+        const result = yield this.store.multipartUpload(name, file, {
+          progress() {
+            return function (done) {
+              progress++;
+              done();
+            };
           }
-        );
+        });
         assert.equal(putStreamSpy.callCount, 1);
         assert.equal(uploadPartSpy.callCount, 0);
         assert.equal(typeof result.name, 'string');
@@ -730,34 +712,34 @@ describe('browser', function () {
       });
 
       it('should use default partSize when not specified', function* () {
-        var partSize = this.store._getPartSize(1024 * 1024, null);
+        const partSize = this.store._getPartSize(1024 * 1024, null);
         assert.equal(partSize, 1 * 1024 * 1024);
       });
 
       it('should use user specified partSize', function* () {
-        var partSize = this.store._getPartSize(1024 * 1024, 200 * 1024);
+        const partSize = this.store._getPartSize(1024 * 1024, 200 * 1024);
         assert.equal(partSize, 200 * 1024);
       });
 
       it('should not exceeds max part number', function* () {
-        var fileSize = 10 * 1024 * 1024 * 1024;
-        var maxNumParts = 10 * 1000;
+        const fileSize = 10 * 1024 * 1024 * 1024;
+        const maxNumParts = 10 * 1000;
 
-        var partSize = this.store._getPartSize(fileSize, 100 * 1024);
+        const partSize = this.store._getPartSize(fileSize, 100 * 1024);
         assert.equal(partSize, Math.ceil(fileSize / maxNumParts));
       });
 
       it('should upload file using multipart upload', function* () {
         // create a file with 1M random data
         // var fileName = yield utils.createTempFile('multipart-upload-file', 1024 * 1024);
-        var fileContent = Array(1024 * 1024).fill('a').join('')
-        var file = new File([fileContent], 'multipart-fallback');
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-fallback');
 
-        var name = prefix + 'multipart/upload-file.js';
-        var progress = 0;
-        var result = yield this.store.multipartUpload(name, file, {
+        const name = `${prefix}multipart/upload-file.js`;
+        let progress = 0;
+        const result = yield this.store.multipartUpload(name, file, {
           partSize: 100 * 1024,
-          progress: function () {
+          progress() {
             return function (done) {
               progress++;
               done();
@@ -768,11 +750,11 @@ describe('browser', function () {
         assert.equal(result.res.status, 200);
         assert.equal(progress, 12);
 
-        var object = yield this.store.get(name);
+        const object = yield this.store.get(name);
         assert.equal(object.res.status, 200);
 
-        var fileBuf = new Uint8Array(fileContent.length);
-        for (var i = 0, j = fileContent.length; i < j; ++i) {
+        const fileBuf = new Uint8Array(fileContent.length);
+        for (let i = 0, j = fileContent.length; i < j; ++i) {
           fileBuf[i] = fileContent.charCodeAt(i);
         }
 
@@ -782,64 +764,65 @@ describe('browser', function () {
       });
 
       it('should return requestId in init, upload part, complete', function* () {
-        var fileContent = Array(1024 * 1024).fill('a').join('')
-        var file = new File([fileContent], 'multipart-fallback');
-        var name = prefix + 'multipart/fallback';
-        var result = yield this.store.multipartUpload(name, file, {
-            progress: function (p, checkpoint, res) {
-              return function (done) {
-                assert.equal(true, res && Object.keys(res).length !== 0);
-                done();
-              };
-            }
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-fallback');
+        const name = `${prefix}multipart/fallback`;
+        const result = yield this.store.multipartUpload(name, file, {
+          progress(p, checkpoint, res) {
+            return function (done) {
+              assert.equal(true, res && Object.keys(res).length !== 0);
+              done();
+            };
           }
-        );
+        });
         assert.equal(true, result.res && Object.keys(result.res).length !== 0);
         assert.equal(result.res.status, 200);
       });
 
       it('should upload file using multipart upload with exception', function* () {
         // create a file with 1M random data
-        var fileContent = Array(1024 * 1024).fill('a').join('')
-        var file = new File([fileContent], 'multipart-upload-file');
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
 
-        var name = prefix + 'multipart/upload-file-exception';
+        const name = `${prefix}multipart/upload-file-exception`;
 
-        var stubUploadPart = sinon.stub(this.store, '_uploadPart');
-        stubUploadPart.throws("TestUploadPartException");
+        const stubUploadPart = sinon.stub(this.store, '_uploadPart');
+        stubUploadPart.throws('TestUploadPartException');
 
-        var error_msg = "";
-        var partNum;
+        let errorMsg = '';
+        let partNumz = 0;
         try {
           yield this.store.multipartUpload(name, file, {
-            progress: function () {
+            progress() {
               return function (done) {
                 done();
               };
             }
           });
         } catch (err) {
-          error_msg = err.message;
-          partNum = err.partNum;
+          errorMsg = err.message;
+          partNumz = err.partNum;
         }
-        assert.equal(error_msg,
-          "Failed to upload some parts with error: TestUploadPartException part_num: 1");
-        assert.equal(partNum, 1);
+        assert.equal(
+          errorMsg,
+          'Failed to upload some parts with error: TestUploadPartException part_num: 1'
+        );
+        assert.equal(partNumz, 1);
         this.store._uploadPart.restore();
       });
 
-      //multipart cancel test
+      // multipart cancel test
       it('should upload file with cancel', function* () {
-        var client = this.store;
+        const client = this.store;
         // create a file with 1M random data
-        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
-        var file = new File([fileContent], 'multipart-upload-file');
+        const fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
 
-        var name = prefix + 'multipart/upload-file-cancel';
+        const name = `${prefix}multipart/upload-file-cancel`;
 
-        var tempCheckpoint = null;
-        var options = {
-          progress: function (p, checkpoint) {
+        let tempCheckpoint = null;
+        const options = {
+          progress(p, checkpoint) {
             return function (done) {
               tempCheckpoint = checkpoint;
               if (p > 0.5) {
@@ -849,7 +832,7 @@ describe('browser', function () {
             };
           },
           partSize: 100 * 1024
-        }
+        };
         try {
           yield client.multipartUpload(name, file, options);
         } catch (err) {
@@ -858,8 +841,8 @@ describe('browser', function () {
 
         assert.equal(true, tempCheckpoint && Object.keys(tempCheckpoint).length !== 0);
 
-        var options2 = {
-          progress: function (p) {
+        const options2 = {
+          progress(p) {
             return function (done) {
               assert.equal(true, p > 0.5);
               done();
@@ -867,40 +850,36 @@ describe('browser', function () {
           },
           partSize: 100 * 1024,
           checkpoint: tempCheckpoint
-        }
-        var result = yield client.multipartUpload(name, file, options2);
+        };
+        const result = yield client.multipartUpload(name, file, options2);
 
         assert.equal(result.res.status, 200);
-
       });
 
       it('should multipart upload file with abort', function* () {
-        var client = this.store;
+        const client = this.store;
         // create a file with 1M random data
-        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
-        var file = new File([fileContent], 'multipart-upload-file');
+        const fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
 
-        var name = prefix + 'multipart/upload-file-cancel';
-
-        var tempCheckpoint = null;
-        var uploadId = null;
-        var options = {
-          progress: function (p, checkpoint) {
+        const name = `${prefix}multipart/upload-file-cancel`;
+        let uploadIdz = null;
+        const options = {
+          progress(p, checkpoint) {
             return function (done) {
-              tempCheckpoint = checkpoint;
               if (p === 0) {
-                uploadId = checkpoint.uploadId;
+                uploadIdz = checkpoint.uploadId;
               }
               if (p > 0.5) {
                 co(function* () {
-                  yield client.abortMultipartUpload(name, uploadId);
+                  yield client.abortMultipartUpload(name, uploadIdz);
                 });
               }
               done();
             };
           },
           partSize: 100 * 1024
-        }
+        };
         try {
           yield client.multipartUpload(name, file, options);
         } catch (err) {
@@ -909,42 +888,42 @@ describe('browser', function () {
       });
 
       it('should upload with uploadPart', function* () {
-        var fileContent = Array(10 * 100 * 1024).fill('a').join('');
-        var file = new File([fileContent], 'multipart-upload-part');
+        const fileContent = Array(10 * 100 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-part');
 
-        var name = prefix + 'multipart/upload-part-file.js';
-        var init = yield this.store.initMultipartUpload(name);
-        var uploadId = init.uploadId;
-        var partSize = 100 * 1024;
-        var dones = [];
-        for (var i = 1; i <= 10; i++) {
-          var start = (i - 1) * partSize;
-          var end = Math.min(i * partSize, file.size);
-          var part = yield this.store.uploadPart(name, uploadId, i, file, start, end);
+        const name = `${prefix}multipart/upload-part-file.js`;
+        const init = yield this.store.initMultipartUpload(name);
+        const { uploadId } = init;
+        const partSize = 100 * 1024;
+        const dones = [];
+        for (let i = 1; i <= 10; i++) {
+          const start = (i - 1) * partSize;
+          const end = Math.min(i * partSize, file.size);
+          const part = yield this.store.uploadPart(name, uploadId, i, file, start, end);
           dones.push({
             number: i,
             etag: part.res.headers.etag
           });
         }
 
-        var result = yield this.store.completeMultipartUpload(name, uploadId, dones);
+        const result = yield this.store.completeMultipartUpload(name, uploadId, dones);
         assert.equal(result.res.status, 200);
       });
 
       it('should upload with list part', function* () {
-        var client = this.store;
+        const client = this.store;
         // create a file with 1M random data
-        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
-        var file = new File([fileContent], 'multipart-upload-list-part');
+        const fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-list-part');
 
-        var name = prefix + 'multipart/upload-list-part';
+        const name = `${prefix}multipart/upload-list-part`;
 
-        var uploadId = null;
-        var options = {
-          progress: function (p, checkpoint) {
+        let uploadIdz = null;
+        const options = {
+          progress(p, checkpoint) {
             return function (done) {
               if (p === 0) {
-                uploadId = checkpoint.uploadId;
+                uploadIdz = checkpoint.uploadId;
               }
               if (p > 0.5) {
                 client.cancel();
@@ -953,101 +932,99 @@ describe('browser', function () {
             };
           },
           partSize: 100 * 1024
-        }
+        };
+        /* eslint no-empty: [0] */
         try {
           yield client.multipartUpload(name, file, options);
         } catch (err) {
         }
 
-        var result = yield this.store.listParts(name, uploadId, {
+        const result = yield this.store.listParts(name, uploadIdz, {
           'max-parts': 1000
         }, {});
 
         assert.equal(result.res.status, 200);
-
       });
 
       it('should upload no more 100k file with callback server', function* () {
-        var fileContent = Array(50 * 1024).fill('a').join('');
-        var file = new File([fileContent], 'multipart-callback-server');
-        var name = prefix + 'multipart/callback-server';
-        var result = yield this.store.multipartUpload(name, file, {
-            partSize: 100 * 1024,
-            callback: {
-              url: callbackServer,
-              host: 'oss-cn-hangzhou.aliyuncs.com',
-              body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
-              contentType: 'application/x-www-form-urlencoded',
-              customValue: {
-                var1: 'value1',
-                var2: 'value2'
-              }
+        const fileContent = Array(50 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-callback-server');
+        const name = `${prefix}multipart/callback-server`;
+        const result = yield this.store.multipartUpload(name, file, {
+          partSize: 100 * 1024,
+          callback: {
+            url: callbackServer,
+            host: 'oss-cn-hangzhou.aliyuncs.com',
+            /* eslint no-template-curly-in-string: [0] */
+            body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+            contentType: 'application/x-www-form-urlencoded',
+            customValue: {
+              var1: 'value1',
+              var2: 'value2'
             }
           }
-        );
+        });
         assert.equal(result.res.status, 200);
         assert.equal(result.data.Status, 'OK');
       });
 
       it('should multipart upload file with callback server', function* () {
-        var fileContent = Array(1 * 1024 * 1024).fill('a').join('');
-        var file = new File([fileContent], 'multipart-callback-server');
-        var name = prefix + 'multipart/callback-server';
-        var result = yield this.store.multipartUpload(name, file, {
-            partSize: 100 * 1024,
-            callback: {
-              url: callbackServer,
-              host: 'oss-cn-hangzhou.aliyuncs.com',
-              body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
-              contentType: 'application/x-www-form-urlencoded',
-              customValue: {
-                var1: 'value1',
-                var2: 'value2'
-              }
+        const fileContent = Array(1 * 1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-callback-server');
+        const name = `${prefix}multipart/callback-server`;
+        const result = yield this.store.multipartUpload(name, file, {
+          partSize: 100 * 1024,
+          callback: {
+            url: callbackServer,
+            host: 'oss-cn-hangzhou.aliyuncs.com',
+            body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+            contentType: 'application/x-www-form-urlencoded',
+            customValue: {
+              var1: 'value1',
+              var2: 'value2'
             }
           }
-        );
+        });
         assert.equal(result.res.status, 200);
         assert.equal(result.data.Status, 'OK');
       });
-
     });
   });
 
-  describe('request time is skew', function () {
+  describe('request time is skew', () => {
     before(function* () {
       this.store = oss(ossConfig);
     });
     it('When the client\'s date is skew, the request will calibration time and retry', function* () {
-      var name = prefix + 'put/skew_date';
-      var body = new Buffer('body');
-      var requestSpy = sinon.spy(this.store, 'request');
-      var requestErrorSpy = sinon.spy(this.store, 'requestError')
+      const name = `${prefix}put/skew_date`;
+      const body = new Buffer('body');
+      const requestSpy = sinon.spy(this.store, 'request');
+      const requestErrorSpy = sinon.spy(this.store, 'requestError');
 
       timemachine.config({
         dateString: 'December 25, 1991 13:12:59',
         tick: true
       });
-      var resultPut = yield this.store.put(name, body);
+      const resultPut = yield this.store.put(name, body);
       assert.equal(resultPut.res.status, 200);
 
       assert.equal(requestSpy.callCount, 2);
       assert.equal(requestErrorSpy.callCount, 1);
 
-      var resultGet = yield this.store.get(name);
+      const resultGet = yield this.store.get(name);
       assert.equal(resultGet.res.status, 200);
 
       assert.equal(resultGet.content.toString(), body.toString());
 
-      var resultDel = yield this.store.delete(name);
+      const resultDel = yield this.store.delete(name);
       assert.equal(resultDel.res.status, 204);
       timemachine.reset();
     });
   });
 
-  describe('requestErr()', function() {
+  describe('requestErr()', () => {
     before(function* () {
-      var ossConfig = {
+      const ossConfigz = {
         region: stsConfig.region,
         accessKeyId: stsConfig.Credentials.AccessKeyId,
         accessKeySecret: stsConfig.Credentials.AccessKeySecret,
@@ -1055,43 +1032,43 @@ describe('browser', function () {
         bucket: stsConfig.bucket,
         timeout: 1
       };
-      this.store = oss(ossConfig);
+      this.store = oss(ossConfigz);
     });
     it('should request timeout exception', function* () {
-      var fileContent = Array(1024*1024).fill('a').join('')
-      var file = new File([fileContent], 'multipart-upload-file');
+      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const file = new File([fileContent], 'multipart-upload-file');
 
-      var name = prefix + 'multipart/upload-file-timeout';
+      const name = `${prefix}multipart/upload-file-timeout`;
 
-      var timeout_err = "";
+      let timeoutErr;
       try {
         yield this.store.multipartUpload(name, file);
       } catch (err) {
-        timeout_err = err;
+        timeoutErr = err;
       }
-      assert.equal(true, timeout_err && Object.keys(timeout_err).length !== 0);
-      assert.equal(timeout_err.status, -2);
+      assert.equal(true, timeoutErr && Object.keys(timeoutErr).length !== 0);
+      assert.equal(timeoutErr.status, -2);
     });
 
     it('should request net exception', function* () {
-      var fileContent = Array(1024*1024).fill('a').join('')
-      var file = new File([fileContent], 'multipart-upload-file');
+      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const file = new File([fileContent], 'multipart-upload-file');
 
-      var name = prefix + 'multipart/upload-file-timeout';
-      var stubNetError = sinon.stub(this.store.urllib, 'request');
-      var netErr = new Error('TestNetErrorException');
+      const name = `${prefix}multipart/upload-file-timeout`;
+      const stubNetError = sinon.stub(this.store.urllib, 'request');
+      const netErr = new Error('TestNetErrorException');
       netErr.status = -1;
       netErr.code = 'RequestError';
       netErr.name = 'RequestError';
       stubNetError.throws(netErr);
-      var net_err = "";
+      let netErrz;
       try {
         yield this.store.multipartUpload(name, file);
       } catch (err) {
-        net_err = err;
+        netErrz = err;
       }
-      assert.equal(true, net_err && Object.keys(net_err).length !== 0);
-      assert.equal(net_err.status, -1);
+      assert.equal(true, netErrz && Object.keys(netErrz).length !== 0);
+      assert.equal(netErrz.status, -1);
 
       this.store.urllib.request.restore();
     });
