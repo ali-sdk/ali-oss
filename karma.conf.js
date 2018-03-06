@@ -1,11 +1,16 @@
+<<<<<<< HEAD
 
 
+=======
+'use strict';
+
+>>>>>>> refactor: add eslint for es6
 module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'browserify'],
     browsers: ['Chrome', 'Safari'],
     files: [
-      'test/browser/build/aliyun-oss-sdk.js',
+      'testbrowser/build/aliyun-oss-sdk.js',
 
       'node_modules/co-mocha/co-mocha.js',
       'test/browser/build/tests.js',

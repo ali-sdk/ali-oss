@@ -22,7 +22,7 @@
     "test-cov": "istanbul cover node_modules/.bin/_mocha -- -R dot -t 60000 -r thunk-mocha -r should test/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
-    "build-test": "node browser-build.js > test/browser/build/aliyun-oss-sdk.js && node task/browser-test-build.js > test/browser/build/tests.js",
+    "build-test": "node browser-build.js > testbrowser/build/aliyun-oss-sdk.js && node task/browser-test-build.js > testbrowser/build/tests.js",
     "browser-test": "npm run build-test && karma start",
     "build-dist": "node browser-build.js > dist/aliyun-oss-sdk.js && MINIFY=1 node browser-build.js > dist/aliyun-oss-sdk.min.js",
     "publish-to-cdn": "node publish.js"
