@@ -11,24 +11,12 @@ describe('test/client.test.js', () => {
     let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'oss-cn-hangzhou'
-    });
-
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://oss-cn-hangzhou.aliyuncs.com/'
-    );
-
-    store = oss({
-      accessKeyId: 'foo',
-      accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou',
-      internal: true
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://oss-cn-hangzhou-internal.aliyuncs.com/'
+      'http://oss-cn-hangzhou.aliyuncs.com/',
     );
 
     store = oss({
@@ -36,35 +24,47 @@ describe('test/client.test.js', () => {
       accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou',
       internal: true,
-      secure: true
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'https://oss-cn-hangzhou-internal.aliyuncs.com/'
+      'http://oss-cn-hangzhou-internal.aliyuncs.com/',
     );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'vpc100-oss-cn-beijing'
+      region: 'oss-cn-hangzhou',
+      internal: true,
+      secure: true,
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://vpc100-oss-cn-beijing.aliyuncs.com/'
+      'https://oss-cn-hangzhou-internal.aliyuncs.com/',
+    );
+
+    store = oss({
+      accessKeyId: 'foo',
+      accessKeySecret: 'bar',
+      region: 'vpc100-oss-cn-beijing',
+    });
+
+    assert.equal(
+      store.options.endpoint.format(),
+      'http://vpc100-oss-cn-beijing.aliyuncs.com/',
     );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'vpc100-oss-cn-shenzhen',
-      internal: true
+      internal: true,
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://vpc100-oss-cn-shenzhen.aliyuncs.com/'
+      'http://vpc100-oss-cn-shenzhen.aliyuncs.com/',
     );
 
     store = oss({
@@ -72,12 +72,12 @@ describe('test/client.test.js', () => {
       accessKeySecret: 'bar',
       region: 'vpc100-oss-cn-hangzhou',
       internal: true,
-      secure: true
+      secure: true,
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'https://vpc100-oss-cn-hangzhou.aliyuncs.com/'
+      'https://vpc100-oss-cn-hangzhou.aliyuncs.com/',
     );
   });
 
@@ -86,24 +86,24 @@ describe('test/client.test.js', () => {
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
-      cname: true
+      cname: true,
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://foo.bar.com/'
+      'http://foo.bar.com/',
     );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://foo.bar.com',
-      cname: true
+      cname: true,
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://foo.bar.com/'
+      'http://foo.bar.com/',
     );
   });
 
@@ -111,34 +111,34 @@ describe('test/client.test.js', () => {
     let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: 'test.oss.com'
+      endpoint: 'test.oss.com',
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://test.oss.com/'
+      'http://test.oss.com/',
     );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: 'http://test.oss.com'
+      endpoint: 'http://test.oss.com',
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://test.oss.com/'
+      'http://test.oss.com/',
     );
 
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: 'https://test.oss.com'
+      endpoint: 'https://test.oss.com',
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'https://test.oss.com/'
+      'https://test.oss.com/',
     );
   });
 
@@ -146,12 +146,12 @@ describe('test/client.test.js', () => {
     const store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: '127.0.0.1'
+      endpoint: '127.0.0.1',
     });
 
     assert.equal(
       store.options.endpoint.format(),
-      'http://127.0.0.1/'
+      'http://127.0.0.1/',
     );
   });
 
@@ -159,11 +159,11 @@ describe('test/client.test.js', () => {
     let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'oss-cn-hangzhou'
+      region: 'oss-cn-hangzhou',
     });
 
     let params = {
-      bucket: 'gems'
+      bucket: 'gems',
     };
 
     let url = store._getReqUrl(params);
@@ -172,11 +172,11 @@ describe('test/client.test.js', () => {
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: 'test.oss.com'
+      endpoint: 'test.oss.com',
     });
 
     params = {
-      bucket: 'gems'
+      bucket: 'gems',
     };
 
     url = store._getReqUrl(params);
@@ -186,11 +186,11 @@ describe('test/client.test.js', () => {
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
-      cname: true
+      cname: true,
     });
 
     params = {
-      bucket: 'gems'
+      bucket: 'gems',
     };
 
     url = store._getReqUrl(params);
@@ -199,11 +199,11 @@ describe('test/client.test.js', () => {
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: 'http://127.0.0.1:6000'
+      endpoint: 'http://127.0.0.1:6000',
     });
 
     params = {
-      bucket: 'gems'
+      bucket: 'gems',
     };
 
     url = store._getReqUrl(params);
@@ -214,12 +214,12 @@ describe('test/client.test.js', () => {
     let store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      region: 'oss-cn-hangzhou'
+      region: 'oss-cn-hangzhou',
     });
 
     let params = {
       bucket: 'gems',
-      object: 'hello'
+      object: 'hello',
     };
 
     let url = store._getReqUrl(params);
@@ -228,7 +228,7 @@ describe('test/client.test.js', () => {
     params = {
       bucket: 'gems',
       object: 'hello',
-      subres: { acl: '', mime: '' }
+      subres: { acl: '', mime: '' },
     };
 
     url = store._getReqUrl(params);
@@ -237,12 +237,12 @@ describe('test/client.test.js', () => {
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: 'test.oss.com'
+      endpoint: 'test.oss.com',
     });
 
     params = {
       bucket: 'gems',
-      object: 'hello'
+      object: 'hello',
     };
 
     url = store._getReqUrl(params);
@@ -252,12 +252,12 @@ describe('test/client.test.js', () => {
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
-      cname: true
+      cname: true,
     });
 
     params = {
       bucket: 'gems',
-      object: 'hello'
+      object: 'hello',
     };
 
     url = store._getReqUrl(params);
@@ -266,12 +266,12 @@ describe('test/client.test.js', () => {
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
-      endpoint: 'http://127.0.0.1:3000'
+      endpoint: 'http://127.0.0.1:3000',
     });
 
     params = {
       bucket: 'gems',
-      object: 'hello'
+      object: 'hello',
     };
 
     url = store._getReqUrl(params);
@@ -317,7 +317,7 @@ describe('test/client.test.js', () => {
     const store = oss({
       accessKeyId: '  \tfoo\t\n  ',
       accessKeySecret: '  \tbar\n\r   ',
-      region: 'oss-cn-hangzhou'
+      region: 'oss-cn-hangzhou',
     });
 
     assert.equal(store.options.accessKeyId, 'foo');

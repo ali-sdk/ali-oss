@@ -21,7 +21,7 @@ describe('test/bucket.test.js', () => {
 
     const bucketResult = yield this.store.listBuckets({
       // prefix: '',
-      'max-keys': 20
+      'max-keys': 20,
     });
     console.log(bucketResult.buckets);
 
@@ -134,7 +134,7 @@ describe('test/bucket.test.js', () => {
     it('should list buckets by prefix', function* () {
       const result = yield this.store.listBuckets({
         prefix: this.listBucketsPrefix,
-        'max-keys': 20
+        'max-keys': 20,
       });
 
       assert(Array.isArray(result.buckets));
@@ -183,13 +183,13 @@ describe('test/bucket.test.js', () => {
   describe('putBucketWebsite(), getBucketWebsite(), deleteBucketWebsite()', () => {
     it('should create, get and delete the website settings', function* () {
       let result = yield this.store.putBucketWebsite(this.bucket, this.region, {
-        index: 'index.html'
+        index: 'index.html',
       });
       assert.equal(result.res.status, 200);
       // put again will be fine
       result = yield this.store.putBucketWebsite(this.bucket, this.region, {
         index: 'index.htm',
-        error: 'error.htm'
+        error: 'error.htm',
       });
       assert.equal(result.res.status, 200);
 
@@ -212,7 +212,7 @@ describe('test/bucket.test.js', () => {
         id: 'delete after one day',
         prefix: 'logs/',
         status: 'Enabled',
-        days: 1
+        days: 1,
       }]);
       assert.equal(putresult1.res.status, 200);
 
@@ -222,13 +222,13 @@ describe('test/bucket.test.js', () => {
           id: 'delete after one day',
           prefix: 'logs/',
           status: 'Enabled',
-          days: 1
+          days: 1,
         },
         {
           prefix: 'logs2/',
           status: 'Disabled',
-          date: '2022-10-11T00:00:00.000Z'
-        }
+          date: '2022-10-11T00:00:00.000Z',
+        },
       ]);
       assert.equal(putresult2.res.status, 200);
 
@@ -248,7 +248,7 @@ describe('test/bucket.test.js', () => {
   describe('putBucketReferer(), getBucketReferer(), deleteBucketReferer()', () => {
     it('should create, get and delete the referer', function* () {
       const putresult = yield this.store.putBucketReferer(this.bucket, this.region, true, [
-        'http://npm.taobao.org'
+        'http://npm.taobao.org',
       ]);
       assert.equal(putresult.res.status, 200);
 
@@ -256,7 +256,7 @@ describe('test/bucket.test.js', () => {
       const referers = [
         'http://npm.taobao.org',
         'https://npm.taobao.org',
-        'http://cnpmjs.org'
+        'http://cnpmjs.org',
       ];
       const putReferer = yield this.store.putBucketReferer(this.bucket, this.region, false, referers);
       assert.equal(putReferer.res.status, 200);
@@ -288,7 +288,7 @@ describe('test/bucket.test.js', () => {
         allowedMethod: 'GET',
         allowedHeader: '*',
         exposeHeader: 'Content-Length',
-        maxAgeSeconds: '30'
+        maxAgeSeconds: '30',
       }];
       const putResult = yield this.store.putBucketCORS(this.bucket, this.region, rules);
       assert.equal(putResult.res.status, 200);
@@ -300,14 +300,14 @@ describe('test/bucket.test.js', () => {
         allowedMethod: 'GET',
         allowedHeader: '*',
         exposeHeader: 'Content-Length',
-        maxAgeSeconds: '30'
+        maxAgeSeconds: '30',
       }]);
     });
 
     it('should overwrite cors', function* () {
       let rules = [{
         allowedOrigin: '*',
-        allowedMethod: 'GET'
+        allowedMethod: 'GET',
       }];
       const putCorsResult1 = yield this.store.putBucketCORS(this.bucket, this.region, rules);
       assert.equal(putCorsResult1.res.status, 200);
@@ -316,12 +316,12 @@ describe('test/bucket.test.js', () => {
       assert.equal(getCorsResult1.res.status, 200);
       assert.deepEqual(getCorsResult1.rules, [{
         allowedOrigin: '*',
-        allowedMethod: 'GET'
+        allowedMethod: 'GET',
       }]);
 
       rules = [{
         allowedOrigin: 'localhost',
-        allowedMethod: 'HEAD'
+        allowedMethod: 'HEAD',
       }];
       const putCorsResult2 = yield this.store.putBucketCORS(this.bucket, this.region, rules);
       assert.equal(putCorsResult2.res.status, 200);
@@ -330,7 +330,7 @@ describe('test/bucket.test.js', () => {
       assert.equal(getCorsResult2.res.status, 200);
       assert.deepEqual(getCorsResult2.rules, [{
         allowedOrigin: 'localhost',
-        allowedMethod: 'HEAD'
+        allowedMethod: 'HEAD',
       }]);
     });
 
@@ -355,7 +355,7 @@ describe('test/bucket.test.js', () => {
     it('should check allowedMethod', function* () {
       try {
         const rules = [{
-          allowedOrigin: '*'
+          allowedOrigin: '*',
         }];
         yield this.store.putBucketCORS(this.bucket, this.region, rules);
         throw new Error('should not run');

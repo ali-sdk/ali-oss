@@ -7,13 +7,12 @@ module.exports = {
     es6: true,
     mocha: true,
     jasmine: true,
-    jest: true
+    jest: true,
   },
   rules: {
     indent: ['error', 2],
     strict: [0],
     // override default options
-    'comma-dangle': ['error', 'never'],
     'no-underscore-dangle': [0],
     'no-plusplus': [0],
     'no-param-reassign': [0],
@@ -22,9 +21,9 @@ module.exports = {
       ignoreComments: false,
       ignoreRegExpLiterals: true,
       ignoreStrings: true,
-      ignoreTemplateLiterals: true
+      ignoreTemplateLiterals: true,
     }],
     // wait node version >= 5.10.0 will start this rule
-    'no-buffer-constructor': [0]
+    'no-buffer-constructor': [0],
   }
 };

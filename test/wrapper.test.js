@@ -36,7 +36,7 @@ describe('test/wrapper.test.js', () => {
 
     return this.store.listBuckets({
       prefix: bucket,
-      'max-keys': 1
+      'max-keys': 1,
     }).then((val) => {
       assert.equal(val.res.status, 200);
       assert.equal(Array.isArray(val.buckets), true);
@@ -74,7 +74,7 @@ describe('test/wrapper.test.js', () => {
           count++;
           done();
         };
-      }
+      },
     }).then((val) => {
       assert.equal(val.res.status, 200);
       assert.equal(count, 12);

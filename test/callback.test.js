@@ -45,9 +45,9 @@ describe('test/multipart.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2'
-          }
-        }
+            var2: 'value2',
+          },
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
@@ -62,7 +62,7 @@ describe('test/multipart.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-new-callback`;
       const result = yield client.multipartUploadCopy(copyName, {
         sourceKey: name,
-        sourceBucketName: this.bucket
+        sourceBucketName: this.bucket,
       }, {
         partSize: 256 * 1024,
         callback: {
@@ -72,12 +72,12 @@ describe('test/multipart.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2'
-          }
+            var2: 'value2',
+          },
         },
         copyheaders: {
-          'x-oss-copy-source-if-match': ''
-        }
+          'x-oss-copy-source-if-match': '',
+        },
       });
 
       assert.equal(result.res.status, 200);
@@ -98,9 +98,9 @@ describe('test/multipart.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2'
-          }
-        }
+            var2: 'value2',
+          },
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
@@ -116,9 +116,9 @@ describe('test/multipart.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2'
-          }
-        }
+            var2: 'value2',
+          },
+        },
       });
 
       assert.equal(result.res.status, 200);
@@ -135,9 +135,9 @@ describe('test/multipart.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2'
-          }
-        }
+            var2: 'value2',
+          },
+        },
       });
 
       assert.equal(result.res.status, 200);

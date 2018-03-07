@@ -39,8 +39,8 @@ describe('test/rtmp.test.js', () => {
         Type: 'HLS',
         FragDuration: '10',
         FragCount: '5',
-        PlaylistName: 'playlist.m3u8'
-      }
+        PlaylistName: 'playlist.m3u8',
+      },
     };
   });
 
@@ -123,7 +123,7 @@ describe('test/rtmp.test.js', () => {
       const query = {
         prefix: 'channel-list-',
         marker: 'channel-list-4',
-        'max-keys': 3
+        'max-keys': 3,
       };
 
       const result = yield this.store.listChannels(query);
@@ -171,9 +171,9 @@ describe('test/rtmp.test.js', () => {
       console.log(result);
       const url = this.store.getRtmpUrl(this.cid, {
         params: {
-          playlistName: 'vod.m3u8'
+          playlistName: 'vod.m3u8',
         },
-        expires: 3600
+        expires: 3600,
       });
       console.log(url);
     });
@@ -190,7 +190,7 @@ describe('test/rtmp.test.js', () => {
       try {
         const result = yield this.store.createVod(this.cid, name, {
           startTime: Math.floor((now - 100) / 1000),
-          endTime: Math.floor(now / 1000)
+          endTime: Math.floor(now / 1000),
         });
 
         assert.equal(result.res.status, 200);
@@ -217,9 +217,9 @@ describe('test/rtmp.test.js', () => {
       const name = 'vod.m3u8';
       const url = this.store.getRtmpUrl(this.cid, {
         params: {
-          playlistName: name
+          playlistName: name,
         },
-        expires: 3600
+        expires: 3600,
       });
       console.log(url);
       // verify the url is ok used by OBS or ffmpeg
