@@ -112,6 +112,7 @@
     "urllib": "^2.17.1",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16",
-    "stream-http": "^2.8.0"
+    "stream-http": "^2.8.0",
+    "any-promise": "^1.3.0"
   }
 }
