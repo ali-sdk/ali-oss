@@ -7,5 +7,6 @@
     "browser.js",
     "package.json"
   ],
-  "main": "dist/aliyun-oss-sdk.js"
+  "main": "dist/aliyun-oss-sdk.js",
+  "version": "4.13.0"
 }
