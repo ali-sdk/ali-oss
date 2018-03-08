@@ -2950,7 +2950,7 @@ some exceptions:
 
 ### Compatibility
 
-- IE >= 10 & Edge
+- IE >= 10, not support Edge yet
 - Major versions of Chrome/Firefox/Safari
 - Major versions of Android/iOS/WP
 
