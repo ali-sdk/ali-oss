@@ -140,7 +140,9 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     lookup: args.lookup,
   };
 
-  if (args.timeout) {
+  if (Array.isArray(args.timeout)) {
+    options.requestTimeout = args.timeout[args.timeout.length - 1];
+  } else if (typeof args.timeout !== 'undefined') {
     options.requestTimeout = args.timeout;
   }
 
