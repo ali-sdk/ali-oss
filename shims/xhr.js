@@ -142,7 +142,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 
   if (Array.isArray(args.timeout)) {
     options.requestTimeout = args.timeout[args.timeout.length - 1];
-  } else {
+  } else if (typeof args.timeout !== 'undefined') {
     options.requestTimeout = args.timeout;
   }
 
