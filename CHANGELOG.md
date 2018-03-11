@@ -1,3 +1,17 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="4.13.1"></a>
+## [4.13.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.0...v4.13.1) (2018-03-11)
+
+
+### Bug Fixes
+
+* fix bug about value of requestTimeout! ([#383](https://github.com/aliyun/oss-nodejs-sdk/issues/383)) ([a3653a7](https://github.com/aliyun/oss-nodejs-sdk/commit/a3653a7))
+
+
+
 <a name="4.13.0"></a>
 # [4.13.0](https://github.com/aliyun/oss-nodejs-sdk/compare/4.12.1...4.13.0) (2018-03-07)
 

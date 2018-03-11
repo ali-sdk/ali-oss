@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "4.13.0",
+  "version": "4.13.1",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
