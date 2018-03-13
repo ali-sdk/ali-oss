@@ -31,8 +31,8 @@ function makeCallback(resolve, reject) {
   };
 }
 
-exports.TIMEOUT = ms('5s');
-exports.TIMEOUTS = [ms('5s'), ms('5s')];
+// exports.TIMEOUT = ms('5s');
+exports.TIMEOUTS = [ms('60s'), ms('60s')];
 
 var TEXT_DATA_TYPES = [
   'json',
