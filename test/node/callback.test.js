@@ -10,18 +10,18 @@ const mm = require('mm');
 describe('test/callback.test.js', () => {
   const { prefix } = utils;
 
-  before(function* () {
+  before(async () => {
     this.store = oss(config);
     this.bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
-    yield this.store.putBucket(this.bucket, this.region);
+    await this.store.putBucket(this.bucket, this.region);
     this.store.useBucket(this.bucket, this.region);
   });
 
-  after(function* () {
-    yield utils.cleanBucket(this.store, this.bucket, this.region);
+  after(async () => {
+    await utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
 
@@ -29,12 +29,12 @@ describe('test/callback.test.js', () => {
     afterEach(mm.restore);
     // callback server on EC2, maybe fail on China, bug pass on travis ci
     // callback server down, skip it
-    it('should multipart upload parse response with callback', function* () {
+    it('should multipart upload parse response with callback', async () => {
       // create a file with 1M random data
-      const fileName = yield utils.createTempFile('upload-with-callback', 1024 * 1024);
+      const fileName = await utils.createTempFile('upload-with-callback', 1024 * 1024);
 
       const name = `${prefix}multipart/upload-with-callback`;
-      const result = yield this.store.multipartUpload(name, fileName, {
+      const result = await this.store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         callback: {
           url: callbackServer,
@@ -52,14 +52,14 @@ describe('test/callback.test.js', () => {
       assert.equal(result.data.Status, 'OK');
     });
 
-    it('should multipart upload copy with callback', function* () {
-      const fileName = yield utils.createTempFile('multipart-upload-file-copy-callback', 2 * 1024 * 1024);
+    it('should multipart upload copy with callback', async () => {
+      const fileName = await utils.createTempFile('multipart-upload-file-copy-callback', 2 * 1024 * 1024);
       const name = `${prefix}multipart/upload-file-with-copy-callback`;
-      yield this.store.multipartUpload(name, fileName);
+      await this.store.multipartUpload(name, fileName);
 
       const client = this.store;
       const copyName = `${prefix}multipart/upload-file-with-copy-new-callback`;
-      const result = yield client.multipartUploadCopy(copyName, {
+      const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
         sourceBucketName: this.bucket,
       }, {
@@ -83,12 +83,12 @@ describe('test/callback.test.js', () => {
       assert.equal(result.data.Status, 'OK');
     });
 
-    it('should multipart upload with no more 100k file parse response with callback', function* () {
+    it('should multipart upload with no more 100k file parse response with callback', async () => {
       // create a file with 1M random data
-      const fileName = yield utils.createTempFile('upload-with-callback', 50 * 1024);
+      const fileName = await utils.createTempFile('upload-with-callback', 50 * 1024);
 
       const name = `${prefix}multipart/upload-with-callback`;
-      const result = yield this.store.multipartUpload(name, fileName, {
+      const result = await this.store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         callback: {
           url: callbackServer,
@@ -105,9 +105,9 @@ describe('test/callback.test.js', () => {
       assert.equal(result.data.Status, 'OK');
     });
 
-    it('should putStream parse response with callback', function* () {
+    it('should putStream parse response with callback', async () => {
       const name = `${prefix}ali-sdk/oss/putstream-callback.js`;
-      const result = yield this.store.putStream(name, fs.createReadStream(__filename), {
+      const result = await this.store.putStream(name, fs.createReadStream(__filename), {
         callback: {
           url: callbackServer,
           host: 'oss-cn-hangzhou.aliyuncs.com',
@@ -124,9 +124,9 @@ describe('test/callback.test.js', () => {
       assert.equal(result.data.Status, 'OK');
     });
 
-    it('should put parse response with callback', function* () {
+    it('should put parse response with callback', async () => {
       const name = `${prefix}ali-sdk/oss/put-callback.js`;
-      const result = yield this.store.put(name, __filename, {
+      const result = await this.store.put(name, __filename, {
         callback: {
           url: callbackServer,
           host: 'oss-cn-hangzhou.aliyuncs.com',
