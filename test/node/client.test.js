@@ -277,7 +277,7 @@ describe('test/client.test.js', () => {
     assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
   });
 
-  it('should set User-Agent', function* () {
+  it('should set User-Agent', async () => {
     after(mm.restore);
 
     const store = oss(config);
@@ -288,7 +288,7 @@ describe('test/client.test.js', () => {
       return req(url, args);
     });
 
-    const result = yield store.listBuckets();
+    const result = await store.listBuckets();
     assert.equal(result.res.status, 200);
     assert(header['User-Agent']);
     assert(header['User-Agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
@@ -304,15 +304,14 @@ describe('test/client.test.js', () => {
     assert.equal(uaAlpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
   });
 
-  /* eslint require-yield: [0] */
-  it('should check browser and version', function* () {
+  it('should check browser and version', () => {
     const store = oss(config);
     assert(store.checkBrowserAndVersion('', ''));
     assert(!store.checkBrowserAndVersion('non-nodejs', ''));
     assert(!store.checkBrowserAndVersion('', 'error-version'));
   });
 
-  it('should trim access id/key', function* () {
+  it('should trim access id/key', () => {
     const store = oss({
       accessKeyId: '  \tfoo\t\n  ',
       accessKeySecret: '  \tbar\n\r   ',
