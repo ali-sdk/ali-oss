@@ -19,13 +19,13 @@ const config = require('../config').oss;
 describe('test/rtmp.test.js', () => {
   const { prefix } = utils;
 
-  before(function* () {
+  before(async () => {
     this.store = oss(config);
     this.bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.store.useBucket(this.bucket);
 
-    const result = yield this.store.putBucket(this.bucket, this.region);
+    const result = await this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
 
@@ -42,89 +42,91 @@ describe('test/rtmp.test.js', () => {
     };
   });
 
-  after(function* () {
-    yield utils.cleanBucket(this.store, this.bucket, this.region);
+  after(async () => {
+    await utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
   describe('put/get/deleteChannel()', () => {
-    it('should create a new channel', function* () {
+    it('should create a new channel', async () => {
       const { cid } = this;
       const { conf } = this;
 
-      let result = yield this.store.putChannel(cid, conf);
+      let result = await this.store.putChannel(cid, conf);
       assert.equal(result.res.status, 200);
       assert(is.array(result.publishUrls));
       assert(result.publishUrls.length > 0);
       assert(is.array(result.playUrls));
       assert(result.playUrls.length > 0);
 
-      result = yield this.store.getChannel(cid);
+      result = await this.store.getChannel(cid);
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.data, conf);
 
-      result = yield this.store.deleteChannel(cid);
+      result = await this.store.deleteChannel(cid);
       assert.equal(result.res.status, 204);
 
-      yield utils.throws(function* () {
-        yield this.store.getChannel(cid);
-      }.bind(this), (err) => {
+      await utils.throws(async () => {
+        await this.store.getChannel(cid);
+      }, (err) => {
         assert.equal(err.status, 404);
       });
     });
   });
 
   describe('put/getChannelStatus()', () => {
-    before(function* () {
+    before(async () => {
       this.cid = 'live channel 2';
       this.conf.Description = 'this is live channel 2';
-      yield this.store.putChannel(this.cid, this.conf);
+      await this.store.putChannel(this.cid, this.conf);
     });
 
-    after(function* () {
-      yield this.store.deleteChannel(this.cid);
+    after(async () => {
+      await this.store.deleteChannel(this.cid);
     });
 
-    it('should disable channel', function* () {
-      let result = yield this.store.getChannelStatus(this.cid);
+    it('should disable channel', async () => {
+      let result = await this.store.getChannelStatus(this.cid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Idle');
 
       // TODO: verify ConnectedTime/RemoteAddr/Video/Audio when not idle
 
-      result = yield this.store.putChannelStatus(this.cid, 'disabled');
+      result = await this.store.putChannelStatus(this.cid, 'disabled');
       assert.equal(result.res.status, 200);
 
-      result = yield this.store.getChannelStatus(this.cid);
+      result = await this.store.getChannelStatus(this.cid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Disabled');
     });
   });
 
   describe('listChannels()', () => {
-    before(function* () {
+    before(async () => {
       this.channelNum = 10;
       this.channelPrefix = 'channel-list-';
 
       for (let i = 0; i < this.channelNum; i++) {
         this.conf.Description = i;
-        yield this.store.putChannel(this.channelPrefix + i, this.conf);
+        /* eslint no-await-in-loop: [0] */
+        await this.store.putChannel(this.channelPrefix + i, this.conf);
       }
     });
 
-    after(function* () {
+    after(async () => {
       for (let i = 0; i < this.channelNum; i++) {
-        yield this.store.deleteChannel(this.channelPrefix + i);
+        /* eslint no-await-in-loop: [0] */
+        await this.store.deleteChannel(this.channelPrefix + i);
       }
     });
 
-    it('list channels using prefix/marker/max-keys', function* () {
+    it('list channels using prefix/marker/max-keys', async () => {
       const query = {
         prefix: 'channel-list-',
         marker: 'channel-list-4',
         'max-keys': 3,
       };
 
-      const result = yield this.store.listChannels(query);
+      const result = await this.store.listChannels(query);
 
       assert.equal(result.res.status, 200);
       assert.equal(result.nextMarker, 'channel-list-7');
@@ -139,18 +141,18 @@ describe('test/rtmp.test.js', () => {
   });
 
   describe('getChannelHistory()', () => {
-    before(function* () {
+    before(async () => {
       this.cid = 'channel-3';
       this.conf.Description = 'this is live channel 3';
-      yield this.store.putChannel(this.cid, this.conf);
+      await this.store.putChannel(this.cid, this.conf);
     });
 
-    after(function* () {
-      yield this.store.deleteChannel(this.cid);
+    after(async () => {
+      await this.store.deleteChannel(this.cid);
     });
 
-    it('should get channel history', function* () {
-      const result = yield this.store.getChannelHistory(this.cid);
+    it('should get channel history', async () => {
+      const result = await this.store.getChannelHistory(this.cid);
 
       assert.equal(result.res.status, 200);
       assert(is.array(result.records));
@@ -162,10 +164,10 @@ describe('test/rtmp.test.js', () => {
   });
 
   describe('createVod()', () => {
-    before(function* () {
+    before(async () => {
       this.cid = 'channel-4';
       this.conf.Description = 'this is live channel 4';
-      const result = yield this.store.putChannel(this.cid, this.conf);
+      const result = await this.store.putChannel(this.cid, this.conf);
       console.log(result);
       const url = this.store.getRtmpUrl(this.cid, {
         params: {
@@ -176,17 +178,17 @@ describe('test/rtmp.test.js', () => {
       console.log(url);
     });
 
-    after(function* () {
-      yield this.store.deleteChannel(this.cid);
+    after(async () => {
+      await this.store.deleteChannel(this.cid);
     });
 
     // this case need have data in server
-    it.skip('should create vod playlist', function* () {
+    it.skip('should create vod playlist', async () => {
       const name = 'vod.m3u8';
       const now = Date.now();
 
       try {
-        const result = yield this.store.createVod(this.cid, name, {
+        const result = await this.store.createVod(this.cid, name, {
           startTime: Math.floor((now - 100) / 1000),
           endTime: Math.floor(now / 1000),
         });
@@ -199,19 +201,18 @@ describe('test/rtmp.test.js', () => {
   });
 
   describe('getRtmpUrl()', () => {
-    before(function* () {
+    before(async () => {
       this.cid = 'channel-5';
       this.conf.Description = 'this is live channel 5';
-      const result = yield this.store.putChannel(this.cid, this.conf);
+      const result = await this.store.putChannel(this.cid, this.conf);
       console.log(result);
     });
 
-    after(function* () {
-      yield this.store.deleteChannel(this.cid);
+    after(async () => {
+      await this.store.deleteChannel(this.cid);
     });
 
-    /* eslint require-yield: [0] */
-    it('should get rtmp url', function* () {
+    it('should get rtmp url', () => {
       const name = 'vod.m3u8';
       const url = this.store.getRtmpUrl(this.cid, {
         params: {
