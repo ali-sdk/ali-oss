@@ -591,7 +591,7 @@ describe('browser', () => {
     });
   });
 
-  describe('multipart', () => {
+  describe.skip('multipart', () => {
     before(function* () {
       this.store = oss(ossConfig);
     });
@@ -710,8 +710,8 @@ describe('browser', () => {
       });
     });
 
-    describe('multipartUpload()', () => {
-      it.skip('should initMultipartUpload with x-oss-server-side-encryption', function* () {
+    describe.skip('multipartUpload()', () => {
+      it('should initMultipartUpload with x-oss-server-side-encryption', function* () {
         // wait server bucket cors on line
         const name = 'multipart-x-oss-server-side-encryption';
         const result = yield this.store.initMultipartUpload(name, {
