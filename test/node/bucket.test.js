@@ -201,27 +201,27 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketWebsite(), getBucketWebsite(), deleteBucketWebsite()', () => {
     it('should create, get and delete the website settings', async () => {
-      let result = await this.store.putBucketWebsite(this.bucket, this.region, {
+      const result1 = await this.store.putBucketWebsite(this.bucket, this.region, {
         index: 'index.html',
       });
-      assert.equal(result.res.status, 200);
+      assert.equal(result1.res.status, 200);
       // put again will be fine
-      result = await this.store.putBucketWebsite(this.bucket, this.region, {
+      const result2 = await this.store.putBucketWebsite(this.bucket, this.region, {
         index: 'index.htm',
         error: 'error.htm',
       });
-      assert.equal(result.res.status, 200);
+      assert.equal(result2.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
 
       // get
-      result = await this.store.getBucketWebsite(this.bucket, this.region);
-      assert.equal(typeof result.index, 'string');
-      assert.equal(result.res.status, 200);
+      const get = await this.store.getBucketWebsite(this.bucket, this.region);
+      assert.equal(typeof get.index, 'string');
+      assert.equal(get.res.status, 200);
 
       // delete it
-      result = await this.store.deleteBucketWebsite(this.bucket, this.region);
-      assert.equal(result.res.status, 204);
+      const del = await this.store.deleteBucketWebsite(this.bucket, this.region);
+      assert.equal(del.res.status, 204);
     });
   });
 
@@ -254,9 +254,9 @@ describe('test/bucket.test.js', () => {
       await utils.sleep(ms(metaSyncTime));
 
       // get
-      const putresult3 = await this.store.getBucketLifecycle(this.bucket, this.region);
-      assert(putresult3.rules.length > 0);
-      assert.equal(putresult3.res.status, 200);
+      const getBucketLifecycle = await this.store.getBucketLifecycle(this.bucket, this.region);
+      assert(getBucketLifecycle.rules.length > 0);
+      assert.equal(getBucketLifecycle.res.status, 200);
 
       // delete it
       const deleteResult = await this.store.deleteBucketLifecycle(this.bucket, this.region);
@@ -324,11 +324,11 @@ describe('test/bucket.test.js', () => {
     });
 
     it('should overwrite cors', async () => {
-      let rules = [{
+      const rules1 = [{
         allowedOrigin: '*',
         allowedMethod: 'GET',
       }];
-      const putCorsResult1 = await this.store.putBucketCORS(this.bucket, this.region, rules);
+      const putCorsResult1 = await this.store.putBucketCORS(this.bucket, this.region, rules1);
       assert.equal(putCorsResult1.res.status, 200);
 
       const getCorsResult1 = await this.store.getBucketCORS(this.bucket, this.region);
@@ -338,12 +338,14 @@ describe('test/bucket.test.js', () => {
         allowedMethod: 'GET',
       }]);
 
-      rules = [{
+      const rules2 = [{
         allowedOrigin: 'localhost',
         allowedMethod: 'HEAD',
       }];
-      const putCorsResult2 = await this.store.putBucketCORS(this.bucket, this.region, rules);
+      const putCorsResult2 = await this.store.putBucketCORS(this.bucket, this.region, rules2);
       assert.equal(putCorsResult2.res.status, 200);
+
+      await utils.sleep(ms(metaSyncTime));
 
       const getCorsResult2 = await this.store.getBucketCORS(this.bucket, this.region);
       assert.equal(getCorsResult2.res.status, 200);
