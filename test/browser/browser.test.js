@@ -15,8 +15,8 @@ const pkg = require('../../package.json');
 const platform = require('platform');
 const { callbackServer } = require('../../test/const');
 
-const { prefix } = utisl;
 const crypto1 = require('crypto');
+const { prefix } = require('./browser-utils');
 
 let ossConfig;
 const timemachine = require('timemachine');
