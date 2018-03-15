@@ -11,6 +11,8 @@ const appServer = '/sts';
 const bucket = '<bucket-name>';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
+
+
 // Play without STS. NOT SAFE! Because access key id/secret are
 // exposed in web page.
 
@@ -33,7 +35,7 @@ const applyTokenDo = function (func, refreshSts) {
       url,
     }).then((result) => {
       const creds = result;
-      const client = new OSS.Wrapper({
+      const client = new OSS({
         region,
         accessKeyId: creds.AccessKeyId,
         accessKeySecret: creds.AccessKeySecret,
@@ -48,19 +50,16 @@ const applyTokenDo = function (func, refreshSts) {
   return func();
 };
 let currentCheckpoint;
-const progress = function (p, checkpoint) {
-  return function (done) {
-    currentCheckpoint = checkpoint;
-    const bar = document.getElementById('progress-bar');
-    bar.style.width = `${Math.floor(p * 100)}%`;
-    bar.innerHTML = `${Math.floor(p * 100)}%`;
-    done();
-  };
+const progress = function progress(p, checkpoint) {
+  currentCheckpoint = checkpoint;
+  const bar = document.getElementById('progress-bar');
+  bar.style.width = `${Math.floor(p * 100)}%`;
+  bar.innerHTML = `${Math.floor(p * 100)}%`;
 };
 
 let uploadFileClient;
 
-const uploadFile = function (client) {
+const uploadFile = function uploadFile(client) {
   if (!uploadFileClient || Object.keys(uploadFileClient).length === 0) {
     uploadFileClient = client;
   }
@@ -93,13 +92,10 @@ const uploadFile = function (client) {
   });
 };
 
-const base64progress = function (p) {
-  return function (done) {
-    const bar = document.getElementById('base64-progress-bar');
-    bar.style.width = `${Math.floor(p * 100)}%`;
-    bar.innerHTML = `${Math.floor(p * 100)}%`;
-    done();
-  };
+const base64progress = function base64progress(p) {
+  const bar = document.getElementById('base64-progress-bar');
+  bar.style.width = `${Math.floor(p * 100)}%`;
+  bar.innerHTML = `${Math.floor(p * 100)}%`;
 };
 
 /**
@@ -137,7 +133,7 @@ const uploadBase64Img = function uploadBase64Img(client) {
   }
 };
 
-const listFiles = function (client) {
+const listFiles = function listFiles(client) {
   const table = document.getElementById('list-files-table');
   console.log('list files');
 
@@ -167,7 +163,7 @@ const listFiles = function (client) {
 };
 
 /* eslint no-unused-vars: [0] */
-const uploadContent = function (client) {
+const uploadContent = function uploadContent(client) {
   const content = document.getElementById('file-content').value.trim();
   const key = document.getElementById('object-key-content').value.trim() || 'object';
   console.log(`content => ${key}`);
@@ -210,7 +206,7 @@ const putBlob = function (client) {
   });
 };
 
-const downloadFile = function (client) {
+const downloadFile = function downloadFile(client) {
   const object = document.getElementById('dl-object-key').value.trim();
   const filename = document.getElementById('dl-file-name').value.trim();
   console.log(`${object} => ${filename}`);
