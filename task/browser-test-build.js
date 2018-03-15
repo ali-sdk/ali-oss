@@ -4,7 +4,6 @@
 var oss = require('..');
 var env = process.env;
 var STS = oss.STS;
-var co = require('co');
 var fs = require('fs');
 var path = require('path');
 var browserify = require('browserify');
@@ -30,9 +29,7 @@ function build(options, callback) {
     accessKeySecret: conf.accessKeySecret
   });
 
-  co(function* () {
-    return yield store.assumeRole(conf.roleArn);
-  }).then((result) => {
+  store.assumeRole(conf.roleArn).then((result) => {
     var stsConf = JSON.parse(result.res.data);
     var tmpdir = path.join(__dirname, '../test/browser/.tmp');
     var stsConfFile = tmpdir+ '/stsConfig.json';
@@ -46,13 +43,14 @@ function build(options, callback) {
       var brOpts = {
         basedir: path.resolve(__dirname, '.'),
         fullPaths: false,
+        debug: true
       };
       browserify(brOpts).add(['../test/browser/browser.test.js', ])
         .transform(babelify, {
           "global": true,
           "presets": ["es2015"],
-          "plugins": ["transform-runtime"],
-          "only": ['testbrowser/*', 'browser/*','lib/*', 'node_modules/co-gather/*', 'shims/*'],
+          "plugins": ["transform-runtime", "babel-plugin-transform-regenerator"],
+          "only": ['testbrowser/*', 'browser/*','lib/*', 'shims/*'],
         }).transform(aliasify, {
         global: true,
         aliases: {
