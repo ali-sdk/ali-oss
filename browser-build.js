@@ -27,14 +27,15 @@ function build(options, callback) {
   var brOpts = {
     basedir: path.resolve(__dirname, '.'),
     fullPaths: false,
-    standalone: 'OSS'
+    standalone: 'OSS',
+    debug: true
   };
   browserify(brOpts).add('./lib/browser.js')
     .transform(babelify, {
       "global": true,
       "presets": ["es2015"],
-      "plugins": ["transform-runtime"],
-      "only": ['lib/*', 'node_modules/co-gather/*', 'shims/*', 'shims/crypto/*'],
+      "plugins": ["transform-runtime", "babel-plugin-transform-regenerator", "babel-plugin-transform-es2015-modules-commonjs"],
+      "only": ['lib/*', 'shims/*', 'shims/crypto/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {
