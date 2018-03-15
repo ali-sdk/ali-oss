@@ -15,15 +15,7 @@ const pkg = require('../../package.json');
 const platform = require('platform');
 const { callbackServer } = require('../../test/const');
 
-let prefix;
-if (process && process.browser) {
-  prefix = `${platform.name}-${platform.version}/`;
-} else {
-  prefix = `${process.platform}-${process.version}/`;
-  if (process && process.execPath.indexOf('iojs') >= 0) {
-    prefix = `iojs-${prefix}`;
-  }
-}
+const { prefix } = require('./browser-utils');
 
 
 let ossConfig;
