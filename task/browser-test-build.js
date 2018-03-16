@@ -33,7 +33,7 @@ function build(options, callback) {
     return yield store.assumeRole(conf.roleArn);
   }).then((result) => {
     var stsConf = JSON.parse(result.res.data);
-    var tmpdir = path.join(__dirname, '../testbrowser/.tmp');
+    var tmpdir = path.join(__dirname, '../test/browser/.tmp');
     var stsConfFile = tmpdir+ '/stsConfig.json';
     if (!fs.existsSync(tmpdir)) {
       fs.mkdirSync(tmpdir);
@@ -46,7 +46,7 @@ function build(options, callback) {
         basedir: path.resolve(__dirname, '.'),
         fullPaths: false,
       };
-      browserify(brOpts).add(['../testbrowser/browser.test.js', ])
+      browserify(brOpts).add(['../test/browser/browser.test.js', ])
         .transform(babelify, {
           "global": true,
           "presets": ["es2015"],

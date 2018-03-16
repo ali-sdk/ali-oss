@@ -11,7 +11,6 @@ module.exports = {
   },
   rules: {
     indent: ['error', 2],
-    strict: [0],
     // override default options
     'no-underscore-dangle': [0],
     'no-plusplus': [0],
