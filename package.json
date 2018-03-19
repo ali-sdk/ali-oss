@@ -13,7 +13,7 @@
     "mime": "./shims/mime.js",
     "urllib": "./shims/xhr.js",
     "utility": "./shims/utility.js",
-    "crypto": "./shims/crypto.js",
+    "crypto": "./shims/crypto/crypto.js",
     "fs": false,
     "child_process": false
   },
@@ -66,7 +66,6 @@
     "browserify": "^13.3.0",
     "co-fs": "^1.2.0",
     "co-mocha": "^1.2.1",
-    "crypto-browserify": "^1.0.9",
     "crypto-js": "^3.1.9-1",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
