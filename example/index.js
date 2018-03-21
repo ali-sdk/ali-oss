@@ -1,5 +1,4 @@
 
-
 // require("babel-polyfill")
 
 const $ = require('jquery');
