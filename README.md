@@ -1771,7 +1771,7 @@ example:
 ### .multipartUpload*(name, file[, options])
 
 Upload file with [OSS multipart][oss-multipart].<br>
-this function contains initMultipartUpload, uploadPartCopy, completeMultipartUpload.
+this function contains initMultipartUpload, uploadPart, completeMultipartUpload.
 
 parameters:
 
@@ -1786,6 +1786,14 @@ parameters:
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
     provided, it will continue the upload from where interrupted,
     otherwise a new multipart upload will be created.
+    - file {File} The file object selected by the user, if the browser is restarted, it needs the user to manually trigger the settings
+    - name {String} object key
+    - fileSize {Number} file size
+    - partSize {Number} part size
+    - uploadId {String} upload id
+    - doneParts {Array} An array of pieces that have been completed, including the object structure as follows
+       - number {Number} part number
+       - etag {String} part etag
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
   - [mime] {String} custom mime , will send with `Content-Type` entity header
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
