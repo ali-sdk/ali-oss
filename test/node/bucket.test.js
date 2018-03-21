@@ -122,7 +122,7 @@ describe('test/bucket.test.js', () => {
   describe('listBuckets()', () => {
     before(function* () {
       // create 2 buckets
-      this.listBucketsPrefix = 'ali-oss-list-buckets-';
+      this.listBucketsPrefix = `ali-oss-list-buckets-${prefix.replace(/[/.]/g, '-')}`;
       for (let i = 0; i < 2; i++) {
         const name = this.listBucketsPrefix + i;
         const result = yield this.store.putBucket(name);
