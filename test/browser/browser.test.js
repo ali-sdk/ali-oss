@@ -23,25 +23,25 @@ const timemachine = require('timemachine');
 
 timemachine.reset();
 
-let cleanBucket = function* (store) {
-  let result = yield store.list({
+const cleanBucket = async (store) => {
+  let result = await store.list({
     'max-keys': 1000,
   });
   result.objects = result.objects || [];
   for (let i = 0; i < result.objects.length; i++) {
     const obj = result.objects[i];
-    yield store.delete(obj.name);
+    await store.delete(obj.name);
   }
 
-  result = yield store.listUploads({
+  result = await store.listUploads({
     'max-uploads': 1000,
   });
   const uploads = result.uploads || [];
   for (let i = 0; i < uploads.length; i++) {
     const up = uploads[i];
-    yield store.abortMultipartUpload(up.name, up.uploadId);
+    await store.abortMultipartUpload(up.name, up.uploadId);
   }
-}
+};
 
 describe('browser', () => {
   /* eslint require-yield: [0] */
@@ -66,6 +66,7 @@ describe('browser', () => {
     this.store = oss(ossConfig);
     yield cleanBucket(this.store);
   });
+
   describe('endpoint', () => {
     it('should init with region', () => {
       console.log('xxx');
@@ -370,20 +371,21 @@ describe('browser', () => {
   });
 
   describe('list()', () => {
+    let client;
+    let listPrefix;
     // oss.jpg
     // fun/test.jpg
     // fun/movie/001.avi
     // fun/movie/007.avi
     before(async () => {
-      this.store = oss(ossConfig);
-      const listPrefix = `${prefix}ali-sdk/list/`;
-      await this.store.put(`${listPrefix}oss.jpg`, new Buffer('oss.jpg'));
-      await this.store.put(`${listPrefix}fun/test.jpg`, new Buffer('fun/test.jpg'));
-      await this.store.put(`${listPrefix}fun/movie/001.avi`, new Buffer('fun/movie/001.avi'));
-      await this.store.put(`${listPrefix}fun/movie/007.avi`, new Buffer('fun/movie/007.avi'));
-      await this.store.put(`${listPrefix}other/movie/007.avi`, new Buffer('other/movie/007.avi'));
-      await this.store.put(`${listPrefix}other/movie/008.avi`, new Buffer('other/movie/008.avi'));
-      this.listPrefix = listPrefix;
+      client = oss(ossConfig);
+      listPrefix = `${prefix}ali-sdk/list/`;
+      await client.put(`${listPrefix}oss.jpg`, new Buffer('oss.jpg'));
+      await client.put(`${listPrefix}fun/test.jpg`, new Buffer('fun/test.jpg'));
+      await client.put(`${listPrefix}fun/movie/001.avi`, new Buffer('fun/movie/001.avi'));
+      await client.put(`${listPrefix}fun/movie/007.avi`, new Buffer('fun/movie/007.avi'));
+      await client.put(`${listPrefix}other/movie/007.avi`, new Buffer('other/movie/007.avi'));
+      await client.put(`${listPrefix}other/movie/008.avi`, new Buffer('other/movie/008.avi'));
     });
 
     function checkObjectProperties(obj) {
@@ -399,7 +401,7 @@ describe('browser', () => {
     }
 
     it('should list only 1 object', async () => {
-      const result = await this.store.list({
+      const result = await client.list({
         'max-keys': 1,
       });
       assert.equal(result.objects.length, 1);
@@ -410,7 +412,7 @@ describe('browser', () => {
     });
 
     it('should list top 3 objects', async () => {
-      const result = await this.store.list({
+      const result = await client.list({
         'max-keys': 3,
       });
       assert.equal(result.objects.length, 3);
@@ -420,7 +422,7 @@ describe('browser', () => {
       assert.equal(result.prefixes, null);
 
       // next 2
-      const result2 = await this.store.list({
+      const result2 = await client.list({
         'max-keys': 2,
         marker: result.nextMarker,
       });
@@ -432,8 +434,8 @@ describe('browser', () => {
     });
 
     it('should list with prefix', async () => {
-      let result = await this.store.list({
-        prefix: `${this.listPrefix}fun/movie/`,
+      let result = await client.list({
+        prefix: `${listPrefix}fun/movie/`,
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -441,8 +443,8 @@ describe('browser', () => {
       assert(!result.isTruncated);
       assert.equal(result.prefixes, null);
 
-      result = await this.store.list({
-        prefix: `${this.listPrefix}fun/movie`,
+      result = await client.list({
+        prefix: `${listPrefix}fun/movie`,
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -452,28 +454,28 @@ describe('browser', () => {
     });
 
     it('should list current dir files only', async () => {
-      let result = await this.store.list({
-        prefix: this.listPrefix,
+      let result = await client.list({
+        prefix: listPrefix,
         delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/`, `${this.listPrefix}other/`]);
+      assert.deepEqual(result.prefixes, [`${listPrefix}fun/`, `${listPrefix}other/`]);
 
-      result = await this.store.list({
-        prefix: `${this.listPrefix}fun/`,
+      result = await client.list({
+        prefix: `${listPrefix}fun/`,
         delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/movie/`]);
+      assert.deepEqual(result.prefixes, [`${listPrefix}fun/movie/`]);
 
-      result = await this.store.list({
-        prefix: `${this.listPrefix}fun/movie/`,
+      result = await client.list({
+        prefix: `${listPrefix}fun/movie/`,
         delimiter: '/',
       });
       assert.equal(result.objects.length, 2);
@@ -485,20 +487,21 @@ describe('browser', () => {
   });
 
   describe('put', () => {
+    let store;
     before(() => {
-      this.store = oss(ossConfig);
+      store = oss(ossConfig);
     });
     it('GETs and PUTs objects to a bucket', async () => {
       const name = `${prefix}put/test`;
       const body = new Buffer('body');
-      const resultPut = await this.store.put(name, body);
+      const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
-      const resultGet = await this.store.get(name);
+      const resultGet = await store.get(name);
       assert.equal(resultGet.res.status, 200);
 
       assert.equal(resultGet.content.toString(), body.toString());
 
-      const resultDel = await this.store.delete(name);
+      const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
     });
     it('GETs and PUTs blob to a bucket', function* () {
@@ -525,10 +528,13 @@ describe('browser', () => {
   });
 
   describe('signatureUrl()', () => {
+    let store;
+    let name;
+    let needEscapeName;
     before(async () => {
-      this.store = oss(ossConfig);
-      this.name = `${prefix}ali-sdk/oss/signatureUrl.js`;
-      let object = await this.store.put(this.name, new Buffer('signatureUrl'), {
+      store = oss(ossConfig);
+      name = `${prefix}ali-sdk/oss/signatureUrl.js`;
+      let object = await store.put(name, new Buffer('signatureUrl'), {
         meta: {
           uid: 1,
           pid: '123',
@@ -540,8 +546,8 @@ describe('browser', () => {
       // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       // this.headers = object.res.headers;
 
-      this.needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
-      object = await this.store.put(this.needEscapeName, new Buffer('%3get+meta-signatureUrl'), {
+      needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
+      object = await store.put(needEscapeName, new Buffer('%3get+meta-signatureUrl'), {
         meta: {
           uid: 1,
           pid: '123',
@@ -553,8 +559,8 @@ describe('browser', () => {
     });
 
     it('should signature url get object ok', async () => {
-      const result = await this.store.get(this.name);
-      const url = this.store.signatureUrl(this.name);
+      const result = await store.get(name);
+      const url = store.signatureUrl(name);
       const urlRes = await urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
@@ -583,7 +589,7 @@ describe('browser', () => {
         .update(new Buffer(putString, 'utf8'))
         .digest('base64');
       console.log(contentMd5);
-      const url = this.store.signatureUrl(this.name, {
+      const url = store.signatureUrl(this.name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
         'Content-Md5': contentMd5,
@@ -594,57 +600,54 @@ describe('browser', () => {
       };
       const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
-      const headRes = await this.store.head(this.name);
+      const headRes = await store.head(this.name);
       assert.equal(headRes.status, 200);
     });
 
     it('should signature url get need escape object ok', async () => {
-      const result = await this.store.get(this.needEscapeName);
-      const url = this.store.signatureUrl(this.needEscapeName);
+      const result = await store.get(needEscapeName);
+      const url = store.signatureUrl(needEscapeName);
       const urlRes = await urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-<<<<<<< HEAD
-    it('should signature url with reponse limitation', function* () {
+    it('should signature url with reponse limitation', async () => {
       const response = {
         'content-type': 'xml',
         'content-language': 'zh-cn',
       };
-      const url = this.store.signatureUrl(this.name, { response });
+      const url = store.signatureUrl(this.name, { response });
       assert(url.indexOf('response-content-type=xml') !== -1);
       assert(url.indexOf('response-content-language=zh-cn') !== -1);
     });
 
-    it('should signature url with custom host ok', function () {
-=======
     it('should signature url with custom host ok', () => {
->>>>>>> feat: browser structure with es7
-      const store = oss(Object.assign({}, ossConfig, {
+      const signatureStore = oss(Object.assign({}, ossConfig, {
         endpoint: 'www.aliyun.com',
         cname: true,
       }));
 
-      const url = store.signatureUrl(this.name);
+      const url = signatureStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
   });
 
   describe('multipart', () => {
+    let store;
     before(() => {
-      this.store = oss(ossConfig);
+      store = oss(ossConfig);
     });
 
     describe('listUploads()', () => {
       beforeEach(async () => {
-        const result = await this.store.listUploads({
+        const result = await store.listUploads({
           'max-uploads': 1000,
         });
         const uploads = result.uploads || [];
         for (let i = 0; i < uploads.length; i++) {
           const up = uploads[i];
-          await this.store.abortMultipartUpload(up.name, up.uploadId);
+          await store.abortMultipartUpload(up.name, up.uploadId);
         }
       });
 
@@ -653,18 +656,18 @@ describe('browser', () => {
         // var name = '/'
         const ids = [];
         for (let i = 0; i < 5; i++) {
-          const init = await this.store.initMultipartUpload(name + i);
+          const init = await store.initMultipartUpload(name + i);
           ids.push(init.uploadId);
         }
         // list all uploads
-        let result = await this.store.listUploads({
+        let result = await store.listUploads({
           'max-uploads': 10,
         });
         const all = result.uploads.map(up => up.uploadId);
         assert.deepEqual(all, ids);
 
         // after 1
-        result = await this.store.listUploads({
+        result = await store.listUploads({
           'max-uploads': 10,
           'key-marker': name + 0,
         });
@@ -672,7 +675,7 @@ describe('browser', () => {
         assert.deepEqual(after1, ids.slice(1));
         //
         // // after 5
-        result = await this.store.listUploads({
+        result = await store.listUploads({
           'max-uploads': 10,
           'key-marker': name + 4,
         });
@@ -684,18 +687,18 @@ describe('browser', () => {
         const name = `${prefix}multipart/list-id`;
         const ids = [];
         for (let i = 0; i < 5; i++) {
-          const init = await this.store.initMultipartUpload(name);
+          const init = await store.initMultipartUpload(name);
           ids.push(init.uploadId);
         }
         ids.sort();
         // list all uploads
-        let result = await this.store.listUploads({
+        let result = await store.listUploads({
           'max-uploads': 10,
         });
         const all = result.uploads.map(up => up.uploadId);
         assert.deepEqual(all, ids);
         // after 1: upload id marker alone is ignored
-        result = await this.store.listUploads({
+        result = await store.listUploads({
           'max-uploads': 10,
           'upload-id-marker': ids[1],
         });
@@ -703,7 +706,7 @@ describe('browser', () => {
         assert.deepEqual(after1, ids);
 
         // after 5: upload id marker alone is ignored
-        result = await this.store.listUploads({
+        result = await store.listUploads({
           'max-uploads': 10,
           'upload-id-marker': ids[4],
         });
@@ -715,7 +718,7 @@ describe('browser', () => {
         const fooName = `${prefix}multipart/list-foo`;
         const fooIds = [];
         for (let i = 0; i < 5; i++) {
-          const init = await this.store.initMultipartUpload(fooName);
+          const init = await store.initMultipartUpload(fooName);
           fooIds.push(init.uploadId);
         }
         fooIds.sort();
@@ -723,13 +726,13 @@ describe('browser', () => {
         const barName = `${prefix}multipart/list-bar`;
         const barIds = [];
         for (let i = 0; i < 5; i++) {
-          const result = await this.store.initMultipartUpload(barName);
+          const result = await store.initMultipartUpload(barName);
           barIds.push(result.uploadId);
         }
         barIds.sort();
 
         // after 1
-        const result = await this.store.listUploads({
+        const result = await store.listUploads({
           'max-uploads': 10,
           'key-marker': barName,
           'upload-id-marker': barIds[0],
@@ -740,7 +743,7 @@ describe('browser', () => {
         assert.deepEqual(after1, should);
 
         // after 5
-        const result5 = await this.store.listUploads({
+        const result5 = await store.listUploads({
           'max-uploads': 10,
           'key-marker': barName,
           'upload-id-marker': barIds[4],
@@ -751,10 +754,10 @@ describe('browser', () => {
     });
 
     describe('multipartUpload()', () => {
-      it('should initMultipartUpload with x-oss-server-side-encryption', async () => {
-        // wait server bucket cors on line
+      it.skip('should initMultipartUpload with x-oss-server-side-encryption', async () => {
+        // wait server bucket cors on line, this case need set cors exposed header x-oss-server-side-encryption with bucket
         const name = 'multipart-x-oss-server-side-encryption';
-        const result = await this.store.initMultipartUpload(name, {
+        const result = await store.initMultipartUpload(name, {
           headers: {
             'x-oss-server-side-encryption': 'AES256',
           },
@@ -767,9 +770,9 @@ describe('browser', () => {
         const file = new File(['multipart-fallback-test'], 'multipart-fallback');
         const name = `${prefix}multipart/fallback`;
         let progress = 0;
-        const putStreamSpy = sinon.spy(this.store, 'putStream');
-        const uploadPartSpy = sinon.spy(this.store, '_uploadPart');
-        const result = await this.store.multipartUpload(name, file, {
+        const putStreamSpy = sinon.spy(store, 'putStream');
+        const uploadPartSpy = sinon.spy(store, '_uploadPart');
+        const result = await store.multipartUpload(name, file, {
           progress() {
             progress++;
           },
@@ -781,17 +784,17 @@ describe('browser', () => {
         assert.equal(typeof result.etag, 'string');
 
         assert.equal(progress, 1);
-        this.store.putStream.restore();
-        this.store._uploadPart.restore();
+        store.putStream.restore();
+        store._uploadPart.restore();
       });
 
       it('should use default partSize when not specified', () => {
-        const partSize = this.store._getPartSize(1024 * 1024, null);
+        const partSize = store._getPartSize(1024 * 1024, null);
         assert.equal(partSize, 1024 * 1024);
       });
 
       it('should use user specified partSize', () => {
-        const partSize = this.store._getPartSize(1024 * 1024, 200 * 1024);
+        const partSize = store._getPartSize(1024 * 1024, 200 * 1024);
         assert.equal(partSize, 200 * 1024);
       });
 
@@ -799,7 +802,7 @@ describe('browser', () => {
         const fileSize = 10 * 1024 * 1024 * 1024;
         const maxNumParts = 10 * 1000;
 
-        const partSize = this.store._getPartSize(fileSize, 100 * 1024);
+        const partSize = store._getPartSize(fileSize, 100 * 1024);
         assert.equal(partSize, Math.ceil(fileSize / maxNumParts));
       });
 
@@ -810,7 +813,7 @@ describe('browser', () => {
 
         const name = `${prefix}multipart/upload-file.js`;
         let progress = 0;
-        const result = await this.store.multipartUpload(name, file, {
+        const result = await store.multipartUpload(name, file, {
           partSize: 100 * 1024,
           progress() {
             progress++;
@@ -820,7 +823,7 @@ describe('browser', () => {
         assert.equal(result.res.status, 200);
         assert.equal(progress, 12);
 
-        const object = await this.store.get(name);
+        const object = await store.get(name);
         assert.equal(object.res.status, 200);
 
         const fileBuf = new Uint8Array(fileContent.length);
@@ -837,7 +840,7 @@ describe('browser', () => {
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-fallback');
         const name = `${prefix}multipart/fallback`;
-        const result = await this.store.multipartUpload(name, file, {
+        const result = await store.multipartUpload(name, file, {
           progress(p, checkpoint, res) {
             assert.equal(true, res && Object.keys(res).length !== 0);
           },
@@ -853,7 +856,7 @@ describe('browser', () => {
 
         const name = `${prefix}multipart/upload-file-exception`;
 
-        const stubUploadPart = sinon.stub(this.store, '_uploadPart');
+        const stubUploadPart = sinon.stub(store, '_uploadPart');
         const testUploadPartException = new Error();
         testUploadPartException.name = 'TestUploadPartException';
         testUploadPartException.status = 403;
@@ -863,7 +866,7 @@ describe('browser', () => {
         let partNumz = 0;
         let errStatus = 0;
         try {
-          await this.store.multipartUpload(name, file, {
+          await store.multipartUpload(name, file, {
             progress() {
             },
             partSize: 100 * 1024,
@@ -879,12 +882,12 @@ describe('browser', () => {
         );
         assert.equal(partNumz, 1);
         assert.equal(errStatus, 403);
-        this.store._uploadPart.restore();
+        store._uploadPart.restore();
       });
 
       // multipart cancel test
       it('should upload file with cancel', async () => {
-        const client = this.store;
+        const client = store;
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-file');
@@ -922,7 +925,7 @@ describe('browser', () => {
       });
 
       it('should multipart upload file with abort', async () => {
-        const client = this.store;
+        const client = store;
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-file');
@@ -952,26 +955,26 @@ describe('browser', () => {
         const file = new File([fileContent], 'multipart-upload-part');
 
         const name = `${prefix}multipart/upload-part-file.js`;
-        const init = await this.store.initMultipartUpload(name);
+        const init = await store.initMultipartUpload(name);
         const { uploadId } = init;
         const partSize = 100 * 1024;
         const dones = [];
         for (let i = 1; i <= 10; i++) {
           const start = (i - 1) * partSize;
           const end = Math.min(i * partSize, file.size);
-          const part = await this.store.uploadPart(name, uploadId, i, file, start, end);
+          const part = await store.uploadPart(name, uploadId, i, file, start, end);
           dones.push({
             number: i,
             etag: part.res.headers.etag,
           });
         }
 
-        const result = await this.store.completeMultipartUpload(name, uploadId, dones);
+        const result = await store.completeMultipartUpload(name, uploadId, dones);
         assert.equal(result.res.status, 200);
       });
 
       it('should upload with list part', async () => {
-        const client = this.store;
+        const client = store;
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-list-part');
@@ -996,7 +999,7 @@ describe('browser', () => {
         } catch (err) {
         }
 
-        const result = await this.store.listParts(name, uploadIdz, {
+        const result = await store.listParts(name, uploadIdz, {
           'max-parts': 1000,
         }, {});
 
@@ -1007,7 +1010,7 @@ describe('browser', () => {
         const fileContent = Array(50 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-callback-server');
         const name = `${prefix}multipart/callback-server`;
-        const result = await this.store.multipartUpload(name, file, {
+        const result = await store.multipartUpload(name, file, {
           partSize: 100 * 1024,
           callback: {
             url: callbackServer,
@@ -1029,7 +1032,7 @@ describe('browser', () => {
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-callback-server');
         const name = `${prefix}multipart/callback-server`;
-        const result = await this.store.multipartUpload(name, file, {
+        const result = await store.multipartUpload(name, file, {
           partSize: 100 * 1024,
           callback: {
             url: callbackServer,
@@ -1115,37 +1118,39 @@ describe('browser', () => {
   });
 
   describe('request time is skew', () => {
+    let store;
     before(() => {
-      this.store = oss(ossConfig);
+      store = oss(ossConfig);
     });
     it('When the client\'s date is skew, the request will calibration time and retry', async () => {
       const name = `${prefix}put/skew_date`;
       const body = new Buffer('body');
-      const requestSpy = sinon.spy(this.store, 'request');
-      const requestErrorSpy = sinon.spy(this.store, 'requestError');
+      const requestSpy = sinon.spy(store, 'request');
+      const requestErrorSpy = sinon.spy(store, 'requestError');
 
       timemachine.config({
         dateString: 'December 25, 1991 13:12:59',
         tick: true,
       });
-      const resultPut = await this.store.put(name, body);
+      const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
 
       assert.equal(requestSpy.callCount, 2);
       assert.equal(requestErrorSpy.callCount, 1);
 
-      const resultGet = await this.store.get(name);
+      const resultGet = await store.get(name);
       assert.equal(resultGet.res.status, 200);
 
       assert.equal(resultGet.content.toString(), body.toString());
 
-      const resultDel = await this.store.delete(name);
+      const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
       timemachine.reset();
     });
   });
 
   describe('requestErr()', () => {
+    let store;
     before(() => {
       const ossConfigz = {
         region: stsConfig.region,
@@ -1155,7 +1160,7 @@ describe('browser', () => {
         bucket: stsConfig.bucket,
         timeout: 1,
       };
-      this.store = oss(ossConfigz);
+      store = oss(ossConfigz);
     });
     it('should request timeout exception', async () => {
       const fileContent = Array(1024 * 1024).fill('a').join('');
@@ -1165,7 +1170,7 @@ describe('browser', () => {
 
       let timeoutErr;
       try {
-        await this.store.multipartUpload(name, file);
+        await store.multipartUpload(name, file);
       } catch (err) {
         timeoutErr = err;
       }
@@ -1178,7 +1183,7 @@ describe('browser', () => {
       const file = new File([fileContent], 'multipart-upload-file');
 
       const name = `${prefix}multipart/upload-file-timeout`;
-      const stubNetError = sinon.stub(this.store.urllib, 'request');
+      const stubNetError = sinon.stub(store.urllib, 'request');
       const netErr = new Error('TestNetErrorException');
       netErr.status = -1;
       netErr.code = 'RequestError';
@@ -1186,14 +1191,14 @@ describe('browser', () => {
       stubNetError.throws(netErr);
       let netErrz;
       try {
-        await this.store.multipartUpload(name, file);
+        await store.multipartUpload(name, file);
       } catch (err) {
         netErrz = err;
       }
       assert.equal(true, netErrz && Object.keys(netErrz).length !== 0);
       assert.equal(netErrz.status, -1);
 
-      this.store.urllib.request.restore();
+      store.urllib.request.restore();
     });
   });
 });
