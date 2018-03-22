@@ -723,7 +723,7 @@ describe('test/object.test.js', () => {
       it('should work with Range header and get top 10 bytes content', async () => {
         const content = new Buffer('aaaaaaaaaabbbbbbbbbb');
         await this.store.put('range-header-test', content);
-        const result = await this.store.get(this.name, {
+        const result = await this.store.get('range-header-test', {
           headers: {
             Range: 'bytes=0-9',
           },
