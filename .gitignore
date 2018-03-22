@@ -26,6 +26,8 @@ node_modules
 
 build
 test/.tmp
+test/node/.tmp
+test/browser/.tmp
 test/demo.js
 yarn.lock
 
