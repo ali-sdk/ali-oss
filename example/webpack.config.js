@@ -1,10 +1,11 @@
-var path = require('path');
+const path = require('path');
+
 module.exports = {
   target: 'web',
-  entry:  path.resolve(__dirname + "/index.js"),
+  entry: path.resolve(`${__dirname}/index.js`),
   output: {
-    path: path.resolve(__dirname + "/public"),
-    filename: "index.js"
+    path: path.resolve(`${__dirname}/public`),
+    filename: 'index.js'
   },
   module: {
     rules: [
