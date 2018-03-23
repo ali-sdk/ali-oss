@@ -786,10 +786,14 @@ describe('browser', () => {
         const name = `${prefix}multipart/upload-file-exception`;
 
         const stubUploadPart = sinon.stub(this.store, '_uploadPart');
-        stubUploadPart.throws('TestUploadPartException');
+        const testUploadPartException = new Error();
+        testUploadPartException.name = 'TestUploadPartException';
+        testUploadPartException.status = 403;
+        stubUploadPart.throws(testUploadPartException);
 
         let errorMsg = '';
         let partNumz = 0;
+        let errStatus = 0;
         try {
           yield this.store.multipartUpload(name, file, {
             progress() {
@@ -797,16 +801,19 @@ describe('browser', () => {
                 done();
               };
             },
+            partSize: 100 * 1024,
           });
         } catch (err) {
           errorMsg = err.message;
           partNumz = err.partNum;
+          errStatus = err.status;
         }
         assert.equal(
           errorMsg,
           'Failed to upload some parts with error: TestUploadPartException part_num: 1',
         );
         assert.equal(partNumz, 1);
+        assert.equal(errStatus, 403);
         this.store._uploadPart.restore();
       });
 
