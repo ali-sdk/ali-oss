@@ -331,6 +331,8 @@ describe('test/bucket.test.js', () => {
       const putCorsResult1 = await this.store.putBucketCORS(this.bucket, this.region, rules1);
       assert.equal(putCorsResult1.res.status, 200);
 
+      await utils.sleep(ms(metaSyncTime));
+
       const getCorsResult1 = await this.store.getBucketCORS(this.bucket, this.region);
       assert.equal(getCorsResult1.res.status, 200);
       assert.deepEqual(getCorsResult1.rules, [{

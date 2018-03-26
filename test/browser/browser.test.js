@@ -853,7 +853,7 @@ describe('browser', () => {
 
       // multipart cancel test
       it('should upload file with cancel', async () => {
-        const client = store;
+        const client = oss(ossConfig);
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-file');
@@ -885,7 +885,8 @@ describe('browser', () => {
           partSize: 100 * 1024,
           checkpoint: tempCheckpoint,
         };
-        const result = await client.multipartUpload(name, file, options2);
+        const client2 = oss(ossConfig);
+        const result = await client2.multipartUpload(name, file, options2);
 
         assert.equal(result.res.status, 200);
       });
