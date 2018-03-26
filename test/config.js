@@ -17,4 +17,4 @@ config.sts = {
   endpoint: env.TRAVIS ? 'https://sts.us-west-1.aliyuncs.com/' : null,
 };
 
-config.metaSyncTime = env.TRAVIS ? '30s' : '600ms';
+config.metaSyncTime = env.TRAVIS ? '30s' : '1000ms';
