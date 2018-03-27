@@ -4,10 +4,10 @@
 
 const $ = require('jquery');
 // if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
-const OSS = require('ali-oss');
+const OSS = require('..');
 
 const appServer = '/sts';
-const bucket = '<bucket-name>';
+const bucket = 'aliyun-oss-js';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
 // Play without STS. NOT SAFE! Because access key id/secret are
@@ -174,6 +174,14 @@ const uploadContent = function (client) {
   return client.put(key, new Buffer(content)).then(res => listFiles(client));
 };
 
+const uploadBlob = function (client) {
+  const content = document.getElementById('file-blob').value.trim();
+  const key = document.getElementById('object-key-blob').value.trim() || 'blob';
+  console.log(`content => ${key}`);
+
+  return client.put(key, new Blob([content], { type: 'text/plain' })).then(res => listFiles(client));
+}
+
 
 const downloadFile = function (client) {
   const object = document.getElementById('dl-object-key').value.trim();
@@ -207,6 +215,10 @@ window.onload = function () {
 
   document.getElementById('content-button').onclick = function () {
     applyTokenDo(uploadContent);
+  };
+
+  document.getElementById('blob-button').onclick = function () {
+    applyTokenDo(uploadBlob);
   };
 
   document.getElementById('list-files-button').onclick = function () {
