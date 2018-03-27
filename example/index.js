@@ -4,10 +4,10 @@
 
 const $ = require('jquery');
 // if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
-const OSS = require('..');
+const OSS = require('ali-oss');
 
 const appServer = '/sts';
-const bucket = 'aliyun-oss-js';
+const bucket = '<bucket-name>';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
 // Play without STS. NOT SAFE! Because access key id/secret are
