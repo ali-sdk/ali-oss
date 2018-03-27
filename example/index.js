@@ -48,7 +48,7 @@ const applyTokenDo = function (func, refreshSts) {
   return func();
 };
 let currentCheckpoint;
-const progress = function progress(p, checkpoint) {
+const progress = async function progress(p, checkpoint) {
   currentCheckpoint = checkpoint;
   const bar = document.getElementById('progress-bar');
   bar.style.width = `${Math.floor(p * 100)}%`;

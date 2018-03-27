@@ -852,8 +852,8 @@ describe('browser', () => {
           partSize: 100 * 1024,
           checkpoint: tempCheckpoint,
         };
-        const client2 = oss(ossConfig);
-        const result = await client2.multipartUpload(name, file, options2);
+
+        const result = await client.multipartUpload(name, file, options2);
 
         assert.equal(result.res.status, 200);
       });
