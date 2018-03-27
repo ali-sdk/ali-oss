@@ -798,8 +798,8 @@ describe('test/object.test.js', () => {
         host: 'oss-demo.aliyuncs.com',
         contentType: 'application/json',
         customValue: {
-          'x:key1': 'value1',
-          'x:key2': 'value2',
+          'key1': 'value1',
+          'key2': 'value2',
         },
       };
 
