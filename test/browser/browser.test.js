@@ -482,13 +482,16 @@ describe('browser', () => {
       const resultGet = yield this.store.get(name);
       assert.equal(resultGet.res.status, 200);
 
-      const fr = new FileReader();
-      fr.onload = function () {
-        console.log(fr.result);
-        assert.equal(resultGet.content.toString(), fr.result);
-      };
 
-      fr.readAsText(body, 'utf-8');
+      yield new Promise((resolve) => {
+        const fr = new FileReader();
+        fr.onload = function () {
+          console.log(fr.result);
+          assert.equal(resultGet.content.toString(), fr.result);
+          resolve();
+        };
+        fr.readAsText(body, 'utf-8');
+      });
 
       const resultDel = yield this.store.delete(name);
       assert.equal(resultDel.res.status, 204);
