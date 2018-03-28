@@ -589,7 +589,7 @@ describe('browser', () => {
         .update(new Buffer(putString, 'utf8'))
         .digest('base64');
       console.log(contentMd5);
-      const url = store.signatureUrl(this.name, {
+      const url = store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
         'Content-Md5': contentMd5,
@@ -600,7 +600,7 @@ describe('browser', () => {
       };
       const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
-      const headRes = await store.head(this.name);
+      const headRes = await store.head(name);
       assert.equal(headRes.status, 200);
     });
 
@@ -616,7 +616,7 @@ describe('browser', () => {
         'content-type': 'xml',
         'content-language': 'zh-cn',
       };
-      const url = store.signatureUrl(this.name, { response });
+      const url = store.signatureUrl(name, { response });
       assert(url.indexOf('response-content-type=xml') !== -1);
       assert(url.indexOf('response-content-language=zh-cn') !== -1);
     });
