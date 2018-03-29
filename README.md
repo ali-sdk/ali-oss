@@ -1454,6 +1454,12 @@ parameters:
     - [content-disposition] {String} set the response content disposition
     - [cache-control] {String} set the response cache control
     - See more: https://help.aliyun.com/document_detail/oss/api-reference/object/GetObject.html
+  - [callback] {Object} set the callback for the operation
+    - url {String} set the url for callback
+    - [host] {String} set the host for callback
+    - body {String} set the body for callback
+    - [contentType] {String} set the type for body
+    - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 
 Success will return signature url.
 

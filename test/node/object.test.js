@@ -791,6 +791,29 @@ describe('test/object.test.js', () => {
       assert.equal(res.status, 200);
     });
 
+    it('should signature url for PUT with callback parameter', function* () {
+      const callback = {
+        url: 'http://oss-demo.aliyuncs.com:23450',
+        body: `bucket=${this.bucket}`,
+        host: 'oss-demo.aliyuncs.com',
+        contentType: 'application/json',
+        customValue: {
+          'key1': 'value1',
+          'key2': 'value2',
+        },
+      };
+
+      const options = {
+        method: 'PUT',
+        expires: 3600,
+        callback,
+      };
+
+      const url = this.store.signatureUrl(this.name, options);
+      const res = yield urllib.request(url, options);
+      assert.equal(res.status, 200);
+    });
+
     it('should signature url get need escape object ok', function* () {
       const result = yield this.store.get(this.needEscapeName);
       const url = this.store.signatureUrl(this.needEscapeName);
