@@ -63,7 +63,7 @@ function build(options, callback) {
       }).bundle(function(err, data) {
         if (err) return callback(err);
         var code = (data || '').toString();
-        fs.unlink(stsConfFile);
+        fs.unlinkSync(stsConfFile);
         callback(null, code);
       });
     });
