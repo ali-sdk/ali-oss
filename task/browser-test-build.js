@@ -22,7 +22,6 @@ function build(options, callback) {
     accessKeySecret: env.ALI_SDK_STS_SECRET,
     roleArn: env.ALI_SDK_STS_ROLE,
     bucket: env.ALI_SDK_STS_BUCKET,
-    bucketSafari: env.ALI_SDK_STS_BUCKET_SAFARI,
     region: env.ALI_SDK_STS_REGION,
   }
 
@@ -42,7 +41,6 @@ function build(options, callback) {
     }
     fs.writeFile(stsConfFile, JSON.stringify(Object.assign({}, stsConf, {
       bucket: conf.bucket,
-      bucketSafari: conf.bucketSafari,
       region: conf.region,
     })), () => {
       var brOpts = {
