@@ -27,13 +27,24 @@ timemachine.reset();
 describe('browser', () => {
   /* eslint require-yield: [0] */
   before(function* () {
-    ossConfig = {
-      region: stsConfig.region,
-      accessKeyId: stsConfig.Credentials.AccessKeyId,
-      accessKeySecret: stsConfig.Credentials.AccessKeySecret,
-      stsToken: stsConfig.Credentials.SecurityToken,
-      bucket: stsConfig.bucket,
-    };
+    if (platform.name === 'Chrome') {
+      ossConfig = {
+        region: stsConfig.region,
+        accessKeyId: stsConfig.Credentials.AccessKeyId,
+        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+        stsToken: stsConfig.Credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+      };
+    } else if (platform.name === 'Safari') {
+      ossConfig = {
+        region: stsConfig.region,
+        accessKeyId: stsConfig.Credentials.AccessKeyId,
+        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+        stsToken: stsConfig.Credentials.SecurityToken,
+        bucket: stsConfig.bucketSafari,
+      };
+    }
+
     // this.store = oss({
     //   region: stsConfig.region,
     //   accessKeyId: creds.AccessKeyId,
