@@ -1,4 +1,4 @@
-/** !
+/**!
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
  *
@@ -6,26 +6,28 @@
  *   rockuw <rockuw@gmail.com> (http://rockuw.com)
  */
 
+'use strict';
+
 /**
  * Module dependencies.
  */
 
-const assert = require('assert');
-const utils = require('./utils');
-const is = require('is-type-of');
-const oss = require('../..');
-const config = require('../config').oss;
+var assert = require('assert');
+var utils = require('./utils');
+var is = require('is-type-of');
+var oss = require('../');
+var config = require('./config').oss;
 
-describe('test/rtmp.test.js', () => {
-  const { prefix } = utils;
+describe('test/rtmp.test.js', function () {
+  var prefix = utils.prefix;
 
   before(function* () {
     this.store = oss(config);
-    this.bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    this.bucket = 'ali-oss-test-bucket-' + prefix.replace(/[\/\.]/g, '-');
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.store.useBucket(this.bucket);
 
-    const result = yield this.store.putBucket(this.bucket, this.region);
+    var result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
 
@@ -37,8 +39,8 @@ describe('test/rtmp.test.js', () => {
         Type: 'HLS',
         FragDuration: '10',
         FragCount: '5',
-        PlaylistName: 'playlist.m3u8',
-      },
+        PlaylistName: 'playlist.m3u8'
+      }
     };
   });
 
@@ -46,34 +48,34 @@ describe('test/rtmp.test.js', () => {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
   });
 
-  describe('put/get/deleteChannel()', () => {
+  describe('put/get/deleteChannel()', function () {
     it('should create a new channel', function* () {
-      const { cid } = this;
-      const { conf } = this;
+      var cid = this.cid;
+      var conf = this.conf;
 
-      let result = yield this.store.putChannel(cid, conf);
+      var result = yield this.store.putChannel(cid, conf);
       assert.equal(result.res.status, 200);
       assert(is.array(result.publishUrls));
       assert(result.publishUrls.length > 0);
       assert(is.array(result.playUrls));
       assert(result.playUrls.length > 0);
 
-      result = yield this.store.getChannel(cid);
+      var result = yield this.store.getChannel(cid);
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.data, conf);
 
-      result = yield this.store.deleteChannel(cid);
+      var result = yield this.store.deleteChannel(cid);
       assert.equal(result.res.status, 204);
 
       yield utils.throws(function* () {
-        yield this.store.getChannel(cid);
-      }.bind(this), (err) => {
+        var result = yield this.store.getChannel(cid);
+      }.bind(this), function (err) {
         assert.equal(err.status, 404);
       });
     });
   });
 
-  describe('put/getChannelStatus()', () => {
+  describe('put/getChannelStatus()', function () {
     before(function* () {
       this.cid = 'live channel 2';
       this.conf.Description = 'this is live channel 2';
@@ -85,60 +87,60 @@ describe('test/rtmp.test.js', () => {
     });
 
     it('should disable channel', function* () {
-      let result = yield this.store.getChannelStatus(this.cid);
+      var result = yield this.store.getChannelStatus(this.cid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Idle');
 
       // TODO: verify ConnectedTime/RemoteAddr/Video/Audio when not idle
 
-      result = yield this.store.putChannelStatus(this.cid, 'disabled');
+      var result = yield this.store.putChannelStatus(this.cid, 'disabled');
       assert.equal(result.res.status, 200);
 
-      result = yield this.store.getChannelStatus(this.cid);
+      var result = yield this.store.getChannelStatus(this.cid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Disabled');
     });
   });
 
-  describe('listChannels()', () => {
+  describe('listChannels()', function () {
     before(function* () {
       this.channelNum = 10;
       this.channelPrefix = 'channel-list-';
 
-      for (let i = 0; i < this.channelNum; i++) {
+      for (var i = 0; i < this.channelNum; i ++) {
         this.conf.Description = i;
         yield this.store.putChannel(this.channelPrefix + i, this.conf);
       }
     });
 
     after(function* () {
-      for (let i = 0; i < this.channelNum; i++) {
+      for (var i = 0; i < this.channelNum; i ++) {
         yield this.store.deleteChannel(this.channelPrefix + i);
       }
     });
 
     it('list channels using prefix/marker/max-keys', function* () {
-      const query = {
+      var query = {
         prefix: 'channel-list-',
         marker: 'channel-list-4',
-        'max-keys': 3,
+        'max-keys': 3
       };
 
-      const result = yield this.store.listChannels(query);
+      var result = yield this.store.listChannels(query);
 
       assert.equal(result.res.status, 200);
       assert.equal(result.nextMarker, 'channel-list-7');
       assert.equal(result.isTruncated, true);
 
-      const { channels } = result;
+      var channels = result.channels;
       assert.equal(channels.length, 3);
-      assert.equal(channels[0].Name, this.channelPrefix + 5);
-      assert.equal(channels[1].Name, this.channelPrefix + 6);
-      assert.equal(channels[2].Name, this.channelPrefix + 7);
+      assert.equal(channels[0].Name, this.channelPrefix + 5)
+      assert.equal(channels[1].Name, this.channelPrefix + 6)
+      assert.equal(channels[2].Name, this.channelPrefix + 7)
     });
   });
 
-  describe('getChannelHistory()', () => {
+  describe('getChannelHistory()', function () {
     before(function* () {
       this.cid = 'channel-3';
       this.conf.Description = 'this is live channel 3';
@@ -150,28 +152,28 @@ describe('test/rtmp.test.js', () => {
     });
 
     it('should get channel history', function* () {
-      const result = yield this.store.getChannelHistory(this.cid);
+      var result = yield this.store.getChannelHistory(this.cid);
 
       assert.equal(result.res.status, 200);
       assert(is.array(result.records));
       assert.equal(result.records.length, 0);
 
       // TODO: verify LiveRecord when history exists
-      // verify wish OBS or ffmpeg
+      //verify wish OBS or ffmpeg
     });
   });
 
-  describe('createVod()', () => {
+  describe('createVod()', function () {
     before(function* () {
       this.cid = 'channel-4';
       this.conf.Description = 'this is live channel 4';
-      const result = yield this.store.putChannel(this.cid, this.conf);
+      var result = yield this.store.putChannel(this.cid, this.conf);
       console.log(result);
-      const url = this.store.getRtmpUrl(this.cid, {
+      var url = this.store.getRtmpUrl(this.cid, {
         params: {
-          playlistName: 'vod.m3u8',
+          playlistName: 'vod.m3u8'
         },
-        expires: 3600,
+        expires: 3600
       });
       console.log(url);
     });
@@ -182,27 +184,28 @@ describe('test/rtmp.test.js', () => {
 
     // this case need have data in server
     it.skip('should create vod playlist', function* () {
-      const name = 'vod.m3u8';
-      const now = Date.now();
+      var name = 'vod.m3u8';
+      var now = Date.now();
 
       try {
-        const result = yield this.store.createVod(this.cid, name, {
+        var result = yield this.store.createVod(this.cid, name, {
           startTime: Math.floor((now - 100) / 1000),
-          endTime: Math.floor(now / 1000),
+          endTime: Math.floor(now / 1000)
         });
 
         assert.equal(result.res.status, 200);
       } catch (err) {
         console.error(err);
       }
+
     });
   });
 
-  describe('getRtmpUrl()', () => {
+  describe('getRtmpUrl()', function () {
     before(function* () {
       this.cid = 'channel-5';
       this.conf.Description = 'this is live channel 5';
-      const result = yield this.store.putChannel(this.cid, this.conf);
+      var result = yield this.store.putChannel(this.cid, this.conf);
       console.log(result);
     });
 
@@ -210,17 +213,16 @@ describe('test/rtmp.test.js', () => {
       yield this.store.deleteChannel(this.cid);
     });
 
-    /* eslint require-yield: [0] */
     it('should get rtmp url', function* () {
-      const name = 'vod.m3u8';
-      const url = this.store.getRtmpUrl(this.cid, {
+      var name = 'vod.m3u8';
+      var url = this.store.getRtmpUrl(this.cid, {
         params: {
-          playlistName: name,
+          playlistName: name
         },
-        expires: 3600,
+        expires: 3600
       });
       console.log(url);
-      // verify the url is ok used by OBS or ffmpeg
+      //verify the url is ok used by OBS or ffmpeg
     });
   });
 });

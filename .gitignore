@@ -25,8 +25,7 @@ build/Release
 node_modules
 
 build
-test/node/.tmp
-test/browser/.tmp
+test/.tmp
 test/demo.js
 yarn.lock
 

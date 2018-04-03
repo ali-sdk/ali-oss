@@ -24,7 +24,6 @@ function build(options, callback) {
     bucket: env.ALI_SDK_STS_BUCKET,
     region: env.ALI_SDK_STS_REGION,
   }
-
   var store = STS({
     accessKeyId: conf.accessKeyId,
     accessKeySecret: conf.accessKeySecret
@@ -34,7 +33,7 @@ function build(options, callback) {
     return yield store.assumeRole(conf.roleArn);
   }).then((result) => {
     var stsConf = JSON.parse(result.res.data);
-    var tmpdir = path.join(__dirname, '../test/browser/.tmp');
+    var tmpdir = path.join(__dirname, '../test/.tmp');
     var stsConfFile = tmpdir+ '/stsConfig.json';
     if (!fs.existsSync(tmpdir)) {
       fs.mkdirSync(tmpdir);
@@ -47,12 +46,12 @@ function build(options, callback) {
         basedir: path.resolve(__dirname, '.'),
         fullPaths: false,
       };
-      browserify(brOpts).add(['../test/browser/browser.test.js', ])
+      browserify(brOpts).add(['../test/browser.tests.js', ])
         .transform(babelify, {
           "global": true,
           "presets": ["es2015"],
           "plugins": ["transform-runtime"],
-          "only": ['testbrowser/*', 'browser/*','lib/*', 'node_modules/co-gather/*', 'shims/*'],
+          "only": ['test/*', 'browser/*','lib/*', 'node_modules/co-gather/*', 'shims/*'],
         }).transform(aliasify, {
         global: true,
         aliases: {
@@ -64,7 +63,7 @@ function build(options, callback) {
       }).bundle(function(err, data) {
         if (err) return callback(err);
         var code = (data || '').toString();
-        fs.unlinkSync(stsConfFile);
+        fs.unlink(stsConfFile);
         callback(null, code);
       });
     });

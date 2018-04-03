@@ -1,11 +1,11 @@
-const path = require('path');
+var path = require('path');
 
 module.exports = {
   target: 'web',
-  entry: path.resolve(`${__dirname}/index.js`),
+  entry: path.resolve(__dirname + "/index.js"),
   output: {
-    path: path.resolve(`${__dirname}/public`),
-    filename: 'index.js'
+    path: path.resolve(__dirname + "/public"),
+    filename: "index.js"
   },
   module: {
     rules: [
@@ -15,10 +15,10 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['babel-preset-es2015', { modules: false }] // fix uglifyjs not support es6
+            presets: ["babel-preset-es2015", {modules: false}] //fix uglifyjs not support es6
           }
         }
       }
     ]
-  }
+  },
 };

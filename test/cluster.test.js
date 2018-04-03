@@ -1,43 +1,44 @@
+'use strict';
 
-const oss = require('../..');
-const cluster = require('../..').ClusterClient;
-const config = require('../config').oss;
+const oss = require('../');
+const cluster = require('../').ClusterClient;
+const config = require('./config').oss;
 const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
 
 describe('test/cluster.test.js', () => {
-  const { prefix } = utils;
+  var prefix = utils.prefix;
   afterEach(mm.restore);
 
   before(function* () {
     this.region = config.region;
-    this.bucket1 = `ali-oss-test-cluster1-${prefix.replace(/[/.]/g, '')}`;
-    this.bucket2 = `ali-oss-test-cluster2-${prefix.replace(/[/.]/g, '')}`;
+    this.bucket1 = 'ali-oss-test-cluster1-' + prefix.replace(/[\/\.]/g, '');
+    this.bucket2 = 'ali-oss-test-cluster2-' + prefix.replace(/[\/\.]/g, '');
     const client = oss(config);
     yield client.putBucket(this.bucket1, this.region);
     yield client.putBucket(this.bucket2, this.region);
   });
 
-  before(function (done) {
-    const options = {
+  before(function(done) {
+    let options = {
       cluster: [
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket1,
-          endpoint: config.endpoint,
+          endpoint: config.endpoint
         },
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket2,
-          endpoint: config.endpoint,
+          endpoint: config.endpoint
         },
-      ],
+      ]
     };
     this.store = cluster(options);
-    this.store.on('error', (err) => {
+    this.store.on('error', function(err) {
       if (err.name === 'MockError' || err.name === 'CheckAvailableError') {
         return;
       }
@@ -52,15 +53,15 @@ describe('test/cluster.test.js', () => {
     this.store.close();
   });
 
-  describe('init', () => {
-    it('require options.cluster to be an array', () => {
+  describe('init', function () {
+    it('require options.cluster to be an array', function () {
       (function () {
         cluster({});
       }).should.throw('require options.cluster to be an array');
     });
 
-    it('should _init() _checkAvailable throw error', function (done) {
-      this.store.once('error', (err) => {
+    it('should _init() _checkAvailable throw error', function(done) {
+      this.store.once('error', function(err) {
         err.message.should.equal('mock error');
         done();
       });
@@ -74,19 +75,19 @@ describe('test/cluster.test.js', () => {
     });
   });
 
-  describe('put()', () => {
+  describe('put()', function () {
     it('should add object with local file path', function* () {
-      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
-      const object = yield this.store.put(name, __filename);
+      var name = prefix + 'ali-sdk/oss/put-localfile.js';
+      var object = yield this.store.put(name, __filename);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
       assert(object.name, name);
     });
 
-    it('should error when any one is error', function* () {
+    it('should error when any one is error', function * () {
       mm.error(this.store.clients[1], 'put', 'mock error');
-      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      var name = prefix + 'ali-sdk/oss/put-localfile.js';
       try {
         yield this.store.put(name, __filename);
         throw new Error('should never exec');
@@ -95,9 +96,9 @@ describe('test/cluster.test.js', () => {
       }
     });
 
-    it('should ignore when any one is error', function* () {
+    it('should ignore when any one is error', function * () {
       mm.error(this.store.clients[1], 'put', 'mock error');
-      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      var name = prefix + 'ali-sdk/oss/put-localfile.js';
       try {
         yield this.store.put(name, __filename);
         throw new Error('should never exec');
@@ -107,22 +108,22 @@ describe('test/cluster.test.js', () => {
     });
   });
 
-  describe('get()', () => {
+  describe('get()', function () {
     before(function* () {
-      this.name = `${prefix}ali-sdk/oss/get-meta.js`;
-      const object = yield this.store.put(this.name, __filename, {
+      this.name = prefix + 'ali-sdk/oss/get-meta.js';
+      let object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
     });
 
     it('should RR get from clients ok', function* () {
-      mm(this.store.clients[1], 'get', async () => {
+      mm(this.store.clients[1], 'get', function*() {
         throw new Error('mock error');
       });
       function onerror(err) {
@@ -133,7 +134,7 @@ describe('test/cluster.test.js', () => {
       let res = yield this.store.get(this.name);
       res.res.status.should.equal(200);
       mm.restore();
-      mm(this.store.clients[0], 'get', function* () {
+      mm(this.store.clients[0], 'get', function*() {
         throw new Error('mock error');
       });
       res = yield this.store.get(this.name);
@@ -214,7 +215,7 @@ describe('test/cluster.test.js', () => {
 
     it('should get from clients[0] when clients[0] response 4xx ok', function* () {
       mm(this.store, 'schedule', 'masterSlave');
-      mm.error(this.store.clients[0], 'get', 'mock error', { status: 403 });
+      mm.error(this.store.clients[0], 'get', 'mock error', {status: 403});
       try {
         yield this.store.get(this.name);
         throw new Error('should never exec');
@@ -249,11 +250,11 @@ describe('test/cluster.test.js', () => {
     });
 
     it('should RR throw error when read err status >= 200 && < 500', function* () {
-      mm(this.store.clients[0], 'get', function* () {
+      mm(this.store.clients[0], 'get', function*() {
         const err = new Error('mock error');
         throw err;
       });
-      mm(this.store.clients[1], 'get', function* () {
+      mm(this.store.clients[1], 'get', function*() {
         const err = new Error('mock 302 error');
         err.status = 302;
         throw err;
@@ -267,12 +268,12 @@ describe('test/cluster.test.js', () => {
         err.status.should.equal(302);
       }
 
-      mm(this.store.clients[0], 'get', function* () {
+      mm(this.store.clients[0], 'get', function*() {
         const err = new Error('mock 404 error');
         err.status = 404;
         throw err;
       });
-      mm(this.store.clients[1], 'get', function* () {
+      mm(this.store.clients[1], 'get', function*() {
         const err = new Error('mock error');
         throw err;
       });
@@ -297,21 +298,21 @@ describe('test/cluster.test.js', () => {
     });
   });
 
-  describe('signatureUrl(), getObjectUrl()', () => {
+  describe('signatureUrl(), getObjectUrl()', function () {
     before(function* () {
-      this.name = `${prefix}ali-sdk/oss/get-meta.js`;
-      const object = yield this.store.put(this.name, __filename, {
+      this.name = prefix + 'ali-sdk/oss/get-meta.js';
+      let object = yield this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
     });
 
-    it('should get object cdn url', function () {
+    it('should get object cdn url', function() {
       const url = this.store.getObjectUrl(this.name);
       assert(/\.aliyuncs\.com\//.test(url), url);
       assert(/\/ali-sdk\/oss\/get-meta\.js$/.test(url), url);
@@ -332,7 +333,7 @@ describe('test/cluster.test.js', () => {
     });
 
     it('should RR signature from clients[1] when clients[0] error ok', function () {
-      const url = this.store.signatureUrl(this.name);
+      let url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
@@ -347,15 +348,15 @@ describe('test/cluster.test.js', () => {
 
     it('should signature from clients[0] when clients[0] response 4xx ok', function () {
       mm(this.store, 'schedule', 'masterSlave');
-      mm.error(this.store.clients[0], 'head', 'mock error', { status: 403 });
-      const url = this.store.signatureUrl(this.name);
+      mm.error(this.store.clients[0], 'head', 'mock error', {status: 403});
+      let url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
     it('should signature ok when clients all down', function () {
       mm.error(this.store.clients[0], 'head', 'mock error');
       mm.error(this.store.clients[1], 'head', 'mock error');
-      const url = this.store.signatureUrl(this.name);
+      let url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
@@ -387,27 +388,27 @@ describe('test/cluster.test.js', () => {
     });
   });
 
-  describe('_checkAvailable()', () => {
-    it('should write status file on the first check', function* () {
+  describe('_checkAvailable()', function() {
+    it('should write status file on the first check', function*() {
       yield this.store._checkAvailable(true);
       this.store.availables['0'].should.equal(true);
       this.store.availables['1'].should.equal(true);
     });
 
-    it('should write status pass', function* () {
+    it('should write status pass', function*() {
       yield this.store._checkAvailable();
       this.store.availables['0'].should.equal(true);
       this.store.availables['1'].should.equal(true);
     });
 
-    it('should available on err status 404', function* () {
-      mm(this.store.clients[0], 'head', function* () {
+    it('should available on err status 404', function*() {
+      mm(this.store.clients[0], 'head', function*() {
         const err = new Error('mock 404 error');
         err.status = 404;
         throw err;
       });
 
-      mm(this.store.clients[1], 'head', function* () {
+      mm(this.store.clients[1], 'head', function*() {
         const err = new Error('mock 300 error');
         err.status = 300;
         throw err;
@@ -417,14 +418,14 @@ describe('test/cluster.test.js', () => {
       this.store.availables['1'].should.equal(true);
     });
 
-    it('should not available on err status < 200 or >= 500', function* () {
-      mm(this.store.clients[0], 'head', function* () {
+    it('should not available on err status < 200 or >= 500', function*() {
+      mm(this.store.clients[0], 'head', function*() {
         const err = new Error('mock -1 error');
         err.status = -1;
         throw err;
       });
 
-      mm(this.store.clients[1], 'head', function* () {
+      mm(this.store.clients[1], 'head', function*() {
         const err = new Error('mock 500 error');
         err.status = 500;
         throw err;
@@ -434,13 +435,13 @@ describe('test/cluster.test.js', () => {
       this.store.availables['1'].should.equal(false);
     });
 
-    it('should available on error count < 3', function* () {
+    it('should available on error count < 3', function*() {
       // client[0] error 2 times
       let count = 0;
-      mm(this.store.clients[0], 'head', function* (name) {
+      mm(this.store.clients[0], 'head', function*(name) {
         count++;
         if (count === 3) {
-          return { name };
+          return { name: name };
         }
         throw new Error('mock error');
       });
@@ -452,10 +453,10 @@ describe('test/cluster.test.js', () => {
 
       // client[1] error 1 times
       count = 0;
-      mm(this.store.clients[1], 'head', function* (name) {
+      mm(this.store.clients[1], 'head', function*(name) {
         count++;
         if (count === 2) {
-          return { name };
+          return { name: name };
         }
         throw new Error('mock error');
       });
@@ -465,7 +466,7 @@ describe('test/cluster.test.js', () => {
       count.should.equal(2);
     });
 
-    it('should try 3 times on check status fail', function* () {
+    it('should try 3 times on check status fail', function*() {
       // client[0] error
       mm.error(this.store.clients[0], 'head', 'mock error');
       yield this.store._checkAvailable();

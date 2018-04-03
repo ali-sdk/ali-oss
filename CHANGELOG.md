@@ -2,38 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="4.14.1"></a>
-## [4.14.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.14.0...v4.14.1) (2018-04-03)
-
-
-### Bug Fixes
-
-* signUtils header sort err fix ([#418](https://github.com/aliyun/oss-nodejs-sdk/issues/418)) ([60383ee](https://github.com/aliyun/oss-nodejs-sdk/commit/60383ee))
-
-
-
-<a name="4.14.0"></a>
-# [4.14.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.2...v4.14.0) (2018-03-30)
-
-
-### Bug Fixes
-
-* **Browser:** multipartUpload InvalidPartOrderError by doneParts repeat ([#414](https://github.com/aliyun/oss-nodejs-sdk/issues/414)) ([2b0967f](https://github.com/aliyun/oss-nodejs-sdk/commit/2b0967f))
-* _resumeMultipart not use yield ([ba2382b](https://github.com/aliyun/oss-nodejs-sdk/commit/ba2382b))
-* issues https://github.com/ali-sdk/ali-oss/issues/386 ([#390](https://github.com/aliyun/oss-nodejs-sdk/issues/390)) ([5b5ae3e](https://github.com/aliyun/oss-nodejs-sdk/commit/5b5ae3e))
-
-
-### Features
-
-* add ignore ([#397](https://github.com/aliyun/oss-nodejs-sdk/issues/397)) ([0f003aa](https://github.com/aliyun/oss-nodejs-sdk/commit/0f003aa))
-* **browser:** multipartUpload err will cancel this task ([#399](https://github.com/aliyun/oss-nodejs-sdk/issues/399)) ([64f8d68](https://github.com/aliyun/oss-nodejs-sdk/commit/64f8d68))
-* browser support blob ([#409](https://github.com/aliyun/oss-nodejs-sdk/issues/409)) ([e8a78b5](https://github.com/aliyun/oss-nodejs-sdk/commit/e8a78b5)), closes [#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)
-* expose sdk version with OSS ([#389](https://github.com/aliyun/oss-nodejs-sdk/issues/389)) ([0bdc876](https://github.com/aliyun/oss-nodejs-sdk/commit/0bdc876))
-* rm unused test data ([#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)) ([3d2ce4e](https://github.com/aliyun/oss-nodejs-sdk/commit/3d2ce4e))
-* signatureUrl refactor and support callback ([#408](https://github.com/aliyun/oss-nodejs-sdk/issues/408)) ([343938f](https://github.com/aliyun/oss-nodejs-sdk/commit/343938f))
-
-
-
 <a name="4.13.2"></a>
 ## [4.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.1...v4.13.2) (2018-03-13)
 
