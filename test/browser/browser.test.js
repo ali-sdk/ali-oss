@@ -474,28 +474,6 @@ describe('browser', () => {
       const resultDel = yield this.store.delete(name);
       assert.equal(resultDel.res.status, 204);
     });
-    it('GETs and PUTs blob to a bucket', function* () {
-      const name = `${prefix}put/test`;
-      const body = new Blob(['blobBody'], { type: 'text/plain' });
-      const resultPut = yield this.store.put(name, body);
-      assert.equal(resultPut.res.status, 200);
-      const resultGet = yield this.store.get(name);
-      assert.equal(resultGet.res.status, 200);
-
-
-      yield new Promise((resolve) => {
-        const fr = new FileReader();
-        fr.onload = function () {
-          console.log(fr.result);
-          assert.equal(resultGet.content.toString(), fr.result);
-          resolve();
-        };
-        fr.readAsText(body, 'utf-8');
-      });
-
-      const resultDel = yield this.store.delete(name);
-      assert.equal(resultDel.res.status, 204);
-    });
   });
 
   describe('signatureUrl()', () => {
@@ -782,39 +760,6 @@ describe('browser', () => {
         assert.equal(object.content.length, fileBuf.length);
         // avoid comparing buffers directly for it may hang when generating diffs
         assert.deepEqual(md5(object.content), md5(fileBuf));
-      });
-
-      it('should upload file using multipart upload', function* () {
-        // create a file with 1M random data
-        const blobContent = Array(1024 * 1024).fill('a').join('');
-        const blob = new Blob([blobContent], { type: 'text/plain' });
-
-        const name = `${prefix}multipart/upload-blob.js`;
-        let progress = 0;
-        const result = yield this.store.multipartUpload(name, blob, {
-          partSize: 100 * 1024,
-          progress() {
-            return function (done) {
-              progress++;
-              done();
-            };
-          },
-        });
-        sinon.restore();
-        assert.equal(result.res.status, 200);
-        assert.equal(progress, 12);
-
-        const object = yield this.store.get(name);
-        assert.equal(object.res.status, 200);
-
-        const blobBuf = new Uint8Array(blobContent.length);
-        for (let i = 0, j = blobContent.length; i < j; ++i) {
-          blobBuf[i] = blobContent.charCodeAt(i);
-        }
-
-        assert.equal(object.content.length, blobBuf.length);
-        // avoid comparing buffers directly for it may hang when generating diffs
-        assert.deepEqual(md5(object.content), md5(blobBuf));
       });
 
       it('should return requestId in init, upload part, complete', function* () {
