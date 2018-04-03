@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.14.1"></a>
+## [4.14.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.14.0...v4.14.1) (2018-04-03)
+
+
+### Bug Fixes
+
+* signUtils header sort err fix ([#418](https://github.com/aliyun/oss-nodejs-sdk/issues/418)) ([60383ee](https://github.com/aliyun/oss-nodejs-sdk/commit/60383ee))
+
+
+
 <a name="4.14.0"></a>
 # [4.14.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.2...v4.14.0) (2018-03-30)
 
