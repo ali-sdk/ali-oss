@@ -34,13 +34,13 @@ function build(options, callback) {
       "global": true,
       "presets": ["es2015"],
       "plugins": ["transform-runtime"],
-      "only": ['lib/*', 'node_modules/co-gather/*', 'shims/*', 'shims/crypto/*'],
+      "only": ['lib/*', 'node_modules/co-gather/*', 'shims/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {
         'zlib': false,
         'iconv-lite': false,
-        'crypto': './shims/crypto/crypto.js',
+        'crypto': './shims/crypto.js',
       },
       verbose: false
     }).bundle(function(err, data) {
