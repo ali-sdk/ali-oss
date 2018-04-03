@@ -8,6 +8,7 @@ var appServer = '/sts';
 var bucket = '<bucket-name>';
 var region = 'oss-cn-hangzhou';
 var Buffer = OSS.Buffer;
+var OSS = OSS.Wrapper;
 
 // Play without STS. NOT SAFE! Because access key id/secret are
 // exposed in web page.
@@ -22,6 +23,7 @@ var Buffer = OSS.Buffer;
 // var applyTokenDo = function (func) {
 //   return func(client);
 // };
+
 var applyTokenDo = function (func, refreshSts) {
   var refresh = typeof(refreshSts) !== 'undefined' ? refreshSts : true;
   if (refresh) {
@@ -30,7 +32,7 @@ var applyTokenDo = function (func, refreshSts) {
       url: url
     }).then(function (result) {
       var creds = result;
-      var client = new OSS.Wrapper({
+      var client = new OSS({
         region: region,
         accessKeyId: creds.AccessKeyId,
         accessKeySecret: creds.AccessKeySecret,
@@ -38,7 +40,6 @@ var applyTokenDo = function (func, refreshSts) {
         bucket: bucket
       });
 
-      console.log(OSS.version);
       return func(client);
     });
   } else {
