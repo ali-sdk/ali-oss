@@ -486,6 +486,7 @@ describe('browser', () => {
       yield new Promise((resolve) => {
         const fr = new FileReader();
         fr.onload = function () {
+          console.log(fr.result);
           assert.equal(resultGet.content.toString(), fr.result);
           resolve();
         };
