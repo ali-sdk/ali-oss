@@ -7,7 +7,7 @@ const config = require('../config').oss;
 const { callbackServer } = require('../const');
 const mm = require('mm');
 
-describe('test/callback.test.js', () => {
+describe('test/multipart.test.js', () => {
   const { prefix } = utils;
 
   before(function* () {
