@@ -34,6 +34,7 @@ describe('browser', () => {
       stsToken: stsConfig.Credentials.SecurityToken,
       bucket: stsConfig.bucket,
     };
+
     // this.store = oss({
     //   region: stsConfig.region,
     //   accessKeyId: creds.AccessKeyId,
