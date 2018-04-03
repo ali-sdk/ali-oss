@@ -8,5 +8,5 @@
     "package.json"
   ],
   "main": "dist/aliyun-oss-sdk.js",
-  "version": "4.14.0"
+  "version": "4.13.2"
 }
