@@ -5,7 +5,7 @@ module.exports = {
   entry: path.resolve(`${__dirname}/index.js`),
   output: {
     path: path.resolve(`${__dirname}/public`),
-    filename: 'index.js'
+    filename: 'index.js',
   },
   module: {
     rules: [
@@ -15,10 +15,10 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['env']
-          }
-        }
-      }
-    ]
-  }
+            presets: ['env'],
+          },
+        },
+      },
+    ],
+  },
 };

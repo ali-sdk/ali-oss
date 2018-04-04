@@ -133,7 +133,7 @@ describe('test/cluster.test.js', () => {
       let res = yield this.store.get(this.name);
       res.res.status.should.equal(200);
       mm.restore();
-      mm(this.store.clients[0], 'get', function* () {
+      mm(this.store.clients[0], 'get', async () => {
         throw new Error('mock error');
       });
       res = yield this.store.get(this.name);
@@ -249,11 +249,11 @@ describe('test/cluster.test.js', () => {
     });
 
     it('should RR throw error when read err status >= 200 && < 500', function* () {
-      mm(this.store.clients[0], 'get', function* () {
+      mm(this.store.clients[0], 'get', async () => {
         const err = new Error('mock error');
         throw err;
       });
-      mm(this.store.clients[1], 'get', function* () {
+      mm(this.store.clients[1], 'get', async () => {
         const err = new Error('mock 302 error');
         err.status = 302;
         throw err;
@@ -267,12 +267,12 @@ describe('test/cluster.test.js', () => {
         err.status.should.equal(302);
       }
 
-      mm(this.store.clients[0], 'get', function* () {
+      mm(this.store.clients[0], 'get', async () => {
         const err = new Error('mock 404 error');
         err.status = 404;
         throw err;
       });
-      mm(this.store.clients[1], 'get', function* () {
+      mm(this.store.clients[1], 'get', async () => {
         const err = new Error('mock error');
         throw err;
       });
@@ -401,13 +401,13 @@ describe('test/cluster.test.js', () => {
     });
 
     it('should available on err status 404', function* () {
-      mm(this.store.clients[0], 'head', function* () {
+      mm(this.store.clients[0], 'head', async () => {
         const err = new Error('mock 404 error');
         err.status = 404;
         throw err;
       });
 
-      mm(this.store.clients[1], 'head', function* () {
+      mm(this.store.clients[1], 'head', async () => {
         const err = new Error('mock 300 error');
         err.status = 300;
         throw err;
@@ -418,13 +418,13 @@ describe('test/cluster.test.js', () => {
     });
 
     it('should not available on err status < 200 or >= 500', function* () {
-      mm(this.store.clients[0], 'head', function* () {
+      mm(this.store.clients[0], 'head', async () => {
         const err = new Error('mock -1 error');
         err.status = -1;
         throw err;
       });
 
-      mm(this.store.clients[1], 'head', function* () {
+      mm(this.store.clients[1], 'head', async () => {
         const err = new Error('mock 500 error');
         err.status = 500;
         throw err;
@@ -437,7 +437,7 @@ describe('test/cluster.test.js', () => {
     it('should available on error count < 3', function* () {
       // client[0] error 2 times
       let count = 0;
-      mm(this.store.clients[0], 'head', function* (name) {
+      mm(this.store.clients[0], 'head', async (name) => {
         count++;
         if (count === 3) {
           return { name };
@@ -452,7 +452,7 @@ describe('test/cluster.test.js', () => {
 
       // client[1] error 1 times
       count = 0;
-      mm(this.store.clients[1], 'head', function* (name) {
+      mm(this.store.clients[1], 'head', async (name) => {
         count++;
         if (count === 2) {
           return { name };
