@@ -126,8 +126,8 @@ describe('test/multipart.test.js', () => {
       });
       const after1 = result.uploads.map(up => up.uploadId);
       after1.sort();
-      const should = barIds.slice(1).concat(fooIds).sort();
-      assert.deepEqual(after1, should);
+      const sort1 = barIds.slice(1).concat(fooIds).sort();
+      assert.deepEqual(after1, sort1);
 
       // after 5
       result = yield this.store.listUploads({
