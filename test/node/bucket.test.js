@@ -6,6 +6,7 @@ const config = require('../config').oss;
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
 
+console.log('oss config from env', config);
 // only run on travis ci
 
 // if (!process.env.CI) {
