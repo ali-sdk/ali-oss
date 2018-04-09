@@ -23,6 +23,17 @@ aliyun OSS(object storage service) Node.js client.
 npm install ali-oss --save
 ```
 
+## Compatibility
+
+### Node
+Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
+
+### Browser
+
+- IE >= 10 & Edge
+- Major versions of Chrome/Firefox/Safari
+- Major versions of Android/iOS/WP
+
 ## License
 
 [MIT](LICENSE)
@@ -142,7 +153,7 @@ After account created, you can create the OSS instance and get the `accessKeyId`
 
 Each OSS instance required `accessKeyId`, `accessKeySecret` and `bucket`.
 
-### #oss(options)
+## oss(options)
 
 Create a Bucket store instance.
 
@@ -2961,12 +2972,6 @@ some exceptions:
 - bucket operations(listBuckets, putBucketLogging, etc) will fail: OSS
   server currently do not support CORS requests for bucket operations
   (will probably be fixed later)
-
-### Compatibility
-
-- IE >= 10 & Edge
-- Major versions of Chrome/Firefox/Safari
-- Major versions of Android/iOS/WP
 
 ### Setup
 
