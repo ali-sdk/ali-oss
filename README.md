@@ -31,6 +31,8 @@ npm install ali-oss --save
 
 OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com/s3/).
 
+if use ali-oss 5.x need Node >= 8.0, else node < 8.0 use ali-oss 4.x
+
 ## Summary
 
 - [Data Regions](#data-regions)
