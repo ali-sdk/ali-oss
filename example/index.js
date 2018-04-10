@@ -1,4 +1,4 @@
-'use strict';
+
 
 // require("babel-polyfill")
 
@@ -29,7 +29,7 @@ const applyTokenDo = function (func, refreshSts) {
   if (refresh) {
     const url = appServer;
     return $.ajax({
-      url
+      url,
     }).then((result) => {
       const creds = result;
       const client = new OSS.Wrapper({
@@ -37,7 +37,7 @@ const applyTokenDo = function (func, refreshSts) {
         accessKeyId: creds.AccessKeyId,
         accessKeySecret: creds.AccessKeySecret,
         stsToken: creds.SecurityToken,
-        bucket
+        bucket,
       });
 
       console.log(OSS.version);
@@ -73,8 +73,8 @@ const uploadFile = function (client) {
     partSize: 100 * 1024,
     meta: {
       year: 2017,
-      people: 'test'
-    }
+      people: 'test',
+    },
   };
   if (currentCheckpoint) {
     options.checkpoint = currentCheckpoint;
@@ -116,24 +116,25 @@ function dataURLtoFile(dataurl, filename) {
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
-  return new File([u8arr], filename, { type: mime });
+  return new Blob([u8arr], { type: mime });// if env support File, also can use this: return new File([u8arr], filename, { type: mime });
 }
 
 
 const uploadBase64Img = function (client) {
   const base64Content = document.getElementById('base64-file-content').value.trim();
   const key = document.getElementById('base64-object-key-file').value.trim() || 'object';
-  if (base64Content.startsWith('data:image')) {
+  if (base64Content.indexOf('data:image') === 0) {
     const imgfile = dataURLtoFile(base64Content, 'img.png');
     client.multipartUpload(key, imgfile, {
-      progress: base64progress
+      progress: base64progress,
     }).then((res) => {
       console.log('upload success: %j', res);
     }).catch((err) => {
       console.error(err);
     });
+  } else {
+    alert('Please fill in the correct Base64 img');
   }
-  alert('Please fill in the correct Base64 img');
 };
 
 const listFiles = function (client) {
@@ -141,7 +142,7 @@ const listFiles = function (client) {
   console.log('list files');
 
   return client.list({
-    'max-keys': 100
+    'max-keys': 100,
   }).then((result) => {
     const objects = result.objects.sort((a, b) => {
       const ta = new Date(a.lastModified);
@@ -180,7 +181,7 @@ const uploadBlob = function (client) {
   console.log(`content => ${key}`);
 
   return client.put(key, new Blob([content], { type: 'text/plain' })).then(res => listFiles(client));
-}
+};
 
 
 const downloadFile = function (client) {
@@ -190,8 +191,8 @@ const downloadFile = function (client) {
 
   const result = client.signatureUrl(object, {
     response: {
-      'content-disposition': `attachment; filename="${filename}"`
-    }
+      'content-disposition': `attachment; filename="${filename}"`,
+    },
   });
   window.location = result;
 
