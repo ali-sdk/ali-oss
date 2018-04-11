@@ -22,7 +22,6 @@ module.exports = {
       ignoreStrings: true,
       ignoreTemplateLiterals: true,
     }],
-		"skipBlankLines": true,
     // wait node version >= 5.10.0 will start this rule
     'no-buffer-constructor': [0],
   }
