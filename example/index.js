@@ -1,13 +1,13 @@
-'use strict';
 
 // require("babel-polyfill")
 
 const $ = require('jquery');
 // if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
-const OSS = require('ali-oss');
+const OSS = require('..');
+const crypto = require('crypto');
 
 const appServer = '/sts';
-const bucket = '<bucket-name>';
+const bucket = 'aliyun-oss-js';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
 // Play without STS. NOT SAFE! Because access key id/secret are
@@ -29,7 +29,7 @@ const applyTokenDo = function (func, refreshSts) {
   if (refresh) {
     const url = appServer;
     return $.ajax({
-      url
+      url,
     }).then((result) => {
       const creds = result;
       const client = new OSS.Wrapper({
@@ -37,7 +37,7 @@ const applyTokenDo = function (func, refreshSts) {
         accessKeyId: creds.AccessKeyId,
         accessKeySecret: creds.AccessKeySecret,
         stsToken: creds.SecurityToken,
-        bucket
+        bucket,
       });
 
       console.log(OSS.version);
@@ -73,8 +73,8 @@ const uploadFile = function (client) {
     partSize: 100 * 1024,
     meta: {
       year: 2017,
-      people: 'test'
-    }
+      people: 'test',
+    },
   };
   if (currentCheckpoint) {
     options.checkpoint = currentCheckpoint;
@@ -126,7 +126,7 @@ const uploadBase64Img = function (client) {
   if (base64Content.startsWith('data:image')) {
     const imgfile = dataURLtoFile(base64Content, 'img.png');
     client.multipartUpload(key, imgfile, {
-      progress: base64progress
+      progress: base64progress,
     }).then((res) => {
       console.log('upload success: %j', res);
     }).catch((err) => {
@@ -141,7 +141,7 @@ const listFiles = function (client) {
   console.log('list files');
 
   return client.list({
-    'max-keys': 100
+    'max-keys': 100,
   }).then((result) => {
     const objects = result.objects.sort((a, b) => {
       const ta = new Date(a.lastModified);
@@ -180,7 +180,33 @@ const uploadBlob = function (client) {
   console.log(`content => ${key}`);
 
   return client.put(key, new Blob([content], { type: 'text/plain' })).then(res => listFiles(client));
-}
+};
+
+const postBlob = function (client) {
+  const content = document.getElementById('post-blob').value.trim();
+  const key = document.getElementById('object-key-post-blob').value.trim() || 'blob';
+  const md5String = crypto.createHash('md5').update(new Buffer(content, 'utf8')).digest('base64');
+  const options = {
+    expires: 1800,
+    method: 'PUT',
+    'Content-Type': 'text/plain; charset=UTF-8',
+    'Content-Md5': md5String.toString(),
+  };
+  const url = client.signatureUrl(key, options);
+
+  return $.ajax({
+    url,
+    method: 'PUT',
+    data: content,
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+      xhr.setRequestHeader('Content-MD5', md5String);
+    },
+    crossDomain: true,
+  }).then((res) => {
+    console.log(res);
+  });
+};
 
 
 const downloadFile = function (client) {
@@ -190,8 +216,8 @@ const downloadFile = function (client) {
 
   const result = client.signatureUrl(object, {
     response: {
-      'content-disposition': `attachment; filename="${filename}"`
-    }
+      'content-disposition': `attachment; filename="${filename}"`,
+    },
   });
   window.location = result;
 
@@ -219,6 +245,10 @@ window.onload = function () {
 
   document.getElementById('blob-button').onclick = function () {
     applyTokenDo(uploadBlob);
+  };
+
+  document.getElementById('post-blob-button').onclick = function () {
+    applyTokenDo(postBlob);
   };
 
   document.getElementById('list-files-button').onclick = function () {
