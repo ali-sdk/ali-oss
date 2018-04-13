@@ -2,9 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.0.1"></a>
+## [5.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.0.0...v5.0.1) (2018-04-10)
+
+
+### Bug Fixes
+
+* **browser:** use dist file for build tools ([#430](https://github.com/aliyun/oss-nodejs-sdk/issues/430)) ([8494fbd](https://github.com/aliyun/oss-nodejs-sdk/commit/8494fbd))
+
+* sign method fix && ci support node 9 ([f82bf8f3c](https://github.com/ali-sdk/ali-oss/commit/f82bf8f3c))
+
+### Docs
+* add node and browser compatibility desc ([f5de168e](https://github.com/ali-sdk/ali-oss/commit/f5de168e))
+
+
 <a name="5.0.0"></a>
 # [5.0.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.14.1...v5.0.0) (2018-04-03)
 
+### Bug Fixes
+Node >= 8 is required.
 
 
 <a name="4.14.1"></a>
