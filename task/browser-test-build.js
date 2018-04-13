@@ -58,7 +58,7 @@ function build(options, callback) {
         aliases: {
           'zlib': false,
           'iconv-lite': false,
-          'crypto': './shims/crypto.js',
+          'crypto': './shims/crypto/crypto.js',
         },
         verbose: false
       }).bundle(function(err, data) {
