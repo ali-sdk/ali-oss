@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.1.0"></a>
+# [5.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.0.1...5.1.0) (2018-04-14)
+
+
+### Features
+
+* cluster mode support acl ([#439](https://github.com/aliyun/oss-nodejs-sdk/issues/439)) ([af3d533](https://github.com/aliyun/oss-nodejs-sdk/commit/af3d533))
+
+
+
 <a name="5.0.1"></a>
 ## [5.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.0.0...v5.0.1) (2018-04-10)
 
