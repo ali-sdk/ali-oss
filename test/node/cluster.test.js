@@ -107,6 +107,24 @@ describe('test/cluster.test.js', () => {
     });
   });
 
+  describe('putACL() and getACL()', () => {
+    it('should add object with local file path', function* () {
+      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      const object = yield this.store.put(name, __filename);
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert(object.name, name);
+
+      let res = yield this.store.getACL(name);
+      assert.equal(res.acl, 'default');
+
+      yield this.store.putACL(name, 'public-read');
+      res = yield this.store.getACL(name);
+      assert.equal(res.acl, 'public-read');
+    });
+  });
+
   describe('get()', () => {
     before(function* () {
       this.name = `${prefix}ali-sdk/oss/get-meta.js`;
