@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.15.0"></a>
+# [4.15.0](https://github.com/aliyun/oss-nodejs-sdk/compare/4.14.2...4.15.0) (2018-04-14)
+
+
+### Features
+
+* cluster mode support acl ([#440](https://github.com/aliyun/oss-nodejs-sdk/issues/440)) ([558e543](https://github.com/aliyun/oss-nodejs-sdk/commit/558e543))
+
+
+
 <a name="4.13.2"></a>
 ## [4.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.1...v4.13.2) (2018-03-13)
 
@@ -46,7 +56,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 **fix**
   * move 'stream-http' to devDependencies (饶培泽 <<peizerao@gmail.com>>)
-  
+
 **others**
   * chore: update version to 4.12.2 (饶培泽 <<peizerao@gmail.com>>)
 
@@ -64,7 +74,7 @@ All notable changes to this project will be documented in this file. See [standa
 **others**
   * chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
   * docs: add timeout doc about multipart (#353) (binghaiwang <<binghaiwang@gmail.com>>)
-  
+
 4.11.5 / 2018-01-17
 ==================
 
@@ -74,7 +84,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 **others**
   * chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
-  
+
 4.11.4 / 2018-01-09
 ==================
 
@@ -155,7 +165,7 @@ All notable changes to this project will be documented in this file. See [standa
 4.7.3 / 2017-01-06
 ==================
 
-  * update dist 
+  * update dist
 
 4.7.2 / 2017-01-06
 ==================
