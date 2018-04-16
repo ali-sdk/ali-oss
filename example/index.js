@@ -184,9 +184,9 @@ const uploadBlob = function (client) {
   return client.put(key, new Blob([content], { type: 'text/plain' })).then(res => listFiles(client));
 };
 
-const postBlob = function (client) {
-  const content = document.getElementById('post-blob').value.trim();
-  const key = document.getElementById('object-key-post-blob').value.trim() || 'blob';
+const putBlob = function (client) {
+  const content = document.getElementById('put-blob').value.trim();
+  const key = document.getElementById('object-key-put-blob').value.trim() || 'blob';
   const md5String = crypto.createHash('md5').update(new Buffer(content, 'utf8')).digest('base64');
   const options = {
     expires: 1800,
@@ -248,8 +248,8 @@ window.onload = function () {
     applyTokenDo(uploadBlob);
   };
 
-  document.getElementById('post-blob-button').onclick = function () {
-    applyTokenDo(postBlob);
+  document.getElementById('put-blob-button').onclick = function () {
+    applyTokenDo(putBlob);
   };
 
   document.getElementById('list-files-button').onclick = function () {
