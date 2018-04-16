@@ -3039,52 +3039,52 @@ Each error return by OSS server will contains these properties:
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
-name | status | message | message in Chinese
----  | ---    | ---     | ---
-AccessDeniedError | 403 | Access Denied | 拒绝访问
-BucketAlreadyExistsError | 409 | Bucket already exists | Bucket 已经存在
-BucketNotEmptyError | 409 | Bucket is not empty | Bucket 不为空
-EntityTooLargeError | 400 | Entity too large | 实体过大
-EntityTooSmallError | 400 | Entity too small | 实体过小
-FileGroupTooLargeError | 400 | File group too large | 文件组过大
-InvalidLinkNameError | 400 | Link name can't be the same as the object name | Object Link 与指向的 Object 同名
-LinkPartNotExistError | 400 | Can't link to not exists object | Object Link 中指向的 Object 不存在
-ObjectLinkTooLargeError | 400 | Too many links to this object | Object Link 中 Object 个数过多
-FieldItemTooLongError | 400 | Post form fields items too large | Post 请求中表单域过大
-FilePartInterityError | 400 | File part has changed | 文件 Part 已改变
-FilePartNotExistError | 400 | File part not exists | 文件 Part 不存在
-FilePartStaleError | 400 | File part stale | 文件 Part 过时
-IncorrectNumberOfFilesInPOSTRequestError | 400 | Post request contains invalid number of files | Post 请求中文件个数非法
-InvalidArgumentError | 400 | Invalid format argument | 参数格式错误
-InvalidAccessKeyIdError | 400 | Access key id not exists | Access Key ID 不存在
-InvalidBucketNameError | 400 | Invalid bucket name | 无效的 Bucket 名字
-InvalidDigestError | 400 | Invalid digest | 无效的摘要
-InvalidEncryptionAlgorithmError | 400 | Invalid encryption algorithm | 指定的熵编码加密算法错误
-InvalidObjectNameError | 400 | Invalid object name | 无效的 Object 名字
-InvalidPartError | 400 | Invalid part | 无效的 Part
-InvalidPartOrderError | 400 | Invalid part order | 无效的 part 顺序
-InvalidPolicyDocumentError | 400 | Invalid policy document | 无效的 Policy 文档
-InvalidTargetBucketForLoggingError | 400 | Invalid bucket on logging operation | Logging 操作中有无效的目标 bucket
-InternalError | 500 | OSS server internal error | OSS 内部发生错误
-MalformedXMLError | 400 | Malformed XML format | XML 格式非法
-MalformedPOSTRequestError | 400 | Invalid post body format | Post 请求的 body 格式非法
-MaxPOSTPreDataLengthExceededError | 400 | Post extra data too large | Post 请求上传文件内容之外的 body 过大
-MethodNotAllowedError | 405 | Not allowed method | 不支持的方法
-MissingArgumentError | 411 | Missing argument | 缺少参数
-MissingContentLengthError | 411 | Missing `Content-Length` header | 缺少内容长度
-NoSuchBucketError | 404 | Bucket not exists | Bucket 不存在
-NoSuchKeyError | 404 | Object not exists | 文件不存在
-NoSuchUploadError | 404 | Multipart upload id not exists | Multipart Upload ID 不存在
-NotImplementedError | 501 | Not implemented | 无法处理的方法
-PreconditionFailedError | 412 | Pre condition failed | 预处理错误
-RequestTimeTooSkewedError | 403 | Request time exceeds 15 minutes to server time | 发起请求的时间和服务器时间超出 15 分钟
-RequestTimeoutError | 400 | Request timeout | 请求超时
-RequestIsNotMultiPartContentError | 400 | Invalid post content-type | Post 请求 content-type 非法
-SignatureDoesNotMatchError | 403 | Invalid signature | 签名错误
-TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
-RequestError | -1 | network error | 网络出现中断或异常
-ConnectionTimeout | -2 | request connect timeout | 请求连接超时
-SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
+name | code | status | message | message in Chinese
+---  | ---  | --- | ---     | ---
+AccessDeniedError | AccessDenied | 403 | Access Denied | 拒绝访问
+BucketAlreadyExistsError | BucketAlreadyExists | 409 | Bucket already exists | Bucket 已经存在
+BucketNotEmptyError | BucketNotEmpty | 409 | Bucket is not empty | Bucket 不为空
+EntityTooLargeError | EntityTooLarge | 400 | Entity too large | 实体过大
+EntityTooSmallError | EntityTooSmall | 400 | Entity too small | 实体过小
+FileGroupTooLargeError | FileGroupTooLarge | 400 | File group too large | 文件组过大
+InvalidLinkNameError | InvalidLinkName | 400 | Link name can't be the same as the object name | Object Link 与指向的 Object 同名
+LinkPartNotExistError | LinkPartNotExist | 400 | Can't link to not exists object | Object Link 中指向的 Object 不存在
+ObjectLinkTooLargeError | ObjectLinkTooLarge | 400 | Too many links to this object | Object Link 中 Object 个数过多
+FieldItemTooLongError | FieldItemTooLong | 400 | Post form fields items too large | Post 请求中表单域过大
+FilePartInterityError | FilePartInterity | 400 | File part has changed | 文件 Part 已改变
+FilePartNotExistError | FilePartNotExist | 400 | File part not exists | 文件 Part 不存在
+FilePartStaleError | FilePartStale| 400 | File part stale | 文件 Part 过时
+IncorrectNumberOfFilesInPOSTRequestError | IncorrectNumberOfFilesInPOSTRequest | 400 | Post request contains invalid number of files | Post 请求中文件个数非法
+InvalidArgumentError | InvalidArgument | 400 | Invalid format argument | 参数格式错误
+InvalidAccessKeyIdError | InvalidAccessKeyId | 400 | Access key id not exists | Access Key ID 不存在
+InvalidBucketNameError | InvalidBucketName | 400 | Invalid bucket name | 无效的 Bucket 名字
+InvalidDigestError | InvalidDigest | 400 | Invalid digest | 无效的摘要
+InvalidEncryptionAlgorithmError | InvalidEncryptionAlgorithm | 400 | Invalid encryption algorithm | 指定的熵编码加密算法错误
+InvalidObjectNameError | InvalidObjectName | 400 | Invalid object name | 无效的 Object 名字
+InvalidPartError | InvalidPart | 400 | Invalid part | 无效的 Part
+InvalidPartOrderError | InvalidPartOrder | 400 | Invalid part order | 无效的 part 顺序
+InvalidPolicyDocumentError | InvalidPolicyDocument | 400 | Invalid policy document | 无效的 Policy 文档
+InvalidTargetBucketForLoggingError | InvalidTargetBucketForLogging | 400 | Invalid bucket on logging operation | Logging 操作中有无效的目标 bucket
+InternalError | Internal | 500 | OSS server internal error | OSS 内部发生错误
+MalformedXMLError | MalformedXML | 400 | Malformed XML format | XML 格式非法
+MalformedPOSTRequestError | MalformedPOSTRequest | 400 | Invalid post body format | Post 请求的 body 格式非法
+MaxPOSTPreDataLengthExceededError | MaxPOSTPreDataLengthExceeded | 400 | Post extra data too large | Post 请求上传文件内容之外的 body 过大
+MethodNotAllowedError | MethodNotAllowed | 405 | Not allowed method | 不支持的方法
+MissingArgumentError | MissingArgument | 411 | Missing argument | 缺少参数
+MissingContentLengthError | MissingContentLength | 411 | Missing `Content-Length` header | 缺少内容长度
+NoSuchBucketError | NoSuchBucket | 404 | Bucket not exists | Bucket 不存在
+NoSuchKeyError | NoSuchKey | 404 | Object not exists | 文件不存在
+NoSuchUploadError | NoSuchUpload | 404 | Multipart upload id not exists | Multipart Upload ID 不存在
+NotImplementedError | NotImplemented | 501 | Not implemented | 无法处理的方法
+PreconditionFailedError | PreconditionFailed | 412 | Pre condition failed | 预处理错误
+RequestTimeTooSkewedError | RequestTimeTooSkewed | 403 | Request time exceeds 15 minutes to server time | 发起请求的时间和服务器时间超出 15 分钟
+RequestTimeoutError | RequestTimeout | 400 | Request timeout | 请求超时
+RequestIsNotMultiPartContentError | RequestIsNotMultiPartContent | 400 | Invalid post content-type | Post 请求 content-type 非法
+SignatureDoesNotMatchError | SignatureDoesNotMatch | 403 | Invalid signature | 签名错误
+TooManyBucketsError | TooManyBuckets | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
+RequestError | RequestError | -1 | network error | 网络出现中断或异常
+ConnectionTimeoutError | ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
+SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
