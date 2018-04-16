@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name="5.1.1"></a>
-# [5.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.0...5.2.0) (2018-04-16)
+# [5.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.0...5.1.1) (2018-04-16)
 
 
 ### Bug Fixes
