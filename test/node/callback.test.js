@@ -142,5 +142,24 @@ describe('test/callback.test.js', () => {
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
     });
+
+    it('should multipart upload with no more 100k file use header x-oss-callback', function* () {
+      // create a file with 1M random data
+      const fileName = yield utils.createTempFile('upload-with-callback', 50 * 1024);
+      const callback = {
+        url: callbackServer,
+        body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+      };
+      const name = `${prefix}multipart/upload-with-callback`;
+      /* eslint no-mixed-spaces-and-tabs: [0] */
+      const result = yield this.store.multipartUpload(name, fileName, {
+        partSize: 100 * 1024,
+        headers: {
+        	'x-oss-callback': utils.encodeCallback(callback),
+        },
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(result.data.Status, 'OK');
+    });
   });
 });
