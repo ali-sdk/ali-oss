@@ -16,7 +16,7 @@ const { callbackServer } = require('../../test/const');
 const { prefix } = utisl;
 const sinon = require('sinon');
 const md5 = require('crypto-js/md5');
-
+const crypto1 = require('crypto');
 
 let ossConfig;
 const timemachine = require('timemachine');
@@ -551,9 +551,25 @@ describe('browser', () => {
     // });
     //
     it('should signature url for PUT', function* () {
-      const url = this.store.signatureUrl(this.name, { method: 'PUT' });
-      const res = yield urllib.request(url, { method: 'PUT' });
+      const putString = 'Hello World';
+      const contentMd5 = crypto1
+        .createHash('md5')
+        .update(new Buffer(putString, 'utf8'))
+        .digest('base64');
+      console.log(contentMd5);
+      const url = this.store.signatureUrl(this.name, {
+        method: 'PUT',
+        'Content-Type': 'text/plain; charset=UTF-8',
+        'Content-Md5': contentMd5,
+      });
+      const headers = {
+        'Content-Type': 'text/plain; charset=UTF-8',
+        'Content-MD5': contentMd5,
+      };
+      const res = yield urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
+      const headRes = yield this.store.head(this.name);
+      assert.equal(headRes.status, 200);
     });
 
     it('should signature url get need escape object ok', function* () {
