@@ -200,13 +200,14 @@ const putBlob = function (client) {
     url,
     method: 'PUT',
     data: content,
-    beforeSend: function (xhr) {
+    beforeSend(xhr) {
       xhr.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
       xhr.setRequestHeader('Content-MD5', md5String);
     },
     crossDomain: true,
-  }).then((res) => {
-    console.log(res);
+    complete(jqXHR, textStatus) {
+      console.log(textStatus);
+    },
   });
 };
 
