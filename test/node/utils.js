@@ -65,9 +65,9 @@ exports.cleanBucket = function* (store, bucket, region) {
 };
 
 if (process && process.browser) {
-  exports.prefix = `${platform.name}-${platform.version}/`;
+  exports.prefix = `${platform.name}-${platform.version}-${new Date().getTime()}/`;
 } else {
-  exports.prefix = `${process.platform}-${process.version}/`;
+  exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`;// unique prefix add time timestamp
   if (process && process.execPath.indexOf('iojs') >= 0) {
     exports.prefix = `iojs-${exports.prefix}`;
   }

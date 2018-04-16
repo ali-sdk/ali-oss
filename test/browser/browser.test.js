@@ -1049,6 +1049,72 @@ describe('browser', () => {
         assert.equal(result.res.status, 200);
         assert.equal(result.data.Status, 'OK');
       });
+
+      it('should upload file with cancel and callback', function* () {
+        const client = this.store;
+        // create a file with 1M random data
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
+
+        const name = `${prefix}multipart/upload-file-cancel-callback`;
+
+        let tempCheckpoint = null;
+        const options = {
+          progress(p, checkpoint) {
+            return function (done) {
+              tempCheckpoint = checkpoint;
+              if (p > 0.5) {
+                client.cancel();
+              }
+              done();
+            };
+          },
+          partSize: 100 * 1024,
+          callback: {
+            url: 'http://oss-demo.aliyuncs.com:23450',
+            host: 'oss-cn-hangzhou.aliyuncs.com',
+            /* eslint no-template-curly-in-string: [0] */
+            body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+            contentType: 'application/x-www-form-urlencoded',
+            customValue: {
+              var1: 'value1',
+              var2: 'value2',
+            },
+          },
+        };
+        try {
+          yield client.multipartUpload(name, file, options);
+        } catch (err) {
+          assert.equal(true, client.isCancel());
+        }
+
+        assert.equal(true, tempCheckpoint && Object.keys(tempCheckpoint).length !== 0);
+
+        const options2 = {
+          progress(p) {
+            return function (done) {
+              assert.equal(true, p > 0.5);
+              done();
+            };
+          },
+          partSize: 100 * 1024,
+          checkpoint: tempCheckpoint,
+          callback: {
+            url: 'http://oss-demo.aliyuncs.com:23450',
+            host: 'oss-cn-hangzhou.aliyuncs.com',
+            /* eslint no-template-curly-in-string: [0] */
+            body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+            contentType: 'application/x-www-form-urlencoded',
+            customValue: {
+              var1: 'value1',
+              var2: 'value2',
+            },
+          },
+        };
+        const result = yield client.multipartUpload(name, file, options2);
+
+        assert.equal(result.res.status, 200);
+      });
     });
   });
 
