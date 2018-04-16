@@ -4,11 +4,11 @@
 
 const $ = require('jquery');
 // if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
-const OSS = require('..');
+const OSS = require('ali-oss');
 const crypto = require('crypto');
 
 const appServer = '/sts';
-const bucket = 'aliyun-oss-js';
+const bucket = '<bucket-name>';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
 // Play without STS. NOT SAFE! Because access key id/secret are
@@ -192,7 +192,7 @@ const postBlob = function (client) {
     expires: 1800,
     method: 'PUT',
     'Content-Type': 'text/plain; charset=UTF-8',
-    'Content-Md5': md5String.toString(),
+    'Content-Md5': md5String,
   };
   const url = client.signatureUrl(key, options);
 
@@ -201,7 +201,7 @@ const postBlob = function (client) {
     method: 'PUT',
     data: content,
     beforeSend: function (xhr) {
-      xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+      xhr.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
       xhr.setRequestHeader('Content-MD5', md5String);
     },
     crossDomain: true,
