@@ -798,7 +798,7 @@ Add an object to the bucket.
 parameters:
 
 - name {String} object name store on OSS
-- file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance
+- file {String|Buffer|ReadStream|File(only support Browser)|Blob(only support Browser)} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime, will send with `Content-Type` entity header
@@ -1793,7 +1793,7 @@ this function contains initMultipartUpload, uploadPart, completeMultipartUpload.
 parameters:
 
 - name {String} object name
-- file {String|File} file path or HTML5 Web File
+- file {String|File(only support Browser)|Blob(only support Browser)} file path or HTML5 Web File or web Blob
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
