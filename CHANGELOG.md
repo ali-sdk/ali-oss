@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.1.1"></a>
+# [5.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.0...5.2.0) (2018-04-16)
+
+
+### Bug Fixes
+
+* **Browser:** multipartUpload callback resumble parse error ([#442](https://github.com/aliyun/oss-nodejs-sdk/issues/442)) ([e22ecf6](https://github.com/aliyun/oss-nodejs-sdk/commit/e22ecf6))
+* **Browser:** signatureUrl with content-type and content-md5 ([#441](https://github.com/aliyun/oss-nodejs-sdk/issues/441)) ([50f0093](https://github.com/aliyun/oss-nodejs-sdk/commit/50f0093))
+
+
+### Docs
+
+* example base64 to blob and doc ([#434](https://github.com/aliyun/oss-nodejs-sdk/issues/434)) ([37f65f0](https://github.com/aliyun/oss-nodejs-sdk/commit/37f65f0))
+
+
+
 <a name="5.1.0"></a>
 # [5.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.0.1...5.1.0) (2018-04-14)
 
