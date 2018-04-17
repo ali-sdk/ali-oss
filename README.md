@@ -2999,7 +2999,8 @@ Include the sdk lib in the `<script>` tag and you have `OSS` available
 for creating client. We use `OSS.Wrapper` here to avoid using `co`:
 
 ```html
-<script src="http://gosspublic.alicdn.com/aliyun-oss-sdk.min.js"></script>
+// x.x.x The specific version number represented 
+<script src="http://gosspublic.alicdn.com/aliyun-oss-sdk.x.x.x.min.js"></script>
 <script type="text/javascript">
   var client = new OSS.Wrapper({
     region: 'oss-cn-hangzhou',
