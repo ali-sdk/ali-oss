@@ -27,6 +27,11 @@ describe('test/object.test.js', () => {
     this.store = oss(config);
     this.bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
+
+    // just for archive bucket test
+    this.archvieBucket = `oss-archvie-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    this.archvieBucket = this.archvieBucket.substring(0, this.archvieBucket.length - 1);
+
     this.region = config.region;
     // console.log('current buckets: %j',
     //   (yield this.store.listBuckets()).buckets.map(function (item) {
@@ -35,10 +40,14 @@ describe('test/object.test.js', () => {
     // );
     yield this.store.putBucket(this.bucket, this.region);
     this.store.useBucket(this.bucket, this.region);
+
+    yield this.store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
+    // this.store.useBucket(this.archvieBucket, this.region);
   });
 
   after(function* () {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
+    yield utils.cleanBucket(this.store, this.archvieBucket, this.region);
   });
 
   describe('putStream()', () => {
@@ -1564,6 +1573,36 @@ describe('test/object.test.js', () => {
       const res = yield urllib.request(this.store.signatureUrl(name));
       assert(res.data.toString() === 'foobarbaz');
       assert(res.headers['x-oss-next-append-position'] === '9');
+    });
+  });
+
+  describe('restore()', () => {
+    it('Should return OperationNotSupportedError when the type of bucket is not archive', function* () {
+      const name = '/oss/restore.js';
+      yield this.store.put(name, __filename);
+
+      try {
+        yield this.store.restore(name);
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'OperationNotSupportedError');
+      }
+    });
+    it('Should return 202 when restore is called first', function* () {
+      yield this.store.useBucket(this.archvieBucket, this.region);
+
+      const name = '/oss/restore.js';
+      yield this.store.put(name, __filename);
+
+      const info = yield this.store.restore(name);
+      assert.equal(info.res.status, 202);
+
+      // in 1 minute veriy RestoreAlreadyInProgressError
+      try {
+        yield this.store.restore(name);
+      } catch (err) {
+        assert.equal(err.name, 'RestoreAlreadyInProgressError');
+      }
     });
   });
 });
