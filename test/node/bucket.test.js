@@ -82,7 +82,7 @@ describe('test/bucket.test.js', () => {
 
     after(function* () {
       const result = yield this.store.deleteBucket(this.name);
-      // yield this.store.deleteBucket(this.archvieBucket);
+      yield this.store.deleteBucket(this.archvieBucket);
       assert(result.res.status === 200 || result.res.status === 204);
     });
   });
