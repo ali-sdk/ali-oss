@@ -3000,7 +3000,7 @@ for creating client. We use `OSS.Wrapper` here to avoid using `co`:
 
 ```html
 // x.x.x The specific version number represented 
-// we recommend introducing offline resources, because the introduction of online resources depends on the stability of the cdn server. 
+// we recommend introducing offline resources, because the usability of online resources depends on the stability of the cdn server. 
 <!-- Introducing online resources -->
 <script src="http://gosspublic.alicdn.com/aliyun-oss-sdk-x.x.x.min.js"></script>
 <!-- Introducing offline resources -->
