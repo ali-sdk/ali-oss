@@ -267,7 +267,7 @@ store.useBucket('helloworld', 'oss-cn-hongkong');
 - Create a bucket name `helloworld` location on HongKong StorageClass `Archive`
 
 ```js
-yield store.putBucket('helloworld', 'oss-cn-hongkong',{StorageClass:'Archive'});
+yield store.putBucket('helloworld', 'oss-cn-hongkong', { StorageClass: 'Archive' });
 // use it by default
 store.useBucket('helloworld', 'oss-cn-hongkong');
 ```
