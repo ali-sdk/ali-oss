@@ -41,7 +41,8 @@ describe('test/bucket.test.js', () => {
     assert.equal(result.res.status, 200);
 
     // just for archive bucket test
-    this.archvieBucket = 'oss-archvie-bucket';
+    this.archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    this.archvieBucket = this.bucket.substring(0, this.bucket.length - 1);
     yield this.store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
   });
 
