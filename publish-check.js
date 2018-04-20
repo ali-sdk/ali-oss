@@ -1,0 +1,27 @@
+
+const fs = require('fs');
+const pkg = require('./package.json');
+
+exports.checkDist = function checkDist(filePath) {
+  const stat = fs.statSync(filePath);
+  if (stat.size === 0) {
+    throw new Error('dist file size is 0');
+  }
+  const data = fs.readFileSync(filePath, 'utf8');
+  const arr = data.split('\n')[0].split(' ');
+  const distVer = arr[arr.length - 1];
+  console.log('pkg', `v${pkg.version}`);
+  console.log('distVer', distVer);
+  if (distVer !== `v${pkg.version}`) {
+    throw new Error('version is not match');
+  }
+};
+
+exports.checkCDNFile = function* (object, store) {
+  const result = yield store.head(object);
+  if (result.status !== 200 || result.res.headers['content-length'] === '0') {
+    yield store.delete(object);
+    throw new Error('CDN file is incorrect or size is 0');
+  }
+};
+

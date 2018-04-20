@@ -1,20 +1,24 @@
-var env = process.env;
-var oss = require('.');
-var co = require('co');
-var pkg = require('./package.json');
+const env = process.env;
+const oss = require('.');
+const co = require('co');
+const pkg = require('./package.json');
+const check = require('./publish-check');
 
-var store = oss({
+const store = oss({
   accessKeyId: env.ALI_SDK_OSS_CDN_ID,
   accessKeySecret: env.ALI_SDK_OSS_CDN_SECRET,
   endpoint: env.ALI_SDK_OSS_CDN_ENDPOINT,
   bucket: env.ALI_SDK_OSS_CDN_BUCKET,
 });
 
-var current = 'aliyun-oss-sdk-' + pkg.version + '.min.js';
-var dist = './dist/aliyun-oss-sdk.min.js';
+const current = `aliyun-oss-sdk-${pkg.version}.min.js`;
+const dist = './dist/aliyun-oss-sdk.min.js';
 
 co(function* () {
+  check.checkDist(dist); // check file exist
   yield store.put(current, dist);
-}).catch(function (err) {
+  yield check.checkCDNFile(current, store);// check cdn file
+  console.log('publish cdn success');
+}).catch((err) => {
   console.log(err);
 });
