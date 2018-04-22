@@ -1,5 +1,6 @@
 
 const fs = require('fs');
+const crypto = require('crypto');
 const pkg = require('./package.json');
 
 exports.checkDist = function checkDist(filePath) {
@@ -10,7 +11,7 @@ exports.checkDist = function checkDist(filePath) {
   const data = fs.readFileSync(filePath, 'utf8');
   const arr = data.split('\n')[0].split(' ');
   const distVer = arr[arr.length - 1];
-  console.log('pkg', `v${pkg.version}`);
+  console.log('pkgVer', `v${pkg.version}`);
   console.log('distVer', distVer);
   if (distVer !== `v${pkg.version}`) {
     throw new Error('version is not match');
@@ -23,5 +24,21 @@ exports.checkCDNFile = function* (object, store) {
     yield store.delete(object);
     throw new Error('CDN file is incorrect or size is 0');
   }
+};
+
+exports.caculateFileMd5 = function (filePath) {
+  return new Promise((resolve, reject) => {
+    const rs = fs.createReadStream(filePath);
+
+    const hash = crypto.createHash('md5');
+    rs.on('data', hash.update.bind(hash));
+    rs.on('error', (err) => {
+      reject(err);
+    });
+    rs.on('end', () => {
+      const md5Content = hash.digest('base64');
+      resolve(md5Content);
+    });
+  });
 };
 
