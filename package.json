@@ -25,12 +25,13 @@
     "build-test": "node browser-build.js > test/browser/build/aliyun-oss-sdk.js && node task/browser-test-build.js > test/browser/build/tests.js",
     "browser-test": "npm run build-test && karma start",
     "build-dist": "node browser-build.js > dist/aliyun-oss-sdk.js && MINIFY=1 node browser-build.js > dist/aliyun-oss-sdk.min.js",
+    "publish-to-npm": "node publish-npm-check.js && npm publish",
     "publish-to-cdn": "node publish.js"
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
     "post-release": [
-      "npm publish",
+      "npm run publish-to-npm",
       "npm run publish-to-cdn"
     ]
   },
