@@ -108,7 +108,7 @@ const base64progress = function (p) {
  * @param filename  set up a meaningful suffix, or you can set mime type in options
  * @returns {File|*}
  */
-function dataURLtoFile(dataurl, filename) {
+const dataURLtoFile = function dataURLtoFile(dataurl, filename) {
   const arr = dataurl.split(',');
   const mime = arr[0].match(/:(.*?);/)[1];
   const bstr = atob(arr[1]);
@@ -118,10 +118,9 @@ function dataURLtoFile(dataurl, filename) {
     u8arr[n] = bstr.charCodeAt(n);
   }
   return new Blob([u8arr], { type: mime });// if env support File, also can use this: return new File([u8arr], filename, { type: mime });
-}
+};
 
-
-const uploadBase64Img = function (client) {
+const uploadBase64Img = function uploadBase64Img(client) {
   const base64Content = document.getElementById('base64-file-content').value.trim();
   const key = document.getElementById('base64-object-key-file').value.trim() || 'object';
   if (base64Content.indexOf('data:image') === 0) {
@@ -226,6 +225,38 @@ const downloadFile = function (client) {
   return result;
 };
 
+const cnameUsage = function (cname) {
+  if (!cname) {
+    alert('请输入cname!');
+    return;
+  }
+  const url = appServer;
+  $.ajax({
+    url,
+  }).then((result) => {
+    const creds = result;
+    const client = new OSS.Wrapper({
+      accessKeyId: creds.AccessKeyId,
+      accessKeySecret: creds.AccessKeySecret,
+      stsToken: creds.SecurityToken,
+      endpoint: cname,
+      cname: true,
+      region,
+      bucket,
+    });
+
+    const filename = document.getElementById('key-cname-objectName').value.trim();
+    console.log(filename);
+
+    const res = client.signatureUrl(filename, {
+      response: {
+        'content-disposition': `attachment; filename="${filename}"`,
+      },
+    });
+    window.location = res;
+  });
+};
+
 window.onload = function () {
   document.getElementById('file-button').onclick = function () {
     if (uploadFileClient) {
@@ -263,6 +294,11 @@ window.onload = function () {
 
   document.getElementById('base64-file-button').onclick = function () {
     applyTokenDo(uploadBase64Img);
+  };
+
+  document.getElementById('key-cname-button').onclick = function () {
+    const cname = document.getElementById('key-cname').value;
+    cnameUsage(cname);
   };
 
   applyTokenDo(listFiles);
