@@ -93,6 +93,7 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL*(name, acl[, options])](#putaclname-acl-options)
   - [.getACL*(name[, options])](#getaclname-options)
+  - [.restore*(name[, options])](#restorename-options)
   - [.initMultipartUpload*(name[, options])](#initmultipartuploadname-options)
   - [.uploadPart*(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
   - [.uploadPartCopy*(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
@@ -242,6 +243,7 @@ parameters:
   If region value invalid, will throw InvalidLocationConstraintError.
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [StorageClass] {String} the storeage type include (Standard,IA,Archive)
 
 Success will return the bucket name on `bucket` properties.
 
@@ -258,6 +260,14 @@ example:
 
 ```js
 yield store.putBucket('helloworld', 'oss-cn-hongkong');
+// use it by default
+store.useBucket('helloworld', 'oss-cn-hongkong');
+```
+
+- Create a bucket name `helloworld` location on HongKong StorageClass `Archive`
+
+```js
+yield store.putBucket('helloworld', 'oss-cn-hongkong', { StorageClass: 'Archive' });
 // use it by default
 store.useBucket('helloworld', 'oss-cn-hongkong');
 ```
@@ -1566,6 +1576,33 @@ example:
 ```js
 var result = yield store.getACL('ossdemo.txt');
 console.log(result.acl);
+```
+
+### .restore*(name[, options])
+
+Restore Object.
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- Restore an object
+
+```js
+var result = yield store.restore('ossdemo.txt');
+console.log(result.status);
 ```
 
 ### .initMultipartUpload(name[, options])
@@ -2923,6 +2960,7 @@ Will put to all clients.
 - `client.copy()`
 - `client.putMeta()`
 - `client.putACL()`
+- `client.restore()`
 
 ## Wrapper Usage
 
@@ -3049,6 +3087,8 @@ name | code | status | message | message in Chinese
 AccessDeniedError | AccessDenied | 403 | Access Denied | 拒绝访问
 BucketAlreadyExistsError | BucketAlreadyExists | 409 | Bucket already exists | Bucket 已经存在
 BucketNotEmptyError | BucketNotEmpty | 409 | Bucket is not empty | Bucket 不为空
+RestoreAlreadyInProgressError | RestoreAlreadyInProgress | 409 | The restore operation is in progress. | restore 操作正在进行中
+OperationNotSupportedError | OperationNotSupported | 400 | The operation is not supported for this resource | 该资源暂不支持restore操作
 EntityTooLargeError | EntityTooLarge | 400 | Entity too large | 实体过大
 EntityTooSmallError | EntityTooSmall | 400 | Entity too small | 实体过小
 FileGroupTooLargeError | FileGroupTooLarge | 400 | File group too large | 文件组过大

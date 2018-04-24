@@ -39,10 +39,16 @@ describe('test/bucket.test.js', () => {
     const result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
+
+    // just for archive bucket test
+    this.archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    this.archvieBucket = this.bucket.substring(0, this.bucket.length - 1);
+    yield this.store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
   });
 
   after(function* () {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
+    // yield utils.cleanBucket(this.store, this.archvieBucket, this.region);
   });
 
   describe('putBucket()', () => {
@@ -62,8 +68,22 @@ describe('test/bucket.test.js', () => {
       assert.equal(result2.bucket, this.name);
     });
 
+    it('should create an archive bucket', function* () {
+      const result2 = yield this.store.listBuckets();
+      const { buckets } = result2;
+      const m = buckets.some(item => item.name === this.archvieBucket);
+      assert(m === true);
+      buckets.map((item) => {
+        if (item.name === this.archvieBucket) {
+          assert(item.StorageClass === 'Archive');
+        }
+        return 1;
+      });
+    });
+
     after(function* () {
       const result = yield this.store.deleteBucket(this.name);
+      yield this.store.deleteBucket(this.archvieBucket);
       assert(result.res.status === 200 || result.res.status === 204);
     });
   });
