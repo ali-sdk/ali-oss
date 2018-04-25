@@ -39,22 +39,20 @@ describe('test/bucket.test.js', () => {
     const result = yield this.store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
-
-    // just for archive bucket test
-    this.archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    this.archvieBucket = this.bucket.substring(0, this.bucket.length - 1);
-    yield this.store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
   });
 
   after(function* () {
     yield utils.cleanBucket(this.store, this.bucket, this.region);
-    // yield utils.cleanBucket(this.store, this.archvieBucket, this.region);
   });
 
   describe('putBucket()', () => {
     before(function () {
       this.name = `ali-oss-test-putbucket-${prefix.replace(/[/.]/g, '-')}`;
       this.name = this.name.substring(0, this.name.length - 1);
+
+      // just for archive bucket test
+      this.archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      this.archvieBucket = this.archvieBucket.substring(0, this.archvieBucket.length - 1);
     });
 
     it('should create a new bucket', function* () {
@@ -69,6 +67,8 @@ describe('test/bucket.test.js', () => {
     });
 
     it('should create an archive bucket', function* () {
+      yield this.store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
+
       const result2 = yield this.store.listBuckets();
       const { buckets } = result2;
       const m = buckets.some(item => item.name === this.archvieBucket);
