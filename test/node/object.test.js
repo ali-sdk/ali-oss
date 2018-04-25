@@ -1557,29 +1557,29 @@ describe('test/object.test.js', () => {
   });
 
   describe('restore()', () => {
-    it('Should return OperationNotSupportedError when the type of bucket is not archive', function* () {
+    it('Should return OperationNotSupportedError when the type of bucket is not archive', async () => {
       const name = '/oss/restore.js';
-      yield this.store.put(name, __filename);
+      await this.store.put(name, __filename);
 
       try {
-        yield this.store.restore(name);
+        await this.store.restore(name);
         throw new Error('should not run this');
       } catch (err) {
         assert.equal(err.name, 'OperationNotSupportedError');
       }
     });
-    it('Should return 202 when restore is called first', function* () {
-      yield this.store.useBucket(this.archvieBucket, this.region);
+    it('Should return 202 when restore is called first', async () => {
+      this.store.setBucket(this.archvieBucket);
 
       const name = '/oss/restore.js';
-      yield this.store.put(name, __filename);
+      await this.store.put(name, __filename);
 
-      const info = yield this.store.restore(name);
+      const info = await this.store.restore(name);
       assert.equal(info.res.status, 202);
 
       // in 1 minute veriy RestoreAlreadyInProgressError
       try {
-        yield this.store.restore(name);
+        await this.store.restore(name);
       } catch (err) {
         assert.equal(err.name, 'RestoreAlreadyInProgressError');
       }
