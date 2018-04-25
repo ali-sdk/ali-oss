@@ -9,19 +9,20 @@ const mm = require('mm');
 
 describe('test/callback.test.js', () => {
   const { prefix } = utils;
+  let store;
 
   before(async () => {
-    this.store = oss(config);
+    store = oss(config);
     this.bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
-    await this.store.putBucket(this.bucket, this.region);
-    this.store.useBucket(this.bucket, this.region);
+    await store.putBucket(this.bucket, this.region);
+    store.useBucket(this.bucket, this.region);
   });
 
   after(async () => {
-    await utils.cleanBucket(this.store, this.bucket, this.region);
+    await utils.cleanBucket(store, this.bucket, this.region);
   });
 
 
@@ -34,7 +35,7 @@ describe('test/callback.test.js', () => {
       const fileName = await utils.createTempFile('upload-with-callback', 1024 * 1024);
 
       const name = `${prefix}multipart/upload-with-callback`;
-      const result = await this.store.multipartUpload(name, fileName, {
+      const result = await store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         callback: {
           url: callbackServer,
@@ -55,9 +56,9 @@ describe('test/callback.test.js', () => {
     it('should multipart upload copy with callback', async () => {
       const fileName = await utils.createTempFile('multipart-upload-file-copy-callback', 2 * 1024 * 1024);
       const name = `${prefix}multipart/upload-file-with-copy-callback`;
-      await this.store.multipartUpload(name, fileName);
+      await store.multipartUpload(name, fileName);
 
-      const client = this.store;
+      const client = store;
       const copyName = `${prefix}multipart/upload-file-with-copy-new-callback`;
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
@@ -88,7 +89,7 @@ describe('test/callback.test.js', () => {
       const fileName = await utils.createTempFile('upload-with-callback', 50 * 1024);
 
       const name = `${prefix}multipart/upload-with-callback`;
-      const result = await this.store.multipartUpload(name, fileName, {
+      const result = await store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         callback: {
           url: callbackServer,
@@ -107,7 +108,7 @@ describe('test/callback.test.js', () => {
 
     it('should putStream parse response with callback', async () => {
       const name = `${prefix}ali-sdk/oss/putstream-callback.js`;
-      const result = await this.store.putStream(name, fs.createReadStream(__filename), {
+      const result = await store.putStream(name, fs.createReadStream(__filename), {
         callback: {
           url: callbackServer,
           host: 'oss-cn-hangzhou.aliyuncs.com',
@@ -126,7 +127,7 @@ describe('test/callback.test.js', () => {
 
     it('should put parse response with callback', async () => {
       const name = `${prefix}ali-sdk/oss/put-callback.js`;
-      const result = await this.store.put(name, __filename, {
+      const result = await store.put(name, __filename, {
         callback: {
           url: callbackServer,
           host: 'oss-cn-hangzhou.aliyuncs.com',
@@ -152,7 +153,7 @@ describe('test/callback.test.js', () => {
       };
       const name = `${prefix}multipart/upload-with-callback`;
       /* eslint no-mixed-spaces-and-tabs: [0] */
-      const result = await this.store.multipartUpload(name, fileName, {
+      const result = await store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         headers: {
           'x-oss-callback': utils.encodeCallback(callback),

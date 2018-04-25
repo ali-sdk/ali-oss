@@ -14,11 +14,11 @@ const { metaSyncTime } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix } = utils;
-
+  let store;
   before(async () => {
-    this.store = oss(config);
+    store = oss(config);
 
-    const bucketResult = await this.store.listBuckets({
+    const bucketResult = await store.listBuckets({
       // prefix: '',
       'max-keys': 20,
     });
@@ -28,7 +28,7 @@ describe('test/bucket.test.js', () => {
     for (const bucket of bucketResult.buckets) {
       if (bucket.name.startsWith('ali-oss-test-bucket-') || bucket.name.startsWith('ali-oss-list-buckets-')) {
         /* eslint no-await-in-loop: [0] */
-        await this.store.deleteBucket(bucket.name);
+        await store.deleteBucket(bucket.name);
         console.log('delete %j', bucket);
       }
     }
@@ -37,13 +37,13 @@ describe('test/bucket.test.js', () => {
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
-    const result = await this.store.putBucket(this.bucket, this.region);
+    const result = await store.putBucket(this.bucket, this.region);
     assert.equal(result.bucket, this.bucket);
     assert.equal(result.res.status, 200);
   });
 
   after(async () => {
-    await utils.cleanBucket(this.store, this.bucket, this.region);
+    await utils.cleanBucket(store, this.bucket, this.region);
   });
 
   describe('putBucket()', () => {
@@ -53,23 +53,23 @@ describe('test/bucket.test.js', () => {
       // just for archive bucket test
       this.archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
       this.archvieBucket = this.archvieBucket.substring(0, this.archvieBucket.length - 1);
-      await this.store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
+      await store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
     });
 
     it('should create a new bucket', async () => {
-      const result1 = await this.store.putBucket(this.name);
+      const result1 = await store.putBucket(this.name);
       assert.equal(result1.bucket, this.name);
       assert.equal(result1.res.status, 200);
 
       // create a exists should work
-      const result2 = await this.store.putBucket(this.name);
+      const result2 = await store.putBucket(this.name);
       assert.equal(result2.res.status, 200);
       assert.equal(result2.bucket, this.name);
     });
 
     it('should create an archive bucket', async () => {
       await utils.sleep(ms(metaSyncTime));
-      const result2 = await this.store.listBuckets();
+      const result2 = await store.listBuckets();
       const { buckets } = result2;
       const m = buckets.some(item => item.name === this.archvieBucket);
       console.log(buckets);
@@ -83,15 +83,15 @@ describe('test/bucket.test.js', () => {
     });
 
     after(async () => {
-      const result = await this.store.deleteBucket(this.name);
+      const result = await store.deleteBucket(this.name);
       assert(result.res.status === 200 || result.res.status === 204);
-      await this.store.deleteBucket(this.archvieBucket);
+      await store.deleteBucket(this.archvieBucket);
     });
   });
 
   describe('getBucketInfo', () => {
     it('it should return correct bucketInfo when bucket exist', async () => {
-      const result = await this.store.getBucketInfo(this.bucket);
+      const result = await store.getBucketInfo(this.bucket);
       assert.equal(result.res.status, 200);
 
       assert.equal(result.bucket.Location, `${this.region}`);
@@ -103,20 +103,20 @@ describe('test/bucket.test.js', () => {
 
     it('it should return NoSuchBucketError when bucket not exist', async () => {
       await utils.throws(async () => {
-        await this.store.getBucketInfo('not-exists-bucket');
+        await store.getBucketInfo('not-exists-bucket');
       }, 'NoSuchBucketError');
     });
   });
 
   describe('getBucketLoaction', () => {
     it('it should return loaction this.region', async () => {
-      const result = await this.store.getBucketLocation(this.bucket);
+      const result = await store.getBucketLocation(this.bucket);
       assert.equal(result.location, this.region);
     });
 
     it('it should return NoSuchBucketError when bucket not exist', async () => {
-      await utils.throws(async ()=> {
-        await this.store.getBucketLocation('not-exists-bucket');
+      await utils.throws(async () => {
+        await store.getBucketLocation('not-exists-bucket');
       }, 'NoSuchBucketError');
     });
   });
@@ -124,33 +124,33 @@ describe('test/bucket.test.js', () => {
   describe('deleteBucket()', () => {
     it('should delete not exists bucket throw NoSuchBucketError', async () => {
       await utils.throws(async () => {
-        await this.store.deleteBucket('not-exists-bucket');
+        await store.deleteBucket('not-exists-bucket');
       }, 'NoSuchBucketError');
     });
 
     it('should delete not empty bucket throw BucketNotEmptyError', async () => {
-      this.store.useBucket(this.bucket, this.region);
-      await this.store.put('ali-oss-test-bucket.txt', __filename);
+      store.useBucket(this.bucket, this.region);
+      await store.put('ali-oss-test-bucket.txt', __filename);
       await utils.throws(async () => {
-        await this.store.deleteBucket(this.bucket, this.region);
+        await store.deleteBucket(this.bucket, this.region);
       }, 'BucketNotEmptyError');
-      await this.store.delete('ali-oss-test-bucket.txt');
+      await store.delete('ali-oss-test-bucket.txt');
     });
   });
 
   describe('putBucketACL()', () => {
     it('should set bucket acl to public-read-write', async () => {
-      const result = await this.store.putBucket(this.bucket);
+      const result = await store.putBucket(this.bucket);
       assert.equal(result.res.status, 200);
 
-      const resultAcl = await this.store.putBucketACL(this.bucket, this.region, 'public-read-write');
+      const resultAcl = await store.putBucketACL(this.bucket, this.region, 'public-read-write');
       assert.equal(resultAcl.res.status, 200);
       assert.equal(resultAcl.bucket, this.bucket);
 
       // Need wait some time for bucket meta sync
       await utils.sleep(ms(metaSyncTime));
 
-      const r = await this.store.getBucketACL(this.bucket, this.region);
+      const r = await store.getBucketACL(this.bucket, this.region);
       assert.equal(r.res.status, 200);
       // skip it, data will be delay
       // assert.equal(r.acl, 'public-read-write');
@@ -158,17 +158,17 @@ describe('test/bucket.test.js', () => {
 
     it('should create and set acl when bucket not exists', async () => {
       const bucket = `${this.bucket}-new`;
-      const putresult = await this.store.putBucketACL(bucket, this.region, 'public-read');
+      const putresult = await store.putBucketACL(bucket, this.region, 'public-read');
       assert.equal(putresult.res.status, 200);
       assert.equal(putresult.bucket, bucket);
 
       await utils.sleep(ms(metaSyncTime));
 
-      const getresult = await this.store.getBucketACL(bucket);
+      const getresult = await store.getBucketACL(bucket);
       assert.equal(getresult.res.status, 200);
       assert.equal(getresult.acl, 'public-read');
 
-      await this.store.deleteBucket(bucket, this.region);
+      await store.deleteBucket(bucket, this.region);
     });
   });
 
@@ -178,13 +178,13 @@ describe('test/bucket.test.js', () => {
       this.listBucketsPrefix = `ali-oss-list-buckets-${prefix.replace(/[/.]/g, '-')}`;
       for (let i = 0; i < 2; i++) {
         const name = this.listBucketsPrefix + i;
-        const result = await this.store.putBucket(name);
+        const result = await store.putBucket(name);
         assert.equal(result.res.status, 200);
       }
     });
 
     it('should list buckets by prefix', async () => {
-      const result = await this.store.listBuckets({
+      const result = await store.listBuckets({
         prefix: this.listBucketsPrefix,
         'max-keys': 20,
       });
@@ -208,7 +208,7 @@ describe('test/bucket.test.js', () => {
       for (let i = 0; i < 2; i++) {
         const name = this.listBucketsPrefix + i;
         try {
-          await this.store.deleteBucket(name);
+          await store.deleteBucket(name);
         } catch (err) {}
       }
     });
@@ -216,30 +216,30 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketLogging(), getBucketLogging(), deleteBucketLogging()', () => {
     it('should create, get and delete the logging', async () => {
-      let result = await this.store.putBucketLogging(this.bucket, this.region, 'logs/');
+      let result = await store.putBucketLogging(this.bucket, this.region, 'logs/');
       assert.equal(result.res.status, 200);
       // put again will be fine
-      result = await this.store.putBucketLogging(this.bucket, this.region, 'logs/');
+      result = await store.putBucketLogging(this.bucket, this.region, 'logs/');
       assert.equal(result.res.status, 200);
 
       // get the logging setttings
-      result = await this.store.getBucketLogging(this.bucket, this.region);
+      result = await store.getBucketLogging(this.bucket, this.region);
       assert.equal(result.res.status, 200);
 
       // delete it
-      result = await this.store.deleteBucketLogging(this.bucket, this.region);
+      result = await store.deleteBucketLogging(this.bucket, this.region);
       assert.equal(result.res.status, 204);
     });
   });
 
   describe('putBucketWebsite(), getBucketWebsite(), deleteBucketWebsite()', () => {
     it('should create, get and delete the website settings', async () => {
-      const result1 = await this.store.putBucketWebsite(this.bucket, this.region, {
+      const result1 = await store.putBucketWebsite(this.bucket, this.region, {
         index: 'index.html',
       });
       assert.equal(result1.res.status, 200);
       // put again will be fine
-      const result2 = await this.store.putBucketWebsite(this.bucket, this.region, {
+      const result2 = await store.putBucketWebsite(this.bucket, this.region, {
         index: 'index.htm',
         error: 'error.htm',
       });
@@ -248,19 +248,19 @@ describe('test/bucket.test.js', () => {
       await utils.sleep(ms(metaSyncTime));
 
       // get
-      const get = await this.store.getBucketWebsite(this.bucket, this.region);
+      const get = await store.getBucketWebsite(this.bucket, this.region);
       assert.equal(typeof get.index, 'string');
       assert.equal(get.res.status, 200);
 
       // delete it
-      const del = await this.store.deleteBucketWebsite(this.bucket, this.region);
+      const del = await store.deleteBucketWebsite(this.bucket, this.region);
       assert.equal(del.res.status, 204);
     });
   });
 
   describe('putBucketLifecycle(), getBucketLifecycle(), deleteBucketLifecycle()', () => {
     it('should create, get and delete the lifecycle', async () => {
-      const putresult1 = await this.store.putBucketLifecycle(this.bucket, this.region, [{
+      const putresult1 = await store.putBucketLifecycle(this.bucket, this.region, [{
         id: 'delete after one day',
         prefix: 'logs/',
         status: 'Enabled',
@@ -269,7 +269,7 @@ describe('test/bucket.test.js', () => {
       assert.equal(putresult1.res.status, 200);
 
       // put again will be fine
-      const putresult2 = await this.store.putBucketLifecycle(this.bucket, this.region, [
+      const putresult2 = await store.putBucketLifecycle(this.bucket, this.region, [
         {
           id: 'delete after one day',
           prefix: 'logs/',
@@ -287,19 +287,19 @@ describe('test/bucket.test.js', () => {
       await utils.sleep(ms(metaSyncTime));
 
       // get
-      const getBucketLifecycle = await this.store.getBucketLifecycle(this.bucket, this.region);
+      const getBucketLifecycle = await store.getBucketLifecycle(this.bucket, this.region);
       assert(getBucketLifecycle.rules.length > 0);
       assert.equal(getBucketLifecycle.res.status, 200);
 
       // delete it
-      const deleteResult = await this.store.deleteBucketLifecycle(this.bucket, this.region);
+      const deleteResult = await store.deleteBucketLifecycle(this.bucket, this.region);
       assert.equal(deleteResult.res.status, 204);
     });
   });
 
   describe('putBucketReferer(), getBucketReferer(), deleteBucketReferer()', () => {
     it('should create, get and delete the referer', async () => {
-      const putresult = await this.store.putBucketReferer(this.bucket, this.region, true, [
+      const putresult = await store.putBucketReferer(this.bucket, this.region, true, [
         'http://npm.taobao.org',
       ]);
       assert.equal(putresult.res.status, 200);
@@ -310,19 +310,19 @@ describe('test/bucket.test.js', () => {
         'https://npm.taobao.org',
         'http://cnpmjs.org',
       ];
-      const putReferer = await this.store.putBucketReferer(this.bucket, this.region, false, referers);
+      const putReferer = await store.putBucketReferer(this.bucket, this.region, false, referers);
       assert.equal(putReferer.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
 
       // get
-      const getReferer = await this.store.getBucketReferer(this.bucket, this.region);
+      const getReferer = await store.getBucketReferer(this.bucket, this.region);
       assert(Array.isArray(getReferer.referers));
       assert.equal(typeof getReferer.allowEmpty, 'boolean');
       assert.equal(getReferer.res.status, 200);
 
       // delete it
-      const deleteResult = await this.store.deleteBucketReferer(this.bucket, this.region);
+      const deleteResult = await store.deleteBucketReferer(this.bucket, this.region);
       assert.equal(deleteResult.res.status, 200);
     });
   });
@@ -330,7 +330,7 @@ describe('test/bucket.test.js', () => {
   describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', () => {
     afterEach(async () => {
       // delete it
-      const result = await this.store.deleteBucketCORS(this.bucket, this.region);
+      const result = await store.deleteBucketCORS(this.bucket, this.region);
       assert.equal(result.res.status, 204);
     });
 
@@ -342,10 +342,10 @@ describe('test/bucket.test.js', () => {
         exposeHeader: 'Content-Length',
         maxAgeSeconds: '30',
       }];
-      const putResult = await this.store.putBucketCORS(this.bucket, this.region, rules);
+      const putResult = await store.putBucketCORS(this.bucket, this.region, rules);
       assert.equal(putResult.res.status, 200);
 
-      const getResult = await this.store.getBucketCORS(this.bucket, this.region);
+      const getResult = await store.getBucketCORS(this.bucket, this.region);
       assert.equal(getResult.res.status, 200);
       assert.deepEqual(getResult.rules, [{
         allowedOrigin: '*',
@@ -361,12 +361,12 @@ describe('test/bucket.test.js', () => {
         allowedOrigin: '*',
         allowedMethod: 'GET',
       }];
-      const putCorsResult1 = await this.store.putBucketCORS(this.bucket, this.region, rules1);
+      const putCorsResult1 = await store.putBucketCORS(this.bucket, this.region, rules1);
       assert.equal(putCorsResult1.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult1 = await this.store.getBucketCORS(this.bucket, this.region);
+      const getCorsResult1 = await store.getBucketCORS(this.bucket, this.region);
       assert.equal(getCorsResult1.res.status, 200);
       assert.deepEqual(getCorsResult1.rules, [{
         allowedOrigin: '*',
@@ -377,12 +377,12 @@ describe('test/bucket.test.js', () => {
         allowedOrigin: 'localhost',
         allowedMethod: 'HEAD',
       }];
-      const putCorsResult2 = await this.store.putBucketCORS(this.bucket, this.region, rules2);
+      const putCorsResult2 = await store.putBucketCORS(this.bucket, this.region, rules2);
       assert.equal(putCorsResult2.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult2 = await this.store.getBucketCORS(this.bucket, this.region);
+      const getCorsResult2 = await store.getBucketCORS(this.bucket, this.region);
       assert.equal(getCorsResult2.res.status, 200);
       assert.deepEqual(getCorsResult2.rules, [{
         allowedOrigin: 'localhost',
@@ -392,7 +392,7 @@ describe('test/bucket.test.js', () => {
 
     it('should check rules', async () => {
       try {
-        await this.store.putBucketCORS(this.bucket, this.region);
+        await store.putBucketCORS(this.bucket, this.region);
         throw new Error('should not run');
       } catch (err) {
         assert(err.message === 'rules is required');
@@ -401,7 +401,7 @@ describe('test/bucket.test.js', () => {
 
     it('should check allowedOrigin', async () => {
       try {
-        await this.store.putBucketCORS(this.bucket, this.region, [{}]);
+        await store.putBucketCORS(this.bucket, this.region, [{}]);
         throw new Error('should not run');
       } catch (err) {
         assert(err.message === 'allowedOrigin is required');
@@ -413,7 +413,7 @@ describe('test/bucket.test.js', () => {
         const rules = [{
           allowedOrigin: '*',
         }];
-        await this.store.putBucketCORS(this.bucket, this.region, rules);
+        await store.putBucketCORS(this.bucket, this.region, rules);
         throw new Error('should not run');
       } catch (err) {
         assert(err.message === 'allowedMethod is required');
@@ -422,7 +422,7 @@ describe('test/bucket.test.js', () => {
 
     it('should throw error when rules not exist', async () => {
       try {
-        await this.store.getBucketCORS(this.bucket, this.region);
+        await store.getBucketCORS(this.bucket, this.region);
         throw new Error('should not run');
       } catch (err) {
         assert(err.message === 'The CORS Configuration does not exist.');
