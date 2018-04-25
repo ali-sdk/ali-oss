@@ -14,6 +14,7 @@ const copy = require('copy-to');
 const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
+const urlutil = require('url')
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -155,6 +156,27 @@ describe('test/object.test.js', () => {
       assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
     });
   });
+
+  describe('generateObjectUrl()', () => {
+    it('should return object url', function () {
+      let name = 'test.js';
+      let url = this.store.generateObjectUrl(name);
+
+      let baseUrl = this.store.options.endpoint.format();
+      const copyUrl = urlutil.parse(baseUrl);
+      copyUrl.hostname = `${this.bucket}.${copyUrl.hostname}`;
+      copyUrl.host = `${this.bucket}.${copyUrl.host}`;
+      baseUrl = copyUrl.format();
+      assert.equal(url, `${baseUrl}${name}`);
+
+      name = '/foo/bar/a%2Faa/test&+-123~!.js';
+      url = this.store.generateObjectUrl(name, 'https://foo.com');
+      assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      const url2 = this.store.generateObjectUrl(name, 'https://foo.com/');
+      assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+    });
+  });
+
 
   describe('put()', () => {
     it('should add object with local file path', function* () {
@@ -820,8 +842,8 @@ describe('test/object.test.js', () => {
         host: 'oss-demo.aliyuncs.com',
         contentType: 'application/json',
         customValue: {
-          'key1': 'value1',
-          'key2': 'value2',
+          key1: 'value1',
+          key2: 'value2',
         },
       };
 
