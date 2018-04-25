@@ -19,15 +19,16 @@ const config = require('../config').oss;
 describe('test/rtmp.test.js', () => {
   const { prefix } = utils;
   let store;
-
+  let bucket;
+  let bucketRegion;
   before(async () => {
     store = oss(config);
-    this.bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    store.useBucket(this.bucket);
+    bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = bucket.substring(0, bucket.length - 1);
+    store.useBucket(bucket);
 
-    const result = await store.putBucket(this.bucket, this.region);
-    assert.equal(result.bucket, this.bucket);
+    const result = await store.putBucket(bucket, bucketRegion);
+    assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
 
     this.cid = 'channel-1';
@@ -44,7 +45,7 @@ describe('test/rtmp.test.js', () => {
   });
 
   after(async () => {
-    await utils.cleanBucket(store, this.bucket, this.region);
+    await utils.cleanBucket(store, bucket, bucketRegion);
   });
 
   describe('put/get/deleteChannel()', () => {
