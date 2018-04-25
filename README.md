@@ -83,6 +83,7 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
   - [.putStream*(name, stream[, options])](#putstreamname-stream-options)
   - [.append*(name, file[, options])](#apendname-file-options)
   - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
+  - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
   - [.head*(name[, options])](#headname-options)
   - [.get*(name, file[, options])](#getname-file-options)
   - [.getStream*(name[, options])](#getstreamname-options)
@@ -1040,6 +1041,22 @@ e.g.:
 
 ```js
 const cdnUrl = client.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+// cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
+```
+
+### .generateObjectUrl(name[, baseUrl])
+
+Get the Object url.
+If provide `baseUrl`, will use `baseUrl` instead the default `bucket and endpoint `.
+Suggest use generateObjectUrl instead of getObjectUrl.
+
+e.g.:
+
+```js
+const url = client.generateObjectUrl('foo/bar.jpg');
+// cdnUrl should be `https://${bucketname}.${endpotint}foo/bar.jpg`
+
+const cdnUrl = client.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
