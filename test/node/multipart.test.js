@@ -10,31 +10,32 @@ const sinon = require('sinon');
 
 describe('test/multipart.test.js', () => {
   const { prefix } = utils;
+  let store;
 
   before(async () => {
-    this.store = oss(config);
+    store = oss(config);
     this.bucket = `ali-oss-test-multipart-bucket-${prefix.replace(/[/.]/g, '-')}`;
     this.bucket = this.bucket.substring(0, this.bucket.length - 1);
     this.region = config.region;
 
-    await this.store.putBucket(this.bucket, this.region);
-    this.store.useBucket(this.bucket, this.region);
+    await store.putBucket(this.bucket, this.region);
+    store.useBucket(this.bucket, this.region);
   });
 
   after(async () => {
-    await utils.cleanBucket(this.store, this.bucket, this.region);
+    await utils.cleanBucket(store, this.bucket, this.region);
   });
 
   describe('listUploads()', () => {
     beforeEach(async () => {
-      const result = await this.store.listUploads({
+      const result = await store.listUploads({
         'max-uploads': 1000,
       });
       const uploads = result.uploads || [];
       for (let i = 0; i < uploads.length; i++) {
         const up = uploads[i];
         /* eslint no-await-in-loop: [0] */
-        await this.store.abortMultipartUpload(up.name, up.uploadId);
+        await store.abortMultipartUpload(up.name, up.uploadId);
       }
     });
 
@@ -42,18 +43,18 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/list-key`;
       const ids = [];
       for (let i = 0; i < 5; i++) {
-        const result = await this.store.initMultipartUpload(name + i);
+        const result = await store.initMultipartUpload(name + i);
         ids.push(result.uploadId);
       }
       // list all uploads
-      let result = await this.store.listUploads({
+      let result = await store.listUploads({
         'max-uploads': 10,
       });
       const all = result.uploads.map(up => up.uploadId);
       assert.deepEqual(all, ids);
 
       // after 1
-      result = await this.store.listUploads({
+      result = await store.listUploads({
         'max-uploads': 10,
         'key-marker': name + 0,
       });
@@ -61,7 +62,7 @@ describe('test/multipart.test.js', () => {
       assert.deepEqual(after1, ids.slice(1));
 
       // after 5
-      result = await this.store.listUploads({
+      result = await store.listUploads({
         'max-uploads': 10,
         'key-marker': name + 4,
       });
@@ -73,20 +74,20 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/list-id`;
       const ids = [];
       for (let i = 0; i < 5; i++) {
-        const result = await this.store.initMultipartUpload(name);
+        const result = await store.initMultipartUpload(name);
         ids.push(result.uploadId);
       }
       ids.sort();
 
       // list all uploads
-      let result = await this.store.listUploads({
+      let result = await store.listUploads({
         'max-uploads': 10,
       });
       const all = result.uploads.map(up => up.uploadId);
       assert.deepEqual(all, ids);
 
       // after 1: upload id marker alone is ignored
-      result = await this.store.listUploads({
+      result = await store.listUploads({
         'max-uploads': 10,
         'upload-id-marker': ids[1],
       });
@@ -94,7 +95,7 @@ describe('test/multipart.test.js', () => {
       assert.deepEqual(after1, ids);
 
       // after 5: upload id marker alone is ignored
-      result = await this.store.listUploads({
+      result = await store.listUploads({
         'max-uploads': 10,
         'upload-id-marker': ids[4],
       });
@@ -106,7 +107,7 @@ describe('test/multipart.test.js', () => {
       const fooName = `${prefix}multipart/list-foo`;
       const fooIds = [];
       for (let i = 0; i < 5; i++) {
-        const result = await this.store.initMultipartUpload(fooName);
+        const result = await store.initMultipartUpload(fooName);
         fooIds.push(result.uploadId);
       }
       fooIds.sort();
@@ -114,13 +115,13 @@ describe('test/multipart.test.js', () => {
       const barName = `${prefix}multipart/list-bar`;
       const barIds = [];
       for (let i = 0; i < 5; i++) {
-        const result = await this.store.initMultipartUpload(barName);
+        const result = await store.initMultipartUpload(barName);
         barIds.push(result.uploadId);
       }
       barIds.sort();
 
       // after 1
-      let result = await this.store.listUploads({
+      let result = await store.listUploads({
         'max-uploads': 10,
         'key-marker': barName,
         'upload-id-marker': barIds[0],
@@ -131,7 +132,7 @@ describe('test/multipart.test.js', () => {
       assert.deepEqual(after1, sort1);
 
       // after 5
-      result = await this.store.listUploads({
+      result = await store.listUploads({
         'max-uploads': 10,
         'key-marker': barName,
         'upload-id-marker': barIds[4],
@@ -146,7 +147,7 @@ describe('test/multipart.test.js', () => {
 
     it('should initMultipartUpload with x-oss-server-side-encryption', async () => {
       const name = 'multipart-x-oss-server-side-encryption';
-      const result = await this.store.initMultipartUpload(name, {
+      const result = await store.initMultipartUpload(name, {
         headers: {
           'x-oss-server-side-encryption': 'AES256',
         },
@@ -160,10 +161,10 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/fallback`;
       let progress = 0;
 
-      const putStreamSpy = sinon.spy(this.store, 'putStream');
-      const uploadPartSpy = sinon.spy(this.store, '_uploadPart');
+      const putStreamSpy = sinon.spy(store, 'putStream');
+      const uploadPartSpy = sinon.spy(store, '_uploadPart');
 
-      const result = await this.store.multipartUpload(name, fileName, {
+      const result = await store.multipartUpload(name, fileName, {
         progress() {
           progress++;
         },
@@ -176,18 +177,18 @@ describe('test/multipart.test.js', () => {
       assert.equal(typeof result.bucket, 'string');
       assert.equal(typeof result.etag, 'string');
 
-      this.store.putStream.restore();
-      this.store._uploadPart.restore();
+      store.putStream.restore();
+      store._uploadPart.restore();
     });
 
     /* eslint require-yield: [0] */
     it('should use default partSize when not specified', () => {
-      const partSize = this.store._getPartSize(1024 * 1024, null);
+      const partSize = store._getPartSize(1024 * 1024, null);
       assert.equal(partSize, 1 * 1024 * 1024);
     });
 
     it('should use user specified partSize', () => {
-      const partSize = this.store._getPartSize(1024 * 1024, 200 * 1024);
+      const partSize = store._getPartSize(1024 * 1024, 200 * 1024);
       assert.equal(partSize, 200 * 1024);
     });
 
@@ -195,7 +196,7 @@ describe('test/multipart.test.js', () => {
       const fileSize = 10 * 1024 * 1024 * 1024;
       const maxNumParts = 10 * 1000;
 
-      const partSize = this.store._getPartSize(fileSize, 100 * 1024);
+      const partSize = store._getPartSize(fileSize, 100 * 1024);
       assert.equal(partSize, Math.ceil(fileSize / maxNumParts));
     });
 
@@ -205,7 +206,7 @@ describe('test/multipart.test.js', () => {
 
       const name = `${prefix}multipart/upload-file`;
       let progress = 0;
-      const result = await this.store.multipartUpload(name, fileName, {
+      const result = await store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         progress() {
           progress++;
@@ -214,7 +215,7 @@ describe('test/multipart.test.js', () => {
       assert.equal(result.res.status, 200);
       assert.equal(progress, 12);
 
-      const object = await this.store.get(name);
+      const object = await store.get(name);
       assert.equal(object.res.status, 200);
       const fileBuf = fs.readFileSync(fileName);
       assert.equal(object.content.length, fileBuf.length);
@@ -272,12 +273,12 @@ describe('test/multipart.test.js', () => {
       const webFile = new File(fileName, fileBuf);
 
       const name = `${prefix}multipart/upload-webfile`;
-      const result = await this.store.multipartUpload(name, webFile, {
+      const result = await store.multipartUpload(name, webFile, {
         partSize: 100 * 1024,
       });
       assert.equal(result.res.status, 200);
 
-      const object = await this.store.get(name);
+      const object = await store.get(name);
       assert.equal(object.res.status, 200);
 
       assert.equal(object.content.length, fileBuf.length);
@@ -326,8 +327,8 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should resume upload using checkpoint', async () => {
-      const uploadPart = this.store._uploadPart;
-      mm(this.store, '_uploadPart', function* (name, uploadId, partNo, data) {
+      const uploadPart = store._uploadPart;
+      mm(store, '_uploadPart', function* (name, uploadId, partNo, data) {
         if (partNo === 5) {
           throw new Error('mock upload part fail.');
         } else {
@@ -342,7 +343,7 @@ describe('test/multipart.test.js', () => {
       const cptFile = '/tmp/.oss/cpt.json';
       let progress = 0;
       try {
-        await this.store.multipartUpload(name, fileName, {
+        await store.multipartUpload(name, fileName, {
           partSize: 100 * 1024,
           progress(percent, cpt) {
             progress++;
@@ -356,7 +357,7 @@ describe('test/multipart.test.js', () => {
       }
 
       mm.restore();
-      const result = await this.store.multipartUpload(name, fileName, {
+      const result = await store.multipartUpload(name, fileName, {
         checkpoint: JSON.parse(fs.readFileSync(cptFile)),
         progress() {
           progress++;
@@ -365,7 +366,7 @@ describe('test/multipart.test.js', () => {
       assert.equal(result.res.status, 200);
       assert.equal(progress, 12);
 
-      const object = await this.store.get(name);
+      const object = await store.get(name);
       assert.equal(object.res.status, 200);
       const fileBuf = fs.readFileSync(fileName);
       assert.equal(object.content.length, fileBuf.length);
@@ -377,7 +378,7 @@ describe('test/multipart.test.js', () => {
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
       const name = `${prefix}multipart/upload-file`;
 
-      const result = await this.store.multipartUpload(name, fileName, {
+      const result = await store.multipartUpload(name, fileName, {
         progress(p, checkpoint, res) {
           assert.equal(true, res && Object.keys(res).length !== 0);
         },
@@ -391,21 +392,21 @@ describe('test/multipart.test.js', () => {
 
       const name = `${prefix}multipart/upload-with-upload-part`;
 
-      const init = await this.store.initMultipartUpload(name);
+      const init = await store.initMultipartUpload(name);
       const { uploadId } = init;
       const partSize = 100 * 1024;
       const dones = [];
       for (let i = 1; i <= 10; i++) {
         const start = (i - 1) * partSize;
         const end = Math.min(i * partSize, 10 * 100 * 1024);
-        const part = await this.store.uploadPart(name, uploadId, i, fileName, start, end);
+        const part = await store.uploadPart(name, uploadId, i, fileName, start, end);
         dones.push({
           number: i,
           etag: part.etag,
         });
       }
 
-      const result = await this.store.completeMultipartUpload(name, uploadId, dones);
+      const result = await store.completeMultipartUpload(name, uploadId, dones);
       assert.equal(result.res.status, 200);
     });
   });
@@ -415,7 +416,7 @@ describe('test/multipart.test.js', () => {
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
       const name = `${prefix}multipart/upload-file`;
 
-      const stubNetError = sinon.stub(this.store.urllib, 'request');
+      const stubNetError = sinon.stub(store.urllib, 'request');
       const netErr = new Error('TestTimeoutErrorException');
       netErr.status = -2;
       netErr.code = 'ConnectionTimeoutError';
@@ -423,21 +424,21 @@ describe('test/multipart.test.js', () => {
       stubNetError.throws(netErr);
       let timeoutErr;
       try {
-        await this.store.multipartUpload(name, fileName);
+        await store.multipartUpload(name, fileName);
       } catch (err) {
         timeoutErr = err;
       }
 
       assert.equal(true, timeoutErr && Object.keys(timeoutErr).length !== 0);
       assert.equal(timeoutErr.status, -2);
-      this.store.urllib.request.restore();
+      store.urllib.request.restore();
     });
 
     it('should request net exception', async () => {
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
       const name = `${prefix}multipart/upload-file`;
 
-      const stubNetError = sinon.stub(this.store.urllib, 'request');
+      const stubNetError = sinon.stub(store.urllib, 'request');
       const netErr = new Error('TestNetErrorException');
       netErr.status = -1;
       netErr.code = 'RequestError';
@@ -446,7 +447,7 @@ describe('test/multipart.test.js', () => {
 
       let netErrs;
       try {
-        await this.store.multipartUpload(name, fileName);
+        await store.multipartUpload(name, fileName);
       } catch (err) {
         netErrs = err;
       }
@@ -454,7 +455,7 @@ describe('test/multipart.test.js', () => {
       assert.equal(true, netErr && Object.keys(netErrs).length !== 0);
       assert.equal(netErrs.status, -1);
 
-      this.store.urllib.request.restore();
+      store.urllib.request.restore();
     });
   });
 
@@ -464,14 +465,14 @@ describe('test/multipart.test.js', () => {
     before(async () => {
       fileName = await utils.createTempFile('multipart-upload-file-copy', 2 * 1024 * 1024);
       name = `${prefix}multipart/upload-file-with-copy`;
-      await this.store.multipartUpload(name, fileName);
+      await store.multipartUpload(name, fileName);
     });
 
     it('should multipart copy copy size err', async () => {
       const file = await utils.createTempFile('multipart-upload-file', 50 * 1024);
       const objectKey = `${prefix}multipart/upload-file-with-copy-small`;
-      await this.store.multipartUpload(objectKey, file);
-      const client = this.store;
+      await store.multipartUpload(objectKey, file);
+      const client = store;
       const copyName = `${prefix}multipart/upload-file-with-copy-small-new`;
       let copyErr = null;
       try {
@@ -487,7 +488,7 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should multipart copy part size err', async () => {
-      const client = this.store;
+      const client = store;
       const copyName = `${prefix}multipart/upload-file-with-copy-new`;
       let partSizeErr = null;
       try {
@@ -505,7 +506,7 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should copy with upload part copy', async () => {
-      const client = this.store;
+      const client = store;
 
       // create a file with 1M random data
       const fileNamez = await utils.createTempFile('multipart-upload-file-temp-copy', 10 * 100 * 1024);
@@ -551,7 +552,7 @@ describe('test/multipart.test.js', () => {
 
 
     it('should copy with multipart upload copy', async () => {
-      const client = this.store;
+      const client = store;
       const copyName = `${prefix}multipart/upload-file-with-copy-new`;
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
@@ -579,7 +580,7 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should multipart upload copy with parallel = 1', async () => {
-      const client = this.store;
+      const client = store;
       const copyName = `${prefix}multipart/upload-file-with-copy-parallel-1`;
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
@@ -593,7 +594,7 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should multipart copy with cancel and resume', async () => {
-      const client = this.store;
+      const client = store;
       const copyName = `${prefix}multipart/upload-file-with-copy-cancel`;
       let tempCheckpoint = null;
       try {
@@ -660,8 +661,8 @@ describe('test/multipart.test.js', () => {
     it('should upload copy with list part', async () => {
       const tempFileName = await utils.createTempFile('multipart-upload-list-part', 2 * 1024 * 1024);
       const tempName = `${prefix}multipart/upload-list-part`;
-      await this.store.multipartUpload(tempName, tempFileName);
-      const client = this.store;
+      await store.multipartUpload(tempName, tempFileName);
+      const client = store;
       const copyName = `${prefix}multipart/upload-list-part-copy`;
       let uploadIdz = null;
       try {
@@ -684,7 +685,7 @@ describe('test/multipart.test.js', () => {
       /* eslint no-empty: [0] */
       }
 
-      const result = await this.store.listParts(copyName, uploadIdz, {
+      const result = await store.listParts(copyName, uploadIdz, {
         'max-parts': 1000,
       }, {});
 
