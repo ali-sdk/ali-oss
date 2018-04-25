@@ -158,21 +158,21 @@ describe('test/object.test.js', () => {
   });
 
   describe('generateObjectUrl()', () => {
-    it('should return object url', function () {
+    it('should return object url', () => {
       let name = 'test.js';
-      let url = this.store.generateObjectUrl(name);
+      let url = store.generateObjectUrl(name);
 
-      let baseUrl = this.store.options.endpoint.format();
+      let baseUrl = store.options.endpoint.format();
       const copyUrl = urlutil.parse(baseUrl);
-      copyUrl.hostname = `${this.bucket}.${copyUrl.hostname}`;
-      copyUrl.host = `${this.bucket}.${copyUrl.host}`;
+      copyUrl.hostname = `${bucket}.${copyUrl.hostname}`;
+      copyUrl.host = `${bucket}.${copyUrl.host}`;
       baseUrl = copyUrl.format();
       assert.equal(url, `${baseUrl}${name}`);
 
       name = '/foo/bar/a%2Faa/test&+-123~!.js';
-      url = this.store.generateObjectUrl(name, 'https://foo.com');
+      url = store.generateObjectUrl(name, 'https://foo.com');
       assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-      const url2 = this.store.generateObjectUrl(name, 'https://foo.com/');
+      const url2 = store.generateObjectUrl(name, 'https://foo.com/');
       assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
     });
   });
