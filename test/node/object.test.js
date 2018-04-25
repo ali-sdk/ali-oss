@@ -21,32 +21,34 @@ if (!fs.existsSync(tmpdir)) {
 describe('test/object.test.js', () => {
   const { prefix } = utils;
   let store;
-
+  let bucket;
+  let bucketRegion;
+  let archvieBucket;
   before(async () => {
     store = oss(config);
-    this.bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    this.bucket = this.bucket.substring(0, this.bucket.length - 1);
+    bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = bucket.substring(0, bucket.length - 1);
 
     // just for archive bucket test
-    this.archvieBucket = `oss-archvie-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    this.archvieBucket = this.archvieBucket.substring(0, this.archvieBucket.length - 1);
+    archvieBucket = `oss-archvie-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    archvieBucket = archvieBucket.substring(0, archvieBucket.length - 1);
 
-    this.region = config.region;
+    bucketRegion = config.region;
     // console.log('current buckets: %j',
     //   (yield store.listBuckets()).buckets.map(function (item) {
     //     return item.name + ':' + item.region;
     //   })
     // );
-    await store.putBucket(this.bucket, this.region);
-    store.useBucket(this.bucket, this.region);
+    await store.putBucket(bucket, bucketRegion);
+    store.useBucket(bucket, bucketRegion);
 
-    await store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
-    // store.useBucket(this.archvieBucket, this.region);
+    await store.putBucket(archvieBucket, bucketRegion, { StorageClass: 'Archive' });
+    // store.useBucket(archvieBucket, bucketRegion);
   });
 
   after(async () => {
-    await utils.cleanBucket(store, this.bucket, this.region);
-    await utils.cleanBucket(store, this.archvieBucket, this.region);
+    await utils.cleanBucket(store, bucket, bucketRegion);
+    await utils.cleanBucket(store, archvieBucket, bucketRegion);
   });
 
   describe('putStream()', () => {
@@ -356,9 +358,11 @@ describe('test/object.test.js', () => {
   });
 
   describe('head()', () => {
+    let name;
+    let resHeaders;
     before(async () => {
-      this.name = `${prefix}ali-sdk/oss/head-meta.js`;
-      const object = await store.put(this.name, __filename, {
+      name = `${prefix}ali-sdk/oss/head-meta.js`;
+      const object = await store.put(name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -366,12 +370,12 @@ describe('test/object.test.js', () => {
         },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-      this.headers = object.res.headers;
+      resHeaders = object.res.headers;
     });
 
     it('should head not exists object throw NoSuchKeyError', async () => {
       await utils.throws(async () => {
-        await store.head(`${this.name}not-exists`);
+        await store.head(`${name}not-exists`);
       }, (err) => {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
@@ -380,10 +384,10 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-Modified-Since < object modified time', async () => {
-      let lastYear = new Date(this.headers.date);
+      let lastYear = new Date(resHeaders.date);
       lastYear.setFullYear(lastYear.getFullYear() - 1);
       lastYear = lastYear.toGMTString();
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
           'If-Modified-Since': lastYear,
         },
@@ -393,9 +397,9 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-Modified-Since = object modified time', async () => {
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
-          'If-Modified-Since': this.headers.date,
+          'If-Modified-Since': resHeaders.date,
         },
       });
       assert.equal(info.status, 304);
@@ -403,11 +407,11 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-Modified-Since > object modified time', async () => {
-      let nextYear = new Date(this.headers.date);
+      let nextYear = new Date(resHeaders.date);
       nextYear.setFullYear(nextYear.getFullYear() + 1);
       nextYear = nextYear.toGMTString();
 
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
           'If-Modified-Since': nextYear,
         },
@@ -417,11 +421,11 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-Unmodified-Since < object modified time', async () => {
-      let lastYear = new Date(this.headers.date);
+      let lastYear = new Date(resHeaders.date);
       lastYear.setFullYear(lastYear.getFullYear() - 1);
       lastYear = lastYear.toGMTString();
       await utils.throws(async () => {
-        await store.head(this.name, {
+        await store.head(name, {
           headers: {
             'If-Unmodified-Since': lastYear,
           },
@@ -433,9 +437,9 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-Unmodified-Since = object modified time', async () => {
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
-          'If-Unmodified-Since': this.headers.date,
+          'If-Unmodified-Since': resHeaders.date,
         },
       });
       assert.equal(info.status, 200);
@@ -443,11 +447,11 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-Unmodified-Since > object modified time', async () => {
-      let nextYear = new Date(this.headers.date);
+      let nextYear = new Date(resHeaders.date);
       nextYear.setFullYear(nextYear.getFullYear() + 1);
       nextYear = nextYear.toGMTString();
 
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
           'If-Unmodified-Since': nextYear,
         },
@@ -457,9 +461,9 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-Match equal etag', async () => {
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
-          'If-Match': this.headers.etag,
+          'If-Match': resHeaders.etag,
         },
       });
       assert.equal(info.meta.uid, '1');
@@ -470,7 +474,7 @@ describe('test/object.test.js', () => {
 
     it('should head exists object with If-Match not equal etag', async () => {
       await utils.throws(async () => {
-        await store.head(this.name, {
+        await store.head(name, {
           headers: {
             'If-Match': '"foo-etag"',
           },
@@ -482,9 +486,9 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-None-Match equal etag', async () => {
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
-          'If-None-Match': this.headers.etag,
+          'If-None-Match': resHeaders.etag,
         },
       });
       assert.equal(info.meta, null);
@@ -492,7 +496,7 @@ describe('test/object.test.js', () => {
     });
 
     it('should head exists object with If-None-Match not equal etag', async () => {
-      const info = await store.head(this.name, {
+      const info = await store.head(name, {
         headers: {
           'If-None-Match': '"foo-etag"',
         },
@@ -505,9 +509,12 @@ describe('test/object.test.js', () => {
   });
 
   describe('get()', () => {
+    let name;
+    let resHeaders;
+    let needEscapeName;
     before(async () => {
-      this.name = `${prefix}ali-sdk/oss/get-meta.js`;
-      let object = await store.put(this.name, __filename, {
+      name = `${prefix}ali-sdk/oss/get-meta.js`;
+      let object = await store.put(name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -515,10 +522,10 @@ describe('test/object.test.js', () => {
         },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-      this.headers = object.res.headers;
+      resHeaders = object.res.headers;
 
-      this.needEscapeName = `${prefix}ali-sdk/oss/%3get+meta.js`;
-      object = await store.put(this.needEscapeName, __filename, {
+      needEscapeName = `${prefix}ali-sdk/oss/%3get+meta.js`;
+      object = await store.put(needEscapeName, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -529,37 +536,37 @@ describe('test/object.test.js', () => {
     });
 
     it('should store object to local file', async () => {
-      const savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
-      const result = await store.get(this.name, savepath);
+      const savepath = path.join(tmpdir, name.replace(/\//g, '-'));
+      const result = await store.get(name, savepath);
       assert.equal(result.res.status, 200);
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
     it('should escape uri path ok', async () => {
-      const savepath = path.join(tmpdir, this.needEscapeName.replace(/\//g, '-'));
-      const result = await store.get(this.needEscapeName, savepath);
+      const savepath = path.join(tmpdir, needEscapeName.replace(/\//g, '-'));
+      const result = await store.get(needEscapeName, savepath);
       assert.equal(result.res.status, 200);
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
     it('should throw error when save path parent dir not exists', async () => {
-      const savepath = path.join(tmpdir, 'not-exists', this.name.replace(/\//g, '-'));
+      const savepath = path.join(tmpdir, 'not-exists', name.replace(/\//g, '-'));
       await utils.throws(async () => {
-        await store.get(this.name, savepath);
+        await store.get(name, savepath);
       }, /ENOENT/);
     });
 
     it('should store object to writeStream', async () => {
-      const savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
-      const result = await store.get(this.name, fs.createWriteStream(savepath));
+      const savepath = path.join(tmpdir, name.replace(/\//g, '-'));
+      const result = await store.get(name, fs.createWriteStream(savepath));
       assert.equal(result.res.status, 200);
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
     it('should store not exists object to file', async () => {
-      const savepath = path.join(tmpdir, this.name.replace(/\//g, '-'));
+      const savepath = path.join(tmpdir, name.replace(/\//g, '-'));
       await utils.throws(async () => {
-        await store.get(`${this.name}not-exists`, savepath);
+        await store.get(`${name}not-exists`, savepath);
       }, (err) => {
         assert.equal(err.name, 'NoSuchKeyError');
         assert.equal(err.status, 404);
@@ -568,31 +575,31 @@ describe('test/object.test.js', () => {
     });
 
     it('should throw error when writeStream emit error', async () => {
-      const savepath = path.join(tmpdir, 'not-exists-dir', this.name.replace(/\//g, '-'));
+      const savepath = path.join(tmpdir, 'not-exists-dir', name.replace(/\//g, '-'));
       await utils.throws(async () => {
-        await store.get(this.name, fs.createWriteStream(savepath));
+        await store.get(name, fs.createWriteStream(savepath));
       }, /ENOENT/);
     });
 
     it('should get object content buffer', async () => {
-      let result = await store.get(this.name);
+      let result = await store.get(name);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
       assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
 
-      result = await store.get(this.name, null);
+      result = await store.get(name, null);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
       assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
     });
 
     it('should get object content buffer with image process', async () => {
-      const name = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
+      const imageName = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
       path.join(__dirname, 'nodejs-processed-w200.png');
-      await store.put(name, originImagePath, {
+      await store.put(imageName, originImagePath, {
         mime: 'image/png',
       });
 
-      let result = await store.get(name, { process: 'image/resize,w_200' });
+      let result = await store.get(imageName, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
       // assert.deepEqual(result.content == fs.readFileSync(processedImagePath),
@@ -601,7 +608,7 @@ describe('test/object.test.js', () => {
       // it should use the value of process
       // when 'subres.x-oss-process' coexists with 'process'.
       result = await store.get(
-        name,
+        imageName,
         { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } },
       );
       assert.equal(result.res.status, 200);
@@ -621,10 +628,10 @@ describe('test/object.test.js', () => {
 
     describe('If-Modified-Since header', () => {
       it('should 200 when If-Modified-Since < object modified time', async () => {
-        let lastYear = new Date(this.headers.date);
+        let lastYear = new Date(resHeaders.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
             'If-Modified-Since': lastYear,
           },
@@ -635,9 +642,9 @@ describe('test/object.test.js', () => {
       });
 
       it('should 304 when If-Modified-Since = object modified time', async () => {
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
-            'If-Modified-Since': this.headers.date,
+            'If-Modified-Since': resHeaders.date,
           },
         });
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
@@ -646,10 +653,10 @@ describe('test/object.test.js', () => {
       });
 
       it('should 304 when If-Modified-Since > object modified time', async () => {
-        let nextYear = new Date(this.headers.date);
+        let nextYear = new Date(resHeaders.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
             'If-Modified-Since': nextYear,
           },
@@ -662,11 +669,11 @@ describe('test/object.test.js', () => {
 
     describe('If-Unmodified-Since header', () => {
       it('should throw PreconditionFailedError when If-Unmodified-Since < object modified time', async () => {
-        let lastYear = new Date(this.headers.date);
+        let lastYear = new Date(resHeaders.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
         await utils.throws(async () => {
-          await store.get(this.name, {
+          await store.get(name, {
             headers: {
               'If-Unmodified-Since': lastYear,
             },
@@ -681,9 +688,9 @@ describe('test/object.test.js', () => {
       });
 
       it('should 200 when If-Unmodified-Since = object modified time', async () => {
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
-            'If-Unmodified-Since': this.headers.date,
+            'If-Unmodified-Since': resHeaders.date,
           },
         });
         assert.equal(result.res.status, 200);
@@ -692,10 +699,10 @@ describe('test/object.test.js', () => {
       });
 
       it('should 200 when If-Unmodified-Since > object modified time', async () => {
-        let nextYear = new Date(this.headers.date);
+        let nextYear = new Date(resHeaders.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
             'If-Unmodified-Since': nextYear,
           },
@@ -708,9 +715,9 @@ describe('test/object.test.js', () => {
 
     describe('If-Match header', () => {
       it('should 200 when If-Match equal object etag', async () => {
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
-            'If-Match': this.headers.etag,
+            'If-Match': resHeaders.etag,
           },
         });
         assert.equal(result.res.status, 200);
@@ -718,7 +725,7 @@ describe('test/object.test.js', () => {
 
       it('should throw PreconditionFailedError when If-Match not equal object etag', async () => {
         await utils.throws(async () => {
-          await store.get(this.name, {
+          await store.get(name, {
             headers: {
               'If-Match': 'foo',
             },
@@ -732,7 +739,7 @@ describe('test/object.test.js', () => {
 
     describe('If-None-Match header', () => {
       it('should 200 when If-None-Match not equal object etag', async () => {
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
             'If-None-Match': 'foo',
           },
@@ -741,9 +748,9 @@ describe('test/object.test.js', () => {
       });
 
       it('should 304 when If-None-Match equal object etag', async () => {
-        const result = await store.get(this.name, {
+        const result = await store.get(name, {
           headers: {
-            'If-None-Match': this.headers.etag,
+            'If-None-Match': resHeaders.etag,
           },
         });
         assert.equal(result.res.status, 304);
@@ -768,9 +775,11 @@ describe('test/object.test.js', () => {
   });
 
   describe('signatureUrl()', () => {
+    let name;
+    let needEscapeName;
     before(async () => {
-      this.name = `${prefix}ali-sdk/oss/signatureUrl.js`;
-      let object = await store.put(this.name, __filename, {
+      name = `${prefix}ali-sdk/oss/signatureUrl.js`;
+      let object = await store.put(name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -778,10 +787,9 @@ describe('test/object.test.js', () => {
         },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-      this.headers = object.res.headers;
 
-      this.needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
-      object = await store.put(this.needEscapeName, __filename, {
+      needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
+      object = await store.put(needEscapeName, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -792,21 +800,21 @@ describe('test/object.test.js', () => {
     });
 
     it('should signature url get object ok', async () => {
-      const result = await store.get(this.name);
-      const url = store.signatureUrl(this.name);
+      const result = await store.get(name);
+      const url = store.signatureUrl(name);
       const urlRes = await urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
     it('should signature url with image processed and get object ok', async () => {
-      const name = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
+      const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
       path.join(__dirname, 'nodejs-processed-w200.png');
-      await store.put(name, originImagePath, {
+      await store.put(imageName, originImagePath, {
         mime: 'image/png',
       });
 
-      const signUrl = store.signatureUrl(name, { expires: 3600, process: 'image/resize,w_200' });
+      const signUrl = store.signatureUrl(imageName, { expires: 3600, process: 'image/resize,w_200' });
       const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
       assert.equal(signUrl.match(processedKeyword), processedKeyword);
       const urlRes = await urllib.request(signUrl);
@@ -818,7 +826,7 @@ describe('test/object.test.js', () => {
     it('should signature url for PUT', async () => {
       const putString = 'Hello World';
       const contentMd5 = crypto.createHash('md5').update(new Buffer(putString, 'utf8')).digest('base64');
-      const url = store.signatureUrl(this.name, {
+      const url = store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
         'Content-Md5': contentMd5,
@@ -829,14 +837,14 @@ describe('test/object.test.js', () => {
       };
       const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
-      const headRes = await store.head(this.name);
+      const headRes = await store.head(name);
       assert.equal(headRes.status, 200);
     });
 
     it('should signature url for PUT with callback parameter', async () => {
       const callback = {
         url: 'http://oss-demo.aliyuncs.com:23450',
-        body: `bucket=${this.bucket}`,
+        body: `bucket=${bucket}`,
         host: 'oss-demo.aliyuncs.com',
         contentType: 'application/json',
         customValue: {
@@ -851,14 +859,14 @@ describe('test/object.test.js', () => {
         callback,
       };
 
-      const url = store.signatureUrl(this.name, options);
+      const url = store.signatureUrl(name, options);
       const res = await urllib.request(url, options);
       assert.equal(res.status, 200);
     });
 
     it('should signature url get need escape object ok', async () => {
-      const result = await store.get(this.needEscapeName);
-      const url = store.signatureUrl(this.needEscapeName);
+      const result = await store.get(needEscapeName);
+      const url = store.signatureUrl(needEscapeName);
       const urlRes = await urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
@@ -870,27 +878,27 @@ describe('test/object.test.js', () => {
       conf.cname = true;
       const tempStore = oss(conf);
 
-      const url = tempStore.signatureUrl(this.name);
+      const url = tempStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
   });
 
   describe('getStream()', () => {
+    let name;
     before(async () => {
-      this.name = `${prefix}ali-sdk/oss/get-stream.js`;
-      const object = await store.put(this.name, __filename, {
+      name = `${prefix}ali-sdk/oss/get-stream.js`;
+      await store.put(name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
           slus: 'test.html',
         },
       });
-      this.headers = object.res.headers;
     });
 
     it('should get exists object stream', async () => {
-      const result = await store.getStream(this.name);
+      const result = await store.getStream(name);
       assert.equal(result.res.status, 200);
       assert(result.stream instanceof Readable);
       const tmpfile = path.join(tmpdir, 'get-stream.js');
@@ -910,19 +918,19 @@ describe('test/object.test.js', () => {
     });
 
     it('should get image stream with image process', async () => {
-      const name = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
+      const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
       const processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-      await store.put(name, originImagePath, {
+      await store.put(imageName, originImagePath, {
         mime: 'image/png',
       });
 
-      let result = await store.getStream(name, { process: 'image/resize,w_200' });
+      let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
       let isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
       assert(isEqual);
       result = await store.getStream(
-        name,
+        imageName,
         { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } },
       );
       assert.equal(result.res.status, 200);
@@ -932,7 +940,7 @@ describe('test/object.test.js', () => {
 
     it('should throw error when object not exists', async () => {
       try {
-        await store.getStream(`${this.name}not-exists`);
+        await store.getStream(`${name}not-exists`);
         throw new Error('should not run this');
       } catch (err) {
         assert.equal(err.name, 'NoSuchKeyError');
@@ -960,41 +968,41 @@ describe('test/object.test.js', () => {
   });
 
   describe('deleteMulti()', () => {
+    const names = [];
     beforeEach(async () => {
-      this.names = [];
       let name = `${prefix}ali-sdk/oss/deleteMulti0.js`;
-      this.names.push(name);
+      names.push(name);
       await store.put(name, __filename);
 
       name = `${prefix}ali-sdk/oss/deleteMulti1.js`;
-      this.names.push(name);
+      names.push(name);
       await store.put(name, __filename);
 
       name = `${prefix}ali-sdk/oss/deleteMulti2.js`;
-      this.names.push(name);
+      names.push(name);
       await store.put(name, __filename);
     });
 
     it('should delete 3 exists objs', async () => {
-      const result = await store.deleteMulti(this.names);
-      assert.deepEqual(result.deleted, this.names);
+      const result = await store.deleteMulti(names);
+      assert.deepEqual(result.deleted, names);
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 2 exists and 2 not exists objs', async () => {
-      const result = await store.deleteMulti(this.names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
-      assert.deepEqual(result.deleted, this.names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.deepEqual(result.deleted, names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 1 exists objs', async () => {
-      const result = await store.deleteMulti(this.names.slice(0, 1));
-      assert.deepEqual(result.deleted, this.names.slice(0, 1));
+      const result = await store.deleteMulti(names.slice(0, 1));
+      assert.deepEqual(result.deleted, names.slice(0, 1));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete in quiet mode', async () => {
-      const result = await store.deleteMulti(this.names, {
+      const result = await store.deleteMulti(names, {
         quiet: true,
       });
       assert.equal(result.deleted, null);
@@ -1003,6 +1011,7 @@ describe('test/object.test.js', () => {
   });
 
   describe('copy()', () => {
+    let resHeaders;
     before(async () => {
       this.name = `${prefix}ali-sdk/oss/copy-meta.js`;
       const object = await store.put(this.name, __filename, {
@@ -1013,7 +1022,7 @@ describe('test/object.test.js', () => {
         },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-      this.headers = object.res.headers;
+      resHeaders = object.res.headers;
     });
 
     it('should copy object from same bucket', async () => {
@@ -1069,7 +1078,7 @@ describe('test/object.test.js', () => {
       assert.equal(info.meta.slus, 'test2.html');
       assert.equal(info.status, 200);
 
-      sourceName = `/${this.bucket}/${sourceName}`;
+      sourceName = `/${bucket}/${sourceName}`;
       const name = `${prefix}ali-sdk/oss/copy-new_测试2.js`;
       result = await store.copy(name, sourceName);
       assert.equal(result.res.status, 200);
@@ -1152,7 +1161,7 @@ describe('test/object.test.js', () => {
         const name = `${prefix}ali-sdk/oss/copy-new-If-Match.js`;
         const result = await store.copy(name, this.name, {
           headers: {
-            'If-Match': this.headers.etag,
+            'If-Match': resHeaders.etag,
           },
         });
         assert.equal(result.res.status, 200);
@@ -1165,7 +1174,7 @@ describe('test/object.test.js', () => {
       it('should return 304 when If-None-Match equal source object etag', async () => {
         const result = await store.copy('new-name', this.name, {
           headers: {
-            'If-None-Match': this.headers.etag,
+            'If-None-Match': resHeaders.etag,
           },
         });
         assert.equal(result.res.status, 304);
@@ -1188,7 +1197,7 @@ describe('test/object.test.js', () => {
     describe('If-Modified-Since header', () => {
       it('should 304 when If-Modified-Since > source object modified time', async () => {
         const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
-        let nextYear = new Date(this.headers.date);
+        let nextYear = new Date(resHeaders.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
         const result = await store.copy(name, this.name, {
@@ -1203,7 +1212,7 @@ describe('test/object.test.js', () => {
         const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
         const result = await store.copy(name, this.name, {
           headers: {
-            'If-Modified-Since': this.headers.date,
+            'If-Modified-Since': resHeaders.date,
           },
         });
         assert.equal(result.res.status, 304);
@@ -1211,7 +1220,7 @@ describe('test/object.test.js', () => {
 
       it('should 200 when If-Modified-Since < source object modified time', async () => {
         const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
-        let lastYear = new Date(this.headers.date);
+        let lastYear = new Date(resHeaders.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
         const result = await store.copy(name, this.name, {
@@ -1226,7 +1235,7 @@ describe('test/object.test.js', () => {
     describe('If-Unmodified-Since header', () => {
       it('should 200 when If-Unmodified-Since > source object modified time', async () => {
         const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
-        let nextYear = new Date(this.headers.date);
+        let nextYear = new Date(resHeaders.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
         const result = await store.copy(name, this.name, {
@@ -1241,7 +1250,7 @@ describe('test/object.test.js', () => {
         const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
         const result = await store.copy(name, this.name, {
           headers: {
-            'If-Unmodified-Since': this.headers.date,
+            'If-Unmodified-Since': resHeaders.date,
           },
         });
         assert.equal(result.res.status, 200);
@@ -1249,7 +1258,7 @@ describe('test/object.test.js', () => {
 
       it('should throw PreconditionFailedError when If-Unmodified-Since < source object modified time', async () => {
         const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
-        let lastYear = new Date(this.headers.date);
+        let lastYear = new Date(resHeaders.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
         await utils.throws(async () => {
@@ -1278,7 +1287,6 @@ describe('test/object.test.js', () => {
         },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-      this.headers = object.res.headers;
     });
 
     it('should update exists object meta', async () => {
@@ -1569,7 +1577,7 @@ describe('test/object.test.js', () => {
       }
     });
     it('Should return 202 when restore is called first', async () => {
-      store.setBucket(this.archvieBucket);
+      store.setBucket(archvieBucket);
 
       const name = '/oss/restore.js';
       await store.put(name, __filename);

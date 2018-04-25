@@ -11,19 +11,20 @@ const sinon = require('sinon');
 describe('test/multipart.test.js', () => {
   const { prefix } = utils;
   let store;
-
+  let bucket;
+  let bucketRegion;
   before(async () => {
     store = oss(config);
-    this.bucket = `ali-oss-test-multipart-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    this.region = config.region;
+    bucket = `ali-oss-test-multipart-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = bucket.substring(0, bucket.length - 1);
+    bucketRegion = config.region;
 
-    await store.putBucket(this.bucket, this.region);
-    store.useBucket(this.bucket, this.region);
+    await store.putBucket(bucket, bucketRegion);
+    store.useBucket(bucket, bucketRegion);
   });
 
   after(async () => {
-    await utils.cleanBucket(store, this.bucket, this.region);
+    await utils.cleanBucket(store, bucket, bucketRegion);
   });
 
   describe('listUploads()', () => {
@@ -229,7 +230,7 @@ describe('test/multipart.test.js', () => {
 
       const name = `${prefix}multipart/upload-file-exception`;
       const clientTmp = oss(config);
-      clientTmp.useBucket(this.bucket, this.region);
+      clientTmp.useBucket(bucket, bucketRegion);
 
       const stubUploadPart = sinon.stub(clientTmp, '_uploadPart');
       stubUploadPart.throws('TestUploadPartException');
@@ -309,7 +310,7 @@ describe('test/multipart.test.js', () => {
       const webFile = new File(fileName, fileBuf);
       const name = `${prefix}multipart/upload-webfile-ie10`;
       const clientTmp = oss(config);
-      clientTmp.useBucket(this.bucket, this.region);
+      clientTmp.useBucket(bucket, bucketRegion);
       sinon.stub(clientTmp, 'checkBrowserAndVersion', (browser, version) => (browser === 'Internet Explorer' && version === '10'));
       const result = await clientTmp.multipartUpload(name, webFile, {
         partSize: 100 * 1024,
@@ -478,7 +479,7 @@ describe('test/multipart.test.js', () => {
       try {
         await client.multipartUploadCopy(copyName, {
           sourceKey: objectKey,
-          sourceBucketName: this.bucket,
+          sourceBucketName: bucket,
         });
       } catch (err) {
         copyErr = err;
@@ -494,7 +495,7 @@ describe('test/multipart.test.js', () => {
       try {
         await client.multipartUploadCopy(copyName, {
           sourceKey: name,
-          sourceBucketName: this.bucket,
+          sourceBucketName: bucket,
         }, {
           partSize: 50 * 1024,
         });
@@ -517,7 +518,7 @@ describe('test/multipart.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-new`;
       const sourceData = {
         sourceKey: name,
-        sourceBucketName: this.bucket,
+        sourceBucketName: bucket,
       };
       const objectMeta = await client._getObjectMeta(
         sourceData.sourceBucketName
@@ -556,7 +557,7 @@ describe('test/multipart.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-new`;
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
-        sourceBucketName: this.bucket,
+        sourceBucketName: bucket,
       }, {
         partSize: 256 * 1024,
       });
@@ -567,11 +568,11 @@ describe('test/multipart.test.js', () => {
     it('should multipart upload copy in IE10', async () => {
       const copyName = `${prefix}multipart/upload-copy-in-ie10`;
       const clientTmp = oss(config);
-      clientTmp.useBucket(this.bucket, this.region);
+      clientTmp.useBucket(bucket, bucketRegion);
       const checkBrowserAndVersion = sinon.stub(clientTmp, 'checkBrowserAndVersion', (browser, version) => (browser === 'Internet Explorer' && version === '10'));
       const result = await clientTmp.multipartUploadCopy(copyName, {
         sourceKey: name,
-        sourceBucketName: this.bucket,
+        sourceBucketName: bucket,
       }, {
         partSize: 100 * 1024,
       });
@@ -584,7 +585,7 @@ describe('test/multipart.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-parallel-1`;
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
-        sourceBucketName: this.bucket,
+        sourceBucketName: bucket,
       }, {
         partSize: 256 * 1024,
         parallel: 1,
@@ -600,7 +601,7 @@ describe('test/multipart.test.js', () => {
       try {
         await client.multipartUploadCopy(copyName, {
           sourceKey: name,
-          sourceBucketName: this.bucket,
+          sourceBucketName: bucket,
         }, {
           partSize: 100 * 1024,
           progress(p, checkpoint) {
@@ -616,7 +617,7 @@ describe('test/multipart.test.js', () => {
 
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
-        sourceBucketName: this.bucket,
+        sourceBucketName: bucket,
       }, {
         partSize: 100 * 1024,
         checkpoint: tempCheckpoint,
@@ -631,7 +632,7 @@ describe('test/multipart.test.js', () => {
     it('should multipart copy with exception', async () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-exception`;
       const clientTmp = oss(config);
-      clientTmp.useBucket(this.bucket, this.region);
+      clientTmp.useBucket(bucket, bucketRegion);
       /* eslint no-unused-vars: [0] */
       const stubUploadPart = sinon.stub(clientTmp, 'uploadPartCopy', async (objectKey, uploadId, partNo, range, sourceData, options) => {
         if (partNo === 1) {
@@ -644,7 +645,7 @@ describe('test/multipart.test.js', () => {
       try {
         await clientTmp.multipartUploadCopy(copyName, {
           sourceKey: name,
-          sourceBucketName: this.bucket,
+          sourceBucketName: bucket,
         });
       } catch (err) {
         errorMsg = err.message;
@@ -668,7 +669,7 @@ describe('test/multipart.test.js', () => {
       try {
         await client.multipartUploadCopy(copyName, {
           sourceKey: name,
-          sourceBucketName: this.bucket,
+          sourceBucketName: bucket,
         }, {
           parallel: 1,
           partSize: 100 * 1024,

@@ -10,19 +10,21 @@ const mm = require('mm');
 describe('test/callback.test.js', () => {
   const { prefix } = utils;
   let store;
+  let bucket;
+  let bucketRegion;
 
   before(async () => {
     store = oss(config);
-    this.bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    this.bucket = this.bucket.substring(0, this.bucket.length - 1);
-    this.region = config.region;
+    bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = bucket.substring(0, bucket.length - 1);
+    bucketRegion = config.region;
 
-    await store.putBucket(this.bucket, this.region);
-    store.useBucket(this.bucket, this.region);
+    await store.putBucket(bucket, bucketRegion);
+    store.useBucket(bucket, bucketRegion);
   });
 
   after(async () => {
-    await utils.cleanBucket(store, this.bucket, this.region);
+    await utils.cleanBucket(store, bucket, bucketRegion);
   });
 
 
@@ -62,7 +64,7 @@ describe('test/callback.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-new-callback`;
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
-        sourceBucketName: this.bucket,
+        sourceBucketName: bucket,
       }, {
         partSize: 256 * 1024,
         callback: {
