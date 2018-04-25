@@ -1036,10 +1036,11 @@ describe('test/object.test.js', () => {
   });
 
   describe('copy()', () => {
+    let name;
     let resHeaders;
     before(async () => {
-      this.name = `${prefix}ali-sdk/oss/copy-meta.js`;
-      const object = await store.put(this.name, __filename, {
+      name = `${prefix}ali-sdk/oss/copy-meta.js`;
+      const object = await store.put(name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -1051,13 +1052,13 @@ describe('test/object.test.js', () => {
     });
 
     it('should copy object from same bucket', async () => {
-      const name = `${prefix}ali-sdk/oss/copy-new.js`;
-      const result = await store.copy(name, this.name);
+      const originname = `${prefix}ali-sdk/oss/copy-new.js`;
+      const result = await store.copy(originname, name);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
 
-      const info = await store.head(name);
+      const info = await store.head(originname);
       assert.equal(info.meta.uid, '1');
       assert.equal(info.meta.pid, '123');
       assert.equal(info.meta.slus, 'test.html');
@@ -1074,13 +1075,13 @@ describe('test/object.test.js', () => {
         },
       });
 
-      const name = `${prefix}ali-sdk/oss/copy-new_测试.js`;
-      result = await store.copy(name, sourceName);
+      const originname = `${prefix}ali-sdk/oss/copy-new_测试.js`;
+      result = await store.copy(originname, sourceName);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
 
-      const info = await store.head(name);
+      const info = await store.head(originname);
       assert.equal(info.meta.uid, '2');
       assert.equal(info.meta.pid, '1234');
       assert.equal(info.meta.slus, 'test1.html');
@@ -1104,13 +1105,13 @@ describe('test/object.test.js', () => {
       assert.equal(info.status, 200);
 
       sourceName = `/${bucket}/${sourceName}`;
-      const name = `${prefix}ali-sdk/oss/copy-new_测试2.js`;
-      result = await store.copy(name, sourceName);
+      const originname = `${prefix}ali-sdk/oss/copy-new_测试2.js`;
+      result = await store.copy(originname, sourceName);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
 
-      info = await store.head(name);
+      info = await store.head(originname);
       assert.equal(info.meta.uid, '3');
       assert.equal(info.meta.pid, '12345');
       assert.equal(info.meta.slus, 'test2.html');
@@ -1118,8 +1119,8 @@ describe('test/object.test.js', () => {
     });
 
     it('should copy object and set other meta', async () => {
-      const name = `${prefix}ali-sdk/oss/copy-new-2.js`;
-      const result = await store.copy(name, this.name, {
+      const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
+      const result = await store.copy(originname, name, {
         meta: {
           uid: '2',
         },
@@ -1128,7 +1129,7 @@ describe('test/object.test.js', () => {
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
 
-      const info = await store.head(name);
+      const info = await store.head(originname);
       assert.equal(info.meta.uid, '2');
       assert(!info.meta.pid);
       assert(!info.meta.slus);
@@ -1136,16 +1137,16 @@ describe('test/object.test.js', () => {
     });
 
     it('should use copy to change exists object headers', async () => {
-      const name = `${prefix}ali-sdk/oss/copy-new-3.js`;
-      let result = await store.copy(name, this.name);
+      const originname = `${prefix}ali-sdk/oss/copy-new-3.js`;
+      let result = await store.copy(originname, name);
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
-      let info = await store.head(name);
+      let info = await store.head(originname);
       assert(!info.res.headers['cache-control']);
 
       // add Cache-Control header to a exists object
-      result = await store.copy(name, name, {
+      result = await store.copy(originname, originname, {
         headers: {
           'Cache-Control': 'max-age=0, s-maxage=86400',
         },
@@ -1153,7 +1154,7 @@ describe('test/object.test.js', () => {
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
-      info = await store.head(name);
+      info = await store.head(originname);
       assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
     });
 
@@ -1170,7 +1171,7 @@ describe('test/object.test.js', () => {
     describe('If-Match header', () => {
       it('should throw PreconditionFailedError when If-Match not equal source object etag', async () => {
         await utils.throws(async () => {
-          await store.copy('new-name', this.name, {
+          await store.copy('new-name', name, {
             headers: {
               'If-Match': 'foo-bar',
             },
@@ -1183,8 +1184,8 @@ describe('test/object.test.js', () => {
       });
 
       it('should copy object when If-Match equal source object etag', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-Match.js`;
-        const result = await store.copy(name, this.name, {
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-Match.js`;
+        const result = await store.copy(originname, name, {
           headers: {
             'If-Match': resHeaders.etag,
           },
@@ -1197,7 +1198,7 @@ describe('test/object.test.js', () => {
 
     describe('If-None-Match header', () => {
       it('should return 304 when If-None-Match equal source object etag', async () => {
-        const result = await store.copy('new-name', this.name, {
+        const result = await store.copy('new-name', name, {
           headers: {
             'If-None-Match': resHeaders.etag,
           },
@@ -1207,8 +1208,8 @@ describe('test/object.test.js', () => {
       });
 
       it('should copy object when If-None-Match not equal source object etag', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-None-Match.js`;
-        const result = await store.copy(name, this.name, {
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-None-Match.js`;
+        const result = await store.copy(originname, name, {
           headers: {
             'If-None-Match': 'foo-bar',
           },
@@ -1221,11 +1222,11 @@ describe('test/object.test.js', () => {
 
     describe('If-Modified-Since header', () => {
       it('should 304 when If-Modified-Since > source object modified time', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
         let nextYear = new Date(resHeaders.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        const result = await store.copy(name, this.name, {
+        const result = await store.copy(originname, name, {
           headers: {
             'If-Modified-Since': nextYear,
           },
@@ -1234,8 +1235,8 @@ describe('test/object.test.js', () => {
       });
 
       it('should 304 when If-Modified-Since >= source object modified time', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
-        const result = await store.copy(name, this.name, {
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
+        const result = await store.copy(originname, name, {
           headers: {
             'If-Modified-Since': resHeaders.date,
           },
@@ -1244,11 +1245,11 @@ describe('test/object.test.js', () => {
       });
 
       it('should 200 when If-Modified-Since < source object modified time', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
         let lastYear = new Date(resHeaders.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
-        const result = await store.copy(name, this.name, {
+        const result = await store.copy(originname, name, {
           headers: {
             'If-Modified-Since': lastYear,
           },
@@ -1259,11 +1260,11 @@ describe('test/object.test.js', () => {
 
     describe('If-Unmodified-Since header', () => {
       it('should 200 when If-Unmodified-Since > source object modified time', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
         let nextYear = new Date(resHeaders.date);
         nextYear.setFullYear(nextYear.getFullYear() + 1);
         nextYear = nextYear.toGMTString();
-        const result = await store.copy(name, this.name, {
+        const result = await store.copy(originname, name, {
           headers: {
             'If-Unmodified-Since': nextYear,
           },
@@ -1272,8 +1273,8 @@ describe('test/object.test.js', () => {
       });
 
       it('should 200 when If-Unmodified-Since >= source object modified time', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
-        const result = await store.copy(name, this.name, {
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
+        const result = await store.copy(originname, name, {
           headers: {
             'If-Unmodified-Since': resHeaders.date,
           },
@@ -1282,12 +1283,12 @@ describe('test/object.test.js', () => {
       });
 
       it('should throw PreconditionFailedError when If-Unmodified-Since < source object modified time', async () => {
-        const name = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
+        const originname = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
         let lastYear = new Date(resHeaders.date);
         lastYear.setFullYear(lastYear.getFullYear() - 1);
         lastYear = lastYear.toGMTString();
         await utils.throws(async () => {
-          await store.copy(name, this.name, {
+          await store.copy(originname, name, {
             headers: {
               'If-Unmodified-Since': lastYear,
             },
@@ -1302,9 +1303,10 @@ describe('test/object.test.js', () => {
   });
 
   describe('putMeta()', () => {
+    let name;
     before(async () => {
-      this.name = `${prefix}ali-sdk/oss/putMeta.js`;
-      const object = await store.put(this.name, __filename, {
+      name = `${prefix}ali-sdk/oss/putMeta.js`;
+      const object = await store.put(name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
@@ -1315,10 +1317,10 @@ describe('test/object.test.js', () => {
     });
 
     it('should update exists object meta', async () => {
-      await store.putMeta(this.name, {
+      await store.putMeta(name, {
         uid: '2',
       });
-      const info = await store.head(this.name);
+      const info = await store.head(name);
       assert.equal(info.meta.uid, '2');
       assert(!info.meta.pid);
       assert(!info.meta.slus);
@@ -1326,7 +1328,7 @@ describe('test/object.test.js', () => {
 
     it('should throw NoSuchKeyError when update not exists object meta', async () => {
       await utils.throws(async () => {
-        await store.putMeta(`${this.name}not-exists`, {
+        await store.putMeta(`${name}not-exists`, {
           uid: '2',
         });
       }, (err) => {
@@ -1341,15 +1343,15 @@ describe('test/object.test.js', () => {
     // fun/test.jpg
     // fun/movie/001.avi
     // fun/movie/007.avi
+    let listPrefix;
     before(async () => {
-      const listPrefix = `${prefix}ali-sdk/list/`;
+      listPrefix = `${prefix}ali-sdk/list/`;
       await store.put(`${listPrefix}oss.jpg`, new Buffer('oss.jpg'));
       await store.put(`${listPrefix}fun/test.jpg`, new Buffer('fun/test.jpg'));
       await store.put(`${listPrefix}fun/movie/001.avi`, new Buffer('fun/movie/001.avi'));
       await store.put(`${listPrefix}fun/movie/007.avi`, new Buffer('fun/movie/007.avi'));
       await store.put(`${listPrefix}other/movie/007.avi`, new Buffer('other/movie/007.avi'));
       await store.put(`${listPrefix}other/movie/008.avi`, new Buffer('other/movie/008.avi'));
-      this.listPrefix = listPrefix;
     });
 
     function checkObjectProperties(obj) {
@@ -1399,7 +1401,7 @@ describe('test/object.test.js', () => {
 
     it('should list with prefix', async () => {
       let result = await store.list({
-        prefix: `${this.listPrefix}fun/movie/`,
+        prefix: `${listPrefix}fun/movie/`,
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -1408,7 +1410,7 @@ describe('test/object.test.js', () => {
       assert.equal(result.prefixes, null);
 
       result = await store.list({
-        prefix: `${this.listPrefix}fun/movie`,
+        prefix: `${listPrefix}fun/movie`,
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -1419,27 +1421,27 @@ describe('test/object.test.js', () => {
 
     it('should list current dir files only', async () => {
       let result = await store.list({
-        prefix: this.listPrefix,
+        prefix: listPrefix,
         delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/`, `${this.listPrefix}other/`]);
+      assert.deepEqual(result.prefixes, [`${listPrefix}fun/`, `${listPrefix}other/`]);
 
       result = await store.list({
-        prefix: `${this.listPrefix}fun/`,
+        prefix: `${listPrefix}fun/`,
         delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${this.listPrefix}fun/movie/`]);
+      assert.deepEqual(result.prefixes, [`${listPrefix}fun/movie/`]);
 
       result = await store.list({
-        prefix: `${this.listPrefix}fun/movie/`,
+        prefix: `${listPrefix}fun/movie/`,
         delimiter: '/',
       });
       assert.equal(result.objects.length, 2);

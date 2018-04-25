@@ -21,6 +21,8 @@ describe('test/rtmp.test.js', () => {
   let store;
   let bucket;
   let bucketRegion;
+  let cid;
+  let conf;
   before(async () => {
     store = oss(config);
     bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
@@ -31,8 +33,8 @@ describe('test/rtmp.test.js', () => {
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
 
-    this.cid = 'channel-1';
-    this.conf = {
+    cid = 'channel-1';
+    conf = {
       Description: 'this is channel 1',
       Status: 'enabled',
       Target: {
@@ -50,25 +52,25 @@ describe('test/rtmp.test.js', () => {
 
   describe('put/get/deleteChannel()', () => {
     it('should create a new channel', async () => {
-      const { cid } = this;
-      const { conf } = this;
+      const tempCid = cid;
+      const tempConf = conf;
 
-      let result = await store.putChannel(cid, conf);
+      let result = await store.putChannel(tempCid, tempConf);
       assert.equal(result.res.status, 200);
       assert(is.array(result.publishUrls));
       assert(result.publishUrls.length > 0);
       assert(is.array(result.playUrls));
       assert(result.playUrls.length > 0);
 
-      result = await store.getChannel(cid);
+      result = await store.getChannel(tempCid);
       assert.equal(result.res.status, 200);
       assert.deepEqual(result.data, conf);
 
-      result = await store.deleteChannel(cid);
+      result = await store.deleteChannel(tempCid);
       assert.equal(result.res.status, 204);
 
       await utils.throws(async () => {
-        await store.getChannel(cid);
+        await store.getChannel(tempCid);
       }, (err) => {
         assert.equal(err.status, 404);
       });
@@ -76,48 +78,52 @@ describe('test/rtmp.test.js', () => {
   });
 
   describe('put/getChannelStatus()', () => {
+    let statusConfCid;
     before(async () => {
-      this.cid = 'live channel 2';
-      this.conf.Description = 'this is live channel 2';
-      await store.putChannel(this.cid, this.conf);
+      statusConfCid = 'live channel 2';
+      const statusConf = conf;
+      statusConf.Description = 'this is live channel 2';
+      await store.putChannel(statusConfCid, statusConf);
     });
 
     after(async () => {
-      await store.deleteChannel(this.cid);
+      await store.deleteChannel(statusConfCid);
     });
 
     it('should disable channel', async () => {
-      let result = await store.getChannelStatus(this.cid);
+      let result = await store.getChannelStatus(statusConfCid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Idle');
 
       // TODO: verify ConnectedTime/RemoteAddr/Video/Audio when not idle
 
-      result = await store.putChannelStatus(this.cid, 'disabled');
+      result = await store.putChannelStatus(statusConfCid, 'disabled');
       assert.equal(result.res.status, 200);
 
-      result = await store.getChannelStatus(this.cid);
+      result = await store.getChannelStatus(statusConfCid);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'Disabled');
     });
   });
 
   describe('listChannels()', () => {
+    let channelNum;
+    let channelPrefix;
     before(async () => {
-      this.channelNum = 10;
-      this.channelPrefix = 'channel-list-';
+      channelNum = 10;
+      channelPrefix = 'channel-list-';
 
-      for (let i = 0; i < this.channelNum; i++) {
-        this.conf.Description = i;
+      for (let i = 0; i < channelNum; i++) {
+        conf.Description = i;
         /* eslint no-await-in-loop: [0] */
-        await store.putChannel(this.channelPrefix + i, this.conf);
+        await store.putChannel(channelPrefix + i, conf);
       }
     });
 
     after(async () => {
-      for (let i = 0; i < this.channelNum; i++) {
+      for (let i = 0; i < channelNum; i++) {
         /* eslint no-await-in-loop: [0] */
-        await store.deleteChannel(this.channelPrefix + i);
+        await store.deleteChannel(channelPrefix + i);
       }
     });
 
@@ -136,25 +142,27 @@ describe('test/rtmp.test.js', () => {
 
       const { channels } = result;
       assert.equal(channels.length, 3);
-      assert.equal(channels[0].Name, this.channelPrefix + 5);
-      assert.equal(channels[1].Name, this.channelPrefix + 6);
-      assert.equal(channels[2].Name, this.channelPrefix + 7);
+      assert.equal(channels[0].Name, channelPrefix + 5);
+      assert.equal(channels[1].Name, channelPrefix + 6);
+      assert.equal(channels[2].Name, channelPrefix + 7);
     });
   });
 
   describe('getChannelHistory()', () => {
+    let historyCid;
     before(async () => {
-      this.cid = 'channel-3';
-      this.conf.Description = 'this is live channel 3';
-      await store.putChannel(this.cid, this.conf);
+      historyCid = 'channel-3';
+      const historyconf = conf;
+      historyconf.Description = 'this is live channel 3';
+      await store.putChannel(historyCid, historyconf);
     });
 
     after(async () => {
-      await store.deleteChannel(this.cid);
+      await store.deleteChannel(historyCid);
     });
 
     it('should get channel history', async () => {
-      const result = await store.getChannelHistory(this.cid);
+      const result = await store.getChannelHistory(historyCid);
 
       assert.equal(result.res.status, 200);
       assert(is.array(result.records));
@@ -166,12 +174,14 @@ describe('test/rtmp.test.js', () => {
   });
 
   describe('createVod()', () => {
+    let createVodCid;
     before(async () => {
-      this.cid = 'channel-4';
-      this.conf.Description = 'this is live channel 4';
-      const result = await store.putChannel(this.cid, this.conf);
+      createVodCid = 'channel-4';
+      const createVodConf = conf;
+      createVodConf.Description = 'this is live channel 4';
+      const result = await store.putChannel(createVodCid, createVodConf);
       console.log(result);
-      const url = store.getRtmpUrl(this.cid, {
+      const url = store.getRtmpUrl(createVodCid, {
         params: {
           playlistName: 'vod.m3u8',
         },
@@ -181,7 +191,7 @@ describe('test/rtmp.test.js', () => {
     });
 
     after(async () => {
-      await store.deleteChannel(this.cid);
+      await store.deleteChannel(createVodCid);
     });
 
     // this case need have data in server
@@ -190,7 +200,7 @@ describe('test/rtmp.test.js', () => {
       const now = Date.now();
 
       try {
-        const result = await store.createVod(this.cid, name, {
+        const result = await store.createVod(cid, name, {
           startTime: Math.floor((now - 100) / 1000),
           endTime: Math.floor(now / 1000),
         });
@@ -203,20 +213,22 @@ describe('test/rtmp.test.js', () => {
   });
 
   describe('getRtmpUrl()', () => {
+    let getRtmpUrlCid;
     before(async () => {
-      this.cid = 'channel-5';
-      this.conf.Description = 'this is live channel 5';
-      const result = await store.putChannel(this.cid, this.conf);
+      getRtmpUrlCid = 'channel-5';
+      const getRtmpUrlConf = conf;
+      getRtmpUrlConf.Description = 'this is live channel 5';
+      const result = await store.putChannel(getRtmpUrlCid, getRtmpUrlConf);
       console.log(result);
     });
 
     after(async () => {
-      await store.deleteChannel(this.cid);
+      await store.deleteChannel(getRtmpUrlCid);
     });
 
     it('should get rtmp url', () => {
       const name = 'vod.m3u8';
-      const url = store.getRtmpUrl(this.cid, {
+      const url = store.getRtmpUrl(getRtmpUrlCid, {
         params: {
           playlistName: name,
         },
