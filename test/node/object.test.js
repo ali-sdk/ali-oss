@@ -1594,8 +1594,7 @@ describe('test/object.test.js', () => {
       }
     });
     it('Should return 202 when restore is called first', async () => {
-      await this.store.useBucket(this.archvieBucket, this.region);
-
+      this.store.setBucket(this.archvieBucket);
       const name = '/oss/restore.js';
       await this.store.put(name, __filename);
 

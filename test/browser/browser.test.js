@@ -876,13 +876,13 @@ describe('browser', () => {
           partNumz = err.partNum;
           errStatus = err.status;
         }
+        store._uploadPart.restore();
         assert.equal(
           errorMsg,
           'Failed to upload some parts with error: TestUploadPartException part_num: 1',
         );
         assert.equal(partNumz, 1);
         assert.equal(errStatus, 403);
-        store._uploadPart.restore();
       });
 
       // multipart cancel test
@@ -1050,8 +1050,8 @@ describe('browser', () => {
         assert.equal(result.data.Status, 'OK');
       });
 
-      it('should upload file with cancel and callback', function* () {
-        const client = this.store;
+      it('should upload file with cancel and callback', async () => {
+        const client = oss(ossConfig);
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-file');
@@ -1061,13 +1061,10 @@ describe('browser', () => {
         let tempCheckpoint = null;
         const options = {
           progress(p, checkpoint) {
-            return function (done) {
-              tempCheckpoint = checkpoint;
-              if (p > 0.5) {
-                client.cancel();
-              }
-              done();
-            };
+            tempCheckpoint = checkpoint;
+            if (p > 0.5) {
+              client.cancel();
+            }
           },
           partSize: 100 * 1024,
           callback: {
@@ -1083,7 +1080,7 @@ describe('browser', () => {
           },
         };
         try {
-          yield client.multipartUpload(name, file, options);
+          await client.multipartUpload(name, file, options);
         } catch (err) {
           assert.equal(true, client.isCancel());
         }
@@ -1092,10 +1089,7 @@ describe('browser', () => {
 
         const options2 = {
           progress(p) {
-            return function (done) {
-              assert.equal(true, p > 0.5);
-              done();
-            };
+            assert.equal(true, p > 0.5);
           },
           partSize: 100 * 1024,
           checkpoint: tempCheckpoint,
@@ -1111,7 +1105,7 @@ describe('browser', () => {
             },
           },
         };
-        const result = yield client.multipartUpload(name, file, options2);
+        const result = await client.multipartUpload(name, file, options2);
 
         assert.equal(result.res.status, 200);
       });

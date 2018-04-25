@@ -50,7 +50,6 @@ describe('test/bucket.test.js', () => {
     before(async () => {
       this.name = `ali-oss-test-putbucket-${prefix.replace(/[/.]/g, '-')}`;
       this.name = this.name.substring(0, this.name.length - 1);
-
       // just for archive bucket test
       this.archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
       this.archvieBucket = this.archvieBucket.substring(0, this.archvieBucket.length - 1);
@@ -69,9 +68,11 @@ describe('test/bucket.test.js', () => {
     });
 
     it('should create an archive bucket', async () => {
+      await utils.sleep(ms(metaSyncTime));
       const result2 = await this.store.listBuckets();
       const { buckets } = result2;
       const m = buckets.some(item => item.name === this.archvieBucket);
+      console.log(buckets);
       assert(m === true);
       buckets.map((item) => {
         if (item.name === this.archvieBucket) {
