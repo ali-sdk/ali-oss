@@ -4,6 +4,7 @@ var util = require('util');
 var urlutil = require('url');
 var http = require('http');
 var https = require('https');
+var capability = require('stream-http/lib/capability');
 var debug = require('debug')('urllib');
 var ms = require('humanize-ms');
 
@@ -144,6 +145,10 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     options.requestTimeout = args.timeout[args.timeout.length - 1];
   } else if (typeof args.timeout !== 'undefined') {
     options.requestTimeout = args.timeout;
+  }
+
+  if (capability.abortController) {
+    options.mode = 'disable-fetch';
   }
 
   var sslNames = [
