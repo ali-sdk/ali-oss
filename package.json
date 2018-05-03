@@ -19,7 +19,7 @@
   },
   "scripts": {
     "test": "mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js",
-    "test-cov": "istanbul cover node_modules/.bin/_mocha -- --require babel-register -R dot -t 60000 -r thunk-mocha -r should test/node/*.test.js",
+    "test-cov": "istanbul cover node_modules/.bin/_mocha -- -t 60000 -r thunk-mocha -r should test/node/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
     "build-test": "node browser-build.js > test/browser/build/aliyun-oss-sdk.js && node task/browser-test-build.js > test/browser/build/tests.js",
