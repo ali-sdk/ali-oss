@@ -13,3 +13,4 @@ test/browser/build
 test/benchmark/
 test/fixtures/
 task/
+browser-build.js
