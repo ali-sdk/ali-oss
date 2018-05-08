@@ -800,6 +800,16 @@ describe('test/object.test.js', () => {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
+    it('should signature url with reponse limitation', function* () {
+      const response = {
+        'content-type': 'xml',
+        'content-language': 'zh-cn',
+      };
+      const url = this.store.signatureUrl(this.name, { response });
+      assert(url.indexOf('response-content-type=xml') !== -1);
+      assert(url.indexOf('response-content-language=zh-cn') !== -1);
+    });
+
     it('should signature url with image processed and get object ok', function* () {
       const name = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');

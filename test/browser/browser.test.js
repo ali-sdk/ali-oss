@@ -579,6 +579,16 @@ describe('browser', () => {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
+    it('should signature url with reponse limitation', function* () {
+      const response = {
+        'content-type': 'xml',
+        'content-language': 'zh-cn',
+      };
+      const url = this.store.signatureUrl(this.name, { response });
+      assert(url.indexOf('response-content-type=xml') !== -1);
+      assert(url.indexOf('response-content-language=zh-cn') !== -1);
+    });
+
     it('should signature url with custom host ok', function () {
       const store = oss(Object.assign({}, ossConfig, {
         endpoint: 'www.aliyun.com',
