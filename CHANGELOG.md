@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.2.0"></a>
+# [5.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.1...5.2.0) (2018-05-08)
+
+
+### Bug Fixes
+
+* if browser support AbortController api , stream-http timeout err ([#466](https://github.com/aliyun/oss-nodejs-sdk/issues/466)) ([69ad003](https://github.com/aliyun/oss-nodejs-sdk/commit/69ad003))
+* rtml generate url ([#463](https://github.com/aliyun/oss-nodejs-sdk/issues/463)) ([53f1f0c](https://github.com/aliyun/oss-nodejs-sdk/commit/53f1f0c))
+* signatureUrl With response settings ([#465](https://github.com/aliyun/oss-nodejs-sdk/issues/465)) ([3bf1be7](https://github.com/aliyun/oss-nodejs-sdk/commit/3bf1be7))
+
+
+### Features
+
+* add sample about cname's usage ([#453](https://github.com/aliyun/oss-nodejs-sdk/issues/453)) ([54db574](https://github.com/aliyun/oss-nodejs-sdk/commit/54db574))
+* publish CDN check script ([#452](https://github.com/aliyun/oss-nodejs-sdk/issues/452)) ([3190ce6](https://github.com/aliyun/oss-nodejs-sdk/commit/3190ce6))
+* restore object api and support to  create archvie bucket ([#450](https://github.com/aliyun/oss-nodejs-sdk/issues/450)) ([79eb5ef](https://github.com/aliyun/oss-nodejs-sdk/commit/79eb5ef))
+
+
+
 <a name="5.1.1"></a>
 # [5.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.0...5.1.1) (2018-04-16)
 
