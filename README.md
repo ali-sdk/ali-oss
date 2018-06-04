@@ -54,6 +54,8 @@ OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.c
     - [.putBucket*(name, region[, options])](#putbucketname-region-options)
     - [.useBucket(name, region)](#usebucketname-region)
     - [.deleteBucket*(name, region[, options])](#deletebucketname-region-options)
+    - [.getBucketInfo*(name)](#getbucketinfoname)
+    - [.getBucketLocation*(name)](#getbucketlocationname)
   - ACL
     - [.putBucketACL*(name, region, acl[, options])](#putbucketaclname-region-acl-options)
     - [.getBucketACL*(name, region[, options])](#getbucketaclname-region-options)
@@ -321,6 +323,43 @@ example:
 
 ```js
 store.useBucket('helloworld', 'oss-cn-hongkong');
+```
+
+### .getBucketInfo(name)
+
+Get bucket information,include CreationDate、ExtranetEndpoint、IntranetEndpoint、Location、Name、StorageClass、
+Owner、AccessControlList
+
+parameters:
+
+- name {String} bucket name
+
+example:
+
+- Use `helloworld` as the default bucket
+
+```js
+store.getBucketInfo('helloworld').then( (res) => {
+    console.log(res.bucket)
+})
+```
+
+### .getBucketLocation(name)
+
+Get bucket location
+
+parameters:
+
+- name {String} bucket name
+
+example:
+
+- Use `helloworld` as the default bucket
+
+```js
+store.getBucketLocation('helloworld').then( (res) => {
+    console.log(res.location)
+})
 ```
 
 ---
