@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "server": "node server/app.js",
-    "watch": "webpack -w --config ./build/webpack.dev.conf.js",
-    "dev": "webpack-dev-server --config ./build/webpack.dev.conf.js",
+    "watch": "webpack -w --config ./config/webpack.dev.conf.js",
+    "dev": "webpack-dev-server --config ./config/webpack.dev.conf.js",
     "start": "node ./script.js"
   },
   "author": "",

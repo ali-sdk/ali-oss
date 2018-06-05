@@ -10,7 +10,7 @@ spawnObj.stdout.on('data', (data) => {
   console.log(data.toString());
 });
 
-let webpackObj = child_process.spawn('./node_modules/.bin/webpack-dev-server', ['--config','./build/webpack.dev.conf.js']);
+let webpackObj = child_process.spawn('./node_modules/.bin/webpack-dev-server', ['--config','./config/webpack.dev.conf.js']);
 
 webpackObj.stderr.on('data', (data) => {
   console.log(data.toString());
