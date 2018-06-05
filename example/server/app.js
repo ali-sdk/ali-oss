@@ -22,9 +22,8 @@ app.get('/sts', (req, res) => {
   co(function* () {
     const result = yield client.assumeRole(conf.RoleArn, policy, conf.TokenExpireTime);
     console.log(result);
-
-    // res.set('Access-Control-Allow-Origin', '*');
-    // res.set('Access-Control-Allow-METHOD', 'GET');
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-METHOD', 'GET');
     res.json({
       AccessKeyId: result.credentials.AccessKeyId,
       AccessKeySecret: result.credentials.AccessKeySecret,
@@ -44,6 +43,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../index.html'));
 });
 
-app.listen(3000, () => {
+app.listen(9000, () => {
   console.log('App started.');
 });
