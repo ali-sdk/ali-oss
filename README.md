@@ -1007,7 +1007,7 @@ example:
 
 ```js
 var filepath = '/home/ossdemo/demo.txt';
-var object = yield store.put('ossdemo/readstream.txt', fs.createReadStream(filepath));
+var object = yield store.putStream('ossdemo/readstream.txt', fs.createReadStream(filepath));
 console.log(object);
 
 {
