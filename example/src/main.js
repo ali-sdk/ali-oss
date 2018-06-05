@@ -1,13 +1,11 @@
-
-
 // require("babel-polyfill")
-
+require("./style.css")
 const $ = require('jquery');
 // if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
 const OSS = require('ali-oss');
 const crypto = require('crypto');
 
-const appServer = '/sts';
+const appServer = "http://localhost:9000/sts";
 const bucket = '<bucket-name>';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
