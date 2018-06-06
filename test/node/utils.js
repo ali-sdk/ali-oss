@@ -61,7 +61,7 @@ exports.cleanBucket = function* (store, bucket, region) {
     const up = uploads[i];
     yield store.abortMultipartUpload(up.name, up.uploadId);
   }
-  yield store.deleteBucket(bucket, region);
+  yield store.deleteBucket(bucket);
 };
 
 if (process && process.browser) {

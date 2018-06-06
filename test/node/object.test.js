@@ -39,10 +39,10 @@ describe('test/object.test.js', () => {
     //     return item.name + ':' + item.region;
     //   })
     // );
-    yield this.store.putBucket(this.bucket, this.region);
-    this.store.useBucket(this.bucket, this.region);
+    yield this.store.putBucket(this.bucket);
+    this.store.useBucket(this.bucket);
 
-    yield this.store.putBucket(this.archvieBucket, this.region, { StorageClass: 'Archive' });
+    yield this.store.putBucket(this.archvieBucket, { StorageClass: 'Archive' });
     // this.store.useBucket(this.archvieBucket, this.region);
   });
 
@@ -1621,7 +1621,7 @@ describe('test/object.test.js', () => {
       }
     });
     it('Should return 202 when restore is called first', function* () {
-      yield this.store.useBucket(this.archvieBucket, this.region);
+      yield this.store.useBucket(this.archvieBucket);
 
       const name = '/oss/restore.js';
       yield this.store.put(name, __filename);
