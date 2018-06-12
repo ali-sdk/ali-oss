@@ -5,14 +5,14 @@ const webpack = require('webpack')
 const HtmlWebpackPluginConfig = {
   filename: 'index.html',
   template: './template/index.html', 
-  inject:'body',
+  inject: 'body',
 }
 
 module.exports = {
   context: path.resolve(__dirname,'../src'),
   entry: './main',
   output:{
-    path:path.resolve(__dirname,'../dist'),
+    path: path.resolve(__dirname,'../dist'),
     filename: './[hash]app.js',
     hashDigestLength: 8
   },
@@ -46,11 +46,12 @@ module.exports = {
   ], 
   devServer: {
     contentBase: path.resolve(__dirname, "../dist"),
-    port: 3000, 
+    port: 3000,
+    host: '0.0.0.0',
     open: true, // open browser auto
-    index:'index.html', // like HtmlWebpackPlugin
-    inline:true, // default:true
-    hot:false,
-    compress:true // compress
+    index: 'index.html', // like HtmlWebpackPlugin
+    inline: true, // default:true
+    hot: false,
+    compress: true // compress
   }
 }
