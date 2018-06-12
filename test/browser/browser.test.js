@@ -65,7 +65,6 @@ describe('browser', () => {
   });
   after(function* () {
     this.store = oss(ossConfig);
-    console.log(this.store);
     yield cleanBucket(this.store);
   });
   describe('endpoint', () => {
