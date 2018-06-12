@@ -24,6 +24,26 @@ const co = require('co');
 
 timemachine.reset();
 
+let cleanBucket = function* (store) {
+  let result = yield store.list({
+    'max-keys': 1000,
+  });
+  result.objects = result.objects || [];
+  for (let i = 0; i < result.objects.length; i++) {
+    const obj = result.objects[i];
+    yield store.delete(obj.name);
+  }
+
+  result = yield store.listUploads({
+    'max-uploads': 1000,
+  });
+  const uploads = result.uploads || [];
+  for (let i = 0; i < uploads.length; i++) {
+    const up = uploads[i];
+    yield store.abortMultipartUpload(up.name, up.uploadId);
+  }
+}
+
 describe('browser', () => {
   /* eslint require-yield: [0] */
   before(function* () {
@@ -42,6 +62,10 @@ describe('browser', () => {
     //   stsToken: creds.SecurityToken,
     //   bucket: stsConfig.bucket
     // });
+  });
+  after(function* () {
+    this.store = oss(ossConfig);
+    yield cleanBucket(this.store);
   });
   describe('endpoint', () => {
     it('should init with region', () => {
