@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -18,6 +18,7 @@
     "child_process": false
   },
   "scripts": {
+    "release": "standard-version",
     "test": "mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js",
     "test-cov": "istanbul cover node_modules/.bin/_mocha -- -t 60000 -r thunk-mocha -r should test/node/*.test.js",
     "jshint": "jshint .",
@@ -89,6 +90,7 @@
     "promise-polyfill": "^6.0.2",
     "should": "^11.0.0",
     "sinon": "^1.17.7",
+    "standard-version": "^4.4.0",
     "stream-equal": "^1.1.0",
     "thunk-mocha": "^1.0.3",
     "timemachine": "^0.3.0",
