@@ -14,7 +14,7 @@ const copy = require('copy-to');
 const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
-const urlutil = require('url')
+const urlutil = require('url');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -288,6 +288,21 @@ describe('test/object.test.js', () => {
       assert(object.name, name);
       const info = yield this.store.head(name);
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
+    });
+
+    it('should return correct encode when name include + and space', function* () {
+      const name = 'ali-sdkhahhhh+oss+mm xxx.js';
+      const object = yield this.store.put(name, __filename, {
+        headers: {
+          'Content-Type': 'text/plain; charset=gbk',
+        },
+      });
+      assert(object.name, name);
+      const info = yield this.store.head(name);
+      const url = info.res.requestUrls[0];
+      const { pathname } = urlutil.parse(url)
+      assert.equal(pathname, '/ali-sdkhahhhh%2Boss%2Bmm%20xxx.js');
+      assert.equal(info.res.headers['content-type'], 'text/plain; charset=gbk');
     });
   });
 
