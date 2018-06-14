@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.3.0"></a>
+# [5.3.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.0) (2018-06-13)
+
+
+### Bug Fixes
+
+* remove replace %20 to '+' ([#489](https://github.com/aliyun/oss-nodejs-sdk/issues/489)) ([22363d0](https://github.com/aliyun/oss-nodejs-sdk/commit/22363d0))
+* clean browser test bucket ([#487](https://github.com/aliyun/oss-nodejs-sdk/issues/487)) ([bf546ce](https://github.com/aliyun/oss-nodejs-sdk/commit/bf546ce))
+* support ipv6 address when set endpoint  ([#482](https://github.com/aliyun/oss-nodejs-sdk/issues/482)) ([1c7616d](https://github.com/aliyun/oss-nodejs-sdk/commit/1c7616d))
+* repair timeout excepiton ([#481](https://github.com/aliyun/oss-nodejs-sdk/issues/481)) ([ec8ae25](https://github.com/aliyun/oss-nodejs-sdk/commit/ec8ae25))
+* refactor example to support open browser auto and hot reload  ([#477](https://github.com/aliyun/oss-nodejs-sdk/issues/477)) ([3012bc6](https://github.com/aliyun/oss-nodejs-sdk/commit/3012bc6))
+
+### Features
+
+* support getBucketLocation api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+* support getBucketInfo api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+
+### docs
+
+* add getBucketLoaction and getBucketInfo docs([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+* fix putStream api demo([#478](https://github.com/aliyun/oss-nodejs-sdk/issues/478)) ([b6dc1df](https://github.com/aliyun/oss-nodejs-sdk/commit/b6dc1df))
+
 <a name="5.2.0"></a>
 # [5.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.1...5.2.0) (2018-05-08)
 
