@@ -89,8 +89,7 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('getBucketInfo', () => {
-    it("it should return correct bucketInfo when bucket exist", function* () {
-      let regionInteranl = `${this.region}-interanl`
+    it('it should return correct bucketInfo when bucket exist', function* () {
       const result = yield this.store.getBucketInfo(this.bucket);
       assert.equal(result.res.status, 200);
 
@@ -99,27 +98,27 @@ describe('test/bucket.test.js', () => {
       assert.equal(result.bucket.IntranetEndpoint, `${this.region}-internal.aliyuncs.com`);
       assert.equal(result.bucket.AccessControlList.Grant, 'private');
       assert.equal(result.bucket.StorageClass, 'Standard');
-    })
+    });
 
-    it("it should return NoSuchBucketError when bucket not exist", function* () {
-        yield utils.throws(function* () {
-            yield this.store.getBucketInfo('not-exists-bucket');
-        }.bind(this), 'NoSuchBucketError');
-    })
-  })
+    it('it should return NoSuchBucketError when bucket not exist', function* () {
+      yield utils.throws(function* () {
+        yield this.store.getBucketInfo('not-exists-bucket');
+      }.bind(this), 'NoSuchBucketError');
+    });
+  });
 
   describe('getBucketLoaction', () => {
-      it("it should return loaction this.region", function* () {
-          const result = yield this.store.getBucketLocation(this.bucket);
-          assert.equal(result.location, this.region);
-      })
+    it('it should return loaction this.region', function* () {
+      const result = yield this.store.getBucketLocation(this.bucket);
+      assert.equal(result.location, this.region);
+    });
 
-      it("it should return NoSuchBucketError when bucket not exist", function* () {
-          yield utils.throws(function* () {
-              yield this.store.getBucketLocation('not-exists-bucket');
-          }.bind(this), 'NoSuchBucketError');
-      })
-  })
+    it('it should return NoSuchBucketError when bucket not exist', function* () {
+      yield utils.throws(function* () {
+        yield this.store.getBucketLocation('not-exists-bucket');
+      }.bind(this), 'NoSuchBucketError');
+    });
+  });
 
   describe('deleteBucket()', () => {
     it('should delete not exists bucket throw NoSuchBucketError', function* () {

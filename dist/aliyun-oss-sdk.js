@@ -479,7 +479,6 @@ proto._getReqUrl = function _getReqUrl(params) {
 
   ep.query = query;
 
-  // As '%20' is not recognized by OSS server, we must convert it to '+'.
   return urlutil.format(ep);
 };
 
