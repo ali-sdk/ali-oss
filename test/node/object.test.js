@@ -39,16 +39,16 @@ describe('test/object.test.js', () => {
     //     return item.name + ':' + item.region;
     //   })
     // );
-    await store.putBucket(bucket, bucketRegion);
+    await store.putBucket(bucket);
     store.useBucket(bucket, bucketRegion);
 
-    await store.putBucket(archvieBucket, bucketRegion, { StorageClass: 'Archive' });
+    await store.putBucket(archvieBucket, { StorageClass: 'Archive' });
     // store.useBucket(archvieBucket, bucketRegion);
   });
 
   after(async () => {
-    await utils.cleanBucket(store, bucket, bucketRegion);
-    await utils.cleanBucket(store, archvieBucket, bucketRegion);
+    await utils.cleanBucket(store, bucket);
+    await utils.cleanBucket(store, archvieBucket);
   });
 
   describe('putStream()', () => {

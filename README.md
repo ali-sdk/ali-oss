@@ -55,34 +55,34 @@ All operation use es7 async/await to implement. All api is async function.
 - [Bucket Operations](#bucket-operations)
   - Base
     - [.listBuckets(query[, options])](#listbucketsquery-options)
-    - [.putBucket(name, region[, options])](#putbucketname-region-options)
-    - [.useBucket(name, region)](#usebucketname-region)
-    - [.deleteBucket*(name, region[, options])](#deletebucketname-region-options)
-    - [.getBucketInfo*(name)](#getbucketinfoname)
-    - [.getBucketLocation*(name)](#getbucketlocationname)
+    - [.putBucket(name[, options])](#putbucketname-options)
+    - [.useBucket(name)](#usebucketname)
+    - [.deleteBucket(name[, options])](#deletebucketname-options)
+    - [.getBucketInfo(name)](#getbucketinfoname)
+    - [.getBucketLocation(name)](#getbucketlocationname)
   - ACL
-    - [.putBucketACL(name, region, acl[, options])](#putbucketaclname-region-acl-options)
-    - [.getBucketACL(name, region[, options])](#getbucketaclname-region-options)
+    - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
+    - [.getBucketACL(name[, options])](#getbucketaclname-options)
   - Logging
-    - [.putBucketLogging(name, region, prefix[, options])](#putbucketloggingname-region-prefix-options)
-    - [.getBucketLogging(name, region[, options])](#getbucketloggingname-region-options)
-    - [.deleteBucketLogging(name, region[, options])](#deletebucketloggingname-region-options)
+    - [.putBucketLogging(name, prefix[, options])](#putbucketloggingname-prefix-options)
+    - [.getBucketLogging(name[, options])](#getbucketloggingname-options)
+    - [.deleteBucketLogging(name[, options])](#deletebucketloggingname-options)
   - Website
-    - [.putBucketWebsite(name, region, config[, options])](#putbucketwebsitename-region-config-options)
-    - [.getBucketWebsite(name, region[, options])](#getbucketwebsitename-region-options)
-    - [.deleteBucketWebsite(name, region[, options])](#deletebucketwebsitename-region-options)
+    - [.putBucketWebsite(name, config[, options])](#putbucketwebsitename-config-options)
+    - [.getBucketWebsite(name[, options])](#getbucketwebsitename-options)
+    - [.deleteBucketWebsite(name, region[, options])](#deletebucketwebsitename-options)
   - Referer
-    - [.putBucketReferer(name, region, allowEmpty, referers[, options])](#putbucketreferername-region-allowempty-referers-options)
-    - [.getBucketReferer(name, region[, options])](#getbucketreferername-region-options)
-    - [.deleteBucketReferer(name, region[, options])](#deletebucketreferername-region-options)
+    - [.putBucketReferer(name, allowEmpty, referers[, options])](#putbucketreferername-allowempty-referers-options)
+    - [.getBucketReferer(name[, options])](#getbucketreferername-options)
+    - [.deleteBucketReferer(name[, options])](#deletebucketreferername-options)
   - Lifecycle
-    - [.putBucketLifecycle(name, region, rules[, options])](#putbucketlifecyclename-region-rules-options)
-    - [.getBucketLifecycle(name, region[, options])](#getbucketlifecyclename-region-options)
-    - [.deleteBucketLifecycle(name, region[, options])](#deletebucketlifecyclename-region-options)
+    - [.putBucketLifecycle(name, rules[, options])](#putbucketlifecyclename-rules-options)
+    - [.getBucketLifecycle(name[, options])](#getbucketlifecyclename-options)
+    - [.deleteBucketLifecycle(name[, options])](#deletebucketlifecyclename-options)
   - CORS
-    - [.putBucketCORS(name, region, rules[, options])](#putbucketcorsname-region-rules-options)
-    - [.getBucketCORS(name, region[, options])](#getbucketcorsname-region-options)
-    - [.deleteBucketCORS(name, region[, options])](#deletebucketcorsname-region-options)
+    - [.putBucketCORS(name, rules[, options])](#putbucketcorsname-rules-options)
+    - [.getBucketCORS(name[, options])](#getbucketcorsname-options)
+    - [.deleteBucketCORS(name[, options])](#deletebucketcorsname-options)
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
@@ -337,7 +337,7 @@ store.listBuckets({
 
 ```
 
-### .putBucket(name, region[, options])
+### .putBucket(name[, options])
 
 Create a new bucket.
 
@@ -346,10 +346,6 @@ parameters:
 - name {String} bucket name
   If bucket exists and not belong to current account, will throw BucketAlreadyExistsError.
   If bucket not exists, will create a new bucket and set it's ACL.
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
-  If change exists bucket region, will throw BucketAlreadyExistsError.
-  If region value invalid, will throw InvalidLocationConstraintError.
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [StorageClass] {String} the storeage type include (Standard,IA,Archive)
@@ -368,22 +364,21 @@ example:
 - Create a bucket name `helloworld` location on HongKong
 
 ```js
-store.putBucket('helloworld', 'oss-cn-hongkong').then((result) => {
+store.putBucket('helloworld').then((result) => {
   // use it by default
-  store.useBucket('helloworld', 'oss-cn-hongkong');
+  store.useBucket('helloworld');
 });
 ```
 
 - Create a bucket name `helloworld` location on HongKong StorageClass `Archive`
 
 ```js
-await store.putBucket('helloworld', 'oss-cn-hongkong', { StorageClass: 'Archive' });
+await store.putBucket('helloworld', { StorageClass: 'Archive' });
 // use it by default
-store.useBucket('helloworld', 'oss-cn-hongkong');
+store.useBucket('helloworld');
 ```
 
-### .deleteBucket(name, region[, options])
->>>>>>> feat: add readme for async await operation
+### .deleteBucket(name[, options])
 
 Delete an empty bucket.
 
@@ -392,8 +387,6 @@ parameters:
 - name {String} bucket name
   If bucket is not empty, will throw BucketNotEmptyError.
   If bucket is not exists, will throw NoSuchBucketError.
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -410,28 +403,23 @@ example:
 - Delete the exists 'helloworld' bucket on 'oss-cn-hongkong'
 
 ```js
-store.deleteBucket('helloworld', {
-  region: 'oss-cn-hongkong'
-}).then((result) => {
-});
+store.deleteBucket('helloworld').then((result) => {});
 ```
 
-### .useBucket(name, region)
+### .useBucket(name)
 
 Use the bucket.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 
 example:
 
 - Use `helloworld` as the default bucket
 
 ```js
-store.useBucket('helloworld', 'oss-cn-hongkong');
+store.useBucket('helloworld');
 ```
 
 ### .getBucketInfo(name)
@@ -473,15 +461,13 @@ store.getBucketLocation('helloworld').then( (res) => {
 
 ---
 
-### .putBucketACL(name, region, acl[, options])
+### .putBucketACL(name, acl[, options])
 
 Update the bucket ACL.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - acl {String} access control list, current available: `public-read-write`, `public-read` and `private`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
@@ -499,19 +485,17 @@ example:
 - Set bucket `helloworld` to `public-read-write`
 
 ```js
-store.putBucketACL('helloworld', 'oss-cn-hongkong', 'public-read-write').then((result) => {
+store.putBucketACL('helloworld', 'public-read-write').then((result) => {
 });
 ```
 
-### .getBucketACL(name, region[, options])
+### .getBucketACL(name[, options])
 
 Get the bucket ACL.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -529,14 +513,14 @@ example:
 - Get bucket `helloworld`
 
 ```js
-store.getBucketACL('helloworld', 'oss-cn-hongkong').then((result) => {
+store.getBucketACL('helloworld').then((result) => {
   console.log(result.acl);
 });
 ```
 
 ---
 
-### .putBucketLogging(name, region, prefix[, options])
+### .putBucketLogging(name, prefix[, options])
 
 Update the bucket logging settings.
 Log file will create every one hour and name format: `<prefix><bucket>-YYYY-mm-DD-HH-MM-SS-UniqueString`.
@@ -544,8 +528,6 @@ Log file will create every one hour and name format: `<prefix><bucket>-YYYY-mm-D
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [prefix] {String} prefix path name to store the log files
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
@@ -563,19 +545,17 @@ example:
 - Enable bucket `helloworld` logging and save with prefix `logs/`
 
 ```js
-store.putBucketLogging('helloworld', 'oss-cn-hongkong', 'logs/').then((result) => {
+store.putBucketLogging('helloworld', 'logs/').then((result) => {
 });
 ```
 
-### .getBucketLogging(name, region[, options])
+### .getBucketLogging(name[, options])
 
 Get the bucket logging settings.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -594,20 +574,18 @@ example:
 - Get bucket `helloworld` logging settings
 
 ```js
-store.getBucketLogging('helloworld', 'oss-cn-hongkong').then((result) => {
+store.getBucketLogging('helloworld').then((result) => {
   console.log(result.enable, result.prefix);
 });
 ```
 
-### .deleteBucketLogging(name, region[, options])
+### .deleteBucketLogging(name[, options])
 
 Delete the bucket logging settings.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -621,15 +599,13 @@ Success will return:
 
 ---
 
-### .putBucketWebsite(name, region, config[, options])
+### .putBucketWebsite(name, config[, options])
 
 Set the bucket as a static website.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - config {Object} website config, contains blow properties:
   - index {String} default page, e.g.: `index.html`
   - [error] {String} error page, e.g.: 'error.html'
@@ -647,21 +623,19 @@ Success will return:
 example:
 
 ```js
-store.putBucketWebsite('hello', 'oss-cn-hangzhou', {
+store.putBucketWebsite('hello', {
   index: 'index.html'
 }).then((result) => {
 });
 ```
 
-### .getBucketWebsite(name, region[, options])
+### .getBucketWebsite(name[, options])
 
 Get the bucket website config.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -675,15 +649,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketWebsite(name, region[, options])
+### .deleteBucketWebsite(name[, options])
 
 Delete the bucket website config.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -697,15 +669,13 @@ Success will return:
 
 ---
 
-### .putBucketReferer(name, region, allowEmpty, referers[, options])
+### .putBucketReferer(name, allowEmpty, referers[, options])
 
 Set the bucket request `Referer` white list.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - allowEmpty {Boolean} allow empty request referer or not
 - referers {Array<String>} `Referer` white list, e.g.:
   ```js
@@ -728,22 +698,20 @@ Success will return:
 example:
 
 ```js
-store.putBucketReferer('hello', 'oss-cn-hangzhou', false, [
+store.putBucketReferer('hello', false, [
   'https://npm.taobao.org',
   'http://cnpmjs.org'
 ]).then((result) => {
 });
 ```
 
-### .getBucketReferer(name, region[, options])
+### .getBucketReferer(name[, options])
 
 Get the bucket request `Referer` white list.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -757,15 +725,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketReferer(name, region[, options])
+### .deleteBucketReferer(name[, options])
 
 Delete the bucket request `Referer` white list.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -779,15 +745,13 @@ Success will return:
 
 ---
 
-### .putBucketLifecycle(name, region, rules[, options])
+### .putBucketLifecycle(name, rules[, options])
 
 Set the bucket object lifecycle.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - rules {Array<Rule>} rule config list, each `Rule` will contains blow properties:
   - [id] {String} rule id, if not set, OSS will auto create it with random string.
   - prefix {String} store prefix
@@ -809,7 +773,7 @@ Success will return:
 example:
 
 ```js
-store.putBucketLifecycle('hello', 'oss-cn-hangzhou', [
+store.putBucketLifecycle('hello', [
   {
     id: 'delete after one day',
     prefix: 'logs/',
@@ -824,15 +788,13 @@ store.putBucketLifecycle('hello', 'oss-cn-hangzhou', [
 ]).then((result) => {});
 ```
 
-### .getBucketLifecycle(name, region[, options])
+### .getBucketLifecycle(name[, options])
 
 Get the bucket object lifecycle.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -845,15 +807,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketLifecycle(name, region[, options])
+### .deleteBucketLifecycle(name[, options])
 
 Delete the bucket object lifecycle.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -867,15 +827,13 @@ Success will return:
 
 ---
 
-### .putBucketCORS(name, region, rules[, options])
+### .putBucketCORS(name, rules[, options])
 
 Set CORS rules of the bucket object
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - rules {Array<Rule>} rule config list, each `Rule` will contains below properties:
   - allowedOrigin {String/Array} configure for Access-Control-Allow-Origin header
   - allowedMethod {String/Array} configure for Access-Control-Allow-Methods header
@@ -896,7 +854,7 @@ Success will return:
 example:
 
 ```js
-store.putBucketCORS('hello', 'oss-cn-hangzhou', [
+store.putBucketCORS('hello', [
   {
     allowedOrigin: '*',
     allowedMethod: [
@@ -907,15 +865,13 @@ store.putBucketCORS('hello', 'oss-cn-hangzhou', [
 ]).then((result) => {});
 ```
 
-### .getBucketCORS(name, region[, options])
+### .getBucketCORS(name[, options])
 
 Get CORS rules of the bucket object.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -928,15 +884,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketCORS(name, region[, options])
+### .deleteBucketCORS(name[, options])
 
 Delete CORS rules of the bucket object.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -952,9 +906,7 @@ Success will return:
 
 ## Object Operations
 
-All operations function is [generator], except `signatureUrl`.
-
-generator function format: `functionName*(...)`.
+All operations function return Promise, except `signatureUrl`.
 
 ### .put(name, file[, options])
 
