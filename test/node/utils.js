@@ -44,8 +44,8 @@ exports.sleep = function (ms) {
   });
 };
 
-exports.cleanBucket = async function (store, bucket, region) {
-  store.useBucket(bucket, region);
+exports.cleanBucket = async function (store, bucket) {
+  store.useBucket(bucket);
   let result = await store.list({
     'max-keys': 1000,
   });
@@ -64,7 +64,7 @@ exports.cleanBucket = async function (store, bucket, region) {
     const up = uploads[i];
     await store.abortMultipartUpload(up.name, up.uploadId);
   }
-  await store.deleteBucket(bucket, region);
+  await store.deleteBucket(bucket);
 };
 
 if (process && process.browser) {
