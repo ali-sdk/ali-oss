@@ -62,9 +62,9 @@ describe('browser', () => {
     //   bucket: stsConfig.bucket
     // });
   });
-  after(function* () {
-    this.store = oss(ossConfig);
-    yield cleanBucket(this.store);
+  after(async () => {
+    const store = oss(ossConfig);
+    await cleanBucket(store);
   });
 
   describe('endpoint', () => {
@@ -504,16 +504,16 @@ describe('browser', () => {
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
     });
-    it('GETs and PUTs blob to a bucket', function* () {
+    it('GETs and PUTs blob to a bucket', async () => {
       const name = `${prefix}put/test`;
       const body = new Blob(['blobBody'], { type: 'text/plain' });
-      const resultPut = yield this.store.put(name, body);
+      const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
-      const resultGet = yield this.store.get(name);
+      const resultGet = await store.get(name);
       assert.equal(resultGet.res.status, 200);
 
 
-      yield new Promise((resolve) => {
+      await new Promise((resolve) => {
         const fr = new FileReader();
         fr.onload = function () {
           assert.equal(resultGet.content.toString(), fr.result);
@@ -522,7 +522,7 @@ describe('browser', () => {
         fr.readAsText(body, 'utf-8');
       });
 
-      const resultDel = yield this.store.delete(name);
+      const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
     });
   });
