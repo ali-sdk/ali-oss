@@ -250,8 +250,7 @@ proto.authorization = function authorization(method, resource, subres, headers) 
 proto.createRequest = function createRequest(params) {
   var headers = {
     'x-oss-date': dateFormat(+new Date() + this.options.amendTimeSkewed, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
-    'x-oss-user-agent': this.userAgent,
-    'User-Agent': this.userAgent
+    'x-oss-user-agent': this.userAgent
   };
 
   if (this.options.stsToken) {
