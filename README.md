@@ -17,6 +17,8 @@ oss-js-sdk
 
 aliyun OSS(object storage service) js client for Node and Browser env.
 
+`NOTE`： For SDK `5.X` document, please go to [README.md](https://github.com/ali-sdk/ali-oss/blob/5.x/README.md)
+
 ## Install
 
 ```bash
