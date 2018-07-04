@@ -18,10 +18,10 @@ exports.checkDist = function checkDist(filePath) {
   }
 };
 
-exports.checkCDNFile = function* (object, store) {
-  const result = yield store.head(object);
+exports.checkCDNFile = async (object, store) => {
+  const result = await store.head(object);
   if (result.status !== 200 || result.res.headers['content-length'] === '0') {
-    yield store.delete(object);
+    await store.delete(object);
     throw new Error('CDN file is incorrect or size is 0');
   }
 };
