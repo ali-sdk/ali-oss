@@ -37,7 +37,7 @@ Client.deleteBucket(bucket);
 We use `Async Await` to refactor all api 、test case etc to instead of `co generator`。
 it can optimize our code to maintain and provide with a better development experience for developers
 
-## 3. Dropped `OSS.Wrapper` when init Client
+## 3. Dropped `OSS.Wrapper` When Init Client
 
 Before in async opearion we use `OSS.Wrapper` ,but now we just use `new OSS()` ,it will return Promise like `OSS.Wrapper`,please remmove `Wrapper`.
 
@@ -61,6 +61,7 @@ Should be changed to the following:
 
 ```
 const OSS = require('ali-oss');
+
 const client = new OSS({
   accessKeyId: xxx,
   accessKeySecret: xxx,
@@ -77,6 +78,7 @@ Should be used like:
 
 ```
 cosnt OSS = require('ali-oss');
+
 const client = new OSS({
   accessKeyId: xxx,
   accessKeySecret: xxx,
@@ -103,16 +105,21 @@ const options = {
   },
 };
 //upload local file
-client.multipartUpload('bilibili/hahhh', filePath, options).then((e) => {
-  console.log(e);
-});
-
-// after 5s cancel
-setTimeout( () => {
+async function upload() {
   try {
-    client.cancel();
+    const result = await client.multipartUpload('bilibili/hahhh', filePath, options);
   } catch (e) {
-    console.log(e)
+    if (client.isCancel()) {
+      console.log('canceled!');
+      // do
+    } else {
+      // do
+    }
   }
-}, 5000)
+}
+upload();
+// after 3s cancel
+setTimeout(() => {
+  client.cancel();
+}, 3000);
 ```
