@@ -19,13 +19,13 @@ const stsConfig = require('../config').sts;
 
 describe('test/sts.test.js', () => {
   describe('assumeRole()', () => {
-    it('should assume role', function* () {
+    it('should assume role', async () => {
       const stsClient = sts(stsConfig);
-      const result = yield* stsClient.assumeRole(stsConfig.roleArn);
+      const result = await stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
     });
 
-    it('should assume role with policy', function* () {
+    it('should assume role with policy', async () => {
       const stsClient = sts(stsConfig);
       const policy = {
         Statement: [
@@ -39,11 +39,11 @@ describe('test/sts.test.js', () => {
         ],
         Version: '1',
       };
-      const result = yield* stsClient.assumeRole(stsConfig.roleArn, policy);
+      const result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
     });
 
-    it('should assume role with policy string', function* () {
+    it('should assume role with policy string', async () => {
       const stsClient = sts(stsConfig);
       const policy = `
       {
@@ -58,11 +58,11 @@ describe('test/sts.test.js', () => {
         ],
         "Version": "1"
       }`;
-      const result = yield* stsClient.assumeRole(stsConfig.roleArn, policy);
+      const result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
     });
 
-    it('should handle error in assume role', function* () {
+    it('should handle error in assume role', async () => {
       const stsClient = sts(stsConfig);
       const policy = `
       {
@@ -79,16 +79,16 @@ describe('test/sts.test.js', () => {
       }`;
 
       try {
-        yield* stsClient.assumeRole(stsConfig.roleArn, policy);
+        await stsClient.assumeRole(stsConfig.roleArn, policy);
         assert(false);
       } catch (err) {
         err.message.should.match(/InvalidParameter.PolicyGrammar/);
       }
     });
 
-    it('should list objects using STS', function* () {
+    it('should list objects using STS', async () => {
       const stsClient = sts(stsConfig);
-      let result = yield* stsClient.assumeRole(stsConfig.roleArn);
+      let result = await stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
 
       const ossClient = oss({
@@ -99,10 +99,10 @@ describe('test/sts.test.js', () => {
         bucket: stsConfig.bucket,
       });
 
-      result = yield ossClient.put('sts/hello', __filename);
+      result = await ossClient.put('sts/hello', __filename);
       assert.equal(result.res.status, 200);
 
-      result = yield ossClient.list({
+      result = await ossClient.list({
         'max-keys': 10,
       });
 

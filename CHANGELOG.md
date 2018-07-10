@@ -2,8 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.0.0"></a>
+# [6.0.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v6.0.0) (2018-07-10)
+
+### Features
+
+* refactor async/await instead of generator and test case
+* remove region param about bucket operations
+* support cancel on node sdk
+* mount debug info on client proto
+* remove unuse browser.js in /
+
+### docs
+
+* README.md example
+
 <a name="5.3.1"></a>
-## [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.1) (2018-06-27)
+# [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.1) (2018-06-27)
 
 ### Bug Fixes
 
