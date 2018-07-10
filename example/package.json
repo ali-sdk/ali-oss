@@ -26,7 +26,7 @@
     "babel-loader": "^7.1.4"
   },
   "dependencies": {
-    "ali-oss": "^5.2.0",
+    "ali-oss": "^6.0.0",
     "bootstrap": "^4.1.1",
     "jquery": "^3.3.1"
   }

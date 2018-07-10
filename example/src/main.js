@@ -3,6 +3,8 @@
 require('./style.css')
 const $ = require('jquery');
 // if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
+// import local for test
+// const OSS = require('../../lib/browser.js');
 const OSS = require('ali-oss');
 const crypto = require('crypto');
 
