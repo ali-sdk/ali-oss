@@ -3,6 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
+const AgentKeepalive = require('agentkeepalive');
+const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
+const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
 const oss = require('../..');
 const config = require('../config').oss;
@@ -291,7 +294,7 @@ describe('test/object.test.js', () => {
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
     });
 
-    it('should return correct encode when name include + and space', async  () => {
+    it('should return correct encode when name include + and space', async () => {
       const name = 'ali-sdkhahhhh+oss+mm xxx.js';
       const object = await store.put(name, __filename, {
         headers: {
@@ -969,6 +972,22 @@ describe('test/object.test.js', () => {
         throw new Error('should not run this');
       } catch (err) {
         assert.equal(err.name, 'NoSuchKeyError');
+      }
+    });
+
+    it('should throw error and consume the response stream', async () => {
+      store.agent = new AgentKeepalive({
+        keepAlive: true,
+      });
+      store.httpsAgent = new HttpsAgentKeepalive();
+      try {
+        await store.getStream(`${name}not-exists`);
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert(Object.keys(store.agent.freeSockets).length === 0);
+        await sleep(1);
+        assert(Object.keys(store.agent.freeSockets).length === 1);
       }
     });
   });
