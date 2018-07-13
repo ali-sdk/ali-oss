@@ -4,6 +4,9 @@ const path = require('path');
 const assert = require('assert');
 const cfs = require('co-fs');
 const { Readable } = require('stream');
+const AgentKeepalive = require('agentkeepalive');
+const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
+const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
 const oss = require('../..');
 const sts = require('../..').STS;
@@ -1004,6 +1007,22 @@ describe('test/object.test.js', () => {
         throw new Error('should not run this');
       } catch (err) {
         assert.equal(err.name, 'NoSuchKeyError');
+      }
+    });
+
+    it('should throw error and consume the response stream', function* () {
+      store.agent = new AgentKeepalive({
+        keepAlive: true,
+      });
+      store.httpsAgent = new HttpsAgentKeepalive();
+      try {
+        yield store.getStream(`${name}not-exists`);
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert(Object.keys(store.agent.freeSockets).length === 0);
+        yield sleep(1);
+        assert(Object.keys(store.agent.freeSockets).length === 1);
       }
     });
   });
