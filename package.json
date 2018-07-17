@@ -116,6 +116,6 @@
     "any-promise": "^1.3.0"
   },
   "publishConfig": {
-    "tag": "release-4.x"
+    "tag": "latest-4"
   }
 }
