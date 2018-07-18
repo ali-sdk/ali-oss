@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.0.1"></a>
+## [6.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.0.1) (2018-07-17)
+
+
+### Bug Fixes
+
+* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
+
 <a name="6.0.0"></a>
 # [6.0.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v6.0.0) (2018-07-10)
 
@@ -16,6 +24,15 @@ All notable changes to this project will be documented in this file. See [standa
 ### docs
 
 * README.md example
+
+<a name="5.3.2"></a>
+## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.2) (2018-07-17)
+
+
+### Bug Fixes
+
+* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
+
 
 <a name="5.3.1"></a>
 # [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.1) (2018-06-27)
