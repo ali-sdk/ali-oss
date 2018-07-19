@@ -1,16 +1,4 @@
-/**!
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   rockuw <rockuw@gmail.com> (http://rockuw.com)
- */
-
 'use strict';
-
-/**
- * Module dependencies.
- */
 
 var assert = require('assert');
 var utils = require('./utils');

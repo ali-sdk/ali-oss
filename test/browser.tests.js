@@ -19,7 +19,8 @@ var timemachine = require('timemachine');
 var co = require('co');
 timemachine.reset();
 var utils = require('./utils');
-describe('browser', function () {
+
+describe('test/browser.tests.js', function () {
   before(function* () {
     ossConfig = {
       region: stsConfig.region,
