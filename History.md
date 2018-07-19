@@ -1,4 +1,13 @@
 
+4.15.1 / 2018-07-19
+==================
+
+**fixes**
+  * [[`464e5ac`](http://github.com/ali-sdk/ali-oss/commit/464e5acabfab9650a37e98312a8bddb18b71d549)] - fix: should consume the response stream on error (#506) (fengmk2 <<fengmk2@gmail.com>>)
+
+**others**
+  * [[`2ac52b7`](http://github.com/ali-sdk/ali-oss/commit/2ac52b7552e07709029310c1a614e3e62c9d253e)] - chore: change publishConfig.tag to latest-4 (fengmk2 <<fengmk2@gmail.com>>)
+
 4.14.2 / 2018-04-03
 ==================
 
