@@ -14,6 +14,9 @@ var urllib = require('urllib');
 var copy = require('copy-to');
 var mm = require('mm');
 const streamEqual = require('stream-equal');
+var AgentKeepalive = require('agentkeepalive');
+var HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
+var sleep = require('mz-modules/sleep');
 
 var tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -908,6 +911,23 @@ describe('test/object.test.js', function () {
         throw new Error('should not run this');
       } catch (err) {
         assert.equal(err.name, 'NoSuchKeyError');
+      }
+    });
+
+    it('should throw error and consume the response stream', function* () {
+      var store = this.store;
+      store.agent = new AgentKeepalive({
+        keepAlive: true,
+      });
+      store.httpsAgent = new HttpsAgentKeepalive();
+      try {
+        yield store.getStream(`${this.name}not-exists`);
+        throw new Error('should not run this');
+      } catch (err) {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert(Object.keys(store.agent.freeSockets).length === 0);
+        yield sleep(1);
+        assert(Object.keys(store.agent.freeSockets).length === 1);
       }
     });
   });
