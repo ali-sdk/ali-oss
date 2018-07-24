@@ -1973,6 +1973,8 @@ example:
 
 Upload file with [OSS multipart][oss-multipart].<br>
 this function contains initMultipartUpload, uploadPart, completeMultipartUpload.
+When you use multipartUpload api，if you encounter problems with ConnectionTimeoutError, you should handle ConnectionTimeoutError in your business code. How to resolve ConnectionTimeoutError, you can decrease `partSize` size 、 Increase `timeout` 、Retry request ,
+or give tips in your business code;
 
 parameters:
 
@@ -2086,7 +2088,7 @@ const result2 = await store.multipartUpload('object', '/tmp/file', {
 
 - multipartUpload with cancel
 
->tips: cancel multipartUpload, now only support browser.
+>tips: cancel multipartUpload support on node and browser
 
 ```js
 
@@ -2110,6 +2112,29 @@ try {
 //the other event to cancel, for example: click event
 //to cancel upload must use the same client instance
 store.cancel();
+
+```
+
+- multipartUpload with capture `ConnectionTimeoutError`  error
+
+```js
+
+//start upload
+try {
+  const result = await store.multipartUpload('object', '/tmp/file', {
+    checkpoint: savedCpt,
+    progress: function (p, cpt, res) {
+      console.log(p);
+      console.log(cpt);
+      console.log(res.headers['x-oss-request-id']);
+    }
+  });
+} catch (err) {
+  if (err.code === 'ConnectionTimeoutError') {
+    console.log("Woops,Woops ,timeout error!!!");
+    // do ConnectionTimeoutError operation
+  }
+}
 
 ```
 
