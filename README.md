@@ -1593,7 +1593,7 @@ console.log(result.objects);
 
 ### .signatureUrl(name[, options])
 
-Create a signature url for download or upload object.
+Create a signature url for download or upload object. When you put object with signatureUrl ,you need to pass `Content-Type`.Please look at the example.
 
 parameters:
 
@@ -1601,6 +1601,7 @@ parameters:
 - [options] {Object} optional parameters
   - [expires] {Number} after expires seconds, the url will become invalid, default is `1800`
   - [method] {String} the HTTP method, default is 'GET'
+  - [Content-Type] {String} set the request content type
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
   - [response] {Object} set the response headers for download
@@ -1630,6 +1631,17 @@ const url = store.signatureUrl('ossdemo.txt', {
   method: 'PUT'
 });
 console.log(url);
+
+//  put object with signatureUrl
+// -------------------------------------------------
+
+const url = store.signatureUrl('ossdemo.txt', {
+  expires: 3600,
+  method: 'PUT',
+  'Content-Type': 'text/plain; charset=UTF-8',
+});
+console.log(url);
+
 // --------------------------------------------------
 const url = store.signatureUrl('ossdemo.txt', {
   expires: 3600,
@@ -1639,6 +1651,8 @@ const url = store.signatureUrl('ossdemo.txt', {
   }
 });
 console.log(url);
+
+// put operation
 ```
 
 - Get a signature url for a processed image
