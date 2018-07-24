@@ -232,7 +232,7 @@ const cnameUsage = function (cname) {
     url,
   }).then((result) => {
     const creds = result;
-    const client = new OSS.Wrapper({
+    const client = new OSS({
       accessKeyId: creds.AccessKeyId,
       accessKeySecret: creds.AccessKeySecret,
       stsToken: creds.SecurityToken,

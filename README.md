@@ -15,7 +15,7 @@ oss-js-sdk
 [david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-oss
 
-aliyun OSS(object storage service) js client for Node and Browser env.
+aliyun OSS(Object Storage Service) js client for Node and Browser env.
 
 `NOTE`： For SDK `5.X` document, please go to [README.md](https://github.com/ali-sdk/ali-oss/blob/5.x/README.md)
 
