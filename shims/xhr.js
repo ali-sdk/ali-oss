@@ -7,7 +7,7 @@ var https = require('https');
 var debug = require('debug')('urllib');
 var ms = require('humanize-ms');
 
-var _Promise;
+var _Promise = typeof global.Promise !== 'undefined' && global.Promise;
 
 var REQUEST_ID = 0;
 var MAX_VALUE = Math.pow(2, 31) - 10;
