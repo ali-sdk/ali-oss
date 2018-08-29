@@ -1,6 +1,6 @@
 const childProcess = require('child_process');
 
-const spawn = require('cross-spawn')
+const spawn = require('cross-spawn');
 
 const spawnObj = childProcess.spawn('node', ['server/app.js']);
 
