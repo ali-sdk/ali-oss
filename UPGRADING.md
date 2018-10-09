@@ -2,10 +2,10 @@
 
 # Upgrading Notes (5.x to 6.x)
 
-No matter how it changes, our api name will never change. In order to give developers a better experience, we just change the way that the client use.the This document captures breaking changes from 5.x versions to the first
+No matter how it changes, the api  will never change. In order to give developers a better experience, we just change the way that the client use. This document captures breaking changes from 5.x versions to the first
 stable 6.x (non-RC) release of the Aliyun SDK for JavaScript.
 
-## 1. Remove Region Param fo All Bucket Operations
+## 1. Remove Region Param for All Bucket Operations
 
 For all the bucket operation ,including putBucket、deleteBucket、getBucketInfo、 getBucketLoaction、
 putBucketACL、gitBucketACL、 putBucketLogging、 getBucketLogging、 deleteBucketLogging、 putBucketWebsite、
@@ -39,7 +39,7 @@ it can optimize our code to maintain and provide with a better development exper
 
 ## 3. Dropped `OSS.Wrapper` When Init Client
 
-Before in async opearion we use `OSS.Wrapper` ,but now we just use `new OSS()` ,it will return Promise like `OSS.Wrapper`,please remmove `Wrapper`.
+Before in async opearion we use `OSS.Wrapper` ,but now we just use `new OSS()` ,it will return Promise like `OSS.Wrapper`,please remove `Wrapper`.
 
 Upgrading example
 
