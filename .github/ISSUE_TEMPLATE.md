@@ -2,8 +2,9 @@
 Thank you for reporting an issue.
 
 1. It's RECOMMENDED to submit PR for typo or tiny bug fix.
-3. If this's a BUG, please provide: course repetition, network error log and configuration. Fill in as much of the template below as you're able.
-4. It will be nice to use example project to provide a mini GitHub repository which can reproduce the issue.
+2. If this's a BUG, please provide: course repetition, network error log and configuration. Fill in as much of the template below as you're able.
+3. It will be nice to use example project to provide a mini GitHub repository which can reproduce the issue.
+4. please try user newest ali-oss version.
 
 感谢您向我们反馈问题。
 
