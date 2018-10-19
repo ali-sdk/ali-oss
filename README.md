@@ -36,6 +36,8 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 - Major versions of Chrome/Firefox/Safari
 - Major versions of Android/iOS/WP
 
+`Note`: For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
+
 ## License
 
 [MIT](LICENSE)
