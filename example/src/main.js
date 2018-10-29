@@ -9,7 +9,7 @@ const OSS = require('ali-oss');
 const crypto = require('crypto');
 
 const appServer = 'http://localhost:9000/sts';
-const bucket = 'zq-hangzhou';
+const bucket = '<bucket-name>';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
 
