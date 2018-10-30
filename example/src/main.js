@@ -60,6 +60,9 @@ const progress = async function progress(p, checkpoint) {
 
 let uploadFileClient;
 
+let retryCount = 0;
+let retryCountMax = 3;
+
 const uploadFile = function uploadFile(client) {
   if (!uploadFileClient || Object.keys(uploadFileClient).length === 0) {
     uploadFileClient = client;
@@ -70,12 +73,14 @@ const uploadFile = function uploadFile(client) {
 
   console.log(`${file.name} => ${key}`);
   const options = {
-    progress,
-    partSize: 100 * 1024,
-    meta: {
-      year: 2017,
-      people: 'test',
-    },
+      progress,
+      partSize: 500 * 1024,
+      timeout:'60s',
+      meta: {
+          year: 2017,
+          people: 'test',
+      },
+
   };
   if (currentCheckpoint) {
     options.checkpoint = currentCheckpoint;
@@ -89,6 +94,16 @@ const uploadFile = function uploadFile(client) {
       console.log('stop-upload!');
     } else {
       console.error(err);
+      console.log("err.name : " + err.name);
+      console.log("err.message : " + err.message);
+      if(err.name.toLowerCase().indexOf("connectiontimeout") != -1) {
+          //timeout retry
+          if (retryCount < retryCountMax){
+              retryCount++;
+              console.error("retryCount : " + retryCount);
+              uploadFile('');
+          }
+      }
     }
   });
 };
