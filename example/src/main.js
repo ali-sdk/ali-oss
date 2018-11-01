@@ -75,11 +75,7 @@ const uploadFile = function uploadFile(client) {
   const options = {
       progress,
       partSize: 500 * 1024,
-<<<<<<< HEAD
-      timeout:60000,
-=======
-      timeout:'60s',
->>>>>>> master
+	  timeout:60000,
       meta: {
           year: 2017,
           people: 'test',
