@@ -5,6 +5,8 @@ oss-js-sdk
 [![build status][travis-image]][travis-url]
 [![coverage][cov-image]][cov-url]
 [![David deps][david-image]][david-url]
+[![Code Quality: Javascript][lgtm-badge]][lgtm-badge-url]
+[![Total alerts][lgtm-alerts]][lgtm-alerts-url]
 
 [npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ali-oss
@@ -14,6 +16,10 @@ oss-js-sdk
 [cov-url]: http://codecov.io/github/ali-sdk/ali-oss?branch=master
 [david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-oss
+[lgtm-badge]: https://img.shields.io/lgtm/grade/javascript/g/ali-sdk/ali-oss.svg?logo=lgtm&logoWidth=18
+[lgtm-badge-url]: https://lgtm.com/projects/g/ali-sdk/ali-oss/context:javascript
+[lgtm-alerts]: https://img.shields.io/lgtm/alerts/g/ali-sdk/ali-oss.svg?logo=lgtm&logoWidth=18
+[lgtm-alerts-url]: https://lgtm.com/projects/g/ali-sdk/ali-oss/alerts
 
 aliyun OSS(Object Storage Service) js client for Node and Browser env.
 
