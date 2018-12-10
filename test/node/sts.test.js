@@ -31,13 +31,13 @@ describe('test/sts.test.js', () => {
         Statement: [
           {
             Action: [
-              'oss:*',
+              'oss:*'
             ],
             Effect: 'Allow',
-            Resource: ['acs:oss:*:*:*'],
-          },
+            Resource: ['acs:oss:*:*:*']
+          }
         ],
-        Version: '1',
+        Version: '1'
       };
       const result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
@@ -96,14 +96,14 @@ describe('test/sts.test.js', () => {
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,
-        bucket: stsConfig.bucket,
+        bucket: stsConfig.bucket
       });
 
       result = await ossClient.put('sts/hello', __filename);
       assert.equal(result.res.status, 200);
 
       result = await ossClient.list({
-        'max-keys': 10,
+        'max-keys': 10
       });
 
       assert.equal(result.res.status, 200);

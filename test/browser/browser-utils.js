@@ -13,7 +13,7 @@ if (process && process.browser) {
 exports.cleanBucket = async function cleanBucket(store, bucket, region) {
   store.useBucket(bucket, region);
   let result = await store.list({
-    'max-keys': 1000,
+    'max-keys': 1000
   });
   result.objects = result.objects || [];
   for (let i = 0; i < result.objects.length; i++) {
@@ -22,7 +22,7 @@ exports.cleanBucket = async function cleanBucket(store, bucket, region) {
   }
 
   result = await store.listUploads({
-    'max-uploads': 1000,
+    'max-uploads': 1000
   });
   const uploads = result.uploads || [];
   /* eslint no-await-in-loop: [0] */
