@@ -47,9 +47,9 @@ describe('test/callback.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2',
-          },
-        },
+            var2: 'value2'
+          }
+        }
       });
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
@@ -64,7 +64,7 @@ describe('test/callback.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-new-callback`;
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: name,
-        sourceBucketName: bucket,
+        sourceBucketName: bucket
       }, {
         partSize: 256 * 1024,
         callback: {
@@ -74,12 +74,12 @@ describe('test/callback.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2',
-          },
+            var2: 'value2'
+          }
         },
         copyheaders: {
-          'x-oss-copy-source-if-match': '',
-        },
+          'x-oss-copy-source-if-match': ''
+        }
       });
 
       assert.equal(result.res.status, 200);
@@ -100,9 +100,9 @@ describe('test/callback.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2',
-          },
-        },
+            var2: 'value2'
+          }
+        }
       });
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
@@ -118,9 +118,9 @@ describe('test/callback.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2',
-          },
-        },
+            var2: 'value2'
+          }
+        }
       });
 
       assert.equal(result.res.status, 200);
@@ -137,9 +137,9 @@ describe('test/callback.test.js', () => {
           contentType: 'application/x-www-form-urlencoded',
           customValue: {
             var1: 'value1',
-            var2: 'value2',
-          },
-        },
+            var2: 'value2'
+          }
+        }
       });
 
       assert.equal(result.res.status, 200);
@@ -151,15 +151,15 @@ describe('test/callback.test.js', () => {
       const fileName = await utils.createTempFile('upload-with-callback', 50 * 1024);
       const callback = {
         url: callbackServer,
-        body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+        body: 'bucket=${bucket}&object=${object}&var1=${x:var1}'
       };
       const name = `${prefix}multipart/upload-with-callback`;
       /* eslint no-mixed-spaces-and-tabs: [0] */
       const result = await store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         headers: {
-          'x-oss-callback': utils.encodeCallback(callback),
-        },
+          'x-oss-callback': utils.encodeCallback(callback)
+        }
       });
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');

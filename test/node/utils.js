@@ -47,7 +47,7 @@ exports.sleep = function (ms) {
 exports.cleanBucket = async function (store, bucket) {
   store.useBucket(bucket);
   let result = await store.list({
-    'max-keys': 1000,
+    'max-keys': 1000
   });
   result.objects = result.objects || [];
   for (let i = 0; i < result.objects.length; i++) {
@@ -56,7 +56,7 @@ exports.cleanBucket = async function (store, bucket) {
   }
 
   result = await store.listUploads({
-    'max-uploads': 1000,
+    'max-uploads': 1000
   });
   const uploads = result.uploads || [];
   /* eslint no-await-in-loop: [0] */
@@ -85,7 +85,7 @@ exports.createTempFile = async function createTempFile(name, size) {
   await new Promise(((resolve, reject) => {
     const rs = fs.createReadStream('/dev/urandom', {
       start: 0,
-      end: size - 1,
+      end: size - 1
     });
     const ws = fs.createWriteStream(tmpdir + name);
     rs.pipe(ws);
@@ -116,7 +116,7 @@ exports.encodeCallback = function (cb) {
   const json = {
     callbackUrl: url.format(),
     callbackBody: cb.body,
-    callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded',
+    callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded'
   };
 
   return new Buffer(JSON.stringify(json)).toString('base64');
