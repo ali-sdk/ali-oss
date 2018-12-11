@@ -9,7 +9,7 @@
     "dist"
   ],
   "browser": {
-    "lib/client.js": "./dist/aliyun-oss-sdk.js",
+    "lib/client.js": "./lib/browser.js",
     "mime": "./shims/mime.js",
     "urllib": "./shims/xhr.js",
     "utility": "./shims/utility.js",
