@@ -26,15 +26,15 @@ describe('test/cluster.test.js', () => {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket1,
-          endpoint: config.endpoint,
+          endpoint: config.endpoint
         },
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket2,
-          endpoint: config.endpoint,
-        },
-      ],
+          endpoint: config.endpoint
+        }
+      ]
     };
     this.store = cluster(options);
     this.store.on('error', (err) => {
@@ -132,8 +132,8 @@ describe('test/cluster.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
@@ -322,8 +322,8 @@ describe('test/cluster.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
