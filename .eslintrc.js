@@ -25,6 +25,7 @@ module.exports = {
     }],
     // wait node version >= 5.10.0 will start this rule
     'no-buffer-constructor': [0],
-    "comma-dangle": [2, "never"]
+    "comma-dangle": [2, "never"],
+    "no-tabs":"off"
   }
 };

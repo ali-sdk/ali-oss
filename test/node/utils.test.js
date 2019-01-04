@@ -25,7 +25,7 @@ describe('test/utils.test.js', () => {
   	assert.equal(utils._isIP('1.0.0.1'), true);
 
   	// test last 3 byte
-  	assert.equal(utils._isIP('200.0.255.255'), true);
+    assert.equal(utils._isIP('200.0.255.255'), true);
   	assert.equal(utils._isIP('200.01.255.255'), true);
   	assert.equal(utils._isIP('200.10.255.255'), true);
   	assert.equal(utils._isIP('200.256.255.255'), false);
