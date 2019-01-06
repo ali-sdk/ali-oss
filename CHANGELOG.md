@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.0.4"></a>
+## [6.0.4](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.3...v6.0.4) (2019-01-06)
+
+
+
 <a name="6.0.3"></a>
 ## [6.0.3](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.0.3) (2019-01-06)
 
