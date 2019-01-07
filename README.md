@@ -174,7 +174,10 @@ options:
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
   If your servers are running on aliyun too, you can set `true` to save lot of money.
 - [secure] {Boolean} instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol.
-- [timeout] {String|Number} instance level timeout for all operations, default is `60s`
+- [timeout] {String|Number} instance level timeout for all operations, default is `60s`.
+- [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
+- [isRequestPay] {Boolean}, default false, whether request payer function of the bucket is open, if true, will send headers `'x-oss-request-payer': 'requester'` to oss server.
+  the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
 
 example:
 

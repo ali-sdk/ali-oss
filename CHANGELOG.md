@@ -2,8 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.4.0"></a>
+## [5.4.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.2...v5.4.0) (2018-01-07)
+
 <a name="5.3.2"></a>
-## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.2) (2018-07-17)
+## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v5.3.2) (2018-07-17)
 
 
 ### Bug Fixes
@@ -11,14 +14,14 @@ All notable changes to this project will be documented in this file. See [standa
 * should consume the response stream on error ([bc4620a](https://github.com/aliyun/oss-nodejs-sdk/commit/bc4620a))
 
 <a name="5.3.1"></a>
-## [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.1) (2018-06-27)
+## [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.0...v5.3.1) (2018-06-27)
 
 ### Bug Fixes
 
 * lock dependency stream-http 2.8.2
 
 <a name="5.3.0"></a>
-# [5.3.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.0) (2018-06-13)
+# [5.3.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.2.0...v5.3.0) (2018-06-13)
 
 
 ### Bug Fixes
