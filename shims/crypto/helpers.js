@@ -1,6 +1,6 @@
 var Buffer = require('buffer').Buffer;
 var intSize = 4;
-var zeroBuffer = new Buffer(intSize); zeroBuffer.fill(0);
+var zeroBuffer = Buffer.alloc(intSize); zeroBuffer.fill(0);
 var chrsz = 8;
 
 function toArray(buf, bigEndian) {
@@ -18,7 +18,7 @@ function toArray(buf, bigEndian) {
 }
 
 function toBuffer(arr, size, bigEndian) {
-  var buf = new Buffer(size);
+  var buf = Buffer.alloc(size);
   var fn = bigEndian ? buf.writeInt32BE : buf.writeInt32LE;
   for (var i = 0; i < arr.length; i++) {
     fn.call(buf, arr[i], i * 4, true);
@@ -27,7 +27,7 @@ function toBuffer(arr, size, bigEndian) {
 }
 
 function hash(buf, fn, hashSize, bigEndian) {
-  if (!Buffer.isBuffer(buf)) buf = new Buffer(buf);
+  if (!Buffer.isBuffer(buf)) buf = Buffer.from(buf);
   var arr = fn(toArray(buf, bigEndian), buf.length * chrsz);
   return toBuffer(arr, hashSize, bigEndian);
 }

@@ -987,7 +987,7 @@ store.put('ossdemo/demo.txt', filepath).then((result) => {
 - Add an object through content buffer
 
 ```js
-store.put('ossdemo/buffer', new Buffer('foo content')).then((result) => {
+store.put('ossdemo/buffer', Buffer.from('foo content')).then((result) => {
   console.log(result);
 });
 
@@ -1141,10 +1141,10 @@ object:
 example:
 
 ```js
-let object = await store.apend('ossdemo/buffer', new Buffer('foo'));
+let object = await store.apend('ossdemo/buffer',  Buffer.from('foo'));
 
 // append content to the existing object
-object = await store.apend('ossdemo/buffer', new Buffer('bar'), {
+object = await store.apend('ossdemo/buffer', Buffer.from('bar'), {
   position: object.nextAppendPosition,
 });
 ```
@@ -1214,7 +1214,7 @@ example:
 - Head an exists object and get user meta
 
 ```js
-await this.store.put('ossdemo/head-meta', new Buffer('foo'), {
+await this.store.put('ossdemo/head-meta', Buffer.from('foo'), {
   meta: {
     uid: 1,
     path: 'foo/demo.txt'

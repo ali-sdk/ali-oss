@@ -268,7 +268,7 @@ proto.createRequest = function createRequest(params) {
   }
 
   if (params.content) {
-    headers['Content-Md5'] = crypto.createHash('md5').update(new Buffer(params.content, 'utf8')).digest('base64');
+    headers['Content-Md5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
     if (!headers['Content-Length']) {
       headers['Content-Length'] = params.content.length;
     }
@@ -1156,7 +1156,7 @@ WebFileReadStream.prototype._read = function _read(size) {
 
   var that = this;
   this.reader.onload = function onload(e) {
-    that.fileBuffer = new Buffer(new Uint8Array(e.target.result));
+    that.fileBuffer = Buffer.from(new Uint8Array(e.target.result));
     that.file = null;
     that.readFileAndPush(size);
   };
@@ -2103,7 +2103,7 @@ exports.encodeCallback = function encodeCallback(reqParams, options) {
       if (options.callback.contentType) {
         json.callbackBodyType = options.callback.contentType;
       }
-      var callback = new Buffer((0, _stringify2.default)(json)).toString('base64');
+      var callback = Buffer.from((0, _stringify2.default)(json)).toString('base64');
       reqParams.headers['x-oss-callback'] = callback;
 
       if (options.callback.customValue) {
@@ -2111,7 +2111,7 @@ exports.encodeCallback = function encodeCallback(reqParams, options) {
         (0, _keys2.default)(options.callback.customValue).forEach(function (key) {
           callbackVar['x:' + key] = options.callback.customValue[key];
         });
-        reqParams.headers['x-oss-callback-var'] = new Buffer((0, _stringify2.default)(callbackVar)).toString('base64');
+        reqParams.headers['x-oss-callback-var'] = Buffer.from((0, _stringify2.default)(callbackVar)).toString('base64');
       }
     }
   }
@@ -2812,7 +2812,7 @@ exports.buildCanonicalString = function canonicalString(method, resourcePath, re
  */
 exports.computeSignature = function computeSignature(accessKeySecret, canonicalString) {
   var signature = crypto.createHmac('sha1', accessKeySecret);
-  return signature.update(new Buffer(canonicalString, 'utf8')).digest('base64');
+  return signature.update(Buffer.from(canonicalString, 'utf8')).digest('base64');
 };
 
 /**
@@ -2876,14 +2876,14 @@ exports._signatureForURL = function _signatureForURL(accessKeySecret, options, r
     if (options.callback.contentType) {
       json.callbackBodyType = options.callback.contentType;
     }
-    subResource.callback = new Buffer((0, _stringify2.default)(json)).toString('base64');
+    subResource.callback = Buffer.from((0, _stringify2.default)(json)).toString('base64');
 
     if (options.callback.customValue) {
       var callbackVar = {};
       (0, _keys2.default)(options.callback.customValue).forEach(function (key) {
         callbackVar['x:' + key] = options.callback.customValue[key];
       });
-      subResource['callback-var'] = new Buffer((0, _stringify2.default)(callbackVar)).toString('base64');
+      subResource['callback-var'] = Buffer.from((0, _stringify2.default)(callbackVar)).toString('base64');
     }
   }
 
@@ -3992,7 +3992,7 @@ var StringDecoder = exports.StringDecoder = function(encoding) {
 
   // Enough space to store all bytes of a single character. UTF-8 needs 4
   // bytes, but CESU-8 may require up to 6 (3 bytes per surrogate).
-  this.charBuffer = new Buffer(6);
+  this.charBuffer = Buffer.alloc(6);
   // Number of bytes received for the current incomplete multi-byte character.
   this.charReceived = 0;
   // Number of bytes expected for the current incomplete multi-byte character.
@@ -4224,7 +4224,7 @@ function createBuffer (that, length) {
   } else {
     // Fallback: Return an object instance of the Buffer class
     if (that === null) {
-      that = new Buffer(length)
+      that = Buffer.alloc(length)
     }
     that.length = length
   }
@@ -4244,7 +4244,7 @@ function createBuffer (that, length) {
 
 function Buffer (arg, encodingOrOffset, length) {
   if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
-    return new Buffer(arg, encodingOrOffset, length)
+    return Buffer.from(arg, encodingOrOffset, length)
   }
 
   // Common case.
@@ -5227,7 +5227,7 @@ Buffer.prototype.slice = function slice (start, end) {
     newBuf.__proto__ = Buffer.prototype
   } else {
     var sliceLen = end - start
-    newBuf = new Buffer(sliceLen, undefined)
+    newBuf =  Buffer.alloc(sliceLen, undefined)
     for (var i = 0; i < sliceLen; ++i) {
       newBuf[i] = this[i + start]
     }
@@ -5776,7 +5776,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
   } else {
     var bytes = Buffer.isBuffer(val)
       ? val
-      : utf8ToBytes(new Buffer(val, encoding).toString())
+      : utf8ToBytes(Buffer.from(val, encoding).toString())
     var len = bytes.length
     for (i = 0; i < end - start; ++i) {
       this[i + start] = bytes[i % len]
@@ -8679,7 +8679,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   /**
    * Get ISO-8601 numeric representation of the day of the week
    * 1 (for Monday) through 7 (for Sunday)
-   * 
+   *
    * @param  {Object} `date`
    * @return {Number}
    */
@@ -17802,7 +17802,7 @@ var ClientRequest = module.exports = function (opts) {
 	self._opts = opts;
 	self._body = [];
 	self._headers = {};
-	if (opts.auth) self.setHeader('Authorization', 'Basic ' + new Buffer(opts.auth).toString('base64'));
+	if (opts.auth) self.setHeader('Authorization', 'Basic ' + Buffer.from(opts.auth).toString('base64'));
 	(0, _keys2.default)(opts.headers).forEach(function (name) {
 		self.setHeader(name, opts.headers[name]);
 	});
@@ -18111,7 +18111,7 @@ var IncomingMessage = exports.IncomingMessage = function (xhr, response, mode, f
 					self.push(null);
 					return;
 				}
-				self.push(new Buffer(result.value));
+				self.push(Buffer.from(result.value));
 				read();
 			}).catch(function (err) {
 				global.clearTimeout(fetchTimer);
@@ -18136,7 +18136,7 @@ var IncomingMessage = exports.IncomingMessage = function (xhr, response, mode, f
 					return new _promise2.default(function (resolve, reject) {
 						if (self._destroyed) {
 							reject();
-						} else if (self.push(new Buffer(chunk))) {
+						} else if (self.push(Buffer.from(chunk))) {
 							resolve();
 						} else {
 							self._resumeFetch = resolve;
@@ -18231,10 +18231,10 @@ IncomingMessage.prototype._onXHRProgress = function () {
 				response = new global.VBArray(xhr.responseBody).toArray();
 			} catch (e) {}
 			if (response !== null) {
-				self.push(new Buffer(response));
+				self.push(Buffer.from(response));
 				break;
 			}
-		// Falls through in IE8	
+		// Falls through in IE8
 		case 'text':
 			try {
 				// This will fail when readyState = 3 in IE9. Switch mode and wait for readyState = 4
@@ -18246,7 +18246,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 			if (response.length > self._pos) {
 				var newData = response.substr(self._pos);
 				if (self._charset === 'x-user-defined') {
-					var buffer = new Buffer(newData.length);
+					var buffer = Buffer.alloc(newData.length);
 					for (var i = 0; i < newData.length; i++) {
 						buffer[i] = newData.charCodeAt(i) & 0xff;
 					}self.push(buffer);
@@ -18259,13 +18259,13 @@ IncomingMessage.prototype._onXHRProgress = function () {
 		case 'arraybuffer':
 			if (xhr.readyState !== rStates.DONE || !xhr.response) break;
 			response = xhr.response;
-			self.push(new Buffer(new Uint8Array(response)));
+			self.push(Buffer.from(new Uint8Array(response)));
 			break;
 		case 'moz-chunked-arraybuffer':
 			// take whole
 			response = xhr.response;
 			if (xhr.readyState !== rStates.LOADING || !response) break;
-			self.push(new Buffer(new Uint8Array(response)));
+			self.push(Buffer.from(new Uint8Array(response)));
 			break;
 		case 'ms-stream':
 			response = xhr.response;
@@ -18273,7 +18273,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 			var reader = new global.MSStreamReader();
 			reader.onprogress = function () {
 				if (reader.result.byteLength > self._pos) {
-					self.push(new Buffer(new Uint8Array(reader.result.slice(self._pos))));
+					self.push(Buffer.from(new Uint8Array(reader.result.slice(self._pos))));
 					self._pos = reader.result.byteLength;
 				}
 			};
@@ -23660,12 +23660,12 @@ var algorithms = {
 };
 
 var blocksize = 64;
-var zeroBuffer = new Buffer(blocksize);
+var zeroBuffer = Buffer.alloc(blocksize);
 zeroBuffer.fill(0);
 
 function hmac(fn, key, data) {
-  if (!Buffer.isBuffer(key)) key = new Buffer(key);
-  if (!Buffer.isBuffer(data)) data = new Buffer(data);
+  if (!Buffer.isBuffer(key)) key = Buffer.from(key);
+  if (!Buffer.isBuffer(data)) data = Buffer.from(data);
 
   if (key.length > blocksize) {
     key = fn(key);
@@ -23673,8 +23673,8 @@ function hmac(fn, key, data) {
     key = Buffer.concat([key, zeroBuffer], blocksize);
   }
 
-  var ipad = new Buffer(blocksize),
-      opad = new Buffer(blocksize);
+  var ipad = Buffer.alloc(blocksize),
+      opad = Buffer.alloc(blocksize);
   for (var i = 0; i < blocksize; i++) {
     ipad[i] = key[i] ^ 0x36;
     opad[i] = key[i] ^ 0x5C;
@@ -23692,7 +23692,7 @@ function hash(alg, key) {
   if (!fn) error('algorithm:', alg, 'is not yet supported');
   return {
     update: function update(data) {
-      if (!Buffer.isBuffer(data)) data = new Buffer(data);
+      if (!Buffer.isBuffer(data)) data = Buffer.from(data);
 
       bufs.push(data);
       length += data.length;
@@ -23737,7 +23737,7 @@ each(['createCredentials', 'createCipher', 'createCipheriv', 'createDecipher', '
 
 var Buffer = require('buffer').Buffer;
 var intSize = 4;
-var zeroBuffer = new Buffer(intSize);zeroBuffer.fill(0);
+var zeroBuffer = Buffer.alloc(intSize);zeroBuffer.fill(0);
 var chrsz = 8;
 
 function toArray(buf, bigEndian) {
@@ -23755,7 +23755,7 @@ function toArray(buf, bigEndian) {
 }
 
 function toBuffer(arr, size, bigEndian) {
-  var buf = new Buffer(size);
+  var buf = Buffer.alloc(size);
   var fn = bigEndian ? buf.writeInt32BE : buf.writeInt32LE;
   for (var i = 0; i < arr.length; i++) {
     fn.call(buf, arr[i], i * 4, true);
@@ -23764,7 +23764,7 @@ function toBuffer(arr, size, bigEndian) {
 }
 
 function hash(buf, fn, hashSize, bigEndian) {
-  if (!Buffer.isBuffer(buf)) buf = new Buffer(buf);
+  if (!Buffer.isBuffer(buf)) buf = Buffer.from(buf);
   var arr = fn(toArray(buf, bigEndian), buf.length * chrsz);
   return toBuffer(arr, hashSize, bigEndian);
 }

@@ -11,12 +11,12 @@ var algorithms = {
 };
 
 var blocksize = 64;
-var zeroBuffer = new Buffer(blocksize);
+var zeroBuffer = Buffer.alloc(blocksize);
 zeroBuffer.fill(0);
 
 function hmac(fn, key, data) {
-  if(!Buffer.isBuffer(key)) key = new Buffer(key);
-  if(!Buffer.isBuffer(data)) data = new Buffer(data);
+  if(!Buffer.isBuffer(key)) key = Buffer.from(key);
+  if(!Buffer.isBuffer(data)) data = Buffer.from(data);
 
   if(key.length > blocksize) {
     key = fn(key)
@@ -24,7 +24,7 @@ function hmac(fn, key, data) {
     key = Buffer.concat([key, zeroBuffer], blocksize)
   }
 
-  var ipad = new Buffer(blocksize), opad = new Buffer(blocksize);
+  var ipad = Buffer.alloc(blocksize), opad = Buffer.alloc(blocksize);
   for(var i = 0; i < blocksize; i++) {
     ipad[i] = key[i] ^ 0x36
     opad[i] = key[i] ^ 0x5C
@@ -42,7 +42,7 @@ function hash(alg, key) {
   if(!fn) error('algorithm:', alg, 'is not yet supported');
   return {
     update: function (data) {
-      if(!Buffer.isBuffer(data)) data = new Buffer(data);
+      if(!Buffer.isBuffer(data)) data = Buffer.from(data);
 
       bufs.push(data);
       length += data.length;
