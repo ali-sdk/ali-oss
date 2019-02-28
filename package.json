@@ -99,6 +99,7 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
+    "@sentry/node": "^4.6.4",
     "address": "^1.0.0",
     "agentkeepalive": "^3.4.1",
     "any-promise": "^1.3.0",
