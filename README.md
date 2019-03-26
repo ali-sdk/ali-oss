@@ -1141,10 +1141,10 @@ object:
 example:
 
 ```js
-let object = await store.apend('ossdemo/buffer', new Buffer('foo'));
+let object = await store.append('ossdemo/buffer', new Buffer('foo'));
 
 // append content to the existing object
-object = await store.apend('ossdemo/buffer', new Buffer('bar'), {
+object = await store.append('ossdemo/buffer', new Buffer('bar'), {
   position: object.nextAppendPosition,
 });
 ```
