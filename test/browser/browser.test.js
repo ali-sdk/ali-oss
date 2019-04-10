@@ -368,6 +368,23 @@ describe('browser', () => {
       assert.equal(store.options.accessKeyId, 'foo');
       assert.equal(store.options.accessKeySecret, 'bar');
     });
+
+    // 默认获取useFetch为true,设置为false后，简单确认为false
+    it('should check useFetch option', () => {
+      const store1 = oss({
+        accessKeyId: 'hi-oss-check-key-id',
+        accessKeySecret: 'hi-oss-check-key-id-secret',
+        region: 'oss-cn-hangzhou'
+      });
+      assert.equal(store1.options.useFetch, true);
+      const store2 = oss({
+        accessKeyId: 'hi-oss-check-key-id',
+        accessKeySecret: 'hi-oss-check-key-id-secret',
+        region: 'oss-cn-hangzhou',
+        useFetch: false
+      });
+      assert.equal(store2.options.useFetch, false);
+    });
   });
 
   describe('list()', () => {
@@ -1108,6 +1125,24 @@ describe('browser', () => {
         const result = await client.multipartUpload(name, file, options2);
 
         assert.equal(result.res.status, 200);
+      });
+
+      it('should upload partSize be number', async () => {
+        // create a file with 1M random data
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-fallback');
+
+        const name = `${prefix}multipart/upload-file.js`;
+        try {
+          await store.multipartUpload(name, file, {
+            partSize: 14.56,
+            progress() {
+              progress++;
+            }
+          });
+        } catch (e) {
+          assert.equal('partSize must be int number', e.message);
+        }
       });
     });
   });

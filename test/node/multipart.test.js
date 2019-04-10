@@ -410,6 +410,24 @@ describe('test/multipart.test.js', () => {
       const result = await store.completeMultipartUpload(name, uploadId, dones);
       assert.equal(result.res.status, 200);
     });
+
+    it('should upload partSize be number', async () => {
+      // create a file with 1M random data
+      const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);
+
+      const name = `${prefix}multipart/upload-file`;
+      let progress = 0;
+      try {
+        const result = await store.multipartUpload(name, fileName, {
+          partSize: 14.56,
+          progress() {
+            progress++;
+          }
+        });
+      } catch (e) {
+        assert.equal('partSize must be int number', e.message);
+      }
+    });
   });
 
   describe('requestError()', () => {
