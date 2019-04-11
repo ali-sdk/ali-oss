@@ -2,8 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.1.1"></a>
+## [6.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.1.0...v6.1.1) (2019-01-08)
+
+### Bug Fixes
+
+* support useFetch options to resovle browser compatibility
+* fix mulipartUpload bug in IE 10 or parallel == 1
+* fix invalid partSize
+
 <a name="6.1.0"></a>
-## [6.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.2...v6.1.0) (2019-01-06)
+## [6.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.2...v6.1.0) (2019-04-08)
 
 ### Features
 * support requestPayer
