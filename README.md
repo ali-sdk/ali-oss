@@ -36,8 +36,16 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 - Major versions of Chrome/Firefox/Safari
 - Major versions of Android/iOS/WP
 
-`Note`: For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
+`Note`:
+- For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
+- QQ Browser ,we suggest config useFetch option false, it will upload with `XMLhttpRequest`, eg
 
+```javascript
+let client = new OSS({
+    ...,
+    useFetch: false
+})
+```
 ## License
 
 [MIT](LICENSE)
@@ -282,7 +290,11 @@ options:
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
   If your servers are running on aliyun too, you can set `true` to save lot of money.
 - [secure] {Boolean} instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol.
-- [timeout] {String|Number} instance level timeout for all operations, default is `60s`
+- [timeout] {String|Number} instance level timeout for all operations, default is `60s`.
+- [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
+- [isRequestPay] {Boolean}, default false, whether request payer function of the bucket is open, if true, will send headers `'x-oss-request-payer': 'requester'` to oss server.
+  the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
+- [useFetch] {Boolean}, default true, it just work in Browser, if true,it means upload object with `fetch` mode ,else `XMLHttpRequest`
 
 example:
 
@@ -1138,10 +1150,10 @@ object:
 example:
 
 ```js
-let object = await store.apend('ossdemo/buffer', new Buffer('foo'));
+let object = await store.append('ossdemo/buffer', new Buffer('foo'));
 
 // append content to the existing object
-object = await store.apend('ossdemo/buffer', new Buffer('bar'), {
+object = await store.append('ossdemo/buffer', new Buffer('bar'), {
   position: object.nextAppendPosition,
 });
 ```
