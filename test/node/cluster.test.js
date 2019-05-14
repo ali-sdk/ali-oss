@@ -230,6 +230,23 @@ describe('test/cluster.test.js', () => {
       this.store.removeListener('error', onerror);
     });
 
+    it('should MS always get from clients[0] when masterOnly === true', async function () {
+      mm(this.store, 'schedule', 'masterSlave');
+      mm(this.store, 'masterOnly', true);
+      mm(this.store.clients[1], 'get', 'mock error');
+      function onerror() {
+        throw new Error('should not emit error event');
+      }
+      this.store.on('error', onerror);
+
+      let res = await this.store.get(this.name);
+      res.res.status.should.equal(200);
+      res = await this.store.get(this.name);
+      res.res.status.should.equal(200);
+
+      this.store.removeListener('error', onerror);
+    });
+
     it('should get from clients[0] when clients[0] response 4xx ok', async function () {
       mm(this.store, 'schedule', 'masterSlave');
       mm.error(this.store.clients[0], 'get', 'mock error', { status: 403 });
