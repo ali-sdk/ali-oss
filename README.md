@@ -2861,7 +2861,7 @@ var client = Cluster({
     accessKeyId: 'id2',
     accessKeySecret: 'secret2'
   }],
-  schedule: 'masterSlave', //default is `roundRobin`
+  schedule: 'masterSlave', // default is `roundRobin`
 });
 
 // listen error event to logging error
