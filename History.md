@@ -1,4 +1,10 @@
 
+4.16.0 / 2019-05-14
+==================
+
+**features**
+  * [[`73d36c5`](http://github.com/ali-sdk/ali-oss/commit/73d36c5b34eb4436e7778f94de24e67daff28eae)] - feat: only read from master (#622) (fengmk2 <<fengmk2@gmail.com>>)
+
 4.15.1 / 2018-07-19
 ==================
 
