@@ -113,6 +113,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
+  - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
+  - [.getSymlink(name[, options])](#getsymlinkname-options)
   - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
   - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
   - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
@@ -1766,6 +1768,57 @@ const result = await store.restore('ossdemo.txt');
 console.log(result.status);
 ```
 
+### .putSymlink(name, targetName[, options])
+
+PutSymlink
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+- [timeout] {Number} the operation timeout
+
+Success will return
+
+- res {Object} response info, including
+- status {Number} response status
+- headers {Object} response headers
+- size {Number} response size
+- rt {Number} request total use time (ms)
+
+example:
+
+```js
+const result = await store.putSymlink('ossdemo.txt', '__filename')
+console.log(result.status)
+```
+
+### .getSymlink(name[, options])
+
+GetSymlink
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+- [timeout] {Number} the operation timeout
+
+Success will return
+
+- res {Object} response info, including
+- status {Number} response status
+- headers {Object} response headers
+- size {Number} response size
+- rt {Number} request total use time (ms)
+
+example:
+
+```js
+const result = await store.getSymlink('ossdemo.txt')
+console.log(result.status)
+```
+
+
 ### .initMultipartUpload(name[, options])
 Before transmitting data in the Multipart Upload mode,
 you must call the Initiate Multipart Upload interface to notify the OSS to initiate a Multipart Upload event.
@@ -3145,6 +3198,7 @@ Will put to all clients.
 - `client.putMeta()`
 - `client.putACL()`
 - `client.restore()`
+- `client.putSymlink()`
 
 ## Known Errors
 
