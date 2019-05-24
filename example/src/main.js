@@ -41,6 +41,7 @@ const applyTokenDo = function (func, refreshSts) {
                 accessKeyId: creds.AccessKeyId,
                 accessKeySecret: creds.AccessKeySecret,
                 stsToken: creds.SecurityToken,
+               // endpoint:"https://"+region+".aliyuncs.com",//这里可以支持https的传输，如果网站是https网站则此项必填
                 bucket
             });
 
