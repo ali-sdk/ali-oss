@@ -5,7 +5,15 @@ const fs = require('fs');
 const app = express();
 const path = require('path');
 const conf = require('./config');
-
+//支持跨域
+app.all("/*",(req,res,next)=>{
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "*");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By",' 3.2.1');
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+})
 app.get('/sts', (req, res) => {
   console.log(conf);
   let policy;
