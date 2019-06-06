@@ -113,6 +113,11 @@ All operation use es7 async/await to implement. All api is async function.
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
+  - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
+  - [.getSymlink(name[, options])](#getsymlinkname-options)
+  - [.putTagging(name, taggings[, options])](#puttaggingname-taggings-options)
+  - [.getTagging(name[, options])](#gettaggingname-options)
+  - [.deleteTagging(name[, options])](#deletetaggingname-options)
   - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
   - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
   - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
@@ -1764,6 +1769,87 @@ example:
 ```js
 const result = await store.restore('ossdemo.txt');
 console.log(result.status);
+```
+
+### .putTagging(name, taggings[, options])
+
+Put object's Tagging
+
+parameters:
+
+- name {String} object name
+- taggings {Array} the tagging of key-value
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [mime] Mime file type e.g.: application/octet-stream
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const tags = [{'key':'value'}];
+const result = await store.putTagging('objectname',tags);
+console.log(result.status)
+```
+
+### .getTagging(name[, options])
+
+Get object's Tagging
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [mime] Mime file type e.g.: application/octet-stream
+
+Success will return:
+
+- tags {Object} response tags
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const result = await store.getTagging('objectname');
+console.log(result.status)
+```
+
+### .deleteTagging(name[, options])
+
+Delete object's Tagging
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [mime] Mime file type e.g.: application/octet-stream
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const result = await store.deleteTagging('objectname');
+console.log(result.status)
 ```
 
 ### .initMultipartUpload(name[, options])

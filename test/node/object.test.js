@@ -1638,4 +1638,23 @@ describe('test/object.test.js', () => {
       }
     });
   });
+
+  describe('tagging()', () => {
+    it('Should put,get and delete Tagging', async () => {
+      const name = 'objecttag';
+      const taggings = [
+        {'key1':'value1'},
+        {'key2':'value2'}
+      ];
+      let result = await store.put(name, __filename);
+      result = await store.putTagging(name, taggings);
+      assert.equal(result.res.status, 200);
+
+      result = await store.getTagging(name);
+      assert.equal(result.res.status, 200);
+
+      result = await store.deleteTagging(name);
+      assert.equal(result.res.status, 204);
+    });
+  });
 });
