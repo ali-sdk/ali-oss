@@ -1794,7 +1794,7 @@ Success will return:
 example:
 
 ```js
-const tags = [{'key':'value'}];
+const tags = [{key:'value'}];
 const result = await store.putTagging('objectname',tags);
 console.log(result.status)
 ```
@@ -1823,7 +1823,7 @@ example:
 
 ```js
 const result = await store.getTagging('objectname');
-console.log(result.status)
+console.log(result.tags)
 ```
 
 ### .deleteTagging(name[, options])
@@ -3290,6 +3290,8 @@ TooManyBucketsError | TooManyBuckets | 400 | Too many buckets on this user | 用
 RequestError | RequestError | -1 | network error | 网络出现中断或异常
 ConnectionTimeoutError | ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
 SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
+ObjectTaggingDisabledError | ObjectTaggingDisabled | 403 | user not opened tagging | 用户未开通标签功能
+InvalidTagError | InvalidTag | 400 | Tags with the same key | Tags存在相同的Key
 
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html

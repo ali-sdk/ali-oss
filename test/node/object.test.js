@@ -1642,16 +1642,19 @@ describe('test/object.test.js', () => {
   describe('tagging()', () => {
     it('Should put,get and delete Tagging', async () => {
       const name = 'objecttag';
-      const taggings = [
-        {'key1':'value1'},
-        {'key2':'value2'}
-      ];
+      const taggings = [{key_1:'value_1'},{key_2:'value_2'}];
       let result = await store.put(name, __filename);
       result = await store.putTagging(name, taggings);
       assert.equal(result.res.status, 200);
 
       result = await store.getTagging(name);
       assert.equal(result.res.status, 200);
+
+      let tagResult = result.tags;
+      assert.equal(taggings.length, tagResult.length);
+      
+      assert.equal(taggings[0].key_1, tagResult[0].key_1);
+      assert.equal(taggings[1].key_2, tagResult[1].key_2);
 
       result = await store.deleteTagging(name);
       assert.equal(result.res.status, 204);
