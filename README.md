@@ -99,7 +99,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
   - [.putStream(name, stream[, options])](#putstreamname-stream-options)
-  - [.append(name, file[, options])](#apendname-file-options)
+  - [.append(name, file[, options])](#appendname-file-options)
   - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
   - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
   - [.head(name[, options])](#headname-options)
