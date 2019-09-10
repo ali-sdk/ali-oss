@@ -869,28 +869,29 @@ describe('test/object.test.js', () => {
       assert.equal(headRes.status, 200);
     });
 
-    it('should signature url for PUT with callback parameter', async () => {
-      const callback = {
-        url: 'http://oss-demo.aliyuncs.com:23450',
-        body: `bucket=${bucket}`,
-        host: 'oss-demo.aliyuncs.com',
-        contentType: 'application/json',
-        customValue: {
-          key1: 'value1',
-          key2: 'value2'
-        }
-      };
-
-      const options = {
-        method: 'PUT',
-        expires: 3600,
-        callback
-      };
-
-      const url = store.signatureUrl(name, options);
-      const res = await urllib.request(url, options);
-      assert.equal(res.status, 200);
-    });
+    // TODO: the callback url is disable.
+    // it('should signature url for PUT with callback parameter', async () => {
+    //   const callback = {
+    //     url: 'http://oss-demo.aliyuncs.com:23450',
+    //     body: `bucket=${bucket}`,
+    //     host: 'oss-demo.aliyuncs.com',
+    //     contentType: 'application/json',
+    //     customValue: {
+    //       key1: 'value1',
+    //       key2: 'value2'
+    //     }
+    //   };
+    //
+    //   const options = {
+    //     method: 'PUT',
+    //     expires: 3600,
+    //     callback
+    //   };
+    //
+    //   const url = store.signatureUrl(name, options);
+    //   const res = await urllib.request(url, options);
+    //   assert.equal(res.status, 200);
+    // });
 
     it('should signature url get need escape object ok', async () => {
       const result = await store.get(needEscapeName);
