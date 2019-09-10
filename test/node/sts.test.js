@@ -12,12 +12,14 @@
  */
 
 const assert = require('assert');
+const utils = require('./utils');
 const sts = require('../..').STS;
 const oss = require('../..');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
 
 describe('test/sts.test.js', () => {
+  const { prefix } = utils;
   describe('assumeRole()', () => {
     it('should assume role', async () => {
       const stsClient = sts(stsConfig);
@@ -99,13 +101,21 @@ describe('test/sts.test.js', () => {
         bucket: stsConfig.bucket
       });
 
-      result = await ossClient.put('sts/hello', __filename);
+      const name1 = `${prefix}ali-sdk/oss/sts-put1.js`;
+      const name2 = `${prefix}ali-sdk/oss/sts-put2.js`;
+      result = await ossClient.put(name1, __filename);
+      assert.equal(result.res.status, 200);
+
+      result = await ossClient.put(name2, __filename);
       assert.equal(result.res.status, 200);
 
       result = await ossClient.list({
         'max-keys': 10
       });
 
+      assert.equal(result.res.status, 200);
+
+      ossClient.deleteMulti([name1, name2]);
       assert.equal(result.res.status, 200);
     });
   });
