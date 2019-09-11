@@ -101,6 +101,44 @@ describe('test/sts.test.js', () => {
         bucket: stsConfig.bucket
       });
 
+      const name = `${prefix}ali-sdk/oss/sts-put1.js`;
+      result = await ossClient.put(name, __filename);
+      assert.equal(result.res.status, 200);
+
+      result = await ossClient.list({
+        'max-keys': 10
+      });
+
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete multi objects using STS', async () => {
+      const stsClient = sts(stsConfig);
+
+      let policy = {
+        Statement: [
+          {
+            Action: [
+              'oss:PutObject'
+            ],
+            Effect: 'Allow',
+            Resource: ['acs:oss:*:*:*']
+          }
+        ],
+        Version: '1'
+      };
+
+      let result = await stsClient.assumeRole(stsConfig.roleArn, policy);
+      assert.equal(result.res.status, 200);
+
+      let ossClient = oss({
+        region: config.region,
+        accessKeyId: result.credentials.AccessKeyId,
+        accessKeySecret: result.credentials.AccessKeySecret,
+        stsToken: result.credentials.SecurityToken,
+        bucket: stsConfig.bucket
+      });
+
       const name1 = `${prefix}ali-sdk/oss/sts-put1.js`;
       const name2 = `${prefix}ali-sdk/oss/sts-put2.js`;
       result = await ossClient.put(name1, __filename);
@@ -109,13 +147,38 @@ describe('test/sts.test.js', () => {
       result = await ossClient.put(name2, __filename);
       assert.equal(result.res.status, 200);
 
-      result = await ossClient.list({
-        'max-keys': 10
-      });
+      try {
+        await ossClient.deleteMulti([name1, name2]);
+        assert(false);
+      } catch (err) {
+        err.message.should.match(/Access denied by authorizer's policy/);
+      }
 
+      policy = {
+        Statement: [
+          {
+            Action: [
+              'oss:DeleteObject'
+            ],
+            Effect: 'Allow',
+            Resource: ['acs:oss:*:*:*']
+          }
+        ],
+        Version: '1'
+      };
+
+      result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
 
-      ossClient.deleteMulti([name1, name2]);
+      ossClient = oss({
+        region: config.region,
+        accessKeyId: result.credentials.AccessKeyId,
+        accessKeySecret: result.credentials.AccessKeySecret,
+        stsToken: result.credentials.SecurityToken,
+        bucket: stsConfig.bucket
+      });
+
+      result = await ossClient.deleteMulti([name1, name2]);
       assert.equal(result.res.status, 200);
     });
   });
