@@ -180,7 +180,7 @@ describe('test/rtmp.test.js', () => {
       const createVodConf = conf;
       createVodConf.Description = 'this is live channel 4';
       const result = await store.putChannel(createVodCid, createVodConf);
-      console.log(result);
+      assert.equal(result.res.status, 200);
       const url = store.getRtmpUrl(createVodCid, {
         params: {
           playlistName: 'vod.m3u8'
@@ -219,7 +219,7 @@ describe('test/rtmp.test.js', () => {
       const getRtmpUrlConf = conf;
       getRtmpUrlConf.Description = 'this is live channel 5';
       const result = await store.putChannel(getRtmpUrlCid, getRtmpUrlConf);
-      console.log(result);
+      assert.equal(result.res.status, 200);
     });
 
     after(async () => {

@@ -208,11 +208,11 @@ access.
 ### Basic usage
 
 Include the sdk lib in the `<script>` tag and you have `OSS` available
-for creating client. 
+for creating client.
 
 ```html
- // x.x.x The specific version number represented 
- // we recommend introducing offline resources, because the usability of online resources depends on the stability of the cdn server. 
+ // x.x.x The specific version number represented
+ // we recommend introducing offline resources, because the usability of online resources depends on the stability of the cdn server.
  <!-- Introducing online resources -->
  <script src="http://gosspublic.alicdn.com/aliyun-oss-sdk-x.x.x.min.js"></script>
  <!-- Introducing offline resources -->
@@ -1473,7 +1473,7 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
-Success will return the copy result in `data` property.
+Success will return the putMeta result in `data` property.
 
 - data {Object} copy result
   - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
@@ -1839,7 +1839,7 @@ example:
   const result = await store.initMultipartUpload(name);
   const uploadId = result.uploadId;
   const file; //the data you want to upload, is a File or FileName(only in node)
-  //if file part is 10  
+  //if file part is 10
   const partSize = 100 * 1024;
   const fileSize = 10 * partSize;//you need to calculate
   const dones = [];
@@ -1897,8 +1897,8 @@ example:
 ```js
   const name = 'object';
   const result = await store.initMultipartUpload(name);
- 
-  const partSize = 100 * 1024;//100kb 
+
+  const partSize = 100 * 1024;//100kb
   //if file part is 10
   for (let i = 1; i <= 10; i++) {
     const start = partSize * (i -1);
@@ -1958,11 +1958,11 @@ example:
   //init multipart
   const name = 'object';
   const result = await store.initMultipartUpload(name);
- 
+
   //upload part
   const file; //the data you want to upload, this example size is 10 * 100 * 1024
   const fileSize;//you need to calculate
-  const partSize = 100 * 1024;//100kb 
+  const partSize = 100 * 1024;//100kb
   const done = [];
   //if file part is 10
   for (let i = 1; i <= 10; i++) {
@@ -2076,7 +2076,7 @@ const result = await store.multipartUpload('object', '/tmp/file', {
 
 ```js
 
-//async function 
+//async function
 async function asyncProgress(p, cpt, res) {
     console.log(p);
     console.log(cpt);
@@ -2087,7 +2087,7 @@ const result1 = await store.multipartUpload('object', '/tmp/file', {
   progress: asyncProgress
 });
 
-//function 
+//function
 function progress(p, cpt, res) {
     console.log(p);
     console.log(cpt);
