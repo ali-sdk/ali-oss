@@ -1,6 +1,6 @@
 
 // require("babel-polyfill")
-require('./style.css')
+require('./style.css');
 const $ = require('jquery');
 // if use in react , you can use require('ali-oss/dist/aliyun-oss-sdk.js'), or see webpack.prod.js
 // import local for test
@@ -33,7 +33,7 @@ const applyTokenDo = function (func, refreshSts) {
   if (refresh) {
     const url = appServer;
     return $.ajax({
-      url,
+      url
     }).then((result) => {
       const creds = result;
       const client = new OSS({
@@ -41,7 +41,7 @@ const applyTokenDo = function (func, refreshSts) {
         accessKeyId: creds.AccessKeyId,
         accessKeySecret: creds.AccessKeySecret,
         stsToken: creds.SecurityToken,
-        bucket,
+        bucket
       });
 
       console.log(OSS.version);
@@ -60,6 +60,9 @@ const progress = async function progress(p, checkpoint) {
 
 let uploadFileClient;
 
+let retryCount = 0;
+const retryCountMax = 3;
+
 const uploadFile = function uploadFile(client) {
   if (!uploadFileClient || Object.keys(uploadFileClient).length === 0) {
     uploadFileClient = client;
@@ -71,11 +74,13 @@ const uploadFile = function uploadFile(client) {
   console.log(`${file.name} => ${key}`);
   const options = {
     progress,
-    partSize: 100 * 1024,
+    partSize: 500 * 1024,
     meta: {
       year: 2017,
-      people: 'test',
+      people: 'test'
     },
+    timeout: 60000
+
   };
   if (currentCheckpoint) {
     options.checkpoint = currentCheckpoint;
@@ -89,6 +94,16 @@ const uploadFile = function uploadFile(client) {
       console.log('stop-upload!');
     } else {
       console.error(err);
+      console.log(`err.name : ${err.name}`);
+      console.log(`err.message : ${err.message}`);
+      if (err.name.toLowerCase().indexOf('connectiontimeout') !== -1) {
+        // timeout retry
+        if (retryCount < retryCountMax) {
+          retryCount++;
+          console.error(`retryCount : ${retryCount}`);
+          uploadFile('');
+        }
+      }
     }
   });
 };
@@ -123,7 +138,7 @@ const uploadBase64Img = function uploadBase64Img(client) {
   if (base64Content.indexOf('data:image') === 0) {
     const imgfile = dataURLtoFile(base64Content, 'img.png');
     client.multipartUpload(key, imgfile, {
-      progress: base64progress,
+      progress: base64progress
     }).then((res) => {
       console.log('upload success: %j', res);
     }).catch((err) => {
@@ -139,7 +154,7 @@ const listFiles = function listFiles(client) {
   console.log('list files');
 
   return client.list({
-    'max-keys': 100,
+    'max-keys': 100
   }).then((result) => {
     const objects = result.objects.sort((a, b) => {
       const ta = new Date(a.lastModified);
@@ -188,7 +203,7 @@ const putBlob = function (client) {
     expires: 1800,
     method: 'PUT',
     'Content-Type': 'text/plain; charset=UTF-8',
-    'Content-Md5': md5String,
+    'Content-Md5': md5String
   };
   const url = client.signatureUrl(key, options);
 
@@ -203,7 +218,7 @@ const putBlob = function (client) {
     crossDomain: true,
     complete(jqXHR, textStatus) {
       console.log(textStatus);
-    },
+    }
   });
 };
 
@@ -214,8 +229,8 @@ const downloadFile = function downloadFile(client) {
 
   const result = client.signatureUrl(object, {
     response: {
-      'content-disposition': `attachment; filename="${filename}"`,
-    },
+      'content-disposition': `attachment; filename="${filename}"`
+    }
   });
   window.location = result;
 
@@ -229,7 +244,7 @@ const cnameUsage = function (cname) {
   }
   const url = appServer;
   $.ajax({
-    url,
+    url
   }).then((result) => {
     const creds = result;
     const client = new OSS({
@@ -239,7 +254,7 @@ const cnameUsage = function (cname) {
       endpoint: cname,
       cname: true,
       region,
-      bucket,
+      bucket
     });
 
     const filename = document.getElementById('key-cname-objectName').value.trim();
@@ -247,8 +262,8 @@ const cnameUsage = function (cname) {
 
     const res = client.signatureUrl(filename, {
       response: {
-        'content-disposition': `attachment; filename="${filename}"`,
-      },
+        'content-disposition': `attachment; filename="${filename}"`
+      }
     });
     window.location = res;
   });

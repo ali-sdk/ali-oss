@@ -642,6 +642,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 
   var req;
   // request headers checker will throw error
+  options.mode = args.mode ? args.mode : '';
   try {
     req = httplib.request(options, onResponse);
   } catch (err) {

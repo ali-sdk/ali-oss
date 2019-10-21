@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "6.0.1",
+  "version": "6.1.1",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -78,7 +78,7 @@
     "eslint-plugin-react": "^7.7.0",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
-    "istanbul": "^0.4.3",
+    "istanbul": "^1.1.0-alpha.1",
     "karma": "^1.7.1",
     "karma-browserify": "^5.1.1",
     "karma-chrome-launcher": "^2.2.0",
@@ -120,7 +120,7 @@
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
-    "urllib": "^2.17.1",
+    "urllib": "^2.33.1",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16"
   }

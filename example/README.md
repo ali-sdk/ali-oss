@@ -37,17 +37,14 @@ var bucket = '<your bucket name>';
 var region = 'oss-cn-hangzhou';
 ```
 
-Then set env
-
-```
-   ALI_SDK_STS_ID={your sts accessKeyId} ALI_SDK_STS_SECRET={your sts accessKeySecret} ALI_SDK_STS_ROLE={your rolearn}
-```
-
 Start the server
 
 ```
+cross-env \
+ALI_SDK_STS_ID={your sts accessKeyId} \
+ALI_SDK_STS_SECRET={your sts accessKeySecret} \
+ALI_SDK_STS_ROLE={your rolearn} \
 npm run start
-
 ```
 
 Open the `http://localhost:3000` in browser
