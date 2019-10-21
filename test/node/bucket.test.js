@@ -48,6 +48,27 @@ describe('test/bucket.test.js', () => {
     await utils.cleanBucket(store, bucket);
   });
 
+  describe('setBucket()', () => {
+    it('should check bucket name', async () => {
+      try {
+        const name = 'ali-oss-test-bucket-/';
+        await store.setBucket(name);
+        throw new Error('should not run');
+      } catch (err) {
+        assert(err.message === 'The bucket must be conform to the specifications');
+      }
+    });
+  });
+
+  describe('getBucket()', () => {
+    it('should get bucket name', async () => {
+      const name = 'ali-oss-test-bucket';
+      await store.setBucket(name);
+      const res = store.getBucket();
+      assert.equal(res, name);
+    });
+  });
+
   describe('putBucket()', () => {
     let name;
     let archvieBucket;
