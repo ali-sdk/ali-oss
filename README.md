@@ -223,7 +223,8 @@ for creating client.
     region: 'oss-cn-hangzhou',
     accessKeyId: '<access-key-id>',
     accessKeySecret: '<access-key-secret>',
-    bucket: '<bucket-name>'
+    bucket: '<bucket-name>',
+    stsToken: '<security-token>'
   });
 
   client.list().then((result) => {
