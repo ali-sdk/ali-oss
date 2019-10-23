@@ -1639,4 +1639,19 @@ describe('test/object.test.js', () => {
       }
     });
   });
+  describe('symlink()', () => {
+    it('Should put and get Symlink', async () => {
+      const name = '/oss/symlink.js';
+      const test = 'test-symlink.js';
+      let result = await store.put(name, __filename);
+
+      result = await store.putSymlink(test, name, {
+        'x-oss-storsge-calss': 'IA'
+      });
+      assert.equal(result.res.status, 200);
+
+      result = await store.getSymlink(test);
+      assert.equal(result.res.status, 200);
+    });
+  });
 });
