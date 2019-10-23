@@ -38,14 +38,7 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 
 `Note`:
 - For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
-- QQ Browser ,we suggest config useFetch option false, it will upload with `XMLhttpRequest`, eg
 
-```javascript
-let client = new OSS({
-    ...,
-    useFetch: false
-})
-```
 ## License
 
 [MIT](LICENSE)
@@ -63,7 +56,7 @@ All operation use es7 async/await to implement. All api is async function.
 - [Data Regions](#data-regions)
 - [Create Account](#create-acount)
 - [Create A Bucket Instance](#create-a-bucket-instance)
-  - [#oss(options)](#ossoptions)
+  - [oss(options)](#ossoptions)
 - [Bucket Operations](#bucket-operations)
   - Base
     - [.listBuckets(query[, options])](#listbucketsquery-options)
@@ -135,7 +128,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
   - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
-  - [#oss.ImageClient(options)](#ossimageclientoptions)
+  - [oss.ImageClient(options)](#ossimageclientoptions)
 - [Image Operations](#image-operations)
   - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
   - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
@@ -297,7 +290,8 @@ options:
 - [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
 - [isRequestPay] {Boolean}, default false, whether request payer function of the bucket is open, if true, will send headers `'x-oss-request-payer': 'requester'` to oss server.
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
-- [useFetch] {Boolean}, default true, it just work in Browser, if true,it means upload object with `fetch` mode ,else `XMLHttpRequest`
+- [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with 
+`fetch` mode ,else `XMLHttpRequest`
 
 example:
 
