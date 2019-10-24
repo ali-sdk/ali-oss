@@ -1,14 +1,10 @@
 
-
 module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'browserify'],
-    browsers: ['Chrome'],
-    // browsers: ['Firefox'],
+    browsers: ['Chrome', 'Safari'],
     files: [
       'test/browser/build/aliyun-oss-sdk.js',
-
-      'node_modules/co-mocha/co-mocha.js',
       'test/browser/build/tests.js',
     ],
     preprocessors: {
@@ -26,7 +22,7 @@ module.exports = function (config) {
     singleRun: true,
     browserDisconnectTolerance: 3,
     browserNoActivityTimeout: 30000,
-    concurrency: Infinity,
+    concurrency: 1,
     client: {
       mocha: {
         timeout: 6000,

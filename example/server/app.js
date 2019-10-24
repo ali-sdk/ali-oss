@@ -1,6 +1,5 @@
 const express = require('express');
 const { STS } = require('ali-oss');
-const co = require('co');
 const fs = require('fs');
 
 const app = express();
@@ -19,20 +18,16 @@ app.get('/sts', (req, res) => {
     accessKeySecret: conf.AccessKeySecret
   });
 
-  co(function* () {
-    const result = yield client.assumeRole(conf.RoleArn, policy, conf.TokenExpireTime);
+  client.assumeRole(conf.RoleArn, policy, conf.TokenExpireTime).then((result) => {
     console.log(result);
-
-    // res.set('Access-Control-Allow-Origin', '*');
-    // res.set('Access-Control-Allow-METHOD', 'GET');
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-METHOD', 'GET');
     res.json({
       AccessKeyId: result.credentials.AccessKeyId,
       AccessKeySecret: result.credentials.AccessKeySecret,
       SecurityToken: result.credentials.SecurityToken,
       Expiration: result.credentials.Expiration
     });
-  }).then(() => {
-    // pass
   }).catch((err) => {
     console.log(err);
     res.status(400).json(err.message);
@@ -44,6 +39,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../index.html'));
 });
 
-app.listen(3000, () => {
+app.listen(9000, () => {
   console.log('App started.');
 });

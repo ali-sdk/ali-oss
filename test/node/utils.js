@@ -16,9 +16,9 @@ const fs = require('fs');
 const urlutil = require('url');
 const platform = require('platform');
 
-exports.throws = function* (block, checkError) {
+exports.throws = async function (block, checkError) {
   try {
-    yield block();
+    await block();
   } catch (err) {
     if (typeof checkError === 'function') {
       return checkError(err);
@@ -37,52 +37,55 @@ exports.throws = function* (block, checkError) {
 };
 
 exports.sleep = function (ms) {
-  return function (callback) {
-    setTimeout(callback, ms);
-  };
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
 };
 
-exports.cleanBucket = function* (store, bucket, region) {
-  store.useBucket(bucket, region);
-  let result = yield store.list({
-    'max-keys': 1000,
+exports.cleanBucket = async function (store, bucket) {
+  store.useBucket(bucket);
+  let result = await store.list({
+    'max-keys': 1000
   });
   result.objects = result.objects || [];
   for (let i = 0; i < result.objects.length; i++) {
     const obj = result.objects[i];
-    yield store.delete(obj.name);
+    await store.delete(obj.name);
   }
 
-  result = yield store.listUploads({
-    'max-uploads': 1000,
+  result = await store.listUploads({
+    'max-uploads': 1000
   });
   const uploads = result.uploads || [];
+  /* eslint no-await-in-loop: [0] */
   for (let i = 0; i < uploads.length; i++) {
     const up = uploads[i];
-    yield store.abortMultipartUpload(up.name, up.uploadId);
+    await store.abortMultipartUpload(up.name, up.uploadId);
   }
-  yield store.deleteBucket(bucket, region);
+  await store.deleteBucket(bucket);
 };
 
 if (process && process.browser) {
-  exports.prefix = `${platform.name}-${platform.version}/`;
+  exports.prefix = `${platform.name}-${platform.version}-${new Date().getTime()}/`;
 } else {
-  exports.prefix = `${process.platform}-${process.version}/`;
+  exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`;// unique prefix add time timestamp
   if (process && process.execPath.indexOf('iojs') >= 0) {
     exports.prefix = `iojs-${exports.prefix}`;
   }
 }
 
-exports.createTempFile = function* (name, size) {
+exports.createTempFile = async function createTempFile(name, size) {
   const tmpdir = '/tmp/.oss/';
   if (!fs.existsSync(tmpdir)) {
     fs.mkdirSync(tmpdir);
   }
 
-  yield new Promise(((resolve, reject) => {
+  await new Promise(((resolve, reject) => {
     const rs = fs.createReadStream('/dev/urandom', {
       start: 0,
-      end: size - 1,
+      end: size - 1
     });
     const ws = fs.createWriteStream(tmpdir + name);
     rs.pipe(ws);
@@ -113,7 +116,7 @@ exports.encodeCallback = function (cb) {
   const json = {
     callbackUrl: url.format(),
     callbackBody: cb.body,
-    callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded',
+    callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded'
   };
 
   return new Buffer(JSON.stringify(json)).toString('base64');

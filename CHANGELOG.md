@@ -2,6 +2,195 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.1.1"></a>
+## [6.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.1.0...v6.1.1) (2019-01-08)
+
+### Bug Fixes
+
+* support useFetch options to resovle browser compatibility
+* fix mulipartUpload bug in IE 10 or parallel == 1
+* fix invalid partSize
+
+<a name="6.1.0"></a>
+## [6.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.2...v6.1.0) (2019-04-08)
+
+### Features
+* support requestPayer
+
+### Bug Fixes
+
+* repair codecov
+* docs
+
+<a name="6.0.2"></a>
+## [6.0.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.1...v6.0.2) (2018-12-10)
+
+### Bug Fixes
+
+* fix `comma-dangle` eslint
+* fix this refrence bug ([435f942](https://github.com/aliyun/oss-nodejs-sdk/commit/435f942))
+* repair example ([#502](https://github.com/aliyun/oss-nodejs-sdk/issues/502)) ([2a0099d](https://github.com/aliyun/oss-nodejs-sdk/commit/2a0099d))
+
+
+<a name="6.0.1"></a>
+## [6.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.0...v6.0.1) (2018-07-17)
+
+
+### Bug Fixes
+
+* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
+
+<a name="6.0.0"></a>
+# [6.0.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v6.0.0) (2018-07-10)
+
+### Features
+
+* refactor async/await instead of generator and test case
+* remove region param about bucket operations
+* support cancel on node sdk
+* mount debug info on client proto
+* remove unuse browser.js in /
+
+### docs
+
+* README.md example
+
+<a name="5.3.2"></a>
+## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v5.3.2) (2018-07-17)
+
+
+### Bug Fixes
+
+* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
+
+
+<a name="5.3.1"></a>
+# [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.0...v5.3.1) (2018-06-27)
+
+### Bug Fixes
+
+* lock dependency stream-http 2.8.2
+
+<a name="5.3.0"></a>
+# [5.3.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.0) (2018-06-13)
+
+
+### Bug Fixes
+
+* remove replace %20 to '+' ([#489](https://github.com/aliyun/oss-nodejs-sdk/issues/489)) ([22363d0](https://github.com/aliyun/oss-nodejs-sdk/commit/22363d0))
+* clean browser test bucket ([#487](https://github.com/aliyun/oss-nodejs-sdk/issues/487)) ([bf546ce](https://github.com/aliyun/oss-nodejs-sdk/commit/bf546ce))
+* support ipv6 address when set endpoint  ([#482](https://github.com/aliyun/oss-nodejs-sdk/issues/482)) ([1c7616d](https://github.com/aliyun/oss-nodejs-sdk/commit/1c7616d))
+* repair timeout excepiton ([#481](https://github.com/aliyun/oss-nodejs-sdk/issues/481)) ([ec8ae25](https://github.com/aliyun/oss-nodejs-sdk/commit/ec8ae25))
+* refactor example to support open browser auto and hot reload  ([#477](https://github.com/aliyun/oss-nodejs-sdk/issues/477)) ([3012bc6](https://github.com/aliyun/oss-nodejs-sdk/commit/3012bc6))
+
+### Features
+
+* support getBucketLocation api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+* support getBucketInfo api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+
+### docs
+
+* add getBucketLoaction and getBucketInfo docs([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+* fix putStream api demo([#478](https://github.com/aliyun/oss-nodejs-sdk/issues/478)) ([b6dc1df](https://github.com/aliyun/oss-nodejs-sdk/commit/b6dc1df))
+
+<a name="5.2.0"></a>
+# [5.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.1...5.2.0) (2018-05-08)
+
+
+### Bug Fixes
+
+* if browser support AbortController api , stream-http timeout err ([#466](https://github.com/aliyun/oss-nodejs-sdk/issues/466)) ([69ad003](https://github.com/aliyun/oss-nodejs-sdk/commit/69ad003))
+* rtml generate url ([#463](https://github.com/aliyun/oss-nodejs-sdk/issues/463)) ([53f1f0c](https://github.com/aliyun/oss-nodejs-sdk/commit/53f1f0c))
+* signatureUrl With response settings ([#465](https://github.com/aliyun/oss-nodejs-sdk/issues/465)) ([3bf1be7](https://github.com/aliyun/oss-nodejs-sdk/commit/3bf1be7))
+
+
+### Features
+
+* add sample about cname's usage ([#453](https://github.com/aliyun/oss-nodejs-sdk/issues/453)) ([54db574](https://github.com/aliyun/oss-nodejs-sdk/commit/54db574))
+* publish CDN check script ([#452](https://github.com/aliyun/oss-nodejs-sdk/issues/452)) ([3190ce6](https://github.com/aliyun/oss-nodejs-sdk/commit/3190ce6))
+* restore object api and support to  create archvie bucket ([#450](https://github.com/aliyun/oss-nodejs-sdk/issues/450)) ([79eb5ef](https://github.com/aliyun/oss-nodejs-sdk/commit/79eb5ef))
+
+
+
+<a name="5.1.1"></a>
+# [5.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.0...5.1.1) (2018-04-16)
+
+
+### Bug Fixes
+
+* **Browser:** multipartUpload callback resumble parse error ([#442](https://github.com/aliyun/oss-nodejs-sdk/issues/442)) ([e22ecf6](https://github.com/aliyun/oss-nodejs-sdk/commit/e22ecf6))
+* **Browser:** signatureUrl with content-type and content-md5 ([#441](https://github.com/aliyun/oss-nodejs-sdk/issues/441)) ([50f0093](https://github.com/aliyun/oss-nodejs-sdk/commit/50f0093))
+
+
+### Docs
+
+* example base64 to blob and doc ([#434](https://github.com/aliyun/oss-nodejs-sdk/issues/434)) ([37f65f0](https://github.com/aliyun/oss-nodejs-sdk/commit/37f65f0))
+
+
+
+<a name="5.1.0"></a>
+# [5.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.0.1...5.1.0) (2018-04-14)
+
+
+### Features
+
+* cluster mode support acl ([#439](https://github.com/aliyun/oss-nodejs-sdk/issues/439)) ([af3d533](https://github.com/aliyun/oss-nodejs-sdk/commit/af3d533))
+
+
+
+<a name="5.0.1"></a>
+## [5.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.0.0...v5.0.1) (2018-04-10)
+
+
+### Bug Fixes
+
+* **browser:** use dist file for build tools ([#430](https://github.com/aliyun/oss-nodejs-sdk/issues/430)) ([8494fbd](https://github.com/aliyun/oss-nodejs-sdk/commit/8494fbd))
+
+* sign method fix && ci support node 9 ([f82bf8f3c](https://github.com/ali-sdk/ali-oss/commit/f82bf8f3c))
+
+### Docs
+* add node and browser compatibility desc ([f5de168e](https://github.com/ali-sdk/ali-oss/commit/f5de168e))
+
+
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.14.1...v5.0.0) (2018-04-03)
+
+### Bug Fixes
+Node >= 8 is required.
+
+
+<a name="4.14.1"></a>
+## [4.14.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.14.0...v4.14.1) (2018-04-03)
+
+
+### Bug Fixes
+
+* signUtils header sort err fix ([#418](https://github.com/aliyun/oss-nodejs-sdk/issues/418)) ([60383ee](https://github.com/aliyun/oss-nodejs-sdk/commit/60383ee))
+
+
+
+<a name="4.14.0"></a>
+# [4.14.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.2...v4.14.0) (2018-03-30)
+
+
+### Bug Fixes
+
+* **Browser:** multipartUpload InvalidPartOrderError by doneParts repeat ([#414](https://github.com/aliyun/oss-nodejs-sdk/issues/414)) ([2b0967f](https://github.com/aliyun/oss-nodejs-sdk/commit/2b0967f))
+* _resumeMultipart not use yield ([ba2382b](https://github.com/aliyun/oss-nodejs-sdk/commit/ba2382b))
+* issues https://github.com/ali-sdk/ali-oss/issues/386 ([#390](https://github.com/aliyun/oss-nodejs-sdk/issues/390)) ([5b5ae3e](https://github.com/aliyun/oss-nodejs-sdk/commit/5b5ae3e))
+
+
+### Features
+
+* add ignore ([#397](https://github.com/aliyun/oss-nodejs-sdk/issues/397)) ([0f003aa](https://github.com/aliyun/oss-nodejs-sdk/commit/0f003aa))
+* **browser:** multipartUpload err will cancel this task ([#399](https://github.com/aliyun/oss-nodejs-sdk/issues/399)) ([64f8d68](https://github.com/aliyun/oss-nodejs-sdk/commit/64f8d68))
+* browser support blob ([#409](https://github.com/aliyun/oss-nodejs-sdk/issues/409)) ([e8a78b5](https://github.com/aliyun/oss-nodejs-sdk/commit/e8a78b5)), closes [#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)
+* expose sdk version with OSS ([#389](https://github.com/aliyun/oss-nodejs-sdk/issues/389)) ([0bdc876](https://github.com/aliyun/oss-nodejs-sdk/commit/0bdc876))
+* rm unused test data ([#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)) ([3d2ce4e](https://github.com/aliyun/oss-nodejs-sdk/commit/3d2ce4e))
+* signatureUrl refactor and support callback ([#408](https://github.com/aliyun/oss-nodejs-sdk/issues/408)) ([343938f](https://github.com/aliyun/oss-nodejs-sdk/commit/343938f))
+
+
+
 <a name="4.13.2"></a>
 ## [4.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.1...v4.13.2) (2018-03-13)
 

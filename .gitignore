@@ -25,11 +25,11 @@ build/Release
 node_modules
 
 build
-test/.tmp
 test/node/.tmp
 test/browser/.tmp
 test/demo.js
 yarn.lock
+package-lock.json
 
 # Ide
 .idea/

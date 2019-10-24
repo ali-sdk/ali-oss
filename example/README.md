@@ -2,7 +2,7 @@
 
 Play with OSS right in the browser!
 
-![Demo](screenshot.png?raw=true "OSS in Browser")
+<image src="https://img.alicdn.com/tfs/TB1tE5mvTtYBeNjy1XdXXXXyVXa-2538-1386.png" width="1000" height="500"/>
 
 ## Browser support
 
@@ -30,25 +30,21 @@ access.
 
 ### App setup
 
-Fill in your appServer address and bucket name in `app.js`:
+Fill in your bucket name  and region in `app.js`: (Note: ensure port 9000 is not used)
 
 ```js
-var appServer = '<your STS app server>';
 var bucket = '<your bucket name>';
 var region = 'oss-cn-hangzhou';
 ```
 
-Build the JS file
+Start the server
 
 ```
-    npm install && webpack
-``` 
-
-
-Then set env and start the server
-
-```
-   ALI_SDK_STS_ID={your sts accessKeyId} ALI_SDK_STS_SECRET={your sts accessKeySecret} ALI_SDK_STS_ROLE={your rolearn} node server/app.js
+cross-env \
+ALI_SDK_STS_ID={your sts accessKeyId} \
+ALI_SDK_STS_SECRET={your sts accessKeySecret} \
+ALI_SDK_STS_ROLE={your rolearn} \
+npm run start
 ```
 
 Open the `http://localhost:3000` in browser

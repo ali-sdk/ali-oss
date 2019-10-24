@@ -1,4 +1,4 @@
-oss-nodejs-sdk
+oss-js-sdk
 =======
 
 [![NPM version][npm-image]][npm-url]
@@ -15,13 +15,29 @@ oss-nodejs-sdk
 [david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-oss
 
-aliyun OSS(object storage service) Node.js client.
+aliyun OSS(Object Storage Service) js client for Node and Browser env.
+
+`NOTE`： For SDK `5.X` document, please go to [README.md](https://github.com/ali-sdk/ali-oss/blob/5.x/README.md)
 
 ## Install
 
 ```bash
 npm install ali-oss --save
 ```
+
+## Compatibility
+
+### Node
+Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
+
+### Browser
+
+- IE >= 10 & Edge
+- Major versions of Chrome/Firefox/Safari
+- Major versions of Android/iOS/WP
+
+`Note`:
+- For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
 
 ## License
 
@@ -31,91 +47,202 @@ npm install ali-oss --save
 
 OSS, Object Storage Service. Equal to well known Amazon [S3](http://aws.amazon.com/s3/).
 
+All operation use es7 async/await to implement. All api is async function.
+
 ## Summary
 
+- [Node Usage](#node-usage)
+- [Browser Usage](#browser-usage)
 - [Data Regions](#data-regions)
 - [Create Account](#create-acount)
 - [Create A Bucket Instance](#create-a-bucket-instance)
-  - [#oss(options)](#ossoptions)
+  - [oss(options)](#ossoptions)
 - [Bucket Operations](#bucket-operations)
   - Base
-    - [.listBuckets*(query[, options])](#listbucketsquery-options)
-    - [.putBucket*(name, region[, options])](#putbucketname-region-options)
-    - [.useBucket(name, region)](#usebucketname-region)
-    - [.deleteBucket*(name, region[, options])](#deletebucketname-region-options)
+    - [.listBuckets(query[, options])](#listbucketsquery-options)
+    - [.putBucket(name[, options])](#putbucketname-options)
+    - [.useBucket(name)](#usebucketname)
+    - [.deleteBucket(name[, options])](#deletebucketname-options)
+    - [.getBucketInfo(name)](#getbucketinfoname)
+    - [.getBucketLocation(name)](#getbucketlocationname)
   - ACL
-    - [.putBucketACL*(name, region, acl[, options])](#putbucketaclname-region-acl-options)
-    - [.getBucketACL*(name, region[, options])](#getbucketaclname-region-options)
+    - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
+    - [.getBucketACL(name[, options])](#getbucketaclname-options)
   - Logging
-    - [.putBucketLogging*(name, region, prefix[, options])](#putbucketloggingname-region-prefix-options)
-    - [.getBucketLogging*(name, region[, options])](#getbucketloggingname-region-options)
-    - [.deleteBucketLogging*(name, region[, options])](#deletebucketloggingname-region-options)
+    - [.putBucketLogging(name, prefix[, options])](#putbucketloggingname-prefix-options)
+    - [.getBucketLogging(name[, options])](#getbucketloggingname-options)
+    - [.deleteBucketLogging(name[, options])](#deletebucketloggingname-options)
   - Website
-    - [.putBucketWebsite*(name, region, config[, options])](#putbucketwebsitename-region-config-options)
-    - [.getBucketWebsite*(name, region[, options])](#getbucketwebsitename-region-options)
-    - [.deleteBucketWebsite*(name, region[, options])](#deletebucketwebsitename-region-options)
+    - [.putBucketWebsite(name, config[, options])](#putbucketwebsitename-config-options)
+    - [.getBucketWebsite(name[, options])](#getbucketwebsitename-options)
+    - [.deleteBucketWebsite(name, region[, options])](#deletebucketwebsitename-options)
   - Referer
-    - [.putBucketReferer*(name, region, allowEmpty, referers[, options])](#putbucketreferername-region-allowempty-referers-options)
-    - [.getBucketReferer*(name, region[, options])](#getbucketreferername-region-options)
-    - [.deleteBucketReferer*(name, region[, options])](#deletebucketreferername-region-options)
+    - [.putBucketReferer(name, allowEmpty, referers[, options])](#putbucketreferername-allowempty-referers-options)
+    - [.getBucketReferer(name[, options])](#getbucketreferername-options)
+    - [.deleteBucketReferer(name[, options])](#deletebucketreferername-options)
   - Lifecycle
-    - [.putBucketLifecycle*(name, region, rules[, options])](#putbucketlifecyclename-region-rules-options)
-    - [.getBucketLifecycle*(name, region[, options])](#getbucketlifecyclename-region-options)
-    - [.deleteBucketLifecycle*(name, region[, options])](#deletebucketlifecyclename-region-options)
+    - [.putBucketLifecycle(name, rules[, options])](#putbucketlifecyclename-rules-options)
+    - [.getBucketLifecycle(name[, options])](#getbucketlifecyclename-options)
+    - [.deleteBucketLifecycle(name[, options])](#deletebucketlifecyclename-options)
   - CORS
-    - [.putBucketCORS*(name, region, rules[, options])](#putbucketcorsname-region-rules-options)
-    - [.getBucketCORS*(name, region[, options])](#getbucketcorsname-region-options)
-    - [.deleteBucketCORS*(name, region[, options])](#deletebucketcorsname-region-options)
+    - [.putBucketCORS(name, rules[, options])](#putbucketcorsname-rules-options)
+    - [.getBucketCORS(name[, options])](#getbucketcorsname-options)
+    - [.deleteBucketCORS(name[, options])](#deletebucketcorsname-options)
 - [Object Operations](#object-operations)
-  - [.list*(query[, options])](#listquery-options)
-  - [.put*(name, file[, options])](#putname-file-options)
-  - [.putStream*(name, stream[, options])](#putstreamname-stream-options)
-  - [.append*(name, file[, options])](#apendname-file-options)
+  - [.list(query[, options])](#listquery-options)
+  - [.put(name, file[, options])](#putname-file-options)
+  - [.putStream(name, stream[, options])](#putstreamname-stream-options)
+  - [.append(name, file[, options])](#appendname-file-options)
   - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
-  - [.head*(name[, options])](#headname-options)
-  - [.get*(name, file[, options])](#getname-file-options)
-  - [.getStream*(name[, options])](#getstreamname-options)
-  - [.delete*(name[, options])](#deletename-options)
-  - [.copy*(name, sourceName[, options])](#copyname-sourcename-options)
-  - [.putMeta*(name, meta[, options])](#putmetaname-meta-options)
-  - [.deleteMulti*(names[, options])](#deletemultinames-options)
+  - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
+  - [.head(name[, options])](#headname-options)
+  - [.get(name, file[, options])](#getname-file-options)
+  - [.getStream(name[, options])](#getstreamname-options)
+  - [.delete(name[, options])](#deletename-options)
+  - [.copy(name, sourceName[, options])](#copyname-sourcename-options)
+  - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
+  - [.deleteMulti(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name[, options])](#signatureurlname-options)
-  - [.putACL*(name, acl[, options])](#putaclname-acl-options)
-  - [.getACL*(name[, options])](#getaclname-options)
-  - [.initMultipartUpload*(name[, options])](#initmultipartuploadname-options)
-  - [.uploadPart*(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
-  - [.uploadPartCopy*(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
+  - [.putACL(name, acl[, options])](#putaclname-acl-options)
+  - [.getACL(name[, options])](#getaclname-options)
+  - [.restore(name[, options])](#restorename-options)
+  - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
+  - [.getSymlink(name[, options])](#getsymlinkname-options)
+  - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
+  - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
+  - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
-  - [.multipartUpload*(name, file[, options])](#multipartuploadname-file-options)
-  - [.multipartUploadCopy*(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-  - [.listParts*(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
-  - [.listUploads*(query[, options])](#listuploadsquery-options)
-  - [.abortMultipartUpload*(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+  - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
+  - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
+  - [.listParts(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
+  - [.listUploads(query[, options])](#listuploadsquery-options)
+  - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
 - [RTMP Operations](#rtmp-operations)
-  - [.putChannel*(id, conf[, options])](#putchannelid-conf-options)
-  - [.getChannel*(id[, options])](#getchannelid-options)
-  - [.deleteChannel*(id[, options])](#deletechannelid-options)
-  - [.putChannelStatus*(id, status[, options])](#putchannelstatusid-status-options)
-  - [.getChannelStatus*(id[, options])](#getchannelstatusid-options)
-  - [.listChannels*(query[, options])](#listchannelsquery-options)
-  - [.getChannelHistory*(id[, options])](#getchannelhistoryid-options)
-  - [.createVod*(id, name, time[, options])](#createvodid-name-time-options)
+  - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
+  - [.getChannel(id[, options])](#getchannelid-options)
+  - [.deleteChannel(id[, options])](#deletechannelid-options)
+  - [.putChannelStatus(id, status[, options])](#putchannelstatusid-status-options)
+  - [.getChannelStatus(id[, options])](#getchannelstatusid-options)
+  - [.listChannels(query[, options])](#listchannelsquery-options)
+  - [.getChannelHistory(id[, options])](#getchannelhistoryid-options)
+  - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
   - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
-  - [#oss.ImageClient(options)](#ossimageclientoptions)
+  - [oss.ImageClient(options)](#ossimageclientoptions)
 - [Image Operations](#image-operations)
-  - [imgClient.get*(name, file[, options])](#imgclientgetname-file-options)
-  - [imgClient.getStream*(name[, options])](#imgclientgetstreamname-options)
-  - [imgClient.getExif*(name[, options])](#imgclientgetexifname-options)
-  - [imgClient.getInfo*(name[, options])](#imgclientgetinfoname-options)
-  - [imgClient.putStyle*(name, style[, options])](#imgclientputstylename-style-options)
-  - [imgClient.getStyle*(name[, options])](#imgclientgetstylename-options)
-  - [imgClient.listStyle*([options])](#imgclientliststyleoptions)
-  - [imgClient.deleteStyle*(name[, options])](#imgclientdeletestylename-options)
+  - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
+  - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
+  - [imgClient.getExif(name[, options])](#imgclientgetexifname-options)
+  - [imgClient.getInfo(name[, options])](#imgclientgetinfoname-options)
+  - [imgClient.putStyle(name, style[, options])](#imgclientputstylename-style-options)
+  - [imgClient.getStyle(name[, options])](#imgclientgetstylename-options)
+  - [imgClient.listStyle([options])](#imgclientliststyleoptions)
+  - [imgClient.deleteStyle(name[, options])](#imgclientdeletestylename-options)
   - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
-- [Wrapper Usage](#wrapper-usage)
-- [Browser Usage](#browser-usage)
 - [Known Errors](#known-errors)
+
+## Node Usage
+
+### Compatibility
+- Node: >= 8.0.0
+
+### Basic usage
+1.install SDK using npm
+```
+npm install ali-oss --save
+```
+2.for example:
+```js
+const OSS = require('ali-oss');
+const client = new OSS({
+  region: '<oss region>',
+  accessKeyId: '<Your accessKeyId>',
+  accessKeySecret: '<Your accessKeySecret>',
+  bucket: '<Your bucket name>'
+});
+```
+## Browser Usage
+
+You can use most of the functionalities of `ali-oss` in browser with
+some exceptions:
+
+- put object with streaming: no chunked encoding, we use multipart
+  upload instead
+- get object to local file: we cannot manipulate file system in
+  browser, we provide signed object url for downloading needs
+- bucket operations(listBuckets, putBucketLogging, etc) will fail: OSS
+  server currently do not support CORS requests for bucket operations
+  (will probably be fixed later)
+
+### Compatibility
+
+- IE >= 10 & Edge
+- Major versions of Chrome/Firefox/Safari
+- Major versions of Android/iOS/WP
+    >Note: Because some browsers do not support promises, you need to introduce promise compatible libraries.<br>
+    For example: IE10 and IE11 need to introduce a promise-polyfill.
+
+### Setup
+
+#### Bucket setup
+
+As browser-side javascript involves CORS operations. You need to setup
+your bucket CORS rules to allow CORS operations:
+
+- set allowed origins to '\*'
+- allowed methods to 'PUT, GET, POST, DELETE, HEAD'
+- set allowed headers to '\*'
+- expose 'ETag' in expose headers
+
+#### STS setup
+
+As we don't want to expose the accessKeyId/accessKeySecret in the
+browser, a [common practice][oss-sts] is to use STS to grant temporary
+access.
+
+### Basic usage
+
+Include the sdk lib in the `<script>` tag and you have `OSS` available
+for creating client.
+
+```html
+ // x.x.x The specific version number represented
+ // we recommend introducing offline resources, because the usability of online resources depends on the stability of the cdn server.
+ <!-- Introducing online resources -->
+ <script src="http://gosspublic.alicdn.com/aliyun-oss-sdk-x.x.x.min.js"></script>
+ <!-- Introducing offline resources -->
+ <script src="./aliyun-oss-sdk-x.x.x.min.js"></script>
+
+<script type="text/javascript">
+  const client = new OSS({
+    region: 'oss-cn-hangzhou',
+    accessKeyId: '<access-key-id>',
+    accessKeySecret: '<access-key-secret>',
+    bucket: '<bucket-name>',
+    stsToken: '<security-token>'
+  });
+
+  client.list().then((result) => {
+    console.log('objects: %j', result.objects);
+    return client.put('my-obj', new OSS.Buffer('hello world'));
+  }).then((result) => {
+    console.log('put result: %j', result);
+    return client.get('my-obj');
+  }).then((result) => {
+    console.log('get result: %j', result.content.toString());
+  });
+</script>
+```
+The full sample can be found [here][browser-sample].
+
+### How to build
+
+```bash
+npm run build-dist
+```
+
+And see the build artifacts under `dist/`.
+
 
 ## Data Regions
 
@@ -142,7 +269,7 @@ After account created, you can create the OSS instance and get the `accessKeyId`
 
 Each OSS instance required `accessKeyId`, `accessKeySecret` and `bucket`.
 
-### #oss(options)
+## oss(options)
 
 Create a Bucket store instance.
 
@@ -159,14 +286,19 @@ options:
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
   If your servers are running on aliyun too, you can set `true` to save lot of money.
 - [secure] {Boolean} instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol.
-- [timeout] {String|Number} instance level timeout for all operations, default is `60s`
+- [timeout] {String|Number} instance level timeout for all operations, default is `60s`.
+- [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
+- [isRequestPay] {Boolean}, default false, whether request payer function of the bucket is open, if true, will send headers `'x-oss-request-payer': 'requester'` to oss server.
+  the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
+- [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with 
+`fetch` mode ,else `XMLHttpRequest`
 
 example:
 
 ```js
-var oss = require('ali-oss');
+const oss = require('ali-oss');
 
-var store = oss({
+const store = oss({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
@@ -176,7 +308,7 @@ var store = oss({
 
 ## Bucket Operations
 
-### .listBuckets*(query[, options])
+### .listBuckets(query[, options])
 
 List buckets in this account.
 
@@ -210,13 +342,15 @@ example:
 - List top 10 buckets
 
 ```js
-var result = yield store.listBuckets({
+store.listBuckets({
   "max-keys": 10
+}).then((result) => {
+  console.log(result);
 });
-console.log(result);
+
 ```
 
-### .putBucket*(name, region[, options])
+### .putBucket(name[, options])
 
 Create a new bucket.
 
@@ -225,12 +359,9 @@ parameters:
 - name {String} bucket name
   If bucket exists and not belong to current account, will throw BucketAlreadyExistsError.
   If bucket not exists, will create a new bucket and set it's ACL.
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
-  If change exists bucket region, will throw BucketAlreadyExistsError.
-  If region value invalid, will throw InvalidLocationConstraintError.
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [StorageClass] {String} the storeage type include (Standard,IA,Archive)
 
 Success will return the bucket name on `bucket` properties.
 
@@ -246,12 +377,21 @@ example:
 - Create a bucket name `helloworld` location on HongKong
 
 ```js
-yield store.putBucket('helloworld', 'oss-cn-hongkong');
-// use it by default
-store.useBucket('helloworld', 'oss-cn-hongkong');
+store.putBucket('helloworld').then((result) => {
+  // use it by default
+  store.useBucket('helloworld');
+});
 ```
 
-### .deleteBucket*(name, region[, options])
+- Create a bucket name `helloworld` location on HongKong StorageClass `Archive`
+
+```js
+await store.putBucket('helloworld', { StorageClass: 'Archive' });
+// use it by default
+store.useBucket('helloworld');
+```
+
+### .deleteBucket(name[, options])
 
 Delete an empty bucket.
 
@@ -260,8 +400,6 @@ parameters:
 - name {String} bucket name
   If bucket is not empty, will throw BucketNotEmptyError.
   If bucket is not exists, will throw NoSuchBucketError.
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -278,40 +416,71 @@ example:
 - Delete the exists 'helloworld' bucket on 'oss-cn-hongkong'
 
 ```js
-yield store.deleteBucket('helloworld', {
-  region: 'oss-cn-hongkong'
-});
+store.deleteBucket('helloworld').then((result) => {});
 ```
 
-### .useBucket(name, region)
+### .useBucket(name)
 
 Use the bucket.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 
 example:
 
 - Use `helloworld` as the default bucket
 
 ```js
-store.useBucket('helloworld', 'oss-cn-hongkong');
+store.useBucket('helloworld');
+```
+
+### .getBucketInfo(name)
+
+Get bucket information,include CreationDate、ExtranetEndpoint、IntranetEndpoint、Location、Name、StorageClass、
+Owner、AccessControlList
+
+parameters:
+
+- name {String} bucket name
+
+example:
+
+- Use `helloworld` as the default bucket
+
+```js
+store.getBucketInfo('helloworld').then( (res) => {
+  console.log(res.bucket)
+})
+```
+
+### .getBucketLocation(name)
+
+Get bucket location
+
+parameters:
+
+- name {String} bucket name
+
+example:
+
+- Use `helloworld` as the default bucket
+
+```js
+store.getBucketLocation('helloworld').then( (res) => {
+  console.log(res.location)
+})
 ```
 
 ---
 
-### .putBucketACL*(name, region, acl[, options])
+### .putBucketACL(name, acl[, options])
 
 Update the bucket ACL.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - acl {String} access control list, current available: `public-read-write`, `public-read` and `private`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
@@ -329,18 +498,17 @@ example:
 - Set bucket `helloworld` to `public-read-write`
 
 ```js
-yield store.putBucketACL('helloworld', 'oss-cn-hongkong', 'public-read-write');
+store.putBucketACL('helloworld', 'public-read-write').then((result) => {
+});
 ```
 
-### .getBucketACL*(name, region[, options])
+### .getBucketACL(name[, options])
 
 Get the bucket ACL.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -358,13 +526,14 @@ example:
 - Get bucket `helloworld`
 
 ```js
-var result = yield store.getBucketACL('helloworld', 'oss-cn-hongkong');
-console.log(result.acl);
+store.getBucketACL('helloworld').then((result) => {
+  console.log(result.acl);
+});
 ```
 
 ---
 
-### .putBucketLogging*(name, region, prefix[, options])
+### .putBucketLogging(name, prefix[, options])
 
 Update the bucket logging settings.
 Log file will create every one hour and name format: `<prefix><bucket>-YYYY-mm-DD-HH-MM-SS-UniqueString`.
@@ -372,8 +541,6 @@ Log file will create every one hour and name format: `<prefix><bucket>-YYYY-mm-D
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [prefix] {String} prefix path name to store the log files
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
@@ -391,18 +558,17 @@ example:
 - Enable bucket `helloworld` logging and save with prefix `logs/`
 
 ```js
-yield store.putBucketLogging('helloworld', 'oss-cn-hongkong', 'logs/');
+store.putBucketLogging('helloworld', 'logs/').then((result) => {
+});
 ```
 
-### .getBucketLogging*(name, region[, options])
+### .getBucketLogging(name[, options])
 
 Get the bucket logging settings.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -421,19 +587,18 @@ example:
 - Get bucket `helloworld` logging settings
 
 ```js
-var result = yield store.getBucketLogging('helloworld', 'oss-cn-hongkong');
-console.log(result.enable, result.prefix);
+store.getBucketLogging('helloworld').then((result) => {
+  console.log(result.enable, result.prefix);
+});
 ```
 
-### .deleteBucketLogging(name, region[, options])
+### .deleteBucketLogging(name[, options])
 
 Delete the bucket logging settings.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -447,15 +612,13 @@ Success will return:
 
 ---
 
-### .putBucketWebsite*(name, region, config[, options])
+### .putBucketWebsite(name, config[, options])
 
 Set the bucket as a static website.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - config {Object} website config, contains blow properties:
   - index {String} default page, e.g.: `index.html`
   - [error] {String} error page, e.g.: 'error.html'
@@ -473,20 +636,19 @@ Success will return:
 example:
 
 ```js
-yield store.putBucketWebsite('hello', 'oss-cn-hangzhou', {
+store.putBucketWebsite('hello', {
   index: 'index.html'
+}).then((result) => {
 });
 ```
 
-### .getBucketWebsite*(name, region[, options])
+### .getBucketWebsite(name[, options])
 
 Get the bucket website config.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -500,15 +662,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketWebsite*(name, region[, options])
+### .deleteBucketWebsite(name[, options])
 
 Delete the bucket website config.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -522,15 +682,13 @@ Success will return:
 
 ---
 
-### .putBucketReferer*(name, region, allowEmpty, referers[, options])
+### .putBucketReferer(name, allowEmpty, referers[, options])
 
 Set the bucket request `Referer` white list.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - allowEmpty {Boolean} allow empty request referer or not
 - referers {Array<String>} `Referer` white list, e.g.:
   ```js
@@ -553,21 +711,20 @@ Success will return:
 example:
 
 ```js
-yield store.putBucketReferer('hello', 'oss-cn-hangzhou', false, [
+store.putBucketReferer('hello', false, [
   'https://npm.taobao.org',
   'http://cnpmjs.org'
-]);
+]).then((result) => {
+});
 ```
 
-### .getBucketReferer*(name, region[, options])
+### .getBucketReferer(name[, options])
 
 Get the bucket request `Referer` white list.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -581,15 +738,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketReferer*(name, region[, options])
+### .deleteBucketReferer(name[, options])
 
 Delete the bucket request `Referer` white list.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -603,15 +758,13 @@ Success will return:
 
 ---
 
-### .putBucketLifecycle*(name, region, rules[, options])
+### .putBucketLifecycle(name, rules[, options])
 
 Set the bucket object lifecycle.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - rules {Array<Rule>} rule config list, each `Rule` will contains blow properties:
   - [id] {String} rule id, if not set, OSS will auto create it with random string.
   - prefix {String} store prefix
@@ -633,7 +786,7 @@ Success will return:
 example:
 
 ```js
-yield store.putBucketLifecycle('hello', 'oss-cn-hangzhou', [
+store.putBucketLifecycle('hello', [
   {
     id: 'delete after one day',
     prefix: 'logs/',
@@ -645,18 +798,16 @@ yield store.putBucketLifecycle('hello', 'oss-cn-hangzhou', [
     status: 'Disabled',
     date: '2022-10-11T00:00:00.000Z'
   }
-]);
+]).then((result) => {});
 ```
 
-### .getBucketLifecycle*(name, region[, options])
+### .getBucketLifecycle(name[, options])
 
 Get the bucket object lifecycle.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -669,15 +820,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketLifecycle*(name, region[, options])
+### .deleteBucketLifecycle(name[, options])
 
 Delete the bucket object lifecycle.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -691,15 +840,13 @@ Success will return:
 
 ---
 
-### .putBucketCORS*(name, region, rules[, options])
+### .putBucketCORS(name, rules[, options])
 
 Set CORS rules of the bucket object
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - rules {Array<Rule>} rule config list, each `Rule` will contains below properties:
   - allowedOrigin {String/Array} configure for Access-Control-Allow-Origin header
   - allowedMethod {String/Array} configure for Access-Control-Allow-Methods header
@@ -720,7 +867,7 @@ Success will return:
 example:
 
 ```js
-yield store.putBucketCORS('hello', 'oss-cn-hangzhou', [
+store.putBucketCORS('hello', [
   {
     allowedOrigin: '*',
     allowedMethod: [
@@ -728,18 +875,16 @@ yield store.putBucketCORS('hello', 'oss-cn-hangzhou', [
       'HEAD',
     ],
   }
-]);
+]).then((result) => {});
 ```
 
-### .getBucketCORS*(name, region[, options])
+### .getBucketCORS(name[, options])
 
 Get CORS rules of the bucket object.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -752,15 +897,13 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
-### .deleteBucketCORS*(name, region[, options])
+### .deleteBucketCORS(name[, options])
 
 Delete CORS rules of the bucket object.
 
 parameters:
 
 - name {String} bucket name
-- region {String} the bucket data region location, please see [Data Regions](#data-regions),
-  Current available: `oss-cn-hangzhou`, `oss-cn-qingdao`, `oss-cn-beijing`, `oss-cn-hongkong` and `oss-cn-shenzhen`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -776,28 +919,26 @@ Success will return:
 
 ## Object Operations
 
-All operations function is [generator], except `signatureUrl`.
+All operations function return Promise, except `signatureUrl`.
 
-generator function format: `functionName*(...)`.
-
-### .put*(name, file[, options])
+### .put(name, file[, options])
 
 Add an object to the bucket.
 
 parameters:
 
 - name {String} object name store on OSS
-- file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance
+- file {String|Buffer|ReadStream|File(only support Browser)|Blob(only support Browser)} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
-  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
         ```js
@@ -826,9 +967,10 @@ example:
 - Add an object through local file path
 
 ```js
-var filepath = '/home/ossdemo/demo.txt';
-var object = yield store.put('ossdemo/demo.txt', filepath);
-console.log(object);
+const filepath = '/home/ossdemo/demo.txt';
+store.put('ossdemo/demo.txt', filepath).then((result) => {
+  console.log(result);
+});
 
 {
   name: 'ossdemo/demo.txt',
@@ -851,8 +993,9 @@ console.log(object);
 - Add an object through content buffer
 
 ```js
-var object = yield store.put('ossdemo/buffer', new Buffer('foo content'));
-console.log(object);
+store.put('ossdemo/buffer', new Buffer('foo content')).then((result) => {
+  console.log(result);
+});
 
 {
   name: 'ossdemo/buffer',
@@ -876,9 +1019,10 @@ console.log(object);
 - Add an object through readstream
 
 ```js
-var filepath = '/home/ossdemo/demo.txt';
-var object = yield store.put('ossdemo/readstream.txt', fs.createReadStream(filepath));
-console.log(object);
+const filepath = '/home/ossdemo/demo.txt';
+store.put('ossdemo/readstream.txt', fs.createReadStream(filepath)).then((result) => {
+  console.log(result);
+});
 
 {
   name: 'ossdemo/readstream.txt',
@@ -899,7 +1043,7 @@ console.log(object);
 }
 ```
 
-### .putStream*(name, stream[, options])
+### .putStream(name, stream[, options])
 
 Add a stream object to the bucket.
 
@@ -913,11 +1057,11 @@ parameters:
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
-  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
         ```js
@@ -945,9 +1089,10 @@ example:
 - Add an object through readstream
 
 ```js
-var filepath = '/home/ossdemo/demo.txt';
-var object = yield store.put('ossdemo/readstream.txt', fs.createReadStream(filepath));
-console.log(object);
+const filepath = '/home/ossdemo/demo.txt';
+store.putStream('ossdemo/readstream.txt', fs.createReadStream(filepath)).then((result) => {
+  console.log(result);
+});
 
 {
   name: 'ossdemo/readstream.txt',
@@ -968,7 +1113,7 @@ console.log(object);
 }
 ```
 
-### .append*(name, file[, options])
+### .append(name, file[, options])
 
 Append an object to the bucket, it's almost same as put, but it can add content to existing object rather than override it.
 
@@ -1002,10 +1147,10 @@ object:
 example:
 
 ```js
-var object = yield store.apend('ossdemo/buffer', new Buffer('foo'));
+let object = await store.append('ossdemo/buffer', new Buffer('foo'));
 
 // append content to the existing object
-object = yield store.apend('ossdemo/buffer', new Buffer('bar'), {
+object = await store.append('ossdemo/buffer', new Buffer('bar'), {
   position: object.nextAppendPosition,
 });
 ```
@@ -1022,7 +1167,23 @@ const cdnUrl = client.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
-### .head*(name[, options])
+### .generateObjectUrl(name[, baseUrl])
+
+Get the Object url.
+If provide `baseUrl`, will use `baseUrl` instead the default `bucket and endpoint `.
+Suggest use generateObjectUrl instead of getObjectUrl.
+
+e.g.:
+
+```js
+const url = client.generateObjectUrl('foo/bar.jpg');
+// cdnUrl should be `https://${bucketname}.${endpotint}foo/bar.jpg`
+
+const cdnUrl = client.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+// cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
+```
+
+### .head(name[, options])
 
 Head an object and get the meta info.
 
@@ -1059,13 +1220,13 @@ example:
 - Head an exists object and get user meta
 
 ```js
-yield this.store.put('ossdemo/head-meta', new Buffer('foo'), {
+await this.store.put('ossdemo/head-meta', new Buffer('foo'), {
   meta: {
     uid: 1,
     path: 'foo/demo.txt'
   }
 });
-var object = this.store.head('ossdemo/head-meta');
+const object = await this.store.head('ossdemo/head-meta');
 console.log(object);
 
 {
@@ -1081,11 +1242,11 @@ console.log(object);
 - Head a not exists object
 
 ```js
-var object = this.store.head('ossdemo/head-meta');
+const object = await this.store.head('ossdemo/head-meta');
 // will throw NoSuchKeyError
 ```
 
-### .get*(name[, file, options])
+### .get(name[, file, options])
 
 Get an object from the bucket.
 
@@ -1127,39 +1288,39 @@ example:
 - Get an exists object and store it to the local file
 
 ```js
-var filepath = '/home/ossdemo/demo.txt';
-yield store.get('ossdemo/demo.txt', filepath);
+const filepath = '/home/ossdemo/demo.txt';
+await store.get('ossdemo/demo.txt', filepath);
 ```
 
 _ Store object to a writestream
 
 ```js
-yield store.get('ossdemo/demo.txt', somestream);
+await store.get('ossdemo/demo.txt', somestream);
 ```
 
 - Get an object content buffer
 
 ```js
-var result = yield store.get('ossdemo/demo.txt');
+const result = await store.get('ossdemo/demo.txt');
 console.log(Buffer.isBuffer(result.content));
 ```
 
 - Get a processed image and store it to the local file
 
 ```js
-var filepath = '/home/ossdemo/demo.png';
-yield store.get('ossdemo/demo.png', filepath, {process: 'image/resize,w_200'});
+const filepath = '/home/ossdemo/demo.png';
+await store.get('ossdemo/demo.png', filepath, {process: 'image/resize,w_200'});
 ```
 
 - Get a not exists object
 
 ```js
-var filepath = '/home/ossdemo/demo.txt';
-yield store.get('ossdemo/not-exists-demo.txt', filepath);
+const filepath = '/home/ossdemo/demo.txt';
+await store.get('ossdemo/not-exists-demo.txt', filepath);
 // will throw NoSuchKeyError
 ```
 
-### .getStream*(name[, options])
+### .getStream(name[, options])
 
 Get an object read stream.
 
@@ -1198,11 +1359,11 @@ example:
 - Get an exists object stream
 
 ```js
-var result = yield store.getStream('ossdemo/demo.txt');
+const result = await store.getStream('ossdemo/demo.txt');
 result.stream.pipe(fs.createWriteStream('some file.txt'));
 ```
 
-### .delete*(name[, options])
+### .delete(name[, options])
 
 Delete an object from the bucket.
 
@@ -1229,16 +1390,16 @@ example:
 - Delete an exists object
 
 ```js
-yield store.delete('ossdemo/someobject');
+await store.delete('ossdemo/someobject');
 ```
 
 - Delete a not exists object
 
 ```js
-yield store.delete('ossdemo/some-not-exists-object');
+await store.delete('ossdemo/some-not-exists-object');
 ```
 
-### .copy*(name, sourceName[, options])
+### .copy(name, sourceName[, options])
 
 Copy an object from `sourceName` to `name`.
 
@@ -1283,16 +1444,20 @@ example:
 - Copy same bucket object
 
 ```js
-var result = yield store.copy('newName', 'oldName');
+store.copy('newName', 'oldName').then((result) => {
+  console.log(result);
+});
 ```
 
 - Copy other bucket object
 
 ```js
-var result = yield store.copy('logo.png', '/other-bucket/logo.png');
+store.copy('logo.png', '/other-bucket/logo.png').then((result) => {
+  console.log(result);
+});
 ```
 
-### .putMeta*(name, meta[, options])
+### .putMeta(name, meta[, options])
 
 Set an exists object meta.
 
@@ -1305,7 +1470,7 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
-Success will return the copy result in `data` property.
+Success will return the putMeta result in `data` property.
 
 - data {Object} copy result
   - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
@@ -1323,7 +1488,7 @@ example:
 - Update exists object meta
 
 ```js
-var result = yield store.putMeta('ossdemo.txt', {
+const result = await store.putMeta('ossdemo.txt', {
   uid: 1, pid: 'p123'
 });
 console.log(result);
@@ -1332,10 +1497,10 @@ console.log(result);
 - Clean up object meta
 
 ```js
-yield store.putMeta('ossdemo.txt', null);
+await store.putMeta('ossdemo.txt', null);
 ```
 
-### .deleteMulti*(names[, options])
+### .deleteMulti(names[, options])
 
 Delete multi objects in one request.
 
@@ -1363,7 +1528,7 @@ example:
 - Delete multi objects in quiet mode
 
 ```js
-var result = yield store.deleteMulti(['obj1', 'obj2', 'obj3'], {
+const result = await store.deleteMulti(['obj1', 'obj2', 'obj3'], {
   quiet: true
 });
 ```
@@ -1371,10 +1536,10 @@ var result = yield store.deleteMulti(['obj1', 'obj2', 'obj3'], {
 - Delete multi objects in verbose mode
 
 ```js
-var result = yield store.deleteMulti(['obj1', 'obj2', 'obj3']);
+const result = await store.deleteMulti(['obj1', 'obj2', 'obj3']);
 ```
 
-### .list*(query[, options])
+### .list(query[, options])
 
 List objects in the bucket.
 
@@ -1414,14 +1579,14 @@ example:
 - List top 10 objects
 
 ```js
-var result = yield store.list();
+const result = await store.list();
 console.log(result.objects);
 ```
 
 - List `fun/` dir including subdirs objects
 
 ```js
-var result = yield store.list({
+const result = await store.list({
   prefix: 'fun/'
 });
 console.log(result.objects);
@@ -1430,7 +1595,7 @@ console.log(result.objects);
 - List `fun/` dir objects, not including subdirs
 
 ```js
-var result = yield store.list({
+const result = await store.list({
   prefix: 'fun/',
   delimiter: '/'
 });
@@ -1439,7 +1604,7 @@ console.log(result.objects);
 
 ### .signatureUrl(name[, options])
 
-Create a signature url for download or upload object.
+Create a signature url for download or upload object. When you put object with signatureUrl ,you need to pass `Content-Type`.Please look at the example.
 
 parameters:
 
@@ -1447,6 +1612,7 @@ parameters:
 - [options] {Object} optional parameters
   - [expires] {Number} after expires seconds, the url will become invalid, default is `1800`
   - [method] {String} the HTTP method, default is 'GET'
+  - [Content-Type] {String} set the request content type
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
   - [response] {Object} set the response headers for download
@@ -1454,6 +1620,12 @@ parameters:
     - [content-disposition] {String} set the response content disposition
     - [cache-control] {String} set the response cache control
     - See more: https://help.aliyun.com/document_detail/oss/api-reference/object/GetObject.html
+  - [callback] {Object} set the callback for the operation
+    - url {String} set the url for callback
+    - [host] {String} set the host for callback
+    - body {String} set the body for callback
+    - [contentType] {String} set the type for body
+    - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 
 Success will return signature url.
 
@@ -1462,16 +1634,27 @@ example:
 - Get signature url for object
 
 ```js
-var url = store.signatureUrl('ossdemo.txt');
+const url = store.signatureUrl('ossdemo.txt');
 console.log(url);
-
-var url = store.signatureUrl('ossdemo.txt', {
+// --------------------------------------------------
+const url = store.signatureUrl('ossdemo.txt', {
   expires: 3600,
   method: 'PUT'
 });
 console.log(url);
 
-var url = store.signatureUrl('ossdemo.txt', {
+//  put object with signatureUrl
+// -------------------------------------------------
+
+const url = store.signatureUrl('ossdemo.txt', {
+  expires: 3600,
+  method: 'PUT',
+  'Content-Type': 'text/plain; charset=UTF-8',
+});
+console.log(url);
+
+// --------------------------------------------------
+const url = store.signatureUrl('ossdemo.txt', {
   expires: 3600,
   response: {
     'content-type': 'text/custom',
@@ -1479,24 +1662,26 @@ var url = store.signatureUrl('ossdemo.txt', {
   }
 });
 console.log(url);
+
+// put operation
 ```
 
 - Get a signature url for a processed image
 
 ```js
-var url = store.signatureUrl('ossdemo.png', {
+const url = store.signatureUrl('ossdemo.png', {
   process: 'image/resize,w_200'
 });
 console.log(url);
-
-var url = store.signatureUrl('ossdemo.png', {
+// --------------------------------------------------
+const url = store.signatureUrl('ossdemo.png', {
   expires: 3600,
   process: 'image/resize,w_200'
 });
 console.log(url);
 ```
 
-### .putACL*(name, acl[, options])
+### .putACL(name, acl[, options])
 
 Set object's ACL.
 
@@ -1520,10 +1705,10 @@ example:
 - Set an object's ACL
 
 ```js
-yield store.putACL('ossdemo.txt', 'public-read');
+await store.putACL('ossdemo.txt', 'public-read');
 ```
 
-### .getACL*(name[, options])
+### .getACL(name[, options])
 
 Get object's ACL.
 
@@ -1547,13 +1732,97 @@ example:
 - Get an object's ACL
 
 ```js
-var result = yield store.getACL('ossdemo.txt');
+const result = await store.getACL('ossdemo.txt');
 console.log(result.acl);
 ```
 
+### .restore(name[, options])
+
+Restore Object.
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return:
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- Restore an object
+
+```js
+const result = await store.restore('ossdemo.txt');
+console.log(result.status);
+```
+
+### .putSymlink(name, targetName[, options])
+
+PutSymlink
+
+parameters:
+
+- name {String} object name
+- targetName {String} target name
+- [options] {Object} optional parameters
+  - [headers] {Object} extra headers
+    - [x-oss-storsge-calss] {String} set the header x-oss-storage-class 
+
+Success will return
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const options = {
+  headers: {
+    'x-oss-storage-class': 'IA'
+  }
+}
+const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
+console.log(result.status)
+```
+
+### .getSymlink(name[, options])
+
+GetSymlink
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+
+Success will return
+
+- targetName {String} symlink info
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const result = await store.getSymlink('ossdemo.txt')
+console.log(result.status)
+```
+
 ### .initMultipartUpload(name[, options])
-Before transmitting data in the Multipart Upload mode, 
-you must call the Initiate Multipart Upload interface to notify the OSS to initiate a Multipart Upload event. 
+Before transmitting data in the Multipart Upload mode,
+you must call the Initiate Multipart Upload interface to notify the OSS to initiate a Multipart Upload event.
 The Initiate Multipart Upload interface returns a globally unique Upload ID created by the OSS server to identify this Multipart Upload event.
 
 parameters:
@@ -1573,26 +1842,26 @@ parameters:
     if use in browser you should be set cors expose header x-oss-server-side-encryption
 
 Success will return:
-  
+
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
-    - [x-oss-server-side-encryption] if set request header x-oss-server-side-encryption, will return 
+    - [x-oss-server-side-encryption] if set request header x-oss-server-side-encryption, will return
   - size {Number} response size
   - rt {Number} request total use time (ms)
 - bucket {String} bucket name
 - name {String} object name store on OSS
 - uploadId {String} upload id, use for uploadPart, completeMultipart
 
-example:    
+example:
 
 ```js
-  var result = yield store.initMultipartUpload('object');
+  const result = await store.initMultipartUpload('object');
   console.log(result);
 ```
 
 ### .uploadPart(name, uploadId, partNo, file, start, end[, options])
-After initiating a Multipart Upload event, you can upload data in parts based on the specified object name and Upload ID. 
+After initiating a Multipart Upload event, you can upload data in parts based on the specified object name and Upload ID.
 
 parameters:
 
@@ -1608,7 +1877,7 @@ parameters:
   - [timeout] {Number} the operation timeout
 
 Success will return:
-  
+
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1617,33 +1886,33 @@ Success will return:
 - name {String} object name store on OSS
 - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
 
-example:    
+example:
 
 ```js
-  var name = 'object';
-  var result = yield store.initMultipartUpload(name);
-  var uploadId = result.uploadId;
-  var file; //the data you want to upload, is a File or FileName(only in node)
-  //if file part is 10  
-  var partSize = 100 * 1024;
-  var fileSize = 10 * partSize;//you need to calculate
-  var dones = [];
-  for (var i = 1; i <= 10; i++) {
-    var start = partSize * (i -1);
-    var end = Math.min(start + partSize, fileSize);
-    var part = yield store.uploadPart(name, uploadId, i, file, start, end);
+  const name = 'object';
+  const result = await store.initMultipartUpload(name);
+  const uploadId = result.uploadId;
+  const file; //the data you want to upload, is a File or FileName(only in node)
+  //if file part is 10
+  const partSize = 100 * 1024;
+  const fileSize = 10 * partSize;//you need to calculate
+  const dones = [];
+  for (let i = 1; i <= 10; i++) {
+    const start = partSize * (i -1);
+    const end = Math.min(start + partSize, fileSize);
+    const part = await store.uploadPart(name, uploadId, i, file, start, end);
     dones.push({
       number: i,
       etag: part.etag
     });
     console.log(part);
   }
-  
+
   //end need to call completeMultipartUpload api
 ```
 
 ### .uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])
-Using Upload Part Copy, you can copy data from an existing object and upload a part of the data. 
+Using Upload Part Copy, you can copy data from an existing object and upload a part of the data.
 When copying a file larger than 1 GB, you must use the Upload Part Copy method. If you want to copy a file smaller than 1 GB, see Copy Object.
 
 parameters:
@@ -1652,23 +1921,23 @@ parameters:
 - uploadId {String} get by initMultipartUpload api
 - partNo {Number} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
 - range {String} Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB, range value like `0-102400`
-- sourceData {Object} 
+- sourceData {Object}
   - sourceKey {String} the source object name
   - sourceBucketName {String} the source bucket name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [headers] {Object} The following request header is used for the source objects specified by x-oss-copy-source.
     - [x-oss-copy-source-if-match]  default none<br>
-    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
     - [x-oss-copy-source-if-none-match]   default none<br>
-    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
     - [x-oss-copy-source-if-unmodified-since]   default none<br>
-    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
+    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed.
     - [x-oss-copy-source-if-modified-since]   default none<br>
-    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
-  
+    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
+
 Success will return:
-  
+
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1676,26 +1945,26 @@ Success will return:
   - rt {Number} request total use time (ms)
 - name {String} object name store on OSS
 - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
-    
-example:    
+
+example:
 
 ```js
-  var name = 'object';
-  var result = yield store.initMultipartUpload(name);
- 
-  var partSize = 100 * 1024;//100kb 
+  const name = 'object';
+  const result = await store.initMultipartUpload(name);
+
+  const partSize = 100 * 1024;//100kb
   //if file part is 10
-  for (var i = 1; i <= 10; i++) {
-    var start = partSize * (i -1);
-    var end = Math.min(start + partSize, fileSize);
-    var range = start + '-' + (end - 1);
-    var part = yield store.uploadPartCopy(name, result.uploadId, i, range, {
+  for (let i = 1; i <= 10; i++) {
+    const start = partSize * (i -1);
+    const end = Math.min(start + partSize, fileSize);
+    const range = start + '-' + (end - 1);
+    const part = await store.uploadPartCopy(name, result.uploadId, i, range, {
       sourceKey: 'sourceKey',
       sourceBucketName: 'sourceBucketName'
     });
     console.log(part);
   }
-  
+
   //end need complete api
 ```
 
@@ -1711,21 +1980,21 @@ parameters:
   - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
-        
-  
+
+
 Success will return:
-  
+
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1735,52 +2004,54 @@ Success will return:
 - name {String} object name store on OSS
 - etag {String} object etag contains ", e.g.: "5B3C1A2E053D763E1B002CC607C5A0FE"
 - data {Object} callback server response data , sdk use JSON.parse() return
-    
-example:    
+
+example:
 
 ```js
-    
+
   //init multipart
-  var name = 'object';
-  var result = yield store.initMultipartUpload(name);
- 
+  const name = 'object';
+  const result = await store.initMultipartUpload(name);
+
   //upload part
-  var file; //the data you want to upload, this example size is 10 * 100 * 1024
-  var fileSize;//you need to calculate
-  var partSize = 100 * 1024;//100kb 
-  var done = [];
+  const file; //the data you want to upload, this example size is 10 * 100 * 1024
+  const fileSize;//you need to calculate
+  const partSize = 100 * 1024;//100kb
+  const done = [];
   //if file part is 10
-  for (var i = 1; i <= 10; i++) {
-    var start = partSize * (i -1);
-    var end = Math.min(start + partSize, fileSize);
-    var data = file.slice(start, end);
-    var part = yield store.uploadPart(name, result.uploadId, i, data);
+  for (let i = 1; i <= 10; i++) {
+    const start = partSize * (i -1);
+    const end = Math.min(start + partSize, fileSize);
+    const data = file.slice(start, end);
+    const part = yield store.uploadPart(name, result.uploadId, i, data);
     console.log(part);
     done.push({
           number: i,
           etag: part.res.headers.etag
         });
   }
-  
+
   //complete
-  var completeData = yield store.completeMultipartUpload(name, result.uploadId, done);
+  const completeData = await store.completeMultipartUpload(name, result.uploadId, done);
   console.log(completeData);
 ```
 
 
-### .multipartUpload*(name, file[, options])
+### .multipartUpload(name, file[, options])
 
 Upload file with [OSS multipart][oss-multipart].<br>
 this function contains initMultipartUpload, uploadPart, completeMultipartUpload.
+When you use multipartUpload api，if you encounter problems with ConnectionTimeoutError, you should handle ConnectionTimeoutError in your business code. How to resolve ConnectionTimeoutError, you can decrease `partSize` size 、 Increase `timeout` 、Retry request ,
+or give tips in your business code;
 
 parameters:
 
 - name {String} object name
-- file {String|File} file path or HTML5 Web File
+- file {String|File(only support Browser)|Blob(only support Browser)} file path or HTML5 Web File or web Blob
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
-  - [progress] {Function} thunk or generator, the progress callback called after each
+  - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
@@ -1796,11 +2067,11 @@ parameters:
        - etag {String} part etag
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
   - [mime] {String} custom mime , will send with `Content-Type` entity header
-  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br> 
-    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL. 
+  - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
+    - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var). 
-    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.  
+    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
           e.g.:
          ```js
@@ -1831,22 +2102,22 @@ example:
 - Upload using multipart
 
 ```js
-var result = yield store.multipartUpload('object', '/tmp/file');
+const result = await store.multipartUpload('object', '/tmp/file');
 console.log(result);
 
-var result = yield store.multipartUpload('object', '/tmp/file', {
+const result = await store.multipartUpload('object', '/tmp/file', {
   parallel: 4,
   partSize: 1024 * 1024,
-  progress: function* (p, cpt, res) {
+  progress: function (p, cpt, res) {
     console.log(p);
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
   }
 });
 
-var result = yield store.multipartUpload('object', '/tmp/file', {
+const result = await store.multipartUpload('object', '/tmp/file', {
   checkpoint: savedCpt,
-  progress: function* (p, cpt, res) { //progress is generator
+  progress: function (p, cpt, res) { //progress is generator
     console.log(p);
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
@@ -1858,44 +2129,42 @@ var result = yield store.multipartUpload('object', '/tmp/file', {
 - multipartUpload progress example
 
 ```js
-//thunk
-function thunkProgress(p, cpt, res) {
-  return function(done) {
+
+//async function
+async function asyncProgress(p, cpt, res) {
     console.log(p);
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
-    done();
-  }
 }
 
-var result1 = yield store.multipartUpload('object', '/tmp/file', {
-  progress: thunkProgress
+const result1 = await store.multipartUpload('object', '/tmp/file', {
+  progress: asyncProgress
 });
 
-//generator
-function* generatorProgress(p, cpt, res) {
+//function
+function progress(p, cpt, res) {
     console.log(p);
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
 }
 
-var result2 = yield store.multipartUpload('object', '/tmp/file', {
-  progress: generatorProgress
+const result2 = await store.multipartUpload('object', '/tmp/file', {
+  progress: progress
 });
 
 ```
 
 - multipartUpload with cancel
 
->tips: cancel multipartUpload, now only support browser.
+>tips: cancel multipartUpload support on node and browser
 
 ```js
 
 //start upload
 try {
-  var result = yield store.multipartUpload('object', '/tmp/file', {
+  const result = await store.multipartUpload('object', '/tmp/file', {
     checkpoint: savedCpt,
-    progress: function* (p, cpt, res) {
+    progress: function (p, cpt, res) {
       console.log(p);
       console.log(cpt);
       console.log(res.headers['x-oss-request-id']);
@@ -1909,12 +2178,35 @@ try {
 }
 
 //the other event to cancel, for example: click event
-//to cancel upload must use the same client instance 
+//to cancel upload must use the same client instance
 store.cancel();
 
 ```
 
-### .multipartUploadCopy*(name, sourceData[, options])
+- multipartUpload with capture `ConnectionTimeoutError`  error
+
+```js
+
+//start upload
+try {
+  const result = await store.multipartUpload('object', '/tmp/file', {
+    checkpoint: savedCpt,
+    progress: function (p, cpt, res) {
+      console.log(p);
+      console.log(cpt);
+      console.log(res.headers['x-oss-request-id']);
+    }
+  });
+} catch (err) {
+  if (err.code === 'ConnectionTimeoutError') {
+    console.log("Woops,Woops ,timeout error!!!");
+    // do ConnectionTimeoutError operation
+  }
+}
+
+```
+
+### .multipartUploadCopy(name, sourceData[, options])
 
 Copy file with [OSS multipart][oss-multipart]. <br>
 this function contains head, initMultipartUpload, uploadPartCopy, completeMultipartUpload.<br>
@@ -1928,7 +2220,7 @@ parameters:
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
-  - [progress] {Function} is thunk or generator, the progress callback called after each
+  - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
   - [checkpoint] {Object} the checkpoint to resume upload, if this is
@@ -1942,13 +2234,13 @@ parameters:
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
     - [x-oss-copy-source-if-match]  only uploadPartCopy api used, default none<br>
-    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
     - [x-oss-copy-source-if-none-match]  only uploadPartCopy api used, default none<br>
-    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    If the source object has not been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
     - [x-oss-copy-source-if-unmodified-since]  only uploadPartCopy api used, default none<br>
-    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed. 
+    If the time specified by the received parameter is the same as or later than the modification time of the file, the system transfers the file normally, and returns 200 OK; otherwise, the system returns 412 Precondition Failed.
     - [x-oss-copy-source-if-modified-since] only uploadPartCopy api used, default none<br>
-    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message. 
+    If the source object has been modified since the time specified by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
 
 Success will return:
 
@@ -1963,22 +2255,22 @@ Success will return:
 
 example:
 
-- Copy using multipart 
+- Copy using multipart
 
 ```js
-var result = yield store.multipartUploadCopy('object', {
+const result = await store.multipartUploadCopy('object', {
   sourceKey: 'sourceKey',
   sourceBucketName: 'sourceBucketName'
 });
 console.log(result);
 
-var result = yield store.multipartUploadCopy('object', {
+const result = await store.multipartUploadCopy('object', {
   sourceKey: 'sourceKey',
   sourceBucketName: 'sourceBucketName'
 }, {
   parallel: 4,
   partSize: 1024 * 1024,
-  progress: function* (p, cpt, res) {
+  progress: function (p, cpt, res) {
     console.log(p);
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
@@ -1987,12 +2279,12 @@ var result = yield store.multipartUploadCopy('object', {
 
 console.log(result);
 
-var result = yield store.multipartUploadCopy('object', {
+const result = await store.multipartUploadCopy('object', {
   sourceKey: 'sourceKey',
   sourceBucketName: 'sourceBucketName'
 }, {
   checkpoint: savedCpt,
-  progress: function* (p, cpt, res) {
+  progress: function (p, cpt, res) {
     console.log(p);
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
@@ -2008,12 +2300,12 @@ console.log(result);
 
 //start upload
 try {
-  var result = yield store.multipartUploadCopy('object', {
+  const result = await store.multipartUploadCopy('object', {
     sourceKey: 'sourceKey',
     sourceBucketName: 'sourceBucketName'
   }, {
     checkpoint: savedCpt,
-    progress: function* (p, cpt, res) {
+    progress: function (p, cpt, res) {
       console.log(p);
       console.log(cpt);
       console.log(res.headers['x-oss-request-id']);
@@ -2027,12 +2319,12 @@ try {
 }
 
 //the other event to cancel, for example: click event
-//to cancel upload must use the same client instance 
+//to cancel upload must use the same client instance
 store.cancel();
 
 ```
 
-### .listParts*(name, uploadId[, query, options])
+### .listParts(name, uploadId[, query, options])
 
 The ListParts command can be used to list all successfully uploaded parts mapped to a specific upload ID, i.e.: those not completed and not
 aborted.
@@ -2043,7 +2335,7 @@ parameters:
 - uploadId {String} upload ID from initMultipartUpload api
 - [query] {Object} query parameters
   - [max-parts] {Number} The maximum part number in the response of the OSS. default value: 1000.
-  - [part-number-marker] {Number} Starting position of a specific list. A part is listed only when the part number is greater than the value of this parameter.  
+  - [part-number-marker] {Number} Starting position of a specific list. A part is listed only when the part number is greater than the value of this parameter.
   - [encoding-type] {String} Specify the encoding of the returned content and the encoding type. Optional value: url
 - [options] {Object} optional args
   - [timeout] {Number} the operation timeout
@@ -2056,17 +2348,17 @@ Success will return:
   - size {Number} response size
   - rt {Number} request total use time (ms)
 - uploadId {String} upload ID
-- bucket {String} Specify the bucket name. 
+- bucket {String} Specify the bucket name.
 - name {String} object name
-- PartNumberMarker {Number} Starting position of the part numbers in the listing result. 
-- nextPartNumberMarker {Number} If not all results are returned this time, the response request includes the NextPartNumberMarker element to indicate the value of PartNumberMarker in the next request. 
+- PartNumberMarker {Number} Starting position of the part numbers in the listing result.
+- nextPartNumberMarker {Number} If not all results are returned this time, the response request includes the NextPartNumberMarker element to indicate the value of PartNumberMarker in the next request.
 - maxParts {Number} upload ID
-- isTruncated {Boolean} Whether the returned result list for List Parts is truncated. The “true” indicates that not all results are returned; “false” indicates that all results are returned. 
+- isTruncated {Boolean} Whether the returned result list for List Parts is truncated. The “true” indicates that not all results are returned; “false” indicates that all results are returned.
 - parts {Array} The container that saves part information, each in the structure:
-  - PartNumber {Number} Part number. 
-  - LastModified {Date} Time when a part is uploaded. 
-  - ETag {String} ETag value in the content of the uploaded part. 
-  - Size {Number} Size of the uploaded part. 
+  - PartNumber {Number} Part number.
+  - LastModified {Date} Time when a part is uploaded.
+  - ETag {String} ETag value in the content of the uploaded part.
+  - Size {Number} Size of the uploaded part.
 
 example:
 
@@ -2074,13 +2366,13 @@ example:
 
 ```js
 
-var result = yield store.listParts('objcet', 'uploadId', {
+const result = await store.listParts('objcet', 'uploadId', {
   'max-parts': 1000
 });
 console.log(result);
 ```
 
-### .listUploads*(query[, options])
+### .listUploads(query[, options])
 
 List on-going multipart uploads, i.e.: those not completed and not
 aborted.
@@ -2104,7 +2396,7 @@ example:
 
 ```js
 
-var result = yield store.listUploads({
+const result = await store.listUploads({
   'max-uploads': 100,
   'key-marker': 'my-object',
   'upload-id-marker': 'upload-id'
@@ -2112,7 +2404,7 @@ var result = yield store.listUploads({
 console.log(result);
 ```
 
-### .abortMultipartUpload*(name, uploadId[, options])
+### .abortMultipartUpload(name, uploadId[, options])
 
 Abort a multipart upload for object.
 
@@ -2128,17 +2420,17 @@ example:
 - Abort a multipart upload
 
 ```js
-var result = yield store.abortMultipartUpload('object', 'upload-id');
+const result = await store.abortMultipartUpload('object', 'upload-id');
 console.log(result);
 ```
 
 ## RTMP Operations
 
-All operations function is [generator], except `getRtmpUrl`.
+All operations function is [async], except `getRtmpUrl`.
 
-generator function format: `functionName*(...)`.
+async function format: `async functionName(...)`.
 
-### .putChannel*(id, conf[, options])
+### .putChannel(id, conf[, options])
 
 Create a live channel.
 
@@ -2169,8 +2461,8 @@ example:
 - Create a live channel
 
 ```js
-var cid = 'my-channel';
-var conf = {
+const cid = 'my-channel';
+const conf = {
   Description: 'this is channel 1',
   Status: 'enabled',
   Target: {
@@ -2181,11 +2473,11 @@ var conf = {
   }
 };
 
-var r = yield this.store.putChannel(cid, conf);
+const r = await this.store.putChannel(cid, conf);
 console.log(r);
 ```
 
-### .getChannel*(id[, options])
+### .getChannel(id[, options])
 
 Get live channel info.
 
@@ -2207,13 +2499,13 @@ example:
 - Get live channel info
 
 ```js
-var cid = 'my-channel';
+const cid = 'my-channel';
 
-var r = yield this.store.getChannel(cid);
+const r = await this.store.getChannel(cid);
 console.log(r);
 ```
 
-### .deleteChannel*(id[, options])
+### .deleteChannel(id[, options])
 
 Delete a live channel.
 
@@ -2234,13 +2526,13 @@ example:
 - Delete a live channel
 
 ```js
-var cid = 'my-channel';
+const cid = 'my-channel';
 
-var r = yield this.store.deleteChannel(cid);
+const r = await this.store.deleteChannel(cid);
 console.log(r);
 ```
 
-### .putChannelStatus*(id, status[, options])
+### .putChannelStatus(id, status[, options])
 
 Change the live channel status.
 
@@ -2262,13 +2554,13 @@ example:
 - Disable a live channel
 
 ```js
-var cid = 'my-channel';
+const cid = 'my-channel';
 
-var r = yield this.store.putChannelStatus(cid, 'disabled');
+const r = await this.store.putChannelStatus(cid, 'disabled');
 console.log(r);
 ```
 
-### .getChannelStatus*(id[, options])
+### .getChannelStatus(id[, options])
 
 Get the live channel status.
 
@@ -2295,9 +2587,9 @@ example:
 - Get a live channel status
 
 ```js
-var cid = 'my-channel';
+const cid = 'my-channel';
 
-var r = yield this.store.getChannelStatus(cid);
+const r = await this.store.getChannelStatus(cid);
 console.log(r);
 
 // { Status: 'Live',
@@ -2313,7 +2605,7 @@ console.log(r);
 // }
 ```
 
-### .listChannels*(query[, options])
+### .listChannels(query[, options])
 
 List channels.
 
@@ -2346,14 +2638,14 @@ example:
 - List live channels
 
 ```js
-var r = yield this.store.listChannels({
+const r = await this.store.listChannels({
   prefix: 'my-channel',
   'max-keys': 3
 });
 console.log(r);
 ```
 
-### .getChannelHistory*(id[, options])
+### .getChannelHistory(id[, options])
 
 Get the live channel history.
 
@@ -2378,13 +2670,13 @@ example:
 - Get the live channel history
 
 ```js
-var cid = 'my-channel';
+const cid = 'my-channel';
 
-var r = yield this.store.getChannelHistory(cid);
+const r = await this.store.getChannelHistory(cid);
 console.log(r);
 ```
 
-### .createVod*(id, name, time[, options])
+### .createVod(id, name, time[, options])
 
 Create a VOD playlist for the channel.
 
@@ -2409,9 +2701,9 @@ example:
 - Create a vod playlist of a live channel
 
 ```js
-var cid = 'my-channel';
+const cid = 'my-channel';
 
-var r = yield this.store.createVod(cid, 're-play', {
+const r = await this.store.createVod(cid, 're-play', {
   startTime: 1460464870,
   endTime: 1460465877
 });
@@ -2437,9 +2729,9 @@ example:
 - Get a rtmp url.
 
 ```js
-var cid = 'my-channel';
+const cid = 'my-channel';
 
-var url = this.store.getRtmpUrl(this.cid, {
+const url = this.store.getRtmpUrl(this.cid, {
   params: {
     playlistName: 'play.m3u8'
   },
@@ -2473,9 +2765,9 @@ options:
 example:
 
 ```js
-var oss = require('ali-oss');
+const oss = require('ali-oss');
 
-var imgClient = oss.ImageClient({
+const imgClient = oss.ImageClient({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'my_image_bucket'
@@ -2485,11 +2777,11 @@ var imgClient = oss.ImageClient({
 
 ## Image Operations
 
-All operations function is [generator], except `imgClient.signatureUrl`.
+All operations function is [async], except `imgClient.signatureUrl`.
 
-generator function format: `functionName*(...)`.
+async function format: `async functionName(...)`.
 
-### imgClient.get*(name, file[, options])
+### imgClient.get(name, file[, options])
 
 Get an image from the image channel.
 
@@ -2528,32 +2820,32 @@ example:
 - Get an exists image with a style and store it to the local file
 
 ```js
-var imagepath = '/home/ossdemo/demo.jpg';
-yield imgClient.get('ossdemo/demo.jpg@200w_200h', filepath);
+const imagepath = '/home/ossdemo/demo.jpg';
+await imgClient.get('ossdemo/demo.jpg@200w_200h', filepath);
 ```
 
 _ Store image to a writestream
 
 ```js
-yield imgClient.get('ossdemo/demo.jpg@200w_200h', somestream);
+await imgClient.get('ossdemo/demo.jpg@200w_200h', somestream);
 ```
 
 - Get an image content buffer
 
 ```js
-var result = yield imgClient.get('ossdemo/demo.jpg@200w_200h');
+const result = await imgClient.get('ossdemo/demo.jpg@200w_200h');
 console.log(Buffer.isBuffer(result.content));
 ```
 
 - Get a not exists object or a not image object
 
 ```js
-var imagepath = '/home/ossdemo/demo.jpg';
-yield imgClient.get('ossdemo/not-exists-demo.jpg@200w_200h', filepath);
+const imagepath = '/home/ossdemo/demo.jpg';
+await imgClient.get('ossdemo/not-exists-demo.jpg@200w_200h', filepath);
 // will throw NoSuchKeyError
 ```
 
-### imgClient.getStream*(name[, options])
+### imgClient.getStream(name[, options])
 
 Get an image read stream.
 
@@ -2591,11 +2883,11 @@ example:
 - Get an exists image object stream
 
 ```js
-var result = yield imgClient.getStream('ossdemo/demo.jpg@200w_200h');
+const result = await imgClient.getStream('ossdemo/demo.jpg@200w_200h');
 result.stream.pipe(fs.createWriteStream('some demo.jpg'));
 ```
 
-### imgClient.getExif*(name[, options])
+### imgClient.getExif(name[, options])
 
 Get a image exif info by image object name from the image channel.
 
@@ -2620,7 +2912,7 @@ If object don't have exif, will throw 400 BadRequest.
 example:
 
 ```js
-var result = yield imgClient.getExif('demo.jpg');
+const result = await imgClient.getExif('demo.jpg');
 // resut:
 // {
 //   res: {
@@ -2649,7 +2941,7 @@ var result = yield imgClient.getExif('demo.jpg');
 
 ```
 
-### imgClient.getInfo*(name[, options])
+### imgClient.getInfo(name[, options])
 
 Get a image info and exif info by image object name from the image channel.
 
@@ -2672,7 +2964,7 @@ object:
 example:
 
 ```js
-var result = yield imgClient.getInfo('demo.jpg');
+const result = await imgClient.getInfo('demo.jpg');
 // resut:
 // {
 //   res: {
@@ -2703,10 +2995,10 @@ var result = yield imgClient.getInfo('demo.jpg');
 ```
 
 
-### imgClient.putStyle*(name, style[, options])
+### imgClient.putStyle(name, style[, options])
 // TODO
 
-### imgClient.getStyle*(name[, options])
+### imgClient.getStyle(name[, options])
 
 Get a style by name from the image channel.
 
@@ -2733,7 +3025,7 @@ object:
 example:
 
 ```js
-var result = yield imgClient.getStyle('400');
+const result = await imgClient.getStyle('400');
 // resut:
 // {
 //   res: {
@@ -2760,7 +3052,7 @@ var result = yield imgClient.getStyle('400');
 // }
 ```
 
-### imgClient.listStyle*([options])
+### imgClient.listStyle([options])
 
 Get all styles from the image channel.
 
@@ -2786,7 +3078,7 @@ object:
 example:
 
 ```js
-var result = yield imgClient.listStyle();
+const result = await imgClient.listStyle();
 // resut:
 // {
 //   res: {
@@ -2828,7 +3120,7 @@ var result = yield imgClient.listStyle();
 // }
 ```
 
-### imgClient.deleteStyle*(name[, options])
+### imgClient.deleteStyle(name[, options])
 // TODO
 
 ### imgClient.signatureUrl(name)
@@ -2847,7 +3139,7 @@ Success will return full signature url.
 example:
 
 ```js
-var url = imgClient.signatureUrl('
+const url = imgClient.signatureUrl('
 ');
 // http://thumbnail.myimageservice.com/demo.jpg@200w_200h?OSSAccessKeyId=uZxyLARzYZtGwHKY&Expires=1427803849&Signature=JSPRe06%2FjQpQSj5zlx2ld1V%2B35I%3D
 ```
@@ -2857,9 +3149,9 @@ var url = imgClient.signatureUrl('
 Cluster mode now only support object operations.
 
 ```js
-var Cluster = require('ali-oss').ClusterClient;
+const Cluster = require('ali-oss').ClusterClient;
 
-var client = Cluster({
+const client = Cluster({
   cluster: [{
     host: 'host1',
     accessKeyId: 'id1',
@@ -2893,6 +3185,7 @@ Will choose an alive client by schedule(`masterSlave` or `roundRobin`).
 - `client.list()`
 - `client.signatureUrl()`
 - `client.chooseAvailable()` - choose an available client by schedule.
+- `client.getACL()`
 
 ### Put Methods
 
@@ -2904,117 +3197,8 @@ Will put to all clients.
 - `client.deleteMulti()`
 - `client.copy()`
 - `client.putMeta()`
-
-## Wrapper Usage
-
-We provide an async wrapper which can be used without `co`. All the
-methods are preserved, just in a async way:
-
-```js
-
-var OSS = require('ali-oss').Wrapper;
-var STS = OSS.STS;
-
-var client = new OSS({ /* same options */});
-
-client.put('hello', new Buffer('world')).then(function (val) {
-  console.log('result: %j', val);
-}).catch (function (err) {
-  console.log('error: %j', err);
-});
-
-client.get('hello').then(function (val) {
-  console.log('result: %j', val);
-}).catch (function (err) {
-  console.log('error: %j', err);
-});
-
-var url = client.signatureUrl('hello');
-console.log(url);
-
-var stsClient = new STS({ /* same options */});
-
-var role = 'role';
-
-stsClient.assumeRole(role).then(function (val) {
-  console.log('result: %j', val);
-}).catch (function (err) {
-  console.log('error: %j', err);
-});
-```
-
-## Browser Usage
-
-You can use most of the functionalities of `ali-oss` in browser with
-some exceptions:
-
-- put object with streaming: no chunked encoding, we use multipart
-  upload instead
-- get object to local file: we cannot manipulate file system in
-  browser, we provide signed object url for downloading needs
-- bucket operations(listBuckets, putBucketLogging, etc) will fail: OSS
-  server currently do not support CORS requests for bucket operations
-  (will probably be fixed later)
-
-### Compatibility
-
-- IE >= 10 & Edge
-- Major versions of Chrome/Firefox/Safari
-- Major versions of Android/iOS/WP
-
-### Setup
-
-#### Bucket setup
-
-As browser-side javascript involves CORS operations. You need to setup
-your bucket CORS rules to allow CORS operations:
-
-- set allowed origins to '\*'
-- allowed methods to 'PUT, GET, POST, DELETE, HEAD'
-- set allowed headers to '\*'
-- expose 'ETag' in expose headers
-
-#### STS setup
-
-As we don't want to expose the accessKeyId/accessKeySecret in the
-browser, a [common practice][oss-sts] is to use STS to grant temporary
-access.
-
-### Basic usage
-
-Include the sdk lib in the `<script>` tag and you have `OSS` available
-for creating client. We use `OSS.Wrapper` here to avoid using `co`:
-
-```html
-<script src="http://gosspublic.alicdn.com/aliyun-oss-sdk.min.js"></script>
-<script type="text/javascript">
-  var client = new OSS.Wrapper({
-    region: 'oss-cn-hangzhou',
-    accessKeyId: '<access-key-id>',
-    accessKeySecret: '<access-key-secret>',
-    bucket: '<bucket-name>'
-  });
-
-  client.list().then(function (result) {
-    console.log('objects: %j', result.objects);
-    return client.put('my-obj', new OSS.Buffer('hello world'));
-  }).then(function (result) {
-    console.log('put result: %j', result);
-    return client.get('my-obj');
-  }).then(function (result) {
-    console.log('get result: %j', result.content.toString());
-  });
-</script>
-```
-The full sample can be found [here][browser-sample].
-
-### How to build
-
-```bash
-npm run build-dist
-```
-
-And see the build artifacts under `dist/`.
+- `client.putACL()`
+- `client.restore()`
 
 ## Known Errors
 
@@ -3026,52 +3210,54 @@ Each error return by OSS server will contains these properties:
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
-name | status | message | message in Chinese
----  | ---    | ---     | ---
-AccessDeniedError | 403 | Access Denied | 拒绝访问
-BucketAlreadyExistsError | 409 | Bucket already exists | Bucket 已经存在
-BucketNotEmptyError | 409 | Bucket is not empty | Bucket 不为空
-EntityTooLargeError | 400 | Entity too large | 实体过大
-EntityTooSmallError | 400 | Entity too small | 实体过小
-FileGroupTooLargeError | 400 | File group too large | 文件组过大
-InvalidLinkNameError | 400 | Link name can't be the same as the object name | Object Link 与指向的 Object 同名
-LinkPartNotExistError | 400 | Can't link to not exists object | Object Link 中指向的 Object 不存在
-ObjectLinkTooLargeError | 400 | Too many links to this object | Object Link 中 Object 个数过多
-FieldItemTooLongError | 400 | Post form fields items too large | Post 请求中表单域过大
-FilePartInterityError | 400 | File part has changed | 文件 Part 已改变
-FilePartNotExistError | 400 | File part not exists | 文件 Part 不存在
-FilePartStaleError | 400 | File part stale | 文件 Part 过时
-IncorrectNumberOfFilesInPOSTRequestError | 400 | Post request contains invalid number of files | Post 请求中文件个数非法
-InvalidArgumentError | 400 | Invalid format argument | 参数格式错误
-InvalidAccessKeyIdError | 400 | Access key id not exists | Access Key ID 不存在
-InvalidBucketNameError | 400 | Invalid bucket name | 无效的 Bucket 名字
-InvalidDigestError | 400 | Invalid digest | 无效的摘要
-InvalidEncryptionAlgorithmError | 400 | Invalid encryption algorithm | 指定的熵编码加密算法错误
-InvalidObjectNameError | 400 | Invalid object name | 无效的 Object 名字
-InvalidPartError | 400 | Invalid part | 无效的 Part
-InvalidPartOrderError | 400 | Invalid part order | 无效的 part 顺序
-InvalidPolicyDocumentError | 400 | Invalid policy document | 无效的 Policy 文档
-InvalidTargetBucketForLoggingError | 400 | Invalid bucket on logging operation | Logging 操作中有无效的目标 bucket
-InternalError | 500 | OSS server internal error | OSS 内部发生错误
-MalformedXMLError | 400 | Malformed XML format | XML 格式非法
-MalformedPOSTRequestError | 400 | Invalid post body format | Post 请求的 body 格式非法
-MaxPOSTPreDataLengthExceededError | 400 | Post extra data too large | Post 请求上传文件内容之外的 body 过大
-MethodNotAllowedError | 405 | Not allowed method | 不支持的方法
-MissingArgumentError | 411 | Missing argument | 缺少参数
-MissingContentLengthError | 411 | Missing `Content-Length` header | 缺少内容长度
-NoSuchBucketError | 404 | Bucket not exists | Bucket 不存在
-NoSuchKeyError | 404 | Object not exists | 文件不存在
-NoSuchUploadError | 404 | Multipart upload id not exists | Multipart Upload ID 不存在
-NotImplementedError | 501 | Not implemented | 无法处理的方法
-PreconditionFailedError | 412 | Pre condition failed | 预处理错误
-RequestTimeTooSkewedError | 403 | Request time exceeds 15 minutes to server time | 发起请求的时间和服务器时间超出 15 分钟
-RequestTimeoutError | 400 | Request timeout | 请求超时
-RequestIsNotMultiPartContentError | 400 | Invalid post content-type | Post 请求 content-type 非法
-SignatureDoesNotMatchError | 403 | Invalid signature | 签名错误
-TooManyBucketsError | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
-RequestError | -1 | network error | 网络出现中断或异常
-ConnectionTimeout | -2 | request connect timeout | 请求连接超时
-SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
+name | code | status | message | message in Chinese
+---  | ---  | --- | ---     | ---
+AccessDeniedError | AccessDenied | 403 | Access Denied | 拒绝访问
+BucketAlreadyExistsError | BucketAlreadyExists | 409 | Bucket already exists | Bucket 已经存在
+BucketNotEmptyError | BucketNotEmpty | 409 | Bucket is not empty | Bucket 不为空
+RestoreAlreadyInProgressError | RestoreAlreadyInProgress | 409 | The restore operation is in progress. | restore 操作正在进行中
+OperationNotSupportedError | OperationNotSupported | 400 | The operation is not supported for this resource | 该资源暂不支持restore操作
+EntityTooLargeError | EntityTooLarge | 400 | Entity too large | 实体过大
+EntityTooSmallError | EntityTooSmall | 400 | Entity too small | 实体过小
+FileGroupTooLargeError | FileGroupTooLarge | 400 | File group too large | 文件组过大
+InvalidLinkNameError | InvalidLinkName | 400 | Link name can't be the same as the object name | Object Link 与指向的 Object 同名
+LinkPartNotExistError | LinkPartNotExist | 400 | Can't link to not exists object | Object Link 中指向的 Object 不存在
+ObjectLinkTooLargeError | ObjectLinkTooLarge | 400 | Too many links to this object | Object Link 中 Object 个数过多
+FieldItemTooLongError | FieldItemTooLong | 400 | Post form fields items too large | Post 请求中表单域过大
+FilePartInterityError | FilePartInterity | 400 | File part has changed | 文件 Part 已改变
+FilePartNotExistError | FilePartNotExist | 400 | File part not exists | 文件 Part 不存在
+FilePartStaleError | FilePartStale| 400 | File part stale | 文件 Part 过时
+IncorrectNumberOfFilesInPOSTRequestError | IncorrectNumberOfFilesInPOSTRequest | 400 | Post request contains invalid number of files | Post 请求中文件个数非法
+InvalidArgumentError | InvalidArgument | 400 | Invalid format argument | 参数格式错误
+InvalidAccessKeyIdError | InvalidAccessKeyId | 400 | Access key id not exists | Access Key ID 不存在
+InvalidBucketNameError | InvalidBucketName | 400 | Invalid bucket name | 无效的 Bucket 名字
+InvalidDigestError | InvalidDigest | 400 | Invalid digest | 无效的摘要
+InvalidEncryptionAlgorithmError | InvalidEncryptionAlgorithm | 400 | Invalid encryption algorithm | 指定的熵编码加密算法错误
+InvalidObjectNameError | InvalidObjectName | 400 | Invalid object name | 无效的 Object 名字
+InvalidPartError | InvalidPart | 400 | Invalid part | 无效的 Part
+InvalidPartOrderError | InvalidPartOrder | 400 | Invalid part order | 无效的 part 顺序
+InvalidPolicyDocumentError | InvalidPolicyDocument | 400 | Invalid policy document | 无效的 Policy 文档
+InvalidTargetBucketForLoggingError | InvalidTargetBucketForLogging | 400 | Invalid bucket on logging operation | Logging 操作中有无效的目标 bucket
+InternalError | Internal | 500 | OSS server internal error | OSS 内部发生错误
+MalformedXMLError | MalformedXML | 400 | Malformed XML format | XML 格式非法
+MalformedPOSTRequestError | MalformedPOSTRequest | 400 | Invalid post body format | Post 请求的 body 格式非法
+MaxPOSTPreDataLengthExceededError | MaxPOSTPreDataLengthExceeded | 400 | Post extra data too large | Post 请求上传文件内容之外的 body 过大
+MethodNotAllowedError | MethodNotAllowed | 405 | Not allowed method | 不支持的方法
+MissingArgumentError | MissingArgument | 411 | Missing argument | 缺少参数
+MissingContentLengthError | MissingContentLength | 411 | Missing `Content-Length` header | 缺少内容长度
+NoSuchBucketError | NoSuchBucket | 404 | Bucket not exists | Bucket 不存在
+NoSuchKeyError | NoSuchKey | 404 | Object not exists | 文件不存在
+NoSuchUploadError | NoSuchUpload | 404 | Multipart upload id not exists | Multipart Upload ID 不存在
+NotImplementedError | NotImplemented | 501 | Not implemented | 无法处理的方法
+PreconditionFailedError | PreconditionFailed | 412 | Pre condition failed | 预处理错误
+RequestTimeTooSkewedError | RequestTimeTooSkewed | 403 | Request time exceeds 15 minutes to server time | 发起请求的时间和服务器时间超出 15 分钟
+RequestTimeoutError | RequestTimeout | 400 | Request timeout | 请求超时
+RequestIsNotMultiPartContentError | RequestIsNotMultiPartContent | 400 | Invalid post content-type | Post 请求 content-type 非法
+SignatureDoesNotMatchError | SignatureDoesNotMatch | 403 | Invalid signature | 签名错误
+TooManyBucketsError | TooManyBuckets | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
+RequestError | RequestError | -1 | network error | 网络出现中断或异常
+ConnectionTimeoutError | ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
+SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
