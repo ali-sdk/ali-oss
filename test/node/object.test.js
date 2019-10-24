@@ -1655,7 +1655,7 @@ describe('test/object.test.js', () => {
 
       result = await store.getSymlink(test);
       assert.equal(typeof result.res.headers['x-oss-storage-class'], 'string');
-      assert.equal(typeof result.targetName, 'string');
+      assert.equal(decodeURIComponent(result.targetName), name);
       assert.equal(result.res.status, 200);
     });
   });
