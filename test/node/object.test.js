@@ -15,6 +15,7 @@ const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
+const request =require('request');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -105,7 +106,7 @@ describe('test/object.test.js', () => {
       assert.equal(result.res.status, 200);
     });
 
-    it('should add image with streaming way', async () => {
+    it('should add image with file streaming way', async () => {
       const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
       const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
       const object = await store.putStream(name, fs.createReadStream(imagepath), {
@@ -123,6 +124,20 @@ describe('test/object.test.js', () => {
       const buf = fs.readFileSync(imagepath);
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
+    });
+
+    it('should put object with http streaming way', async () => {
+      const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
+      const nameCpy = `${prefix}ali-sdk/oss/nodejs-1024x768`;
+      const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+      await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
+      const signUrl = store.signatureUrl(name, { expires: 3600 });
+      const httpStream = request(signUrl);
+      let result = await store.putStream(nameCpy, httpStream);
+      assert.equal(result.res.status, 200);
+      result = await store.get(nameCpy);
+      assert.equal(result.res.status, 200);
+      assert.equal(result.res.headers['content-type'], 'application/octet-stream');
     });
 
     it('should add very big file: 4mb with streaming way', async () => {
