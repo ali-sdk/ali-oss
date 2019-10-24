@@ -106,6 +106,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
+  - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
+  - [.getSymlink(name[, options])](#getsymlinkname-options)
   - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
   - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
   - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
@@ -1759,6 +1761,63 @@ example:
 ```js
 const result = await store.restore('ossdemo.txt');
 console.log(result.status);
+```
+
+### .putSymlink(name, targetName[, options])
+
+PutSymlink
+
+parameters:
+
+- name {String} object name
+- targetName {String} target name
+- [options] {Object} optional parameters
+  - [headers] {Object} extra headers
+    - [x-oss-storsge-calss] {String} set the header x-oss-storage-class 
+
+Success will return
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const options = {
+  headers: {
+    'x-oss-storage-class': 'IA'
+  }
+}
+const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
+console.log(result.status)
+```
+
+### .getSymlink(name[, options])
+
+GetSymlink
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+
+Success will return
+
+- targetName {String} symlink info
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const result = await store.getSymlink('ossdemo.txt')
+console.log(result.status)
 ```
 
 ### .initMultipartUpload(name[, options])
