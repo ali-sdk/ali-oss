@@ -1772,6 +1772,8 @@ parameters:
 - name {String} object name
 - targetName {String} target name
 - [options] {Object} optional parameters
+  - [headers] {Object} extra headers
+    - [x-oss-storsge-calss] {String} set the header x-oss-storage-class 
 
 Success will return
 
@@ -1784,7 +1786,12 @@ Success will return
 example:
 
 ```js
-const result = await store.putSymlink('ossdemo.txt', 'targetName')
+const options = {
+  headers: {
+    'x-oss-storage-class': 'IA'
+  }
+}
+const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
 console.log(result.status)
 ```
 
@@ -1799,7 +1806,7 @@ parameters:
 
 Success will return
 
-- targetName {String} response info
+- targetName {String} symlink info
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
