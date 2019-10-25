@@ -1654,24 +1654,39 @@ describe('test/object.test.js', () => {
       }
     });
   });
+
   describe('symlink()', () => {
     it('Should put and get Symlink', async () => {
-      const name = '/oss/symlink.js';
-      const test = 'test-symlink.js';
-      let result = await store.put(name, __filename);
+      const targetName = '/oss/target-测试.js';
+      const name = '/oss/symlink-软链接.js';
+      let result = await store.put(targetName, __filename);
+      assert.equal(result.res.status, 200);
 
-      const options = {
-        headers: {
-          'x-oss-storsge-calss': 'IA'
+      result = await store.putSymlink(name, targetName, {
+        storageClass: 'IA',
+        meta: {
+          uid: '1',
+          slus: 'test.html'
         }
-      }
-      result = await store.putSymlink(test, name, options);
+      });
       assert.equal(result.res.status, 200);
 
-      result = await store.getSymlink(test);
-      assert.equal(typeof result.res.headers['x-oss-storage-class'], 'string');
-      assert.equal(decodeURIComponent(result.targetName), name);
+      result = await store.getSymlink(name);
       assert.equal(result.res.status, 200);
+      assert.equal(result.targetName, store._objectName(targetName));
+
+      result = await store.head(name);
+
+      assert.equal(result.res.status, 200);
+      assert.equal(result.res.headers['x-oss-object-type'], 'Symlink');
+      assert.deepEqual(result.meta, {
+        uid: '1',
+        slus: 'test.html'
+      });
+      // TODO getObjectMeta should return storage class,
+      // headObject return targetObject storage class
+      // result = await store.getObjectMeta(name);
+      // console.log(result);
     });
   });
 });
