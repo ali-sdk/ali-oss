@@ -361,7 +361,7 @@ parameters:
   If bucket not exists, will create a new bucket and set it's ACL.
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [StorageClass] {String} the storeage type include (Standard,IA,Archive)
+  - [StorageClass] {String} the storage type include (Standard,IA,Archive)
 
 Success will return the bucket name on `bucket` properties.
 
@@ -1770,10 +1770,10 @@ PutSymlink
 parameters:
 
 - name {String} object name
-- targetName {String} target name
+- targetName {String} target object name
 - [options] {Object} optional parameters
-  - [headers] {Object} extra headers
-    - [x-oss-storsge-calss] {String} set the header x-oss-storage-class 
+  - [storageClass] {String} the storage type include (Standard,IA,Archive)
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
 
 Success will return
 
@@ -1787,8 +1787,10 @@ example:
 
 ```js
 const options = {
-  headers: {
-    'x-oss-storage-class': 'IA'
+  storageClass: 'IA',
+  meta: {
+    uid: '1',
+    slus: 'test.html' 
   }
 }
 const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
@@ -1806,7 +1808,7 @@ parameters:
 
 Success will return
 
-- targetName {String} symlink info
+- targetName {String} target object name
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1817,7 +1819,7 @@ example:
 
 ```js
 const result = await store.getSymlink('ossdemo.txt')
-console.log(result.status)
+console.log(result.targetName)
 ```
 
 ### .initMultipartUpload(name[, options])
