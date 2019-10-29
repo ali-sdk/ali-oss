@@ -96,6 +96,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
   - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
   - [.head(name[, options])](#headname-options)
+  - [.getObjectMeta(name)](#getobjectmetaname)
   - [.get(name, file[, options])](#getname-file-options)
   - [.getStream(name[, options])](#getstreamname-options)
   - [.delete(name[, options])](#deletename-options)
@@ -1244,6 +1245,37 @@ console.log(object);
 ```js
 const object = await this.store.head('ossdemo/head-meta');
 // will throw NoSuchKeyError
+```
+
+### .getObjectMeta(name)
+
+Get an  object meta info include ETag、Size、LastModified and so on, not return object content.
+
+parameters:
+
+- name {String} object name store on OSS
+
+Success will return the object's meta information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info, including
+  - headers {Object} response headers
+
+example:
+
+- Head an exists object and get object meta info
+
+```js
+await this.store.put('ossdemo/object-meta', new Buffer('foo'));
+const object = await this.store.getObjectMeta('ossdemo/object-meta');
+console.log(object);
+
+{
+  status: 200,
+  res: { ... }
+}
 ```
 
 ### .get(name[, file, options])
