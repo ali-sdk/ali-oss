@@ -195,7 +195,6 @@ describe('test/object.test.js', () => {
     });
   });
 
-
   describe('put()', () => {
     it('should add object with local file path', async () => {
       const name = `${prefix}ali-sdk/oss/put-localfile.js`;
@@ -538,6 +537,37 @@ describe('test/object.test.js', () => {
       assert.equal(info.meta.pid, '123');
       assert.equal(info.meta.slus, 'test.html');
       assert.equal(info.status, 200);
+    });
+  });
+
+  describe('getObjectMeta()', () => {
+    let name;
+    let resHeaders;
+    let fileSize;
+    before(async () => {
+      name = `${prefix}ali-sdk/oss/object-meta.js`;
+      const object = await store.put(name, __filename);
+      fileSize = fs.statSync(__filename).size;
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      resHeaders = object.res.headers;
+    });
+
+    it('should head not exists object throw NoSuchKeyError', async () => {
+      await utils.throws(async () => {
+        await store.head(`${name}not-exists`);
+      }, (err) => {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert.equal(err.status, 404);
+        assert.equal(typeof err.requestId, 'string');
+      });
+    });
+
+    it('should return Etag and Content-Length', async () => {
+      const info = await store.getObjectMeta(name);
+      console.log(resHeaders, info);
+      assert.equal(info.status, 200);
+      assert.equal(info.res.headers.etag, resHeaders.etag);
+      assert.equal(info.res.headers['content-length'], fileSize);
     });
   });
 
@@ -1646,7 +1676,7 @@ describe('test/object.test.js', () => {
       const info = await store.restore(name);
       assert.equal(info.res.status, 202);
 
-      // in 1 minute veriy RestoreAlreadyInProgressError
+      // in 1 minute verify RestoreAlreadyInProgressError
       try {
         await store.restore(name);
       } catch (err) {
@@ -1654,24 +1684,39 @@ describe('test/object.test.js', () => {
       }
     });
   });
+
   describe('symlink()', () => {
     it('Should put and get Symlink', async () => {
-      const name = '/oss/symlink.js';
-      const test = 'test-symlink.js';
-      let result = await store.put(name, __filename);
+      const targetName = '/oss/target-测试.js';
+      const name = '/oss/symlink-软链接.js';
+      let result = await store.put(targetName, __filename);
+      assert.equal(result.res.status, 200);
 
-      const options = {
-        headers: {
-          'x-oss-storsge-calss': 'IA'
+      result = await store.putSymlink(name, targetName, {
+        storageClass: 'IA',
+        meta: {
+          uid: '1',
+          slus: 'test.html'
         }
-      }
-      result = await store.putSymlink(test, name, options);
+      });
       assert.equal(result.res.status, 200);
 
-      result = await store.getSymlink(test);
-      assert.equal(typeof result.res.headers['x-oss-storage-class'], 'string');
-      assert.equal(decodeURIComponent(result.targetName), name);
+      result = await store.getSymlink(name);
       assert.equal(result.res.status, 200);
+      assert.equal(result.targetName, store._objectName(targetName));
+
+      result = await store.head(name);
+
+      assert.equal(result.res.status, 200);
+      assert.equal(result.res.headers['x-oss-object-type'], 'Symlink');
+      assert.deepEqual(result.meta, {
+        uid: '1',
+        slus: 'test.html'
+      });
+      // TODO getObjectMeta should return storage class,
+      // headObject return targetObject storage class
+      // result = await store.getObjectMeta(name);
+      // console.log(result);
     });
   });
 });
