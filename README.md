@@ -38,14 +38,7 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 
 `Note`:
 - For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
-- QQ Browser ,we suggest config useFetch option false, it will upload with `XMLhttpRequest`, eg
 
-```javascript
-let client = new OSS({
-    ...,
-    useFetch: false
-})
-```
 ## License
 
 [MIT](LICENSE)
@@ -63,7 +56,7 @@ All operation use es7 async/await to implement. All api is async function.
 - [Data Regions](#data-regions)
 - [Create Account](#create-acount)
 - [Create A Bucket Instance](#create-a-bucket-instance)
-  - [#oss(options)](#ossoptions)
+  - [oss(options)](#ossoptions)
 - [Bucket Operations](#bucket-operations)
   - Base
     - [.listBuckets(query[, options])](#listbucketsquery-options)
@@ -99,10 +92,11 @@ All operation use es7 async/await to implement. All api is async function.
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
   - [.putStream(name, stream[, options])](#putstreamname-stream-options)
-  - [.append(name, file[, options])](#apendname-file-options)
+  - [.append(name, file[, options])](#appendname-file-options)
   - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
   - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
   - [.head(name[, options])](#headname-options)
+  - [.getObjectMeta(name)](#getobjectmetaname)
   - [.get(name, file[, options])](#getname-file-options)
   - [.getStream(name[, options])](#getstreamname-options)
   - [.delete(name[, options])](#deletename-options)
@@ -113,6 +107,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
+  - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
+  - [.getSymlink(name[, options])](#getsymlinkname-options)
   - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
   - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
   - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
@@ -133,7 +129,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
   - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
 - [Create A Image Service Instance](#create-a-image-service-instance)
-  - [#oss.ImageClient(options)](#ossimageclientoptions)
+  - [oss.ImageClient(options)](#ossimageclientoptions)
 - [Image Operations](#image-operations)
   - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
   - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
@@ -208,11 +204,11 @@ access.
 ### Basic usage
 
 Include the sdk lib in the `<script>` tag and you have `OSS` available
-for creating client. 
+for creating client.
 
 ```html
- // x.x.x The specific version number represented 
- // we recommend introducing offline resources, because the usability of online resources depends on the stability of the cdn server. 
+ // x.x.x The specific version number represented
+ // we recommend introducing offline resources, because the usability of online resources depends on the stability of the cdn server.
  <!-- Introducing online resources -->
  <script src="http://gosspublic.alicdn.com/aliyun-oss-sdk-x.x.x.min.js"></script>
  <!-- Introducing offline resources -->
@@ -223,7 +219,8 @@ for creating client.
     region: 'oss-cn-hangzhou',
     accessKeyId: '<access-key-id>',
     accessKeySecret: '<access-key-secret>',
-    bucket: '<bucket-name>'
+    bucket: '<bucket-name>',
+    stsToken: '<security-token>'
   });
 
   client.list().then((result) => {
@@ -294,7 +291,8 @@ options:
 - [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
 - [isRequestPay] {Boolean}, default false, whether request payer function of the bucket is open, if true, will send headers `'x-oss-request-payer': 'requester'` to oss server.
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
-- [useFetch] {Boolean}, default true, it just work in Browser, if true,it means upload object with `fetch` mode ,else `XMLHttpRequest`
+- [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with 
+`fetch` mode ,else `XMLHttpRequest`
 
 example:
 
@@ -364,7 +362,7 @@ parameters:
   If bucket not exists, will create a new bucket and set it's ACL.
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [StorageClass] {String} the storeage type include (Standard,IA,Archive)
+  - [StorageClass] {String} the storage type include (Standard,IA,Archive)
 
 Success will return the bucket name on `bucket` properties.
 
@@ -1249,6 +1247,37 @@ const object = await this.store.head('ossdemo/head-meta');
 // will throw NoSuchKeyError
 ```
 
+### .getObjectMeta(name)
+
+Get an  object meta info include ETag、Size、LastModified and so on, not return object content.
+
+parameters:
+
+- name {String} object name store on OSS
+
+Success will return the object's meta information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info, including
+  - headers {Object} response headers
+
+example:
+
+- Head an exists object and get object meta info
+
+```js
+await this.store.put('ossdemo/object-meta', new Buffer('foo'));
+const object = await this.store.getObjectMeta('ossdemo/object-meta');
+console.log(object);
+
+{
+  status: 200,
+  res: { ... }
+}
+```
+
 ### .get(name[, file, options])
 
 Get an object from the bucket.
@@ -1473,7 +1502,7 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
-Success will return the copy result in `data` property.
+Success will return the putMeta result in `data` property.
 
 - data {Object} copy result
   - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
@@ -1766,6 +1795,65 @@ const result = await store.restore('ossdemo.txt');
 console.log(result.status);
 ```
 
+### .putSymlink(name, targetName[, options])
+
+PutSymlink
+
+parameters:
+
+- name {String} object name
+- targetName {String} target object name
+- [options] {Object} optional parameters
+  - [storageClass] {String} the storage type include (Standard,IA,Archive)
+  - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
+
+Success will return
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const options = {
+  storageClass: 'IA',
+  meta: {
+    uid: '1',
+    slus: 'test.html' 
+  }
+}
+const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
+console.log(result.status)
+```
+
+### .getSymlink(name[, options])
+
+GetSymlink
+
+parameters:
+
+- name {String} object name
+- [options] {Object} optional parameters
+
+Success will return
+
+- targetName {String} target object name
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+```js
+const result = await store.getSymlink('ossdemo.txt')
+console.log(result.targetName)
+```
+
 ### .initMultipartUpload(name[, options])
 Before transmitting data in the Multipart Upload mode,
 you must call the Initiate Multipart Upload interface to notify the OSS to initiate a Multipart Upload event.
@@ -1839,7 +1927,7 @@ example:
   const result = await store.initMultipartUpload(name);
   const uploadId = result.uploadId;
   const file; //the data you want to upload, is a File or FileName(only in node)
-  //if file part is 10  
+  //if file part is 10
   const partSize = 100 * 1024;
   const fileSize = 10 * partSize;//you need to calculate
   const dones = [];
@@ -1897,8 +1985,8 @@ example:
 ```js
   const name = 'object';
   const result = await store.initMultipartUpload(name);
- 
-  const partSize = 100 * 1024;//100kb 
+
+  const partSize = 100 * 1024;//100kb
   //if file part is 10
   for (let i = 1; i <= 10; i++) {
     const start = partSize * (i -1);
@@ -1958,11 +2046,11 @@ example:
   //init multipart
   const name = 'object';
   const result = await store.initMultipartUpload(name);
- 
+
   //upload part
   const file; //the data you want to upload, this example size is 10 * 100 * 1024
   const fileSize;//you need to calculate
-  const partSize = 100 * 1024;//100kb 
+  const partSize = 100 * 1024;//100kb
   const done = [];
   //if file part is 10
   for (let i = 1; i <= 10; i++) {
@@ -2076,7 +2164,7 @@ const result = await store.multipartUpload('object', '/tmp/file', {
 
 ```js
 
-//async function 
+//async function
 async function asyncProgress(p, cpt, res) {
     console.log(p);
     console.log(cpt);
@@ -2087,7 +2175,7 @@ const result1 = await store.multipartUpload('object', '/tmp/file', {
   progress: asyncProgress
 });
 
-//function 
+//function
 function progress(p, cpt, res) {
     console.log(p);
     console.log(cpt);
