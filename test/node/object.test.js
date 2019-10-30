@@ -15,6 +15,7 @@ const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
+const request =require('request');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -105,7 +106,7 @@ describe('test/object.test.js', () => {
       assert.equal(result.res.status, 200);
     });
 
-    it('should add image with streaming way', async () => {
+    it('should add image with file streaming way', async () => {
       const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
       const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
       const object = await store.putStream(name, fs.createReadStream(imagepath), {
@@ -123,6 +124,20 @@ describe('test/object.test.js', () => {
       const buf = fs.readFileSync(imagepath);
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
+    });
+
+    it('should put object with http streaming way', async () => {
+      const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
+      const nameCpy = `${prefix}ali-sdk/oss/nodejs-1024x768`;
+      const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+      await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
+      const signUrl = store.signatureUrl(name, { expires: 3600 });
+      const httpStream = request(signUrl);
+      let result = await store.putStream(nameCpy, httpStream);
+      assert.equal(result.res.status, 200);
+      result = await store.get(nameCpy);
+      assert.equal(result.res.status, 200);
+      assert.equal(result.res.headers['content-type'], 'application/octet-stream');
     });
 
     it('should add very big file: 4mb with streaming way', async () => {
@@ -179,7 +194,6 @@ describe('test/object.test.js', () => {
       assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
     });
   });
-
 
   describe('put()', () => {
     it('should add object with local file path', async () => {
@@ -523,6 +537,37 @@ describe('test/object.test.js', () => {
       assert.equal(info.meta.pid, '123');
       assert.equal(info.meta.slus, 'test.html');
       assert.equal(info.status, 200);
+    });
+  });
+
+  describe('getObjectMeta()', () => {
+    let name;
+    let resHeaders;
+    let fileSize;
+    before(async () => {
+      name = `${prefix}ali-sdk/oss/object-meta.js`;
+      const object = await store.put(name, __filename);
+      fileSize = fs.statSync(__filename).size;
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      resHeaders = object.res.headers;
+    });
+
+    it('should head not exists object throw NoSuchKeyError', async () => {
+      await utils.throws(async () => {
+        await store.head(`${name}not-exists`);
+      }, (err) => {
+        assert.equal(err.name, 'NoSuchKeyError');
+        assert.equal(err.status, 404);
+        assert.equal(typeof err.requestId, 'string');
+      });
+    });
+
+    it('should return Etag and Content-Length', async () => {
+      const info = await store.getObjectMeta(name);
+      console.log(resHeaders, info);
+      assert.equal(info.status, 200);
+      assert.equal(info.res.headers.etag, resHeaders.etag);
+      assert.equal(info.res.headers['content-length'], fileSize);
     });
   });
 
@@ -1631,12 +1676,47 @@ describe('test/object.test.js', () => {
       const info = await store.restore(name);
       assert.equal(info.res.status, 202);
 
-      // in 1 minute veriy RestoreAlreadyInProgressError
+      // in 1 minute verify RestoreAlreadyInProgressError
       try {
         await store.restore(name);
       } catch (err) {
         assert.equal(err.name, 'RestoreAlreadyInProgressError');
       }
+    });
+  });
+
+  describe('symlink()', () => {
+    it('Should put and get Symlink', async () => {
+      const targetName = '/oss/target-测试.js';
+      const name = '/oss/symlink-软链接.js';
+      let result = await store.put(targetName, __filename);
+      assert.equal(result.res.status, 200);
+
+      result = await store.putSymlink(name, targetName, {
+        storageClass: 'IA',
+        meta: {
+          uid: '1',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(result.res.status, 200);
+
+      result = await store.getSymlink(name);
+      assert.equal(result.res.status, 200);
+      assert.equal(result.targetName, store._objectName(targetName));
+
+      result = await store.head(name);
+
+      assert.equal(result.res.status, 200);
+      assert.equal(result.res.headers['x-oss-object-type'], 'Symlink');
+      assert.deepEqual(result.meta, {
+        uid: '1',
+        slus: 'test.html'
+      });
+      // TODO getObjectMeta should return storage class,
+      // headObject return targetObject storage class
+      // result = await store.getObjectMeta(name);
+      // console.log(result);
     });
   });
 });

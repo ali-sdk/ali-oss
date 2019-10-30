@@ -50,7 +50,12 @@ function build(options, callback) {
       var code = (data || '').toString();
       if (options.minify) {
         var uglify = require('uglify-js');
-        var minified = uglify.minify(code, {fromString: true});
+        var minified = uglify.minify(code, {
+          fromString: true,
+          output: {
+            'ascii_only': true
+          }
+        });
         code = minified.code;
       }
       code = license + code;
