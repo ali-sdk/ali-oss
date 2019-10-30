@@ -2,9 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="6.0.2"></a>
-## [6.0.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.0.2) (2018-12-10)
+<a name="6.1.1"></a>
+## [6.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.1.0...v6.1.1) (2019-01-08)
 
+### Bug Fixes
+
+* support useFetch options to resovle browser compatibility
+* fix mulipartUpload bug in IE 10 or parallel == 1
+* fix invalid partSize
+
+<a name="6.1.0"></a>
+## [6.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.2...v6.1.0) (2019-04-08)
+
+### Features
+* support requestPayer
+
+### Bug Fixes
+
+* repair codecov
+* docs
+
+<a name="6.0.2"></a>
+## [6.0.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.1...v6.0.2) (2018-12-10)
 
 ### Bug Fixes
 
@@ -14,7 +33,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 <a name="6.0.1"></a>
-## [6.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.0.1) (2018-07-17)
+## [6.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.0...v6.0.1) (2018-07-17)
 
 
 ### Bug Fixes
@@ -37,7 +56,7 @@ All notable changes to this project will be documented in this file. See [standa
 * README.md example
 
 <a name="5.3.2"></a>
-## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.2) (2018-07-17)
+## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v5.3.2) (2018-07-17)
 
 
 ### Bug Fixes
@@ -46,7 +65,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 <a name="5.3.1"></a>
-# [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.1) (2018-06-27)
+# [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.0...v5.3.1) (2018-06-27)
 
 ### Bug Fixes
 

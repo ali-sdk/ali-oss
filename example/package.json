@@ -16,14 +16,15 @@
   },
   "homepage": "https://github.com/luozhang002/ali-oss-example#readme",
   "devDependencies": {
-    "css-loader": "^0.28.11",
-    "html-webpack-plugin": "^3.2.0",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.9.7",
-    "file-loader": "^1.1.11",
-    "style-loader": "^0.21.0",
     "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.4"
+    "babel-loader": "^7.1.4",
+    "cross-env": "^5.2.1",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.21.0",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7"
   },
   "dependencies": {
     "ali-oss": "^6.0.0",

@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "6.0.2",
+  "version": "6.1.1",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -27,7 +27,9 @@
     "browser-test": "npm run build-test && karma start",
     "build-dist": "node browser-build.js > dist/aliyun-oss-sdk.js && MINIFY=1 node browser-build.js > dist/aliyun-oss-sdk.min.js",
     "publish-to-npm": "node publish-npm-check.js && npm publish",
-    "publish-to-cdn": "node publish.js"
+    "publish-to-cdn": "node publish.js",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
@@ -78,7 +80,7 @@
     "eslint-plugin-react": "^7.7.0",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
-    "istanbul": "^0.4.3",
+    "istanbul": "^1.1.0-alpha.1",
     "karma": "^1.7.1",
     "karma-browserify": "^5.1.1",
     "karma-chrome-launcher": "^2.2.0",
@@ -89,6 +91,7 @@
     "mm": "^2.0.0",
     "mocha": "^3.5.3",
     "promise-polyfill": "^6.0.2",
+    "request": "^2.88.0",
     "should": "^11.0.0",
     "sinon": "^1.17.7",
     "standard-version": "^4.4.0",
@@ -121,8 +124,10 @@
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
-    "urllib": "^2.17.1",
+    "urllib": "^2.33.1",
     "utility": "^1.8.0",
-    "xml2js": "^0.4.16"
-  }
+    "xml2js": "^0.4.16",
+    "snyk": "^1.231.0"
+  },
+  "snyk": true
 }
