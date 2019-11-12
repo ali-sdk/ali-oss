@@ -1151,11 +1151,8 @@ describe('browser', () => {
   });
 
   describe('request time is skew', () => {
-    let store;
-    before(() => {
-      store = oss(ossConfig);
-    });
     it('When the client\'s date is skew, the request will calibration time and retry', async () => {
+      const store = oss(ossConfig);
       const name = `${prefix}put/skew_date`;
       const body = new Buffer('body');
       const requestSpy = sinon.spy(store, 'request');
@@ -1178,6 +1175,37 @@ describe('browser', () => {
 
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
+
+      timemachine.reset();
+    });
+
+
+    it('date is skew, put file will retry', async () => {
+      const store = oss(ossConfig);
+      const name = `${prefix}put/skew_date_file`;
+      const requestSpy = sinon.spy(store, 'request');
+      const requestErrorSpy = sinon.spy(store, 'requestError');
+      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const file = new File([fileContent], 'skew_date_file');
+
+      timemachine.config({
+        dateString: 'December 25, 1991 13:12:59',
+        tick: true
+      });
+      const resultPut = await store.put(name, file);
+      assert.equal(resultPut.res.status, 200);
+
+      assert.equal(requestSpy.callCount, 2);
+      assert.equal(requestErrorSpy.callCount, 1);
+
+      const resultGet = await store.get(name);
+      assert.equal(resultGet.res.status, 200);
+
+      assert.equal(resultGet.content.toString(), fileContent);
+
+      const resultDel = await store.delete(name);
+      assert.equal(resultDel.res.status, 204);
+
       timemachine.reset();
     });
   });

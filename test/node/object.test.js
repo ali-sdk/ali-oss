@@ -564,7 +564,6 @@ describe('test/object.test.js', () => {
 
     it('should return Etag and Content-Length', async () => {
       const info = await store.getObjectMeta(name);
-      console.log(resHeaders, info);
       assert.equal(info.status, 200);
       assert.equal(info.res.headers.etag, resHeaders.etag);
       assert.equal(info.res.headers['content-length'], fileSize);
