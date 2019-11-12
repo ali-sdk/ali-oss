@@ -3,24 +3,23 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name="6.2.0"></a>
-# [6.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.2.0) (2019-11-12)
+# [6.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.2.0) (2019-11-13)
 
 
 ### Bug Fixes
 
-* eslint example ([#563](https://github.com/aliyun/oss-nodejs-sdk/issues/563)) ([0163ef2](https://github.com/aliyun/oss-nodejs-sdk/commit/0163ef2))
-* **node:** putStream use third lib stream will signature error ([#402](https://github.com/aliyun/oss-nodejs-sdk/issues/402)) ([c544bab](https://github.com/aliyun/oss-nodejs-sdk/commit/c544bab))
-* package.json & .snyk to reduce vulnerabilities ([#655](https://github.com/aliyun/oss-nodejs-sdk/issues/655)) ([6568ca2](https://github.com/aliyun/oss-nodejs-sdk/commit/6568ca2))
-* put stream content empty when date is skew ([#679](https://github.com/aliyun/oss-nodejs-sdk/issues/679)) ([48d9546](https://github.com/aliyun/oss-nodejs-sdk/commit/48d9546))
-* repair example ([#502](https://github.com/aliyun/oss-nodejs-sdk/issues/502)) ([2a0099d](https://github.com/aliyun/oss-nodejs-sdk/commit/2a0099d))
-* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
-* set ascii_only to be true for browserify ([#661](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
+* **browser:** set ascii_only to be true for browserify ([#661](https://github.com/aliyun/oss-nodejs-sdk/issues/661)) ([e0ec299](https://github.com/aliyun/oss-nodejs-sdk/commit/e0ec299))
+* **browser:** support web work ([#667](https://github.com/aliyun/oss-nodejs-sdk/issues/667)) ([655ee3d](https://github.com/aliyun/oss-nodejs-sdk/commit/655ee3d))
+* **browser:** put stream content empty when date is skew  ([#669](https://github.com/aliyun/oss-nodejs-sdk/issues/669)) ([48d9546](https://github.com/aliyun/oss-nodejs-sdk/commit/48d9546))
+* **node:** bucket name cause ssrf attack ([#666](https://github.com/aliyun/oss-nodejs-sdk/issues/666)) ([d200573](https://github.com/aliyun/oss-nodejs-sdk/commit/d200573))
+* **node:** putStream use third lib stream will signature error([#402](https://github.com/aliyun/oss-nodejs-sdk/issues/402)) ([c544bab](https://github.com/aliyun/oss-nodejs-sdk/commit/c544bab))
 
 
 ### Features
 
-* only read from master ([#623](https://github.com/aliyun/oss-nodejs-sdk/issues/623)) ([6357340](https://github.com/aliyun/oss-nodejs-sdk/commit/6357340))
-* symlink ([#675](https://github.com/aliyun/oss-nodejs-sdk/issues/675)) ([d6fd034](https://github.com/aliyun/oss-nodejs-sdk/commit/d6fd034))
+* **browser:** add warn when not use sts for the browser ([#668](https://github.com/aliyun/oss-nodejs-sdk/issues/668)) ([1f49ff3](https://github.com/aliyun/oss-nodejs-sdk/commit/1f49ff3))
+* **node:** only read from master ([#623](https://github.com/aliyun/oss-nodejs-sdk/issues/623)) ([6357340](https://github.com/aliyun/oss-nodejs-sdk/commit/6357340))
+* **node:** support symlink api ([#673](https://github.com/aliyun/oss-nodejs-sdk/issues/673)) ([041591b](https://github.com/aliyun/oss-nodejs-sdk/commit/041591b))
 
 <a name="6.1.1"></a>
 ## [6.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.1.0...v6.1.1) (2019-01-08)
