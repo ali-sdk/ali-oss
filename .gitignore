@@ -30,9 +30,11 @@ test/browser/.tmp
 test/demo.js
 yarn.lock
 package-lock.json
+.nyc_output/
 
 # Ide
 .idea/
+.vscode/
 
 #mac temp file
 .DS_Store
