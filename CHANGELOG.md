@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.2.1"></a>
+# [6.2.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.2.0...v6.2.1) (2019-11-15)
+
+### Bug Fixes
+
+* endpoint not use secure([#687](https://github.com/aliyun/oss-nodejs-sdk/issues/687) ([245da04](https://github.com/aliyun/oss-nodejs-sdk/commit/245da04))
+
 <a name="6.2.0"></a>
 # [6.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.2.0) (2019-11-13)
 
