@@ -132,6 +132,18 @@ describe('test/client.test.js', () => {
     store = oss({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
+      secure: true,
+      endpoint: 'test.oss.com'
+    });
+
+    assert.equal(
+      store.options.endpoint.format(),
+      'https://test.oss.com/',
+    );
+
+    store = oss({
+      accessKeyId: 'foo',
+      accessKeySecret: 'bar',
       endpoint: 'https://test.oss.com'
     });
 

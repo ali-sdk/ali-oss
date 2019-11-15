@@ -186,6 +186,18 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
+        secure: true,
+        endpoint: 'test.oss.com'
+      });
+
+      assert.equal(
+        store.options.endpoint.format(),
+        'https://test.oss.com/',
+      );
+
+      store = oss({
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
         endpoint: 'http://test.oss.com'
       });
 
