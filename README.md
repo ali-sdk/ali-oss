@@ -88,6 +88,9 @@ All operation use es7 async/await to implement. All api is async function.
     - [.putBucketCORS(name, rules[, options])](#putbucketcorsname-rules-options)
     - [.getBucketCORS(name[, options])](#getbucketcorsname-options)
     - [.deleteBucketCORS(name[, options])](#deletebucketcorsname-options)
+  - RequestPayment
+    - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
+    - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
@@ -915,6 +918,39 @@ Success will return:
   - headers {Object} response headers
   - size {Number} response size
   - rt {Number} request total use time (ms)
+
+### .getBucketRequestPayment(bucketName[, options])
+
+get RequestPayment value of the bucket object.
+
+parameters:
+
+- bucketName {String} bucket name
+- [options] {Object} optional parameters
+
+Success will return:
+
+- status {Number} response status
+- payer {String} payer, BucketOwner or Requester
+- res {Object} response info, including
+  - data {Buffer} xml
+
+---
+
+### .putBucketRequestPayment(bucketName, payer[, options])
+
+put RequestPayment value of the bucket object.
+
+parameters:
+
+- bucketName {String}
+- payer {String} payer
+- [options] {Object} optional parameters
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
 
 ---
 

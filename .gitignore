@@ -31,6 +31,7 @@ test/demo.js
 yarn.lock
 package-lock.json
 .nyc_output/
+.env
 
 # Ide
 .idea/

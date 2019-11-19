@@ -455,4 +455,24 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
+
+  describe('putBucketRequestPayment(), getBucketRequestPayment()', () => {
+    it('should create, get the request payment', async () => {
+      try {
+        await store.putBucketRequestPayment(bucket, 'Requester');
+        const result = await store.getBucketRequestPayment(bucket);
+        assert(result.payer === 'Requester', 'payer should be Requester');
+      } catch (err) {
+        assert(false);
+      }
+    });
+
+    it('should throw error when payer is not BucketOwner or Requester', async () => {
+      try {
+        await store.putBucketRequestPayment(bucket, 'requester');
+      } catch (err) {
+        assert(err.message.includes('payer must be BucketOwner or Requester'));
+      }
+    });
+  });
 });
