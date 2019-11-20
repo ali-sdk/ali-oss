@@ -15,7 +15,7 @@ const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
-const request =require('request');
+const request = require('request');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -1716,6 +1716,65 @@ describe('test/object.test.js', () => {
       // headObject return targetObject storage class
       // result = await store.getObjectMeta(name);
       // console.log(result);
+    });
+  });
+
+  describe('getObjectTagging() putObjectTagging() deleteObjectTagging()', () => {
+    const name = '/oss/tagging.js';
+
+    before(async () => {
+      await store.put(name, __filename);
+    });
+
+    it('should get the tags of object', async () => {
+      try {
+        const result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, {});
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+
+    it('should configures or updates the tags of object', async () => {
+      let result;
+      try {
+        const tag = { a: '1', b: '2' };
+        result = await store.putObjectTagging(name, tag);
+        assert.strictEqual(result.status, 200);
+
+        result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, tag);
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+
+    it('should throw error when the type of tag is not Object', async () => {
+      try {
+        const tag = [{ a: 1 }];
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert(error.message.includes('tag must be Object'));
+      }
+    });
+
+    it('should delete the tags of object', async () => {
+      let result;
+      try {
+        const tag = { a: '1', b: '2' };
+        await store.putObjectTagging(name, tag);
+
+        result = await store.deleteObjectTagging(name);
+        assert.strictEqual(result.status, 204);
+
+        result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, {});
+      } catch (error) {
+        assert(false, error);
+      }
     });
   });
 });
