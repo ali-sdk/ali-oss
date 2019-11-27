@@ -121,6 +121,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.listParts(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+  - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -2492,6 +2493,57 @@ example:
 ```js
 const result = await store.abortMultipartUpload('object', 'upload-id');
 console.log(result);
+```
+
+### .calculatePostSignature(policy)
+
+get postObject params 
+
+parameters:
+
+- policy {JSON or Object} policy must contain expiration and conditions.
+
+example:
+
+```js
+const name = 'calculatePostSignature.js';
+const url = store.generateObjectUrl(name).replace(name, '');
+const date = new Date();
+date.setDate(date.getDate() + 1);
+const policy = {
+  expiration: date.toISOString(),
+  conditions: [
+    { bucket: store.options.bucket }
+  ]
+};
+
+const params = store.calculatePostSignature(policy);
+
+const options = {
+  url,
+  method: 'POST',
+  formData: {
+    ...params,
+    key: name,
+    file: {// Specifies the file or text content. It must be the last field in the form.
+      value: 'calculatePostSignature',
+      options: {
+        filename: name,
+        contentType: 'application/x-javascript'
+      }
+    }
+  }
+};
+
+const postFile = () =>
+  new Promise((resolve, reject) => {
+    request(options, (err, res) => {
+      if (err) reject(err);
+      if (res) resolve(res);
+    });
+  });
+
+const result = await postFile();
 ```
 
 ## RTMP Operations

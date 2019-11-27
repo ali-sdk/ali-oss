@@ -1718,4 +1718,51 @@ describe('test/object.test.js', () => {
       // console.log(result);
     });
   });
+
+
+  describe('calculatePostSignature()', () => {
+    it('should get signature for postObject', async () => {
+      const name = 'calculatePostSignature.js';
+      const url = store.generateObjectUrl(name).replace(name, '');
+      const date = new Date();
+      date.setDate(date.getDate() + 1);
+      const policy = {
+        expiration: date.toISOString(),
+        conditions: [
+          { bucket: store.options.bucket }
+        ]
+      };
+
+      const params = store.calculatePostSignature(policy);
+
+      const options = {
+        url,
+        method: 'POST',
+        formData: {
+          ...params,
+          key: name,
+          file: {
+            value: 'calculatePostSignature',
+            options: {
+              filename: name,
+              contentType: 'application/x-javascript'
+            }
+          }
+        }
+      };
+
+      const postFile = () =>
+        new Promise((resolve, reject) => {
+          request(options, (err, res) => {
+            if (err) reject(err);
+            if (res) resolve(res);
+          });
+        });
+
+      const result = await postFile();
+      assert(result.statusCode === 204);
+      const headRes = await store.head(name);
+      assert.equal(headRes.status, 200);
+    });
+  });
 });
