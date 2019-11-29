@@ -1467,7 +1467,7 @@ await store.delete('ossdemo/someobject');
 await store.delete('ossdemo/some-not-exists-object');
 ```
 
-### .copy(name, sourceName[, options])
+### .copy(name, sourceName[, sourceBucket, options])
 
 Copy an object from `sourceName` to `name`.
 
@@ -1475,8 +1475,7 @@ parameters:
 
 - name {String} object name store on OSS
 - sourceName {String} source object name
-  If `sourceName` start with `/`, meaning it's a full name contains the bucket name.
-  e.g.: `/otherbucket/logo.png` meaning copy `otherbucket` logn.png object to current bucket.
+- [sourceBucket] {String} source Bucket. if doesn't exist，`sourceBucket` is same bucket. 
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
@@ -1520,7 +1519,7 @@ store.copy('newName', 'oldName').then((result) => {
 - Copy other bucket object
 
 ```js
-store.copy('logo.png', '/other-bucket/logo.png').then((result) => {
+store.copy('logo.png', 'logo.png', 'other-bucket').then((result) => {
   console.log(result);
 });
 ```
