@@ -8,22 +8,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-* endpoint not use secure ([#687](https://github.com/aliyun/oss-nodejs-sdk/issues/687)) ([39ab3cc](https://github.com/aliyun/oss-nodejs-sdk/commit/39ab3cc))
-* eslint example ([#563](https://github.com/aliyun/oss-nodejs-sdk/issues/563)) ([0163ef2](https://github.com/aliyun/oss-nodejs-sdk/commit/0163ef2))
-* package.json & .snyk to reduce vulnerabilities ([#655](https://github.com/aliyun/oss-nodejs-sdk/issues/655)) ([6568ca2](https://github.com/aliyun/oss-nodejs-sdk/commit/6568ca2))
-* put stream content empty when date is skew ([#679](https://github.com/aliyun/oss-nodejs-sdk/issues/679)) ([48d9546](https://github.com/aliyun/oss-nodejs-sdk/commit/48d9546))
-* repair example ([#502](https://github.com/aliyun/oss-nodejs-sdk/issues/502)) ([2a0099d](https://github.com/aliyun/oss-nodejs-sdk/commit/2a0099d))
-* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
 * **node:** copy bug ([#694](https://github.com/aliyun/oss-nodejs-sdk/issues/694)) ([e24ac42](https://github.com/aliyun/oss-nodejs-sdk/commit/e24ac42))
-* **node:** putStream use third lib stream will signature error ([#402](https://github.com/aliyun/oss-nodejs-sdk/issues/402)) ([c544bab](https://github.com/aliyun/oss-nodejs-sdk/commit/c544bab))
-
-
-### Features
-
-* only read from master ([#623](https://github.com/aliyun/oss-nodejs-sdk/issues/623)) ([6357340](https://github.com/aliyun/oss-nodejs-sdk/commit/6357340))
-* symlink ([#675](https://github.com/aliyun/oss-nodejs-sdk/issues/675)) ([d6fd034](https://github.com/aliyun/oss-nodejs-sdk/commit/d6fd034))
-* **node:** support for putBucketRequestPayment and getBucketRequestPayment api ([#686](https://github.com/aliyun/oss-nodejs-sdk/issues/686)) ([7384a0b](https://github.com/aliyun/oss-nodejs-sdk/commit/7384a0b))
-
 
 
 <a name="5.3.0"></a>
