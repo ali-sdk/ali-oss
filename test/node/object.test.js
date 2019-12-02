@@ -15,7 +15,7 @@ const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
-const request =require('request');
+const request = require('request');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -1102,6 +1102,8 @@ describe('test/object.test.js', () => {
   describe('copy()', () => {
     let name;
     let resHeaders;
+    let otherBucket;
+    let otherBucketObject;
     before(async () => {
       name = `${prefix}ali-sdk/oss/copy-meta.js`;
       const object = await store.put(name, __filename, {
@@ -1113,6 +1115,19 @@ describe('test/object.test.js', () => {
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       resHeaders = object.res.headers;
+
+      otherBucket = `ali-copy-object-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      otherBucket = otherBucket.substring(0, otherBucket.length - 1);
+      await store.putBucket(otherBucket);
+      store.useBucket(otherBucket);
+      otherBucketObject = `${prefix}ali-sdk/oss/copy-source.js`;
+      await store.put(otherBucketObject, __filename);
+      store.useBucket(bucket);
+    });
+
+    after(async () => {
+      await utils.cleanBucket(store, otherBucket);
+      store.useBucket(bucket);
     });
 
     it('should copy object from same bucket', async () => {
@@ -1126,6 +1141,26 @@ describe('test/object.test.js', () => {
       assert.equal(info.meta.uid, '1');
       assert.equal(info.meta.pid, '123');
       assert.equal(info.meta.slus, 'test.html');
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object from other bucket, sourceBucket in copySource', async () => {
+      const copySource = `/${otherBucket}/${otherBucketObject}`;
+      const copyTarget = `${prefix}ali-sdk/oss/copy-target.js`;
+      const result = await store.copy(copyTarget, copySource);
+      assert.equal(result.res.status, 200);
+
+      const info = await store.head(copyTarget);
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object from other bucket, sourceBucket is a separate parameter', async () => {
+      const copySource = otherBucketObject;
+      const copyTarget = `${prefix}ali-sdk/oss/has-bucket-name-copy-target.js`;
+      const result = await store.copy(copyTarget, copySource, otherBucket);
+      assert.equal(result.res.status, 200);
+
+      const info = await store.head(copyTarget);
       assert.equal(info.status, 200);
     });
 
