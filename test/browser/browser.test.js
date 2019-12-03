@@ -13,7 +13,7 @@ const md5 = require('crypto-js/md5');
 const stsConfig = require('./.tmp/stsConfig.json');
 const pkg = require('../../package.json');
 const platform = require('platform');
-const { callbackServer } = require('../../test/const');
+// const { callbackServer } = require('../../test/const');
 
 const crypto1 = require('crypto');
 const { prefix } = require('./browser-utils');
@@ -553,6 +553,157 @@ describe('browser', () => {
 
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
+    });
+  });
+
+  describe('copy()', () => {
+    let name;
+    // let resHeaders;
+    // const otherBucket = '';
+    // let otherBucketObject;
+    let store;
+    before(async () => {
+      name = `${prefix}ali-sdk/oss/copy-meta.js`;
+      store = oss(ossConfig);
+      const object = await store.put(name, new Buffer('abc'), {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+    });
+
+    it('should copy object from same bucket', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new.js`;
+      const result = await store.copy(originname, name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+
+      const info = await store.head(originname);
+      // Must set CORS
+      // assert.equal(info.meta.uid, '1');
+      // assert.equal(info.meta.pid, '123');
+      // assert.equal(info.meta.slus, 'test.html');
+      assert.equal(info.status, 200);
+    });
+
+    it.skip('should copy object from other bucket, sourceBucket in copySource', async () => {
+      const copySource = `/${otherBucket}/${otherBucketObject}`;
+      const copyTarget = `${prefix}ali-sdk/oss/copy-target.js`;
+      const result = await store.copy(copyTarget, copySource);
+      assert.equal(result.res.status, 200);
+
+      const info = await store.head(copyTarget);
+      assert.equal(info.status, 200);
+    });
+
+    it.skip('should copy object from other bucket, sourceBucket is a separate parameter', async () => {
+      const copySource = otherBucketObject;
+      const copyTarget = `${prefix}ali-sdk/oss/has-bucket-name-copy-target.js`;
+      const result = await store.copy(copyTarget, copySource, otherBucket);
+      assert.equal(result.res.status, 200);
+
+      const info = await store.head(copyTarget);
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object with non-english name', async () => {
+      const sourceName = `${prefix}ali-sdk/oss/copy-meta_测试.js`;
+      let result = await store.put(sourceName, new Buffer('abc'), {
+        meta: {
+          uid: 2,
+          pid: '1234',
+          slus: 'test1.html'
+        }
+      });
+
+      const originname = `${prefix}ali-sdk/oss/copy-new_测试.js`;
+      result = await store.copy(originname, sourceName);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+
+      const info = await store.head(originname);
+      // Must set CORS
+      // assert.equal(info.meta.uid, '2');
+      // assert.equal(info.meta.pid, '1234');
+      // assert.equal(info.meta.slus, 'test1.html');
+      assert.equal(info.status, 200);
+    });
+
+    it.skip('should copy object with non-english name and bucket', async () => {
+      let sourceName = `${prefix}ali-sdk/oss/copy-meta_测试2.js`;
+      let result = await store.put(sourceName, __filename, {
+        meta: {
+          uid: 3,
+          pid: '12345',
+          slus: 'test2.html'
+        }
+      });
+
+      let info = await store.head(sourceName);
+      assert.equal(info.meta.uid, '3');
+      assert.equal(info.meta.pid, '12345');
+      assert.equal(info.meta.slus, 'test2.html');
+      assert.equal(info.status, 200);
+
+      sourceName = `/${bucket}/${sourceName}`;
+      const originname = `${prefix}ali-sdk/oss/copy-new_测试2.js`;
+      result = await store.copy(originname, sourceName);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+
+      info = await store.head(originname);
+      // Must set CORS
+      // assert.equal(info.meta.uid, '3');
+      // assert.equal(info.meta.pid, '12345');
+      // assert.equal(info.meta.slus, 'test2.html');
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object and set other meta', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          uid: '2'
+        }
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+
+      const info = await store.head(originname);
+      // Must set CORS
+      // assert.equal(info.meta.uid, '2');
+      // assert(!info.meta.pid);
+      // assert(!info.meta.slus);
+      assert.equal(info.status, 200);
+    });
+
+    it('should use copy to change exists object headers', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-3.js`;
+      let result = await store.copy(originname, name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+      let info = await store.head(originname);
+      assert(!info.res.headers['cache-control']);
+
+      // add Cache-Control header to a exists object
+      result = await store.copy(originname, originname, {
+        headers: {
+          'Cache-Control': 'max-age=0, s-maxage=86400'
+        }
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data.etag, 'string');
+      assert.equal(typeof result.data.lastModified, 'string');
+      info = await store.head(originname);
+      assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
     });
   });
 
