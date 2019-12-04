@@ -322,6 +322,20 @@ describe('test/object.test.js', () => {
       assert.equal(pathname, '/ali-sdkhahhhh%2Boss%2Bmm%20xxx.js');
       assert.equal(info.res.headers['content-type'], 'text/plain; charset=gbk');
     });
+
+    it('PUTs object with same name to a bucket', async () => {
+      const body = new Buffer('san');
+      const name = `${prefix}put/testsan`;
+      const resultPut = await store.put(name, body);
+      assert.equal(resultPut.res.status, 200);
+      try {
+        await store.put(name, body, {
+          headers: { 'x-oss-forbid-overwrite': 'true' }
+        });
+      } catch (error) {
+        assert(true);
+      }
+    });
   });
 
   describe('mimetype', () => {

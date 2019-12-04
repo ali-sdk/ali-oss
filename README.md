@@ -103,7 +103,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.get(name, file[, options])](#getname-file-options)
   - [.getStream(name[, options])](#getstreamname-options)
   - [.delete(name[, options])](#deletename-options)
-  - [.copy(name, sourceName[, options])](#copyname-sourcename-options)
+  - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
   - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name[, options])](#signatureurlname-options)
@@ -981,11 +981,12 @@ parameters:
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
-  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+  - [headers] {Object} extra headers
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
 
 Success will return the object information.
 
@@ -1490,6 +1491,7 @@ parameters:
         otherwise throw PreconditionFailedError
     - 'If-Unmodified-Since' do copy if source object modified before this time,
         otherwise throw PreconditionFailedError
+    - See more: [CopyObject](https://help.aliyun.com/document_detail/31979.html?#title-tzy-vxc-ncx)
 
 Success will return the copy result in `data` property.
 
@@ -1841,8 +1843,7 @@ parameters:
 - [options] {Object} optional parameters
   - [storageClass] {String} the storage type include (Standard,IA,Archive)
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
-
-Success will return
+  - [headers] {Object} extra headers, detail see [PutSymlink](https://help.aliyun.com/document_detail/45126.html#title-x71-l2b-7i8)
 
 - res {Object} response info, including
   - status {Number} response status
@@ -1901,7 +1902,7 @@ parameters:
   - [timeout] {Number} the operation timeout
   - [mime] Mime file type e.g.: application/octet-stream
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
-  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+  - [headers] {Object} extra headers
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
@@ -1909,6 +1910,7 @@ parameters:
     - [x-oss-server-side-encryption]
     Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
     if use in browser you should be set cors expose header x-oss-server-side-encryption
+    - See more: [InitiateMultipartUpload](https://help.aliyun.com/document_detail/31992.html?#title-wh0-a2h-rur)
 
 Success will return:
 
@@ -2059,7 +2061,7 @@ parameters:
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
-  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+  - [headers] {Object} extra headers, detail see [CompleteMultipartUpload](https://help.aliyun.com/document_detail/31995.html?#title-nan-5y3-rjd)
 
 
 Success will return:
