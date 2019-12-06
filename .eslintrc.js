@@ -1,6 +1,11 @@
 /* eslint max-len: [0] */
 module.exports = {
   extends: 'airbnb',
+  parserOptions: {
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true,
+    },
+  },
   env: {
     browser: true,
     node: true,
