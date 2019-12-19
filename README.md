@@ -100,7 +100,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
   - [.head(name[, options])](#headname-options)
   - [.getObjectMeta(name)](#getobjectmetaname)
-  - [.get(name, file[, options])](#getname-file-options)
+  - [.get(name[, file, options])](#getname-file-options)
   - [.getStream(name[, options])](#getstreamname-options)
   - [.delete(name[, options])](#deletename-options)
   - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
