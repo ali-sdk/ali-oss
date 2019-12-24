@@ -555,6 +555,20 @@ describe('browser', () => {
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
     });
+
+    it('PUTs object with same name to a bucket', async () => {
+      const body = new Buffer('san');
+      const name = `${prefix}put/testsan`;
+      const resultPut = await store.put(name, body);
+      assert.equal(resultPut.res.status, 200);
+      try {
+        await store.put(name, body, {
+          headers: { 'x-oss-forbid-overwrite': 'true' }
+        });
+      } catch (error) {
+        assert(true);
+      }
+    });
   });
 
   describe('copy()', () => {
