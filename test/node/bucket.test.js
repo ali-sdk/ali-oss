@@ -488,7 +488,7 @@ describe('test/bucket.test.js', () => {
       //   KMSMasterKeyID: '1b2c3132-b2ce-4ba3-a4dd-9885904099ad'
       // });
       // assert.equal(putresult2.res.status, 200);
-      await utils.sleep(ms(metaSyncTime));
+      // await utils.sleep(ms(metaSyncTime));
       // get
       const getBucketEncryption = await store.getBucketEncryption(bucket);
       assert.equal(getBucketEncryption.res.status, 200);
