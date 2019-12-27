@@ -492,7 +492,7 @@ describe('test/bucket.test.js', () => {
       // get
       const getBucketEncryption = await store.getBucketEncryption(bucket);
       assert.equal(getBucketEncryption.res.status, 200);
-      assert.deepEqual(getBucketEncryption.encryptions, {
+      assert.deepEqual(getBucketEncryption.encryption, {
         SSEAlgorithm: 'AES256'
         // KMSMasterKeyID: '1b2c3132-b2ce-4ba3-a4dd-9885904099ad'
       });
