@@ -475,4 +475,30 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
+  describe('putBucketEncryption(), getBucketEncryption(), deleteBucketEncryption()', () => {
+    it('should create, get and delete the bucket encryption', async () => {
+      // put with AES256
+      const putresult1 = await store.putBucketEncryption(bucket, {
+        SSEAlgorithm: 'AES256'
+      });
+      assert.equal(putresult1.res.status, 200);
+      // put again with KMS will be fine
+      // const putresult2 = await store.putBucketEncryption(bucket, {
+      //   SSEAlgorithm: 'KMS',
+      //   KMSMasterKeyID: '1b2c3132-b2ce-4ba3-a4dd-9885904099ad'
+      // });
+      // assert.equal(putresult2.res.status, 200);
+      // await utils.sleep(ms(metaSyncTime));
+      // get
+      const getBucketEncryption = await store.getBucketEncryption(bucket);
+      assert.equal(getBucketEncryption.res.status, 200);
+      assert.deepEqual(getBucketEncryption.encryptions, {
+        SSEAlgorithm: 'AES256'
+        // KMSMasterKeyID: '1b2c3132-b2ce-4ba3-a4dd-9885904099ad'
+      });
+      // delete
+      const deleteResult = await store.deleteBucketEncryption(bucket);
+      assert.equal(deleteResult.res.status, 204);
+    });
+  });
 });

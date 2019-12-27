@@ -91,6 +91,10 @@ All operation use es7 async/await to implement. All api is async function.
   - RequestPayment
     - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
     - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
+  - BucketEncryption
+    - [.putBucketEncryption(name[, options])](#putbucketencryptionbucketname-options)
+    - [.getBucketEncryption(name)](#getbucketencryptionbucketname-options)
+    - [.deleteBucketEncryption(name)](#deletebucketencryptionbucketname-options)
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
@@ -946,6 +950,57 @@ parameters:
 - bucketName {String}
 - payer {String} payer
 - [options] {Object} optional parameters
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .putBucketEncryption(name, rules)
+
+put BucketEncryption value of the bucket object.
+
+parameters:
+
+- name {String} bucket name
+- [rules] {Object} parameters
+  - SSEAlgorithm {String} encryption type, expect AES256 or KMS
+  - {KMSMasterKeyID} {String} needed when encryption type is KMS
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .getBucketEncryption(name)
+
+get BucketEncryption rule value of the bucket object.
+
+parameters:
+
+- name {String} bucket name
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+- encryption {Object} rules
+  - SSEAlgorithm {String} encryption type, AES256 or KMS
+  - {KMSMasterKeyID} {String} will be return when encryption type is KMS
+
+---
+
+### .deleteBucketEncryption(name)
+
+delete BucketEncryption rule value of the bucket object.
+
+parameters:
+
+- name {String} bucket name
 
 Success will return:
 
