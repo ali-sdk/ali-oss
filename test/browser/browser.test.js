@@ -409,12 +409,12 @@ describe('browser', () => {
     before(async () => {
       client = oss(ossConfig);
       listPrefix = `${prefix}ali-sdk/list/`;
-      await client.put(`${listPrefix}oss.jpg`, new Buffer('oss.jpg'));
-      await client.put(`${listPrefix}fun/test.jpg`, new Buffer('fun/test.jpg'));
-      await client.put(`${listPrefix}fun/movie/001.avi`, new Buffer('fun/movie/001.avi'));
-      await client.put(`${listPrefix}fun/movie/007.avi`, new Buffer('fun/movie/007.avi'));
-      await client.put(`${listPrefix}other/movie/007.avi`, new Buffer('other/movie/007.avi'));
-      await client.put(`${listPrefix}other/movie/008.avi`, new Buffer('other/movie/008.avi'));
+      await client.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
+      await client.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
+      await client.put(`${listPrefix}fun/movie/001.avi`, Buffer.from('fun/movie/001.avi'));
+      await client.put(`${listPrefix}fun/movie/007.avi`, Buffer.from('fun/movie/007.avi'));
+      await client.put(`${listPrefix}other/movie/007.avi`, Buffer.from('other/movie/007.avi'));
+      await client.put(`${listPrefix}other/movie/008.avi`, Buffer.from('other/movie/008.avi'));
     });
 
     function checkObjectProperties(obj) {
@@ -522,7 +522,7 @@ describe('browser', () => {
     });
     it('GETs and PUTs objects to a bucket', async () => {
       const name = `${prefix}put/test`;
-      const body = new Buffer('body');
+      const body = Buffer.from('body');
       const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
       const resultGet = await store.get(name);
@@ -554,6 +554,20 @@ describe('browser', () => {
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
     });
+
+    it('PUTs object with same name to a bucket', async () => {
+      const body = new Buffer('san');
+      const name = `${prefix}put/testsan`;
+      const resultPut = await store.put(name, body);
+      assert.equal(resultPut.res.status, 200);
+      try {
+        await store.put(name, body, {
+          headers: { 'x-oss-forbid-overwrite': 'true' }
+        });
+      } catch (error) {
+        assert(true);
+      }
+    });
   });
 
   describe('copy()', () => {
@@ -565,7 +579,7 @@ describe('browser', () => {
     before(async () => {
       name = `${prefix}ali-sdk/oss/copy-meta.js`;
       store = oss(ossConfig);
-      const object = await store.put(name, new Buffer('abc'), {
+      const object = await store.put(name, Buffer.from('abc'), {
         meta: {
           uid: 1,
           pid: '123',
@@ -612,7 +626,7 @@ describe('browser', () => {
 
     it('should copy object with non-english name', async () => {
       const sourceName = `${prefix}ali-sdk/oss/copy-meta_测试.js`;
-      let result = await store.put(sourceName, new Buffer('abc'), {
+      let result = await store.put(sourceName, Buffer.from('abc'), {
         meta: {
           uid: 2,
           pid: '1234',
@@ -714,7 +728,7 @@ describe('browser', () => {
     before(async () => {
       store = oss(ossConfig);
       name = `${prefix}ali-sdk/oss/signatureUrl.js`;
-      let object = await store.put(name, new Buffer('signatureUrl'), {
+      let object = await store.put(name, Buffer.from('signatureUrl'), {
         meta: {
           uid: 1,
           pid: '123',
@@ -727,7 +741,7 @@ describe('browser', () => {
       // this.headers = object.res.headers;
 
       needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
-      object = await store.put(needEscapeName, new Buffer('%3get+meta-signatureUrl'), {
+      object = await store.put(needEscapeName, Buffer.from('%3get+meta-signatureUrl'), {
         meta: {
           uid: 1,
           pid: '123',
@@ -766,7 +780,7 @@ describe('browser', () => {
       const putString = 'Hello World';
       const contentMd5 = crypto1
         .createHash('md5')
-        .update(new Buffer(putString, 'utf8'))
+        .update(Buffer.from(putString, 'utf8'))
         .digest('base64');
       console.log(contentMd5);
       const url = store.signatureUrl(name, {
@@ -1317,7 +1331,7 @@ describe('browser', () => {
     it('When the client\'s date is skew, the request will calibration time and retry', async () => {
       const store = oss(ossConfig);
       const name = `${prefix}put/skew_date`;
-      const body = new Buffer('body');
+      const body = Buffer.from('body');
       const requestSpy = sinon.spy(store, 'request');
       const requestErrorSpy = sinon.spy(store, 'requestError');
 

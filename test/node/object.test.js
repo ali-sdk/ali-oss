@@ -207,7 +207,7 @@ describe('test/object.test.js', () => {
 
     it('should add object with content buffer', async () => {
       const name = `${prefix}ali-sdk/oss/put-buffer`;
-      const object = await store.put(`/${name}`, new Buffer('foo content'));
+      const object = await store.put(`/${name}`, Buffer.from('foo content'));
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert(object.name, name);
@@ -321,6 +321,20 @@ describe('test/object.test.js', () => {
       const { pathname } = urlutil.parse(url);
       assert.equal(pathname, '/ali-sdkhahhhh%2Boss%2Bmm%20xxx.js');
       assert.equal(info.res.headers['content-type'], 'text/plain; charset=gbk');
+    });
+
+    it('PUTs object with same name to a bucket', async () => {
+      const body = new Buffer('san');
+      const name = `${prefix}put/testsan`;
+      const resultPut = await store.put(name, body);
+      assert.equal(resultPut.res.status, 200);
+      try {
+        await store.put(name, body, {
+          headers: { 'x-oss-forbid-overwrite': 'true' }
+        });
+      } catch (error) {
+        assert(true);
+      }
     });
   });
 
@@ -822,7 +836,7 @@ describe('test/object.test.js', () => {
 
     describe('Range header', () => {
       it('should work with Range header and get top 10 bytes content', async () => {
-        const content = new Buffer('aaaaaaaaaabbbbbbbbbb');
+        const content = Buffer.from('aaaaaaaaaabbbbbbbbbb');
         await store.put('range-header-test', content);
         const result = await store.get('range-header-test', {
           headers: {
@@ -897,7 +911,7 @@ describe('test/object.test.js', () => {
 
     it('should signature url for PUT', async () => {
       const putString = 'Hello World';
-      const contentMd5 = crypto.createHash('md5').update(new Buffer(putString, 'utf8')).digest('base64');
+      const contentMd5 = crypto.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
       const url = store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
@@ -1445,12 +1459,12 @@ describe('test/object.test.js', () => {
     let listPrefix;
     before(async () => {
       listPrefix = `${prefix}ali-sdk/list/`;
-      await store.put(`${listPrefix}oss.jpg`, new Buffer('oss.jpg'));
-      await store.put(`${listPrefix}fun/test.jpg`, new Buffer('fun/test.jpg'));
-      await store.put(`${listPrefix}fun/movie/001.avi`, new Buffer('fun/movie/001.avi'));
-      await store.put(`${listPrefix}fun/movie/007.avi`, new Buffer('fun/movie/007.avi'));
-      await store.put(`${listPrefix}other/movie/007.avi`, new Buffer('other/movie/007.avi'));
-      await store.put(`${listPrefix}other/movie/008.avi`, new Buffer('other/movie/008.avi'));
+      await store.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
+      await store.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
+      await store.put(`${listPrefix}fun/movie/001.avi`, Buffer.from('fun/movie/001.avi'));
+      await store.put(`${listPrefix}fun/movie/007.avi`, Buffer.from('fun/movie/007.avi'));
+      await store.put(`${listPrefix}other/movie/007.avi`, Buffer.from('other/movie/007.avi'));
+      await store.put(`${listPrefix}other/movie/008.avi`, Buffer.from('other/movie/008.avi'));
     });
 
     function checkObjectProperties(obj) {
@@ -1568,7 +1582,7 @@ describe('test/object.test.js', () => {
       /* eslint no-await-in-loop: [0] */
       for (const k in keys) {
         const key = prefixz + keys[k];
-        let result = await store.put(key, new Buffer(''));
+        let result = await store.put(key, Buffer.from(''));
         assert.equal(result.res.status, 200);
 
         result = await store.list({
@@ -1592,7 +1606,7 @@ describe('test/object.test.js', () => {
   describe('putACL(), getACL()', () => {
     it('should put and get object ACL', async () => {
       const name = `${prefix}object/acl`;
-      let result = await store.put(name, new Buffer('hello world'));
+      let result = await store.put(name, Buffer.from('hello world'));
       assert.equal(result.res.status, 200);
 
       result = await store.getACL(name);
@@ -1608,7 +1622,7 @@ describe('test/object.test.js', () => {
 
       result = await store.get(name);
       assert.equal(result.res.status, 200);
-      assert.deepEqual(result.content, new Buffer('hello world'));
+      assert.deepEqual(result.content, Buffer.from('hello world'));
     });
   });
 
@@ -1619,7 +1633,7 @@ describe('test/object.test.js', () => {
     });
 
     it('should apend object with content buffer', async () => {
-      let object = await store.append(name, new Buffer('foo'));
+      let object = await store.append(name, Buffer.from('foo'));
       assert(object.res.status === 200);
       assert(object.nextAppendPosition === '3');
       assert(object.res.headers['x-oss-next-append-position'] === '3');
@@ -1628,7 +1642,7 @@ describe('test/object.test.js', () => {
       assert(res.data.toString() === 'foo');
       assert(res.headers['x-oss-next-append-position'] === '3');
 
-      object = await store.append(name, new Buffer('bar'), {
+      object = await store.append(name, Buffer.from('bar'), {
         position: 3
       });
       assert(object.res.status === 200);
@@ -1661,10 +1675,10 @@ describe('test/object.test.js', () => {
     });
 
     it('should error when positio not match', async () => {
-      await store.append(name, new Buffer('foo'));
+      await store.append(name, Buffer.from('foo'));
 
       try {
-        await store.append(name, new Buffer('foo'));
+        await store.append(name, Buffer.from('foo'));
         throw new Error('should not run');
       } catch (err) {
         assert(err.message === 'Position is not equal to file length');
@@ -1673,14 +1687,14 @@ describe('test/object.test.js', () => {
     });
 
     it('should use nextAppendPosition to append next', async () => {
-      let object = await store.append(name, new Buffer('foo'));
+      let object = await store.append(name, Buffer.from('foo'));
       assert(object.nextAppendPosition === '3');
 
-      object = await store.append(name, new Buffer('bar'), {
+      object = await store.append(name, Buffer.from('bar'), {
         position: object.nextAppendPosition
       });
 
-      object = await store.append(name, new Buffer('baz'), {
+      object = await store.append(name, Buffer.from('baz'), {
         position: object.nextAppendPosition
       });
 
