@@ -30,6 +30,7 @@
     "publish-to-cdn": "node publish.js",
     "snyk-protect": "snyk protect",
     "prepublish": "npm run snyk-protect",
+    "lint-staged": "lint-staged",
     "detect-secrets": "node task/detect-secrets"
   },
   "git-pre-hooks": {
@@ -38,7 +39,7 @@
       "npm run publish-to-npm",
       "npm run publish-to-cdn"
     ],
-    "pre-commit": "lint-staged"
+    "pre-commit": "npm run lint-staged"
   },
   "repository": {
     "type": "git",
