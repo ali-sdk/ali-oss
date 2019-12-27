@@ -10,7 +10,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 * **browser:** warnning when browser is not support ([#703](https://github.com/aliyun/oss-nodejs-sdk/issues/703)) ([bd99280](https://github.com/aliyun/oss-nodejs-sdk/commit/bd99280))
 * checkBucketName in setBucket/initOption/useBucket ([#709](https://github.com/aliyun/oss-nodejs-sdk/issues/709)) ([162dfb5](https://github.com/aliyun/oss-nodejs-sdk/commit/162dfb5))
-* checkBucketName in setBucket/initOption/useBucket ([#712](https://github.com/aliyun/oss-nodejs-sdk/issues/712)) ([22088d4](https://github.com/aliyun/oss-nodejs-sdk/commit/22088d4))
+* multipartupload support 'x-oss-server-side-encryption'
+* add bucket severside encryption
 
 
 
