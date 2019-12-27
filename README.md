@@ -91,6 +91,10 @@ All operation use es7 async/await to implement. All api is async function.
   - RequestPayment
     - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
     - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
+  - BucketEncryption
+    - [.putBucketEncryption(name[, options])](#putbucketencryptionbucketname-options)
+    - [.getBucketEncryption(name)](#getbucketencryptionbucketname-options)
+    - [.deleteBucketEncryption(name)](#deletebucketencryptionbucketname-options)
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
@@ -103,7 +107,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.get(name[, file, options])](#getname-file-options)
   - [.getStream(name[, options])](#getstreamname-options)
   - [.delete(name[, options])](#deletename-options)
-  - [.copy(name, sourceName[, options])](#copyname-sourcename-options)
+  - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
   - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name[, options])](#signatureurlname-options)
@@ -954,6 +958,57 @@ Success will return:
 
 ---
 
+### .putBucketEncryption(name, rules)
+
+put BucketEncryption value of the bucket object.
+
+parameters:
+
+- name {String} bucket name
+- [rules] {Object} parameters
+  - SSEAlgorithm {String} encryption type, expect AES256 or KMS
+  - {KMSMasterKeyID} {String} needed when encryption type is KMS
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .getBucketEncryption(name)
+
+get BucketEncryption rule value of the bucket object.
+
+parameters:
+
+- name {String} bucket name
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+- encryption {Object} rules
+  - SSEAlgorithm {String} encryption type, AES256 or KMS
+  - {KMSMasterKeyID} {String} will be return when encryption type is KMS
+
+---
+
+### .deleteBucketEncryption(name)
+
+delete BucketEncryption rule value of the bucket object.
+
+parameters:
+
+- name {String} bucket name
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
 ## Object Operations
 
 All operations function return Promise, except `signatureUrl`.
@@ -981,11 +1036,12 @@ parameters:
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
-  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+  - [headers] {Object} extra headers
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
 
 Success will return the object information.
 
@@ -1030,7 +1086,7 @@ store.put('ossdemo/demo.txt', filepath).then((result) => {
 - Add an object through content buffer
 
 ```js
-store.put('ossdemo/buffer', new Buffer('foo content')).then((result) => {
+store.put('ossdemo/buffer', Buffer.from('foo content')).then((result) => {
   console.log(result);
 });
 
@@ -1184,10 +1240,10 @@ object:
 example:
 
 ```js
-let object = await store.append('ossdemo/buffer', new Buffer('foo'));
+let object = await store.append('ossdemo/buffer', Buffer.from('foo'));
 
 // append content to the existing object
-object = await store.append('ossdemo/buffer', new Buffer('bar'), {
+object = await store.append('ossdemo/buffer', Buffer.from('bar'), {
   position: object.nextAppendPosition,
 });
 ```
@@ -1257,7 +1313,7 @@ example:
 - Head an exists object and get user meta
 
 ```js
-await this.store.put('ossdemo/head-meta', new Buffer('foo'), {
+await this.store.put('ossdemo/head-meta', Buffer.from('foo'), {
   meta: {
     uid: 1,
     path: 'foo/demo.txt'
@@ -1304,7 +1360,7 @@ example:
 - Head an exists object and get object meta info
 
 ```js
-await this.store.put('ossdemo/object-meta', new Buffer('foo'));
+await this.store.put('ossdemo/object-meta', Buffer.from('foo'));
 const object = await this.store.getObjectMeta('ossdemo/object-meta');
 console.log(object);
 
@@ -1490,6 +1546,7 @@ parameters:
         otherwise throw PreconditionFailedError
     - 'If-Unmodified-Since' do copy if source object modified before this time,
         otherwise throw PreconditionFailedError
+    - See more: [CopyObject](https://help.aliyun.com/document_detail/31979.html?#title-tzy-vxc-ncx)
 
 Success will return the copy result in `data` property.
 
@@ -1841,8 +1898,7 @@ parameters:
 - [options] {Object} optional parameters
   - [storageClass] {String} the storage type include (Standard,IA,Archive)
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
-
-Success will return
+  - [headers] {Object} extra headers, detail see [PutSymlink](https://help.aliyun.com/document_detail/45126.html#title-x71-l2b-7i8)
 
 - res {Object} response info, including
   - status {Number} response status
@@ -1901,7 +1957,7 @@ parameters:
   - [timeout] {Number} the operation timeout
   - [mime] Mime file type e.g.: application/octet-stream
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
-  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+  - [headers] {Object} extra headers
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
@@ -1909,6 +1965,7 @@ parameters:
     - [x-oss-server-side-encryption]
     Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
     if use in browser you should be set cors expose header x-oss-server-side-encryption
+    - See more: [InitiateMultipartUpload](https://help.aliyun.com/document_detail/31992.html?#title-wh0-a2h-rur)
 
 Success will return:
 
@@ -2059,7 +2116,7 @@ parameters:
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
-  - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
+  - [headers] {Object} extra headers, detail see [CompleteMultipartUpload](https://help.aliyun.com/document_detail/31995.html?#title-nan-5y3-rjd)
 
 
 Success will return:

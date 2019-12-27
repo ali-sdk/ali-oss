@@ -119,5 +119,5 @@ exports.encodeCallback = function (cb) {
     callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded'
   };
 
-  return new Buffer(JSON.stringify(json)).toString('base64');
+  return Buffer.from(JSON.stringify(json)).toString('base64');
 };

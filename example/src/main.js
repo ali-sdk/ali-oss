@@ -184,7 +184,7 @@ const uploadContent = function uploadContent(client) {
   const key = document.getElementById('object-key-content').value.trim() || 'object';
   console.log(`content => ${key}`);
 
-  return client.put(key, new Buffer(content)).then(res => listFiles(client));
+  return client.put(key, Buffer.from(content)).then(res => listFiles(client));
 };
 
 const uploadBlob = function (client) {
@@ -198,7 +198,7 @@ const uploadBlob = function (client) {
 const putBlob = function (client) {
   const content = document.getElementById('put-blob').value.trim();
   const key = document.getElementById('object-key-put-blob').value.trim() || 'blob';
-  const md5String = crypto.createHash('md5').update(new Buffer(content, 'utf8')).digest('base64');
+  const md5String = crypto.createHash('md5').update(Buffer.from(content, 'utf8')).digest('base64');
   const options = {
     expires: 1800,
     method: 'PUT',

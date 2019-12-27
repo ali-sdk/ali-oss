@@ -23,8 +23,7 @@ module.exports = {
       ignoreStrings: true,
       ignoreTemplateLiterals: true,
     }],
-    // wait node version >= 5.10.0 will start this rule
-    'no-buffer-constructor': [0],
-    "comma-dangle": [2, "never"]
+    'no-buffer-constructor': [2],
+    "comma-dangle": [2, "never"],
   }
 };

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.4.0"></a>
+# [6.4.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.3.1...v6.4.0) (2019-12-19)
+
+
+### Features
+
+* **browser:** warnning when browser is not support ([#703](https://github.com/aliyun/oss-nodejs-sdk/issues/703)) ([bd99280](https://github.com/aliyun/oss-nodejs-sdk/commit/bd99280))
+* checkBucketName in setBucket/initOption/useBucket ([#709](https://github.com/aliyun/oss-nodejs-sdk/issues/709)) ([162dfb5](https://github.com/aliyun/oss-nodejs-sdk/commit/162dfb5))
+* multipartupload support 'x-oss-server-side-encryption'
+* add bucket severside encryption
+
+
+
 <a name="6.3.1"></a>
 ## [6.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.3.0...v6.3.1) (2019-12-03)
 ### Features
