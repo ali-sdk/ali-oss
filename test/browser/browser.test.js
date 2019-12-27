@@ -960,6 +960,18 @@ describe('browser', () => {
         assert.equal(result.res.headers['x-oss-server-side-encryption'], 'AES256');
       });
 
+      it('should multipartUpload with x-oss-server-side-encryption', async () => {
+        const name = 'multipart-x-oss-server-side-encryption';
+        const fileContent = Array(1034 * 1024).fill('a').join('');
+        const fileName = new File([fileContent], 'multipart-upload-kms');
+        const result = await store.multipartUpload(name, fileName, {
+          headers: {
+            'x-oss-server-side-encryption': 'KMS'
+          }
+        });
+        assert.equal(result.res.headers['x-oss-server-side-encryption'], 'KMS');
+      });
+
       it('should fallback to putStream when file size is smaller than 100KB', async () => {
         const file = new File(['multipart-fallback-test'], 'multipart-fallback');
         const name = `${prefix}multipart/fallback`;
