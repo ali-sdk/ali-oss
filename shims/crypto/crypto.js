@@ -11,7 +11,7 @@ var algorithms = {
 };
 
 var blocksize = 64;
-var zeroBuffer = Buffer.from(blocksize);
+var zeroBuffer = Buffer.alloc(blocksize);
 zeroBuffer.fill(0);
 
 function hmac(fn, key, data) {
@@ -24,7 +24,7 @@ function hmac(fn, key, data) {
     key = Buffer.concat([key, zeroBuffer], blocksize)
   }
 
-  var ipad = Buffer.from(blocksize), opad = Buffer.from(blocksize);
+  var ipad = Buffer.alloc(blocksize), opad = Buffer.alloc(blocksize);
   for(var i = 0; i < blocksize; i++) {
     ipad[i] = key[i] ^ 0x36
     opad[i] = key[i] ^ 0x5C
