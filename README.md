@@ -121,6 +121,9 @@ All operation use es7 async/await to implement. All api is async function.
   - [.listParts(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+  - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
+  - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
+  - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -2494,6 +2497,56 @@ example:
 const result = await store.abortMultipartUpload('object', 'upload-id');
 console.log(result);
 ```
+
+### .getObjectTagging(name[, options])
+
+Obtains the tags of an object.
+
+parameters:
+
+- name {String} the object name
+- [options] {Object} optional args
+
+Success will return the channel information.
+
+object:
+
+- tag {Object} the tag of object
+- res {Object} response info
+
+### .putObjectTagging(name, tag[, options])
+
+Configures or updates the tags of an object.
+
+parameters:
+
+- name {String} the object name
+- tag {Object} tag, eg. `{var1: value1,var2:value2}`
+- [options] {Object} optional args
+
+Success will return the channel information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info
+
+### .deleteObjectTagging(name[, options])
+
+Deletes the tag of a specified object.
+
+parameters:
+
+- name {String} the object name
+- tag {Object} tag, eg. `{var1: value1,var2:value2}`
+- [options] {Object} optional args
+
+Success will return the channel information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info
 
 ## RTMP Operations
 

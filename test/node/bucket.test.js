@@ -475,4 +475,16 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
+  describe('getBucketTags() putBucketTags() deleteBucketTags()', () => {
+
+    it('should get the tags of bucket', async () => {
+      try {
+        const result = await store.getBucketTags(bucket);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, {});
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+  });
 });
