@@ -30,7 +30,7 @@ access.
 
 ### App setup
 
-Fill in your bucket name  and region in `app.js`: (Note: ensure port 9000 is not used)
+Fill in your bucket name  and region in `main.js`: (Note: ensure port 9000 is not used)
 
 ```js
 var bucket = '<your bucket name>';
