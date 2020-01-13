@@ -125,6 +125,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.listParts(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+  - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -2549,6 +2550,22 @@ example:
 const result = await store.abortMultipartUpload('object', 'upload-id');
 console.log(result);
 ```
+
+### .calculatePostSignature(policy)
+
+get postObject params 
+
+parameters:
+
+- policy {JSON or Object} policy must contain expiration and conditions.
+
+Success will return postObject Api params.
+
+Object:
+
+- OSSAccessKeyId {String}
+- Signature {String}
+- policy {Object} response info
 
 ## RTMP Operations
 
