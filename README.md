@@ -95,6 +95,10 @@ All operation use es7 async/await to implement. All api is async function.
     - [.putBucketEncryption(name[, options])](#putbucketencryptionbucketname-options)
     - [.getBucketEncryption(name)](#getbucketencryptionbucketname-options)
     - [.deleteBucketEncryption(name)](#deletebucketencryptionbucketname-options)
+  - tagging
+    - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
+    - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
+    - [.deleteBucketTags(name, [, options])](#deleteBucketTagsname-options)
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
@@ -126,6 +130,9 @@ All operation use es7 async/await to implement. All api is async function.
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
   - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
+  - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
+  - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
+  - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -1002,6 +1009,55 @@ delete BucketEncryption rule value of the bucket object.
 parameters:
 
 - name {String} bucket name
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .putBucketTags(name, tag[, options])
+
+Adds tags for a bucket or modify the tags for a bucket.
+
+parameters:
+
+- name {String} the object name
+- tag {Object} tag, eg. `{var1: value1,var2:value2}`
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .getBucketTags(name[, options])
+
+Obtains the tags for a bucket.
+
+parameters:
+
+- name {String} the object name
+- [options] {Object} optional args
+
+Success will return:
+
+- tag {Object} the tag of object
+- res {Object} response info
+
+---
+
+### .deleteBucketTags(name[, options])
+
+Deletes the tags added for a bucket.
+
+parameters:
+
+- name {String} the object name
+- [options] {Object} optional args
 
 Success will return:
 
@@ -2566,6 +2622,56 @@ Object:
 - OSSAccessKeyId {String}
 - Signature {String}
 - policy {Object} response info
+
+### .getObjectTagging(name[, options])
+
+Obtains the tags of an object.
+
+parameters:
+
+- name {String} the object name
+- [options] {Object} optional args
+
+Success will return the channel information.
+
+object:
+
+- tag {Object} the tag of object
+- res {Object} response info
+
+### .putObjectTagging(name, tag[, options])
+
+Configures or updates the tags of an object.
+
+parameters:
+
+- name {String} the object name
+- tag {Object} tag, eg. `{var1: value1,var2:value2}`
+- [options] {Object} optional args
+
+Success will return the channel information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info
+
+### .deleteObjectTagging(name[, options])
+
+Deletes the tag of a specified object.
+
+parameters:
+
+- name {String} the object name
+- tag {Object} tag, eg. `{var1: value1,var2:value2}`
+- [options] {Object} optional args
+
+Success will return the channel information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info
 
 ## RTMP Operations
 

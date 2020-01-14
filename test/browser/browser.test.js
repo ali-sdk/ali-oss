@@ -80,7 +80,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://oss-cn-hangzhou.aliyuncs.com/',
+        'http://oss-cn-hangzhou.aliyuncs.com/'
       );
 
       store = oss({
@@ -92,7 +92,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://oss-cn-hangzhou-internal.aliyuncs.com/',
+        'http://oss-cn-hangzhou-internal.aliyuncs.com/'
       );
 
       store = oss({
@@ -105,7 +105,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'https://oss-cn-hangzhou-internal.aliyuncs.com/',
+        'https://oss-cn-hangzhou-internal.aliyuncs.com/'
       );
 
       store = oss({
@@ -116,7 +116,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://vpc100-oss-cn-beijing.aliyuncs.com/',
+        'http://vpc100-oss-cn-beijing.aliyuncs.com/'
       );
 
       store = oss({
@@ -128,7 +128,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://vpc100-oss-cn-shenzhen.aliyuncs.com/',
+        'http://vpc100-oss-cn-shenzhen.aliyuncs.com/'
       );
 
       store = oss({
@@ -141,7 +141,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'https://vpc100-oss-cn-hangzhou.aliyuncs.com/',
+        'https://vpc100-oss-cn-hangzhou.aliyuncs.com/'
       );
     });
 
@@ -155,7 +155,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://foo.bar.com/',
+        'http://foo.bar.com/'
       );
 
       store = oss({
@@ -167,7 +167,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://foo.bar.com/',
+        'http://foo.bar.com/'
       );
     });
 
@@ -180,7 +180,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://test.oss.com/',
+        'http://test.oss.com/'
       );
 
       store = oss({
@@ -192,7 +192,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'https://test.oss.com/',
+        'https://test.oss.com/'
       );
 
       store = oss({
@@ -203,7 +203,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://test.oss.com/',
+        'http://test.oss.com/'
       );
 
       store = oss({
@@ -214,7 +214,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'https://test.oss.com/',
+        'https://test.oss.com/'
       );
     });
 
@@ -227,7 +227,7 @@ describe('browser', () => {
 
       assert.equal(
         store.options.endpoint.format(),
-        'http://127.0.0.1/',
+        'http://127.0.0.1/'
       );
     });
 
@@ -556,7 +556,7 @@ describe('browser', () => {
     });
 
     it('PUTs object with same name to a bucket', async () => {
-      const body = new Buffer('san');
+      const body = Buffer.from('san');
       const name = `${prefix}put/testsan`;
       const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
@@ -1085,7 +1085,7 @@ describe('browser', () => {
         store._uploadPart.restore();
         assert.equal(
           errorMsg,
-          'Failed to upload some parts with error: TestUploadPartException part_num: 1',
+          'Failed to upload some parts with error: TestUploadPartException part_num: 1'
         );
         assert.equal(partNumz, 1);
         assert.equal(errStatus, 403);
