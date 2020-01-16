@@ -324,7 +324,7 @@ describe('test/object.test.js', () => {
     });
 
     it('PUTs object with same name to a bucket', async () => {
-      const body = new Buffer('san');
+      const body = Buffer.from('san');
       const name = `${prefix}put/testsan`;
       const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
@@ -685,7 +685,7 @@ describe('test/object.test.js', () => {
       // when 'subres.x-oss-process' coexists with 'process'.
       result = await store.get(
         imageName,
-        { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } },
+        { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } }
       );
       assert.equal(result.res.status, 200);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
@@ -1018,7 +1018,7 @@ describe('test/object.test.js', () => {
       assert(isEqual);
       result = await store.getStream(
         imageName,
-        { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } },
+        { process: 'image/resize,w_200', subres: { 'x-oss-process': 'image/resize,w_100' } }
       );
       assert.equal(result.res.status, 200);
       isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
@@ -1765,6 +1765,185 @@ describe('test/object.test.js', () => {
       // headObject return targetObject storage class
       // result = await store.getObjectMeta(name);
       // console.log(result);
+    });
+  });
+
+  describe('calculatePostSignature()', () => {
+    it('should get signature for postObject', async () => {
+      const name = 'calculatePostSignature.js';
+      const url = store.generateObjectUrl(name).replace(name, '');
+      const date = new Date();
+      date.setDate(date.getDate() + 1);
+      const policy = {
+        expiration: date.toISOString(),
+        conditions: [
+          { bucket: store.options.bucket }
+        ]
+      };
+
+      const params = store.calculatePostSignature(policy);
+
+      const options = {
+        url,
+        method: 'POST',
+        formData: {
+          ...params,
+          key: name,
+          file: {
+            value: 'calculatePostSignature',
+            options: {
+              filename: name,
+              contentType: 'application/x-javascript'
+            }
+          }
+        }
+      };
+
+      const postFile = () =>
+        new Promise((resolve, reject) => {
+          request(options, (err, res) => {
+            if (err) reject(err);
+            if (res) resolve(res);
+          });
+        });
+
+      const result = await postFile();
+      assert(result.statusCode === 204);
+      const headRes = await store.head(name);
+      assert.equal(headRes.status, 200);
+    });
+  });
+
+  describe('getObjectTagging() putObjectTagging() deleteObjectTagging()', () => {
+    const name = '/oss/tagging.js';
+
+    before(async () => {
+      await store.put(name, __filename);
+    });
+
+    it('should get the tags of object', async () => {
+      try {
+        const result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, {});
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+
+    it('should configures or updates the tags of object', async () => {
+      let result;
+      try {
+        const tag = { a: '1', b: '2' };
+        result = await store.putObjectTagging(name, tag);
+        assert.strictEqual(result.status, 200);
+
+        result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, tag);
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+
+    it('maximum of 10 tags for a object', async () => {
+      try {
+        const tag = {};
+        Array(11).fill(1).forEach((_, index) => {
+          tag[index] = index;
+        });
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert.strictEqual('maximum of 10 tags for a object', error.message);
+      }
+    });
+
+    it('tag can contain invalid string', async () => {
+      try {
+        const errorStr = '错误字符串@#￥%……&*！';
+        const key = errorStr;
+        const value = errorStr;
+        const tag = { [key]: value };
+
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert.strictEqual('tag can contain letters, numbers, spaces, and the following symbols: plus sign (+), hyphen (-), equal sign (=), period (.), underscore (_), colon (:), and forward slash (/)', error.message);
+      }
+    });
+
+    it('tag key can be a maximum of 128 bytes in length', async () => {
+      try {
+        const key = new Array(129).fill('1').join('');
+        const tag = { [key]: '1' };
+
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert.strictEqual('tag key can be a maximum of 128 bytes in length', error.message);
+      }
+    });
+
+    it('tag value can be a maximum of 256 bytes in length', async () => {
+      try {
+        const value = new Array(257).fill('1').join('');
+        const tag = { a: value };
+
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert.strictEqual('tag value can be a maximum of 256 bytes in length', error.message);
+      }
+    });
+
+    it('should throw error when the type of tag is not Object', async () => {
+      try {
+        const tag = [{ a: 1 }];
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert(error.message.includes('tag must be Object'));
+      }
+    });
+
+    it('should throw error when the type of tag value is number', async () => {
+      try {
+        const tag = { a: 1 };
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert.strictEqual('the key and value of the tag must be String', error.message);
+      }
+    });
+
+    it('should throw error when the type of tag value is Object', async () => {
+      try {
+        const tag = { a: { inner: '1' } };
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert.strictEqual('the key and value of the tag must be String', error.message);
+      }
+    });
+
+    it('should throw error when the type of tag value is Array', async () => {
+      try {
+        const tag = { a: ['1', '2'] };
+        await store.putObjectTagging(name, tag);
+      } catch (error) {
+        assert.strictEqual('the key and value of the tag must be String', error.message);
+      }
+    });
+
+    it('should delete the tags of object', async () => {
+      let result;
+      try {
+        const tag = { a: '1', b: '2' };
+        await store.putObjectTagging(name, tag);
+
+        result = await store.deleteObjectTagging(name);
+        assert.strictEqual(result.status, 204);
+
+        result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, {});
+      } catch (error) {
+        assert(false, error);
+      }
     });
   });
 });

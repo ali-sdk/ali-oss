@@ -24,14 +24,12 @@ describe('test/bucket.test.js', () => {
       // prefix: '',
       'max-keys': 20
     });
-    console.log(bucketResult.buckets);
 
     /* eslint no-restricted-syntax: [0] */
     for (const bucketObj of bucketResult.buckets) {
       if (bucketObj.name.startsWith('ali-oss-test-bucket-') || bucketObj.name.startsWith('ali-oss-list-buckets-')) {
         /* eslint no-await-in-loop: [0] */
         await store.deleteBucket(bucketObj.name);
-        console.log('delete %j', bucketObj);
       }
     }
 
@@ -472,6 +470,120 @@ describe('test/bucket.test.js', () => {
         await store.putBucketRequestPayment(bucket, 'requester');
       } catch (err) {
         assert(err.message.includes('payer must be BucketOwner or Requester'));
+      }
+    });
+  });
+
+  describe('getBucketTags() putBucketTags() deleteBucketTags()', () => {
+    it('should get the tags of bucket', async () => {
+      try {
+        const result = await store.getBucketTags(bucket);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, {});
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+
+    it('should configures or updates the tags of bucket', async () => {
+      let result;
+      try {
+        const tag = { a: '1', b: '2' };
+        result = await store.putBucketTags(bucket, tag);
+        assert.strictEqual(result.status, 200);
+
+        result = await store.getBucketTags(bucket);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, tag);
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+
+    it('maximum of 20 tags for a bucket', async () => {
+      try {
+        const tag = {};
+        Array(21).fill(1).forEach((_, index) => {
+          tag[index] = index;
+        });
+        await store.putBucketTags(bucket, tag);
+      } catch (error) {
+        assert.strictEqual('maximum of 20 tags for a bucket', error.message);
+      }
+    });
+
+    it('tag key can be a maximum of 64 bytes in length', async () => {
+      try {
+        const key = new Array(65).fill('1').join('');
+        const tag = { [key]: '1' };
+
+        await store.putBucketTags(bucket, tag);
+      } catch (error) {
+        assert.strictEqual('tag key can be a maximum of 64 bytes in length', error.message);
+      }
+    });
+
+    it('tag value can be a maximum of 128 bytes in length', async () => {
+      try {
+        const value = new Array(129).fill('1').join('');
+        const tag = { a: value };
+
+        await store.putBucketTags(bucket, tag);
+      } catch (error) {
+        assert.strictEqual('tag value can be a maximum of 128 bytes in length', error.message);
+      }
+    });
+
+    it('should throw error when the type of tag is not Object', async () => {
+      try {
+        const tag = [{ a: 1 }];
+        await store.putBucketTags(bucket, tag);
+      } catch (error) {
+        assert(error.message.includes('tag must be Object'));
+      }
+    });
+
+    it('should throw error when the type of tag value is number', async () => {
+      try {
+        const tag = { a: 1 };
+        await store.putBucketTags(bucket, tag);
+      } catch (error) {
+        assert.strictEqual('the key and value of the tag must be String', error.message);
+      }
+    });
+
+    it('should throw error when the type of tag value is Object', async () => {
+      try {
+        const tag = { a: { inner: '1' } };
+        await store.putBucketTags(bucket, tag);
+      } catch (error) {
+        assert.strictEqual('the key and value of the tag must be String', error.message);
+      }
+    });
+
+    it('should throw error when the type of tag value is Array', async () => {
+      try {
+        const tag = { a: ['1', '2'] };
+        await store.putBucketTags(bucket, tag);
+      } catch (error) {
+        assert.strictEqual('the key and value of the tag must be String', error.message);
+      }
+    });
+
+    it('should delete the tags of bucket', async () => {
+      let result;
+      try {
+        const tag = { a: '1', b: '2' };
+        await store.putBucketTags(bucket, tag);
+
+        result = await store.deleteBucketTags(bucket);
+        assert.strictEqual(result.status, 204);
+
+        result = await store.getBucketTags(bucket);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, {});
+      } catch (error) {
+        assert(false, error);
       }
     });
   });
