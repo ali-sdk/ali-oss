@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.5.0"></a>
+# [6.5.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.4.0...v6.5.0) (2020-01-16)
+
+
+### Bug Fixes
+
+* bucket encryption test ([#721](https://github.com/aliyun/oss-nodejs-sdk/issues/721)) ([a7d4904](https://github.com/aliyun/oss-nodejs-sdk/commit/a7d4904))
+* remove completeMultipartUpload encryption header ([#718](https://github.com/aliyun/oss-nodejs-sdk/issues/718)) ([0ed0d57](https://github.com/aliyun/oss-nodejs-sdk/commit/0ed0d57)), closes [#715](https://github.com/aliyun/oss-nodejs-sdk/issues/715)
+* when value is Number,Buffer.alloc replace Buffer.from ([#719](https://github.com/aliyun/oss-nodejs-sdk/issues/719)) ([4e137d4](https://github.com/aliyun/oss-nodejs-sdk/commit/4e137d4))
+
+
+### Features
+
+*  add tip for exposing headers etags ([#725](https://github.com/aliyun/oss-nodejs-sdk/issues/725)) ([9eb368a](https://github.com/aliyun/oss-nodejs-sdk/commit/9eb368a))
+* bucket severside encryption ([#707](https://github.com/aliyun/oss-nodejs-sdk/issues/707)) ([68be73e](https://github.com/aliyun/oss-nodejs-sdk/commit/68be73e))
+* support SecondLevelDomain ([#729](https://github.com/aliyun/oss-nodejs-sdk/issues/729)) ([1580167](https://github.com/aliyun/oss-nodejs-sdk/commit/1580167))
+* support tags for bucket and object ([#734](https://github.com/aliyun/oss-nodejs-sdk/issues/734)) ([0daa5ae](https://github.com/aliyun/oss-nodejs-sdk/commit/0daa5ae)), closes [#663](https://github.com/aliyun/oss-nodejs-sdk/issues/663)
+* support uploads directly with signature ([#731](https://github.com/aliyun/oss-nodejs-sdk/issues/731)) ([e6b4ffe](https://github.com/aliyun/oss-nodejs-sdk/commit/e6b4ffe))
+
+
+
 <a name="6.4.0"></a>
 # [6.4.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.3.1...v6.4.0) (2019-12-19)
 
