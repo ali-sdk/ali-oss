@@ -83,11 +83,6 @@ describe('test/bucket.test.js', () => {
       const result1 = await store.putBucket(name);
       assert.equal(result1.bucket, name);
       assert.equal(result1.res.status, 200);
-
-      // create a exists should work
-      const result2 = await store.putBucket(name);
-      assert.equal(result2.res.status, 200);
-      assert.equal(result2.bucket, name);
     });
 
     it('should create an archive bucket', async () => {
@@ -95,7 +90,6 @@ describe('test/bucket.test.js', () => {
       const result2 = await store.listBuckets();
       const { buckets } = result2;
       const m = buckets.some(item => item.name === archvieBucket);
-      console.log(buckets);
       assert(m === true);
       buckets.map((item) => {
         if (item.name === archvieBucket) {
