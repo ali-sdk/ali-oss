@@ -251,17 +251,10 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('putBucketWebsite(), getBucketWebsite(), deleteBucketWebsite()', () => {
-    it('should create, get and delete the website settings', async () => {
-      const result1 = await store.putBucketWebsite(bucket, {
+    it('should get and delete the website settings', async () => {
+      await store.putBucketWebsite(bucket, {
         index: 'index.html'
       });
-      assert.equal(result1.res.status, 200);
-      // put again will be fine
-      const result2 = await store.putBucketWebsite(bucket, {
-        index: 'index.htm',
-        error: 'error.htm'
-      });
-      assert.equal(result2.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
 
@@ -273,6 +266,112 @@ describe('test/bucket.test.js', () => {
       // delete it
       const del = await store.deleteBucketWebsite(bucket);
       assert.equal(del.res.status, 204);
+    });
+
+    it('should create when RoutingRules is Array or Object', async () => {
+      const routingRule1 = {
+        RuleNumber: '1',
+        Condition: {
+          KeyPrefixEquals: 'abc/',
+          HttpErrorCodeReturnedEquals: '404'
+        },
+        Redirect: {
+          RedirectType: 'Mirror',
+          MirrorUsingRole: 'false',
+          MirrorUserLastModified: 'false',
+          PassQueryString: 'true',
+          MirrorIsExpressTunnel: 'false',
+          MirrorPassOriginalSlashes: 'false',
+          MirrorAllowHeadObject: 'false',
+          MirrorURL: 'http://www.test.com/',
+          MirrorPassQueryString: 'true',
+          MirrorFollowRedirect: 'true',
+          MirrorCheckMd5: 'true',
+          MirrorHeaders: {
+            PassAll: 'true',
+            Pass: ['myheader-key1', 'myheader-key2'],
+            Remove: ['remove1', 'remove2'],
+            Set: {
+              Key: 'myheader-key5',
+              Value: 'myheader-value5'
+            }
+          }
+        }
+      };
+      const routingRules = [
+        {
+          RuleNumber: '2',
+          Condition: {
+            KeyPrefixEquals: 'a1bc/',
+            HttpErrorCodeReturnedEquals: '404'
+          },
+          Redirect: {
+            RedirectType: 'Mirror',
+            MirrorUsingRole: 'false',
+            MirrorUserLastModified: 'false',
+            MirrorAllowHeadObject: 'false',
+            MirrorIsExpressTunnel: 'false',
+            MirrorPassOriginalSlashes: 'false',
+            PassQueryString: 'true',
+            MirrorURL: 'http://www.test1.com/',
+            MirrorPassQueryString: 'true',
+            MirrorFollowRedirect: 'true',
+            MirrorCheckMd5: 'true',
+            MirrorHeaders: {
+              PassAll: 'true',
+              Pass: ['myheader-key12', 'myheader-key22'],
+              Remove: ['remove1', 'remove2'],
+              Set: {
+                Key: 'myheader-key5',
+                Value: 'myheader-value5'
+              }
+            }
+          }
+        }];
+      const website = {
+        index: 'index1.html',
+        supportSubDir: 'true',
+        type: '1',
+        error: 'error1.html',
+        routingRules
+      };
+
+      const result1 = await store.putBucketWebsite(bucket, website);
+      assert.strictEqual(result1.res.status, 200);
+      const rules1 = await store.getBucketWebsite(bucket);
+      assert.deepStrictEqual(rules1.routingRules, routingRules);
+      assert.strictEqual(rules1.supportSubDir, website.supportSubDir);
+      assert.strictEqual(rules1.type, website.type);
+
+      website.routingRules = [routingRule1];
+      const result2 = await store.putBucketWebsite(bucket, website);
+      assert.strictEqual(result2.res.status, 200);
+      const rules2 = await store.getBucketWebsite(bucket);
+      assert.deepStrictEqual(rules2.routingRules, website.routingRules);
+    });
+
+    it('should throw error when RoutingRules is not Array', async () => {
+      const website = {
+        index: 'index1.html',
+        supportSubDir: 'true',
+        type: '1',
+        error: 'error1.html',
+        routingRules: ''
+      };
+
+      try {
+        await store.putBucketWebsite(bucket, website);
+        assert(false);
+      } catch (error) {
+        assert.strictEqual(error.message, 'RoutingRules must be Array');
+      }
+      try {
+        website.RoutingRules = 0;
+        await store.putBucketWebsite(bucket, website);
+        assert(false);
+      } catch (error) {
+        assert.strictEqual(error.message, 'RoutingRules must be Array');
+      }
     });
   });
 
