@@ -791,9 +791,24 @@ parameters:
   - [id] {String} rule id, if not set, OSS will auto create it with random string.
   - prefix {String} store prefix
   - status {String} rule status, allow values: `Enabled` or `Disabled`
-  - [days] {Number|String} expire after the `days`
-  - [date] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
-    `date` and `days` only set one.
+  - [expiration] {Object} specifies the expiration attribute of the lifecycle rules for the object.
+    - [days] {Number|String} expire after the `days`
+    - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
+    `createdBeforeDate` and `days` must have one.
+  - [abortMultipartUpload] {Object} Specifies the expiration attribute of the multipart upload tasks that are not complete.
+    - [days] {Number|String} expire after the `days`
+    - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
+    `createdBeforeDate` and `days` must have one.
+  - [transition] {Object} Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle.
+    - storageClass {String} Specifies the storage class that objects that conform to the rule are converted into. allow values: `IA` or `Archive`
+    - [days] {Number|String} expire after the `days`
+    - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
+    `createdBeforeDate` and `days` must have one.
+  `expiration`、 `abortMultipartUpload`、 `transition` must have one.
+  - [tag] {Object} Specifies the object tag applicable to a rule. Multiple tags are supported.
+    - key {String} Indicates the tag key.
+    - value {String} Indicates the tag value.
+    `tag` cannot be used with `abortMultipartUpload`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
