@@ -2673,6 +2673,33 @@ object:
 - status {Number} response status
 - res {Object} response info
 
+### .processObjectSave(sourceObject, targetObject, process[, targetBucket])
+
+Persistency indicates that images are asynchronously stored in the specified Bucket
+
+parameters:
+
+- sourceObject {String} source object name
+- targetObject {String} target object name
+- process {String} process string
+- [targetBucket] {String} target bucket
+
+Success will return the channel information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info
+
+
+```js
+const sourceObject = 'a.png'
+const targetObject = 'b.png'
+const process = 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00'
+
+await this.store.processObjectSave(sourceObject, targetObject, process);
+```
+
 ## RTMP Operations
 
 All operations function is [async], except `getRtmpUrl`.

@@ -161,6 +161,75 @@ describe('test/object.test.js', () => {
     });
   });
 
+  describe('processObjectSave()', () => {
+    const name = 'sourceObject.png';
+    before(async () => {
+      const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+      await store.putStream(name, fs.createReadStream(imagepath), {
+        mime: 'image/png'
+      });
+    });
+    const target = `processObject_target${Date.now()}.jpg`;
+    it('should process image', async () => {
+      try {
+        const result = await store.processObjectSave(name, target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert.strictEqual(result.res.status, 200);
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+    it('should process image with targetBucket', async () => {
+      try {
+        const result = await store.processObjectSave(name, target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,', archvieBucket);
+        assert.strictEqual(result.res.status, 200);
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+    it('should throw error when sourceObjectName is invalid', async () => {
+      try {
+        await store.processObjectSave('', target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('required'));
+      }
+      try {
+        await store.processObjectSave({}, target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('must be String'));
+      }
+    });
+    it('should throw error when targetObjectName is invalid', async () => {
+      try {
+        await store.processObjectSave(name, '', 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('required'));
+      }
+      try {
+        await store.processObjectSave(name, {}, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('must be String'));
+      }
+    });
+    it('should throw error when process is invalid', async () => {
+      try {
+        await store.processObjectSave(name, target, '');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('required'));
+      }
+      try {
+        await store.processObjectSave(name, target, {});
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('must be String'));
+      }
+    });
+  });
+
   describe('getObjectUrl()', () => {
     it('should return object url', () => {
       let name = 'test.js';
