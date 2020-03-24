@@ -638,6 +638,9 @@ parameters:
 - config {Object} website config, contains blow properties:
   - index {String} default page, e.g.: `index.html`
   - [error] {String} error page, e.g.: 'error.html'
+  - [supportSubDir] {String} default vaule false
+  - [type] {String} default value 0
+  - [routingRules] {Array} RoutingRules
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -672,6 +675,9 @@ Success will return:
 
 - index {String} index page
 - error {String} error page, maybe `null`
+- supportSubDir {String}
+- type {String}
+- routingRules {Array}
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
