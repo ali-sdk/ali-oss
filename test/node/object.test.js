@@ -1916,6 +1916,24 @@ describe('test/object.test.js', () => {
       const headRes = await store.head(name);
       assert.equal(headRes.status, 200);
     });
+
+    it('should throw error when policy is not JSON or Object', async () => {
+      let policy = 'string'
+      const errorMessage = 'policy must be JSON string or Object'
+      try {
+        store.calculatePostSignature(policy)
+        assert(false)
+      } catch (error) {
+        assert.strictEqual(errorMessage, error.message)
+      }
+      try {
+        policy = 123
+        store.calculatePostSignature(policy)
+        assert(false)
+      } catch (error) {
+        assert.strictEqual(errorMessage, error.message)
+      }
+    });
   });
 
   describe('getObjectTagging() putObjectTagging() deleteObjectTagging()', () => {
@@ -1939,6 +1957,18 @@ describe('test/object.test.js', () => {
       let result;
       try {
         const tag = { a: '1', b: '2' };
+        result = await store.putObjectTagging(name, tag);
+        assert.strictEqual(result.status, 200);
+
+        result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, tag);
+      } catch (error) {
+        assert(false, error);
+      }
+
+      try {
+        const tag = { a: '1' };
         result = await store.putObjectTagging(name, tag);
         assert.strictEqual(result.status, 200);
 

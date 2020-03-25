@@ -552,6 +552,18 @@ describe('test/bucket.test.js', () => {
       } catch (error) {
         assert(false, error);
       }
+
+      try {
+        const tag = { a: '1' };
+        result = await store.putBucketTags(bucket, tag);
+        assert.strictEqual(result.status, 200);
+
+        result = await store.getBucketTags(bucket);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, tag);
+      } catch (error) {
+        assert(false, error);
+      }
     });
 
     it('maximum of 20 tags for a bucket', async () => {
@@ -641,6 +653,7 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
+
   describe('putBucketEncryption(), getBucketEncryption(), deleteBucketEncryption()', () => {
     it('should create, get and delete the bucket encryption', async () => {
       // put with AES256
