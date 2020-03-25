@@ -99,6 +99,10 @@ All operation use es7 async/await to implement. All api is async function.
     - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
     - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
     - [.deleteBucketTags(name, [, options])](#deleteBucketTagsname-options)
+  - policy
+    - [.putBucketPolicy(name, policy[, options])](#putBucketPolicyname-policy-options)
+    - [.getBucketPolicy(name, [, options])](#getBucketPolicyname-options)
+    - [.deleteBucketPolicy(name, [, options])](#deleteBucketPolicyname-options)
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
@@ -1078,6 +1082,72 @@ Deletes the tags added for a bucket.
 parameters:
 
 - name {String} the object name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .putBucketPolicy(name, policy[, options])
+
+Adds or modify policy for a bucket.
+
+parameters:
+
+- name {String} the bucket name
+- policy {Object} bucket policy
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+example:
+```js
+const policy = {
+  Version: '1',
+  Statement: [
+    {
+      Action: ['oss:PutObject', 'oss:GetObject'],
+      Effect: 'Deny',
+      Principal: ['1234567890'],
+      Resource: ['acs:oss:*:1234567890:*/*']
+    }
+  ]
+};
+const result = await store.putBucketPolicy(bucket, policy);
+console.log(result);
+```
+---
+
+### .getBucketPolicy(name[, options])
+
+Obtains the policy for a bucket.
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- policy {Object} the policy of bucket, if not exist, the value is null
+- res {Object} response info
+- status {Number} response status
+
+---
+
+### .deleteBucketPolicy(name[, options])
+
+Deletes the policy added for a bucket.
+
+parameters:
+
+- name {String} the bucket name
 - [options] {Object} optional args
 
 Success will return:
