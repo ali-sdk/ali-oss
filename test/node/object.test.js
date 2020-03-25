@@ -1038,6 +1038,41 @@ describe('test/object.test.js', () => {
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
+    
+    it('should signature url with traffic limit', async () => {
+      const name = `${prefix}ali-sdk/oss/trafficLimit.js`;
+      let url, result;
+      const file_1mb = path.join(__dirname, '.tmp', 'bigfile-1mb.bin');
+      fs.writeFileSync(file_1mb, Buffer.alloc(1 * 1024 * 1024).fill('a\n'));
+
+      try {
+        url = store.signatureUrl(name, {
+          trafficLimit: 8 * 1024 * 100 * 4,
+          method: 'PUT'
+        })
+      
+        result = await store.urllib.request(url, {
+          method: 'PUT',
+          stream: fs.createReadStream(file_1mb),
+          timeout: 600000,
+        });
+        assert.strictEqual(200, result.status)
+      } catch (error) {
+        assert(false, error.message)
+      }
+     
+      try {
+        url = store.signatureUrl(name, {
+          trafficLimit: 8 * 1024 * 100 * 4,
+        })
+        result = await store.urllib.request(url, {
+          timeout: 600000,
+        });
+        assert.strictEqual(200, result.status)
+      } catch (error) {
+        assert(false, error.message)
+      }
+    });
   });
 
   describe('getStream()', () => {
