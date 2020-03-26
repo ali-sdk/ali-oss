@@ -28,7 +28,7 @@ function build(options, callback) {
     basedir: path.resolve(__dirname, '.'),
     fullPaths: false,
     standalone: 'OSS',
-    debug: true
+    debug: false
   };
   browserify(brOpts).add('./lib/browser.js')
     .transform(babelify, {
