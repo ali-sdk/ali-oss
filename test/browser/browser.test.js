@@ -960,7 +960,7 @@ describe('browser', () => {
         assert.equal(result.res.headers['x-oss-server-side-encryption'], 'AES256');
       });
 
-      it('should multipartUpload with x-oss-server-side-encryption', async () => {
+      it.skip('should multipartUpload with x-oss-server-side-encryption', async () => {
         const name = 'multipart-x-oss-server-side-encryption';
         const fileContent = Array(1034 * 1024).fill('a').join('');
         const fileName = new File([fileContent], 'multipart-upload-kms');
