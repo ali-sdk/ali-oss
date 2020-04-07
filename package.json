@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "6.5.0",
+  "version": "6.6.0",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -135,7 +135,7 @@
   },
   "snyk": true,
   "lint-staged": {
-    "*": [
+    "**/!(dist)/*": [
       "npm run detect-secrets --"
     ]
   }
