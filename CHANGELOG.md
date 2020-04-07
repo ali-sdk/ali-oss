@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.6.0"></a>
+# [6.6.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.5.0...v6.6.0) (2020-04-07)
+
+
+### Bug Fixes
+
+* _unSupportBrowserTip ([#755](https://github.com/aliyun/oss-nodejs-sdk/issues/755)) ([8ed3228](https://github.com/aliyun/oss-nodejs-sdk/commit/8ed3228))
+* add successStatus ([#762](https://github.com/aliyun/oss-nodejs-sdk/issues/762)) ([0ef0fe2](https://github.com/aliyun/oss-nodejs-sdk/commit/0ef0fe2))
+* checkBucketName bug ([#763](https://github.com/aliyun/oss-nodejs-sdk/issues/763)) ([0a3c64c](https://github.com/aliyun/oss-nodejs-sdk/commit/0a3c64c))
+
+
+### Features
+
+* add CORS for server-side-encryption ([449f908](https://github.com/aliyun/oss-nodejs-sdk/commit/449f908))
+* image processing ([#744](https://github.com/aliyun/oss-nodejs-sdk/issues/744)) ([02d59da](https://github.com/aliyun/oss-nodejs-sdk/commit/02d59da)), closes [#676](https://github.com/aliyun/oss-nodejs-sdk/issues/676)
+* putBucketWebsite support new parameter ([#736](https://github.com/aliyun/oss-nodejs-sdk/issues/736)) ([e1cb438](https://github.com/aliyun/oss-nodejs-sdk/commit/e1cb438))
+* signatureUrl support trafficLimit ([#756](https://github.com/aliyun/oss-nodejs-sdk/issues/756)) ([a57315f](https://github.com/aliyun/oss-nodejs-sdk/commit/a57315f))
+* support for the latest putBucketLifecycle api features ([#757](https://github.com/aliyun/oss-nodejs-sdk/issues/757)) ([17c2984](https://github.com/aliyun/oss-nodejs-sdk/commit/17c2984))
+* **node:** bucket policy ([#751](https://github.com/aliyun/oss-nodejs-sdk/issues/751)) ([2d2b33a](https://github.com/aliyun/oss-nodejs-sdk/commit/2d2b33a))
+
+
+
 <a name="6.5.0"></a>
 # [6.5.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.4.0...v6.5.0) (2020-01-16)
 

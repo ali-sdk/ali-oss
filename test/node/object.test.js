@@ -161,6 +161,75 @@ describe('test/object.test.js', () => {
     });
   });
 
+  describe('processObjectSave()', () => {
+    const name = 'sourceObject.png';
+    before(async () => {
+      const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+      await store.putStream(name, fs.createReadStream(imagepath), {
+        mime: 'image/png'
+      });
+    });
+    const target = `processObject_target${Date.now()}.jpg`;
+    it('should process image', async () => {
+      try {
+        const result = await store.processObjectSave(name, target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert.strictEqual(result.res.status, 200);
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+    it('should process image with targetBucket', async () => {
+      try {
+        const result = await store.processObjectSave(name, target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,', archvieBucket);
+        assert.strictEqual(result.res.status, 200);
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+    it('should throw error when sourceObjectName is invalid', async () => {
+      try {
+        await store.processObjectSave('', target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('required'));
+      }
+      try {
+        await store.processObjectSave({}, target, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('must be String'));
+      }
+    });
+    it('should throw error when targetObjectName is invalid', async () => {
+      try {
+        await store.processObjectSave(name, '', 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('required'));
+      }
+      try {
+        await store.processObjectSave(name, {}, 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('must be String'));
+      }
+    });
+    it('should throw error when process is invalid', async () => {
+      try {
+        await store.processObjectSave(name, target, '');
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('required'));
+      }
+      try {
+        await store.processObjectSave(name, target, {});
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('must be String'));
+      }
+    });
+  });
+
   describe('getObjectUrl()', () => {
     it('should return object url', () => {
       let name = 'test.js';
@@ -968,6 +1037,41 @@ describe('test/object.test.js', () => {
       const url = tempStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
+    });
+    
+    it('should signature url with traffic limit', async () => {
+      const name = `${prefix}ali-sdk/oss/trafficLimit.js`;
+      let url, result;
+      const file_1mb = path.join(__dirname, '.tmp', 'bigfile-1mb.bin');
+      fs.writeFileSync(file_1mb, Buffer.alloc(1 * 1024 * 1024).fill('a\n'));
+
+      try {
+        url = store.signatureUrl(name, {
+          trafficLimit: 8 * 1024 * 100 * 4,
+          method: 'PUT'
+        })
+      
+        result = await store.urllib.request(url, {
+          method: 'PUT',
+          stream: fs.createReadStream(file_1mb),
+          timeout: 600000,
+        });
+        assert.strictEqual(200, result.status)
+      } catch (error) {
+        assert(false, error.message)
+      }
+     
+      try {
+        url = store.signatureUrl(name, {
+          trafficLimit: 8 * 1024 * 100 * 4,
+        })
+        result = await store.urllib.request(url, {
+          timeout: 600000,
+        });
+        assert.strictEqual(200, result.status)
+      } catch (error) {
+        assert(false, error.message)
+      }
     });
   });
 
@@ -1812,6 +1916,24 @@ describe('test/object.test.js', () => {
       const headRes = await store.head(name);
       assert.equal(headRes.status, 200);
     });
+
+    it('should throw error when policy is not JSON or Object', async () => {
+      let policy = 'string'
+      const errorMessage = 'policy must be JSON string or Object'
+      try {
+        store.calculatePostSignature(policy)
+        assert(false)
+      } catch (error) {
+        assert.strictEqual(errorMessage, error.message)
+      }
+      try {
+        policy = 123
+        store.calculatePostSignature(policy)
+        assert(false)
+      } catch (error) {
+        assert.strictEqual(errorMessage, error.message)
+      }
+    });
   });
 
   describe('getObjectTagging() putObjectTagging() deleteObjectTagging()', () => {
@@ -1835,6 +1957,18 @@ describe('test/object.test.js', () => {
       let result;
       try {
         const tag = { a: '1', b: '2' };
+        result = await store.putObjectTagging(name, tag);
+        assert.strictEqual(result.status, 200);
+
+        result = await store.getObjectTagging(name);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.tag, tag);
+      } catch (error) {
+        assert(false, error);
+      }
+
+      try {
+        const tag = { a: '1' };
         result = await store.putObjectTagging(name, tag);
         assert.strictEqual(result.status, 200);
 

@@ -99,6 +99,10 @@ All operation use es7 async/await to implement. All api is async function.
     - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
     - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
     - [.deleteBucketTags(name, [, options])](#deleteBucketTagsname-options)
+  - policy
+    - [.putBucketPolicy(name, policy[, options])](#putBucketPolicyname-policy-options)
+    - [.getBucketPolicy(name, [, options])](#getBucketPolicyname-options)
+    - [.deleteBucketPolicy(name, [, options])](#deleteBucketPolicyname-options)
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
   - [.put(name, file[, options])](#putname-file-options)
@@ -638,6 +642,9 @@ parameters:
 - config {Object} website config, contains blow properties:
   - index {String} default page, e.g.: `index.html`
   - [error] {String} error page, e.g.: 'error.html'
+  - [supportSubDir] {String} default vaule false
+  - [type] {String} default value 0
+  - [routingRules] {Array} RoutingRules
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -672,6 +679,9 @@ Success will return:
 
 - index {String} index page
 - error {String} error page, maybe `null`
+- supportSubDir {String}
+- type {String}
+- routingRules {Array}
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -785,9 +795,24 @@ parameters:
   - [id] {String} rule id, if not set, OSS will auto create it with random string.
   - prefix {String} store prefix
   - status {String} rule status, allow values: `Enabled` or `Disabled`
-  - [days] {Number|String} expire after the `days`
-  - [date] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
-    `date` and `days` only set one.
+  - [expiration] {Object} specifies the expiration attribute of the lifecycle rules for the object.
+    - [days] {Number|String} expire after the `days`
+    - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
+    `createdBeforeDate` and `days` must have one.
+  - [abortMultipartUpload] {Object} Specifies the expiration attribute of the multipart upload tasks that are not complete.
+    - [days] {Number|String} expire after the `days`
+    - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
+    `createdBeforeDate` and `days` must have one.
+  - [transition] {Object} Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle.
+    - storageClass {String} Specifies the storage class that objects that conform to the rule are converted into. allow values: `IA` or `Archive`
+    - [days] {Number|String} expire after the `days`
+    - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
+    `createdBeforeDate` and `days` must have one.
+  `expiration`、 `abortMultipartUpload`、 `transition` must have one.
+  - [tag] {Object} Specifies the object tag applicable to a rule. Multiple tags are supported.
+    - key {String} Indicates the tag key.
+    - value {String} Indicates the tag value.
+    `tag` cannot be used with `abortMultipartUpload`
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -1057,6 +1082,72 @@ Deletes the tags added for a bucket.
 parameters:
 
 - name {String} the object name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .putBucketPolicy(name, policy[, options])
+
+Adds or modify policy for a bucket.
+
+parameters:
+
+- name {String} the bucket name
+- policy {Object} bucket policy
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+example:
+```js
+const policy = {
+  Version: '1',
+  Statement: [
+    {
+      Action: ['oss:PutObject', 'oss:GetObject'],
+      Effect: 'Deny',
+      Principal: ['1234567890'],
+      Resource: ['acs:oss:*:1234567890:*/*']
+    }
+  ]
+};
+const result = await store.putBucketPolicy(bucket, policy);
+console.log(result);
+```
+---
+
+### .getBucketPolicy(name[, options])
+
+Obtains the policy for a bucket.
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- policy {Object} the policy of bucket, if not exist, the value is null
+- res {Object} response info
+- status {Number} response status
+
+---
+
+### .deleteBucketPolicy(name[, options])
+
+Deletes the policy added for a bucket.
+
+parameters:
+
+- name {String} the bucket name
 - [options] {Object} optional args
 
 Success will return:
@@ -1796,6 +1887,7 @@ parameters:
   - [Content-Type] {String} set the request content type
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
+  - [trafficLimit] {Number} traffic limit, range: `819200`~`838860800`.
   - [response] {Object} set the response headers for download
     - [content-type] {String} set the response content type
     - [content-disposition] {String} set the response content disposition
@@ -2672,6 +2764,33 @@ object:
 
 - status {Number} response status
 - res {Object} response info
+
+### .processObjectSave(sourceObject, targetObject, process[, targetBucket])
+
+Persistency indicates that images are asynchronously stored in the specified Bucket
+
+parameters:
+
+- sourceObject {String} source object name
+- targetObject {String} target object name
+- process {String} process string
+- [targetBucket] {String} target bucket
+
+Success will return the channel information.
+
+object:
+
+- status {Number} response status
+- res {Object} response info
+
+
+```js
+const sourceObject = 'a.png'
+const targetObject = 'b.png'
+const process = 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00'
+
+await this.store.processObjectSave(sourceObject, targetObject, process);
+```
 
 ## RTMP Operations
 
