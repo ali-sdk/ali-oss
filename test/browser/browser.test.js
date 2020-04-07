@@ -948,7 +948,7 @@ describe('browser', () => {
     });
 
     describe('multipartUpload()', () => {
-      it.skip('should initMultipartUpload with x-oss-server-side-encryption', async () => {
+      it('should initMultipartUpload with x-oss-server-side-encryption', async () => {
         // wait server bucket cors on line, this case need set cors exposed header x-oss-server-side-encryption with bucket
         const name = 'multipart-x-oss-server-side-encryption';
         const result = await store.initMultipartUpload(name, {
