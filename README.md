@@ -1888,6 +1888,7 @@ parameters:
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
   - [trafficLimit] {Number} traffic limit, range: `819200`~`838860800`.
+  - [subResource] {Object} additional signature parameters in url.
   - [response] {Object} set the response headers for download
     - [content-type] {String} set the response content type
     - [content-disposition] {String} set the response content disposition
