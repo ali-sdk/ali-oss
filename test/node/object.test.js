@@ -951,7 +951,7 @@ describe('test/object.test.js', () => {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-    it('should signature url with reponse limitation', async () => {
+    it('should signature url with response limitation', async () => {
       const response = {
         'content-type': 'xml',
         'content-language': 'zh-cn'
@@ -959,6 +959,30 @@ describe('test/object.test.js', () => {
       const url = store.signatureUrl(name, { response });
       assert(url.indexOf('response-content-type=xml') !== -1);
       assert(url.indexOf('response-content-language=zh-cn') !== -1);
+    });
+
+    it('should signature url with options contains other parameters', async () => {
+      const options = {
+        expires: 3600,
+        subResource: {
+          'x-oss-process': 'image/resize,w_200',
+        },
+        // others parameters
+        filename: 'test.js',
+        testParameters: 'xxx',
+      };
+      const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
+      const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      path.join(__dirname, 'nodejs-processed-w200.png');
+      await store.put(imageName, originImagePath, {
+        mime: 'image/png',
+      });
+
+      const signUrl = store.signatureUrl(imageName, options);
+      const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
+      assert.equal(signUrl.match(processedKeyword), processedKeyword);
+      const urlRes = await urllib.request(signUrl);
+      assert.equal(urlRes.status, 200);
     });
 
     it('should signature url with image processed and get object ok', async () => {
