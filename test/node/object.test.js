@@ -159,6 +159,20 @@ describe('test/object.test.js', () => {
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
     });
+
+    it('should throw error with stream destroy', async () => {
+      const name = `${prefix}ali-sdk/oss/putStream-source-destroy.js`;
+      try {
+        const readerStream = fs.createReadStream(__filename);
+
+        readerStream.on('data', () => {
+          readerStream.destroy();
+        });
+        await store.putStream(name, readerStream);
+      } catch (error) {
+        assert.strictEqual(error.status, -1);
+      }
+    });
   });
 
   describe('processObjectSave()', () => {
