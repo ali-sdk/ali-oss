@@ -47,7 +47,7 @@ describe('test/rtmp.test.js', () => {
   });
 
   after(async () => {
-    await utils.cleanBucket(store, bucket, bucketRegion);
+    await utils.cleanBucket(store, bucket);
   });
 
   describe('put/get/deleteChannel()', () => {

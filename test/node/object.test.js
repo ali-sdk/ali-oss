@@ -1216,19 +1216,19 @@ describe('test/object.test.js', () => {
 
     it('should delete 3 exists objs', async () => {
       const result = await store.deleteMulti(names);
-      assert.deepEqual(result.deleted, names);
+      assert.deepEqual(result.deleted.map(v => v.Key), names);
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 2 exists and 2 not exists objs', async () => {
       const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
-      assert.deepEqual(result.deleted, names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 1 exists objs', async () => {
       const result = await store.deleteMulti(names.slice(0, 1));
-      assert.deepEqual(result.deleted, names.slice(0, 1));
+      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 1));
       assert.equal(result.res.status, 200);
     });
 
@@ -1236,7 +1236,7 @@ describe('test/object.test.js', () => {
       const result = await store.deleteMulti(names, {
         quiet: true
       });
-      assert.equal(result.deleted, null);
+      assert(result.deleted.length === 0);
       assert.equal(result.res.status, 200);
     });
   });
@@ -1727,7 +1727,7 @@ describe('test/object.test.js', () => {
 
       const result = await store.deleteMulti(names);
       assert.equal(result.res.status, 200);
-      assert.deepEqual(result.deleted, names);
+      assert.deepEqual(result.deleted.map(v => v.Key), names);
     });
   });
 

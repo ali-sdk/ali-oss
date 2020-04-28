@@ -103,8 +103,13 @@ All operation use es7 async/await to implement. All api is async function.
     - [.putBucketPolicy(name, policy[, options])](#putBucketPolicyname-policy-options)
     - [.getBucketPolicy(name, [, options])](#getBucketPolicyname-options)
     - [.deleteBucketPolicy(name, [, options])](#deleteBucketPolicyname-options)
+  - versioning
+    - [.getBucketVersioning(name, [, options])](#getBucketVersioningname-options)
+    - [.putBucketVersioning(name, status[, options])](#putBucketVersioningname-status-options)
+
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
+  - [.getBucketVersions(query[, options])](#getBucketVersionsquery-options)
   - [.put(name, file[, options])](#putname-file-options)
   - [.putStream(name, stream[, options])](#putstreamname-stream-options)
   - [.append(name, file[, options])](#appendname-file-options)
@@ -1156,6 +1161,39 @@ Success will return:
 - res {Object} response info
 
 ---
+### .getBucketVersioning(name[, options])
+
+Obtains the version status of an object
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- versionStatus {String | undefined} version status, `Suspended` or `Enabled`. default value: `undefined`
+- res {Object} response info
+
+---
+
+### .putBucketVersioning(name, status[, options])
+
+set the version status of an object
+
+parameters:
+
+- name {String} the bucket name
+- status {String} version status, allow values: `Enabled` or `Suspended`
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
 
 ## Object Operations
 
@@ -1778,7 +1816,9 @@ Delete multi objects in one request.
 
 parameters:
 
-- names {Array<String>} object names, max 1000 objects in once.
+- names {Array<Object>} object names, max 1000 objects in once.
+  - key {String} object name
+  - [versionId] {String} version id
 - [options] {Object} optional parameters
   - [quiet] {Boolean} quiet mode or verbose mode, default is `false`, verbose mode
     quiet mode: if all objects delete succes, return emtpy response.
@@ -1788,7 +1828,11 @@ parameters:
 
 Success will return delete success objects in `deleted` property.
 
-- [deleted] {Array<String>} deleted object names list
+- [deleted] {Array<Object>} deleted object or deleteMarker info list
+  - [Key] object name
+  - [VersionId] object versionId
+  - [DeleteMarker] generate or delete marker
+  - [DeleteMarkerVersionId] marker versionId 
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1870,6 +1914,79 @@ console.log(result.objects);
 const result = await store.list({
   prefix: 'fun/',
   delimiter: '/'
+});
+console.log(result.objects);
+```
+
+### .getBucketVersions(query[, options])
+
+List objects in the bucket.
+
+parameters:
+
+- [query] {Object} query parameters, default is `null`
+  - [prefix] {String} search object using `prefix` key
+  - [versionIdMarker] {String} set the result to return from the version ID marker of the key marker object and sort by the versions
+  - [keyMarker] {String} search start from `keyMarker`, including `keyMarker` key
+  - [encodingType] {String} specifies that the returned content is encoded, and specifies the type of encoding
+  - [delimiter] {String} delimiter search scope
+    e.g. `/` only search current dir, not including subdir
+  - [maxKeys] {String|Number} max objects, default is `100`, limit to `1000`
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return objects list on `objects` properties.
+
+- objects {Array<ObjectMeta>} object meta info list
+  Each `ObjectMeta` will contains blow properties:
+    - name {String} object name on oss
+    - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+    - etag {String} object etag contains `"`, e.g.: `"5B3C1A2E053D763E1B002CC607C5A0FE"`
+    - type {String} object type, e.g.: `Normal`
+    - size {Number} object size, e.g.: `344606`
+    - isLatest {Boolean}
+    - versionId {String} object versionId
+    - storageClass {String} storage class type, e.g.: `Standard`
+    - owner {Object} object owner, including `id` and `displayName`
+- deleteMarker {Array<ObjectDeleteMarker>} object delete marker info list
+  Each `ObjectDeleteMarker`
+    - name {String} object name on oss
+    - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+    - versionId {String} object versionId
+- isTruncated {Boolean} truncate or not
+- nextMarker {String} next marker string
+- NextVersionIdMarker {String} next version ID marker string
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- View all versions of objects and deleteMarker of bucket
+
+```js
+const result = await store.getBucketVersions();
+console.log(result.objects);
+console.log(result.deleteMarker);
+```
+
+- List from key-marker
+
+```js
+const result = await store.getBucketVersions({
+  'keyMarker': 'keyMarker'
+});
+console.log(result.objects);
+```
+
+- List from the version-id-marker of key-marker
+
+```js
+const result = await store.getBucketVersions({
+  'versionIdMarker': 'versionIdMarker',
+  'keyMarker': 'keyMarker'
 });
 console.log(result.objects);
 ```
