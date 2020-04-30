@@ -47,8 +47,7 @@ exports.sleep = function (ms) {
 exports.cleanBucket = async function (store, bucket, multiversion) {
   store.useBucket(bucket);
   let result;
-  const subres = {};
-  const options = { subres };
+  const options = { versionId: null };
 
   if (!multiversion) {
     try {
@@ -75,7 +74,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
     for (let i = 0; i < result[deleteKey].length; i++) {
       const obj = result[deleteKey][i];
       if (multiversion) {
-        subres.versionId = obj.versionId;
+        options.versionId = obj.versionId;
       }
       await store.delete(obj.name, options);
     }
