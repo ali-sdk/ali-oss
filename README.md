@@ -116,7 +116,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
   - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
   - [.head(name[, options])](#headname-options)
-  - [.getObjectMeta(name)](#getobjectmetaname)
+  - [.getObjectMeta(name[, options])](#getobjectmetaname-options)
   - [.get(name[, file, options])](#getname-file-options)
   - [.getStream(name[, options])](#getstreamname-options)
   - [.delete(name[, options])](#deletename-options)
@@ -463,7 +463,7 @@ store.useBucket('helloworld');
 ### .getBucketInfo(name)
 
 Get bucket information,include CreationDate、ExtranetEndpoint、IntranetEndpoint、Location、Name、StorageClass、
-Owner、AccessControlList
+Owner、AccessControlList、Versioning
 
 parameters:
 
@@ -803,7 +803,8 @@ parameters:
   - [expiration] {Object} specifies the expiration attribute of the lifecycle rules for the object.
     - [days] {Number|String} expire after the `days`
     - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
-    `createdBeforeDate` and `days` must have one.
+    - [expiredObjectDeleteMarker] {String} value `true`
+    `createdBeforeDate` and `days`  and `expiredObjectDeleteMarker` must have one.
   - [abortMultipartUpload] {Object} Specifies the expiration attribute of the multipart upload tasks that are not complete.
     - [days] {Number|String} expire after the `days`
     - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
@@ -813,7 +814,12 @@ parameters:
     - [days] {Number|String} expire after the `days`
     - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
     `createdBeforeDate` and `days` must have one.
-  `expiration`、 `abortMultipartUpload`、 `transition` must have one.
+  - [noncurrentVersionTransition] {Object} Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle.
+    - storageClass {String} Specifies the storage class that history objects that conform to the rule are converted into. allow values: `IA` or `Archive`
+    - noncurrentDays {String} expire after the `noncurrentDays`
+  `expiration`、 `abortMultipartUpload`、 `transition`、 `noncurrentVersionTransition` must have one.
+  - [noncurrentVersionExpiration] {Object} specifies the expiration attribute of the lifecycle rules for the history object.
+    - noncurrentDays {String} expire after the `noncurrentDays`
   - [tag] {Object} Specifies the object tag applicable to a rule. Multiple tags are supported.
     - key {String} Indicates the tag key.
     - value {String} Indicates the tag value.
@@ -845,6 +851,55 @@ store.putBucketLifecycle('hello', [
     date: '2022-10-11T00:00:00.000Z'
   }
 ]).then((result) => {});
+```
+
+example: for history with noncurrentVersionExpiration
+
+```js
+ const result = await store.putBucketLifecycle(bucket, [{
+  id: 'expiration1',
+  prefix: 'logs/',
+  status: 'Enabled',
+  expiration: {
+    days: '1'
+  },
+  noncurrentVersionExpiration: {
+    noncurrentDays: '1'
+  }
+}]);
+console.log(result)
+```
+
+example: for history with expiredObjectDeleteMarker
+
+```js
+ const result = await store.putBucketLifecycle(bucket, [{
+  id: 'expiration1',
+  prefix: 'logs/',
+  status: 'Enabled',
+  expiration: {
+    expiredObjectDeleteMarker: 'true'
+  },
+  noncurrentVersionExpiration: {
+    noncurrentDays: '1'
+  }
+}]);
+console.log(result)
+```
+
+example: for history with noncurrentVersionTransition
+
+```js
+ const result = await store.putBucketLifecycle(bucket, [{
+  id: 'expiration1',
+  prefix: 'logs/',
+  status: 'Enabled',
+  noncurrentVersionTransition: {
+    noncurrentDays: '10',
+    storageClass: 'IA'
+  }
+}]);
+console.log(result)
 ```
 
 ### .getBucketLifecycle(name[, options])
@@ -1471,6 +1526,7 @@ parameters:
 - name {String} object name store on OSS
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [versionId] {String} the version id of history object
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
         otherwise return 304 not modified
@@ -1491,6 +1547,7 @@ object:
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
+    - [x-oss-version-id] return in multiversion
   - size {Number} response size
   - rt {Number} request total use time (ms)
 
@@ -1525,13 +1582,16 @@ const object = await this.store.head('ossdemo/head-meta');
 // will throw NoSuchKeyError
 ```
 
-### .getObjectMeta(name)
+### .getObjectMeta(name[, options])
 
 Get an  object meta info include ETag、Size、LastModified and so on, not return object content.
 
 parameters:
 
 - name {String} object name store on OSS
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+  - [versionId] {String} the version id of history object
 
 Success will return the object's meta information.
 
@@ -1566,6 +1626,7 @@ parameters:
 - [file] {String|WriteStream} file path or WriteStream instance to store the content
   If `file` is null or ignore this parameter, function will return info contains `content` property.
 - [options] {Object} optional parameters
+  - [versionId] {String} the version id of history object
   - [timeout] {Number} the operation timeout
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
@@ -1630,6 +1691,16 @@ await store.get('ossdemo/not-exists-demo.txt', filepath);
 // will throw NoSuchKeyError
 ```
 
+- Get a historic version object
+
+```js
+const filepath = '/home/ossdemo/demo.txt';
+const versionId = 'versionId string';
+await store.get('ossdemo/not-exists-demo.txt', filepath, {
+  versionId
+});
+```
+
 ### .getStream(name[, options])
 
 Get an object read stream.
@@ -1682,6 +1753,7 @@ parameters:
 - name {String} object name store on OSS
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [versionId] {String} the version id of history object
 
 Success will return the info contains response.
 
@@ -1709,6 +1781,13 @@ await store.delete('ossdemo/someobject');
 await store.delete('ossdemo/some-not-exists-object');
 ```
 
+- Delete a history object or deleteMarker
+
+```js
+const versionId = 'versionId';
+await store.delete('ossdemo/some-not-exists-object', { versionId });
+```
+
 ### .copy(name, sourceName[, sourceBucket, options])
 
 Copy an object from `sourceName` to `name`.
@@ -1719,6 +1798,7 @@ parameters:
 - sourceName {String} source object name
 - [sourceBucket] {String} source Bucket. if doesn't exist，`sourceBucket` is same bucket. 
 - [options] {Object} optional parameters
+  - [versionId] {String} the version id of history object
   - [timeout] {Number} the operation timeout
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
@@ -1763,6 +1843,15 @@ store.copy('newName', 'oldName').then((result) => {
 
 ```js
 store.copy('logo.png', 'logo.png', 'other-bucket').then((result) => {
+  console.log(result);
+});
+```
+
+- Copy historic object
+
+```js
+const versionId = 'your verisonId'
+store.copy('logo.png', 'logo.png', 'other-bucket', { versionId }).then((result) => {
   console.log(result);
 });
 ```
@@ -1818,7 +1907,7 @@ parameters:
 
 - names {Array<Object>} object names, max 1000 objects in once.
   - key {String} object name
-  - [versionId] {String} version id
+  - [versionId] {String} the version id of history object or deleteMarker
 - [options] {Object} optional parameters
   - [quiet] {Boolean} quiet mode or verbose mode, default is `false`, verbose mode
     quiet mode: if all objects delete succes, return emtpy response.
@@ -1829,10 +1918,10 @@ parameters:
 Success will return delete success objects in `deleted` property.
 
 - [deleted] {Array<Object>} deleted object or deleteMarker info list
-  - [Key] object name
-  - [VersionId] object versionId
-  - [DeleteMarker] generate or delete marker
-  - [DeleteMarkerVersionId] marker versionId 
+  - [Key] {String} object name
+  - [VersionId] {String} object versionId
+  - [DeleteMarker] {String} generate or delete marker
+  - [DeleteMarkerVersionId] {String} marker versionId 
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -1853,6 +1942,20 @@ const result = await store.deleteMulti(['obj1', 'obj2', 'obj3'], {
 
 ```js
 const result = await store.deleteMulti(['obj1', 'obj2', 'obj3']);
+```
+
+- Delete multi objects in multiversion
+
+```js
+const obj1 = {
+  key: 'key1',
+  versionId: 'versionId1'
+}
+const obj2 = {
+  key: 'key2',
+  versionId: 'versionId2'
+}
+const result = await store.deleteMulti([obj1, obj2]);
 ```
 
 ### .list(query[, options])
@@ -1989,6 +2092,7 @@ const result = await store.getBucketVersions({
   'keyMarker': 'keyMarker'
 });
 console.log(result.objects);
+console.log(result.deleteMarker);
 ```
 
 ### .signatureUrl(name[, options])
@@ -2082,6 +2186,7 @@ parameters:
 - acl {String} acl (private/public-read/public-read-write)
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [versionId] {String} the version id of history object 
 
 Success will return:
 
@@ -2099,6 +2204,15 @@ example:
 await store.putACL('ossdemo.txt', 'public-read');
 ```
 
+- Set an history object's ACL
+
+```js
+const versionId = 'object versionId'
+await store.putACL('ossdemo.txt', 'public-read', {
+  versionId
+});
+```
+
 ### .getACL(name[, options])
 
 Get object's ACL.
@@ -2108,6 +2222,7 @@ parameters:
 - name {String} object name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [versionId] {String} the version id of history object
 
 Success will return:
 
@@ -2127,6 +2242,14 @@ const result = await store.getACL('ossdemo.txt');
 console.log(result.acl);
 ```
 
+- Get an history object's ACL
+
+```js
+const versionId = 'object versionId'
+const result = await store.getACL('ossdemo.txt', { versionId });
+console.log(result.acl);
+```
+
 ### .restore(name[, options])
 
 Restore Object.
@@ -2136,6 +2259,7 @@ parameters:
 - name {String} object name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [versionId] {String} the version id of history object 
 
 Success will return:
 
@@ -2151,6 +2275,14 @@ example:
 
 ```js
 const result = await store.restore('ossdemo.txt');
+console.log(result.status);
+```
+
+- Restore an history object
+
+```js
+const versionId = 'object versionId';
+const result = await store.restore('ossdemo.txt', { versionId });
 console.log(result.status);
 ```
 
@@ -2184,7 +2316,20 @@ const options = {
   }
 }
 const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
-console.log(result.status)
+console.log(result.res)
+```
+
+putSymlink multiversion 
+```js
+const options = {
+  storageClass: 'IA',
+  meta: {
+    uid: '1',
+    slus: 'test.html' 
+  },
+}
+const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
+console.log(result.res.headers['x-oss-version-id'])
 ```
 
 ### .getSymlink(name[, options])
@@ -2195,6 +2340,7 @@ parameters:
 
 - name {String} object name
 - [options] {Object} optional parameters
+- [versionId] {String} the version id of history object
 
 Success will return
 
@@ -2209,6 +2355,13 @@ example:
 
 ```js
 const result = await store.getSymlink('ossdemo.txt')
+console.log(result.targetName)
+```
+
+for history object
+```js
+const versionId = 'object versionId';
+const result = await store.getSymlink('ossdemo.txt', { versionId })
 console.log(result.targetName)
 ```
 
@@ -2319,6 +2472,7 @@ parameters:
   - sourceBucketName {String} the source bucket name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
+  - [versionId] {String} the version id of history object
   - [headers] {Object} The following request header is used for the source objects specified by x-oss-copy-source.
     - [x-oss-copy-source-if-match]  default none<br>
     If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
@@ -2354,6 +2508,30 @@ example:
     const part = await store.uploadPartCopy(name, result.uploadId, i, range, {
       sourceKey: 'sourceKey',
       sourceBucketName: 'sourceBucketName'
+    });
+    console.log(part);
+  }
+
+  //end need complete api
+```
+
+- use history object to uploadPartCopy
+
+```js
+  const versionId = 'object versionId';
+  const name = 'object';
+  const result = await store.initMultipartUpload(name);
+  const partSize = 100 * 1024;//100kb
+  //if file part is 10
+  for (let i = 1; i <= 10; i++) {
+    const start = partSize * (i -1);
+    const end = Math.min(start + partSize, fileSize);
+    const range = start + '-' + (end - 1);
+    const part = await store.uploadPartCopy(name, result.uploadId, i, range, {
+      sourceKey: 'sourceKey',
+      sourceBucketName: 'sourceBucketName'
+    }, {
+      versionId
     });
     console.log(part);
   }
@@ -2613,6 +2791,7 @@ parameters:
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
+  - [versionId] {String} the version id of history object 
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
@@ -2714,6 +2893,26 @@ try {
 //the other event to cancel, for example: click event
 //to cancel upload must use the same client instance
 store.cancel();
+
+```
+- multipartUploadCopy with versionId
+
+```js
+
+const versionId = 'object versionId'
+//start upload
+const result = await store.multipartUploadCopy('object', {
+  sourceKey: 'sourceKey',
+  sourceBucketName: 'sourceBucketName'
+}, {
+  checkpoint: savedCpt,
+  progress: function (p, cpt, res) {
+    console.log(p);
+    console.log(cpt);
+    console.log(res.headers['x-oss-request-id']);
+  },
+  versionId
+});
 
 ```
 
@@ -2841,6 +3040,7 @@ parameters:
 
 - name {String} the object name
 - [options] {Object} optional args
+  - [versionId] {String} the version id of history object
 
 Success will return the channel information.
 
@@ -2858,6 +3058,7 @@ parameters:
 - name {String} the object name
 - tag {Object} tag, eg. `{var1: value1,var2:value2}`
 - [options] {Object} optional args
+  - [versionId] {String} the version id of history object
 
 Success will return the channel information.
 
@@ -2875,6 +3076,7 @@ parameters:
 - name {String} the object name
 - tag {Object} tag, eg. `{var1: value1,var2:value2}`
 - [options] {Object} optional args
+  - [versionId] {String} the version id of history object
 
 Success will return the channel information.
 
