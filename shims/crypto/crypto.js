@@ -1,12 +1,10 @@
 
 var Buffer = require('buffer').Buffer;
 var sha = require('./sha');
-var sha256 = require('./sha256');
 var md5 = require('./md5');
 
 var algorithms = {
   sha1: sha,
-  sha256: sha256,
   md5: md5
 };
 
