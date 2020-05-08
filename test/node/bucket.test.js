@@ -27,7 +27,7 @@ describe('test/bucket.test.js', () => {
 
     /* eslint no-restricted-syntax: [0] */
     for (const bucketObj of bucketResult.buckets) {
-      if (bucketObj.name.startsWith('ali-oss-test-bucket-') || bucketObj.name.startsWith('ali-oss-list-buckets-')) {
+      if (bucketObj.name.startsWith('ali-oss')) {
         /* eslint no-await-in-loop: [0] */
         await store.deleteBucket(bucketObj.name);
       }

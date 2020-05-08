@@ -34,7 +34,7 @@ describe('test/object.test.js', () => {
     bucket = bucket.substring(0, bucket.length - 1);
 
     // just for archive bucket test
-    archvieBucket = `oss-archvie-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    archvieBucket = `ali-oss-archvie-bucket-${prefix.replace(/[/.]/g, '-')}`;
     archvieBucket = archvieBucket.substring(0, archvieBucket.length - 1);
 
     bucketRegion = config.region;
@@ -1258,7 +1258,7 @@ describe('test/object.test.js', () => {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       resHeaders = object.res.headers;
 
-      otherBucket = `ali-copy-object-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      otherBucket = `ali-oss-copy-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
       otherBucket = otherBucket.substring(0, otherBucket.length - 1);
       await store.putBucket(otherBucket);
       store.useBucket(otherBucket);
