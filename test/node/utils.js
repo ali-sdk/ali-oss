@@ -44,15 +44,44 @@ exports.sleep = function (ms) {
   });
 };
 
-exports.cleanBucket = async function (store, bucket) {
+exports.cleanBucket = async function (store, bucket, multiversion) {
   store.useBucket(bucket);
-  let result = await store.list({
-    'max-keys': 1000
-  });
-  result.objects = result.objects || [];
-  for (let i = 0; i < result.objects.length; i++) {
-    const obj = result.objects[i];
-    await store.delete(obj.name);
+  let result;
+  const options = { versionId: null };
+
+  if (!multiversion) {
+    try {
+      await store.getBucketVersions({
+        'max-keys': 1000
+      });
+      multiversion = true;
+    } catch (error) {
+      multiversion = false;
+    }
+  }
+
+  async function handleDelete(deleteKey) {
+    if (multiversion) {
+      result = await store.getBucketVersions({
+        'max-keys': 1000
+      });
+    } else {
+      result = await store.list({
+        'max-keys': 1000
+      });
+    }
+    result[deleteKey] = result[deleteKey] || [];
+    for (let i = 0; i < result[deleteKey].length; i++) {
+      const obj = result[deleteKey][i];
+      if (multiversion) {
+        options.versionId = obj.versionId;
+      }
+      await store.delete(obj.name, options);
+    }
+  }
+  await handleDelete('objects');
+  if (multiversion) {
+    await handleDelete('deleteMarker');
   }
 
   result = await store.listUploads({

@@ -17,6 +17,7 @@ describe('test/bucket.test.js', () => {
   let store;
   let bucket;
   let bucketRegion;
+  const defaultRegion = config.region;
   before(async () => {
     store = oss(config);
 
@@ -29,13 +30,17 @@ describe('test/bucket.test.js', () => {
     for (const bucketObj of bucketResult.buckets) {
       if (bucketObj.name.startsWith('ali-oss')) {
         /* eslint no-await-in-loop: [0] */
-        await store.deleteBucket(bucketObj.name);
+        config.region = bucketObj.region;
+        store = oss(config);
+        await utils.cleanBucket(store, bucketObj.name);
       }
     }
 
+    config.region = defaultRegion;
+    store = oss(config);
     bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
-    bucketRegion = config.region;
+    bucketRegion = defaultRegion;
 
     const result = await store.putBucket(bucket);
     assert.equal(result.bucket, bucket);
