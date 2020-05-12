@@ -13,10 +13,11 @@ const { metaSyncTime } = require('../config');
 // }
 
 describe('test/bucket.test.js', () => {
-  const { prefix } = utils;
+  const { prefix, includesConf } = utils;
   let store;
   let bucket;
   let bucketRegion;
+  const defaultRegion = config.region;
   before(async () => {
     store = oss(config);
 
@@ -27,15 +28,19 @@ describe('test/bucket.test.js', () => {
 
     /* eslint no-restricted-syntax: [0] */
     for (const bucketObj of bucketResult.buckets) {
-      if (bucketObj.name.startsWith('ali-oss-test-bucket-') || bucketObj.name.startsWith('ali-oss-list-buckets-')) {
+      if (bucketObj.name.startsWith('ali-oss')) {
         /* eslint no-await-in-loop: [0] */
-        await store.deleteBucket(bucketObj.name);
+        config.region = bucketObj.region;
+        store = oss(config);
+        await utils.cleanBucket(store, bucketObj.name);
       }
     }
 
+    config.region = defaultRegion;
+    store = oss(config);
     bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
-    bucketRegion = config.region;
+    bucketRegion = defaultRegion;
 
     const result = await store.putBucket(bucket);
     assert.equal(result.bucket, bucket);
@@ -339,7 +344,7 @@ describe('test/bucket.test.js', () => {
       const result1 = await store.putBucketWebsite(bucket, website);
       assert.strictEqual(result1.res.status, 200);
       const rules1 = await store.getBucketWebsite(bucket);
-      assert.deepStrictEqual(rules1.routingRules, routingRules);
+      includesConf(rules1.routingRules, routingRules);
       assert.strictEqual(rules1.supportSubDir, website.supportSubDir);
       assert.strictEqual(rules1.type, website.type);
 
@@ -347,7 +352,7 @@ describe('test/bucket.test.js', () => {
       const result2 = await store.putBucketWebsite(bucket, website);
       assert.strictEqual(result2.res.status, 200);
       const rules2 = await store.getBucketWebsite(bucket);
-      assert.deepStrictEqual(rules2.routingRules, website.routingRules);
+      includesConf(rules2.routingRules, website.routingRules);
     });
 
     it('should throw error when RoutingRules is not Array', async () => {

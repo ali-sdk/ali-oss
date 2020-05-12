@@ -15,6 +15,8 @@ const assert = require('assert');
 const fs = require('fs');
 const urlutil = require('url');
 const platform = require('platform');
+const isObject = require('../../lib/common/utils/isObject');
+const isArray = require('../../lib/common/utils/isArray');
 
 exports.throws = async function (block, checkError) {
   try {
@@ -31,7 +33,7 @@ exports.throws = async function (block, checkError) {
     if (!checkError.test(err.toString())) {
       throw new Error(`expected ${err.toString()} to match ${checkError.toString()}`);
     }
-    return;
+    return false;
   }
   throw new Error(`${block.toString()} should throws error`);
 };
@@ -44,15 +46,44 @@ exports.sleep = function (ms) {
   });
 };
 
-exports.cleanBucket = async function (store, bucket) {
+exports.cleanBucket = async function (store, bucket, multiversion) {
   store.useBucket(bucket);
-  let result = await store.list({
-    'max-keys': 1000
-  });
-  result.objects = result.objects || [];
-  for (let i = 0; i < result.objects.length; i++) {
-    const obj = result.objects[i];
-    await store.delete(obj.name);
+  let result;
+  const options = { versionId: null };
+
+  if (!multiversion) {
+    try {
+      await store.getBucketVersions({
+        'max-keys': 1000
+      });
+      multiversion = true;
+    } catch (error) {
+      multiversion = false;
+    }
+  }
+
+  async function handleDelete(deleteKey) {
+    if (multiversion) {
+      result = await store.getBucketVersions({
+        'max-keys': 1000
+      });
+    } else {
+      result = await store.list({
+        'max-keys': 1000
+      });
+    }
+    result[deleteKey] = result[deleteKey] || [];
+    for (let i = 0; i < result[deleteKey].length; i++) {
+      const obj = result[deleteKey][i];
+      if (multiversion) {
+        options.versionId = obj.versionId;
+      }
+      await store.delete(obj.name, options);
+    }
+  }
+  await handleDelete('objects');
+  if (multiversion) {
+    await handleDelete('deleteMarker');
   }
 
   result = await store.listUploads({
@@ -120,4 +151,49 @@ exports.encodeCallback = function (cb) {
   };
 
   return Buffer.from(JSON.stringify(json)).toString('base64');
+};
+
+// 如果配置属性值是数组 则判断配置的数组是不是数据的子数组。
+// 如果配置属性值是对象 则判断数据包含的属性值包不包含配置项属性值。
+// 如果配置属性值是简单数据类型 则判断数据的有配置的属性且值相等
+exports.includesConf = function includesConf(data, conf) {
+  if (conf === null || typeof conf !== 'object') {
+    return data === conf;
+  }
+
+  let valid = true;
+  if (isArray(conf)) {
+    if (!isArray(data)) return false;
+    for (let i = 0; i < conf.length; i++) {
+      let itemValid = false;
+      for (let j = 0; j < data.length; j++) {
+        if (includesConf(data[j], conf[i])) {
+          itemValid = true;
+          break;
+        }
+      }
+      if (!itemValid) return false;
+    }
+    return valid;
+  }
+
+  const keys = Object.keys(conf);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (!isObject(conf[key]) && !isArray(conf[key])) {
+      if (conf[key] !== data[key]) {
+        valid = false;
+        break;
+      }
+    } else if (isObject(conf[key]) || isArray(conf[key])) {
+      if (!includesConf(data[key], conf[key])) {
+        valid = false;
+        break;
+      }
+    } else if (conf[key] !== data[key]) {
+      valid = false;
+      break;
+    }
+  }
+  return valid;
 };

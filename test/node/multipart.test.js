@@ -24,7 +24,7 @@ describe('test/multipart.test.js', () => {
   });
 
   after(async () => {
-    await utils.cleanBucket(store, bucket, bucketRegion);
+    await utils.cleanBucket(store, bucket);
   });
 
   describe('listUploads()', () => {

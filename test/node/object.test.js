@@ -34,7 +34,7 @@ describe('test/object.test.js', () => {
     bucket = bucket.substring(0, bucket.length - 1);
 
     // just for archive bucket test
-    archvieBucket = `oss-archvie-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    archvieBucket = `ali-oss-archvie-bucket-${prefix.replace(/[/.]/g, '-')}`;
     archvieBucket = archvieBucket.substring(0, archvieBucket.length - 1);
 
     bucketRegion = config.region;
@@ -1216,19 +1216,19 @@ describe('test/object.test.js', () => {
 
     it('should delete 3 exists objs', async () => {
       const result = await store.deleteMulti(names);
-      assert.deepEqual(result.deleted, names);
+      assert.deepEqual(result.deleted.map(v => v.Key), names);
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 2 exists and 2 not exists objs', async () => {
       const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
-      assert.deepEqual(result.deleted, names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 1 exists objs', async () => {
       const result = await store.deleteMulti(names.slice(0, 1));
-      assert.deepEqual(result.deleted, names.slice(0, 1));
+      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 1));
       assert.equal(result.res.status, 200);
     });
 
@@ -1236,7 +1236,7 @@ describe('test/object.test.js', () => {
       const result = await store.deleteMulti(names, {
         quiet: true
       });
-      assert.equal(result.deleted, null);
+      assert(result.deleted.length === 0);
       assert.equal(result.res.status, 200);
     });
   });
@@ -1258,7 +1258,7 @@ describe('test/object.test.js', () => {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       resHeaders = object.res.headers;
 
-      otherBucket = `ali-copy-object-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      otherBucket = `ali-oss-copy-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
       otherBucket = otherBucket.substring(0, otherBucket.length - 1);
       await store.putBucket(otherBucket);
       store.useBucket(otherBucket);
@@ -1727,7 +1727,7 @@ describe('test/object.test.js', () => {
 
       const result = await store.deleteMulti(names);
       assert.equal(result.res.status, 200);
-      assert.deepEqual(result.deleted, names);
+      assert.deepEqual(result.deleted.map(v => v.Key), names);
     });
   });
 

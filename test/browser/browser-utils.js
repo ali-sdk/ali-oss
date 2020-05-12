@@ -10,15 +10,45 @@ if (process && process.browser) {
   }
 }
 
-exports.cleanBucket = async function cleanBucket(store, bucket, region) {
-  store.useBucket(bucket, region);
-  let result = await store.list({
-    'max-keys': 1000
-  });
-  result.objects = result.objects || [];
-  for (let i = 0; i < result.objects.length; i++) {
-    const obj = result.objects[i];
-    await store.delete(obj.name);
+exports.cleanBucket = async function (store, bucket, multiversion) {
+  store.useBucket(bucket);
+  let result;
+  const subres = {};
+  const options = { subres };
+
+  if (!multiversion) {
+    try {
+      await store.getBucketVersions({
+        'max-keys': 1000
+      });
+      multiversion = true;
+    } catch (error) {
+      multiversion = false;
+    }
+  }
+
+  async function handleDelete(deleteKey) {
+    if (multiversion) {
+      result = await store.getBucketVersions({
+        'max-keys': 1000
+      });
+    } else {
+      result = await store.list({
+        'max-keys': 1000
+      });
+    }
+    result[deleteKey] = result[deleteKey] || [];
+    for (let i = 0; i < result[deleteKey].length; i++) {
+      const obj = result[deleteKey][i];
+      if (multiversion) {
+        subres.versionId = obj.versionId;
+      }
+      await store.delete(obj.name, options);
+    }
+  }
+  await handleDelete('objects');
+  if (multiversion) {
+    await handleDelete('deleteMarker');
   }
 
   result = await store.listUploads({
@@ -30,7 +60,7 @@ exports.cleanBucket = async function cleanBucket(store, bucket, region) {
     const up = uploads[i];
     await store.abortMultipartUpload(up.name, up.uploadId);
   }
-  await store.deleteBucket(bucket, region);
+  await store.deleteBucket(bucket);
 };
 
 exports.sleep = function sleep(ms) {
