@@ -7,17 +7,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ### Bug Fixes
-
-* _signatureForURL bug ([#772](https://github.com/aliyun/oss-nodejs-sdk/issues/772)) ([cef1840](https://github.com/aliyun/oss-nodejs-sdk/commit/cef1840))
-* not use compress lib ([ab73899](https://github.com/aliyun/oss-nodejs-sdk/commit/ab73899))
-
+* **browser:** remove proto._statFile ([#770](https://github.com/aliyun/oss-nodejs-sdk/issues/770
+)) ([fed2ba7
+](https://github.com/aliyun/oss-nodejs-sdk/commit/fed2ba7))
+* **browser:** remove sha256.js
 
 ### Features
-
-* bump 6.4.0 ([#722](https://github.com/aliyun/oss-nodejs-sdk/issues/722)) ([f63e40b](https://github.com/aliyun/oss-nodejs-sdk/commit/f63e40b)), closes [#698](https://github.com/aliyun/oss-nodejs-sdk/issues/698) [#703](https://github.com/aliyun/oss-nodejs-sdk/issues/703) [#701](https://github.com/aliyun/oss-nodejs-sdk/issues/701) [#709](https://github.com/aliyun/oss-nodejs-sdk/issues/709) [#712](https://github.com/aliyun/oss-nodejs-sdk/issues/712) [#719](https://github.com/aliyun/oss-nodejs-sdk/issues/719) [#718](https://github.com/aliyun/oss-nodejs-sdk/issues/718) [#715](https://github.com/aliyun/oss-nodejs-sdk/issues/715) [#707](https://github.com/aliyun/oss-nodejs-sdk/issues/707) [#721](https://github.com/aliyun/oss-nodejs-sdk/issues/721)
-* remove proto._statFile ([#770](https://github.com/aliyun/oss-nodejs-sdk/issues/770)) ([fed2ba7](https://github.com/aliyun/oss-nodejs-sdk/commit/fed2ba7))
-* support multiversion api ([#784](https://github.com/aliyun/oss-nodejs-sdk/issues/784)) ([2de5afc](https://github.com/aliyun/oss-nodejs-sdk/commit/2de5afc)), closes [#755](https://github.com/aliyun/oss-nodejs-sdk/issues/755) [#749](https://github.com/aliyun/oss-nodejs-sdk/issues/749) [#744](https://github.com/aliyun/oss-nodejs-sdk/issues/744) [#676](https://github.com/aliyun/oss-nodejs-sdk/issues/676) [#736](https://github.com/aliyun/oss-nodejs-sdk/issues/736) [#757](https://github.com/aliyun/oss-nodejs-sdk/issues/757) [#756](https://github.com/aliyun/oss-nodejs-sdk/issues/756) [#751](https://github.com/aliyun/oss-nodejs-sdk/issues/751) [#739](https://github.com/aliyun/oss-nodejs-sdk/issues/739) [#759](https://github.com/aliyun/oss-nodejs-sdk/issues/759) [#762](https://github.com/aliyun/oss-nodejs-sdk/issues/762) [#763](https://github.com/aliyun/oss-nodejs-sdk/issues/763) [#771](https://github.com/aliyun/oss-nodejs-sdk/issues/771) [#776](https://github.com/aliyun/oss-nodejs-sdk/issues/776) [#750](https://github.com/aliyun/oss-nodejs-sdk/issues/750) [#781](https://github.com/aliyun/oss-nodejs-sdk/issues/781) [#780](https://github.com/aliyun/oss-nodejs-sdk/issues/780) [#783](https://github.com/aliyun/oss-nodejs-sdk/issues/783) [#785](https://github.com/aliyun/oss-nodejs-sdk/issues/785)
-
+* support multiversion api
 
 
 <a name="6.7.0"></a>
@@ -27,12 +23,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * _signatureForURL bug ([#772](https://github.com/aliyun/oss-nodejs-sdk/issues/772)) ([cef1840](https://github.com/aliyun/oss-nodejs-sdk/commit/cef1840))
-* not use compress lib ([ab73899](https://github.com/aliyun/oss-nodejs-sdk/commit/ab73899))
-
-
-### Features
-
-* bump 6.4.0 ([#722](https://github.com/aliyun/oss-nodejs-sdk/issues/722)) ([f63e40b](https://github.com/aliyun/oss-nodejs-sdk/commit/f63e40b)), closes [#698](https://github.com/aliyun/oss-nodejs-sdk/issues/698) [#703](https://github.com/aliyun/oss-nodejs-sdk/issues/703) [#701](https://github.com/aliyun/oss-nodejs-sdk/issues/701) [#709](https://github.com/aliyun/oss-nodejs-sdk/issues/709) [#712](https://github.com/aliyun/oss-nodejs-sdk/issues/712) [#719](https://github.com/aliyun/oss-nodejs-sdk/issues/719) [#718](https://github.com/aliyun/oss-nodejs-sdk/issues/718) [#715](https://github.com/aliyun/oss-nodejs-sdk/issues/715) [#707](https://github.com/aliyun/oss-nodejs-sdk/issues/707) [#721](https://github.com/aliyun/oss-nodejs-sdk/issues/721)
 
 
 
