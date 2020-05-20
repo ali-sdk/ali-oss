@@ -621,6 +621,15 @@ describe('test/object.test.js', () => {
       assert.equal(info.meta.slus, 'test.html');
       assert.equal(info.status, 200);
     });
+
+    it('should head exists object with useGet', async () => {
+      const info = await store.head(name, {
+        useGet: true
+      });
+      assert.equal(info.meta.uid, '1');
+      assert.equal(info.meta.pid, '123');
+      assert.equal(info.meta.slus, 'test.html');
+    });
   });
 
   describe('getObjectMeta()', () => {

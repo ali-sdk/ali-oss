@@ -570,6 +570,22 @@ describe('browser', () => {
     });
   });
 
+  describe('head', () => {
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+    it('should head exists object with useGet', async () => {
+      const name = `${prefix}put/test`;
+      const body = Buffer.from('body');
+      const resultPut = await store.put(name, body);
+      assert.equal(resultPut.res.status, 200);
+
+      const res = await store.head(name, { useGet: true });
+      assert.equal(res.res.status, 206);
+    });
+  });
+
   describe('copy()', () => {
     let name;
     // let resHeaders;

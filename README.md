@@ -1525,6 +1525,7 @@ parameters:
 
 - name {String} object name store on OSS
 - [options] {Object} optional parameters
+  - [useGet] {Boolean} if `true`, will use get method replace head.
   - [timeout] {Number} the operation timeout
   - [versionId] {String} the version id of history object
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
@@ -1580,6 +1581,13 @@ console.log(object);
 ```js
 const object = await this.store.head('ossdemo/head-meta');
 // will throw NoSuchKeyError
+```
+
+- Head object with useGet when set cdn in browser
+
+```js
+const object = await this.store.head('ossdemo/head-meta', { useGet: true });
+console.log(object)
 ```
 
 ### .getObjectMeta(name[, options])
