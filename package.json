@@ -15,7 +15,8 @@
     "utility": "./shims/utility.js",
     "crypto": "./shims/crypto/crypto.js",
     "fs": false,
-    "child_process": false
+    "child_process": false,
+    "is-type-of": "./shims/is-type-of.js"
   },
   "scripts": {
     "build-change-log": "standard-version",
