@@ -127,17 +127,21 @@ describe('test/object.test.js', () => {
     });
 
     it('should put object with http streaming way', async () => {
-      const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
-      const nameCpy = `${prefix}ali-sdk/oss/nodejs-1024x768`;
-      const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
-      await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
-      const signUrl = store.signatureUrl(name, { expires: 3600 });
-      const httpStream = request(signUrl);
-      let result = await store.putStream(nameCpy, httpStream);
-      assert.equal(result.res.status, 200);
-      result = await store.get(nameCpy);
-      assert.equal(result.res.status, 200);
-      assert.equal(result.res.headers['content-type'], 'application/octet-stream');
+      try {
+        const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
+        const nameCpy = `${prefix}ali-sdk/oss/nodejs-1024x768`;
+        const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+        await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
+        const signUrl = store.signatureUrl(name, { expires: 3600 });
+        const httpStream = request(signUrl);
+        let result = await store.putStream(nameCpy, httpStream);
+        assert.equal(result.res.status, 200);
+        result = await store.get(nameCpy);
+        assert.equal(result.res.status, 200);
+        assert.equal(result.res.headers['content-type'], 'application/octet-stream');
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP') 
+      }
     });
 
     it('should add very big file: 4mb with streaming way', async () => {
@@ -232,35 +236,43 @@ describe('test/object.test.js', () => {
 
   describe('getObjectUrl()', () => {
     it('should return object url', () => {
-      let name = 'test.js';
-      let url = store.getObjectUrl(name);
-      assert.equal(url, store.options.endpoint.format() + name);
+      try {
+        let name = 'test.js';
+        let url = store.getObjectUrl(name);
+        assert.equal(url, store.options.endpoint.format() + name);
 
-      name = '/foo/bar/a%2Faa/test&+-123~!.js';
-      url = store.getObjectUrl(name, 'https://foo.com');
-      assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-      const url2 = store.getObjectUrl(name, 'https://foo.com/');
-      assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+        name = '/foo/bar/a%2Faa/test&+-123~!.js';
+        url = store.getObjectUrl(name, 'https://foo.com');
+        assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+        const url2 = store.getObjectUrl(name, 'https://foo.com/');
+        assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
   });
 
   describe('generateObjectUrl()', () => {
     it('should return object url', () => {
-      let name = 'test.js';
-      let url = store.generateObjectUrl(name);
-
-      let baseUrl = store.options.endpoint.format();
-      const copyUrl = urlutil.parse(baseUrl);
-      copyUrl.hostname = `${bucket}.${copyUrl.hostname}`;
-      copyUrl.host = `${bucket}.${copyUrl.host}`;
-      baseUrl = copyUrl.format();
-      assert.equal(url, `${baseUrl}${name}`);
-
-      name = '/foo/bar/a%2Faa/test&+-123~!.js';
-      url = store.generateObjectUrl(name, 'https://foo.com');
-      assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-      const url2 = store.generateObjectUrl(name, 'https://foo.com/');
-      assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      try {
+        let name = 'test.js';
+        let url = store.generateObjectUrl(name);
+  
+        let baseUrl = store.options.endpoint.format();
+        const copyUrl = urlutil.parse(baseUrl);
+        copyUrl.hostname = `${bucket}.${copyUrl.hostname}`;
+        copyUrl.host = `${bucket}.${copyUrl.host}`;
+        baseUrl = copyUrl.format();
+        assert.equal(url, `${baseUrl}${name}`);
+  
+        name = '/foo/bar/a%2Faa/test&+-123~!.js';
+        url = store.generateObjectUrl(name, 'https://foo.com');
+        assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+        const url2 = store.generateObjectUrl(name, 'https://foo.com/');
+        assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
   });
 
@@ -945,79 +957,97 @@ describe('test/object.test.js', () => {
     });
 
     it('should signature url get object ok', async () => {
-      const result = await store.get(name);
-      const url = store.signatureUrl(name);
-      const urlRes = await urllib.request(url);
-      assert.equal(urlRes.data.toString(), result.content.toString());
+      try {
+        const result = await store.get(name);
+        const url = store.signatureUrl(name);
+        const urlRes = await urllib.request(url);
+        assert.equal(urlRes.data.toString(), result.content.toString());
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
 
     it('should signature url with response limitation', async () => {
-      const response = {
-        'content-type': 'xml',
-        'content-language': 'zh-cn'
-      };
-      const url = store.signatureUrl(name, { response });
-      assert(url.indexOf('response-content-type=xml') !== -1);
-      assert(url.indexOf('response-content-language=zh-cn') !== -1);
+      try {
+        const response = {
+          'content-type': 'xml',
+          'content-language': 'zh-cn'
+        };
+        const url = store.signatureUrl(name, { response });
+        assert(url.indexOf('response-content-type=xml') !== -1);
+        assert(url.indexOf('response-content-language=zh-cn') !== -1);
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
 
     it('should signature url with options contains other parameters', async () => {
-      const options = {
-        expires: 3600,
-        subResource: {
-          'x-oss-process': 'image/resize,w_200',
-        },
-        // others parameters
-        filename: 'test.js',
-        testParameters: 'xxx',
-      };
-      const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
-      const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-      path.join(__dirname, 'nodejs-processed-w200.png');
-      await store.put(imageName, originImagePath, {
-        mime: 'image/png',
-      });
-
-      const signUrl = store.signatureUrl(imageName, options);
-      const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
-      assert.equal(signUrl.match(processedKeyword), processedKeyword);
-      const urlRes = await urllib.request(signUrl);
-      assert.equal(urlRes.status, 200);
+      try {
+        const options = {
+          expires: 3600,
+          subResource: {
+            'x-oss-process': 'image/resize,w_200',
+          },
+          // others parameters
+          filename: 'test.js',
+          testParameters: 'xxx',
+        };
+        const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
+        const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+        path.join(__dirname, 'nodejs-processed-w200.png');
+        await store.put(imageName, originImagePath, {
+          mime: 'image/png',
+        });
+  
+        const signUrl = store.signatureUrl(imageName, options);
+        const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
+        assert.equal(signUrl.match(processedKeyword), processedKeyword);
+        const urlRes = await urllib.request(signUrl);
+        assert.equal(urlRes.status, 200);
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
 
     it('should signature url with image processed and get object ok', async () => {
-      const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
-      const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-      path.join(__dirname, 'nodejs-processed-w200.png');
-      await store.put(imageName, originImagePath, {
-        mime: 'image/png'
-      });
+      try {
+        const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
+        const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+        path.join(__dirname, 'nodejs-processed-w200.png');
+        await store.put(imageName, originImagePath, {
+          mime: 'image/png'
+        });
 
-      const signUrl = store.signatureUrl(imageName, { expires: 3600, process: 'image/resize,w_200' });
-      const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
-      assert.equal(signUrl.match(processedKeyword), processedKeyword);
-      const urlRes = await urllib.request(signUrl);
-      assert.equal(urlRes.status, 200);
-      // assert(urlRes.data.toString() == fs.readFileSync(processedImagePath, 'utf8'),
-      //   'response content should be same as test/nodejs-processed-w200.png');
+        const signUrl = store.signatureUrl(imageName, { expires: 3600, process: 'image/resize,w_200' });
+        const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
+        assert.equal(signUrl.match(processedKeyword), processedKeyword);
+        const urlRes = await urllib.request(signUrl);
+        assert.equal(urlRes.status, 200);
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
 
     it('should signature url for PUT', async () => {
-      const putString = 'Hello World';
-      const contentMd5 = crypto.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
-      const url = store.signatureUrl(name, {
-        method: 'PUT',
-        'Content-Type': 'text/plain; charset=UTF-8',
-        'Content-Md5': contentMd5
-      });
-      const headers = {
-        'Content-Type': 'text/plain; charset=UTF-8',
-        'Content-MD5': contentMd5
-      };
-      const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
-      assert.equal(res.status, 200);
-      const headRes = await store.head(name);
-      assert.equal(headRes.status, 200);
+      try {
+        const putString = 'Hello World';
+        const contentMd5 = crypto.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
+        const url = store.signatureUrl(name, {
+          method: 'PUT',
+          'Content-Type': 'text/plain; charset=UTF-8',
+          'Content-Md5': contentMd5
+        });
+        const headers = {
+          'Content-Type': 'text/plain; charset=UTF-8',
+          'Content-MD5': contentMd5
+        };
+        const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
+        assert.equal(res.status, 200);
+        const headRes = await store.head(name);
+        assert.equal(headRes.status, 200);
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
 
     // TODO: the callback url is disable.
@@ -1045,10 +1075,14 @@ describe('test/object.test.js', () => {
     // });
 
     it('should signature url get need escape object ok', async () => {
-      const result = await store.get(needEscapeName);
-      const url = store.signatureUrl(needEscapeName);
-      const urlRes = await urllib.request(url);
-      assert.equal(urlRes.data.toString(), result.content.toString());
+      try {
+        const result = await store.get(needEscapeName);
+        const url = store.signatureUrl(needEscapeName);
+        const urlRes = await urllib.request(url);
+        assert.equal(urlRes.data.toString(), result.content.toString());
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP')
+      }
     });
 
     it('should signature url with custom host ok', () => {
@@ -1082,7 +1116,7 @@ describe('test/object.test.js', () => {
         });
         assert.strictEqual(200, result.status)
       } catch (error) {
-        assert(false, error.message)
+        assert(error.message === 'can not get the object URL when endpoint is IP', error.message)
       }
      
       try {
@@ -1094,7 +1128,7 @@ describe('test/object.test.js', () => {
         });
         assert.strictEqual(200, result.status)
       } catch (error) {
-        assert(false, error.message)
+        assert(error.message === 'can not get the object URL when endpoint is IP', error.message)
       }
     });
   });
@@ -1766,9 +1800,9 @@ describe('test/object.test.js', () => {
       assert(object.nextAppendPosition === '3');
       assert(object.res.headers['x-oss-next-append-position'] === '3');
 
-      let res = await urllib.request(store.signatureUrl(name));
-      assert(res.data.toString() === 'foo');
-      assert(res.headers['x-oss-next-append-position'] === '3');
+      let res = await store.get(name);
+      assert(res.content.toString() === 'foo');
+      assert(res.res.headers['x-oss-next-append-position'] === '3');
 
       object = await store.append(name, Buffer.from('bar'), {
         position: 3
@@ -1777,9 +1811,9 @@ describe('test/object.test.js', () => {
       assert(object.nextAppendPosition === '6');
       assert(object.res.headers['x-oss-next-append-position'] === '6');
 
-      res = await urllib.request(store.signatureUrl(name));
-      assert(res.data.toString() === 'foobar');
-      assert(res.headers['x-oss-next-append-position'] === '6');
+      res = await store.get(name);
+      assert(res.content.toString() === 'foobar');
+      assert(res.res.headers['x-oss-next-append-position'] === '6');
     });
 
     it('should apend object with local file path', async () => {
@@ -1826,9 +1860,9 @@ describe('test/object.test.js', () => {
         position: object.nextAppendPosition
       });
 
-      const res = await urllib.request(store.signatureUrl(name));
-      assert(res.data.toString() === 'foobarbaz');
-      assert(res.headers['x-oss-next-append-position'] === '9');
+      const res = await store.get(name);
+      assert(res.content.toString() === 'foobarbaz');
+      assert(res.res.headers['x-oss-next-append-position'] === '9');
     });
   });
 
@@ -1898,47 +1932,51 @@ describe('test/object.test.js', () => {
 
   describe('calculatePostSignature()', () => {
     it('should get signature for postObject', async () => {
-      const name = 'calculatePostSignature.js';
-      const url = store.generateObjectUrl(name).replace(name, '');
-      const date = new Date();
-      date.setDate(date.getDate() + 1);
-      const policy = {
-        expiration: date.toISOString(),
-        conditions: [
-          { bucket: store.options.bucket }
-        ]
-      };
+      try {
+        const name = 'calculatePostSignature.js';
+        const url = store.generateObjectUrl(name).replace(name, '');
+        const date = new Date();
+        date.setDate(date.getDate() + 1);
+        const policy = {
+          expiration: date.toISOString(),
+          conditions: [
+            { bucket: store.options.bucket }
+          ]
+        };
 
-      const params = store.calculatePostSignature(policy);
+        const params = store.calculatePostSignature(policy);
 
-      const options = {
-        url,
-        method: 'POST',
-        formData: {
-          ...params,
-          key: name,
-          file: {
-            value: 'calculatePostSignature',
-            options: {
-              filename: name,
-              contentType: 'application/x-javascript'
+        const options = {
+          url,
+          method: 'POST',
+          formData: {
+            ...params,
+            key: name,
+            file: {
+              value: 'calculatePostSignature',
+              options: {
+                filename: name,
+                contentType: 'application/x-javascript'
+              }
             }
           }
-        }
-      };
+        };
 
-      const postFile = () =>
-        new Promise((resolve, reject) => {
-          request(options, (err, res) => {
-            if (err) reject(err);
-            if (res) resolve(res);
+        const postFile = () =>
+          new Promise((resolve, reject) => {
+            request(options, (err, res) => {
+              if (err) reject(err);
+              if (res) resolve(res);
+            });
           });
-        });
 
-      const result = await postFile();
-      assert(result.statusCode === 204);
-      const headRes = await store.head(name);
-      assert.equal(headRes.status, 200);
+        const result = await postFile();
+        assert(result.statusCode === 204);
+        const headRes = await store.head(name);
+        assert.equal(headRes.status, 200);
+      } catch (error) {
+        assert(error.message === 'can not get the object URL when endpoint is IP') 
+      }
     });
 
     it('should throw error when policy is not JSON or Object', async () => {

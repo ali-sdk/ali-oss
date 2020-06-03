@@ -218,7 +218,7 @@ describe('test/client.test.js', () => {
     };
 
     url = store._getReqUrl(params);
-    assert.equal(url, 'http://127.0.0.1:6000/gems/');
+    assert.equal(url, 'http://127.0.0.1:6000/');
   });
 
   it('should create request url with bucket/object/subres', () => {
@@ -286,7 +286,7 @@ describe('test/client.test.js', () => {
     };
 
     url = store._getReqUrl(params);
-    assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
+    assert.equal(url, 'http://127.0.0.1:3000/hello');
   });
 
   it('should set User-Agent', async () => {

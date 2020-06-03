@@ -29,6 +29,12 @@ module.exports = {
       ignoreTemplateLiterals: true,
     }],
     'no-buffer-constructor': [2],
-    "comma-dangle": [2, "never"],
+    'comma-dangle': ['error', {
+      arrays: 'ignore',
+      objects: 'ignore',
+      imports: 'never',
+      exports: 'never',
+      functions: 'ignore'
+    }]
   }
 };
