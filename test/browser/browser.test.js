@@ -1154,6 +1154,34 @@ describe('browser', () => {
         }
       });
 
+      it('should multipart upload file with checkpoint', async () => {
+        const client = store;
+        // create a file with 1M random data
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
+
+        const name = `${prefix}multipart/upload-file-checkpoint`;
+        let checkpoint;
+        const options = {
+          async progress(p, _checkpoint) {
+            if (p > 0.5 && !checkpoint) {
+              client.resetCancelFlag();
+              checkpoint = _checkpoint;
+            }
+          },
+          partSize: 100 * 1024,
+          checkpoint
+        };
+        try {
+          await client.multipartUpload(name, file, options);
+        } catch (err) {
+          assert.equal(true, client.isCancel());
+        }
+        await client.multipartUpload(name, file, options);
+        const result = await client.get(name);
+        assert.equal(result.content.length, 1024 * 1024);
+      });
+
       it('should upload with uploadPart', async () => {
         const fileContent = Array(10 * 100 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-part');
