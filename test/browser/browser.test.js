@@ -28,10 +28,7 @@ const cleanBucket = async (store) => {
     'max-keys': 1000
   });
   result.objects = result.objects || [];
-  for (let i = 0; i < result.objects.length; i++) {
-    const obj = result.objects[i];
-    await store.delete(obj.name);
-  }
+  await Promise.all(result.objects.map(_ => store.delete(_.name)));
 
   result = await store.listUploads({
     'max-uploads': 1000
