@@ -1,7 +1,7 @@
 module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'browserify'],
-    browsers: ['Chrome', 'Safari'],
+    browsers: ['Chrome', 'Safari', 'Firefox'],
     files: [
       'test/browser/build/aliyun-oss-sdk.min.js',
       'test/browser/build/tests.js'
