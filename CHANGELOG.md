@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.8.0"></a>
+# [6.8.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.5.0...v6.8.0) (2020-05-12)
+
+
+### Bug Fixes
+* **browser:** remove proto._statFile ([#770](https://github.com/aliyun/oss-nodejs-sdk/issues/770
+)) ([fed2ba7
+](https://github.com/aliyun/oss-nodejs-sdk/commit/fed2ba7))
+* **browser:** remove sha256.js
+
+### Features
+* support multiversion api
+
+
 <a name="6.7.0"></a>
 # [6.7.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.5.0...v6.7.0) (2020-04-17)
 
@@ -9,12 +23,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * _signatureForURL bug ([#772](https://github.com/aliyun/oss-nodejs-sdk/issues/772)) ([cef1840](https://github.com/aliyun/oss-nodejs-sdk/commit/cef1840))
-* not use compress lib ([ab73899](https://github.com/aliyun/oss-nodejs-sdk/commit/ab73899))
-
-
-### Features
-
-* bump 6.4.0 ([#722](https://github.com/aliyun/oss-nodejs-sdk/issues/722)) ([f63e40b](https://github.com/aliyun/oss-nodejs-sdk/commit/f63e40b)), closes [#698](https://github.com/aliyun/oss-nodejs-sdk/issues/698) [#703](https://github.com/aliyun/oss-nodejs-sdk/issues/703) [#701](https://github.com/aliyun/oss-nodejs-sdk/issues/701) [#709](https://github.com/aliyun/oss-nodejs-sdk/issues/709) [#712](https://github.com/aliyun/oss-nodejs-sdk/issues/712) [#719](https://github.com/aliyun/oss-nodejs-sdk/issues/719) [#718](https://github.com/aliyun/oss-nodejs-sdk/issues/718) [#715](https://github.com/aliyun/oss-nodejs-sdk/issues/715) [#707](https://github.com/aliyun/oss-nodejs-sdk/issues/707) [#721](https://github.com/aliyun/oss-nodejs-sdk/issues/721)
 
 
 

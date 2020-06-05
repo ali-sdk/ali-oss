@@ -1355,6 +1355,128 @@ describe('browser', () => {
     });
   });
 
+  describe('symlink()', () => {
+    it('Should put and get Symlink', async () => {
+      const store = oss(ossConfig);
+      const targetName = '/oss/target-测试.js';
+      const name = '/oss/symlink-软链接.js';
+      let result = await store.put(targetName, Buffer.from('test-symlink'));
+      assert.equal(result.res.status, 200);
+
+      result = await store.putSymlink(name, targetName, {
+        storageClass: 'IA',
+        meta: {
+          uid: '1',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(result.res.status, 200);
+
+      result = await store.getSymlink(name);
+      assert.equal(result.res.status, 200);
+      // 需要设置暴露headers x-oss-symlink-target
+      // assert.equal(result.targetName, store._objectName(targetName));
+
+      result = await store.head(name);
+
+      assert.equal(result.res.status, 200);
+      // 需要设置暴露headers x-oss-object-type
+      assert.equal(result.res.headers['x-oss-object-type'], 'Symlink');
+      // 需要设置对应暴露的headers  每个对应meta的header
+      // assert.deepEqual(result.meta, {
+      //   uid: '1',
+      //   slus: 'test.html'
+      // });
+      // TODO getObjectMeta should return storage class,
+      // headObject return targetObject storage class
+      // result = await store.getObjectMeta(name);
+      // console.log(result);
+    });
+  });
+
+  describe('deleteMulti()', () => {
+    const names = [];
+    beforeEach(async () => {
+      const store = oss(ossConfig);
+      let name = `${prefix}ali-sdk/oss/deleteMulti0.js`;
+      names.push(name);
+      await store.put(name, Buffer.from(name));
+
+      name = `${prefix}ali-sdk/oss/deleteMulti1.js`;
+      names.push(name);
+      await store.put(name, Buffer.from(name));
+
+      name = `${prefix}ali-sdk/oss/deleteMulti2.js`;
+      names.push(name);
+      await store.put(name, Buffer.from(name));
+    });
+
+    it('should delete 3 exists objs', async () => {
+      const store = oss(ossConfig);
+      const result = await store.deleteMulti(names);
+      assert.deepEqual(result.deleted.map(v => v.Key), names);
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete 2 exists and 2 not exists objs', async () => {
+      const store = oss(ossConfig);
+      const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete 1 exists objs', async () => {
+      const store = oss(ossConfig);
+      const result = await store.deleteMulti(names.slice(0, 1));
+      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 1));
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete in quiet mode', async () => {
+      const store = oss(ossConfig);
+      const result = await store.deleteMulti(names, {
+        quiet: true
+      });
+      assert(result.deleted.length === 0);
+      assert.equal(result.res.status, 200);
+    });
+  });
+
+  describe('getObjectMeta()', () => {
+    let name;
+    let resHeaders;
+    let fileSize;
+    before(async () => {
+      const store = oss(ossConfig);
+      name = `${prefix}ali-sdk/oss/object-meta.js`;
+      const fileContent = Array(10 * 100 * 1024).fill('a').join('');
+      const file = new File([fileContent], 'multipart-upload-part');
+      const object = await store.put(name, file);
+      fileSize = 10 * 100 * 1024;
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      resHeaders = object.res.headers;
+    });
+
+    it('should head not exists object throw NoSuchKeyError', async () => {
+      const store = oss(ossConfig);
+      try {
+        await store.head(`${name}not-exists`);
+      } catch (error) {
+        assert.equal(error.name, 'NoSuchKeyError');
+        assert.equal(error.status, 404);
+        assert.equal(typeof error.requestId, 'string');
+      }
+    });
+
+    it('should return Etag and Content-Length', async () => {
+      const store = oss(ossConfig);
+      const info = await store.getObjectMeta(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.res.headers.etag, resHeaders.etag);
+      assert.equal(info.res.headers['content-length'], fileSize);
+    });
+  });
+
   describe('request time is skew', () => {
     it('When the client\'s date is skew, the request will calibration time and retry', async () => {
       const store = oss(ossConfig);
