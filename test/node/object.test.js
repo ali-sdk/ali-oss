@@ -159,6 +159,20 @@ describe('test/object.test.js', () => {
       assert.equal(r.content.length, buf.length);
       assert.deepEqual(r.content, buf);
     });
+
+    it('should throw error with stream destroy', async () => {
+      const name = `${prefix}ali-sdk/oss/putStream-source-destroy.js`;
+      try {
+        const readerStream = fs.createReadStream(__filename);
+
+        readerStream.on('data', () => {
+          readerStream.destroy();
+        });
+        await store.putStream(name, readerStream);
+      } catch (error) {
+        assert.strictEqual(error.status, -1);
+      }
+    });
   });
 
   describe('processObjectSave()', () => {
@@ -404,6 +418,23 @@ describe('test/object.test.js', () => {
       } catch (error) {
         assert(true);
       }
+    });
+  });
+
+  describe('test-content-type', () => {
+    it('should put object and content-type not null when upload file and object name has no MIME', async () => {
+      const name = `${prefix}ali-sdk/oss/test-content-type`;
+      const bigfile = path.join(__dirname, '.tmp', 'test-content-type');
+      fs.writeFileSync(bigfile, Buffer.alloc(4 * 1024).fill('a\n'));
+      const object = await store.put(name, bigfile);
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert(object.name, name);
+
+      const r = await store.get(name);
+      assert.equal(r.res.status, 200);
+      assert.equal(r.res.headers['content-type'], 'application/octet-stream');
     });
   });
 

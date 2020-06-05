@@ -89,6 +89,18 @@ describe('test/multiversion.test.js', () => {
         assert(false, err.message);
       }
     });
+    it('should getBucketVersions with delimiter', async () => {
+      const names = ['getBucketVersions/delimiter1.js', 'getBucketVersions/delimiter2.js', 'getBucketVersions/delimiter3.js', 'others.js'];
+      await Promise.all(names.map(_name => store.put(_name, __filename)));
+      try {
+        const result = await store.getBucketVersions({
+          delimiter: '/'
+        });
+        assert(result.prefixes && result.prefixes.includes('getBucketVersions/'));
+      } catch (err) {
+        assert(false, err.message);
+      }
+    });
   });
 
   describe('putBucketLifecycle() getBucketLifecycle()', () => {
