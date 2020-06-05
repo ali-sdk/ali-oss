@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="6.9.0"></a>
+# [6.9.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.8.0...v6.9.0) (2020-06-05)
+
+
+### Bug Fixes
+
+* _unSupportBrowserTip ([#755](https://github.com/aliyun/oss-nodejs-sdk/issues/755)) ([8ed3228](https://github.com/aliyun/oss-nodejs-sdk/commit/8ed3228))
+* add CORS for server-side-encryption ([449f908](https://github.com/aliyun/oss-nodejs-sdk/commit/449f908))
+* add putSymlink getSymlink deleteMulti  getObjectMeta  for browser ([#786](https://github.com/aliyun/oss-nodejs-sdk/issues/786)) ([807c7e1](https://github.com/aliyun/oss-nodejs-sdk/commit/807c7e1))
+* add successStatus ([#762](https://github.com/aliyun/oss-nodejs-sdk/issues/762)) ([0ef0fe2](https://github.com/aliyun/oss-nodejs-sdk/commit/0ef0fe2))
+* browser端,去除没有使用的 sha256.js 文件 ([#780](https://github.com/aliyun/oss-nodejs-sdk/issues/780)) ([d721265](https://github.com/aliyun/oss-nodejs-sdk/commit/d721265))
+* checkBucketName bug ([#749](https://github.com/aliyun/oss-nodejs-sdk/issues/749)) ([67275bd](https://github.com/aliyun/oss-nodejs-sdk/commit/67275bd))
+* checkBucketName bug ([#763](https://github.com/aliyun/oss-nodejs-sdk/issues/763)) ([0a3c64c](https://github.com/aliyun/oss-nodejs-sdk/commit/0a3c64c))
+* delete unless code and delete invalid Content-Type ([#805](https://github.com/aliyun/oss-nodejs-sdk/issues/805)) ([72f55bb](https://github.com/aliyun/oss-nodejs-sdk/commit/72f55bb))
+* getBucketVersions result has no prefixes ([#799](https://github.com/aliyun/oss-nodejs-sdk/issues/799)) ([390b449](https://github.com/aliyun/oss-nodejs-sdk/commit/390b449))
+* proto.put TypeError text ([#771](https://github.com/aliyun/oss-nodejs-sdk/issues/771)) ([ffed08c](https://github.com/aliyun/oss-nodejs-sdk/commit/ffed08c))
+* putBucketWebsite testting ([#785](https://github.com/aliyun/oss-nodejs-sdk/issues/785)) ([7a11eda](https://github.com/aliyun/oss-nodejs-sdk/commit/7a11eda))
+* putStream can not close request when stream destroyed ([#782](https://github.com/aliyun/oss-nodejs-sdk/issues/782)) ([c7ceedd](https://github.com/aliyun/oss-nodejs-sdk/commit/c7ceedd))
+
+
+### Features
+
+* **node:** bucket policy ([#751](https://github.com/aliyun/oss-nodejs-sdk/issues/751)) ([2d2b33a](https://github.com/aliyun/oss-nodejs-sdk/commit/2d2b33a))
+* **node:** uploadPart support file stream ([#798](https://github.com/aliyun/oss-nodejs-sdk/issues/798)) ([50321d4](https://github.com/aliyun/oss-nodejs-sdk/commit/50321d4))
+* browser端,将 is-type-of 包的依赖处理为 shim ([#801](https://github.com/aliyun/oss-nodejs-sdk/issues/801)) ([6f4ae51](https://github.com/aliyun/oss-nodejs-sdk/commit/6f4ae51))
+* image processing ([#744](https://github.com/aliyun/oss-nodejs-sdk/issues/744)) ([02d59da](https://github.com/aliyun/oss-nodejs-sdk/commit/02d59da)), closes [#676](https://github.com/aliyun/oss-nodejs-sdk/issues/676)
+* multiversion ([#750](https://github.com/aliyun/oss-nodejs-sdk/issues/750)) ([9e8bb20](https://github.com/aliyun/oss-nodejs-sdk/commit/9e8bb20))
+* putBucketWebsite support new parameter ([#736](https://github.com/aliyun/oss-nodejs-sdk/issues/736)) ([e1cb438](https://github.com/aliyun/oss-nodejs-sdk/commit/e1cb438))
+* signatureUrl support trafficLimit ([#756](https://github.com/aliyun/oss-nodejs-sdk/issues/756)) ([a57315f](https://github.com/aliyun/oss-nodejs-sdk/commit/a57315f))
+* support for the latest putBucketLifecycle api features ([#757](https://github.com/aliyun/oss-nodejs-sdk/issues/757)) ([17c2984](https://github.com/aliyun/oss-nodejs-sdk/commit/17c2984))
+* update mime, use mime/lite replace mime and use shims/debug.js replace debug in browser ([#802](https://github.com/aliyun/oss-nodejs-sdk/issues/802)) ([b4d1c56](https://github.com/aliyun/oss-nodejs-sdk/commit/b4d1c56))
+
+
+
 <a name="6.8.0"></a>
 # [6.8.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.5.0...v6.8.0) (2020-05-12)
 
