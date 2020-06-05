@@ -567,6 +567,25 @@ describe('browser', () => {
     });
   });
 
+  describe('test-content-type', () => {
+    let store;
+    before(async () => {
+      store = oss(ossConfig);
+    });
+
+    it('should put object and content-type not null when upload file and object name has no MIME', async () => {
+      const name = `${prefix}put/test-content-type`;
+      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const file = new File([fileContent], 'test-content-type');
+      const object = await store.put(name, file);
+      assert(object.name, name);
+
+      const r = await store.get(name);
+      assert.equal(r.res.status, 200);
+      assert.equal(r.res.headers['content-type'], 'application/octet-stream');
+    });
+  });
+
   describe('copy()', () => {
     let name;
     // let resHeaders;
