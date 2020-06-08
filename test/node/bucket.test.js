@@ -26,15 +26,13 @@ describe('test/bucket.test.js', () => {
       'max-keys': 20
     });
 
-    /* eslint no-restricted-syntax: [0] */
-    for (const bucketObj of bucketResult.buckets) {
-      if (bucketObj.name.startsWith('ali-oss')) {
-        /* eslint no-await-in-loop: [0] */
-        config.region = bucketObj.region;
-        store = oss(config);
-        await utils.cleanBucket(store, bucketObj.name);
-      }
-    }
+    await Promise.all((bucketResult.buckets || [])
+      .filter(_ => _.name.startsWith('ali-oss'))
+      .map(_bucket =>
+        utils.cleanBucket(
+          oss(Object.assign(config, { region: _bucket.region })),
+          _bucket.name
+        )));
 
     config.region = defaultRegion;
     store = oss(config);
@@ -199,11 +197,7 @@ describe('test/bucket.test.js', () => {
     before(async () => {
       // create 2 buckets
       listBucketsPrefix = `ali-oss-list-buckets-${prefix.replace(/[/.]/g, '-')}`;
-      for (let i = 0; i < 2; i++) {
-        const name = listBucketsPrefix + i;
-        const result = await store.putBucket(name);
-        assert.equal(result.res.status, 200);
-      }
+      await Promise.all(Array(2).fill(1).map((v, i) => store.putBucket(listBucketsPrefix + i)));
     });
 
     it('should list buckets by prefix', async () => {
@@ -226,14 +220,8 @@ describe('test/bucket.test.js', () => {
       }
     });
 
-    /* eslint no-empty: [0] */
     after(async () => {
-      for (let i = 0; i < 2; i++) {
-        const name = listBucketsPrefix + i;
-        try {
-          await store.deleteBucket(name);
-        } catch (err) {}
-      }
+      await Promise.all(Array(2).fill(1).map((v, i) => store.deleteBucket(listBucketsPrefix + i)));
     });
   });
 

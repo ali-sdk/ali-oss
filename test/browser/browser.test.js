@@ -34,10 +34,7 @@ const cleanBucket = async (store) => {
     'max-uploads': 1000
   });
   const uploads = result.uploads || [];
-  for (let i = 0; i < uploads.length; i++) {
-    const up = uploads[i];
-    await store.abortMultipartUpload(up.name, up.uploadId);
-  }
+  await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
 };
 
 describe('browser', () => {
@@ -855,20 +852,16 @@ describe('browser', () => {
           'max-uploads': 1000
         });
         const uploads = result.uploads || [];
-        for (let i = 0; i < uploads.length; i++) {
-          const up = uploads[i];
-          await store.abortMultipartUpload(up.name, up.uploadId);
-        }
+        await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
       });
 
       it('should list by key marker', async () => {
         const name = `${prefix}multipart/list-key`;
-        // var name = '/'
-        const ids = [];
-        for (let i = 0; i < 5; i++) {
-          const init = await store.initMultipartUpload(name + i);
-          ids.push(init.uploadId);
-        }
+
+        const ids = (await Promise.all(Array(5)
+          .fill(1).map((v, i) => store.initMultipartUpload(name + i))))
+          .map(_ => _.uploadId);
+
         // list all uploads
         let result = await store.listUploads({
           'max-uploads': 10
@@ -895,12 +888,13 @@ describe('browser', () => {
 
       it('should list by id marker', async () => {
         const name = `${prefix}multipart/list-id`;
-        const ids = [];
-        for (let i = 0; i < 5; i++) {
-          const init = await store.initMultipartUpload(name);
-          ids.push(init.uploadId);
-        }
-        ids.sort();
+        const ids = (await Promise.all(Array(5)
+          .fill(1)
+          // eslint-disable-next-line no-unused-vars
+          .map(_ => store.initMultipartUpload(name))))
+          .map(_ => _.uploadId)
+          .sort();
+
         // list all uploads
         let result = await store.listUploads({
           'max-uploads': 10
@@ -926,20 +920,20 @@ describe('browser', () => {
       //
       it('should list by id & key marker', async () => {
         const fooName = `${prefix}multipart/list-foo`;
-        const fooIds = [];
-        for (let i = 0; i < 5; i++) {
-          const init = await store.initMultipartUpload(fooName);
-          fooIds.push(init.uploadId);
-        }
-        fooIds.sort();
+        const fooIds = (await Promise.all(Array(5)
+          .fill(1)
+          // eslint-disable-next-line no-unused-vars
+          .map(_ => store.initMultipartUpload(fooName))))
+          .map(_ => _.uploadId)
+          .sort();
 
         const barName = `${prefix}multipart/list-bar`;
-        const barIds = [];
-        for (let i = 0; i < 5; i++) {
-          const result = await store.initMultipartUpload(barName);
-          barIds.push(result.uploadId);
-        }
-        barIds.sort();
+        const barIds = (await Promise.all(Array(5)
+          .fill(5)
+          // eslint-disable-next-line no-unused-vars
+          .map(_ => store.initMultipartUpload(barName))))
+          .map(_ => _.uploadId)
+          .sort();
 
         // after 1
         const result = await store.listUploads({
@@ -1181,16 +1175,22 @@ describe('browser', () => {
         const init = await store.initMultipartUpload(name);
         const { uploadId } = init;
         const partSize = 100 * 1024;
-        const dones = [];
-        for (let i = 1; i <= 10; i++) {
-          const start = (i - 1) * partSize;
-          const end = Math.min(i * partSize, file.size);
-          const part = await store.uploadPart(name, uploadId, i, file, start, end);
-          dones.push({
-            number: i,
-            etag: part.res.headers.etag
-          });
-        }
+
+        const parts = await Promise.all(Array(10)
+          .fill(1)
+          .map((v, i) =>
+            store.uploadPart(
+              name,
+              uploadId,
+              i + 1,
+              file,
+              i * partSize,
+              Math.min((i + 1) * partSize, 10 * 100 * 1024)
+            )));
+        const dones = parts.map((_, i) => ({
+          number: i + 1,
+          etag: _.etag
+        }));
 
         const result = await store.completeMultipartUpload(name, uploadId, dones);
         assert.equal(result.res.status, 200);
