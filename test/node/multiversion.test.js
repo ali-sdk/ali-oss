@@ -268,17 +268,16 @@ describe('test/multiversion.test.js', () => {
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
       let result;
-      for (let i = 0; i < 3; i++) {
+      const _createHistoryObject = async (i) => {
         name = name.replace('file', `file${i}`);
-        // eslint-disable-next-line no-await-in-loop
         result = await store.put(name, __filename);
-        // eslint-disable-next-line no-await-in-loop
         await store.delete(name);
         arr.push({
           key: name,
           versionId: result.res.headers['x-oss-version-id']
         });
-      }
+      };
+      await Promise.all(Array(3).fill(1).map((_, i) => _createHistoryObject(i)));
     });
 
     it('should deleteMulti', async () => {
@@ -750,12 +749,11 @@ describe('test/multiversion.test.js', () => {
 
       const partSize = 100 * 1024; // 100kb
       const dones = [];
-      // if file part is 10
-      for (let i = 1; i <= 10; i++) {
+
+      const uploadFn = async (i) => {
         const start = partSize * (i - 1);
         const end = Math.min(start + partSize, fileSize);
         const range = `${start}-${end - 1}`;
-        /* eslint no-await-in-loop: [0] */
         const part = await store.uploadPartCopy(
           copyName,
           result.uploadId,
@@ -768,7 +766,8 @@ describe('test/multiversion.test.js', () => {
           number: i,
           etag: part.res.headers.etag
         });
-      }
+      };
+      await Promise.all(Array(10).fill(1).map((v, i) => uploadFn(i + 1)));
 
       const complete = await store.completeMultipartUpload(
         copyName,

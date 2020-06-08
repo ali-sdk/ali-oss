@@ -112,19 +112,14 @@ describe('test/rtmp.test.js', () => {
     before(async () => {
       channelNum = 10;
       channelPrefix = 'channel-list-';
-
-      for (let i = 0; i < channelNum; i++) {
+      await Promise.all(Array(channelNum).fill(1).map((_, i) => {
         conf.Description = i;
-        /* eslint no-await-in-loop: [0] */
-        await store.putChannel(channelPrefix + i, conf);
-      }
+        return store.putChannel(channelPrefix + i, conf);
+      }));
     });
 
     after(async () => {
-      for (let i = 0; i < channelNum; i++) {
-        /* eslint no-await-in-loop: [0] */
-        await store.deleteChannel(channelPrefix + i);
-      }
+      await Promise.all(Array(channelNum).fill(1).map((_, i) => store.deleteChannel(channelPrefix + i)));
     });
 
     it('list channels using prefix/marker/max-keys', async () => {
