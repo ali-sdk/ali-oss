@@ -34,7 +34,7 @@
     "prepublish": "npm run snyk-protect",
     "lint-staged": "lint-staged",
     "detect-secrets": "node task/detect-secrets",
-    "tsc": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json"
+    "tsc": "rm -rf es/ && rm -rf lib/cjs && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json"
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
