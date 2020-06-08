@@ -42,5 +42,4 @@ package-lock.json
 /example/node_modules/
 /example/public/index.js
 
-cjs
 es
