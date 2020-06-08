@@ -1,6 +1,6 @@
 /* eslint max-len: [0] */
 module.exports = {
-  extends: 'airbnb',
+  extends: ['airbnb', 'eslint-config-ali/typescript'],
   parserOptions: {
     ecmaFeatures: {
       experimentalObjectRestSpread: true,
