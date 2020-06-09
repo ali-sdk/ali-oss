@@ -34,8 +34,10 @@
     "prepublish": "npm run snyk-protect",
     "lint-staged": "lint-staged",
     "detect-secrets": "node task/detect-secrets",
-    "tsc": "rm -rf es/ && rm -rf lib/cjs && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
-    "tsc:w": "rm -rf es/ && rm -rf lib/cjs && tsc -w -p tsconfig.json && tsc -w -p tsconfig-cjs.json"
+    "tsc": "npm run tsc:clean && tsc:build",
+    "tsc:build": "tsc -b tsconfig.json tsconfig-cjs.json",
+    "tsc:watch": "tsc -b tsconfig.json tsconfig-cjs.json --watch",
+    "tsc:clean": "tsc -b tsconfig.json tsconfig-cjs.json --clean "
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
