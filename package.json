@@ -67,6 +67,7 @@
   },
   "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
   "devDependencies": {
+    "@types/node": "^14.0.12",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "aliasify": "^2.0.0",

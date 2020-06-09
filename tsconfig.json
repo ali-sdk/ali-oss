@@ -13,12 +13,14 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./es",
     "rootDir": "./lib",
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "moduleResolution": "node"
   },
   "include": [
     "./lib"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "example"
   ]
 }
