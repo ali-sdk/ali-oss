@@ -1,5 +1,5 @@
 const { Stream } = require('stream');
-const isArray = require('../lib/common/utils/isArray');
+const { isArray } = require('../lib/common/utils/isArray');
 
 module.exports.string = function isString(obj) {
   return typeof obj === 'string';
