@@ -30,5 +30,6 @@ module.exports = {
     }],
     'no-buffer-constructor': [2],
     "comma-dangle": [2, "never"],
+    'import/prefer-default-export': [0],
   }
 };

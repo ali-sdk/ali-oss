@@ -1,4 +1,4 @@
-const _isIP = require('../../lib/common/utils/isIP');
+const { isIP: _isIP } = require('../../lib/common/utils/isIP');
 const { includesConf } = require('./utils');
 const assert = require('assert');
 
