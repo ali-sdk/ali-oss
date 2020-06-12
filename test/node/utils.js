@@ -15,8 +15,8 @@ const assert = require('assert');
 const fs = require('fs');
 const urlutil = require('url');
 const platform = require('platform');
-const isObject = require('../../lib/common/utils/isObject');
-const isArray = require('../../lib/common/utils/isArray');
+const { isObject } = require('../../lib/common/utils/isObject');
+const { isArray } = require('../../lib/common/utils/isArray');
 
 exports.throws = async function (block, checkError) {
   try {
@@ -74,8 +74,8 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
     }
     result[deleteKey] = result[deleteKey] || [];
 
-    await Promise.all(result[deleteKey].map(_ =>
-      store.delete(_.name, multiversion ?
+    await Promise.all(result[deleteKey]
+      .map(_ => store.delete(_.name, multiversion ?
         Object.assign({}, options, { versionId: _.versionId }) :
         options)));
   }

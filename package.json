@@ -33,7 +33,11 @@
     "snyk-protect": "snyk protect",
     "prepublish": "npm run snyk-protect",
     "lint-staged": "lint-staged",
-    "detect-secrets": "node task/detect-secrets"
+    "detect-secrets": "node task/detect-secrets",
+    "tsc": "npm run tsc:clean && tsc:build",
+    "tsc:build": "tsc -b tsconfig.json tsconfig-cjs.json",
+    "tsc:watch": "tsc -b tsconfig.json tsconfig-cjs.json --watch",
+    "tsc:clean": "tsc -b tsconfig.json tsconfig-cjs.json --clean "
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
@@ -63,6 +67,9 @@
   },
   "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
   "devDependencies": {
+    "@types/node": "^14.0.12",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
     "aliasify": "^2.0.0",
     "autod": "^2.6.1",
     "babel-plugin-transform-regenerator": "^6.26.0",
@@ -78,9 +85,10 @@
     "co-fs": "^1.2.0",
     "co-mocha": "^1.2.1",
     "crypto-js": "^3.1.9-1",
-    "eslint": "^6.7.2",
+    "eslint": "^6.8.0",
     "eslint-config-airbnb": "^16.1.0",
-    "eslint-plugin-import": "^2.9.0",
+    "eslint-config-ali": "^9.0.2",
+    "eslint-plugin-import": "^2.21.1",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.7.0",
     "filereader": "^0.10.3",
@@ -105,6 +113,7 @@
     "stream-equal": "^1.1.0",
     "thunk-mocha": "^1.0.3",
     "timemachine": "^0.3.0",
+    "typescript": "^3.9.5",
     "uglify-js": "^2.8.29",
     "watchify": "^3.9.0"
   },

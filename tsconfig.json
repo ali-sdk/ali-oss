@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "ES2020",
+    "declaration": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./es",
+    "rootDir": "./lib",
+    "noImplicitAny": false,
+    "moduleResolution": "node"
+  },
+  "include": [
+    "./lib"
+  ],
+  "exclude": [
+    "node_modules",
+    "example"
+  ]
+}
