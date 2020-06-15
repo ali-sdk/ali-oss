@@ -12,12 +12,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./es",
-    "rootDir": "./lib",
+    "rootDir": "./src",
     "noImplicitAny": false,
     "moduleResolution": "node"
   },
   "include": [
-    "./lib"
+    "./src"
   ],
   "exclude": [
     "node_modules",
