@@ -33,20 +33,14 @@ describe('test/multipart.test.js', () => {
         'max-uploads': 1000
       });
       const uploads = result.uploads || [];
-      for (let i = 0; i < uploads.length; i++) {
-        const up = uploads[i];
-        /* eslint no-await-in-loop: [0] */
-        await store.abortMultipartUpload(up.name, up.uploadId);
-      }
+      await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
     });
 
     it('should list by key marker', async () => {
       const name = `${prefix}multipart/list-key`;
-      const ids = [];
-      for (let i = 0; i < 5; i++) {
-        const result = await store.initMultipartUpload(name + i);
-        ids.push(result.uploadId);
-      }
+      const ids = (await Promise.all(Array(5)
+        .fill(1).map((v, i) => store.initMultipartUpload(name + i))))
+        .map(_ => _.uploadId);
       // list all uploads
       let result = await store.listUploads({
         'max-uploads': 10
@@ -73,12 +67,10 @@ describe('test/multipart.test.js', () => {
 
     it('should list by id marker', async () => {
       const name = `${prefix}multipart/list-id`;
-      const ids = [];
-      for (let i = 0; i < 5; i++) {
-        const result = await store.initMultipartUpload(name);
-        ids.push(result.uploadId);
-      }
-      ids.sort();
+      const ids = (await Promise.all(Array(5)
+        .fill(1)
+        .map(_ => store.initMultipartUpload(name))))
+        .map(_ => _.uploadId).sort();
 
       // list all uploads
       let result = await store.listUploads({
@@ -106,20 +98,18 @@ describe('test/multipart.test.js', () => {
 
     it('should list by id & key marker', async () => {
       const fooName = `${prefix}multipart/list-foo`;
-      const fooIds = [];
-      for (let i = 0; i < 5; i++) {
-        const result = await store.initMultipartUpload(fooName);
-        fooIds.push(result.uploadId);
-      }
-      fooIds.sort();
+      const fooIds = (await Promise.all(Array(5)
+        .fill(1)
+        .map(_ => store.initMultipartUpload(fooName))))
+        .map(_ => _.uploadId)
+        .sort();
 
       const barName = `${prefix}multipart/list-bar`;
-      const barIds = [];
-      for (let i = 0; i < 5; i++) {
-        const result = await store.initMultipartUpload(barName);
-        barIds.push(result.uploadId);
-      }
-      barIds.sort();
+      const barIds = (await Promise.all(Array(5)
+        .fill(5)
+        .map(_ => store.initMultipartUpload(barName))))
+        .map(_ => _.uploadId)
+        .sort();
 
       // after 1
       let result = await store.listUploads({
@@ -410,16 +400,21 @@ describe('test/multipart.test.js', () => {
       const init = await store.initMultipartUpload(name);
       const { uploadId } = init;
       const partSize = 100 * 1024;
-      const dones = [];
-      for (let i = 1; i <= 10; i++) {
-        const start = (i - 1) * partSize;
-        const end = Math.min(i * partSize, 10 * 100 * 1024);
-        const part = await store.uploadPart(name, uploadId, i, fileName, start, end);
-        dones.push({
-          number: i,
-          etag: part.etag
-        });
-      }
+      const parts = await Promise.all(Array(10)
+        .fill(1)
+        .map((v, i) =>
+          store.uploadPart(
+            name,
+            uploadId,
+            i + 1,
+            fileName,
+            i * partSize,
+            Math.min((i + 1) * partSize, 10 * 100 * 1024)
+          )));
+      const dones = parts.map((_, i) => ({
+        number: i + 1,
+        etag: _.etag
+      }));
 
       const result = await store.completeMultipartUpload(name, uploadId, dones);
       assert.equal(result.res.status, 200);
@@ -562,21 +557,25 @@ describe('test/multipart.test.js', () => {
 
       const partSize = 100 * 1024;// 100kb
       const dones = [];
-      // if file part is 10
-      for (let i = 1; i <= 10; i++) {
+      const uploadFn = async (i) => {
         const start = partSize * (i - 1);
         const end = Math.min(start + partSize, fileSize);
         const range = `${start}-${end - 1}`;
-        /* eslint no-await-in-loop: [0] */
-        const part = await client.uploadPartCopy(
-          copyName
-          , result.uploadId, i, range, sourceData, {},
+        const part = await store.uploadPartCopy(
+          copyName,
+          result.uploadId,
+          i,
+          range,
+          sourceData,
+          {}
         );
         dones.push({
           number: i,
           etag: part.res.headers.etag
         });
-      }
+      };
+
+      await Promise.all(Array(10).fill(1).map((v, i) => uploadFn(i + 1)));
 
       const complete = await client.completeMultipartUpload(copyName, result.uploadId, dones);
 

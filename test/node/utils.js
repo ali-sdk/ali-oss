@@ -15,8 +15,8 @@ const assert = require('assert');
 const fs = require('fs');
 const urlutil = require('url');
 const platform = require('platform');
-const isObject = require('../../lib/common/utils/isObject');
-const isArray = require('../../lib/common/utils/isArray');
+const { isObject } = require('../../lib/common/utils/isObject');
+const { isArray } = require('../../lib/common/utils/isArray');
 
 exports.throws = async function (block, checkError) {
   try {
@@ -73,13 +73,11 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
       });
     }
     result[deleteKey] = result[deleteKey] || [];
-    for (let i = 0; i < result[deleteKey].length; i++) {
-      const obj = result[deleteKey][i];
-      if (multiversion) {
-        options.versionId = obj.versionId;
-      }
-      await store.delete(obj.name, options);
-    }
+
+    await Promise.all(result[deleteKey]
+      .map(_ => store.delete(_.name, multiversion ?
+        Object.assign({}, options, { versionId: _.versionId }) :
+        options)));
   }
   await handleDelete('objects');
   if (multiversion) {
@@ -90,11 +88,10 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
     'max-uploads': 1000
   });
   const uploads = result.uploads || [];
-  /* eslint no-await-in-loop: [0] */
-  for (let i = 0; i < uploads.length; i++) {
-    const up = uploads[i];
-    await store.abortMultipartUpload(up.name, up.uploadId);
-  }
+  await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
+
+  const channels = (await store.listChannels()).channels.map(_ => _.Name);
+  await Promise.all(channels.map(_ => store.deleteChannel(_)));
   await store.deleteBucket(bucket);
 };
 

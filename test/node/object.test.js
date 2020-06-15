@@ -1736,25 +1736,20 @@ describe('test/object.test.js', () => {
       };
 
       const names = [];
-      /* eslint no-restricted-syntax: [0] */
-      /* eslint guard-for-in: [0] */
-      /* eslint no-await-in-loop: [0] */
-      for (const k in keys) {
-        const key = prefixz + keys[k];
+      const keyEncodingPut = async (kv) => {
+        const key = `${prefixz}${kv}`;
         let result = await store.put(key, Buffer.from(''));
         assert.equal(result.res.status, 200);
-
         result = await store.list({
           prefixz
         });
         const objects = result.objects.map(obj => obj.name);
         assert(objects.indexOf(key) >= 0);
-
         result = await store.head(key);
         assert.equal(result.res.status, 200);
-
-        names.push(keys[k]);
-      }
+        names.push(kv);
+      };
+      await Promise.all(Object.values(keys).map(kv => keyEncodingPut(kv)));
 
       const result = await store.deleteMulti(names);
       assert.equal(result.res.status, 200);
