@@ -35,3 +35,11 @@ export declare function _signatureForURL(accessKeySecret: any, options: any, res
     Signature: string;
     subResource: any;
 };
+declare const _default: {
+    buildCanonicalizedResource: typeof buildCanonicalizedResource;
+    buildCanonicalString: typeof buildCanonicalString;
+    computeSignature: typeof computeSignature;
+    authorization: typeof authorization;
+    _signatureForURL: typeof _signatureForURL;
+};
+export default _default;

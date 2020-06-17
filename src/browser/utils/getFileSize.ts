@@ -9,6 +9,6 @@ export async function getFileSize(file) {
     return file.size;
   }
 
-  throw new Error('_getFileSize requires Buffer/File/Blob.');
+  throw new Error('getFileSize requires Buffer/File/Blob.');
 }
 

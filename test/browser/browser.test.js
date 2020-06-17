@@ -986,8 +986,8 @@ describe('browser', () => {
         const file = new File(['multipart-fallback-test'], 'multipart-fallback');
         const name = `${prefix}multipart/fallback`;
         let progress = 0;
-        const putStreamSpy = sinon.spy(store, 'putStream');
-        const uploadPartSpy = sinon.spy(store, '_uploadPart');
+        const putStreamSpy = sinon.spy(store, '_createStream');
+        const uploadPartSpy = sinon.spy(store, 'handleUploadPart');
         const result = await store.multipartUpload(name, file, {
           progress() {
             progress++;
@@ -1000,17 +1000,17 @@ describe('browser', () => {
         assert.equal(typeof result.etag, 'string');
 
         assert.equal(progress, 1);
-        store.putStream.restore();
-        store._uploadPart.restore();
+        store._createStream.restore();
+        store.handleUploadPart.restore();
       });
 
       it('should use default partSize when not specified', () => {
-        const partSize = store._getPartSize(1024 * 1024, null);
+        const partSize = store.getPartSize(1024 * 1024, null);
         assert.equal(partSize, 1024 * 1024);
       });
 
       it('should use user specified partSize', () => {
-        const partSize = store._getPartSize(1024 * 1024, 200 * 1024);
+        const partSize = store.getPartSize(1024 * 1024, 200 * 1024);
         assert.equal(partSize, 200 * 1024);
       });
 
@@ -1018,7 +1018,7 @@ describe('browser', () => {
         const fileSize = 10 * 1024 * 1024 * 1024;
         const maxNumParts = 10 * 1000;
 
-        const partSize = store._getPartSize(fileSize, 100 * 1024);
+        const partSize = store.getPartSize(fileSize, 100 * 1024);
         assert.equal(partSize, Math.ceil(fileSize / maxNumParts));
       });
 
@@ -1072,32 +1072,24 @@ describe('browser', () => {
 
         const name = `${prefix}multipart/upload-file-exception`;
 
-        const stubUploadPart = sinon.stub(store, '_uploadPart');
+        const stubUploadPart = sinon.stub(store, '_createStream');
         const testUploadPartException = new Error();
         testUploadPartException.name = 'TestUploadPartException';
         testUploadPartException.status = 403;
         stubUploadPart.throws(testUploadPartException);
 
         let errorMsg = '';
-        let partNumz = 0;
-        let errStatus = 0;
+        let errStatus;
         try {
           await store.multipartUpload(name, file, {
-            progress() {
-            },
             partSize: 100 * 1024
           });
         } catch (err) {
           errorMsg = err.message;
-          partNumz = err.partNum;
           errStatus = err.status;
         }
-        store._uploadPart.restore();
-        assert.equal(
-          errorMsg,
-          'Failed to upload some parts with error: TestUploadPartException part_num: 1'
-        );
-        assert.equal(partNumz, 1);
+        store._createStream.restore();
+        assert(errorMsg.includes('Failed to upload some parts with error: TestUploadPartException part_num:'))
         assert.equal(errStatus, 403);
       });
 

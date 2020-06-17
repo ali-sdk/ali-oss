@@ -173,3 +173,11 @@ export function _signatureForURL(accessKeySecret, options: any = {}, resource, e
   };
 }
 
+export default {
+  buildCanonicalizedResource,
+  buildCanonicalString,
+  computeSignature,
+  authorization,
+  _signatureForURL
+};
+

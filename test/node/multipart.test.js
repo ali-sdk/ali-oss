@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 
 const fs = require('fs');
 const assert = require('assert');
@@ -166,8 +167,8 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/fallback`;
       let progress = 0;
 
-      const putStreamSpy = sinon.spy(store, 'putStream');
-      const uploadPartSpy = sinon.spy(store, '_uploadPart');
+      const _createStream = sinon.spy(store, '_createStream');
+      const uploadPartSpy = sinon.spy(store, 'handleUploadPart');
 
       const result = await store.multipartUpload(name, fileName, {
         progress() {
@@ -175,25 +176,25 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(putStreamSpy.callCount, 1);
+      assert.equal(_createStream.callCount, 1);
       assert.equal(uploadPartSpy.callCount, 0);
       assert.equal(progress, 1);
 
       assert.equal(typeof result.bucket, 'string');
       assert.equal(typeof result.etag, 'string');
 
-      store.putStream.restore();
-      store._uploadPart.restore();
+      store._createStream.restore();
+      store.handleUploadPart.restore();
     });
 
     /* eslint require-yield: [0] */
     it('should use default partSize when not specified', () => {
-      const partSize = store._getPartSize(1024 * 1024, null);
+      const partSize = store.getPartSize(1024 * 1024, null);
       assert.equal(partSize, 1 * 1024 * 1024);
     });
 
     it('should use user specified partSize', () => {
-      const partSize = store._getPartSize(1024 * 1024, 200 * 1024);
+      const partSize = store.getPartSize(1024 * 1024, 200 * 1024);
       assert.equal(partSize, 200 * 1024);
     });
 
@@ -201,7 +202,7 @@ describe('test/multipart.test.js', () => {
       const fileSize = 10 * 1024 * 1024 * 1024;
       const maxNumParts = 10 * 1000;
 
-      const partSize = store._getPartSize(fileSize, 100 * 1024);
+      const partSize = store.getPartSize(fileSize, 100 * 1024);
       assert.equal(partSize, Math.ceil(fileSize / maxNumParts));
     });
 
@@ -236,7 +237,7 @@ describe('test/multipart.test.js', () => {
       const clientTmp = oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
 
-      const stubUploadPart = sinon.stub(clientTmp, '_uploadPart');
+      const stubUploadPart = sinon.stub(clientTmp, '_createStream');
       stubUploadPart.throws('TestUploadPartException');
 
 
@@ -253,7 +254,7 @@ describe('test/multipart.test.js', () => {
         'Failed to upload some parts with error: TestUploadPartException part_num: 1',
       );
       assert.equal(errPartNum, 1);
-      clientTmp._uploadPart.restore();
+      clientTmp._createStream.restore();
     });
 
     it('should upload web file using multipart upload', async () => {
@@ -332,14 +333,6 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should resume upload using checkpoint', async () => {
-      const uploadPart = store._uploadPart;
-      mm(store, '_uploadPart', function* (name, uploadId, partNo, data) {
-        if (partNo === 5) {
-          throw new Error('mock upload part fail.');
-        } else {
-          return uploadPart.call(this, name, uploadId, partNo, data);
-        }
-      });
 
       // create a file with 1M random data
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);
@@ -353,6 +346,7 @@ describe('test/multipart.test.js', () => {
           progress(percent, cpt) {
             progress++;
             fs.writeFileSync(cptFile, JSON.stringify(cpt));
+            store._stop(); // stop
           }
         });
         // should not succeed
@@ -361,7 +355,6 @@ describe('test/multipart.test.js', () => {
         // pass
       }
 
-      mm.restore();
       const result = await store.multipartUpload(name, fileName, {
         checkpoint: JSON.parse(fs.readFileSync(cptFile)),
         progress() {

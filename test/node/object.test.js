@@ -298,7 +298,7 @@ describe('test/object.test.js', () => {
 
     it('should add object with readstream', async () => {
       const name = `${prefix}ali-sdk/oss/put-readstream`;
-      const stat = await store._statFile(__filename);
+      const stat = await store.statFile(__filename);
       const object = await store.put(name, fs.createReadStream(__filename), {
         headers: {
           'Content-Length': stat.size

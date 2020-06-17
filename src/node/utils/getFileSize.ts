@@ -12,5 +12,5 @@ export async function getFileSize(file) {
     return stat.size;
   }
 
-  throw new Error('_getFileSize requires Buffer/File/String.');
+  throw new Error('getFileSize requires Buffer/File/String.');
 }
