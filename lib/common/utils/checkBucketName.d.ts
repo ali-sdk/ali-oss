@@ -1,1 +1,1 @@
-export declare const checkBucketName: (name: string, createBucket: boolean) => void;
+export declare const checkBucketName: (name: string, createBucket?: boolean) => void;

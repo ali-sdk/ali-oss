@@ -24,7 +24,7 @@ import { policy2Str } from './policy2Str';
 import { WebFileReadStream } from './webFileReadStream';
 declare const _default: {
     authorization: typeof authorization;
-    checkBucketName: (name: string, createBucket: boolean) => void;
+    checkBucketName: (name: string, createBucket?: boolean) => void;
     checkBucketTag: (tag: object) => void;
     checkObjectTag: typeof checkObjectTag;
     checkUserAgent: (ua: any) => any;
