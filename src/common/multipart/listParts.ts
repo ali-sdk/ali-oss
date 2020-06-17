@@ -1,5 +1,4 @@
 import copy from 'copy-to';
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 /**
  * List the done uploadPart parts
@@ -19,7 +18,7 @@ export async function listParts(this: any, name, uploadId, query, options = {}) 
   opt.subres = {
     uploadId
   };
-  const params = objectRequestParams('GET', name, this.options.bucket, opt);
+  const params = this._objectRequestParams('GET', name, opt);
   params.query = query;
   params.xmlResponse = true;
   params.successStatuses = [200];

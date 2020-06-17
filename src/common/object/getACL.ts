@@ -1,5 +1,4 @@
 import { objectName } from '../utils/objectName'
-import { objectRequestParams } from '../utils/objectRequestParams'
 
 /*
  * Get object's ACL
@@ -15,7 +14,7 @@ export async function getACL(this: any, name: string, options: any = {}) {
   }
   name = objectName(name);
 
-  const params = objectRequestParams('GET', name, this.options.bucket, options);
+  const params = this._objectRequestParams('GET', name, options);
   params.successStatuses = [200];
   params.xmlResponse = true;
 

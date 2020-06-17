@@ -7,7 +7,6 @@ import { isFile } from '../../common/utils/isFile';
 import { objectName } from '../../common/utils/objectName';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { objectUrl } from '../../common/utils/objectUrl';
-import { objectRequestParams } from '../../common/utils/objectRequestParams';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 
@@ -62,7 +61,7 @@ export async function put(this: any, name, file, options: any = {}) {
   convertMetaToHeaders(options.meta, options.headers);
 
   const method = options.method || 'PUT';
-  const params = objectRequestParams(method, name, this.options.bucket, options);
+  const params = this._objectRequestParams(method, name, options);
   encodeCallback(params, options);
   params.mime = options.mime;
   params.content = content;

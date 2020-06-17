@@ -1,10 +1,9 @@
 import { objectUrl } from '../utils/objectUrl'
-import { objectRequestParams } from '../utils/objectRequestParams'
 
 export async function list(this: any, query, options) {
   // prefix, marker, max-keys, delimiter
 
-  const params = objectRequestParams('GET', '', this.options.bucket, options);
+  const params = this._objectRequestParams('GET', '', options);
   params.query = query;
   params.xmlResponse = true;
   params.successStatuses = [200];

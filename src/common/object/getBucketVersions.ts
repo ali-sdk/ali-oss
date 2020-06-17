@@ -1,6 +1,5 @@
 import { formatQuery } from '../utils/formatQuery';
 import { isArray } from '../utils/isArray';
-import { objectRequestParams } from '../utils/objectRequestParams';
 import { objectUrl } from '../utils/objectUrl';
 
 
@@ -17,7 +16,7 @@ export async function getBucketVersions(this: any, query: any = {}, options: any
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = objectRequestParams('GET', '', this.options.bucket, options);
+  const params = this._objectRequestParams('GET', '', options);
   params.xmlResponse = true;
   params.successStatuses = [200];
 

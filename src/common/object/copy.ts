@@ -1,6 +1,5 @@
 import { getSourceName } from '../utils/getSourceName';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 export async function copy(this: any, name, sourceName, bucketName?, options?: any) {
   if (typeof bucketName === 'object') {
@@ -25,7 +24,7 @@ export async function copy(this: any, name, sourceName, bucketName?, options?: a
 
   options.headers['x-oss-copy-source'] = sourceName;
 
-  const params = objectRequestParams('PUT', name, this.options.bucket, options);
+  const params = this._objectRequestParams('PUT', name, options);
   params.xmlResponse = true;
   params.successStatuses = [200, 304];
 

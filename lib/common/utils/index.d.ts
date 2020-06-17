@@ -18,7 +18,6 @@ import { isBlob } from './isBlob';
 import { mergeDefault } from './mergeDefault';
 import { obj2xml } from './obj2xml';
 import { objectName } from './objectName';
-import { objectRequestParams } from './objectRequestParams';
 import { objectUrl } from './objectUrl';
 import { parseXML } from './parseXML';
 import { policy2Str } from './policy2Str';
@@ -53,7 +52,7 @@ declare const _default: {
     mergeDefault: typeof mergeDefault;
     obj2xml: typeof obj2xml;
     objectName: typeof objectName;
-    objectRequestParams: typeof objectRequestParams;
+    _objectName: typeof objectName;
     objectUrl: typeof objectUrl;
     parseXML: typeof parseXML;
     policy2Str: typeof policy2Str;

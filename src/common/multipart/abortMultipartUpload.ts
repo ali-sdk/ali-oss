@@ -1,5 +1,4 @@
 import copy from 'copy-to';
-import { objectRequestParams } from '../utils/objectRequestParams';
 import { _stop } from '../client/_stop';
 
 /**
@@ -14,7 +13,7 @@ export async function abortMultipartUpload(this: any, name, uploadId, options) {
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = { uploadId };
-  const params = objectRequestParams('DELETE', name, this.options.bucket, opt);
+  const params = this._objectRequestParams('DELETE', name, opt);
   params.successStatuses = [204];
 
   const result = await this.request(params);

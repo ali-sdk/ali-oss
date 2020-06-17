@@ -1,5 +1,4 @@
 import { deepCopy } from '../utils/deepCopy';
-import { objectRequestParams } from '../utils/objectRequestParams';
 import { encodeCallback } from '../utils/encodeCallback';
 import { obj2xml } from '../utils/obj2xml';
 
@@ -42,7 +41,7 @@ export async function completeMultipartUpload(this: any, name, uploadId, parts, 
   if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
   opt.subres = { uploadId };
 
-  const params = objectRequestParams('POST', name, this.options.bucket, opt);
+  const params = this._objectRequestParams('POST', name, opt);
   encodeCallback(params, opt);
   params.mime = 'xml';
   params.content = obj2xml(xmlParamObj, { headers: true });

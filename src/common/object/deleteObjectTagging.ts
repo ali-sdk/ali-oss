@@ -1,5 +1,4 @@
 import { objectName } from '../utils/objectName';
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 /**
  * deleteObjectTagging
@@ -13,7 +12,7 @@ export async function deleteObjectTagging(this: any, name: string, options: any 
     options.subres.versionId = options.versionId;
   }
   name = objectName(name);
-  const params = objectRequestParams('DELETE', name, this.options.bucket, options);
+  const params = this._objectRequestParams('DELETE', name, options);
   params.successStatuses = [204];
   const result = await this.request(params);
 

@@ -1,7 +1,6 @@
 import { obj2xml } from '../utils/obj2xml';
 import { checkObjectTag } from '../utils/checkObjectTag';
 import { objectName } from '../utils/objectName';
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 /**
  * putObjectTagging
@@ -18,7 +17,7 @@ export async function putObjectTagging(this: any, name: string, tag: object, opt
     options.subres.versionId = options.versionId;
   }
   name = objectName(name);
-  const params = objectRequestParams('PUT', name, this.options.bucket, options);
+  const params = this._objectRequestParams('PUT', name, options);
   params.successStatuses = [200];
   tag = Object.keys(tag).map(key => ({
     Key: key,

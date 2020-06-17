@@ -2,7 +2,6 @@
 import utility from 'utility';
 import { obj2xml } from '../utils/obj2xml';
 import { objectName } from '../utils/objectName';
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 export async function deleteMulti(this: any, names, options: any = {}) {
   const objects: any[] = [];
@@ -36,7 +35,7 @@ export async function deleteMulti(this: any, names, options: any = {}) {
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = objectRequestParams('POST', '', this.options.bucket, options);
+  const params = this._objectRequestParams('POST', '', options);
   params.mime = 'xml';
   params.content = paramXML;
   params.xmlResponse = true;

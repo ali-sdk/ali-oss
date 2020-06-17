@@ -1,4 +1,3 @@
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 /**
  * Restore Object
@@ -13,7 +12,7 @@ export async function restore(this: any, name, options) {
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = objectRequestParams('POST', name, this.options.bucket, options);
+  const params = this._objectRequestParams('POST', name, options);
   params.successStatuses = [202];
 
   const result = await this.request(params);

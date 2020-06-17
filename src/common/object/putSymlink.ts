@@ -1,7 +1,6 @@
 
 import { objectName } from '../utils/objectName';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
-import { objectRequestParams } from '../utils/objectRequestParams';
 import { escapeName } from '../utils/escapeName';
 
 /**
@@ -28,7 +27,7 @@ export async function putSymlink(this: any, name: string, targetName: string, op
   }
   name = objectName(name);
 
-  const params = objectRequestParams('PUT', name, this.options.bucket, options);
+  const params = this._objectRequestParams('PUT', name, options);
   params.successStatuses = [200];
   const result = await this.request(params);
 

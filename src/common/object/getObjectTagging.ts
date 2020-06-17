@@ -1,5 +1,4 @@
 import { objectName } from '../utils/objectName';
-import { objectRequestParams } from '../utils/objectRequestParams';
 import { formatTag } from '../utils/formatTag';
 import { parseXML } from '../utils/parseXML';
 /**
@@ -15,7 +14,7 @@ export async function getObjectTagging(this: any, name: string, options: any = {
     options.subres.versionId = options.versionId;
   }
   name = objectName(name);
-  const params = objectRequestParams('GET', name, this.options.bucket, options);
+  const params = this._objectRequestParams('GET', name, options);
   params.successStatuses = [200];
   const result = await this.request(params);
   const Tagging = await parseXML(result.data);

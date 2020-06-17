@@ -1,5 +1,4 @@
 import { objectName } from '../utils/objectName';
-import { objectRequestParams } from '../utils/objectRequestParams';
 /**
  * getSymlink
  * @param {String} name - object name
@@ -14,7 +13,7 @@ export async function getSymlink(this: any, name, options: any = {}) {
     options.subres.versionId = options.versionId;
   }
   name = objectName(name);
-  const params = objectRequestParams('GET', name, this.options.bucket, options);
+  const params = this._objectRequestParams('GET', name, options);
   params.successStatuses = [200];
   const result = await this.request(params);
   const target = result.res.headers['x-oss-symlink-target'];

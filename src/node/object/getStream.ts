@@ -1,4 +1,3 @@
-import { objectRequestParams } from '../../common/utils/objectRequestParams';
 
 export async function getStream(this: any, name, options: any = {}) {
   if (options.process) {
@@ -6,7 +5,7 @@ export async function getStream(this: any, name, options: any = {}) {
     options.subres['x-oss-process'] = options.process;
   }
 
-  const params = objectRequestParams('GET', name, this.options.bucket, options);
+  const params = this._objectRequestParams('GET', name, options);
   params.customResponse = true;
   params.successStatuses = [200, 206, 304];
 

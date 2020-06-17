@@ -1,6 +1,4 @@
 import copy from 'copy-to';
-import { objectRequestParams } from '../utils/objectRequestParams';
-
 /**
  * Upload a part in a multipart upload transaction
  * @param {String} name the object name
@@ -21,7 +19,7 @@ export async function handleUploadPart(this: any, name, uploadId, partNo, data, 
     partNumber: partNo,
     uploadId
   };
-  const params = objectRequestParams('PUT', name, this.options.bucket, opt);
+  const params = this._objectRequestParams('PUT', name, opt);
   params.mime = opt.mime;
   params.stream = data.stream;
   params.successStatuses = [200];

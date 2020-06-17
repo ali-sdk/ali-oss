@@ -4,7 +4,6 @@ import { objectName } from '../../common/utils/objectName';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
-import { objectRequestParams } from '../../common/utils/objectRequestParams';
 
 /**
  * put an object from ReadableStream. If `options.contentLength` is
@@ -26,7 +25,7 @@ export async function putStream(this: any, name, stream, options) {
   convertMetaToHeaders(options.meta, options.headers);
 
   const method = options.method || 'PUT';
-  const params = objectRequestParams(method, name, this.options.bucket, options);
+  const params = this._objectRequestParams(method, name, options);
   encodeCallback(params, options);
   params.mime = options.mime;
 

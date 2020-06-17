@@ -1,4 +1,3 @@
-import { objectRequestParams } from '../utils/objectRequestParams';
 /**
  * head
  * @param {String} name - object name
@@ -11,7 +10,7 @@ export async function head(this: any, name: string, options: any = {}) {
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = objectRequestParams('HEAD', name, this.options.bucket, options);
+  const params = this._objectRequestParams('HEAD', name, options);
   params.successStatuses = [200, 304];
 
   const result = await this.request(params);

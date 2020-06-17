@@ -1,5 +1,4 @@
 import copy from 'copy-to';
-import { objectRequestParams } from '../utils/objectRequestParams';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
 
 export async function initMultipartUpload(this: any, name, options: any = {}) {
@@ -9,7 +8,7 @@ export async function initMultipartUpload(this: any, name, options: any = {}) {
   convertMetaToHeaders(options.meta, opt.headers);
 
   opt.subres = 'uploads';
-  const params = objectRequestParams('POST', name, this.options.bucket, opt);
+  const params = this._objectRequestParams('POST', name, opt);
   params.mime = options.mime;
   params.xmlResponse = true;
   params.successStatuses = [200];

@@ -1,6 +1,5 @@
 import { obj2xml } from '../utils/obj2xml'
 import { objectName } from '../utils/objectName'
-import { objectRequestParams } from '../utils/objectRequestParams'
 
 /*
  * postAsyncFetch
@@ -38,7 +37,7 @@ export async function postAsyncFetch(this: any, object, url, options: any = {}):
     }
   };
 
-  const params = objectRequestParams('POST', '', this.options.bucket, options);
+  const params = this._objectRequestParams('POST', '', options);
   params.mime = 'xml';
   params.xmlResponse = true;
   params.successStatuses = [200];

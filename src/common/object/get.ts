@@ -1,6 +1,5 @@
 import fs from 'fs';
 import is from 'is-type-of';
-import { objectRequestParams } from '../utils/objectRequestParams';
 import { deleteFileSafe } from '../utils/deleteFileSafe';
 import { isObject } from '../utils/isObject';
 
@@ -36,7 +35,7 @@ export async function get(this: any, name, file, options: any = {}) {
 
   let result: { res: any; data: any; };
   try {
-    const params = objectRequestParams('GET', name, this.options.bucket, options);
+    const params = this._objectRequestParams('GET', name, options);
     params.writeStream = writeStream;
     params.successStatuses = [200, 206, 304];
 

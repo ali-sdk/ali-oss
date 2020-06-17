@@ -27,7 +27,6 @@ import { isObject } from './isObject';
 import { mergeDefault } from './mergeDefault';
 import { obj2xml } from './obj2xml';
 import { objectName } from './objectName';
-import { objectRequestParams } from './objectRequestParams';
 import { objectUrl } from './objectUrl';
 import { parseXML } from './parseXML';
 import { policy2Str } from './policy2Str';
@@ -64,7 +63,7 @@ export default {
   mergeDefault,
   obj2xml,
   objectName,
-  objectRequestParams,
+  _objectName: objectName,
   objectUrl,
   parseXML,
   policy2Str,

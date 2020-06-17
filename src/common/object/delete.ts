@@ -1,4 +1,3 @@
-import { objectRequestParams } from '../utils/objectRequestParams';
 /**
  * delete
  * @param {String} name - object name
@@ -11,7 +10,7 @@ export async function deleteObject(this: any, name: string, options: any = {}) {
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = objectRequestParams('DELETE', name, this.options.bucket, options);
+  const params = this._objectRequestParams('DELETE', name, options);
   params.successStatuses = [204];
 
   const result = await this.request(params);

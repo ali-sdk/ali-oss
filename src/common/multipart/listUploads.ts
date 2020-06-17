@@ -1,5 +1,4 @@
 import copy from 'copy-to';
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 /**
  * List the on-going multipart uploads
@@ -13,7 +12,7 @@ export async function listUploads(this: any, query, options) {
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = 'uploads';
-  const params = objectRequestParams('GET', '', this.options.bucket, opt);
+  const params = this._objectRequestParams('GET', '', opt);
   params.query = query;
   params.xmlResponse = true;
   params.successStatuses = [200];

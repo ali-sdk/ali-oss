@@ -1,12 +1,12 @@
 import copy from 'copy-to';
-import { objectName } from './objectName';
+import { objectName } from '../utils/objectName';
 
-export function objectRequestParams(method, name, bucket, options) {
+export function _objectRequestParams(this: any, method, name, options: any = {}) {
+  const { bucket } = this.options;
   if (!bucket) {
     throw new Error('Please create a bucket first');
   }
 
-  options = options || {};
   name = objectName(name);
   const params: any = {
     object: name,

@@ -1,5 +1,4 @@
 import { formatObjKey } from '../utils/formatObjKey';
-import { objectRequestParams } from '../utils/objectRequestParams';
 
 /*
  * getAsyncFetch
@@ -10,7 +9,7 @@ export async function getAsyncFetch(this: any, taskId, options: any = {}): Promi
   options.subres = Object.assign({ asyncFetch: '' }, options.subres);
   options.headers = options.headers || {};
 
-  const params = objectRequestParams('GET', '', this.options.bucket, options);
+  const params = this._objectRequestParams('GET', '', options);
   params.headers['x-oss-task-id'] = taskId;
   params.successStatuses = [200];
   params.xmlResponse = true;
