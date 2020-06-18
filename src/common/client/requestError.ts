@@ -55,6 +55,7 @@ export async function requestError(this: any, result) {
     err.code = info.Code;
     err.requestId = info.RequestId;
     err.hostId = info.HostId;
+    err.serverTime = info.ServerTime;
   }
 
   debug('generate error %j', err);
