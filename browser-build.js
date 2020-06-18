@@ -18,8 +18,18 @@ function build(options, callback) {
 
   console.error('Building with options: %j', options);
 
-  fs.writeFileSync(path.resolve(__dirname + '/lib/browser/version.js')
-    , 'exports.version="' + pkg.version+'"');
+  function writeVersion(location, version) {
+    const data = fs.readFileSync(location)
+    const content = data.toString().replace(/(.*exports.version = '|.*export const version = ')(.*?)('.*)/, (...args) => {
+      args = args.slice(1, 4)
+      args.splice(1, 1, version)
+      return args.join('')
+    })
+    fs.writeFileSync(location, content);
+  }
+  
+  writeVersion(path.resolve(__dirname, './lib/browser/version.js'), pkg.version)
+  writeVersion(path.resolve(__dirname, './src/browser/version.ts'), pkg.version)
   var browserify = require('browserify');
   var aliasify = require('aliasify');
   var babelify = require('babelify');
