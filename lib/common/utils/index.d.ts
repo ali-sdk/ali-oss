@@ -1,4 +1,5 @@
 import { authorization } from './authorization';
+import { checkBrowserAndVersion } from './checkBrowserAndVersion';
 import { checkObjectTag } from './checkObjectTag';
 import { checkValid } from './checkValid';
 import { convertMetaToHeaders } from './convertMetaToHeaders';
@@ -24,6 +25,7 @@ import { policy2Str } from './policy2Str';
 import { WebFileReadStream } from './webFileReadStream';
 declare const _default: {
     authorization: typeof authorization;
+    checkBrowserAndVersion: typeof checkBrowserAndVersion;
     checkBucketName: (name: string, createBucket?: boolean) => void;
     checkBucketTag: (tag: object) => void;
     checkObjectTag: typeof checkObjectTag;

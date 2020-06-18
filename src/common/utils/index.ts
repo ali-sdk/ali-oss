@@ -1,4 +1,5 @@
 import { authorization } from './authorization';
+import { checkBrowserAndVersion } from './checkBrowserAndVersion';
 import { checkBucketName } from './checkBucketName';
 import { checkBucketTag } from './checkBucketTag';
 import { checkObjectTag } from './checkObjectTag';
@@ -35,6 +36,7 @@ import { WebFileReadStream } from './webFileReadStream';
 
 export default {
   authorization,
+  checkBrowserAndVersion,
   checkBucketName,
   checkBucketTag,
   checkObjectTag,
