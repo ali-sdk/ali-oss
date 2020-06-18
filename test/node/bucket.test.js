@@ -220,6 +220,26 @@ describe('test/bucket.test.js', () => {
       }
     });
 
+    it('should list buckets by subres', async () => {
+      const tag = {
+        a: '1',
+        b: '2'
+      };
+      const putTagBukcet = `${listBucketsPrefix}0`;
+      await store.putBucketTags(putTagBukcet, tag);
+      const { buckets } = await store.listBuckets({
+        prefix: listBucketsPrefix,
+        subres: {
+          tagging: Object.entries(tag).map(_ => _.map(inner => `"${inner.toString()}"`).join(':')).join(',')
+        }
+      });
+
+      if (buckets && buckets.length && buckets[0]) {
+        assert.deepStrictEqual(buckets[0].tag, tag);
+      } else {
+        assert(false);
+      }
+    });
     after(async () => {
       await Promise.all(Array(2).fill(1).map((v, i) => store.deleteBucket(listBucketsPrefix + i)));
     });
