@@ -3,8 +3,10 @@ import copy from 'copy-to';
 import merge from 'merge-descriptors';
 import is from 'is-type-of';
 import { isIP } from '../utils/isIP';
+import { escapeName } from '../utils/escapeName'
 
 export function _getReqUrl(this: any, params) {
+  const _escape = this._escape || escapeName;
   const ep: any = {};
   copy(this.options.endpoint).to(ep);
   const _isIP = isIP(ep.hostname);
@@ -21,7 +23,7 @@ export function _getReqUrl(this: any, params) {
 
   if (params.object) {
     // Preserve '/' in result url
-    resourcePath += this._escape(params.object).replace(/\+/g, '%2B');
+    resourcePath += _escape(params.object).replace(/\+/g, '%2B');
   }
   ep.pathname = resourcePath;
 
