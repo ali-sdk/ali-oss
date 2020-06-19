@@ -1,7 +1,7 @@
 import urllib from 'urllib';
 import AgentKeepalive from 'agentkeepalive';
 import { getUserAgent } from './common/utils/getUserAgent';
-import initOptions from './common/client/initOptions';
+import { initOptions } from './common/client/initOptions';
 
 const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
 const globalHttpAgent = new AgentKeepalive();
