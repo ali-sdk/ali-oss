@@ -6,6 +6,8 @@ import { abortMultipartUpload } from './abortMultipartUpload';
 import { uploadPart } from './uploadPart';
 import { handleUploadPart } from './handleUploadPart';
 import { resumeMultipart } from './resumeMultipart';
+import { multipartUploadCopy } from './multipartUploadCopy';
+import { uploadPartCopy } from './uploadPartCopy';
 
 export default {
   completeMultipartUpload,
@@ -15,6 +17,8 @@ export default {
   abortMultipartUpload,
   uploadPart,
   handleUploadPart,
-  resumeMultipart
+  resumeMultipart,
+  multipartUploadCopy,
+  uploadPartCopy,
 };
 

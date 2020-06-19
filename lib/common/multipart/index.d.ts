@@ -6,6 +6,8 @@ import { abortMultipartUpload } from './abortMultipartUpload';
 import { uploadPart } from './uploadPart';
 import { handleUploadPart } from './handleUploadPart';
 import { resumeMultipart } from './resumeMultipart';
+import { multipartUploadCopy } from './multipartUploadCopy';
+import { uploadPartCopy } from './uploadPartCopy';
 declare const _default: {
     completeMultipartUpload: typeof completeMultipartUpload;
     initMultipartUpload: typeof initMultipartUpload;
@@ -15,5 +17,7 @@ declare const _default: {
     uploadPart: typeof uploadPart;
     handleUploadPart: typeof handleUploadPart;
     resumeMultipart: typeof resumeMultipart;
+    multipartUploadCopy: typeof multipartUploadCopy;
+    uploadPartCopy: typeof uploadPartCopy;
 };
 export default _default;

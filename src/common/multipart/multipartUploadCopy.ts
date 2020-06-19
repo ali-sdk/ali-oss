@@ -1,54 +1,10 @@
+import { _getObjectMeta } from "../utils/_getObjectMeta";
+import { initMultipartUpload } from "./initMultipartUpload";
+import { getPartSize } from "../utils/getPartSize";
+import copy from 'copy-to';
+import _debug from 'debug';
 
-const debug = require('debug')('ali-oss:multipart-copy');
-const copy = require('copy-to');
-
-const proto = exports;
-
-
-/**
- * Upload a part copy in a multipart from the source bucket/object
- * used with initMultipartUpload and completeMultipartUpload.
- * @param {String} name copy object name
- * @param {String} uploadId the upload id
- * @param {Number} partNo the part number
- * @param {String} range  like 0-102400  part size need to copy
- * @param {Object} sourceData
- *        {String} sourceData.sourceKey  the source object name
- *        {String} sourceData.sourceBucketName  the source bucket name
- * @param {Object} options
- */
-/* eslint max-len: [0] */
-proto.uploadPartCopy = async function uploadPartCopy(name, uploadId, partNo, range, sourceData, options = {}) {
-  options.headers = options.headers || {};
-  const versionId = options.versionId || (options.subres && options.subres.versionId) || null;
-  let copySource;
-  if (versionId) {
-    copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(sourceData.sourceKey)}?versionId=${versionId}`;
-  } else {
-    copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(sourceData.sourceKey)}`;
-  }
-
-  options.headers['x-oss-copy-source'] = copySource;
-  if (range) {
-    options.headers['x-oss-copy-source-range'] = `bytes=${range}`;
-  }
-
-  options.subres = {
-    partNumber: partNo,
-    uploadId
-  };
-  const params = this._objectRequestParams('PUT', name, options);
-  params.mime = options.mime;
-  params.successStatuses = [200];
-
-  const result = await this.request(params);
-
-  return {
-    name,
-    etag: result.res.headers.etag,
-    res: result.res
-  };
-};
+const debug = _debug('ali-oss:multipart-copy');
 
 /**
  * @param {String} name copy object name
@@ -60,19 +16,20 @@ proto.uploadPartCopy = async function uploadPartCopy(name, uploadId, partNo, ran
  * @param {Object} options
  *        {Number} options.partSize
  */
-proto.multipartUploadCopy = async function multipartUploadCopy(name, sourceData, options = {}) {
+
+export async function multipartUploadCopy(this: any, name: string, sourceData, options: any = {}) {
   this.resetCancelFlag();
   const { versionId = null } = options;
   const metaOpt = {
     versionId
   };
-  const objectMeta = await this._getObjectMeta(sourceData.sourceBucketName, sourceData.sourceKey, metaOpt);
+  const objectMeta = await _getObjectMeta.call(this, sourceData.sourceBucketName, sourceData.sourceKey, metaOpt);
   const fileSize = objectMeta.res.headers['content-length'];
   sourceData.startOffset = sourceData.startOffset || 0;
   sourceData.endOffset = sourceData.endOffset || fileSize;
 
   if (options.checkpoint && options.checkpoint.uploadId) {
-    return await this._resumeMultipartCopy(options.checkpoint, sourceData, options);
+    return await _resumeMultipartCopy.call(this, options.checkpoint, sourceData, options);
   }
 
   const minPartSize = 100 * 1024;
@@ -86,9 +43,9 @@ proto.multipartUploadCopy = async function multipartUploadCopy(name, sourceData,
     throw new Error(`partSize must not be smaller than ${minPartSize}`);
   }
 
-  const init = await this.initMultipartUpload(name, options);
+  const init = await initMultipartUpload.call(this, name, options);
   const { uploadId } = init;
-  const partSize = this.getPartSize(copySize, options.partSize);
+  const partSize = getPartSize(copySize, options.partSize);
 
   const checkpoint = {
     name,
@@ -102,7 +59,7 @@ proto.multipartUploadCopy = async function multipartUploadCopy(name, sourceData,
     await options.progress(0, checkpoint, init.res);
   }
 
-  return await this._resumeMultipartCopy(checkpoint, sourceData, options);
+  return await _resumeMultipartCopy.call(this, checkpoint, sourceData, options);
 };
 
 /*
@@ -111,7 +68,7 @@ proto.multipartUploadCopy = async function multipartUploadCopy(name, sourceData,
  * @param {Object} checkpoint the checkpoint
  * @param {Object} options
  */
-proto._resumeMultipartCopy = async function _resumeMultipartCopy(checkpoint, sourceData, options) {
+export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, options) {
   if (this.isCancel()) {
     throw this._makeCancelEvent();
   }
@@ -123,7 +80,7 @@ proto._resumeMultipartCopy = async function _resumeMultipartCopy(checkpoint, sou
     copySize, partSize, uploadId, doneParts, name
   } = checkpoint;
 
-  const partOffs = this._divideMultipartCopyParts(copySize, partSize, sourceData.startOffset);
+  const partOffs = _divideMultipartCopyParts(copySize, partSize, sourceData.startOffset);
   const numParts = partOffs.length;
 
   const uploadPartCopyOptions = {
@@ -167,7 +124,7 @@ proto._resumeMultipartCopy = async function _resumeMultipartCopy(checkpoint, sou
     });
   };
 
-  const all = Array.from(new Array(numParts), (x, i) => i + 1);
+  const all = Array.from(new Array(numParts), (_x, i) => i + 1);
   const done = doneParts.map(p => p.number);
   const todo = all.filter(p => done.indexOf(p) < 0);
   const defaultParallel = 5;
@@ -200,10 +157,11 @@ proto._resumeMultipartCopy = async function _resumeMultipartCopy(checkpoint, sou
   return await this.completeMultipartUpload(name, uploadId, doneParts, options);
 };
 
-proto._divideMultipartCopyParts = function _divideMultipartCopyParts(fileSize, partSize, startOffset) {
+
+export function _divideMultipartCopyParts(fileSize, partSize, startOffset) {
   const numParts = Math.ceil(fileSize / partSize);
 
-  const partOffs = [];
+  const partOffs: any = [];
   for (let i = 0; i < numParts; i++) {
     const start = (partSize * i) + startOffset;
     const end = Math.min(start + partSize, fileSize + startOffset);
@@ -215,18 +173,4 @@ proto._divideMultipartCopyParts = function _divideMultipartCopyParts(fileSize, p
   }
 
   return partOffs;
-};
-
-/**
- * Get Object Meta
- * @param {String} bucket  bucket name
- * @param {String} name   object name
- * @param {Object} options
- */
-proto._getObjectMeta = async function _getObjectMeta(bucket, name, options) {
-  const currentBucket = this.options.bucket;
-  this.setBucket(bucket);
-  const data = await this.head(name, options);
-  this.setBucket(currentBucket);
-  return data;
 };

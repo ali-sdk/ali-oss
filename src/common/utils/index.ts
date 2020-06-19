@@ -1,3 +1,4 @@
+import { _getObjectMeta } from './_getObjectMeta';
 import { authorization } from './authorization';
 import { checkBrowserAndVersion } from './checkBrowserAndVersion';
 import { checkBucketName } from './checkBucketName';
@@ -35,6 +36,7 @@ import signUtils from './signUtils';
 import { WebFileReadStream } from './webFileReadStream';
 
 export default {
+  _getObjectMeta,
   authorization,
   checkBrowserAndVersion,
   checkBucketName,
