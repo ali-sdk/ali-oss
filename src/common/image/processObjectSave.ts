@@ -1,8 +1,8 @@
 /* eslint-disable no-use-before-define */
-const { checkBucketName: _checkBucketName } = require('../utils/checkBucketName');
-const { objectName } = require('../utils/objectName');
-const querystring = require('querystring');
-const { Base64: { encode: str2Base64 } } = require('js-base64');
+import { checkBucketName as _checkBucketName } from '../utils/checkBucketName';
+import { objectName } from '../utils/objectName';
+import querystring from 'querystring';
+import { Base64 } from 'js-base64/Base64';
 
 export async function processObjectSave(this: any, sourceObject, targetObject, process, targetBucket) {
   checkArgs(sourceObject, 'sourceObject');
@@ -17,8 +17,8 @@ export async function processObjectSave(this: any, sourceObject, targetObject, p
     subres: 'x-oss-process'
   });
 
-  const bucketParam = targetBucket ? `,b_${str2Base64(targetBucket)}` : '';
-  targetObject = str2Base64(targetObject);
+  const bucketParam = targetBucket ? `,b_${Base64.encode(targetBucket)}` : '';
+  targetObject = Base64.encode(targetObject);
 
   const content = {
     'x-oss-process': `${process}|sys/saveas,o_${targetObject}${bucketParam}`
