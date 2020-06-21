@@ -1,4 +1,5 @@
 import _debug from 'debug';
+import { parseXML } from '../utils/parseXML';
 
 const debug = _debug('ali-oss');
 
@@ -59,7 +60,7 @@ export async function request(this: any, params) {
   }
 
   if (params.xmlResponse) {
-    result.data = await this.parseXML(result.data);
+    result.data = await parseXML(result.data);
   }
   return result;
 };

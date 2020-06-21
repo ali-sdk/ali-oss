@@ -1,4 +1,5 @@
 import _debug from 'debug';
+import { parseXML } from '../utils/parseXML';
 
 const debug = _debug('ali-oss');
 
@@ -34,9 +35,9 @@ export async function requestError(this: any, result) {
     const message = String(result.data);
     debug('request response error data: %s', message);
 
-    let info;
+    let info: any;
     try {
-      info = await this.parseXML(message) || {};
+      info = await parseXML(message) || {};
     } catch (error) {
       debug(message);
       error.message += `\nraw xml: ${message}`;

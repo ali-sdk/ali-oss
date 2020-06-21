@@ -11,12 +11,13 @@ export async function listBuckets(this: any, query: any = {}, options: any = {})
     Object.assign(subres, options.subres),
     options
   );
+  params.xmlResponse = true
   params.query = restParams || {}
 
   const result = await this.request(params);
 
   if (result.status === 200) {
-    const data = await this.parseXML(result.data);
+    const { data } = result;
     let buckets = data.Buckets || null;
     if (buckets) {
       if (buckets.Bucket) {
