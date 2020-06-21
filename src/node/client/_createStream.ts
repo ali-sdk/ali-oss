@@ -8,7 +8,7 @@ export function _createStream(file, start, end) {
     return file;
   } else if (isFile(file)) {
     return new WebFileReadStream(file.slice(start, end));
-  } else if (is.string(file)) {
+  } else if ((is as any).string(file)) {
     return fs.createReadStream(file, {
       start,
       end: end - 1

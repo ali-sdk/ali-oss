@@ -33,7 +33,7 @@ export async function get(this: any, name, file, options: any = {}) {
     options.subres['x-oss-process'] = options.process;
   }
 
-  let result: { res: any; data: any; };
+  let result: any;
   try {
     const params = this._objectRequestParams('GET', name, options);
     params.writeStream = writeStream;

@@ -32,9 +32,9 @@ export async function put(this: any, name, file, options) {
   options = options || {};
   name = objectName(name);
 
-  if (is.buffer(file)) {
+  if ((is as any).buffer(file)) {
     content = file;
-  } else if (is.string(file)) {
+  } else if ((is as any).string(file)) {
     options.mime = options.mime || mime.getType(path.extname(file));
     const stream = fs.createReadStream(file);
     options.contentLength = await getFileSize(file);

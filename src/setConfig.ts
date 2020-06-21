@@ -2,6 +2,7 @@ import urllib from 'urllib';
 import AgentKeepalive from 'agentkeepalive';
 import { getUserAgent } from './common/utils/getUserAgent';
 import { initOptions } from './common/client/initOptions';
+import base from './common/client'
 
 const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
 const globalHttpAgent = new AgentKeepalive();
@@ -25,6 +26,23 @@ class Client {
       return new Client(options, ctx);
     }
 
+    Object.keys(base).map(prop => {
+      Client.prototype[prop] = base[prop]
+    })
+
+    this.setConfig(options, ctx);
+  }
+
+  use(fn: Function) {
+    if(typeof fn === 'function') {
+      this[fn.name] = fn.bind(this);
+      Client.prototype[fn.name] = fn;
+      return this[fn.name]
+    }
+    return this;
+  }
+
+  setConfig(options, ctx) {
     if (options && options.inited) {
       this.options = options;
     } else {
@@ -44,11 +62,11 @@ class Client {
   }
 }
 
-let client;
+
 export const setConfig = (options, ctx) => {
-  client = new Client(options, ctx);
+  return new Client(options, ctx);
 };
 
 export {
-  client
+  Client
 };

@@ -1,6 +1,6 @@
 import { objectUrl } from '../utils/objectUrl'
 
-export async function list(this: any, query, options) {
+export async function list(this: any, query: any = {}, options: any = {}) {
   // prefix, marker, max-keys, delimiter
 
   const params = this._objectRequestParams('GET', '', options);
