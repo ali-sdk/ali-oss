@@ -33,11 +33,12 @@ class Client {
     this.setConfig(options, ctx);
   }
 
-  use(fn: Function) {
-    if(typeof fn === 'function') {
-      this[fn.name] = fn.bind(this);
-      Client.prototype[fn.name] = fn;
-      return this[fn.name]
+  use(...fn: any) {
+    if (Array.isArray(fn)) {
+      fn.filter(_ => typeof _ === 'function').forEach(f => {
+        this[f.name] = f.bind(this);
+        Client.prototype[f.name] = f;
+      })
     }
     return this;
   }
@@ -63,7 +64,7 @@ class Client {
 }
 
 
-export const setConfig = (options, ctx) => {
+export const initClient = (options, ctx) => {
   return new Client(options, ctx);
 };
 
