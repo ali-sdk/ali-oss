@@ -1,6 +1,7 @@
 import { divideParts } from '../../common/utils/divideParts';
 import { completeMultipartUpload } from './completeMultipartUpload';
 import { handleUploadPart } from './handleUploadPart';
+import { _makeCancelEvent } from '../utils/_makeCancelEvent';
 /*
  * Resume multipart upload from checkpoint. The checkpoint will be
  * updated after each successful part upload.
@@ -9,7 +10,7 @@ import { handleUploadPart } from './handleUploadPart';
  */
 export async function resumeMultipart(this: any, checkpoint, options) {
   if (this.isCancel()) {
-    throw this._makeCancelEvent();
+    throw _makeCancelEvent();
   }
   const {
     file, fileSize, partSize, uploadId, doneParts, name
@@ -60,7 +61,7 @@ export async function resumeMultipart(this: any, checkpoint, options) {
   if (this.checkBrowserAndVersion('Internet Explorer', '10') || parallel === 1) {
     for (let i = 0; i < todo.length; i++) {
       if (this.isCancel()) {
-        throw this._makeCancelEvent();
+        throw _makeCancelEvent();
       }
       /* eslint no-await-in-loop: [0] */
       await uploadPartJob(this, todo[i]);
@@ -71,7 +72,7 @@ export async function resumeMultipart(this: any, checkpoint, options) {
 
     if (this.isCancel()) {
       uploadPartJob = null;
-      throw this._makeCancelEvent();
+      throw _makeCancelEvent();
     }
 
     if (jobErr && jobErr.length > 0) {

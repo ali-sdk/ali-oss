@@ -3,6 +3,7 @@ import { initMultipartUpload } from "./initMultipartUpload";
 import { getPartSize } from "../utils/getPartSize";
 import copy from 'copy-to';
 import _debug from 'debug';
+import { _makeCancelEvent } from "../utils/_makeCancelEvent";
 
 const debug = _debug('ali-oss:multipart-copy');
 
@@ -70,7 +71,7 @@ export async function multipartUploadCopy(this: any, name: string, sourceData, o
  */
 export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, options) {
   if (this.isCancel()) {
-    throw this._makeCancelEvent();
+    throw _makeCancelEvent();
   }
   const { versionId = null } = options;
   const metaOpt = {
@@ -133,7 +134,7 @@ export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, op
   if (this.checkBrowserAndVersion('Internet Explorer', '10') || parallel === 1) {
     for (let i = 0; i < todo.length; i++) {
       if (this.isCancel()) {
-        throw this._makeCancelEvent();
+        throw _makeCancelEvent();
       }
       /* eslint no-await-in-loop: [0] */
       await uploadPartJob(this, todo[i], sourceData);
@@ -143,7 +144,7 @@ export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, op
     const errors = await this._parallelNode(todo, parallel, uploadPartJob, sourceData);
 
     if (this.isCancel()) {
-      throw this._makeCancelEvent();
+      throw _makeCancelEvent();
     }
 
     // check errors after all jobs are completed
