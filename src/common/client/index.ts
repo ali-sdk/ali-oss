@@ -6,6 +6,7 @@ import { _getResource } from './_getResource';
 import { _getUserAgent } from './_getUserAgent';
 import { _objectRequestParams } from './_objectRequestParams';
 import { _stop } from './_stop';
+import { cancel } from './cancel';
 import { getBucket } from './getBucket';
 import { request } from './request';
 import { requestError } from './requestError';
@@ -22,6 +23,7 @@ export default {
   _getUserAgent,
   _objectRequestParams,
   _stop,
+  cancel,
   getBucket,
   request,
   requestError,

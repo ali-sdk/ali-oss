@@ -6,6 +6,7 @@ import { _getResource } from './_getResource';
 import { _getUserAgent } from './_getUserAgent';
 import { _objectRequestParams } from './_objectRequestParams';
 import { _stop } from './_stop';
+import { cancel } from './cancel';
 import { getBucket } from './getBucket';
 import { request } from './request';
 import { requestError } from './requestError';
@@ -21,6 +22,7 @@ declare const _default: {
     _getUserAgent: typeof _getUserAgent;
     _objectRequestParams: typeof _objectRequestParams;
     _stop: typeof _stop;
+    cancel: typeof cancel;
     getBucket: typeof getBucket;
     request: typeof request;
     requestError: typeof requestError;
