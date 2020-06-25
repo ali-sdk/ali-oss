@@ -47,7 +47,8 @@ export function initOptions(options) {
     endpoint: null,
     cname: false,
     isRequestPay: false,
-    sldEnable: false
+    sldEnable: false,
+    useFetch: false
   }, options);
 
   opts.accessKeyId = opts.accessKeyId.trim();
