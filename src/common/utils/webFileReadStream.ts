@@ -56,6 +56,12 @@ export class WebFileReadStream extends Readable {
       that.readFileAndPush(size);
     };
 
+    this.reader.onerror = function onload(e) {
+      const error = e.srcElement && e.srcElement.error;
+      if (error) throw error;
+      throw e;
+    };
+
     if (this.start === 0) {
       this.reader.readAsArrayBuffer(this.file);
     } else {
