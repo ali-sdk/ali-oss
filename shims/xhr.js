@@ -7,8 +7,6 @@ var https = require('https');
 var debug = require('debug')('urllib');
 var ms = require('humanize-ms');
 
-var _Promise;
-
 var REQUEST_ID = 0;
 var MAX_VALUE = Math.pow(2, 31) - 10;
 var PROTO_RE = /^https?:\/\//i;
@@ -49,11 +47,7 @@ exports.request = function request(url, args, callback) {
     return exports.requestWithCallback(url, args, callback);
   }
 
-  // Promise
-  if (!_Promise) {
-    _Promise = require('any-promise');
-  }
-  return new _Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     exports.requestWithCallback(url, args, makeCallback(resolve, reject));
   });
 };
