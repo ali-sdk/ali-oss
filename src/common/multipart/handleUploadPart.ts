@@ -8,12 +8,15 @@ import copy from 'copy-to';
  * @param {Object} options
  */
 
-export async function handleUploadPart(this: any, name, uploadId, partNo, data, options = {}) {
+export async function handleUploadPart(this: any, name, uploadId, partNo, data, options: any = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
-  opt.headers = {
-    'Content-Length': data.size
-  };
+  opt.headers = {}
+  opt.headers['Content-Length'] = data.size
+
+  if (options.headers && options.headers['x-oss-traffic-limit']) {
+    opt.headers['x-oss-traffic-limit'] = options.headers['x-oss-traffic-limit']
+  }
 
   opt.subres = {
     partNumber: partNo,

@@ -6,7 +6,7 @@
  * @param {Object} data the body data
  * @param {Object} options
  */
-export declare function handleUploadPart(this: any, name: any, uploadId: any, partNo: any, data: any, options?: {}): Promise<{
+export declare function handleUploadPart(this: any, name: any, uploadId: any, partNo: any, data: any, options?: any): Promise<{
     name: any;
     etag: any;
     res: any;

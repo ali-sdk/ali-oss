@@ -30,7 +30,7 @@ export async function resumeMultipart(this: any, checkpoint, options) {
             size: pi.end - pi.start
           };
 
-          const result = await handleUploadPart.call(self, name, uploadId, partNo, data);
+          const result = await handleUploadPart.call(self, name, uploadId, partNo, data, options);
           if (!self.isCancel()) {
             doneParts.push({
               number: partNo,
