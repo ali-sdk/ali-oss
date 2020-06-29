@@ -51,6 +51,8 @@ export async function put(this: any, name, file, options: any = {}) {
       if (err.code === 'RequestTimeTooSkewed') {
         this.options.amendTimeSkewed = +new Date(err.serverTime) - new Date().valueOf();
         return await put.call(this, name, file, options);
+      } else {
+        throw err;
       }
     }
   } else {
