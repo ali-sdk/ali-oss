@@ -653,36 +653,6 @@ describe('test/multipart.test.js', () => {
       assert.equal(result.res.status, 200);
     });
 
-    it('should multipart copy with exception', async () => {
-      const copyName = `${prefix}multipart/upload-file-with-copy-exception`;
-      const clientTmp = oss(config);
-      clientTmp.useBucket(bucket, bucketRegion);
-      /* eslint no-unused-vars: [0] */
-      const stubUploadPart = sinon.stub(clientTmp, 'uploadPartCopy', async (objectKey, uploadId, partNo, range, sourceData, options) => {
-        if (partNo === 1) {
-          throw new Error('TestErrorException');
-        }
-      });
-
-      let errorMsg;
-      let errPartNum;
-      try {
-        await clientTmp.multipartUploadCopy(copyName, {
-          sourceKey: name,
-          sourceBucketName: bucket
-        });
-      } catch (err) {
-        errorMsg = err.message;
-        errPartNum = err.partNum;
-      }
-      assert.equal(
-        errorMsg,
-        'Failed to copy some parts with error: Error: TestErrorException part_num: 1',
-      );
-      assert.equal(errPartNum, 1);
-      stubUploadPart.restore();
-    });
-
     it('should upload copy with list part', async () => {
       const tempFileName = await utils.createTempFile('multipart-upload-list-part', 2 * 1024 * 1024);
       const tempName = `${prefix}multipart/upload-list-part`;

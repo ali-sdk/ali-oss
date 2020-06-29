@@ -11,12 +11,10 @@ import copy from 'copy-to';
 export async function handleUploadPart(this: any, name, uploadId, partNo, data, options: any = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
-  opt.headers = {}
+  opt.headers = opt.headers || {}
   opt.headers['Content-Length'] = data.size
 
-  if (options.headers && options.headers['x-oss-traffic-limit']) {
-    opt.headers['x-oss-traffic-limit'] = options.headers['x-oss-traffic-limit']
-  }
+  if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
 
   opt.subres = {
     partNumber: partNo,

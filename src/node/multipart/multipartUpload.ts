@@ -24,9 +24,8 @@ import { getFileSize } from '../utils/getFileSize';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: any, name, file, options) {
+export async function multipartUpload(this: any, name, file, options: any = {}) {
   this.resetCancelFlag();
-  options = options || {};
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
   }

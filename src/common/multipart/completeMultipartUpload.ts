@@ -22,7 +22,7 @@ import { obj2xml } from '../utils/obj2xml';
  *                   }
  */
 
-export async function completeMultipartUpload(this: any, name, uploadId, parts, options) {
+export async function completeMultipartUpload(this: any, name, uploadId, parts, options: any = {}) {
   const completeParts = parts.concat()
     .sort((a: { number: number; }, b: { number: number; }) => a.number - b.number)
     .filter((item: { number: any; }, index: number, arr: any[]) => !index || item.number !== arr[index - 1].number);
@@ -36,8 +36,7 @@ export async function completeMultipartUpload(this: any, name, uploadId, parts, 
     }
   };
 
-  options = options || {};
-  const opt: any = deepCopy(options) || {};
+  const opt: any = deepCopy(options)
   if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
   opt.subres = { uploadId };
 

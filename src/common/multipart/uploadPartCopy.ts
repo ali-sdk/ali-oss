@@ -1,3 +1,4 @@
+import { deepCopy } from "../utils/deepCopy";
 
 /**
  * Upload a part copy in a multipart from the source bucket/object
@@ -11,10 +12,12 @@
  *        {String} sourceData.sourceBucketName  the source bucket name
  * @param {Object} options
  */
-/* eslint max-len: [0] */
+
 export async function uploadPartCopy(this: any, name, uploadId, partNo, range, sourceData, options: any = {}) {
-  options.headers = options.headers || {};
-  const versionId = options.versionId || (options.subres && options.subres.versionId) || null;
+  const opt = deepCopy(options);
+  opt.headers = opt.headers || {};
+  
+  const versionId = opt.versionId || (opt.subres && opt.subres.versionId) || null;
   let copySource;
   if (versionId) {
     copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(sourceData.sourceKey)}?versionId=${versionId}`;
@@ -22,17 +25,17 @@ export async function uploadPartCopy(this: any, name, uploadId, partNo, range, s
     copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(sourceData.sourceKey)}`;
   }
 
-  options.headers['x-oss-copy-source'] = copySource;
-  if (range) {
-    options.headers['x-oss-copy-source-range'] = `bytes=${range}`;
-  }
+  opt.headers['x-oss-copy-source'] = copySource;
 
-  options.subres = {
+  if (range) opt.headers['x-oss-copy-source-range'] = `bytes=${range}`;
+  if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
+
+  opt.subres = {
     partNumber: partNo,
     uploadId
   };
-  const params = this._objectRequestParams('PUT', name, options);
-  params.mime = options.mime;
+  const params = this._objectRequestParams('PUT', name, opt);
+  params.mime = opt.mime;
   params.successStatuses = [200];
 
   const result = await this.request(params);

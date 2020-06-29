@@ -20,19 +20,18 @@ export async function resumeMultipart(this: any, checkpoint, options) {
   const partOffs = divideParts(fileSize, partSize);
   const numParts = partOffs.length;
 
-  let uploadPartJob: any = function uploadPartJob(self, partNo) {
-    // eslint-disable-next-line no-async-promise-executor
+  let uploadPartJob: any = (partNo) => {
     return new Promise(async (resolve, reject) => {
       try {
-        if (!self.isCancel()) {
+        if (!this.isCancel()) {
           const pi = partOffs[partNo - 1];
           const data = {
-            stream: self._createStream(file, pi.start, pi.end),
+            stream: this._createStream(file, pi.start, pi.end),
             size: pi.end - pi.start
           };
 
-          const result = await handleUploadPart.call(self, name, uploadId, partNo, data, options);
-          if (!self.isCancel()) {
+          const result = await handleUploadPart.call(this, name, uploadId, partNo, data, options);
+          if (!this.isCancel()) {
             doneParts.push({
               number: partNo,
               etag: result.res.headers.etag
@@ -65,7 +64,7 @@ export async function resumeMultipart(this: any, checkpoint, options) {
         throw _makeCancelEvent();
       }
       /* eslint no-await-in-loop: [0] */
-      await uploadPartJob(this, todo[i]);
+      await uploadPartJob(todo[i]);
     }
   } else {
     // upload in parallel

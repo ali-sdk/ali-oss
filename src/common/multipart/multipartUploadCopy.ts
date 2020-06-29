@@ -5,6 +5,8 @@ import copy from 'copy-to';
 import _debug from 'debug';
 import { _makeCancelEvent } from "../utils/_makeCancelEvent";
 import { _parallel } from "../utils/_parallel";
+import { uploadPartCopy } from './uploadPartCopy'
+import { completeMultipartUpload } from "./completeMultipartUpload";
 
 const debug = _debug('ali-oss:multipart-copy');
 
@@ -96,16 +98,16 @@ export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, op
     copy(metaOpt).to(uploadPartCopyOptions);
   }
 
-  const uploadPartJob = function uploadPartJob(self, partNo, source) {
+  const uploadPartJob = (partNo, source?) => {
     return new Promise(async (resolve, reject) => {
       try {
-        if (!self.isCancel()) {
+        if (!this.isCancel()) {
           const pi = partOffs[partNo - 1];
           const range = `${pi.start}-${pi.end - 1}`;
 
-          const result = await self.uploadPartCopy(name, uploadId, partNo, range, source, uploadPartCopyOptions);
+          const result = await uploadPartCopy.call(this, name, uploadId, partNo, range, source, uploadPartCopyOptions);
 
-          if (!self.isCancel()) {
+          if (!this.isCancel()) {
             debug(`content-range ${result.res.headers['content-range']}`);
             doneParts.push({
               number: partNo,
@@ -137,8 +139,7 @@ export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, op
       if (this.isCancel()) {
         throw _makeCancelEvent();
       }
-      /* eslint no-await-in-loop: [0] */
-      await uploadPartJob(this, todo[i], sourceData);
+      await uploadPartJob(todo[i], sourceData);
     }
   } else {
     // upload in parallel
@@ -156,7 +157,7 @@ export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, op
     }
   }
 
-  return await this.completeMultipartUpload(name, uploadId, doneParts, options);
+  return await completeMultipartUpload.call(this, name, uploadId, doneParts, options);
 };
 
 
