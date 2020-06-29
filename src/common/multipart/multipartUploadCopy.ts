@@ -4,6 +4,7 @@ import { getPartSize } from "../utils/getPartSize";
 import copy from 'copy-to';
 import _debug from 'debug';
 import { _makeCancelEvent } from "../utils/_makeCancelEvent";
+import { _parallel } from "../utils/_parallel";
 
 const debug = _debug('ali-oss:multipart-copy');
 
@@ -141,7 +142,7 @@ export async function _resumeMultipartCopy(this: any, checkpoint, sourceData, op
     }
   } else {
     // upload in parallel
-    const errors = await this._parallelNode(todo, parallel, uploadPartJob, sourceData);
+    const errors = await _parallel.call(this, todo, parallel, uploadPartJob, sourceData);
 
     if (this.isCancel()) {
       throw _makeCancelEvent();

@@ -2,6 +2,7 @@ import { divideParts } from '../../common/utils/divideParts';
 import { completeMultipartUpload } from './completeMultipartUpload';
 import { handleUploadPart } from './handleUploadPart';
 import { _makeCancelEvent } from '../utils/_makeCancelEvent';
+import { _parallel } from '../utils/_parallel';
 /*
  * Resume multipart upload from checkpoint. The checkpoint will be
  * updated after each successful part upload.
@@ -68,7 +69,7 @@ export async function resumeMultipart(this: any, checkpoint, options) {
     }
   } else {
     // upload in parallel
-    const jobErr = await this._parallelNode(todo, parallel, uploadPartJob);
+    const jobErr = await _parallel.call(this, todo, parallel, uploadPartJob);
 
     if (this.isCancel()) {
       uploadPartJob = null;
