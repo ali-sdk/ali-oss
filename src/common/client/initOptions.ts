@@ -28,6 +28,17 @@ function setRegion(region, internal, secure) {
   return urlutil.parse(protocol + region + suffix);
 }
 
+// check local web protocol,if https secure default set true , if http secure default set false
+function isHttpsWebProtocol() {
+  let secure = false;
+  try {
+    secure = location && location.protocol === 'https:';
+  } catch (error) {
+    
+  }
+  return secure;
+}
+
 
 export function initOptions(options) {
   if (!options
@@ -41,14 +52,15 @@ export function initOptions(options) {
   const opts = Object.assign({
     region: 'oss-cn-hangzhou',
     internal: false,
-    secure: false,
+    secure: isHttpsWebProtocol(),
     timeout: 60000,
     bucket: null,
     endpoint: null,
     cname: false,
     isRequestPay: false,
     sldEnable: false,
-    useFetch: false
+    useFetch: false,
+    amendTimeSkewed: 0, // record the time difference between client and server
   }, options);
 
   opts.accessKeyId = opts.accessKeyId.trim();

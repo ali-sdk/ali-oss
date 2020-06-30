@@ -40,7 +40,7 @@ function build(options, callback) {
     standalone: 'OSS',
     debug: false
   };
-  browserify(brOpts).add('./lib/browser.js')
+  browserify(brOpts).add('./lib/browser/index.js')
     .transform(babelify, {
       "global": true,
       "presets": ["es2015"],

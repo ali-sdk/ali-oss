@@ -3,6 +3,7 @@ import AgentKeepalive from 'agentkeepalive';
 import { getUserAgent } from './common/utils/getUserAgent';
 import { initOptions } from './common/client/initOptions';
 import base from './common/client'
+import { _unSupportBrowserTip } from './common/utils/_unSupportBrowserTip';
 
 const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
 const globalHttpAgent = new AgentKeepalive();
@@ -25,6 +26,7 @@ class Client {
     if (!(this instanceof Client)) {
       return new Client(options, ctx);
     }
+    _unSupportBrowserTip();
 
     Object.keys(base).map(prop => {
       Client.prototype[prop] = base[prop]

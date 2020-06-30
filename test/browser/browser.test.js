@@ -48,7 +48,7 @@ describe('browser', () => {
       bucket: stsConfig.bucket
     };
 
-    // this.store = oss({
+    // this.store = new oss({
     //   region: stsConfig.region,
     //   accessKeyId: creds.AccessKeyId,
     //   accessKeySecret: creds.AccessKeySecret,
@@ -57,7 +57,7 @@ describe('browser', () => {
     // });
   });
   after(async () => {
-    const store = oss(ossConfig);
+    const store = new oss(ossConfig);
     await cleanBucket(store);
   });
 
@@ -66,7 +66,7 @@ describe('browser', () => {
       console.log('xxx');
     });
     it('should init with region', () => {
-      let store = oss({
+      let store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou'
@@ -77,7 +77,7 @@ describe('browser', () => {
         'http://oss-cn-hangzhou.aliyuncs.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou',
@@ -89,7 +89,7 @@ describe('browser', () => {
         'http://oss-cn-hangzhou-internal.aliyuncs.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou',
@@ -102,7 +102,7 @@ describe('browser', () => {
         'https://oss-cn-hangzhou-internal.aliyuncs.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'vpc100-oss-cn-beijing'
@@ -113,7 +113,7 @@ describe('browser', () => {
         'http://vpc100-oss-cn-beijing.aliyuncs.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'vpc100-oss-cn-shenzhen',
@@ -125,7 +125,7 @@ describe('browser', () => {
         'http://vpc100-oss-cn-shenzhen.aliyuncs.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'vpc100-oss-cn-hangzhou',
@@ -140,7 +140,7 @@ describe('browser', () => {
     });
 
     it('should init with cname: foo.bar.com', () => {
-      let store = oss({
+      let store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
@@ -152,7 +152,7 @@ describe('browser', () => {
         'http://foo.bar.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://foo.bar.com',
@@ -166,7 +166,7 @@ describe('browser', () => {
     });
 
     it('should init with endpoint: http://test.oss.com', () => {
-      let store = oss({
+      let store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'test.oss.com'
@@ -177,7 +177,7 @@ describe('browser', () => {
         'http://test.oss.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         secure: true,
@@ -189,7 +189,7 @@ describe('browser', () => {
         'https://test.oss.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://test.oss.com'
@@ -200,7 +200,7 @@ describe('browser', () => {
         'http://test.oss.com/'
       );
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'https://test.oss.com'
@@ -213,7 +213,7 @@ describe('browser', () => {
     });
 
     it('should init with ip address: http://127.0.0.1', () => {
-      const store = oss({
+      const store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: '127.0.0.1'
@@ -226,7 +226,7 @@ describe('browser', () => {
     });
 
     it('should create request url with bucket', () => {
-      let store = oss({
+      let store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou'
@@ -239,7 +239,7 @@ describe('browser', () => {
       let url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/');
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'test.oss.com'
@@ -252,7 +252,7 @@ describe('browser', () => {
       url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.test.oss.com/');
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
@@ -266,7 +266,7 @@ describe('browser', () => {
       url = store._getReqUrl(params);
       assert.equal(url, 'http://foo.bar.com/');
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://127.0.0.1:6000'
@@ -281,7 +281,7 @@ describe('browser', () => {
     });
 
     it('should create request url with bucket/object/subres', () => {
-      let store = oss({
+      let store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou'
@@ -304,7 +304,7 @@ describe('browser', () => {
       url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/hello?acl=&mime=');
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'test.oss.com'
@@ -318,7 +318,7 @@ describe('browser', () => {
       url = store._getReqUrl(params);
       assert.equal(url, 'http://gems.test.oss.com/hello');
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
@@ -333,7 +333,7 @@ describe('browser', () => {
       url = store._getReqUrl(params);
       assert.equal(url, 'http://foo.bar.com/hello');
 
-      store = oss({
+      store = new oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://127.0.0.1:3000'
@@ -349,14 +349,14 @@ describe('browser', () => {
     });
 
     it('should set User-Agent', () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const { userAgent } = store;
 
       assert(userAgent.indexOf(`aliyun-sdk-js/${pkg.version} ${platform.description}`) === 0);
     });
 
     it('should check beta or alpha User-Agent', () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const uaBeta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
       assert.equal(uaBeta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
       const uaAlpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
@@ -365,7 +365,7 @@ describe('browser', () => {
 
 
     it('should trim access id/key', () => {
-      const store = oss({
+      const store = new oss({
         accessKeyId: '  \tfoo\t\n  ',
         accessKeySecret: '  \tbar\n\r   ',
         region: 'oss-cn-hangzhou'
@@ -377,13 +377,13 @@ describe('browser', () => {
 
     // 默认获取useFetch为true,设置为false后，简单确认为false
     it('should check useFetch option', () => {
-      const store1 = oss({
+      const store1 = new oss({
         accessKeyId: 'hi-oss-check-key-id',
         accessKeySecret: 'hi-oss-check-key-id-secret',
         region: 'oss-cn-hangzhou'
       });
       assert.equal(store1.options.useFetch, false);
-      const store2 = oss({
+      const store2 = new oss({
         accessKeyId: 'hi-oss-check-key-id',
         accessKeySecret: 'hi-oss-check-key-id-secret',
         region: 'oss-cn-hangzhou',
@@ -401,7 +401,7 @@ describe('browser', () => {
     // fun/movie/001.avi
     // fun/movie/007.avi
     before(async () => {
-      client = oss(ossConfig);
+      client = new oss(ossConfig);
       listPrefix = `${prefix}ali-sdk/list/`;
       await client.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
       await client.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
@@ -512,7 +512,7 @@ describe('browser', () => {
   describe('put', () => {
     let store;
     before(() => {
-      store = oss(ossConfig);
+      store = new oss(ossConfig);
     });
     it('GETs and PUTs objects to a bucket', async () => {
       const name = `${prefix}put/test`;
@@ -567,7 +567,7 @@ describe('browser', () => {
   describe('test-content-type', () => {
     let store;
     before(async () => {
-      store = oss(ossConfig);
+      store = new oss(ossConfig);
     });
 
     it('should put object and content-type not null when upload file and object name has no MIME', async () => {
@@ -591,7 +591,7 @@ describe('browser', () => {
     let store;
     before(async () => {
       name = `${prefix}ali-sdk/oss/copy-meta.js`;
-      store = oss(ossConfig);
+      store = new oss(ossConfig);
       const object = await store.put(name, Buffer.from('abc'), {
         meta: {
           uid: 1,
@@ -739,7 +739,7 @@ describe('browser', () => {
     let name;
     let needEscapeName;
     before(async () => {
-      store = oss(ossConfig);
+      store = new oss(ossConfig);
       name = `${prefix}ali-sdk/oss/signatureUrl.js`;
       let object = await store.put(name, Buffer.from('signatureUrl'), {
         meta: {
@@ -829,7 +829,7 @@ describe('browser', () => {
     });
 
     it('should signature url with custom host ok', () => {
-      const signatureStore = oss(Object.assign({}, ossConfig, {
+      const signatureStore = new oss(Object.assign({}, ossConfig, {
         endpoint: 'www.aliyun.com',
         cname: true
       }));
@@ -843,7 +843,7 @@ describe('browser', () => {
   describe('multipart', () => {
     let store;
     before(() => {
-      store = oss(ossConfig);
+      store = new oss(ossConfig);
     });
 
     describe('listUploads()', () => {
@@ -1095,7 +1095,7 @@ describe('browser', () => {
 
       // multipart cancel test
       it('should upload file with cancel', async () => {
-        const client = oss(ossConfig);
+        const client = new oss(ossConfig);
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-file');
@@ -1268,7 +1268,7 @@ describe('browser', () => {
 
       // TODO fix callback server
       // it('should upload file with cancel and callback', async () => {
-      //   const client = oss(ossConfig);
+      //   const client = new oss(ossConfig);
       //   // create a file with 1M random data
       //   const fileContent = Array(1024 * 1024).fill('a').join('');
       //   const file = new File([fileContent], 'multipart-upload-file');
@@ -1349,7 +1349,7 @@ describe('browser', () => {
 
   describe('symlink()', () => {
     it('Should put and get Symlink', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const targetName = '/oss/target-测试.js';
       const name = '/oss/symlink-软链接.js';
       let result = await store.put(targetName, Buffer.from('test-symlink'));
@@ -1389,7 +1389,7 @@ describe('browser', () => {
   describe('deleteMulti()', () => {
     const names = [];
     beforeEach(async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       let name = `${prefix}ali-sdk/oss/deleteMulti0.js`;
       names.push(name);
       await store.put(name, Buffer.from(name));
@@ -1404,28 +1404,28 @@ describe('browser', () => {
     });
 
     it('should delete 3 exists objs', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const result = await store.deleteMulti(names);
       assert.deepEqual(result.deleted.map(v => v.Key), names);
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 2 exists and 2 not exists objs', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 1 exists objs', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const result = await store.deleteMulti(names.slice(0, 1));
       assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 1));
       assert.equal(result.res.status, 200);
     });
 
     it('should delete in quiet mode', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const result = await store.deleteMulti(names, {
         quiet: true
       });
@@ -1439,7 +1439,7 @@ describe('browser', () => {
     let resHeaders;
     let fileSize;
     before(async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       name = `${prefix}ali-sdk/oss/object-meta.js`;
       const fileContent = Array(10 * 100 * 1024).fill('a').join('');
       const file = new File([fileContent], 'multipart-upload-part');
@@ -1450,7 +1450,7 @@ describe('browser', () => {
     });
 
     it('should head not exists object throw NoSuchKeyError', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       try {
         await store.head(`${name}not-exists`);
       } catch (error) {
@@ -1461,7 +1461,7 @@ describe('browser', () => {
     });
 
     it('should return Etag and Content-Length', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const info = await store.getObjectMeta(name);
       assert.equal(info.status, 200);
       assert.equal(info.res.headers.etag, resHeaders.etag);
@@ -1471,7 +1471,7 @@ describe('browser', () => {
 
   describe('request time is skew', () => {
     it('When the client\'s date is skew, the request will calibration time and retry', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const name = `${prefix}put/skew_date`;
       const body = Buffer.from('body');
       const requestSpy = sinon.spy(store, 'request');
@@ -1500,7 +1500,7 @@ describe('browser', () => {
 
 
     it('date is skew, put file will retry', async () => {
-      const store = oss(ossConfig);
+      const store = new oss(ossConfig);
       const name = `${prefix}put/skew_date_file`;
       const requestSpy = sinon.spy(store, 'request');
       const requestErrorSpy = sinon.spy(store, 'requestError');
@@ -1540,7 +1540,7 @@ describe('browser', () => {
         bucket: stsConfig.bucket,
         timeout: 1
       };
-      store = oss(ossConfigz);
+      store = new oss(ossConfigz);
     });
     it('should request timeout exception', async () => {
       const fileContent = Array(1024 * 1024).fill('a').join('');
