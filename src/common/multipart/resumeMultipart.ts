@@ -22,6 +22,11 @@ export async function resumeMultipart(this: any, checkpoint, options) {
 
   let uploadPartJob: any = (partNo) => {
     return new Promise(async (resolve, reject) => {
+      let hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
+      if (hasUploadPart) {
+        resolve(hasUploadPart);
+        return;
+      }
       try {
         if (!this.isCancel()) {
           const pi = partOffs[partNo - 1];
@@ -31,6 +36,12 @@ export async function resumeMultipart(this: any, checkpoint, options) {
           };
 
           const result = await handleUploadPart.call(this, name, uploadId, partNo, data, options);
+
+          hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
+          if (hasUploadPart) {
+            resolve(hasUploadPart);
+            return;
+          }
           if (!this.isCancel()) {
             doneParts.push({
               number: partNo,
@@ -41,6 +52,11 @@ export async function resumeMultipart(this: any, checkpoint, options) {
             if (options.progress) {
               await options.progress(doneParts.length / numParts, checkpoint, result.res);
             }
+
+            resolve({
+              number: partNo,
+              etag: result.res.headers.etag
+            });
           }
         }
         resolve();
