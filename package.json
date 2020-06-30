@@ -120,7 +120,6 @@
   "dependencies": {
     "address": "^1.0.0",
     "agentkeepalive": "^3.4.1",
-    "any-promise": "^1.3.0",
     "bowser": "^1.6.0",
     "co-defer": "^1.0.0",
     "copy-to": "^2.0.1",
