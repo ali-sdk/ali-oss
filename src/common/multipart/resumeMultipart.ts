@@ -3,6 +3,7 @@ import { completeMultipartUpload } from './completeMultipartUpload';
 import { handleUploadPart } from './handleUploadPart';
 import { _makeCancelEvent } from '../utils/_makeCancelEvent';
 import { _parallel } from '../utils/_parallel';
+import { isArray } from '../utils/isArray';
 /*
  * Resume multipart upload from checkpoint. The checkpoint will be
  * updated after each successful part upload.
@@ -30,10 +31,17 @@ export async function resumeMultipart(this: any, checkpoint, options) {
       try {
         if (!this.isCancel()) {
           const pi = partOffs[partNo - 1];
+          const stream = this._createStream(file, pi.start, pi.end)
           const data = {
-            stream: this._createStream(file, pi.start, pi.end),
+            stream,
             size: pi.end - pi.start
           };
+
+          if (isArray(this.multipartUploadStreams)) {
+            this.multipartUploadStreams.push(stream);
+          } else {
+            this.multipartUploadStreams = [stream];
+          }
 
           const result = await handleUploadPart.call(this, name, uploadId, partNo, data, options);
 
