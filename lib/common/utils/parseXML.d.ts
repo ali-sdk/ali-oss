@@ -1,6 +1,1 @@
-/**
- * thunkify xml.parseString
- * @param {String|Buffer} str
- *
- */
-export declare function parseXML(str: any): Promise<unknown>;
+export { xml2objPromise as parseXML } from './xml2js';

@@ -24,7 +24,7 @@ function build(options, callback) {
     region: env.ALI_SDK_STS_REGION,
   }
 
-  var store = STS({
+  var store = new STS({
     accessKeyId: conf.accessKeyId,
     accessKeySecret: conf.accessKeySecret
   });
