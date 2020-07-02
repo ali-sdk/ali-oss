@@ -14,4 +14,4 @@
  *                    key2: 'value2'
  *                  }
  */
-export declare function multipartUpload(this: any, name: any, file: any, options: any): Promise<any>;
+export declare function multipartUpload(this: any, name: any, file: any, options?: any): Promise<any>;

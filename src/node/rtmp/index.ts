@@ -1,27 +1,7 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   rockuw <rockuw@gmail.com> (http://rockuw.com)
- */
-
-
-/**
- * Module dependencies.
- */
-
-const jstoxml = require('jstoxml');
-const utility = require('utility');
-const copy = require('copy-to');
-const urlutil = require('url');
-
-const proto = exports;
-
-/**
- * RTMP operations
- */
-
+import jstoxml from 'jstoxml';
+import utility from 'utility';
+import copy from 'copy-to';
+import urlutil from 'url';
 /**
  * Create a live channel
  * @param {String} id the channel id
@@ -29,8 +9,7 @@ const proto = exports;
  * @param {Object} options
  * @return {Object}
  */
-proto.putChannel = async function putChannel(id, conf, options) {
-  options = options || {};
+export async function putChannel(this: any, id, conf, options: any = {}) {
   options.subres = 'live';
 
   const params = this._objectRequestParams('PUT', id, options);
@@ -64,8 +43,7 @@ proto.putChannel = async function putChannel(id, conf, options) {
  * @param {Object} options
  * @return {Object}
  */
-proto.getChannel = async function getChannel(id, options) {
-  options = options || {};
+export async function getChannel(this: any, id, options: any = {}) {
   options.subres = 'live';
 
   const params = this._objectRequestParams('GET', id, options);
@@ -86,8 +64,7 @@ proto.getChannel = async function getChannel(id, options) {
  * @param {Object} options
  * @return {Object}
  */
-proto.deleteChannel = async function deleteChannel(id, options) {
-  options = options || {};
+export async function deleteChannel(this: any, id, options: any = {}) {
   options.subres = 'live';
 
   const params = this._objectRequestParams('DELETE', id, options);
@@ -107,8 +84,7 @@ proto.deleteChannel = async function deleteChannel(id, options) {
  * @param {Object} options
  * @return {Object}
  */
-proto.putChannelStatus = async function putChannelStatus(id, status, options) {
-  options = options || {};
+export async function putChannelStatus(this: any, id, status, options: any = {}) {
   options.subres = {
     live: null,
     status
@@ -130,8 +106,7 @@ proto.putChannelStatus = async function putChannelStatus(id, status, options) {
  * @param {Object} options
  * @return {Object}
  */
-proto.getChannelStatus = async function getChannelStatus(id, options) {
-  options = options || {};
+export async function getChannelStatus(this: any, id, options: any = {}) {
   options.subres = {
     live: null,
     comp: 'stat'
@@ -159,10 +134,9 @@ proto.getChannelStatus = async function getChannelStatus(id, options) {
  * @param {Object} options
  * @return {Object}
  */
-proto.listChannels = async function listChannels(query, options) {
+export async function listChannels(this: any, query, options: any = {}) {
   // prefix, marker, max-keys
 
-  options = options || {};
   options.subres = 'live';
 
   const params = this._objectRequestParams('GET', '', options);
@@ -204,8 +178,7 @@ proto.listChannels = async function listChannels(query, options) {
  * @param {Object} options
  * @return {Object}
  */
-proto.getChannelHistory = async function getChannelHistory(id, options) {
-  options = options || {};
+export async function getChannelHistory(this: any, id, options: any = {}) {
   options.subres = {
     live: null,
     comp: 'history'
@@ -238,12 +211,11 @@ proto.getChannelHistory = async function getChannelHistory(id, options) {
  * @param {Object} options
  * @return {Object}
  */
-proto.createVod = async function createVod(id, name, time, options) {
-  options = options || {};
+export async function createVod(this: any, id, name, time, options: any = {}) {
   options.subres = {
     vod: null
   };
-  copy(time).to(options.subres);
+  copy(time, false).to(options.subres);
 
   const params = this._objectRequestParams('POST', `${id}/${name}`, options);
   params.query = time;
@@ -265,8 +237,7 @@ proto.createVod = async function createVod(id, name, time, options) {
  *   - params {Object}: the parameters such as 'playlistName'
  * @return {String} the RTMP url
  */
-proto.getRtmpUrl = function (channelId, options) {
-  options = options || {};
+export function getRtmpUrl(this: any, channelId, options: any = {}) {
   const expires = utility.timestamp() + (options.expires || 1800);
   const res = {
     bucket: this.options.bucket,
@@ -280,14 +251,27 @@ proto.getRtmpUrl = function (channelId, options) {
   const stringToSign = `${expires}\n${query}${resource}`;
   const signature = this.signature(stringToSign);
 
-  const url = urlutil.parse(this._getReqUrl(res));
+  const url: any = urlutil.parse(this._getReqUrl(res));
   url.protocol = 'rtmp:';
   url.query = {
     OSSAccessKeyId: this.options.accessKeyId,
     Expires: expires,
     Signature: signature
   };
-  copy(options.params).to(url.query);
+  copy(options.params, false).to(url.query);
 
   return url.format();
 };
+
+
+export default {
+  putChannel,
+  getChannel,
+  deleteChannel,
+  putChannelStatus,
+  getChannelStatus,
+  listChannels,
+  getChannelHistory,
+  createVod,
+  getRtmpUrl,
+}

@@ -69,6 +69,7 @@ export default {
   objectName,
   _objectName: objectName,
   objectUrl,
+  _objectUrl: objectUrl,
   parseXML,
   policy2Str,
   signUtils,

@@ -1,1 +1,1 @@
-export declare function objectUrl(name: any, options: any): string;
+export declare function objectUrl(this: any, name: string, options?: any): string;

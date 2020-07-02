@@ -11,8 +11,8 @@ describe('test/multiversion.test.js', () => {
   let store;
   let bucket;
   before(async () => {
-    // config.region = 'oss-cn-chengdu';
-    store = oss(config);
+    config.region = 'oss-cn-chengdu';
+    store = new oss(config);
 
     bucket = `ali-oss-test-bucket-multiversion-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);

@@ -1,18 +1,16 @@
 
-const Base = require('sdk-base');
-const util = require('util');
-const ready = require('get-ready');
-const copy = require('copy-to');
+import Base from 'sdk-base';
+import util from 'util';
+import ready from 'get-ready';
+import copy from 'copy-to';
+
 const currentIP = require('address').ip();
 
 const RR = 'roundRobin';
 const MS = 'masterSlave';
 
-module.exports = function (OssClient) {
-  function Client(options) {
-    if (!(this instanceof Client)) {
-      return new Client(options);
-    }
+export default function (OssClient) {
+  function Client(this: any, options) {
 
     if (!options || !Array.isArray(options.cluster)) {
       throw new Error('require options.cluster to be an array');
@@ -139,7 +137,7 @@ module.exports = function (OssClient) {
       return;
     }
     this._checkAvailableLock = true;
-    const downStatusFiles = [];
+    const downStatusFiles: any = [];
     for (let i = 0; i < this.clients.length; i++) {
       const client = this.clients[i];
       // check 3 times

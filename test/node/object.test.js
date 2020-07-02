@@ -29,7 +29,7 @@ describe('test/object.test.js', () => {
   let bucketRegion;
   let archvieBucket;
   before(async () => {
-    store = oss(config);
+    store = new oss(config);
     bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
@@ -1087,7 +1087,7 @@ describe('test/object.test.js', () => {
       copy(config).to(conf);
       conf.endpoint = 'www.aliyun.com';
       conf.cname = true;
-      const tempStore = oss(conf);
+      const tempStore = new oss(conf);
 
       const url = tempStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=

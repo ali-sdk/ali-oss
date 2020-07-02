@@ -2,7 +2,7 @@
   "name": "ali-oss",
   "version": "6.9.0",
   "description": "aliyun oss(object storage service) node client",
-  "main": "lib/client.js",
+  "main": "lib/node/index.js",
   "files": [
     "lib",
     "shims",
@@ -35,9 +35,9 @@
     "lint-staged": "lint-staged",
     "detect-secrets": "node task/detect-secrets",
     "tsc": "npm run tsc:clean && tsc:build",
-    "tsc:build": "tsc -b tsconfig.json tsconfig-cjs.json",
-    "tsc:watch": "tsc -b tsconfig.json tsconfig-cjs.json --watch",
-    "tsc:clean": "tsc -b tsconfig.json tsconfig-cjs.json --clean "
+    "tsc:build": "tsc -b tsconfig-es.json tsconfig-cjs.json",
+    "tsc:watch": "tsc -b tsconfig-es.json tsconfig-cjs.json --watch",
+    "tsc:clean": "tsc -b tsconfig-es.json tsconfig-cjs.json --clean "
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",

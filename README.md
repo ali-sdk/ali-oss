@@ -299,7 +299,7 @@ After account created, you can create the OSS instance and get the `accessKeyId`
 
 Each OSS instance required `accessKeyId`, `accessKeySecret` and `bucket`.
 
-## oss(options)
+## new oss(options)
 
 Create a Bucket store instance.
 
@@ -328,7 +328,7 @@ example:
 ```js
 const oss = require('ali-oss');
 
-const store = oss({
+const store = new oss({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',

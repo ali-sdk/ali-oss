@@ -14,7 +14,7 @@
 //   let bucketRegion;
 //
 //   before(async () => {
-//     store = oss(config);
+//     store = new oss(config);
 //     bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
 //     bucket = bucket.substring(0, bucket.length - 1);
 //     bucketRegion = config.region;

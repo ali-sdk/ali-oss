@@ -19,7 +19,7 @@ describe('test/bucket.test.js', () => {
   let bucketRegion;
   const defaultRegion = config.region;
   before(async () => {
-    store = oss(config);
+    store = new oss(config);
 
     const bucketResult = await store.listBuckets({
       // prefix: '',
@@ -35,7 +35,7 @@ describe('test/bucket.test.js', () => {
         )));
 
     config.region = defaultRegion;
-    store = oss(config);
+    store = new oss(config);
     bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = defaultRegion;

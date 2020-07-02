@@ -58,6 +58,7 @@ declare const _default: {
     objectName: typeof objectName;
     _objectName: typeof objectName;
     objectUrl: typeof objectUrl;
+    _objectUrl: typeof objectUrl;
     parseXML: typeof parseXML;
     policy2Str: typeof policy2Str;
     signUtils: {

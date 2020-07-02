@@ -14,7 +14,7 @@ describe('test/cluster.test.js', () => {
     this.region = config.region;
     this.bucket1 = `ali-oss-test-cluster1-${prefix.replace(/[/.]/g, '')}`;
     this.bucket2 = `ali-oss-test-cluster2-${prefix.replace(/[/.]/g, '')}`;
-    const client = oss(config);
+    const client = new new oss(config);
     await client.putBucket(this.bucket1);
     await client.putBucket(this.bucket2);
   });
@@ -36,7 +36,7 @@ describe('test/cluster.test.js', () => {
         }
       ]
     };
-    this.store = cluster(options);
+    this.store = new cluster(options);
     this.store.on('error', (err) => {
       if (err.name === 'MockError' || err.name === 'CheckAvailableError') {
         return;
@@ -55,7 +55,7 @@ describe('test/cluster.test.js', () => {
   describe('init', () => {
     it('require options.cluster to be an array', () => {
       (function () {
-        cluster({});
+        new cluster({});
       }).should.throw('require options.cluster to be an array');
     });
 
