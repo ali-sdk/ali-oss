@@ -10,8 +10,12 @@ const RR = 'roundRobin';
 const MS = 'masterSlave';
 
 export default function (OssClient) {
-  function Client(this: any, options) {
+  function Client(this: any, options): void {
+    const that = this
 
+    if (!(that instanceof Client)) {
+      return new Client(options)
+    }
     if (!options || !Array.isArray(options.cluster)) {
       throw new Error('require options.cluster to be an array');
     }
