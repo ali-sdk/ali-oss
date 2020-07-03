@@ -236,8 +236,8 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-file-exception`;
       const clientTmp = new oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
-
-      const stubUploadPart = sinon.stub(clientTmp, '_createStream');
+      const handleUploadPart = require('../../lib/common/multipart/handleUploadPart')
+      const stubUploadPart = sinon.stub(handleUploadPart, 'handleUploadPart');
       stubUploadPart.throws('TestUploadPartException');
 
 
@@ -254,7 +254,7 @@ describe('test/multipart.test.js', () => {
         'Failed to upload some parts with error: TestUploadPartException part_num: 1',
       );
       assert.equal(errPartNum, 1);
-      clientTmp._createStream.restore();
+      stubUploadPart.restore();
     });
 
     it('should upload web file using multipart upload', async () => {
