@@ -28,9 +28,9 @@ describe('test/bucket.test.js', () => {
 
     await Promise.all((bucketResult.buckets || [])
       .filter(_ => _.name.startsWith('ali-oss'))
-      .map(_bucket =>
-        utils.cleanBucket(
-          oss(Object.assign(config, { region: _bucket.region })),
+      .map(_bucket => utils
+        .cleanBucket(
+          new oss(Object.assign(config, { region: _bucket.region })),
           _bucket.name
         )));
 

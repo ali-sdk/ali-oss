@@ -3,7 +3,7 @@ const oss = require('.');
 const pkg = require('./package.json');
 const check = require('./publish-check');
 
-const store = oss({
+const store = new oss({
   accessKeyId: env.ALI_SDK_OSS_CDN_ID,
   accessKeySecret: env.ALI_SDK_OSS_CDN_SECRET,
   endpoint: env.ALI_SDK_OSS_CDN_ENDPOINT,
