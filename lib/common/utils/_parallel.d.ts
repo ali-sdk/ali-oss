@@ -1,1 +1,1 @@
-export declare function _parallel(this: any, todo: any, parallel: any, fn: any, sourceData?: any): Promise<any>;
+export declare function _parallel(this: any, todo: any, num: number, fn: Function, sourceData?: any): Promise<any>;
