@@ -562,6 +562,25 @@ describe('browser', () => {
         assert(true);
       }
     });
+
+    it('should throw ConnectionTimeoutError when putstream timeout', async () => {
+      const name = `${prefix}put/test`;
+      const content = Array(1024 * 1024 * 10).fill(1).join('');
+      const body = new Blob([content], { type: 'text/plain' });
+      const options = {
+        timeout: 300
+      };
+      try {
+        setTimeout(() => {
+          options.timeout = 60000;
+        }, 200);
+        await store.put(name, body, options);
+        assert(false);
+      } catch (error) {
+        assert(error.name === 'ConnectionTimeoutError');
+      }
+    });
+
   });
 
   describe('test-content-type', () => {
