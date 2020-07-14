@@ -28,8 +28,8 @@ describe('test/bucket.test.js', () => {
 
     await Promise.all((bucketResult.buckets || [])
       .filter(_ => _.name.startsWith('ali-oss'))
-      .map(_bucket =>
-        utils.cleanBucket(
+      .map(_bucket => utils
+        .cleanBucket(
           oss(Object.assign(config, { region: _bucket.region })),
           _bucket.name
         )));
@@ -217,6 +217,27 @@ describe('test/bucket.test.js', () => {
       for (let i = 0; i < 2; i++) {
         const name = listBucketsPrefix + i;
         assert.equal(result.buckets[i].name, name);
+      }
+    });
+
+    it('should list buckets by subres', async () => {
+      const tag = {
+        a: '1',
+        b: '2'
+      };
+      const putTagBukcet = `${listBucketsPrefix}0`;
+      await store.putBucketTags(putTagBukcet, tag);
+      const { buckets } = await store.listBuckets({
+        prefix: listBucketsPrefix,
+        subres: {
+          tagging: Object.entries(tag).map(_ => _.map(inner => `"${inner.toString()}"`).join(':')).join(',')
+        }
+      });
+
+      if (buckets && buckets.length && buckets[0]) {
+        assert.deepStrictEqual(buckets[0].tag, tag);
+      } else {
+        assert(false);
       }
     });
 
