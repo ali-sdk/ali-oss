@@ -762,6 +762,18 @@ describe('test/bucket.test.js', () => {
       assert.equal(putresult2.res.status, 200);
     });
 
+    it('should put the lifecycle with empty prefix (whole bucket)', async () => {
+      const putresult = await store.putBucketLifecycle(bucket, [{
+        id: 'abortMultipartUpload1',
+        prefix: '', // empty prefix (whole bucket)
+        status: 'Enabled',
+        abortMultipartUpload: {
+          days: 1
+        }
+      }]);
+      assert.equal(putresult.res.status, 200);
+    });
+
     it('should put the lifecycle with Transition', async () => {
       const putresult1 = await store.putBucketLifecycle(bucket, [{
         id: 'transition',
