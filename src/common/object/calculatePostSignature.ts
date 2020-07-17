@@ -1,4 +1,3 @@
-
 import { policy2Str } from '../utils/policy2Str';
 import { computeSignature } from '../utils/signUtils';
 import { isObject } from '../utils/isObject';
@@ -29,7 +28,7 @@ export function calculatePostSignature(this: any, policy) {
   const query = {
     OSSAccessKeyId: this.options.accessKeyId,
     Signature,
-    policy
+    policy,
   };
   return query;
-};
+}

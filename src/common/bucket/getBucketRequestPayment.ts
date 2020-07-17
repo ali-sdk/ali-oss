@@ -6,10 +6,18 @@ import { checkBucketName } from '../utils/checkBucketName';
  * @param {Object} options
  */
 
-export async function getBucketRequestPayment(this: any, bucketName: string, options: any = {}) {
-
+export async function getBucketRequestPayment(
+  this: any,
+  bucketName: string,
+  options: any = {}
+) {
   checkBucketName(bucketName);
-  const params = this._bucketRequestParams('GET', bucketName, 'requestPayment', options);
+  const params = this._bucketRequestParams(
+    'GET',
+    bucketName,
+    'requestPayment',
+    options
+  );
   params.successStatuses = [200];
   params.xmlResponse = true;
 
@@ -18,6 +26,6 @@ export async function getBucketRequestPayment(this: any, bucketName: string, opt
   return {
     status: result.status,
     res: result.res,
-    payer: result.data.Payer
+    payer: result.data.Payer,
   };
-};
+}

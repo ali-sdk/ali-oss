@@ -17,4 +17,4 @@ export function getSourceName(sourceName, bucketName, configBucket) {
 
   sourceName = `/${bucketName}/${sourceName}`;
   return sourceName;
-};
+}

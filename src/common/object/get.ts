@@ -57,4 +57,5 @@ export async function get(this: any, name, file, options: any = {}) {
     res: result.res,
     content: result.data
   };
-};
+}
+

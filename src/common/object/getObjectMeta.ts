@@ -20,4 +20,5 @@ export async function getObjectMeta(this: any, name: string, options: any = {}) 
     status: result.status,
     res: result.res
   };
-};
+}
+

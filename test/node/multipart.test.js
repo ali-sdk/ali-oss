@@ -3,7 +3,7 @@
 const fs = require('fs');
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 const { md5 } = require('utility');
 const mm = require('mm');
@@ -15,7 +15,7 @@ describe('test/multipart.test.js', () => {
   let bucket;
   let bucketRegion;
   before(async () => {
-    store = new oss(config);
+    store = new OSS(config);
     bucket = `ali-oss-test-multipart-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = config.region;
@@ -234,7 +234,7 @@ describe('test/multipart.test.js', () => {
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);
 
       const name = `${prefix}multipart/upload-file-exception`;
-      const clientTmp = new oss(config);
+      const clientTmp = new OSS(config);
       clientTmp.useBucket(bucket, bucketRegion);
       const handleUploadPart = require('../../lib/common/multipart/handleUploadPart')
       const stubUploadPart = sinon.stub(handleUploadPart, 'handleUploadPart');
@@ -314,7 +314,7 @@ describe('test/multipart.test.js', () => {
       const fileBuf = fs.readFileSync(fileName);
       const webFile = new File(fileName, fileBuf);
       const name = `${prefix}multipart/upload-webfile-ie10`;
-      const clientTmp = new oss(config);
+      const clientTmp = new OSS(config);
       clientTmp.useBucket(bucket, bucketRegion);
       sinon.stub(clientTmp, 'checkBrowserAndVersion', (browser, version) => (browser === 'Internet Explorer' && version === '10'));
       const result = await clientTmp.multipartUpload(name, webFile, {
@@ -591,7 +591,7 @@ describe('test/multipart.test.js', () => {
 
     it('should multipart upload copy in IE10', async () => {
       const copyName = `${prefix}multipart/upload-copy-in-ie10`;
-      const clientTmp = new oss(config);
+      const clientTmp = new OSS(config);
       clientTmp.useBucket(bucket, bucketRegion);
       const checkBrowserAndVersion = sinon.stub(clientTmp, 'checkBrowserAndVersion', (browser, version) => (browser === 'Internet Explorer' && version === '10'));
       const result = await clientTmp.multipartUploadCopy(copyName, {

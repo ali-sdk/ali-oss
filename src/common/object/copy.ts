@@ -1,15 +1,22 @@
 import { getSourceName } from '../utils/getSourceName';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
 
-export async function copy(this: any, name, sourceName, bucketName?, options?: any) {
+export async function copy(
+  this: any,
+  name,
+  sourceName,
+  bucketName?,
+  options?: any
+) {
   if (typeof bucketName === 'object') {
     options = bucketName; // 兼容旧版本，旧版本第三个参数为options
   }
   options = options || {};
   options.headers = options.headers || {};
 
-  Object.keys(options.headers).forEach((key) => {
-    options.headers[`x-oss-copy-source-${key.toLowerCase()}`] = options.headers[key];
+  Object.keys(options.headers).forEach(key => {
+    options.headers[`x-oss-copy-source-${key.toLowerCase()}`] =
+      options.headers[key];
   });
   if (options.meta) {
     options.headers['x-oss-metadata-directive'] = 'REPLACE';
@@ -34,12 +41,12 @@ export async function copy(this: any, name, sourceName, bucketName?, options?: a
   if (data) {
     data = {
       etag: data.ETag,
-      lastModified: data.LastModified
+      lastModified: data.LastModified,
     };
   }
 
   return {
     data,
-    res: result.res
+    res: result.res,
   };
-};
+}

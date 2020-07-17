@@ -2,7 +2,7 @@ import urllib from 'urllib';
 import AgentKeepalive from 'agentkeepalive';
 import { getUserAgent } from './common/utils/getUserAgent';
 import { initOptions } from './common/client/initOptions';
-import base from './common/client'
+import base from './common/client';
 import { _unSupportBrowserTip } from './common/utils/_unSupportBrowserTip';
 
 const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
@@ -28,9 +28,9 @@ class Client {
     }
     _unSupportBrowserTip();
 
-    Object.keys(base).map(prop => {
-      Client.prototype[prop] = base[prop]
-    })
+    Object.keys(base).forEach(prop => {
+      Client.prototype[prop] = base[prop];
+    });
 
     this.setConfig(options, ctx);
   }
@@ -40,7 +40,7 @@ class Client {
       fn.filter(_ => typeof _ === 'function').forEach(f => {
         this[f.name] = f.bind(this);
         Client.prototype[f.name] = f;
-      })
+      });
     }
     return this;
   }

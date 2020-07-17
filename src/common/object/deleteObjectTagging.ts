@@ -6,7 +6,11 @@ import { objectName } from '../utils/objectName';
  * @param {Object} options
  */
 
-export async function deleteObjectTagging(this: any, name: string, options: any = {}) {
+export async function deleteObjectTagging(
+  this: any,
+  name: string,
+  options: any = {}
+) {
   options.subres = Object.assign({ tagging: '' }, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;
@@ -18,6 +22,6 @@ export async function deleteObjectTagging(this: any, name: string, options: any 
 
   return {
     status: result.status,
-    res: result.res
+    res: result.res,
   };
-};
+}

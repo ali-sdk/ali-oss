@@ -1,6 +1,10 @@
-import { checkBucketName } from "../utils/checkBucketName";
+import { checkBucketName } from '../utils/checkBucketName';
 
-export async function getBucketLogging(this: any, name: string, options: any = {}) {
+export async function getBucketLogging(
+  this: any,
+  name: string,
+  options: any = {}
+) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'logging', options);
   params.successStatuses = [200];
@@ -10,6 +14,6 @@ export async function getBucketLogging(this: any, name: string, options: any = {
   return {
     enable: !!enable,
     prefix: (enable && enable.TargetPrefix) || null,
-    res: result.res
+    res: result.res,
   };
 }

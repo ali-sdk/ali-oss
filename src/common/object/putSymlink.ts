@@ -34,4 +34,4 @@ export async function putSymlink(this: any, name: string, targetName: string, op
   return {
     res: result.res
   };
-};
+}

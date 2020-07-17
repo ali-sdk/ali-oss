@@ -33,35 +33,34 @@ function isHttpsWebProtocol() {
   let secure = false;
   try {
     secure = location && location.protocol === 'https:';
-  } catch (error) {
-    
-  }
+  // eslint-disable-next-line no-empty
+  } catch (error) {}
   return secure;
 }
 
-
 export function initOptions(options) {
-  if (!options
-    || !options.accessKeyId
-    || !options.accessKeySecret) {
+  if (!options || !options.accessKeyId || !options.accessKeySecret) {
     throw new Error('require accessKeyId, accessKeySecret');
   }
   if (options.bucket) {
     checkBucketName(options.bucket);
   }
-  const opts = Object.assign({
-    region: 'oss-cn-hangzhou',
-    internal: false,
-    secure: isHttpsWebProtocol(),
-    timeout: 60000,
-    bucket: null,
-    endpoint: null,
-    cname: false,
-    isRequestPay: false,
-    sldEnable: false,
-    useFetch: false,
-    amendTimeSkewed: 0, // record the time difference between client and server
-  }, options);
+  const opts = Object.assign(
+    {
+      region: 'oss-cn-hangzhou',
+      internal: false,
+      secure: isHttpsWebProtocol(),
+      timeout: 60000,
+      bucket: null,
+      endpoint: null,
+      cname: false,
+      isRequestPay: false,
+      sldEnable: false,
+      useFetch: false,
+      amendTimeSkewed: 0, // record the time difference between client and server
+    },
+    options
+  );
 
   opts.accessKeyId = opts.accessKeyId.trim();
   opts.accessKeySecret = opts.accessKeySecret.trim();
@@ -80,4 +79,4 @@ export function initOptions(options) {
 
   opts.inited = true;
   return opts;
-};
+}

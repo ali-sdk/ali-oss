@@ -8,5 +8,7 @@ import bowser from 'bowser';
  */
 
 export function checkBrowserAndVersion(name, version) {
-  return ((bowser.name === name) && ((bowser as any).version.split('.')[0] === version));
-};
+  return (
+    bowser.name === name && (bowser as any).version.split('.')[0] === version
+  );
+}

@@ -24,4 +24,4 @@ export async function putACL(this: any, name: string, acl: string, options) {
   return {
     res: result.res
   };
-};
+}

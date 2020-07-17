@@ -6,10 +6,19 @@ import { checkBucketName } from '../utils/checkBucketName';
  * @param {Object} options
  */
 
-export async function getBucketPolicy(this: any, bucketName, options: any = {}) {
+export async function getBucketPolicy(
+  this: any,
+  bucketName,
+  options: any = {}
+) {
   checkBucketName(bucketName);
 
-  const params = this._bucketRequestParams('GET', bucketName, 'policy', options);
+  const params = this._bucketRequestParams(
+    'GET',
+    bucketName,
+    'policy',
+    options
+  );
 
   const result = await this.request(params);
   params.successStatuses = [200];
@@ -22,6 +31,6 @@ export async function getBucketPolicy(this: any, bucketName, options: any = {}) 
   return {
     policy,
     status: result.status,
-    res: result.res
+    res: result.res,
   };
-};
+}

@@ -15,4 +15,4 @@ export function getObjectUrl(this: any, name: string, baseUrl: any) {
     baseUrl += '/';
   }
   return baseUrl + escapeName(objectName(name));
-};
+}

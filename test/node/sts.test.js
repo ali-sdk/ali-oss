@@ -13,8 +13,8 @@
 
 const assert = require('assert');
 const utils = require('./utils');
-const sts = require('../..').STS;
-const oss = require('../..');
+const { STS } = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
 
@@ -22,13 +22,13 @@ describe('test/sts.test.js', () => {
   const { prefix } = utils;
   describe('assumeRole()', () => {
     it('should assume role', async () => {
-      const stsClient = new sts(stsConfig);
+      const stsClient = new STS(stsConfig);
       const result = await stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
     });
 
     it('should assume role with policy', async () => {
-      const stsClient = new sts(stsConfig);
+      const stsClient = new STS(stsConfig);
       const policy = {
         Statement: [
           {
@@ -46,7 +46,7 @@ describe('test/sts.test.js', () => {
     });
 
     it('should assume role with policy string', async () => {
-      const stsClient = new sts(stsConfig);
+      const stsClient = new STS(stsConfig);
       const policy = `
       {
         "Statement": [
@@ -65,7 +65,7 @@ describe('test/sts.test.js', () => {
     });
 
     it('should handle error in assume role', async () => {
-      const stsClient = new sts(stsConfig);
+      const stsClient = new STS(stsConfig);
       const policy = `
       {
         "Statements": [
@@ -89,11 +89,11 @@ describe('test/sts.test.js', () => {
     });
 
     it('should list objects using STS', async () => {
-      const stsClient = new sts(stsConfig);
+      const stsClient = new STS(stsConfig);
       let result = await stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
 
-      const ossClient = new oss({
+      const ossClient = new OSS({
         region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
@@ -113,7 +113,7 @@ describe('test/sts.test.js', () => {
     });
 
     it('should delete multi objects using STS', async () => {
-      const stsClient = new sts(stsConfig);
+      const stsClient = new STS(stsConfig);
 
       let policy = {
         Statement: [
@@ -131,7 +131,7 @@ describe('test/sts.test.js', () => {
       let result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
 
-      let ossClient = new oss({
+      let ossClient = new OSS({
         region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
@@ -170,7 +170,7 @@ describe('test/sts.test.js', () => {
       result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
 
-      ossClient = new oss({
+      ossClient = new OSS({
         region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,

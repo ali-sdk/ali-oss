@@ -7,7 +7,7 @@ const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
-const oss = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 const urllib = require('urllib');
 const copy = require('copy-to');
@@ -29,7 +29,7 @@ describe('test/object.test.js', () => {
   let bucketRegion;
   let archvieBucket;
   before(async () => {
-    store = new oss(config);
+    store = new OSS(config);
     bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
@@ -1087,7 +1087,7 @@ describe('test/object.test.js', () => {
       copy(config).to(conf);
       conf.endpoint = 'www.aliyun.com';
       conf.cname = true;
-      const tempStore = new oss(conf);
+      const tempStore = new OSS(conf);
 
       const url = tempStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=

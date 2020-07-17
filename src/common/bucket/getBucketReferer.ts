@@ -1,7 +1,11 @@
-import { checkBucketName } from "../utils/checkBucketName";
-import { isArray } from "../utils/isArray";
+import { checkBucketName } from '../utils/checkBucketName';
+import { isArray } from '../utils/isArray';
 
-export async function getBucketReferer(this: any, name: string, options: any = {}) {
+export async function getBucketReferer(
+  this: any,
+  name: string,
+  options: any = {}
+) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'referer', options);
   params.successStatuses = [200];
@@ -16,6 +20,6 @@ export async function getBucketReferer(this: any, name: string, options: any = {
   return {
     allowEmpty: result.data.AllowEmptyReferer === 'true',
     referers,
-    res: result.res
+    res: result.res,
   };
-};
+}

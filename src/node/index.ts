@@ -17,7 +17,7 @@ import sts from './sts';
 import cluster from './cluster';
 
 function initClientProto(protos) {
-  Object.keys(protos).map(prop => {
+  Object.keys(protos).forEach(prop => {
     Client.prototype[prop] = protos[prop];
   });
 }

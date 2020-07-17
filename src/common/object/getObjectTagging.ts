@@ -24,4 +24,5 @@ export async function getObjectTagging(this: any, name: string, options: any = {
     res: result.res,
     tag: formatTag(Tagging)
   };
-};
+}
+

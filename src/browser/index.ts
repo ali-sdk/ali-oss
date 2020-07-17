@@ -1,6 +1,6 @@
+import { Buffer } from 'buffer';
 import { Client } from '../setConfig';
 import { version } from './version';
-import { Buffer } from 'buffer';
 
 import commonObject from '../common/object';
 import commonMultipart from '../common/multipart';
@@ -14,9 +14,9 @@ import client from './client';
 import multipart from './multipart';
 
 function initClientProto(protos) {
-  Object.keys(protos).map(prop => {
-    Client.prototype[prop] = protos[prop]
-  })
+  Object.keys(protos).forEach(prop => {
+    Client.prototype[prop] = protos[prop];
+  });
 }
 
 const OSS: any = Client;
@@ -35,4 +35,4 @@ initClientProto(object);
 initClientProto(client);
 initClientProto(multipart);
 
-module.exports = OSS
+module.exports = OSS;

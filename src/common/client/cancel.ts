@@ -1,5 +1,5 @@
-import { abortMultipartUpload } from "../multipart/abortMultipartUpload";
-import { isArray } from "../utils/isArray";
+import { abortMultipartUpload } from '../multipart/abortMultipartUpload';
+import { isArray } from '../utils/isArray';
 
 /**
  * cancel operation, now can use with multipartUpload
@@ -8,7 +8,10 @@ import { isArray } from "../utils/isArray";
  *        {String} anort.uploadId upload id
  *        {String} anort.options timeout
  */
-export function cancel(this: any, abort: { name: string; uploadId: string; options: string; }) {
+export function cancel(
+  this: any,
+  abort: { name: string; uploadId: string; options: string }
+) {
   this.options.cancelFlag = true;
 
   if (isArray(this.multipartUploadStreams)) {
@@ -16,7 +19,7 @@ export function cancel(this: any, abort: { name: string; uploadId: string; optio
       if (_.destroyed === false) {
         const err = {
           name: 'cancel',
-          message: 'multipartUpload cancel'
+          message: 'multipartUpload cancel',
         };
         _.destroy(err);
       }
@@ -26,4 +29,4 @@ export function cancel(this: any, abort: { name: string; uploadId: string; optio
   if (abort) {
     abortMultipartUpload.call(this, abort.name, abort.uploadId, abort.options);
   }
-};
+}

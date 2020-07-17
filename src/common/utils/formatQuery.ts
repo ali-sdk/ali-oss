@@ -1,4 +1,4 @@
-import { isObject } from './isObject'
+import { isObject } from './isObject';
 
 function camel2Line(name) {
   return name.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -7,7 +7,7 @@ function camel2Line(name) {
 export function formatQuery(query = {}) {
   const obj = {};
   if (isObject(query)) {
-    Object.keys(query).forEach((key) => {
+    Object.keys(query).forEach(key => {
       obj[camel2Line(key)] = query[key];
     });
   }

@@ -1,13 +1,13 @@
 
 const assert = require('assert');
-const oss = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 const mm = require('mm');
 const pkg = require('../../package.json');
 
 describe('test/client.test.js', () => {
   it('should init with region', () => {
-    let store = new oss({
+    let store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou'
@@ -18,7 +18,7 @@ describe('test/client.test.js', () => {
       'http://oss-cn-hangzhou.aliyuncs.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou',
@@ -30,7 +30,7 @@ describe('test/client.test.js', () => {
       'http://oss-cn-hangzhou-internal.aliyuncs.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou',
@@ -43,7 +43,7 @@ describe('test/client.test.js', () => {
       'https://oss-cn-hangzhou-internal.aliyuncs.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'vpc100-oss-cn-beijing'
@@ -54,7 +54,7 @@ describe('test/client.test.js', () => {
       'http://vpc100-oss-cn-beijing.aliyuncs.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'vpc100-oss-cn-shenzhen',
@@ -66,7 +66,7 @@ describe('test/client.test.js', () => {
       'http://vpc100-oss-cn-shenzhen.aliyuncs.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'vpc100-oss-cn-hangzhou',
@@ -81,7 +81,7 @@ describe('test/client.test.js', () => {
   });
 
   it('should init with cname: foo.bar.com', () => {
-    let store = new oss({
+    let store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
@@ -93,7 +93,7 @@ describe('test/client.test.js', () => {
       'http://foo.bar.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://foo.bar.com',
@@ -107,7 +107,7 @@ describe('test/client.test.js', () => {
   });
 
   it('should init with endpoint: http://test.oss.com', () => {
-    let store = new oss({
+    let store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'test.oss.com'
@@ -118,7 +118,7 @@ describe('test/client.test.js', () => {
       'http://test.oss.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://test.oss.com'
@@ -129,7 +129,7 @@ describe('test/client.test.js', () => {
       'http://test.oss.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       secure: true,
@@ -141,7 +141,7 @@ describe('test/client.test.js', () => {
       'https://test.oss.com/',
     );
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'https://test.oss.com'
@@ -154,7 +154,7 @@ describe('test/client.test.js', () => {
   });
 
   it('should init with ip address: http://127.0.0.1', () => {
-    const store = new oss({
+    const store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: '127.0.0.1'
@@ -167,7 +167,7 @@ describe('test/client.test.js', () => {
   });
 
   it('should create request url with bucket', () => {
-    let store = new oss({
+    let store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou'
@@ -180,7 +180,7 @@ describe('test/client.test.js', () => {
     let url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/');
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'test.oss.com'
@@ -193,7 +193,7 @@ describe('test/client.test.js', () => {
     url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.test.oss.com/');
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
@@ -207,7 +207,7 @@ describe('test/client.test.js', () => {
     url = store._getReqUrl(params);
     assert.equal(url, 'http://foo.bar.com/');
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://127.0.0.1:6000'
@@ -222,7 +222,7 @@ describe('test/client.test.js', () => {
   });
 
   it('should create request url with bucket/object/subres', () => {
-    let store = new oss({
+    let store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       region: 'oss-cn-hangzhou'
@@ -245,7 +245,7 @@ describe('test/client.test.js', () => {
     url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.oss-cn-hangzhou.aliyuncs.com/hello?acl=&mime=');
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'test.oss.com'
@@ -259,7 +259,7 @@ describe('test/client.test.js', () => {
     url = store._getReqUrl(params);
     assert.equal(url, 'http://gems.test.oss.com/hello');
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'foo.bar.com',
@@ -274,7 +274,7 @@ describe('test/client.test.js', () => {
     url = store._getReqUrl(params);
     assert.equal(url, 'http://foo.bar.com/hello');
 
-    store = new oss({
+    store = new OSS({
       accessKeyId: 'foo',
       accessKeySecret: 'bar',
       endpoint: 'http://127.0.0.1:3000'
@@ -292,7 +292,7 @@ describe('test/client.test.js', () => {
   it('should set User-Agent', async () => {
     after(mm.restore);
 
-    const store = new oss(config);
+    const store = new OSS(config);
     let header;
     const req = store.urllib.request;
     mm(store.urllib, 'request', (url, args) => {
@@ -309,7 +309,7 @@ describe('test/client.test.js', () => {
   });
 
   it('should check beta or alpha User-Agent', () => {
-    const store = new oss(config);
+    const store = new OSS(config);
     const uaBeta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
     assert.equal(uaBeta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
     const uaAlpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
@@ -317,14 +317,14 @@ describe('test/client.test.js', () => {
   });
 
   it('should check browser and version', () => {
-    const store = new oss(config);
+    const store = new OSS(config);
     assert(store.checkBrowserAndVersion('', ''));
     assert(!store.checkBrowserAndVersion('non-nodejs', ''));
     assert(!store.checkBrowserAndVersion('', 'error-version'));
   });
 
   it('should trim access id/key', () => {
-    const store = new oss({
+    const store = new OSS({
       accessKeyId: '  \tfoo\t\n  ',
       accessKeySecret: '  \tbar\n\r   ',
       region: 'oss-cn-hangzhou'

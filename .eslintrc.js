@@ -29,13 +29,7 @@ module.exports = {
       ignoreTemplateLiterals: true,
     }],
     'no-buffer-constructor': [2],
-    'comma-dangle': [2, {
-      arrays: 0,
-      objects: 0,
-      imports: 2,
-      exports: 2,
-      functions: 2
-    }],
+    'comma-dangle': [0],
     'import/prefer-default-export': [0],
     'implicit-arrow-linebreak': [0],
     '@typescript-eslint/no-unused-vars': [0],

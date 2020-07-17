@@ -2,7 +2,11 @@ import { checkBucketName } from '../utils/checkBucketName';
 import { isArray } from '../utils/isArray';
 import { formatObjKey } from '../utils/formatObjKey';
 
-export async function getBucketLifecycle(this: any, name: string, options: any = {}) {
+export async function getBucketLifecycle(
+  this: any,
+  name: string,
+  options: any = {}
+) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'lifecycle', options);
   params.successStatuses = [200];
@@ -13,7 +17,7 @@ export async function getBucketLifecycle(this: any, name: string, options: any =
     if (!isArray(rules)) {
       rules = [rules];
     }
-    rules = rules.map((_) => {
+    rules = rules.map(_ => {
       if (_.ID) {
         _.id = _.ID;
         delete _.ID;
@@ -26,6 +30,6 @@ export async function getBucketLifecycle(this: any, name: string, options: any =
   }
   return {
     rules,
-    res: result.res
+    res: result.res,
   };
-};
+}

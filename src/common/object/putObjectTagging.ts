@@ -40,4 +40,4 @@ export async function putObjectTagging(this: any, name: string, tag: object, opt
     res: result.res,
     status: result.status
   };
-};
+}

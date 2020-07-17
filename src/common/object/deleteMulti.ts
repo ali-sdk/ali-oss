@@ -23,12 +23,12 @@ export async function deleteMulti(this: any, names, options: any = {}) {
   const paramXMLObj = {
     Delete: {
       Quiet: !!options.quiet,
-      Object: objects
-    }
+      Object: objects,
+    },
   };
 
   const paramXML = obj2xml(paramXMLObj, {
-    headers: true
+    headers: true,
   });
 
   options.subres = Object.assign({ delete: '' }, options.subres);
@@ -51,6 +51,6 @@ export async function deleteMulti(this: any, names, options: any = {}) {
   }
   return {
     res: result.res,
-    deleted: deleted || []
+    deleted: deleted || [],
   };
-};
+}

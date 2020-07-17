@@ -31,4 +31,4 @@ export async function putBucketVersioning(this: any, name: string, status, optio
     res: result.res,
     status: result.status
   };
-};
+}

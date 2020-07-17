@@ -8,7 +8,11 @@ import { formatTag } from '../utils/formatTag';
  * @return {Object}
  */
 
-export async function getBucketTags(this: any, name: string, options: any = {}) {
+export async function getBucketTags(
+  this: any,
+  name: string,
+  options: any = {}
+) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'tagging', options);
   params.successStatuses = [200];
@@ -19,6 +23,6 @@ export async function getBucketTags(this: any, name: string, options: any = {}) 
   return {
     status: result.status,
     res: result.res,
-    tag: formatTag(Tagging)
+    tag: formatTag(Tagging),
   };
-};
+}

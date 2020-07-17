@@ -1,6 +1,10 @@
-import { checkBucketName } from "../utils/checkBucketName";
+import { checkBucketName } from '../utils/checkBucketName';
 
-export async function getBucketInfo(this: any, name: string, options: any = {}) {
+export async function getBucketInfo(
+  this: any,
+  name: string,
+  options: any = {}
+) {
   checkBucketName(name);
   name = name || this.options.bucket;
   const params = this._bucketRequestParams('GET', name, 'bucketInfo', options);
@@ -9,6 +13,6 @@ export async function getBucketInfo(this: any, name: string, options: any = {}) 
   const result = await this.request(params);
   return {
     bucket: result.data.Bucket,
-    res: result.res
+    res: result.res,
   };
-};
+}

@@ -3,7 +3,7 @@ import copy from 'copy-to';
 import merge from 'merge-descriptors';
 import is from 'is-type-of';
 import { isIP } from '../utils/isIP';
-import { escapeName } from '../utils/escapeName'
+import { escapeName } from '../utils/escapeName';
 
 export function _getReqUrl(this: any, params) {
   const _escape = this._escape || escapeName;
@@ -37,7 +37,7 @@ export function _getReqUrl(this: any, params) {
     if (is.string(params.subres)) {
       subresAsQuery[params.subres] = '';
     } else if (is.array(params.subres)) {
-      params.subres.forEach((k) => {
+      params.subres.forEach(k => {
         subresAsQuery[k] = '';
       });
     } else {
@@ -49,4 +49,4 @@ export function _getReqUrl(this: any, params) {
   ep.query = query;
 
   return urlutil.format(ep);
-};
+}

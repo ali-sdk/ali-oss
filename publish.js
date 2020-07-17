@@ -1,9 +1,9 @@
 const { env } = process;
-const oss = require('.');
+const OSS = require('.');
 const pkg = require('./package.json');
 const check = require('./publish-check');
 
-const store = new oss({
+const store = new OSS({
   accessKeyId: env.ALI_SDK_OSS_CDN_ID,
   accessKeySecret: env.ALI_SDK_OSS_CDN_SECRET,
   endpoint: env.ALI_SDK_OSS_CDN_ENDPOINT,

@@ -1,6 +1,6 @@
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 const fs = require('fs');
 
@@ -12,7 +12,7 @@ describe('test/multiversion.test.js', () => {
   let bucket;
   before(async () => {
     config.region = 'oss-cn-chengdu';
-    store = new oss(config);
+    store = new OSS(config);
 
     bucket = `ali-oss-test-bucket-multiversion-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);

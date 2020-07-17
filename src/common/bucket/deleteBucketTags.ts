@@ -15,6 +15,6 @@ export async function deleteBucketTags(this: any, name, options: any = {}) {
 
   return {
     status: result.status,
-    res: result.res
+    res: result.res,
   };
-};
+}

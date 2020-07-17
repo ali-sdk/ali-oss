@@ -1,12 +1,12 @@
 
-const oss = require('../..');
-const cluster = require('../..').ClusterClient;
+const OSS = require('../..');
+const Cluster = require('../..').ClusterClient;
 const config = require('../config').oss;
 const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
 
-describe('test/cluster.test.js', () => {
+describe('test/Cluster.test.js', () => {
   const { prefix } = utils;
   afterEach(mm.restore);
 
@@ -14,14 +14,14 @@ describe('test/cluster.test.js', () => {
     this.region = config.region;
     this.bucket1 = `ali-oss-test-cluster1-${prefix.replace(/[/.]/g, '')}`;
     this.bucket2 = `ali-oss-test-cluster2-${prefix.replace(/[/.]/g, '')}`;
-    const client = new oss(config);
+    const client = new OSS(config);
     await client.putBucket(this.bucket1);
     await client.putBucket(this.bucket2);
   });
 
   before(function (done) {
     const options = {
-      cluster: [
+      Cluster: [
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
@@ -36,7 +36,7 @@ describe('test/cluster.test.js', () => {
         }
       ]
     };
-    this.store = new cluster(options);
+    this.store = new Cluster(options);
     this.store.on('error', (err) => {
       if (err.name === 'MockError' || err.name === 'CheckAvailableError') {
         return;
@@ -53,10 +53,11 @@ describe('test/cluster.test.js', () => {
   });
 
   describe('init', () => {
-    it('require options.cluster to be an array', () => {
+    it('require options.Cluster to be an array', () => {
       (function () {
-        new cluster({});
-      }).should.throw('require options.cluster to be an array');
+        // eslint-disable-next-line no-new
+        new Cluster({});
+      }).should.throw('require options.Cluster to be an array');
     });
 
     it('should _init() _checkAvailable throw error', function (done) {

@@ -8,4 +8,4 @@ export async function putMeta(this: any, name, meta, options: any = {}) {
     ctx: options && options.ctx
   });
   return copyResult;
-};
+}

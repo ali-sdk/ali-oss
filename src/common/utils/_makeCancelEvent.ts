@@ -1,7 +1,7 @@
 export function _makeCancelEvent() {
   const cancelEvent = {
     status: 0,
-    name: 'cancel'
+    name: 'cancel',
   };
   return cancelEvent;
-};
+}

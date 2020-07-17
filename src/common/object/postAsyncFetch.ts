@@ -1,5 +1,5 @@
-import { obj2xml } from '../utils/obj2xml'
-import { objectName } from '../utils/objectName'
+import { obj2xml } from '../utils/obj2xml';
+import { objectName } from '../utils/objectName';
 
 /*
  * postAsyncFetch

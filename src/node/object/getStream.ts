@@ -1,4 +1,3 @@
-
 export async function getStream(this: any, name, options: any = {}) {
   if (options.process) {
     options.subres = options.subres || {};
@@ -15,7 +14,7 @@ export async function getStream(this: any, name, options: any = {}) {
     stream: result.res,
     res: {
       status: result.status,
-      headers: result.headers
-    }
+      headers: result.headers,
+    },
   };
-};
+}

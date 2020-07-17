@@ -32,4 +32,4 @@ export async function head(this: any, name: string, options: any = {}) {
     });
   }
   return data;
-};
+}

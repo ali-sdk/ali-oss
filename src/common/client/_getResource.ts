@@ -4,4 +4,4 @@ export function _getResource(params) {
   if (params.object) resource += params.object;
 
   return resource;
-};
+}

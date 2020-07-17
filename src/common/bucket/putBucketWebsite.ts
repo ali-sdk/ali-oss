@@ -46,4 +46,4 @@ export async function putBucketWebsite(this: any, name: string, config: any = {}
   return {
     res: result.res
   };
-};
+}

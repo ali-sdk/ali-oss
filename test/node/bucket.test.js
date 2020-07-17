@@ -1,7 +1,7 @@
 
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
@@ -19,7 +19,7 @@ describe('test/bucket.test.js', () => {
   let bucketRegion;
   const defaultRegion = config.region;
   before(async () => {
-    store = new oss(config);
+    store = new OSS(config);
 
     const bucketResult = await store.listBuckets({
       // prefix: '',
@@ -30,12 +30,12 @@ describe('test/bucket.test.js', () => {
       .filter(_ => _.name.startsWith('ali-oss'))
       .map(_bucket => utils
         .cleanBucket(
-          new oss(Object.assign(config, { region: _bucket.region })),
+          new OSS(Object.assign(config, { region: _bucket.region })),
           _bucket.name
         )));
 
     config.region = defaultRegion;
-    store = new oss(config);
+    store = new OSS(config);
     bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = defaultRegion;

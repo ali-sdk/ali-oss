@@ -61,4 +61,4 @@ export async function requestError(this: any, result) {
 
   debug('generate error %j', err);
   return err;
-};
+}

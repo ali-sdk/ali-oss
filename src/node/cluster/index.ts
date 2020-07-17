@@ -1,4 +1,3 @@
-
 import Base from 'sdk-base';
 import util from 'util';
 import ready from 'get-ready';
@@ -11,10 +10,10 @@ const MS = 'masterSlave';
 
 export default function (OssClient) {
   function Client(this: any, options): void {
-    const that = this
+    const that = this;
 
     if (!(that instanceof Client)) {
-      return new Client(options)
+      return new Client(options);
     }
     if (!options || !Array.isArray(options.cluster)) {
       throw new Error('require options.cluster to be an array');
@@ -39,7 +38,10 @@ export default function (OssClient) {
 
     const heartbeatInterval = options.heartbeatInterval || 10000;
     this._checkAvailableLock = false;
-    this._timerId = this._deferInterval(this._checkAvailable.bind(this, true), heartbeatInterval);
+    this._timerId = this._deferInterval(
+      this._checkAvailable.bind(this, true),
+      heartbeatInterval
+    );
     this._ignoreStatusFile = options.ignoreStatusFile || false;
     this._init();
   }
@@ -48,13 +50,7 @@ export default function (OssClient) {
   const proto = Client.prototype;
   ready.mixin(proto);
 
-  const GET_METHODS = [
-    'head',
-    'get',
-    'getStream',
-    'list',
-    'getACL'
-  ];
+  const GET_METHODS = ['head', 'get', 'getStream', 'list', 'getACL'];
 
   const PUT_METHODS = [
     'put',
@@ -63,10 +59,10 @@ export default function (OssClient) {
     'deleteMulti',
     'copy',
     'putMeta',
-    'putACL'
+    'putACL',
   ];
 
-  GET_METHODS.forEach((method) => {
+  GET_METHODS.forEach(method => {
     proto[method] = async function (...args) {
       const client = this.chooseAvailable();
       let lastError;
@@ -103,19 +99,21 @@ export default function (OssClient) {
   });
 
   // must cluster node write success
-  PUT_METHODS.forEach((method) => {
+  PUT_METHODS.forEach(method => {
     proto[method] = async function (...args) {
-      const res = await Promise.all(this.clients.map(client => client[method](...args)));
+      const res = await Promise.all(
+        this.clients.map(client => client[method](...args))
+      );
       return res[0];
     };
   });
 
-  proto.signatureUrl = function signatureUrl(/* name */...args) {
+  proto.signatureUrl = function signatureUrl(/* name */ ...args) {
     const client = this.chooseAvailable();
     return client.signatureUrl(...args);
   };
 
-  proto.getObjectUrl = function getObjectUrl(/* name, baseUrl */...args) {
+  proto.getObjectUrl = function getObjectUrl(/* name, baseUrl */ ...args) {
     const client = this.chooseAvailable();
     return client.getObjectUrl(...args);
   };
@@ -125,7 +123,7 @@ export default function (OssClient) {
     (async () => {
       await that._checkAvailable(that._ignoreStatusFile);
       that.ready(true);
-    })().catch((err) => {
+    })().catch(err => {
       that.emit('error', err);
     });
   };
@@ -163,7 +161,13 @@ export default function (OssClient) {
     this._checkAvailableLock = false;
 
     if (downStatusFiles.length > 0) {
-      const err = new Error(`${downStatusFiles.length} data node down, please check status file: ${downStatusFiles.join(', ')}`);
+      const err = new Error(
+        `${
+          downStatusFiles.length
+        } data node down, please check status file: ${downStatusFiles.join(
+          ', '
+        )}`
+      );
       err.name = 'CheckAvailableError';
       this.emit('error', err);
     }
@@ -240,4 +244,4 @@ export default function (OssClient) {
   };
 
   return Client;
-};
+}

@@ -35,4 +35,4 @@ export async function putBucketTags(this: any, name, tag, options = {}) {
     res: result.res,
     status: result.status
   };
-};
+}

@@ -277,9 +277,9 @@ export function xml2objPromise(...args) {
 export function parseString(str, options, cb) {
   try {
     const result = xml2obj(str, options);
-    cb(null, result)
+    cb(null, result);
   } catch (error) {
-    cb(error, null)
+    cb(error, null);
   }
 }
 
@@ -288,4 +288,4 @@ export default {
   xml2obj,
   xml2objPromise,
   parseString
-}
+};

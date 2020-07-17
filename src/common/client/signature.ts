@@ -1,4 +1,4 @@
-import { computeSignature } from "../utils/signUtils";
+import { computeSignature } from '../utils/signUtils';
 
 /**
  * get OSS signature
@@ -7,4 +7,4 @@ import { computeSignature } from "../utils/signUtils";
  */
 export function signature(this: any, stringToSign) {
   return computeSignature(this.options.accessKeySecret, stringToSign);
-};
+}

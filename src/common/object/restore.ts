@@ -20,4 +20,4 @@ export async function restore(this: any, name, options) {
   return {
     res: result.res
   };
-};
+}

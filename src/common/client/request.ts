@@ -63,4 +63,4 @@ export async function request(this: any, params) {
     result.data = await parseXML(result.data);
   }
   return result;
-};
+}

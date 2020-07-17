@@ -2,7 +2,7 @@
 // const fs = require('fs');
 // const assert = require('assert');
 // const utils = require('./utils');
-// const oss = require('../..');
+// const OSS = require('../..');
 // const config = require('../config').oss;
 // const { callbackServer } = require('../const');
 // const mm = require('mm');
@@ -14,7 +14,7 @@
 //   let bucketRegion;
 //
 //   before(async () => {
-//     store = new oss(config);
+//     store = new OSS(config);
 //     bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
 //     bucket = bucket.substring(0, bucket.length - 1);
 //     bucketRegion = config.region;

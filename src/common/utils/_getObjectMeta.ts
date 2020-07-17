@@ -1,4 +1,4 @@
-import { head } from "../object/head";
+import { head } from '../object/head';
 
 /**
  * Get Object Meta
@@ -6,7 +6,12 @@ import { head } from "../object/head";
  * @param {String} name   object name
  * @param {Object} options
  */
-export async function _getObjectMeta(this: any, bucket: string, name: string, options: any = {}) {
+export async function _getObjectMeta(
+  this: any,
+  bucket: string,
+  name: string,
+  options: any = {}
+) {
   const currentBucket = this.options.bucket;
   this.setBucket(bucket);
   try {
@@ -16,5 +21,5 @@ export async function _getObjectMeta(this: any, bucket: string, name: string, op
   } catch (error) {
     this.setBucket(currentBucket);
     throw error;
-  };
-};
+  }
+}

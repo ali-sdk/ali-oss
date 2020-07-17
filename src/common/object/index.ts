@@ -36,7 +36,7 @@ export default {
   getACL,
   getAsyncFetch,
   getBucketVersions,
-  listObjectVersions: getBucketVersions, //兼容旧版本
+  listObjectVersions: getBucketVersions, // 兼容旧版本
   getObjectMeta,
   getObjectTagging,
   getObjectUrl,

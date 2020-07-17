@@ -22,4 +22,5 @@ export async function getSymlink(this: any, name, options: any = {}) {
     targetName: decodeURIComponent(target),
     res: result.res
   };
-};
+}
+

@@ -1,1 +1,1 @@
-export  { xml2objPromise as parseXML } from './xml2js'
+export { xml2objPromise as parseXML } from './xml2js';

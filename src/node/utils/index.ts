@@ -4,4 +4,4 @@ import { statFile } from './statFile';
 export default {
   getFileSize,
   statFile,
-}
+};

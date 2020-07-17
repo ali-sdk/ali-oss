@@ -1,6 +1,7 @@
-import { objectName } from '../utils/objectName'
+import urlutil from 'url';
+import { objectName } from '../utils/objectName';
 import { escapeName } from '../utils/escapeName';
-import urlutil from 'url'
+
 /**
  * Get Object url by name
  * @param {String} name - object name
@@ -21,4 +22,4 @@ export function generateObjectUrl(this: any, name: string, baseUrl) {
     baseUrl += '/';
   }
   return baseUrl + escapeName(objectName(name));
-};
+}

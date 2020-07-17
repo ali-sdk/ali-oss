@@ -36,7 +36,7 @@ export async function completeMultipartUpload(this: any, name, uploadId, parts, 
     }
   };
 
-  const opt: any = deepCopy(options)
+  const opt: any = deepCopy(options);
   if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
   opt.subres = { uploadId };
 

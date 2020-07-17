@@ -15,7 +15,7 @@ export async function putChannel(this: any, id, conf, options: any = {}) {
   const params = this._objectRequestParams('PUT', id, options);
   params.xmlResponse = true;
   params.content = jstoxml.toXML({
-    LiveChannelConfiguration: conf
+    LiveChannelConfiguration: conf,
   });
   params.successStatuses = [200];
 
@@ -33,9 +33,9 @@ export async function putChannel(this: any, id, conf, options: any = {}) {
   return {
     publishUrls,
     playUrls,
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * Get the channel info
@@ -54,9 +54,9 @@ export async function getChannel(this: any, id, options: any = {}) {
 
   return {
     data: result.data,
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * Delete the channel
@@ -73,9 +73,9 @@ export async function deleteChannel(this: any, id, options: any = {}) {
   const result = await this.request(params);
 
   return {
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * Set the channel status
@@ -84,10 +84,15 @@ export async function deleteChannel(this: any, id, options: any = {}) {
  * @param {Object} options
  * @return {Object}
  */
-export async function putChannelStatus(this: any, id, status, options: any = {}) {
+export async function putChannelStatus(
+  this: any,
+  id,
+  status,
+  options: any = {}
+) {
   options.subres = {
     live: null,
-    status
+    status,
   };
 
   const params = this._objectRequestParams('PUT', id, options);
@@ -96,9 +101,9 @@ export async function putChannelStatus(this: any, id, status, options: any = {})
   const result = await this.request(params);
 
   return {
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * Get the channel status
@@ -109,7 +114,7 @@ export async function putChannelStatus(this: any, id, status, options: any = {})
 export async function getChannelStatus(this: any, id, options: any = {}) {
   options.subres = {
     live: null,
-    comp: 'stat'
+    comp: 'stat',
   };
 
   const params = this._objectRequestParams('GET', id, options);
@@ -120,9 +125,9 @@ export async function getChannelStatus(this: any, id, options: any = {}) {
 
   return {
     data: result.data,
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * List the channels
@@ -151,7 +156,7 @@ export async function listChannels(this: any, query, options: any = {}) {
     channels = [channels];
   }
 
-  channels = channels.map((x) => {
+  channels = channels.map(x => {
     x.PublishUrls = x.PublishUrls.Url;
     if (!Array.isArray(x.PublishUrls)) {
       x.PublishUrls = [x.PublishUrls];
@@ -168,9 +173,9 @@ export async function listChannels(this: any, query, options: any = {}) {
     channels,
     nextMarker: result.data.NextMarker || null,
     isTruncated: result.data.IsTruncated === 'true',
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * Get the channel history
@@ -181,7 +186,7 @@ export async function listChannels(this: any, query, options: any = {}) {
 export async function getChannelHistory(this: any, id, options: any = {}) {
   options.subres = {
     live: null,
-    comp: 'history'
+    comp: 'history',
   };
 
   const params = this._objectRequestParams('GET', id, options);
@@ -196,9 +201,9 @@ export async function getChannelHistory(this: any, id, options: any = {}) {
   }
   return {
     records,
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * Create vod playlist
@@ -213,7 +218,7 @@ export async function getChannelHistory(this: any, id, options: any = {}) {
  */
 export async function createVod(this: any, id, name, time, options: any = {}) {
   options.subres = {
-    vod: null
+    vod: null,
   };
   copy(time, false).to(options.subres);
 
@@ -224,9 +229,9 @@ export async function createVod(this: any, id, name, time, options: any = {}) {
   const result = await this.request(params);
 
   return {
-    res: result.res
+    res: result.res,
   };
-};
+}
 
 /**
  * Get RTMP Url
@@ -241,12 +246,15 @@ export function getRtmpUrl(this: any, channelId, options: any = {}) {
   const expires = utility.timestamp() + (options.expires || 1800);
   const res = {
     bucket: this.options.bucket,
-    object: this._objectName(`live/${channelId}`)
+    object: this._objectName(`live/${channelId}`),
   };
   const resource = `/${res.bucket}/${channelId}`;
 
   options.params = options.params || {};
-  const query = Object.keys(options.params).sort().map(x => `${x}:${options.params[x]}\n`).join('');
+  const query = Object.keys(options.params)
+    .sort()
+    .map(x => `${x}:${options.params[x]}\n`)
+    .join('');
 
   const stringToSign = `${expires}\n${query}${resource}`;
   const signature = this.signature(stringToSign);
@@ -256,13 +264,12 @@ export function getRtmpUrl(this: any, channelId, options: any = {}) {
   url.query = {
     OSSAccessKeyId: this.options.accessKeyId,
     Expires: expires,
-    Signature: signature
+    Signature: signature,
   };
   copy(options.params, false).to(url.query);
 
   return url.format();
-};
-
+}
 
 export default {
   putChannel,
@@ -274,4 +281,4 @@ export default {
   getChannelHistory,
   createVod,
   getRtmpUrl,
-}
+};

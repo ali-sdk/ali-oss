@@ -13,6 +13,6 @@ export async function deleteBucketEncryption(this: any, bucketName) {
   const result = await this.request(params);
   return {
     status: result.status,
-    res: result.res
+    res: result.res,
   };
-};
+}

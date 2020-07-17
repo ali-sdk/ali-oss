@@ -8,7 +8,7 @@ export async function putBucket(this: any, name: string, options: any = {}) {
 
   const CreateBucketConfiguration: any = {};
   const paramlXMLObJ = {
-    CreateBucketConfiguration
+    CreateBucketConfiguration,
   };
 
   if (options.StorageClass) {
@@ -20,7 +20,8 @@ export async function putBucket(this: any, name: string, options: any = {}) {
   params.successStatuses = [200];
   const result = await this.request(params);
   return {
-    bucket: (result.headers.location && result.headers.location.substring(1)) || null,
-    res: result.res
+    bucket:
+      (result.headers.location && result.headers.location.substring(1)) || null,
+    res: result.res,
   };
-};
+}

@@ -1,5 +1,5 @@
 import platform from 'platform';
-import { _checkUserAgent } from "./_checkUserAgent";
+import { _checkUserAgent } from './_checkUserAgent';
 import { version } from '../../browser/version';
 /*
  * Get User-Agent for browser & node.js
@@ -10,12 +10,14 @@ import { version } from '../../browser/version';
  */
 
 export function _getUserAgent() {
-  const agent = (process && (process as any).browser) ? 'js' : 'nodejs';
+  const agent = process && (process as any).browser ? 'js' : 'nodejs';
   const sdk = `aliyun-sdk-${agent}/${version}`;
   let plat = platform.description;
   if (!plat && process) {
-    plat = `Node.js ${process.version.slice(1)} on ${process.platform} ${process.arch}`;
+    plat = `Node.js ${process.version.slice(1)} on ${process.platform} ${
+      process.arch
+    }`;
   }
 
   return _checkUserAgent(`${sdk} ${plat}`);
-};
+}

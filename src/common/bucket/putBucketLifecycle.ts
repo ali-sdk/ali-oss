@@ -43,7 +43,7 @@ export async function putBucketLifecycle(this: any, name: string, rules: any[], 
   return {
     res: result.res
   };
-};
+}
 
 // todo delete, 兼容旧版本
 function defaultDaysAndDate2Expiration(obj) {

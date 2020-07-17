@@ -1,4 +1,4 @@
-import { checkBucketName } from "../utils/checkBucketName";
+import { checkBucketName } from '../utils/checkBucketName';
 
 export async function getBucketACL(this: any, name: string, options: any = {}) {
   checkBucketName(name);
@@ -10,8 +10,8 @@ export async function getBucketACL(this: any, name: string, options: any = {}) {
     acl: result.data.AccessControlList.Grant,
     owner: {
       id: result.data.Owner.ID,
-      displayName: result.data.Owner.DisplayName
+      displayName: result.data.Owner.DisplayName,
     },
-    res: result.res
+    res: result.res,
   };
 }

@@ -1,4 +1,3 @@
-
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 /**
@@ -7,31 +6,39 @@ import { obj2xml } from '../utils/obj2xml';
  * @param {Object} options
  */
 
-export async function putBucketEncryption(this: any, bucketName: string, options: any = {}) {
+export async function putBucketEncryption(
+  this: any,
+  bucketName: string,
+  options: any = {}
+) {
   options = options || {};
   checkBucketName(bucketName);
-  const params = this._bucketRequestParams('PUT', bucketName, 'encryption', options);
+  const params = this._bucketRequestParams(
+    'PUT',
+    bucketName,
+    'encryption',
+    options
+  );
   params.successStatuses = [200];
   const paramXMLObj: any = {
     ServerSideEncryptionRule: {
       ApplyServerSideEncryptionByDefault: {
-        SSEAlgorithm: options.SSEAlgorithm
-      }
-    }
+        SSEAlgorithm: options.SSEAlgorithm,
+      },
+    },
   };
   if (options.KMSMasterKeyID !== undefined) {
-    paramXMLObj.ServerSideEncryptionRule
-      .ApplyServerSideEncryptionByDefault
-      .KMSMasterKeyID = options.KMSMasterKeyID;
+    paramXMLObj.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.KMSMasterKeyID =
+      options.KMSMasterKeyID;
   }
   const paramXML = obj2xml(paramXMLObj, {
-    headers: true
+    headers: true,
   });
   params.mime = 'xml';
   params.content = paramXML;
   const result = await this.request(params);
   return {
     status: result.status,
-    res: result.res
+    res: result.res,
   };
-};
+}

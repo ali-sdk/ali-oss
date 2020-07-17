@@ -1,4 +1,4 @@
-import { objectName } from '../utils/objectName'
+import { objectName } from '../utils/objectName';
 
 /*
  * Get object's ACL
@@ -24,8 +24,8 @@ export async function getACL(this: any, name: string, options: any = {}) {
     acl: result.data.AccessControlList.Grant,
     owner: {
       id: result.data.Owner.ID,
-      displayName: result.data.Owner.DisplayName
+      displayName: result.data.Owner.DisplayName,
     },
-    res: result.res
+    res: result.res,
   };
-};
+}

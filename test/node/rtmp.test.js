@@ -13,7 +13,7 @@
 const assert = require('assert');
 const utils = require('./utils');
 const is = require('is-type-of');
-const oss = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 
 describe('test/rtmp.test.js', () => {
@@ -24,7 +24,7 @@ describe('test/rtmp.test.js', () => {
   let cid;
   let conf;
   before(async () => {
-    store = new oss(config);
+    store = new OSS(config);
     bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     store.useBucket(bucket);

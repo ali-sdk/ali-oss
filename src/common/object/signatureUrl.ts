@@ -34,4 +34,4 @@ export function signatureUrl(this: any, name, options) {
   copy(signRes.subResource).to(url.query);
 
   return url.format();
-};
+}

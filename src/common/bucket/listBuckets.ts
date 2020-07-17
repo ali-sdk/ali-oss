@@ -1,7 +1,11 @@
-import { isArray } from "../utils/isArray";
-import { formatTag } from "../utils/formatTag";
+import { isArray } from '../utils/isArray';
+import { formatTag } from '../utils/formatTag';
 
-export async function listBuckets(this: any, query: any = {}, options: any = {}) {
+export async function listBuckets(
+  this: any,
+  query: any = {},
+  options: any = {}
+) {
   // prefix, marker, max-keys
 
   const { subres = {}, ...restParams } = query;
@@ -11,8 +15,8 @@ export async function listBuckets(this: any, query: any = {}, options: any = {})
     Object.assign(subres, options.subres),
     options
   );
-  params.xmlResponse = true
-  params.query = restParams || {}
+  params.xmlResponse = true;
+  params.query = restParams || {};
 
   const result = await this.request(params);
 
@@ -31,20 +35,20 @@ export async function listBuckets(this: any, query: any = {}, options: any = {})
         region: item.Location,
         creationDate: item.CreationDate,
         StorageClass: item.StorageClass,
-        tag: formatTag(item)
+        tag: formatTag(item),
       }));
     }
     return {
       buckets,
       owner: {
         id: data.Owner.ID,
-        displayName: data.Owner.DisplayName
+        displayName: data.Owner.DisplayName,
       },
       isTruncated: data.IsTruncated === 'true',
       nextMarker: data.NextMarker || null,
-      res: result.res
+      res: result.res,
     };
   }
 
   throw await this.requestError(result);
-};
+}

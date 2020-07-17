@@ -1,8 +1,7 @@
-/* eslint-disable no-use-before-define */
-import { checkBucketName as _checkBucketName } from '../utils/checkBucketName';
-import { objectName } from '../utils/objectName';
 import querystring from 'querystring';
 import { Base64 } from 'js-base64/Base64';
+import { checkBucketName as _checkBucketName } from '../utils/checkBucketName';
+import { objectName } from '../utils/objectName';
 
 export async function processObjectSave(this: any, sourceObject, targetObject, process, targetBucket) {
   checkArgs(sourceObject, 'sourceObject');
@@ -30,7 +29,7 @@ export async function processObjectSave(this: any, sourceObject, targetObject, p
     res: result.res,
     status: result.res.status
   };
-};
+}
 
 function checkArgs(name, key) {
   if (!name) {

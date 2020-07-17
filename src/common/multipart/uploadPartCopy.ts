@@ -1,4 +1,4 @@
-import { deepCopy } from "../utils/deepCopy";
+import { deepCopy } from '../utils/deepCopy';
 
 /**
  * Upload a part copy in a multipart from the source bucket/object
@@ -13,16 +13,29 @@ import { deepCopy } from "../utils/deepCopy";
  * @param {Object} options
  */
 
-export async function uploadPartCopy(this: any, name, uploadId, partNo, range, sourceData, options: any = {}) {
+export async function uploadPartCopy(
+  this: any,
+  name,
+  uploadId,
+  partNo,
+  range,
+  sourceData,
+  options: any = {}
+) {
   const opt = deepCopy(options);
   opt.headers = opt.headers || {};
-  
-  const versionId = opt.versionId || (opt.subres && opt.subres.versionId) || null;
+
+  const versionId =
+    opt.versionId || (opt.subres && opt.subres.versionId) || null;
   let copySource;
   if (versionId) {
-    copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(sourceData.sourceKey)}?versionId=${versionId}`;
+    copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(
+      sourceData.sourceKey
+    )}?versionId=${versionId}`;
   } else {
-    copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(sourceData.sourceKey)}`;
+    copySource = `/${sourceData.sourceBucketName}/${encodeURIComponent(
+      sourceData.sourceKey
+    )}`;
   }
 
   opt.headers['x-oss-copy-source'] = copySource;
@@ -32,7 +45,7 @@ export async function uploadPartCopy(this: any, name, uploadId, partNo, range, s
 
   opt.subres = {
     partNumber: partNo,
-    uploadId
+    uploadId,
   };
   const params = this._objectRequestParams('PUT', name, opt);
   params.mime = opt.mime;
@@ -43,6 +56,6 @@ export async function uploadPartCopy(this: any, name, uploadId, partNo, range, s
   return {
     name,
     etag: result.res.headers.etag,
-    res: result.res
+    res: result.res,
   };
-};
+}

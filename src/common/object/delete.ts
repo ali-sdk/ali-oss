@@ -16,6 +16,6 @@ export async function deleteObject(this: any, name: string, options: any = {}) {
   const result = await this.request(params);
 
   return {
-    res: result.res
+    res: result.res,
   };
-};
+}

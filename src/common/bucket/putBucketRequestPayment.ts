@@ -40,4 +40,4 @@ export async function putBucketRequestPayment(this: any, bucketName: string, pay
     status: result.status,
     res: result.res
   };
-};
+}

@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 import { divideParts } from '../../common/utils/divideParts';
 import { completeMultipartUpload } from './completeMultipartUpload';
 import { handleUploadPart } from './handleUploadPart';
@@ -31,7 +32,7 @@ export async function resumeMultipart(this: any, checkpoint, options) {
       try {
         if (!this.isCancel()) {
           const pi = partOffs[partNo - 1];
-          const stream = this._createStream(file, pi.start, pi.end)
+          const stream = this._createStream(file, pi.start, pi.end);
           const data = {
             stream,
             size: pi.end - pi.start

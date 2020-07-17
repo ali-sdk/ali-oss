@@ -1,4 +1,4 @@
-import { objectUrl } from '../utils/objectUrl'
+import { objectUrl } from '../utils/objectUrl';
 
 export async function list(this: any, query: any = {}, options: any = {}) {
   // prefix, marker, max-keys, delimiter
@@ -42,4 +42,4 @@ export async function list(this: any, query: any = {}, options: any = {}) {
     nextMarker: result.data.NextMarker || null,
     isTruncated: result.data.IsTruncated === 'true'
   };
-};
+}
