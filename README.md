@@ -2028,7 +2028,7 @@ console.log(result.objects);
 
 ### .getBucketVersions(query[, options])
 
-List objects in the bucket.
+List the version information of all objects in the bucket, including the delete marker (Delete Marker).
 
 parameters:
 
