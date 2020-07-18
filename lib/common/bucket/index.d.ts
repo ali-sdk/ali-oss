@@ -1,3 +1,5 @@
+import { abortBucketWorm } from './abortBucketWorm';
+import { completeBucketWorm } from './completeBucketWorm';
 import { deleteBucket } from './deleteBucket';
 import { deleteBucketCORS } from './deleteBucketCORS';
 import { deleteBucketEncryption } from './deleteBucketEncryption';
@@ -7,6 +9,7 @@ import { deleteBucketPolicy } from './deleteBucketPolicy';
 import { deleteBucketReferer } from './deleteBucketReferer';
 import { deleteBucketTags } from './deleteBucketTags';
 import { deleteBucketWebsite } from './deleteBucketWebsite';
+import { extendBucketWorm } from './extendBucketWorm';
 import { getBucketACL } from './getBucketACL';
 import { getBucketCORS } from './getBucketCORS';
 import { getBucketEncryption } from './getBucketEncryption';
@@ -20,6 +23,8 @@ import { getBucketRequestPayment } from './getBucketRequestPayment';
 import { getBucketTags } from './getBucketTags';
 import { getBucketVersioning } from './getBucketVersioning';
 import { getBucketWebsite } from './getBucketWebsite';
+import { getBucketWorm } from './getBucketWorm';
+import { initiateBucketWorm } from './initiateBucketWorm';
 import { listBuckets } from './listBuckets';
 import { putBucket } from './putBucket';
 import { putBucketACL } from './putBucketACL';
@@ -34,6 +39,8 @@ import { putBucketTags } from './putBucketTags';
 import { putBucketVersioning } from './putBucketVersioning';
 import { putBucketWebsite } from './putBucketWebsite';
 declare const _default: {
+    abortBucketWorm: typeof abortBucketWorm;
+    completeBucketWorm: typeof completeBucketWorm;
     deleteBucket: typeof deleteBucket;
     deleteBucketCORS: typeof deleteBucketCORS;
     deleteBucketEncryption: typeof deleteBucketEncryption;
@@ -43,6 +50,7 @@ declare const _default: {
     deleteBucketReferer: typeof deleteBucketReferer;
     deleteBucketTags: typeof deleteBucketTags;
     deleteBucketWebsite: typeof deleteBucketWebsite;
+    extendBucketWorm: typeof extendBucketWorm;
     getBucketACL: typeof getBucketACL;
     getBucketCORS: typeof getBucketCORS;
     getBucketEncryption: typeof getBucketEncryption;
@@ -56,6 +64,8 @@ declare const _default: {
     getBucketTags: typeof getBucketTags;
     getBucketVersioning: typeof getBucketVersioning;
     getBucketWebsite: typeof getBucketWebsite;
+    getBucketWorm: typeof getBucketWorm;
+    initiateBucketWorm: typeof initiateBucketWorm;
     listBuckets: typeof listBuckets;
     putBucket: typeof putBucket;
     putBucketACL: typeof putBucketACL;

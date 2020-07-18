@@ -1191,4 +1191,62 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
+
+  describe('worm()', () => {
+    describe('initiateBucketWorm()', () => {
+      it('should init bucket worm', async () => {
+        try {
+          await store.initiateBucketWorm(bucket, '1');
+          assert(true);
+        } catch (error) {
+          assert(false, error);
+        }
+      });
+    });
+    describe('abortBucketWorm()', () => {
+      it('should abort bucket worm', async () => {
+        try {
+          await store.abortBucketWorm(bucket);
+          assert(true);
+        } catch (error) {
+          assert(false, error);
+        }
+      });
+    });
+    describe('completeBucketWorm(), getBucketWorm()', () => {
+      it('should complete bucket worm', async () => {
+        const { wormId } = await store.initiateBucketWorm(bucket, '1');
+        try {
+          await store.completeBucketWorm(bucket, wormId);
+          assert(true);
+        } catch (error) {
+          assert(false, error);
+        }
+
+        try {
+          const result = await store.getBucketWorm(bucket);
+          assert(result.wormId);
+        } catch (error) {
+          assert(false, error);
+        }
+      });
+    });
+    describe('extendBucketWorm()', () => {
+      it('should extend bucket worm', async () => {
+        try {
+          const { wormId, days } = await store.getBucketWorm(bucket);
+          await store.extendBucketWorm(
+            bucket,
+            wormId,
+            (days * 1 + 1).toString()
+          );
+          const result = await store.getBucketWorm(bucket);
+          assert(result.days - days === 1);
+        } catch (error) {
+          assert(false, error);
+        }
+      });
+    });
+  });
+
 });

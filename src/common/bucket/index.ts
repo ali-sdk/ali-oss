@@ -1,3 +1,5 @@
+import { abortBucketWorm } from './abortBucketWorm';
+import { completeBucketWorm } from './completeBucketWorm';
 import { deleteBucket } from './deleteBucket';
 import { deleteBucketCORS } from './deleteBucketCORS';
 import { deleteBucketEncryption } from './deleteBucketEncryption';
@@ -7,6 +9,7 @@ import { deleteBucketPolicy } from './deleteBucketPolicy';
 import { deleteBucketReferer } from './deleteBucketReferer';
 import { deleteBucketTags } from './deleteBucketTags';
 import { deleteBucketWebsite } from './deleteBucketWebsite';
+import { extendBucketWorm } from './extendBucketWorm';
 import { getBucketACL } from './getBucketACL';
 import { getBucketCORS } from './getBucketCORS';
 import { getBucketEncryption } from './getBucketEncryption';
@@ -20,6 +23,8 @@ import { getBucketRequestPayment } from './getBucketRequestPayment';
 import { getBucketTags } from './getBucketTags';
 import { getBucketVersioning } from './getBucketVersioning';
 import { getBucketWebsite } from './getBucketWebsite';
+import { getBucketWorm } from './getBucketWorm';
+import { initiateBucketWorm } from './initiateBucketWorm';
 import { listBuckets } from './listBuckets';
 import { putBucket } from './putBucket';
 import { putBucketACL } from './putBucketACL';
@@ -35,6 +40,8 @@ import { putBucketVersioning } from './putBucketVersioning';
 import { putBucketWebsite } from './putBucketWebsite';
 
 export default {
+  abortBucketWorm,
+  completeBucketWorm,
   deleteBucket,
   deleteBucketCORS,
   deleteBucketEncryption,
@@ -44,6 +51,7 @@ export default {
   deleteBucketReferer,
   deleteBucketTags,
   deleteBucketWebsite,
+  extendBucketWorm,
   getBucketACL,
   getBucketCORS,
   getBucketEncryption,
@@ -57,6 +65,8 @@ export default {
   getBucketTags,
   getBucketVersioning,
   getBucketWebsite,
+  getBucketWorm,
+  initiateBucketWorm,
   listBuckets,
   putBucket,
   putBucketACL,
