@@ -29,7 +29,7 @@ module.exports = {
       ignoreTemplateLiterals: true,
     }],
     'no-buffer-constructor': [2],
-    "comma-dangle": [2, "never"],
+    "comma-dangle": [0],
     'import/prefer-default-export': [0],
   }
 };
