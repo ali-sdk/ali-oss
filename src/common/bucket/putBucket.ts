@@ -11,11 +11,17 @@ export async function putBucket(this: any, name: string, options: any = {}) {
     CreateBucketConfiguration,
   };
 
-  if (options.StorageClass) {
-    CreateBucketConfiguration.StorageClass = options.StorageClass;
+  const storageClass = options.StorageClass || options.storageClass;
+  const dataRedundancyType = options.DataRedundancyType || options.dataRedundancyType;
+  if (storageClass || dataRedundancyType) {
+    storageClass && (CreateBucketConfiguration.StorageClass = storageClass);
+    dataRedundancyType && (CreateBucketConfiguration.DataRedundancyType = dataRedundancyType);
     params.mime = 'xml';
     params.content = obj2xml(paramlXMLObJ, { headers: true });
   }
+  const { acl, headers = {} } = options;
+  acl && (headers['x-oss-acl'] = acl);
+  params.headers = headers;
 
   params.successStatuses = [200];
   const result = await this.request(params);
