@@ -256,6 +256,74 @@ describe('test/multipart.test.js', () => {
       clientTmp._uploadPart.restore();
     });
 
+    it('should upload Node.js Buffer using multipart upload', async () => {
+      // create a buffer with 1M random data
+      const fileName = await utils.createTempFile('multipart-upload-buffer', 1024 * 1024);
+      const fileBuf = fs.readFileSync(fileName);
+
+      const name = `${prefix}multipart/upload-buffer`;
+      const result = await store.multipartUpload(name, fileBuf, {
+        partSize: 100 * 1024
+      });
+
+      assert.equal(result.res.status, 200);
+
+      const object = await store.get(name);
+      assert.equal(object.res.status, 200);
+
+      assert.equal(object.content.length, fileBuf.length);
+      // avoid comparing buffers directly for it may hang when generating diffs
+      assert.deepEqual(md5(object.content), md5(fileBuf));
+    });
+
+    it('should resume Node.js Buffer upload using checkpoint', async () => {
+      const uploadPart = store._uploadPart;
+      mm(store, '_uploadPart', function* (name, uploadId, partNo, data) {
+        if (partNo === 5) {
+          throw new Error('mock upload part fail.');
+        } else {
+          return uploadPart.call(this, name, uploadId, partNo, data);
+        }
+      });
+
+      // create a file with 1M random data
+      const fileName = await utils.createTempFile('multipart-upload-buffer', 1024 * 1024);
+      const fileBuf = fs.readFileSync(fileName);
+
+      const name = `${prefix}multipart/upload-buffer`;
+      let lastCpt = {};
+      let progress = 0;
+      try {
+        await store.multipartUpload(name, fileBuf, {
+          partSize: 100 * 1024,
+          progress(percent, cpt) {
+            progress++;
+            lastCpt = cpt;
+          }
+        });
+        // should not succeed
+        assert(false);
+      } catch (err) {
+        // pass
+      }
+
+      mm.restore();
+      const result = await store.multipartUpload(name, fileBuf, {
+        checkpoint: lastCpt,
+        progress() {
+          progress++;
+        }
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(progress, 12);
+
+      const object = await store.get(name);
+      assert.equal(object.res.status, 200);
+      assert.equal(object.content.length, fileBuf.length);
+      // avoid comparing buffers directly for it may hang when generating diffs
+      assert.deepEqual(md5(object.content), md5(fileBuf));
+    });
+
     it('should upload web file using multipart upload', async () => {
       const File = function (name, content) {
         this.name = name;

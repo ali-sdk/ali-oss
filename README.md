@@ -2623,7 +2623,7 @@ or give tips in your business code;
 parameters:
 
 - name {String} object name
-- file {String|File(only support Browser)|Blob(only support Browser)} file path or HTML5 Web File or web Blob
+- file {String|File(only support Browser)|Blob(only support Browser)|Buffer} file path or HTML5 Web File or web Blob or content buffer
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part
