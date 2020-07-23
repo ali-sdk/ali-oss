@@ -419,6 +419,17 @@ describe('test/object.test.js', () => {
         assert(true);
       }
     });
+
+    it('should throw error when path is not file ', async () => {
+      const file = __dirname;
+      const name = `${prefix}put/testpathnotfile`;
+      try {
+        await store.put(name, file);
+        assert(false);
+      } catch (error) {
+        assert.strictEqual(`${__dirname} is not file`, error.message);
+      }
+    });
   });
 
   describe('test-content-type', () => {
