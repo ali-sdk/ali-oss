@@ -4,6 +4,9 @@ const mime = require('mime');
 const dateFormat = require('dateformat');
 const copy = require('copy-to');
 const path = require('path');
+const { isIP } = require('./isIP');
+const { setRegion } = require('./setRegion');
+const { getReqUrl } = require('../client/getReqUrl');
 
 interface Headers {
   [propName: string]: any
@@ -73,7 +76,13 @@ export function createRequest(this: any, params) {
   const authResource = this._getResource(params);
   headers.authorization = this.authorization(params.method, authResource, params.subres, headers);
 
-  const url = this._getReqUrl(params);
+  // const url = this._getReqUrl(params);
+  if (isIP(this.options.endpoint.hostname)) {
+    const { region, internal, secure } = this.options;
+    const hostInfo = setRegion(region, internal, secure);
+    headers.host = `${params.bucket}.${hostInfo.host}`;
+  }
+  const url = getReqUrl.bind(this)(params);
   debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
   const timeout = params.timeout || this.options.timeout;
   const reqParams: ReqParams = {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 /* eslint no-await-in-loop: [0] */
 const assert = require('assert');
@@ -277,7 +278,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:6000/gems/');
+      assert.equal(url, 'http://127.0.0.1:6000/');
     });
 
     it('should create request url with bucket/object/subres', () => {
@@ -345,7 +346,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
+      assert.equal(url, 'http://127.0.0.1:3000/hello');
     });
 
     it('should set User-Agent', () => {
@@ -1223,15 +1224,14 @@ describe('browser', () => {
 
         const parts = await Promise.all(Array(10)
           .fill(1)
-          .map((v, i) =>
-            store.uploadPart(
-              name,
-              uploadId,
-              i + 1,
-              file,
-              i * partSize,
-              Math.min((i + 1) * partSize, 10 * 100 * 1024)
-            )));
+          .map((v, i) => store.uploadPart(
+            name,
+            uploadId,
+            i + 1,
+            file,
+            i * partSize,
+            Math.min((i + 1) * partSize, 10 * 100 * 1024)
+          )));
         const dones = parts.map((_, i) => ({
           number: i + 1,
           etag: _.etag
