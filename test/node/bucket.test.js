@@ -102,6 +102,29 @@ describe('test/bucket.test.js', () => {
       });
     });
 
+    // todo resume
+    // it('should create an ZRS bucket', async () => {
+    //   const ZRS_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
+    //   const ZRS_put_res = await store.putBucket(ZRS_name, {
+    //     dataRedundancyType: 'ZRS'
+    //   });
+    //   assert.strictEqual(ZRS_put_res.res.status, 200);
+    //   const ZRS_get_res = await store.getBucketInfo(ZRS_name);
+    //   assert.strictEqual(ZRS_get_res.bucket.DataRedundancyType, 'ZRS');
+    //   await store.deleteBucket(ZRS_name);
+    // });
+
+    it('should create an public-read bucket', async () => {
+      const public_read_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
+      const public_read_name_res = await store.putBucket(public_read_name, {
+        acl: 'public-read'
+      });
+      assert.strictEqual(public_read_name_res.res.status, 200);
+      const public_read_name_get_res = await store.getBucketInfo(public_read_name);
+      assert.strictEqual(public_read_name_get_res.bucket.AccessControlList.Grant, 'public-read');
+      await store.deleteBucket(public_read_name);
+    });
+
     after(async () => {
       const result = await store.deleteBucket(name);
       assert(result.res.status === 200 || result.res.status === 204);
