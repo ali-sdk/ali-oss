@@ -390,8 +390,10 @@ parameters:
   If bucket exists and not belong to current account, will throw BucketAlreadyExistsError.
   If bucket not exists, will create a new bucket and set it's ACL.
 - [options] {Object} optional parameters
+  - [acl] {String} include `private`,`public-read`,`public-read-write`
+  - [storageClass] {String} the storage type include (Standard,IA,Archive)
+  - [dataRedundancyType] {String} default `LRS`, include `LRS`,`ZRS`
   - [timeout] {Number} the operation timeout
-  - [StorageClass] {String} the storage type include (Standard,IA,Archive)
 
 Success will return the bucket name on `bucket` properties.
 
