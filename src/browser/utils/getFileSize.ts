@@ -1,9 +1,9 @@
-import is from 'is-type-of';
 import { isBlob } from '../../common/utils/isBlob';
 import { isFile } from '../../common/utils/isFile';
+import { isBuffer } from '../../common/utils/isBuffer';
 
 export async function getFileSize(file) {
-  if (is.buffer(file)) {
+  if (isBuffer(file)) {
     return file.length;
   } else if (isBlob(file) || isFile(file)) {
     return file.size;

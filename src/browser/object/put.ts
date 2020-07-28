@@ -1,6 +1,5 @@
 import path from 'path';
 import mime from 'mime';
-import is from 'is-type-of';
 import { putStream } from './putStream';
 import { isBlob } from '../../common/utils/isBlob';
 import { isFile } from '../../common/utils/isFile';
@@ -9,6 +8,7 @@ import { encodeCallback } from '../../common/utils/encodeCallback';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
+import { isBuffer } from '../../common/utils/isBuffer';
 
 /**
  * put an object from String(file path)/Buffer/ReadableStream
@@ -31,7 +31,7 @@ import { getFileSize } from '../utils/getFileSize';
 export async function put(this: any, name, file, options: any = {}) {
   let content;
   name = objectName(name);
-  if (is.buffer(file)) {
+  if (isBuffer(file)) {
     content = file;
   } else if (isBlob(file) || isFile(file)) {
     if (!options.mime) {
