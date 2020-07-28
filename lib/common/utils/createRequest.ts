@@ -70,6 +70,13 @@ export function createRequest(this: any, params) {
     }
   }
 
+  const { hasOwnProperty } = Object.prototype;
+  for (const k in headers) {
+    if (headers[k] && hasOwnProperty.call(headers, k)) {
+      headers[k] = Buffer.from(String(headers[k])).toString('latin1');
+    }
+  }
+
   const authResource = this._getResource(params);
   headers.authorization = this.authorization(params.method, authResource, params.subres, headers);
 
