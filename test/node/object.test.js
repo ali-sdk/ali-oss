@@ -1858,6 +1858,10 @@ describe('test/object.test.js', () => {
   });
 
   describe('restore()', () => {
+    after(async () => {
+      await store.useBucket(bucket);
+    });
+
     it('Should return OperationNotSupportedError when the type of bucket is not archive', async () => {
       const name = '/oss/restore.js';
       await store.put(name, __filename);
