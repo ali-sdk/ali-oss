@@ -36,6 +36,10 @@ export async function put(this: any, name, file, options) {
   if (isBuffer(file)) {
     content = file;
   } else if ((is as any).string(file)) {
+    const stats = fs.statSync(file);
+    if (!stats.isFile()) {
+      throw new Error(`${file} is not file`);
+    }
     options.mime = options.mime || mime.getType(path.extname(file));
     const stream = fs.createReadStream(file);
     options.contentLength = await getFileSize(file);

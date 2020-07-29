@@ -419,6 +419,18 @@ describe('test/object.test.js', () => {
         assert(true);
       }
     });
+
+    it('should throw error when path is not file ', async () => {
+      const file = __dirname;
+      const name = `${prefix}put/testpathnotfile`;
+      try {
+        await store.put(name, file);
+        assert(false);
+      } catch (error) {
+        assert.strictEqual(`${__dirname} is not file`, error.message);
+      }
+    });
+
   });
 
   describe('test-content-type', () => {
@@ -1093,39 +1105,39 @@ describe('test/object.test.js', () => {
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
-    
+
     it('should signature url with traffic limit', async () => {
-      const name = `${prefix}ali-sdk/oss/trafficLimit.js`;
-      let url, result;
+      const name1 = `${prefix}ali-sdk/oss/trafficLimit.js`;
+      let url;
+      let result;
       const file_1mb = path.join(__dirname, '.tmp', 'bigfile-1mb.bin');
       fs.writeFileSync(file_1mb, Buffer.alloc(1 * 1024 * 1024).fill('a\n'));
 
       try {
-        url = store.signatureUrl(name, {
+        url = store.signatureUrl(name1, {
           trafficLimit: 8 * 1024 * 100 * 4,
           method: 'PUT'
-        })
-      
+        });
         result = await store.urllib.request(url, {
           method: 'PUT',
           stream: fs.createReadStream(file_1mb),
           timeout: 600000,
         });
-        assert.strictEqual(200, result.status)
+        assert.strictEqual(200, result.status);
       } catch (error) {
-        assert(false, error.message)
+        assert(false, error.message);
       }
-     
+
       try {
-        url = store.signatureUrl(name, {
+        url = store.signatureUrl(name1, {
           trafficLimit: 8 * 1024 * 100 * 4,
-        })
+        });
         result = await store.urllib.request(url, {
           timeout: 600000,
         });
-        assert.strictEqual(200, result.status)
+        assert.strictEqual(200, result.status);
       } catch (error) {
-        assert(false, error.message)
+        assert(false, error.message);
       }
     });
   });
@@ -1968,20 +1980,20 @@ describe('test/object.test.js', () => {
     });
 
     it('should throw error when policy is not JSON or Object', async () => {
-      let policy = 'string'
-      const errorMessage = 'policy must be JSON string or Object'
+      let policy = 'string';
+      const errorMessage = 'policy must be JSON string or Object';
       try {
-        store.calculatePostSignature(policy)
-        assert(false)
+        store.calculatePostSignature(policy);
+        assert(false);
       } catch (error) {
-        assert.strictEqual(errorMessage, error.message)
+        assert.strictEqual(errorMessage, error.message);
       }
       try {
-        policy = 123
-        store.calculatePostSignature(policy)
-        assert(false)
+        policy = 123;
+        store.calculatePostSignature(policy);
+        assert(false);
       } catch (error) {
-        assert.strictEqual(errorMessage, error.message)
+        assert.strictEqual(errorMessage, error.message);
       }
     });
   });

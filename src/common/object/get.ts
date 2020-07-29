@@ -16,7 +16,7 @@ export async function get(this: any, name, file, options: any = {}) {
 
   if (is.writableStream(file)) {
     writeStream = file;
-  } else if (is.string(file)) {
+  } else if ((is as any).string(file)) {
     writeStream = fs.createWriteStream(file);
     needDestroy = true;
   } else if (isObject(file)) {
