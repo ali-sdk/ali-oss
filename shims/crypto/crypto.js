@@ -67,22 +67,30 @@ function error () {
 exports.createHash = function (alg) { return hash(alg) };
 exports.createHmac = function (alg, key) { return hash(alg, key) };
 
-function each(a, f) {
-  for(var i in a)
-    f(a[i], i)
-}
-
-// the least I can do is make error messages for the rest of the node.js/crypto api.
-each(['createCredentials'
-  , 'createCipher'
-  , 'createCipheriv'
-  , 'createDecipher'
-  , 'createDecipheriv'
-  , 'createSign'
-  , 'createVerify'
-  , 'createDiffieHellman'
-  , 'pbkdf2'], function (name) {
-  exports[name] = function () {
-    error('sorry,', name, 'is not implemented yet')
-  }
-});
+exports.createCredentials = () => {
+  error('sorry,createCredentials is not implemented yet');
+};
+exports.createCipher = () => {
+  error('sorry,createCipher is not implemented yet');
+};
+exports.createCipheriv = () => {
+  error('sorry,createCipheriv is not implemented yet');
+};
+exports.createDecipher = () => {
+  error('sorry,createDecipher is not implemented yet');
+};
+exports.createDecipheriv = () => {
+  error('sorry,createDecipheriv is not implemented yet');
+};
+exports.createSign = () => {
+  error('sorry,createSign is not implemented yet');
+};
+exports.createVerify = () => {
+  error('sorry,createVerify is not implemented yet');
+};
+exports.createDiffieHellman = () => {
+  error('sorry,createDiffieHellman is not implemented yet');
+};
+exports.pbkdf2 = () => {
+  error('sorry,pbkdf2 is not implemented yet');
+};
