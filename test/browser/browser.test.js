@@ -751,6 +751,32 @@ describe('browser', () => {
       info = await store.head(originname);
       assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
     });
+
+    it('should 200 when set zh-cn meta', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-4.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: '阿达的大多'
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(Buffer.from(info.meta.a, 'latin1').toString(), '阿达的大多');
+    });
+
+    it('should 200 when set zh-cn meta with zh-cn object name', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-4-中文.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: '阿达的大多'
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(Buffer.from(info.meta.a, 'latin1').toString(), '阿达的大多');
+    });
   });
 
   describe('signatureUrl()', () => {
