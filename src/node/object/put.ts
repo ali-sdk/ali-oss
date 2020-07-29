@@ -8,6 +8,7 @@ import { objectName } from '../../common/utils/objectName';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
+import { isBuffer } from '../../common/utils/isBuffer';
 
 
 /**
@@ -32,7 +33,7 @@ export async function put(this: any, name, file, options) {
   options = options || {};
   name = objectName(name);
 
-  if ((is as any).buffer(file)) {
+  if (isBuffer(file)) {
     content = file;
   } else if ((is as any).string(file)) {
     options.mime = options.mime || mime.getType(path.extname(file));
