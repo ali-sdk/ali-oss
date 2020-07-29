@@ -1,7 +1,7 @@
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
- * @param {String|File} file
+ * @param {String|File|Buffer} file
  * @param {Object} options
  *        {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
  *        {String} options.callback.url the OSS sends a callback request to this URL

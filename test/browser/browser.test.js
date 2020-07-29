@@ -1071,6 +1071,32 @@ describe('browser', () => {
         assert.deepEqual(md5(object.content), md5(fileBuf));
       });
 
+      it('should upload buffer', async () => {
+        // create a buffer with 1M random data
+        const bufferString = Array(1024 * 1024).fill('a').join('');
+        const fileBuf = Buffer.from(bufferString);
+
+        const name = `${prefix}multipart/upload-buffer`;
+
+        let progress = 0;
+        const result = await store.multipartUpload(name, fileBuf, {
+          partSize: 100 * 1024,
+          progress() {
+            progress++;
+          }
+        });
+        sinon.restore();
+        assert.equal(result.res.status, 200);
+        assert.equal(progress, 12);
+
+        const object = await store.get(name);
+        assert.equal(object.res.status, 200);
+
+        assert.equal(object.content.length, fileBuf.length);
+        // avoid comparing buffers directly for it may hang when generating diffs
+        assert.deepEqual(md5(object.content), md5(fileBuf));
+      });
+
       it('should return requestId in init, upload part, complete', async () => {
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-fallback');

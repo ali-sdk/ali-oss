@@ -7,11 +7,12 @@ import { isFile } from '../../common/utils/isFile';
 import { getPartSize } from '../../common/utils/getPartSize';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
+import { isBuffer } from '../../common/utils/isBuffer';
 
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
- * @param {String|File} file
+ * @param {String|File|Buffer} file
  * @param {Object} options
  *        {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
  *        {String} options.callback.url the OSS sends a callback request to this URL
@@ -31,8 +32,15 @@ export async function multipartUpload(this: any, name, file, options: any = {}) 
   }
 
   const minPartSize = 100 * 1024;
-  const filename = isFile(file) ? file.name : file;
-  options.mime = options.mime || mime.getType(path.extname(filename));
+  if (!options.mime) {
+    if (isFile(file)) {
+      options.mime = mime.getType(path.extname(file.name));
+    } else if (isBuffer(file)) {
+      options.mime = '';
+    } else {
+      options.mime = mime.getType(path.extname(file));
+    }
+  }
   options.headers = options.headers || {};
   convertMetaToHeaders(options.meta, options.headers);
 

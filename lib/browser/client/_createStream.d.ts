@@ -1,2 +1,3 @@
-import { WebFileReadStream } from '../../common/utils/webFileReadStream';
-export declare function _createStream(file: any, start: any, end: any): WebFileReadStream;
+/// <reference types="node" />
+import { Readable } from 'stream';
+export declare function _createStream(file: any, start: any, end: any): Readable;

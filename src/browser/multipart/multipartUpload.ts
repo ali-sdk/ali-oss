@@ -8,11 +8,12 @@ import { isBlob } from '../../common/utils/isBlob';
 import { getPartSize } from '../../common/utils/getPartSize';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
+import { isBuffer } from '../../common/utils/isBuffer';
 
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
- * @param {String|File} file
+ * @param {String|File|Buffer} file
  * @param {Object} options
  *        {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
  *        {String} options.callback.url the OSS sends a callback request to this URL
@@ -25,7 +26,7 @@ import { getFileSize } from '../utils/getFileSize';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: any, name, file, options) {
+export async function multipartUpload(this: any, name: string, file, options) {
   this.resetCancelFlag();
   options = options || {};
   if (options.checkpoint && options.checkpoint.uploadId) {
@@ -39,6 +40,8 @@ export async function multipartUpload(this: any, name, file, options) {
       options.mime = mime.getType(path.extname(file.name));
     } else if (isBlob(file)) {
       options.mime = file.type;
+    } else if (isBuffer(file)) {
+      options.mime = '';
     } else {
       options.mime = mime.getType(path.extname(file));
     }
