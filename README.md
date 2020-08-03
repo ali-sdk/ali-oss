@@ -3905,6 +3905,10 @@ Each error return by OSS server will contains these properties:
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
+The following table lists the OSS error codes:
+
+[More code info](https://help.aliyun.com/knowledge_detail/32005.html)
+
 name | code | status | message | message in Chinese
 ---  | ---  | --- | ---     | ---
 AccessDeniedError | AccessDenied | 403 | Access Denied | 拒绝访问
