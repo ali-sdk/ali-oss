@@ -57,6 +57,7 @@ export function initOptions(options) {
       isRequestPay: false,
       sldEnable: false,
       useFetch: false,
+      headerEncoding: 'utf-8',
       amendTimeSkewed: 0, // record the time difference between client and server
     },
     options

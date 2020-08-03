@@ -1,1 +1,1 @@
-export declare function getResource(params: any): string;
+export declare function getResource(params: any, headerEncoding: any): string;

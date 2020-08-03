@@ -7,8 +7,13 @@ export async function listBuckets(
   options: any = {}
 ) {
   // prefix, marker, max-keys
-
-  const { subres = {}, ...restParams } = query;
+  const { subres = {} } = query;
+  const restParams = {};
+  for (const key in query) {
+    if (key !== 'subres') {
+      restParams[key] = query[key];
+    }
+  }
   const params: any = this._bucketRequestParams(
     'GET',
     '',

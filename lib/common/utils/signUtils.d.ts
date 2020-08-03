@@ -17,7 +17,7 @@ export declare function buildCanonicalString(method: any, resourcePath: any, req
  * @param {String} accessKeySecret
  * @param {String} canonicalString
  */
-export declare function computeSignature(accessKeySecret: any, canonicalString: any): string;
+export declare function computeSignature(accessKeySecret: string, canonicalString: string, headerEncoding?: any): string;
 /**
  * @param {String} accessKeyId
  * @param {String} accessKeySecret
@@ -31,7 +31,7 @@ export declare function authorization(accessKeyId: any, accessKeySecret: any, ca
  * @param {String} resource
  * @param {Number} expires
  */
-export declare function _signatureForURL(accessKeySecret: any, options: any, resource: any, expires: any): {
+export declare function _signatureForURL(accessKeySecret: any, options: any, resource: any, expires: any, headerEncoding?: any): {
     Signature: string;
     subResource: any;
 };

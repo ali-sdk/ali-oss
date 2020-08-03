@@ -7,6 +7,7 @@ import debug from 'debug';
 import { getResource } from '../utils/getResource';
 import { authorization } from '../utils/authorization';
 import { getReqUrl } from '../utils/getReqUrl';
+import { encoder } from '../utils/encoder';
 
 const _debug = debug('ali-oss');
 
@@ -75,8 +76,15 @@ export function _createRequest(this: any, params) {
     }
   }
 
-  const authResource = getResource(params);
-  headers.authorization = authorization(params.method, authResource, params.subres, headers, this.options);
+  const { hasOwnProperty } = Object.prototype;
+  for (const k in headers) {
+    if (headers[k] && hasOwnProperty.call(headers, k)) {
+      headers[k] = encoder(String(headers[k]), this.options.headerEncoding);
+    }
+  }
+
+  const authResource = getResource(params, this.options.headerEncoding);
+  headers.authorization = authorization(params.method, authResource, params.subres, headers, this.options, this.options.headerEncoding);
 
   const url = getReqUrl(params, this.options);
   _debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);

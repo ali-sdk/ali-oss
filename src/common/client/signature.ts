@@ -5,6 +5,6 @@ import { computeSignature } from '../utils/signUtils';
  * @param {String} stringToSign
  * @return {String} the signature
  */
-export function signature(this: any, stringToSign) {
-  return computeSignature(this.options.accessKeySecret, stringToSign);
+export function signature(this: any, stringToSign: string) {
+  return computeSignature(this.options.accessKeySecret, stringToSign, this.options.headerEncoding);
 }

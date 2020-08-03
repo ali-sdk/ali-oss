@@ -82,9 +82,9 @@ export function buildCanonicalString(method, resourcePath, request, expires?) {
  * @param {String} accessKeySecret
  * @param {String} canonicalString
  */
-export function computeSignature(accessKeySecret, canonicalString) {
+export function computeSignature(accessKeySecret: string, canonicalString: string, headerEncoding: any = 'utf-8') {
   const signature = crypto.createHmac('sha1', accessKeySecret);
-  return signature.update(Buffer.from(canonicalString, 'utf8')).digest('base64');
+  return signature.update(Buffer.from(canonicalString, headerEncoding)).digest('base64');
 }
 
 /**
@@ -103,7 +103,7 @@ export function authorization(accessKeyId, accessKeySecret, canonicalString) {
  * @param {String} resource
  * @param {Number} expires
  */
-export function _signatureForURL(accessKeySecret, options: any = {}, resource, expires) {
+export function _signatureForURL(accessKeySecret, options: any = {}, resource, expires, headerEncoding?) {
   const headers = {};
   const { subResource = {} } = options;
 
@@ -168,7 +168,7 @@ export function _signatureForURL(accessKeySecret, options: any = {}, resource, e
   }, expires.toString());
 
   return {
-    Signature: computeSignature(accessKeySecret, canonicalString),
+    Signature: computeSignature(accessKeySecret, canonicalString, headerEncoding),
     subResource
   };
 }

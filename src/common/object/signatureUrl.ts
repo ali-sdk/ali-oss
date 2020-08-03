@@ -16,7 +16,7 @@ export function signatureUrl(this: any, name, options) {
     object: name
   };
 
-  const resource = getResource(params);
+  const resource = getResource(params, this.options.headerEncoding);
 
   if (this.options.stsToken) {
     options['security-token'] = this.options.stsToken;
