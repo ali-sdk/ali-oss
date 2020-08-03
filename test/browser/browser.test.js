@@ -1608,4 +1608,60 @@ describe('browser', () => {
       store.urllib.request.restore();
     });
   });
+
+  describe('options.headerEncoding', () => {
+    let store;
+    const utf8_content = '阿达的大多';
+    const latin1_content = Buffer.from(utf8_content).toString('latin1');
+    let name;
+    before(async () => {
+      store = oss(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
+      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
+      const result = await store.put(name, Buffer.from('123'), {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('copy() should return 200 when set zh-cn meta', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('putMeta() should return 200', async () => {
+      const result = await store.putMeta(name, {
+        b: utf8_content
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.b, latin1_content);
+    });
+  });
 });

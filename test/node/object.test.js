@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
@@ -1093,7 +1092,7 @@ describe('test/object.test.js', () => {
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
-    
+
     it('should signature url with traffic limit', async () => {
       const name = `${prefix}ali-sdk/oss/trafficLimit.js`;
       let url, result;
@@ -1105,7 +1104,7 @@ describe('test/object.test.js', () => {
           trafficLimit: 8 * 1024 * 100 * 4,
           method: 'PUT'
         })
-      
+
         result = await store.urllib.request(url, {
           method: 'PUT',
           stream: fs.createReadStream(file_1mb),
@@ -1115,7 +1114,7 @@ describe('test/object.test.js', () => {
       } catch (error) {
         assert(false, error.message)
       }
-     
+
       try {
         url = store.signatureUrl(name, {
           trafficLimit: 8 * 1024 * 100 * 4,
@@ -1859,6 +1858,10 @@ describe('test/object.test.js', () => {
   });
 
   describe('restore()', () => {
+    after(async () => {
+      await store.useBucket(bucket);
+    });
+
     it('Should return OperationNotSupportedError when the type of bucket is not archive', async () => {
       const name = '/oss/restore.js';
       await store.put(name, __filename);
@@ -2130,4 +2133,65 @@ describe('test/object.test.js', () => {
       }
     });
   });
+
+  describe('options.headerEncoding', () => {
+    const utf8_content = '阿达的大多';
+    const latin1_content = Buffer.from(utf8_content).toString('latin1');
+    let name;
+    before(async () => {
+      store.options.headerEncoding = 'latin1';
+
+      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
+      const result = await store.put(name, __filename, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    after(() => {
+      store.options.headerEncoding = 'utf-8';
+    });
+
+    it('copy() should return 200 when set zh-cn meta', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('putMeta() should return 200', async () => {
+      const result = await store.putMeta(name, {
+        b: utf8_content
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.b, latin1_content);
+    });
+  });
+
 });
