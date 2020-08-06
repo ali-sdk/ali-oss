@@ -189,7 +189,9 @@ describe('test/multipart.test.js', () => {
 
     /* eslint require-yield: [0] */
     it('should use default partSize when not specified', () => {
-      const partSize = store.getPartSize(1024 * 1024, null);
+      let partSize = store.getPartSize(1024 * 1024, null);
+      assert.equal(partSize, 1 * 1024 * 1024);
+      partSize = store.getPartSize(1024 * 1024);
       assert.equal(partSize, 1 * 1024 * 1024);
     });
 
@@ -236,7 +238,7 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-file-exception`;
       const clientTmp = new OSS(config);
       clientTmp.useBucket(bucket, bucketRegion);
-      const handleUploadPart = require('../../lib/common/multipart/handleUploadPart')
+      const handleUploadPart = require('../../lib/common/multipart/handleUploadPart');
       const stubUploadPart = sinon.stub(handleUploadPart, 'handleUploadPart');
       stubUploadPart.throws('TestUploadPartException');
 

@@ -1,1 +1,1 @@
-export declare function getPartSize(fileSize: any, partSize: any): number;
+export declare function getPartSize(fileSize: number, partSize?: number): number;
