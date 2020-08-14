@@ -2732,6 +2732,33 @@ const result2 = await store.multipartUpload('object', '/tmp/file', {
 
 ```
 
+- multipartUpload with abort
+
+>tips: abort multipartUpload support on node and browser
+
+```js
+
+//start upload
+let abortCheckpoint;
+store.multipartUpload('object', '/tmp/file', {
+  progress: function (p, cpt, res) {
+    abortCheckpoint = cpt;
+  }
+}).then(res => {
+  // do something
+}.catch(err => {
+   //if abort will catch abort event
+  if (err.name === 'abort') {
+    // handle abort
+    console.log('error: ', err.message)
+  }
+}))
+
+// abort
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
+
+```
+
 - multipartUpload with cancel
 
 >tips: cancel multipartUpload support on node and browser
@@ -2873,6 +2900,36 @@ const result = await store.multipartUploadCopy('object', {
 console.log(result);
 
 ```
+
+- multipartUploadCopy with abort
+
+```js
+
+//start upload
+let abortCheckpoint;
+store.multipartUploadCopy('object', {
+    sourceKey: 'sourceKey',
+    sourceBucketName: 'sourceBucketName'
+  }, {
+  progress: function (p, cpt, res) {
+    abortCheckpoint = cpt;
+  }
+}).then(res => {
+  // do something
+}.catch(err => {
+   //if abort will catch abort event
+  if (err.name === 'abort') {
+    // handle abort
+    console.log('error: ', err.message)
+  }
+}))
+
+//the other event to abort, for example: click event
+//to abort upload must use the same client instance
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
+
+```
+
 - multipartUploadCopy with cancel
 
 ```js
