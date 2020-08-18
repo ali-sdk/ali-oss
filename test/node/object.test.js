@@ -1364,6 +1364,19 @@ describe('test/object.test.js', () => {
       assert.equal(info.status, 200);
     });
 
+    it('should copy object from same bucket and set content-disposition', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-content-disposition.js`;
+      const disposition = 'attachment; filename=test';
+      const result = await store.copy(originname, name, {
+        headers: {
+          'Content-Disposition': disposition
+        },
+      });
+      assert.strictEqual(result.res.status, 200);
+      const { res } = await store.get(originname);
+      assert.strictEqual(res.headers['content-disposition'], disposition);
+    });
+
     it('should copy object from other bucket, sourceBucket in copySource', async () => {
       const copySource = `/${otherBucket}/${otherBucketObject}`;
       const copyTarget = `${prefix}ali-sdk/oss/copy-target.js`;
