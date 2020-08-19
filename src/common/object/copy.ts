@@ -1,6 +1,15 @@
 import { getSourceName } from '../utils/getSourceName';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
 
+const REPLACE_HEDERS = [
+  'content-type',
+  'content-encoding',
+  'content-language',
+  'content-disposition',
+  'cache-control',
+  'expires',
+];
+
 export async function copy(
   this: any,
   name,
@@ -18,7 +27,7 @@ export async function copy(
     options.headers[`x-oss-copy-source-${key.toLowerCase()}`] =
       options.headers[key];
   });
-  if (options.meta) {
+  if (options.meta || Object.keys(options.headers).find(_ => REPLACE_HEDERS.includes(_.toLowerCase()))) {
     options.headers['x-oss-metadata-directive'] = 'REPLACE';
   }
   convertMetaToHeaders(options.meta, options.headers);
