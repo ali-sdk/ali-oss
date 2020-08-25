@@ -1,6 +1,7 @@
 import { obj2xml } from '../utils/obj2xml';
 import { checkObjectTag } from '../utils/checkObjectTag';
 import { objectName } from '../utils/objectName';
+import { Tag, MultiVersionCommonOptions } from '../../types/params';
 
 /**
  * putObjectTagging
@@ -9,7 +10,7 @@ import { objectName } from '../utils/objectName';
  * @param {Object} options
  */
 
-export async function putObjectTagging(this: any, name: string, tag: object, options: any = {}) {
+export async function putObjectTagging(this: any, name: string, tag: Tag, options: MultiVersionCommonOptions = {}) {
   checkObjectTag(tag);
 
   options.subres = Object.assign({ tagging: '' }, options.subres);
@@ -19,7 +20,7 @@ export async function putObjectTagging(this: any, name: string, tag: object, opt
   name = objectName(name);
   const params = this._objectRequestParams('PUT', name, options);
   params.successStatuses = [200];
-  tag = Object.keys(tag).map(key => ({
+  (tag as any) = Object.keys(tag).map(key => ({
     Key: key,
     Value: tag[key]
   }));

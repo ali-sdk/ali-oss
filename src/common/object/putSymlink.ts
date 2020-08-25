@@ -2,6 +2,7 @@
 import { objectName } from '../utils/objectName';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
 import { escapeName } from '../utils/escapeName';
+import { putSymlinkOptions } from '../../types/params';
 
 /**
  * putSymlink
@@ -11,7 +12,7 @@ import { escapeName } from '../utils/escapeName';
  * @param {{res}}
  */
 
-export async function putSymlink(this: any, name: string, targetName: string, options: any = {}) {
+export async function putSymlink(this: any, name: string, targetName: string, options: putSymlinkOptions = {}) {
   options.headers = options.headers || {};
   targetName = escapeName(objectName(targetName));
   convertMetaToHeaders(options.meta, options.headers);

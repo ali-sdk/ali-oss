@@ -1,6 +1,7 @@
 import { deepCopy } from '../utils/deepCopy';
 import { encodeCallback } from '../utils/encodeCallback';
 import { obj2xml } from '../utils/obj2xml';
+import { CompleteMultipartUploadOptions } from '../../types/params';
 
 /**
  * Complete a multipart upload transaction
@@ -22,18 +23,28 @@ import { obj2xml } from '../utils/obj2xml';
  *                   }
  */
 
-export async function completeMultipartUpload(this: any, name, uploadId, parts, options: any = {}) {
-  const completeParts = parts.concat()
-    .sort((a: { number: number; }, b: { number: number; }) => a.number - b.number)
-    .filter((item: { number: any; }, index: number, arr: any[]) => !index || item.number !== arr[index - 1].number);
+export async function completeMultipartUpload(
+  this: any,
+  name: string,
+  uploadId: string,
+  parts: Array<{ number: number; etag: string }>,
+  options: CompleteMultipartUploadOptions = {}
+) {
+  const completeParts = parts
+    .concat()
+    .sort((a: { number: number }, b: { number: number }) => a.number - b.number)
+    .filter(
+      (item: { number: number }, index: number, arr: any[]) =>
+        !index || item.number !== arr[index - 1].number
+    );
 
   const xmlParamObj = {
     CompleteMultipartUpload: {
-      Part: completeParts.map((_: { number: any; etag: any; }) => ({
+      Part: completeParts.map((_: { number: number; etag: string }) => ({
         PartNumber: _.number,
-        ETag: _.etag
-      }))
-    }
+        ETag: _.etag,
+      })),
+    },
   };
 
   const opt: any = deepCopy(options);
@@ -55,7 +66,7 @@ export async function completeMultipartUpload(this: any, name, uploadId, parts, 
     res: result.res,
     bucket: params.bucket,
     name,
-    etag: result.res.headers.etag
+    etag: result.res.headers.etag,
   };
 
   if (params.headers && params.headers['x-oss-callback']) {
@@ -64,4 +75,3 @@ export async function completeMultipartUpload(this: any, name, uploadId, parts, 
 
   return ret;
 }
-

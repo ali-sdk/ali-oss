@@ -1,11 +1,12 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { RequestOptions } from '../../types/params';
 
 export async function putBucketLogging(
   this: any,
   name: string,
-  prefix: string = '',
-  options: any = {}
+  prefix = '',
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams('PUT', name, 'logging', options);

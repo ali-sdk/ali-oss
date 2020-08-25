@@ -8,7 +8,7 @@ import { escapeName } from '../utils/escapeName';
  * @return {String} object url
  */
 
-export function getObjectUrl(this: any, name: string, baseUrl: any) {
+export function getObjectUrl(this: any, name: string, baseUrl?: string) {
   if (!baseUrl) {
     baseUrl = this.options.endpoint.format();
   } else if (baseUrl[baseUrl.length - 1] !== '/') {

@@ -1,10 +1,11 @@
 import { isArray } from '../utils/isArray';
 import { formatTag } from '../utils/formatTag';
+import { RequestOptions } from '../../types/params';
 
 export async function listBuckets(
   this: any,
   query: any = {},
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   // prefix, marker, max-keys
   const { subres = {} } = query;

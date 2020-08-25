@@ -10,13 +10,13 @@ import { isObject } from '../utils/isObject';
  *         {String} params.policy JSON text encoded with UTF-8 and Base64.
  */
 
-export function calculatePostSignature(this: any, policy) {
+export function calculatePostSignature(this: any, policy: object | string) {
   if (!isObject(policy) && typeof policy !== 'string') {
     throw new Error('policy must be JSON string or Object');
   }
   if (!isObject(policy)) {
     try {
-      JSON.stringify(JSON.parse(policy));
+      JSON.stringify(JSON.parse((policy as string)));
     } catch (error) {
       throw new Error('policy must be JSON string or Object');
     }

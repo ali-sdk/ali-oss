@@ -1,3 +1,5 @@
+import { MultiVersionCommonOptions } from '../../types/params';
+
 /**
  * delete
  * @param {String} name - object name
@@ -5,7 +7,11 @@
  * @param {{res}}
  */
 
-export async function deleteObject(this: any, name: string, options: any = {}) {
+export async function deleteObject(
+  this: any,
+  name: string,
+  options: MultiVersionCommonOptions = {}
+) {
   options.subres = Object.assign({}, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;

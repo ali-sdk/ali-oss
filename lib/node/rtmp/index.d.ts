@@ -1,3 +1,13 @@
+interface PutChannelConf {
+    Description?: string;
+    Status?: string;
+    Target?: {
+        Type: string;
+        FragDuration: number;
+        FragCount: number;
+        PlaylistName: string;
+    };
+}
 /**
  * Create a live channel
  * @param {String} id the channel id
@@ -5,7 +15,7 @@
  * @param {Object} options
  * @return {Object}
  */
-export declare function putChannel(this: any, id: any, conf: any, options?: any): Promise<{
+export declare function putChannel(this: any, id: string, conf: PutChannelConf, options?: any): Promise<{
     publishUrls: any;
     playUrls: any;
     res: any;
@@ -16,7 +26,7 @@ export declare function putChannel(this: any, id: any, conf: any, options?: any)
  * @param {Object} options
  * @return {Object}
  */
-export declare function getChannel(this: any, id: any, options?: any): Promise<{
+export declare function getChannel(this: any, id: string, options?: any): Promise<{
     data: any;
     res: any;
 }>;
@@ -26,7 +36,7 @@ export declare function getChannel(this: any, id: any, options?: any): Promise<{
  * @param {Object} options
  * @return {Object}
  */
-export declare function deleteChannel(this: any, id: any, options?: any): Promise<{
+export declare function deleteChannel(this: any, id: string, options?: any): Promise<{
     res: any;
 }>;
 /**
@@ -36,7 +46,7 @@ export declare function deleteChannel(this: any, id: any, options?: any): Promis
  * @param {Object} options
  * @return {Object}
  */
-export declare function putChannelStatus(this: any, id: any, status: any, options?: any): Promise<{
+export declare function putChannelStatus(this: any, id: string, status?: string, options?: any): Promise<{
     res: any;
 }>;
 /**
@@ -45,7 +55,7 @@ export declare function putChannelStatus(this: any, id: any, status: any, option
  * @param {Object} options
  * @return {Object}
  */
-export declare function getChannelStatus(this: any, id: any, options?: any): Promise<{
+export declare function getChannelStatus(this: any, id: string, options?: any): Promise<{
     data: any;
     res: any;
 }>;
@@ -71,7 +81,7 @@ export declare function listChannels(this: any, query: any, options?: any): Prom
  * @param {Object} options
  * @return {Object}
  */
-export declare function getChannelHistory(this: any, id: any, options?: any): Promise<{
+export declare function getChannelHistory(this: any, id: string, options?: any): Promise<{
     records: any;
     res: any;
 }>;
@@ -86,7 +96,10 @@ export declare function getChannelHistory(this: any, id: any, options?: any): Pr
  * @param {Object} options
  * @return {Object}
  */
-export declare function createVod(this: any, id: any, name: any, time: any, options?: any): Promise<{
+export declare function createVod(this: any, id: string, name: string, time: {
+    startTime: number;
+    endTime: number;
+}, options?: any): Promise<{
     res: any;
 }>;
 /**
@@ -98,7 +111,7 @@ export declare function createVod(this: any, id: any, name: any, time: any, opti
  *   - params {Object}: the parameters such as 'playlistName'
  * @return {String} the RTMP url
  */
-export declare function getRtmpUrl(this: any, channelId: any, options?: any): any;
+export declare function getRtmpUrl(this: any, channelId: string, options?: any): any;
 declare const _default: {
     putChannel: typeof putChannel;
     getChannel: typeof getChannel;

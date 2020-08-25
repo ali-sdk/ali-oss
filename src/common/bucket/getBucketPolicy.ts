@@ -1,4 +1,5 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 /**
  * getBucketPolicy
@@ -8,8 +9,8 @@ import { checkBucketName } from '../utils/checkBucketName';
 
 export async function getBucketPolicy(
   this: any,
-  bucketName,
-  options: any = {}
+  bucketName: string,
+  options: RequestOptions = {}
 ) {
   checkBucketName(bucketName);
 

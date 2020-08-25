@@ -1,3 +1,4 @@
+import { MultiVersionCommonOptions } from '../../types/params';
 
 /**
  * Restore Object
@@ -6,8 +7,11 @@
  * @returns {{res}}
  */
 
-export async function restore(this: any, name, options) {
-  options = options || {};
+export async function restore(
+  this: any,
+  name: string,
+  options: MultiVersionCommonOptions = {}
+) {
   options.subres = Object.assign({ restore: '' }, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;
@@ -18,6 +22,6 @@ export async function restore(this: any, name, options) {
   const result = await this.request(params);
 
   return {
-    res: result.res
+    res: result.res,
   };
 }

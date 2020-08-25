@@ -1,3 +1,4 @@
+import { MultipartUploadCopySourceData } from '../../types/params';
 /**
  * Upload a part copy in a multipart from the source bucket/object
  * used with initMultipartUpload and completeMultipartUpload.
@@ -10,8 +11,8 @@
  *        {String} sourceData.sourceBucketName  the source bucket name
  * @param {Object} options
  */
-export declare function uploadPartCopy(this: any, name: any, uploadId: any, partNo: any, range: any, sourceData: any, options?: any): Promise<{
-    name: any;
+export declare function uploadPartCopy(this: any, name: string, uploadId: string, partNo: number, range: string, sourceData: MultipartUploadCopySourceData, options?: any): Promise<{
+    name: string;
     etag: any;
     res: any;
 }>;

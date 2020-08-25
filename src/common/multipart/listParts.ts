@@ -1,4 +1,11 @@
 import copy from 'copy-to';
+import { RequestOptions } from '../../types/params';
+
+interface ListPartsQuery {
+  'max-parts'?: number;
+  'part-number-marker'?: number;
+  'encoding-type'?: string;
+}
 
 /**
  * List the done uploadPart parts
@@ -12,11 +19,18 @@ import copy from 'copy-to';
  * @return {Object} result
  */
 
-export async function listParts(this: any, name, uploadId, query, options = {}) {
+
+export async function listParts(
+  this: any,
+  name: string,
+  uploadId: string,
+  query: ListPartsQuery = {},
+  options: RequestOptions = {}
+) {
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = {
-    uploadId
+    uploadId,
   };
   const params = this._objectRequestParams('GET', name, opt);
   params.query = query;
@@ -34,6 +48,6 @@ export async function listParts(this: any, name, uploadId, query, options = {}) 
     nextPartNumberMarker: result.data.NextPartNumberMarker,
     maxParts: result.data.MaxParts,
     isTruncated: result.data.IsTruncated,
-    parts: result.data.Part || []
+    parts: result.data.Part || [],
   };
 }

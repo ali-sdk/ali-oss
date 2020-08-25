@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 import copy from 'copy-to';
 import _debug from 'debug';
 import { _getObjectMeta } from '../utils/_getObjectMeta';
@@ -7,6 +8,7 @@ import { _makeCancelEvent } from '../utils/_makeCancelEvent';
 import { _parallel } from '../utils/_parallel';
 import { uploadPartCopy } from './uploadPartCopy';
 import { completeMultipartUpload } from './completeMultipartUpload';
+import { MultipartUploadCopySourceData } from '../../types/params';
 
 const debug = _debug('ali-oss:multipart-copy');
 
@@ -24,7 +26,7 @@ const debug = _debug('ali-oss:multipart-copy');
 export async function multipartUploadCopy(
   this: any,
   name: string,
-  sourceData,
+  sourceData: MultipartUploadCopySourceData,
   options: any = {}
 ) {
   this.resetCancelFlag();
@@ -38,7 +40,7 @@ export async function multipartUploadCopy(
     sourceData.sourceKey,
     metaOpt
   );
-  const fileSize = objectMeta.res.headers['content-length'];
+  const fileSize: number = objectMeta.res.headers['content-length'];
   sourceData.startOffset = sourceData.startOffset || 0;
   sourceData.endOffset = sourceData.endOffset || fileSize;
 

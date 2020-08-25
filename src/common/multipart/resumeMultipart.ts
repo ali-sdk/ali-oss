@@ -5,24 +5,28 @@ import { handleUploadPart } from './handleUploadPart';
 import { _makeCancelEvent } from '../utils/_makeCancelEvent';
 import { _parallel } from '../utils/_parallel';
 import { isArray } from '../utils/isArray';
+import { Checkpoint } from '../../types/params';
+
 /*
  * Resume multipart upload from checkpoint. The checkpoint will be
  * updated after each successful part upload.
  * @param {Object} checkpoint the checkpoint
  * @param {Object} options
  */
-export async function resumeMultipart(this: any, checkpoint, options) {
+export async function resumeMultipart(
+  this: any,
+  checkpoint: Checkpoint,
+  options: any = {}
+) {
   if (this.isCancel()) {
     throw _makeCancelEvent();
   }
-  const {
-    file, fileSize, partSize, uploadId, doneParts, name
-  } = checkpoint;
+  const { file, fileSize, partSize, uploadId, doneParts, name } = checkpoint;
 
   const partOffs = divideParts(fileSize, partSize);
   const numParts = partOffs.length;
 
-  let uploadPartJob: any = (partNo) => {
+  let uploadPartJob: any = partNo => {
     return new Promise(async (resolve, reject) => {
       let hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
       if (hasUploadPart) {
@@ -35,7 +39,7 @@ export async function resumeMultipart(this: any, checkpoint, options) {
           const stream = this._createStream(file, pi.start, pi.end);
           const data = {
             stream,
-            size: pi.end - pi.start
+            size: pi.end - pi.start,
           };
 
           if (isArray(this.multipartUploadStreams)) {
@@ -44,7 +48,14 @@ export async function resumeMultipart(this: any, checkpoint, options) {
             this.multipartUploadStreams = [stream];
           }
 
-          const result = await handleUploadPart.call(this, name, uploadId, partNo, data, options);
+          const result = await handleUploadPart.call(
+            this,
+            name,
+            uploadId,
+            partNo,
+            data,
+            options
+          );
 
           hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
           if (hasUploadPart) {
@@ -54,17 +65,21 @@ export async function resumeMultipart(this: any, checkpoint, options) {
           if (!this.isCancel()) {
             doneParts.push({
               number: partNo,
-              etag: result.res.headers.etag
+              etag: result.res.headers.etag,
             });
             checkpoint.doneParts = doneParts;
 
             if (options.progress) {
-              await options.progress(doneParts.length / numParts, checkpoint, result.res);
+              await options.progress(
+                doneParts.length / numParts,
+                checkpoint,
+                result.res
+              );
             }
 
             resolve({
               number: partNo,
-              etag: result.res.headers.etag
+              etag: result.res.headers.etag,
             });
           }
         }
@@ -83,7 +98,10 @@ export async function resumeMultipart(this: any, checkpoint, options) {
   const defaultParallel = 5;
   const parallel = options.parallel || defaultParallel;
 
-  if (this.checkBrowserAndVersion('Internet Explorer', '10') || parallel === 1) {
+  if (
+    this.checkBrowserAndVersion('Internet Explorer', '10') ||
+    parallel === 1
+  ) {
     for (let i = 0; i < todo.length; i++) {
       if (this.isCancel()) {
         throw _makeCancelEvent();
@@ -101,10 +119,18 @@ export async function resumeMultipart(this: any, checkpoint, options) {
     }
 
     if (jobErr && jobErr.length > 0) {
-      jobErr[0].message = `Failed to upload some parts with error: ${jobErr[0].toString()} part_num: ${jobErr[0].partNum}`;
+      jobErr[0].message = `Failed to upload some parts with error: ${jobErr[0].toString()} part_num: ${
+        jobErr[0].partNum
+      }`;
       throw jobErr[0];
     }
   }
 
-  return await completeMultipartUpload.call(this, name, uploadId, doneParts, options);
+  return await completeMultipartUpload.call(
+    this,
+    name,
+    uploadId,
+    doneParts,
+    options
+  );
 }

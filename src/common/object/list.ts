@@ -1,6 +1,11 @@
 import { objectUrl } from '../utils/objectUrl';
+import { listQuery } from '../../types/params';
 
-export async function list(this: any, query: any = {}, options: any = {}) {
+export async function list(
+  this: any,
+  query: listQuery = {},
+  options: any = {}
+) {
   // prefix, marker, max-keys, delimiter
 
   const params = this._objectRequestParams('GET', '', options);
@@ -24,8 +29,8 @@ export async function list(this: any, query: any = {}, options: any = {}) {
       storageClass: obj.StorageClass,
       owner: {
         id: obj.Owner.ID,
-        displayName: obj.Owner.DisplayName
-      }
+        displayName: obj.Owner.DisplayName,
+      },
     }));
   }
   let prefixes = result.data.CommonPrefixes || null;
@@ -40,6 +45,6 @@ export async function list(this: any, query: any = {}, options: any = {}) {
     objects,
     prefixes,
     nextMarker: result.data.NextMarker || null,
-    isTruncated: result.data.IsTruncated === 'true'
+    isTruncated: result.data.IsTruncated === 'true',
   };
 }

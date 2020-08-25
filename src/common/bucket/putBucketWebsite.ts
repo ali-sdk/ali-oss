@@ -1,18 +1,24 @@
-const { checkBucketName } = require('../utils/checkBucketName');
-const { obj2xml } = require('../utils/obj2xml');
-const { isArray } = require('../utils/isArray');
+import { checkBucketName } from '../utils/checkBucketName';
+import { obj2xml } from '../utils/obj2xml';
+import { isArray } from '../utils/isArray';
+import { RequestOptions, PutBucketWebsiteConfig } from '../../types/params';
 
-export async function putBucketWebsite(this: any, name: string, config: any = {}, options: any = {}) {
+export async function putBucketWebsite(
+  this: any,
+  name: string,
+  config: PutBucketWebsiteConfig = { index: 'index.html' },
+  options: RequestOptions = {}
+) {
   checkBucketName(name);
   const params = this._bucketRequestParams('PUT', name, 'website', options);
   const IndexDocument: any = {
-    Suffix: config.index || 'index.html'
+    Suffix: config.index || 'index.html',
   };
   const WebsiteConfiguration: any = {
-    IndexDocument
+    IndexDocument,
   };
-  let website = {
-    WebsiteConfiguration
+  let website: any = {
+    WebsiteConfiguration,
   };
 
   if (config.supportSubDir) {
@@ -25,7 +31,7 @@ export async function putBucketWebsite(this: any, name: string, config: any = {}
 
   if (config.error) {
     WebsiteConfiguration.ErrorDocument = {
-      Key: config.error
+      Key: config.error,
     };
   }
 
@@ -34,7 +40,7 @@ export async function putBucketWebsite(this: any, name: string, config: any = {}
       throw new Error('RoutingRules must be Array');
     }
     WebsiteConfiguration.RoutingRules = {
-      RoutingRule: config.routingRules
+      RoutingRule: config.routingRules,
     };
   }
 
@@ -44,6 +50,6 @@ export async function putBucketWebsite(this: any, name: string, config: any = {}
   params.successStatuses = [200];
   const result = await this.request(params);
   return {
-    res: result.res
+    res: result.res,
   };
 }

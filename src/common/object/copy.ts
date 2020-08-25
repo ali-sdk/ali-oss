@@ -12,9 +12,9 @@ const REPLACE_HEDERS = [
 
 export async function copy(
   this: any,
-  name,
-  sourceName,
-  bucketName?,
+  name: string,
+  sourceName: string,
+  bucketName?: string | object,
   options?: any
 ) {
   if (typeof bucketName === 'object') {

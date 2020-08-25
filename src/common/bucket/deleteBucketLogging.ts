@@ -1,9 +1,10 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 export async function deleteBucketLogging(
   this: any,
   name: string,
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams('DELETE', name, 'logging', options);

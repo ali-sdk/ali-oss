@@ -1,4 +1,5 @@
-export declare function getACL(this: any, name: string, options?: any): Promise<{
+import { MultiVersionCommonOptions } from '../../types/params';
+export declare function getACL(this: any, name: string, options?: MultiVersionCommonOptions): Promise<{
     acl: any;
     owner: {
         id: any;

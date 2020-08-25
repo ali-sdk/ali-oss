@@ -1,3 +1,4 @@
+import { AppendObjectOptions } from '../../types/params';
 /**
  * append an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -5,4 +6,4 @@
  * @param {Object} options
  * @return {Object}
  */
-export declare function append(this: any, name: any, file: any, options?: any): Promise<any>;
+export declare function append(this: any, name: string, file: any, options?: AppendObjectOptions): Promise<any>;

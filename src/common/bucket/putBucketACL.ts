@@ -1,10 +1,11 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { ACLType, RequestOptions } from '../../types/params';
 
 export async function putBucketACL(
   this: any,
   name: string,
-  acl: any,
-  options: any = {}
+  acl: ACLType,
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams('PUT', name, 'acl', options);

@@ -8,8 +8,8 @@
  * @param {Integer} end  part end bytes  e.g: 204800
  * @param {Object} options
  */
-export declare function uploadPart(this: any, name: any, uploadId: any, partNo: any, file: any, start: any, end: any, options: any): Promise<{
-    name: any;
+export declare function uploadPart(this: any, name: string, uploadId: string, partNo: number, file: any, start: number, end: number, options?: any): Promise<{
+    name: string;
     etag: any;
     res: any;
 }>;

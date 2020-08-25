@@ -9,7 +9,7 @@ import { getPartSize } from '../../common/utils/getPartSize';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
-
+import { MultipartUploadOptions } from '../../types/params';
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
@@ -26,9 +26,8 @@ import { isBuffer } from '../../common/utils/isBuffer';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: any, name: string, file, options) {
+export async function multipartUpload(this: any, name: string, file: any, options: MultipartUploadOptions = {}) {
   this.resetCancelFlag();
-  options = options || {};
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
   }
@@ -73,7 +72,7 @@ export async function multipartUpload(this: any, name: string, file, options) {
 
     return ret;
   }
-  if (options.partSize && !(parseInt(options.partSize, 10) === options.partSize)) {
+  if (options.partSize && !(parseInt(options.partSize.toString(), 10) === options.partSize)) {
     throw new Error('partSize must be int number');
   }
 

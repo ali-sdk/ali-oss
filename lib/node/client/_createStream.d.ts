@@ -1,1 +1,1 @@
-export declare function _createStream(file: any, start: any, end: any): any;
+export declare function _createStream(file: any, start: number, end: number): any;

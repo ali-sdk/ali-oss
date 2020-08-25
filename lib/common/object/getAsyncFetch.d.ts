@@ -1,1 +1,2 @@
-export declare function getAsyncFetch(this: any, taskId: any, options?: any): Promise<object>;
+import { RequestOptions } from '../../types/params';
+export declare function getAsyncFetch(this: any, taskId: string, options?: RequestOptions): Promise<object>;

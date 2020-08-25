@@ -2,6 +2,18 @@ import jstoxml from 'jstoxml';
 import utility from 'utility';
 import copy from 'copy-to';
 import urlutil from 'url';
+
+interface PutChannelConf {
+  Description?: string;
+  Status?: string;
+  Target?: {
+    Type: string;
+    FragDuration: number;
+    FragCount: number;
+    PlaylistName: string;
+  };
+}
+
 /**
  * Create a live channel
  * @param {String} id the channel id
@@ -9,7 +21,12 @@ import urlutil from 'url';
  * @param {Object} options
  * @return {Object}
  */
-export async function putChannel(this: any, id, conf, options: any = {}) {
+export async function putChannel(
+  this: any,
+  id: string,
+  conf: PutChannelConf,
+  options: any = {}
+) {
   options.subres = 'live';
 
   const params = this._objectRequestParams('PUT', id, options);
@@ -43,7 +60,7 @@ export async function putChannel(this: any, id, conf, options: any = {}) {
  * @param {Object} options
  * @return {Object}
  */
-export async function getChannel(this: any, id, options: any = {}) {
+export async function getChannel(this: any, id: string, options: any = {}) {
   options.subres = 'live';
 
   const params = this._objectRequestParams('GET', id, options);
@@ -64,7 +81,7 @@ export async function getChannel(this: any, id, options: any = {}) {
  * @param {Object} options
  * @return {Object}
  */
-export async function deleteChannel(this: any, id, options: any = {}) {
+export async function deleteChannel(this: any, id: string, options: any = {}) {
   options.subres = 'live';
 
   const params = this._objectRequestParams('DELETE', id, options);
@@ -86,8 +103,8 @@ export async function deleteChannel(this: any, id, options: any = {}) {
  */
 export async function putChannelStatus(
   this: any,
-  id,
-  status,
+  id: string,
+  status?: string,
   options: any = {}
 ) {
   options.subres = {
@@ -111,7 +128,7 @@ export async function putChannelStatus(
  * @param {Object} options
  * @return {Object}
  */
-export async function getChannelStatus(this: any, id, options: any = {}) {
+export async function getChannelStatus(this: any, id: string, options: any = {}) {
   options.subres = {
     live: null,
     comp: 'stat',
@@ -183,7 +200,7 @@ export async function listChannels(this: any, query, options: any = {}) {
  * @param {Object} options
  * @return {Object}
  */
-export async function getChannelHistory(this: any, id, options: any = {}) {
+export async function getChannelHistory(this: any, id: string, options: any = {}) {
   options.subres = {
     live: null,
     comp: 'history',
@@ -216,7 +233,7 @@ export async function getChannelHistory(this: any, id, options: any = {}) {
  * @param {Object} options
  * @return {Object}
  */
-export async function createVod(this: any, id, name, time, options: any = {}) {
+export async function createVod(this: any, id: string, name: string, time: { startTime: number; endTime: number }, options: any = {}) {
   options.subres = {
     vod: null,
   };
@@ -242,7 +259,7 @@ export async function createVod(this: any, id, name, time, options: any = {}) {
  *   - params {Object}: the parameters such as 'playlistName'
  * @return {String} the RTMP url
  */
-export function getRtmpUrl(this: any, channelId, options: any = {}) {
+export function getRtmpUrl(this: any, channelId: string, options: any = {}) {
   const expires = utility.timestamp() + (options.expires || 1800);
   const res = {
     bucket: this.options.bucket,

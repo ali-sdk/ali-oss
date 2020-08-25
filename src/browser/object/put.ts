@@ -9,7 +9,7 @@ import { objectUrl } from '../../common/utils/objectUrl';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
-
+import { PutObjectOptions } from '../../types/params';
 /**
  * put an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -28,7 +28,7 @@ import { isBuffer } from '../../common/utils/isBuffer';
  * @return {Object}
  */
 
-export async function put(this: any, name, file, options: any = {}) {
+export async function put(this: any, name: string, file: any, options: PutObjectOptions = {}) {
   let content;
   name = objectName(name);
   if (isBuffer(file)) {

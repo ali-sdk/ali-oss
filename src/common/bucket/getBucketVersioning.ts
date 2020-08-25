@@ -1,4 +1,5 @@
-const { checkBucketName } = require('../utils/checkBucketName');
+import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 /**
  * getBucketVersioning
@@ -8,7 +9,7 @@ const { checkBucketName } = require('../utils/checkBucketName');
 export async function getBucketVersioning(
   this: any,
   bucketName: string,
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   checkBucketName(bucketName);
   const params = this._bucketRequestParams(

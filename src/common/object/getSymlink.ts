@@ -1,4 +1,5 @@
 import { objectName } from '../utils/objectName';
+import { MultiVersionCommonOptions } from '../../types/params';
 /**
  * getSymlink
  * @param {String} name - object name
@@ -6,7 +7,7 @@ import { objectName } from '../utils/objectName';
  * @param {{res}}
  */
 
-export async function getSymlink(this: any, name, options: any = {}) {
+export async function getSymlink(this: any, name: string, options: MultiVersionCommonOptions = {}) {
   options.subres = Object.assign({ symlink: '' }, options.subres);
 
   if (options.versionId) {

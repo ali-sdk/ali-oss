@@ -1,3 +1,5 @@
+import { AppendObjectOptions } from '../../types/params';
+
 /**
  * append an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -6,7 +8,12 @@
  * @return {Object}
  */
 
-export async function append(this: any, name, file, options: any = {}) {
+export async function append(
+  this: any,
+  name: string,
+  file,
+  options: AppendObjectOptions = {}
+) {
   const { put = this.put } = options;
   if (typeof put !== 'function') {
     throw 'please set put in options, put path is browser/object/put';

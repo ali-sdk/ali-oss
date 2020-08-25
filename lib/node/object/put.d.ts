@@ -1,3 +1,4 @@
+import { PutObjectOptions } from '../../types/params';
 /**
  * put an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -15,4 +16,4 @@
  *                  }
  * @return {Object}
  */
-export declare function put(this: any, name: any, file: any, options: any): Promise<any>;
+export declare function put(this: any, name: string, file: any, options?: PutObjectOptions): Promise<any>;

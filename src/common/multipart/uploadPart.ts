@@ -10,7 +10,7 @@ import { handleUploadPart } from './handleUploadPart';
  * @param {Integer} end  part end bytes  e.g: 204800
  * @param {Object} options
  */
-export async function uploadPart(this: any, name, uploadId, partNo, file, start, end, options) {
+export async function uploadPart(this: any, name: string, uploadId: string, partNo: number, file, start: number, end: number, options: any = {}) {
   const data = {
     stream: this._createStream(file, start, end),
     size: end - start

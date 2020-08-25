@@ -1,11 +1,12 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { RequestOptions, CORSRuleConfig } from '../../types/params';
 
 export async function putBucketCORS(
   this: any,
   name: string,
-  rules: any[] = [],
-  options: any = {}
+  rules: CORSRuleConfig[] = [],
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   if (!rules.length) {

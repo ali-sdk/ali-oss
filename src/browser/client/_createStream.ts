@@ -4,7 +4,7 @@ import { isFile } from '../../common/utils/isFile';
 import { WebFileReadStream } from '../../common/utils/webFileReadStream';
 import { isBuffer } from '../../common/utils/isBuffer';
 
-export function _createStream(file, start, end) {
+export function _createStream(file: any, start: number, end: number) {
   if (isBlob(file) || isFile(file)) {
     return new WebFileReadStream(file.slice(start, end));
   } else if (isBuffer(file)) {

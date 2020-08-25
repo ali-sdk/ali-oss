@@ -1,5 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { formatTag } from '../utils/formatTag';
+import { RequestOptions } from '../../types/params';
 
 /**
  * getBucketTags
@@ -11,7 +12,7 @@ import { formatTag } from '../utils/formatTag';
 export async function getBucketTags(
   this: any,
   name: string,
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'tagging', options);

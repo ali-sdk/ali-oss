@@ -1,12 +1,13 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { RequestOptions } from '../../types/params';
 
 export async function putBucketReferer(
   this: any,
   name: string,
   allowEmpty: boolean,
-  referers: any,
-  options: any = {}
+  referers: string[] | null,
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams('PUT', name, 'referer', options);

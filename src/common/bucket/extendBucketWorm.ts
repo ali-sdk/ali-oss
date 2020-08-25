@@ -1,7 +1,8 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { RequestOptions } from '../../types/params';
 
-export async function extendBucketWorm(this: any, name: string, wormId: string, days: string, options: any = {}) {
+export async function extendBucketWorm(this: any, name: string, wormId: string, days: string, options: RequestOptions = {}) {
   checkBucketName(name);
   const params = this._bucketRequestParams('POST', name, { wormExtend: '', wormId }, options);
   const paramlXMLObJ = {

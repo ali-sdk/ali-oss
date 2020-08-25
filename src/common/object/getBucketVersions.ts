@@ -1,12 +1,13 @@
 import { formatQuery } from '../utils/formatQuery';
 import { isArray } from '../utils/isArray';
 import { objectUrl } from '../utils/objectUrl';
+import { getBucketVersionsQuery, MultiVersionCommonOptions } from '../../types/params';
 
 
 // proto.getBucketVersions = getBucketVersions;
 // proto.listObjectVersions = getBucketVersions;
 
-export async function getBucketVersions(this: any, query: any = {}, options: any = {}) {
+export async function getBucketVersions(this: any, query: getBucketVersionsQuery = {}, options: MultiVersionCommonOptions = {}) {
   // prefix, key-marker, max-keys, delimiter, encoding-type, version-id-marker
   if (query.versionIdMarker && query.keyMarker === undefined) {
     throw new Error('A version-id marker cannot be specified without a key marker');

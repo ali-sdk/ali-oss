@@ -1,9 +1,10 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 export async function deleteBucketLifecycle(
   this: any,
-  name,
-  options: any = {}
+  name: string,
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams(

@@ -1,3 +1,4 @@
+import { GetObjectOptions } from '../../types/params';
 /**
  * get
  * @param {String} name - object name
@@ -5,7 +6,7 @@
  * @param {Object} options
  * @param {{res}}
  */
-export declare function get(this: any, name: any, file: any, options?: any): Promise<{
+export declare function get(this: any, name: string, file: any, options?: GetObjectOptions): Promise<{
     res: any;
     content: any;
 }>;

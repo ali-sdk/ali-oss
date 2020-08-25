@@ -1,6 +1,6 @@
 import { copy } from './copy';
 
-export async function putMeta(this: any, name, meta, options: any = {}) {
+export async function putMeta(this: any, name: string, meta?: object, options: any = {}) {
 
   const copyResult = await copy.call(this, name, name, {
     meta: meta || {},

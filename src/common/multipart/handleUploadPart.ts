@@ -1,4 +1,5 @@
 import copy from 'copy-to';
+import { RequestOptions } from '../../types/params';
 /**
  * Upload a part in a multipart upload transaction
  * @param {String} name the object name
@@ -8,7 +9,7 @@ import copy from 'copy-to';
  * @param {Object} options
  */
 
-export async function handleUploadPart(this: any, name, uploadId, partNo, data, options: any = {}) {
+export async function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: any, options: RequestOptions = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
   opt.headers = opt.headers || {};

@@ -1,5 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { RequestOptions } from '../../types/params';
 
 /**
  * putBucketRequestPayment
@@ -9,7 +10,7 @@ import { obj2xml } from '../utils/obj2xml';
  */
 const payerAll = ['BucketOwner', 'Requester'];
 
-export async function putBucketRequestPayment(this: any, bucketName: string, payer, options: any = {}) {
+export async function putBucketRequestPayment(this: any, bucketName: string, payer: 'BucketOwner' | 'Requester', options: RequestOptions = {}) {
   if (!payer || payerAll.indexOf(payer) < 0) {
     throw new Error('payer must be BucketOwner or Requester');
   }

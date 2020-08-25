@@ -1,6 +1,7 @@
 import { objectName } from '../utils/objectName';
 import { formatTag } from '../utils/formatTag';
 import { parseXML } from '../utils/parseXML';
+import { MultiVersionCommonOptions } from '../../types/params';
 /**
  * getObjectTagging
  * @param {String} name - object name
@@ -8,7 +9,7 @@ import { parseXML } from '../utils/parseXML';
  * @return {Object}
  */
 
-export async function getObjectTagging(this: any, name: string, options: any = {}) {
+export async function getObjectTagging(this: any, name: string, options: MultiVersionCommonOptions = {}) {
   options.subres = Object.assign({ tagging: '' }, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;

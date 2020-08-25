@@ -1,11 +1,12 @@
 import { formatObjKey } from '../utils/formatObjKey';
+import { RequestOptions } from '../../types/params';
 
 /*
  * getAsyncFetch
  * @param {String} asyncFetch taskId
  * @param {Object} options
  */
-export async function getAsyncFetch(this: any, taskId, options: any = {}): Promise<object> {
+export async function getAsyncFetch(this: any, taskId: string, options: RequestOptions = {}): Promise<object> {
   options.subres = Object.assign({ asyncFetch: '' }, options.subres);
   options.headers = options.headers || {};
 

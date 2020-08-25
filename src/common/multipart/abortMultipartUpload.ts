@@ -7,9 +7,8 @@ import { _stop } from '../client/_stop';
  * @param {String} uploadId the upload id
  * @param {Object} options
  */
-export async function abortMultipartUpload(this: any, name, uploadId, options) {
+export async function abortMultipartUpload(this: any, name: string, uploadId: string, options: any = {}) {
   _stop.call(this);
-  options = options || {};
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = { uploadId };

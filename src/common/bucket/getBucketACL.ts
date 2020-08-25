@@ -1,6 +1,7 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
-export async function getBucketACL(this: any, name: string, options: any = {}) {
+export async function getBucketACL(this: any, name: string, options: RequestOptions = {}) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'acl', options);
   params.successStatuses = [200];

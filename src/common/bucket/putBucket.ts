@@ -1,7 +1,8 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { PutBucketOptions } from '../../types/params';
 
-export async function putBucket(this: any, name: string, options: any = {}) {
+export async function putBucket(this: any, name: string, options: PutBucketOptions = {}) {
   checkBucketName(name, true);
   options = options || {};
   const params = this._bucketRequestParams('PUT', name, '', options);

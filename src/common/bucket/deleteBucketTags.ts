@@ -1,4 +1,5 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 /**
  * deleteBucketTags
@@ -6,7 +7,7 @@ import { checkBucketName } from '../utils/checkBucketName';
  * @param {Object} options
  */
 
-export async function deleteBucketTags(this: any, name, options: any = {}) {
+export async function deleteBucketTags(this: any, name: string, options: RequestOptions = {}) {
   checkBucketName(name);
 
   const params = this._bucketRequestParams('DELETE', name, 'tagging', options);

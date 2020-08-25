@@ -4,7 +4,7 @@ import copy from 'copy-to';
 import AgentKeepalive from 'agentkeepalive';
 import is from 'is-type-of';
 import ms from 'humanize-ms';
-import urllib from 'urllib';
+import urllib, { HttpMethod } from 'urllib';
 
 const debug = require('debug')('ali-oss:sts');
 
@@ -41,7 +41,7 @@ class STS {
     }
   }
 
-  async assumeRole(role, policy, expiration, session, options) {
+  async assumeRole(role: string, policy: string | object, expiration: number, session: string, options) {
     const opts = this.options;
     const params: any = {
       Action: 'AssumeRole',
@@ -62,7 +62,7 @@ class STS {
       let policyStr;
       if ((is as any).string(policy)) {
         try {
-          policyStr = JSON.stringify(JSON.parse(policy));
+          policyStr = JSON.stringify(JSON.parse(policy as string));
         } catch (err) {
           throw new Error(`Policy string is not a valid JSON: ${err.message}`);
         }
@@ -125,7 +125,7 @@ class STS {
     return err;
   }
 
-  _getSignature(method, params, key) {
+  _getSignature(method: HttpMethod, params: object, key: string) {
     const that = this;
     const canoQuery = Object.keys(params)
       .sort()
@@ -146,7 +146,7 @@ class STS {
     return signature;
   }
 
-  _escape(str) {
+  _escape(str: string) {
     return encodeURIComponent(str)
       .replace(/!/g, '%21')
       .replace(/'/g, '%27')

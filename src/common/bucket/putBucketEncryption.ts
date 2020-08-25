@@ -1,5 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { PutBucketEncryptionOptions } from '../../types/params';
 /**
  * putBucketEncryption
  * @param {String} bucketName - bucket name
@@ -9,9 +10,8 @@ import { obj2xml } from '../utils/obj2xml';
 export async function putBucketEncryption(
   this: any,
   bucketName: string,
-  options: any = {}
+  options: PutBucketEncryptionOptions
 ) {
-  options = options || {};
   checkBucketName(bucketName);
   const params = this._bucketRequestParams(
     'PUT',

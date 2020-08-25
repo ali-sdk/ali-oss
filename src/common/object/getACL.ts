@@ -1,4 +1,5 @@
 import { objectName } from '../utils/objectName';
+import { MultiVersionCommonOptions } from '../../types/params';
 
 /*
  * Get object's ACL
@@ -7,7 +8,7 @@ import { objectName } from '../utils/objectName';
  * @return {Object}
  */
 
-export async function getACL(this: any, name: string, options: any = {}) {
+export async function getACL(this: any, name: string, options: MultiVersionCommonOptions = {}) {
   options.subres = Object.assign({ acl: '' }, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;

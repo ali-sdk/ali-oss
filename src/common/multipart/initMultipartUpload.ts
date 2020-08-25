@@ -1,7 +1,8 @@
 import copy from 'copy-to';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
+import { InitMultipartUploadOptions } from '../../types/params';
 
-export async function initMultipartUpload(this: any, name, options: any = {}) {
+export async function initMultipartUpload(this: any, name: string, options: InitMultipartUploadOptions = {}) {
   const opt: any = {};
   copy(options).to(opt);
   opt.headers = opt.headers || {};

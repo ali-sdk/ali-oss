@@ -1,6 +1,7 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { policy2Str } from '../utils/policy2Str';
 import { isObject } from '../utils/isObject';
+import { RequestOptions } from '../../types/params';
 
 /**
  * putBucketPolicy
@@ -12,8 +13,8 @@ import { isObject } from '../utils/isObject';
 export async function putBucketPolicy(
   this: any,
   bucketName: string,
-  policy,
-  options: any = {}
+  policy: object,
+  options: RequestOptions = {}
 ) {
   checkBucketName(bucketName);
 

@@ -1,9 +1,10 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 export async function getBucketInfo(
   this: any,
   name: string,
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   name = name || this.options.bucket;

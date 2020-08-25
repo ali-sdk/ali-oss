@@ -2,8 +2,13 @@
 import utility from 'utility';
 import { obj2xml } from '../utils/obj2xml';
 import { objectName } from '../utils/objectName';
+import { DeleteMultiName, DeleteMultiNameObj } from '../../types/params';
 
-export async function deleteMulti(this: any, names, options: any = {}) {
+export async function deleteMulti(
+  this: any,
+  names: DeleteMultiName[],
+  options: any = {}
+) {
   const objects: any[] = [];
   if (!names || !names.length) {
     throw new Error('names is required');
@@ -11,9 +16,9 @@ export async function deleteMulti(this: any, names, options: any = {}) {
   for (let i = 0; i < names.length; i++) {
     const object: any = {};
     if (typeof names[i] === 'string') {
-      object.Key = utility.escape(objectName(names[i]));
+      object.Key = utility.escape(objectName(names[i] as string));
     } else {
-      const { key, versionId } = names[i];
+      const { key, versionId } = names[i] as DeleteMultiNameObj;
       object.Key = utility.escape(objectName(key));
       object.VersionId = versionId;
     }

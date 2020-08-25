@@ -1,3 +1,4 @@
+import { CompleteMultipartUploadOptions } from '../../types/params';
 /**
  * Complete a multipart upload transaction
  * @param {String} name the object name
@@ -17,4 +18,7 @@
  *                     key2: 'value2'
  *                   }
  */
-export declare function completeMultipartUpload(this: any, name: any, uploadId: any, parts: any, options?: any): Promise<any>;
+export declare function completeMultipartUpload(this: any, name: string, uploadId: string, parts: Array<{
+    number: number;
+    etag: string;
+}>, options?: CompleteMultipartUploadOptions): Promise<any>;

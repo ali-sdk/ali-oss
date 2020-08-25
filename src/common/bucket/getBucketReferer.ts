@@ -1,10 +1,11 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { isArray } from '../utils/isArray';
+import { RequestOptions } from '../../types/params';
 
 export async function getBucketReferer(
   this: any,
   name: string,
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'referer', options);

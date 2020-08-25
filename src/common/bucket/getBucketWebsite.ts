@@ -1,10 +1,11 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { isObject } from '../utils/isObject';
+import { RequestOptions } from '../../types/params';
 
 export async function getBucketWebsite(
   this: any,
   name: string,
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'website', options);

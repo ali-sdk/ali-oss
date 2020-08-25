@@ -1,3 +1,4 @@
-export declare function deleteBucket(this: any, name: string, options?: any): Promise<{
+import { RequestOptions } from '../../types/params';
+export declare function deleteBucket(this: any, name: string, options?: RequestOptions): Promise<{
     res: any;
 }>;

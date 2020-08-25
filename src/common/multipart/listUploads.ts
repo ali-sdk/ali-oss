@@ -1,4 +1,5 @@
 import copy from 'copy-to';
+import { ListUploadsQuery } from '../../types/params';
 
 /**
  * List the on-going multipart uploads
@@ -7,8 +8,7 @@ import copy from 'copy-to';
  * @return {Array} the multipart uploads
  */
 
-export async function listUploads(this: any, query, options) {
-  options = options || {};
+export async function listUploads(this: any, query: ListUploadsQuery = {}, options: any = {}) {
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = 'uploads';

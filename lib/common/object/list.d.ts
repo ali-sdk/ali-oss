@@ -1,4 +1,5 @@
-export declare function list(this: any, query?: any, options?: any): Promise<{
+import { listQuery } from '../../types/params';
+export declare function list(this: any, query?: listQuery, options?: any): Promise<{
     res: any;
     objects: any;
     prefixes: any;

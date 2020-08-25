@@ -5,8 +5,9 @@ import { isObject } from '../utils/isObject';
 import { obj2xml } from '../utils/obj2xml';
 import { checkObjectTag } from '../utils/checkObjectTag';
 import { getStrBytesCount } from '../utils/getStrBytesCount';
+import { RequestOptions, LifecycleRule } from '../../types/params';
 
-export async function putBucketLifecycle(this: any, name: string, rules: any[], options: any = {}) {
+export async function putBucketLifecycle(this: any, name: string, rules: LifecycleRule[], options: RequestOptions = {}) {
   checkBucketName(name);
 
   if (!isArray(rules)) {
@@ -24,11 +25,13 @@ export async function putBucketLifecycle(this: any, name: string, rules: any[], 
   rules.forEach((_) => {
     defaultDaysAndDate2Expiration(_); // todo delete, 兼容旧版本
     checkRule(_);
-    if (_.id) {
-      _.ID = _.id;
-      delete _.id;
+
+    const rule: any = deepCopy(_);
+    if (rule.id) {
+      rule.ID = rule.id;
+      delete rule.id;
     }
-    Rule.push(_);
+    Rule.push(rule);
   });
 
   const paramXML = obj2xml(paramXMLObj, {

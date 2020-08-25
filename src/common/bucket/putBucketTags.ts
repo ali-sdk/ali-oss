@@ -1,6 +1,7 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { checkBucketTag } from '../utils/checkBucketTag';
+import { RequestOptions } from '../../types/params';
 
 /**
  * putBucketTags
@@ -9,7 +10,7 @@ import { checkBucketTag } from '../utils/checkBucketTag';
  * @param {Object} options
  */
 
-export async function putBucketTags(this: any, name, tag, options = {}) {
+export async function putBucketTags(this: any, name: string, tag: object, options: RequestOptions = {}) {
   checkBucketName(name);
   checkBucketTag(tag);
   const params = this._bucketRequestParams('PUT', name, 'tagging', options);

@@ -1,4 +1,5 @@
-export declare function listBuckets(this: any, query?: any, options?: any): Promise<{
+import { RequestOptions } from '../../types/params';
+export declare function listBuckets(this: any, query?: any, options?: RequestOptions): Promise<{
     buckets: any;
     owner: {
         id: any;

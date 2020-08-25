@@ -1,4 +1,4 @@
-export declare function copy(this: any, name: any, sourceName: any, bucketName?: any, options?: any): Promise<{
+export declare function copy(this: any, name: string, sourceName: string, bucketName?: string | object, options?: any): Promise<{
     data: any;
     res: any;
 }>;

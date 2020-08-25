@@ -2,6 +2,7 @@ import fs from 'fs';
 import is from 'is-type-of';
 import { deleteFileSafe } from '../utils/deleteFileSafe';
 import { isObject } from '../utils/isObject';
+import { GetObjectOptions } from '../../types/params';
 
 /**
  * get
@@ -10,7 +11,7 @@ import { isObject } from '../utils/isObject';
  * @param {Object} options
  * @param {{res}}
  */
-export async function get(this: any, name, file, options: any = {}) {
+export async function get(this: any, name: string, file, options: GetObjectOptions = {}) {
   let writeStream: any = null;
   let needDestroy = false;
 

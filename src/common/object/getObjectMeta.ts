@@ -1,4 +1,5 @@
 import { objectName } from '../utils/objectName';
+import { MultiVersionCommonOptions } from '../../types/params';
 
 /**
  * getObjectMeta
@@ -7,7 +8,7 @@ import { objectName } from '../utils/objectName';
  * @param {{res}}
  */
 
-export async function getObjectMeta(this: any, name: string, options: any = {}) {
+export async function getObjectMeta(this: any, name: string, options: MultiVersionCommonOptions = {}) {
   name = objectName(name);
   options.subres = Object.assign({ objectMeta: '' }, options.subres);
   if (options.versionId) {

@@ -1,3 +1,9 @@
+import { RequestOptions } from '../../types/params';
+interface ListPartsQuery {
+    'max-parts'?: number;
+    'part-number-marker'?: number;
+    'encoding-type'?: string;
+}
 /**
  * List the done uploadPart parts
  * @param {String} name object name
@@ -9,7 +15,7 @@
  * @param {Object} options
  * @return {Object} result
  */
-export declare function listParts(this: any, name: any, uploadId: any, query: any, options?: {}): Promise<{
+export declare function listParts(this: any, name: string, uploadId: string, query?: ListPartsQuery, options?: RequestOptions): Promise<{
     res: any;
     uploadId: any;
     bucket: any;
@@ -20,3 +26,4 @@ export declare function listParts(this: any, name: any, uploadId: any, query: an
     isTruncated: any;
     parts: any;
 }>;
+export {};

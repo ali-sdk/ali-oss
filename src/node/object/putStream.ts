@@ -1,9 +1,10 @@
-import { Transform } from 'stream';
+import { Transform, Readable } from 'stream';
 import pump from 'pump';
 import { objectName } from '../../common/utils/objectName';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
+import { PutObjectOptions } from '../../types/params';
 
 /**
  * put an object from ReadableStream. If `options.contentLength` is
@@ -13,8 +14,7 @@ import { encodeCallback } from '../../common/utils/encodeCallback';
  * @param {Object} options
  * @return {Object}
  */
-export async function putStream(this: any, name, stream, options) {
-  options = options || {};
+export async function putStream(this: any, name: string, stream: Readable, options: PutObjectOptions = {}) {
   options.headers = options.headers || {};
   name = objectName(name);
   if (options.contentLength) {

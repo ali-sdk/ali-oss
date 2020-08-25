@@ -1,1 +1,2 @@
-export declare function postAsyncFetch(this: any, object: any, url: any, options?: any): Promise<object>;
+import { postAsyncFetchOptions } from '../../types/params';
+export declare function postAsyncFetch(this: any, object: string, url: string, options?: postAsyncFetchOptions): Promise<object>;

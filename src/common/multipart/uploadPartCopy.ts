@@ -1,4 +1,5 @@
 import { deepCopy } from '../utils/deepCopy';
+import { MultipartUploadCopySourceData } from '../../types/params';
 
 /**
  * Upload a part copy in a multipart from the source bucket/object
@@ -15,11 +16,11 @@ import { deepCopy } from '../utils/deepCopy';
 
 export async function uploadPartCopy(
   this: any,
-  name,
-  uploadId,
-  partNo,
-  range,
-  sourceData,
+  name: string,
+  uploadId: string,
+  partNo: number,
+  range: string,
+  sourceData: MultipartUploadCopySourceData,
   options: any = {}
 ) {
   const opt = deepCopy(options);

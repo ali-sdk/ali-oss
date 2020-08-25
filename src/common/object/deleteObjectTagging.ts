@@ -1,4 +1,5 @@
 import { objectName } from '../utils/objectName';
+import { MultiVersionCommonOptions } from '../../types/params';
 
 /**
  * deleteObjectTagging
@@ -9,7 +10,7 @@ import { objectName } from '../utils/objectName';
 export async function deleteObjectTagging(
   this: any,
   name: string,
-  options: any = {}
+  options: MultiVersionCommonOptions = {}
 ) {
   options.subres = Object.assign({ tagging: '' }, options.subres);
   if (options.versionId) {

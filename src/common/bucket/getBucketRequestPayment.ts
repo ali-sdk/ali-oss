@@ -1,4 +1,5 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 /**
  * getBucketRequestPayment
@@ -9,7 +10,7 @@ import { checkBucketName } from '../utils/checkBucketName';
 export async function getBucketRequestPayment(
   this: any,
   bucketName: string,
-  options: any = {}
+  options: RequestOptions = {}
 ) {
   checkBucketName(bucketName);
   const params = this._bucketRequestParams(

@@ -1,6 +1,7 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
-export async function getBucketLocation(this: any, name: string, options: any = {}) {
+export async function getBucketLocation(this: any, name: string, options: RequestOptions = {}) {
   checkBucketName(name);
   name = name || this.options.bucket;
   const params = this._bucketRequestParams('GET', name, 'location', options);

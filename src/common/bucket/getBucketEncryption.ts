@@ -1,4 +1,5 @@
 import { checkBucketName } from '../utils/checkBucketName';
+import { RequestOptions } from '../../types/params';
 
 /**
  * getBucketEncryption
@@ -7,8 +8,8 @@ import { checkBucketName } from '../utils/checkBucketName';
 
 export async function getBucketEncryption(
   this: any,
-  bucketName,
-  options: any = {}
+  bucketName: string,
+  options: RequestOptions = {}
 ) {
   checkBucketName(bucketName);
   const params = this._bucketRequestParams(

@@ -1,4 +1,5 @@
-export declare function getBucketACL(this: any, name: string, options?: any): Promise<{
+import { RequestOptions } from '../../types/params';
+export declare function getBucketACL(this: any, name: string, options?: RequestOptions): Promise<{
     acl: any;
     owner: {
         id: any;

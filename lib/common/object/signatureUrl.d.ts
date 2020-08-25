@@ -1,1 +1,2 @@
-export declare function signatureUrl(this: any, name: any, options: any): any;
+import { signatureUrlOptions } from '../../types/params';
+export declare function signatureUrl(this: any, name: string, options?: signatureUrlOptions): any;

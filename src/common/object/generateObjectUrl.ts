@@ -9,10 +9,10 @@ import { escapeName } from '../utils/escapeName';
  * @return {String} object url include bucket
  */
 
-export function generateObjectUrl(this: any, name: string, baseUrl) {
+export function generateObjectUrl(this: any, name: string, baseUrl?: string) {
   if (!baseUrl) {
     baseUrl = this.options.endpoint.format();
-    const copyUrl: any = urlutil.parse(baseUrl);
+    const copyUrl: any = urlutil.parse((baseUrl as string));
     const { bucket } = this.options;
 
     copyUrl.hostname = `${bucket}.${copyUrl.hostname}`;

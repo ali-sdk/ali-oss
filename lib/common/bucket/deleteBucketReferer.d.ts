@@ -1,3 +1,4 @@
-export declare function deleteBucketReferer(this: any, name: any, options: any): Promise<{
+import { RequestOptions } from '../../types/params';
+export declare function deleteBucketReferer(this: any, name: string, options?: RequestOptions): Promise<{
     res: any;
 }>;

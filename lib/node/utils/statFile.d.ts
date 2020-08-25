@@ -1,1 +1,1 @@
-export declare function statFile(filepath: any): Promise<unknown>;
+export declare function statFile(filepath: string): Promise<unknown>;

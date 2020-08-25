@@ -1,13 +1,13 @@
 import { objectName } from '../utils/objectName';
 
+import { ACLType, MultiVersionCommonOptions } from '../../types/params';
 /*
  * Set object's ACL
  * @param {String} name the object key
  * @param {String} acl the object ACL
  * @param {Object} options
  */
-export async function putACL(this: any, name: string, acl: string, options) {
-  options = options || {};
+export async function putACL(this: any, name: string, acl: ACLType, options: MultiVersionCommonOptions = {}) {
   options.subres = Object.assign({ acl: '' }, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;
