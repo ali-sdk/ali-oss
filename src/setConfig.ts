@@ -4,6 +4,7 @@ import { getUserAgent } from './common/utils/getUserAgent';
 import { initOptions } from './common/client/initOptions';
 import base from './common/client';
 import { _unSupportBrowserTip } from './common/utils/_unSupportBrowserTip';
+import { _createStream } from './browser/client/_createStream';
 
 const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
 const globalHttpAgent = new AgentKeepalive();
@@ -22,6 +23,8 @@ class Client {
 
   public userAgent;
 
+  public _createStream;
+
   public constructor(options, ctx) {
     if (!(this instanceof Client)) {
       return new Client(options, ctx);
@@ -31,6 +34,8 @@ class Client {
     Object.keys(base).forEach(prop => {
       Client.prototype[prop] = base[prop];
     });
+
+    Client.prototype._createStream = _createStream;
 
     this.setConfig(options, ctx);
   }
