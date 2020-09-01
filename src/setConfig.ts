@@ -40,7 +40,7 @@ class Client {
     this.setConfig(options, ctx);
   }
 
-  use(...fn: any) {
+  static use(...fn: any) {
     if (Array.isArray(fn)) {
       fn.filter(_ => typeof _ === 'function').forEach(f => {
         this[f.name] = f.bind(this);
