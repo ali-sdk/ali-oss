@@ -67,10 +67,12 @@ export function _createRequest(this: any, params) {
   }
 
   if (params.content) {
-    headers['Content-Md5'] = crypto
-      .createHash('md5')
-      .update(Buffer.from(params.content, 'utf8'))
-      .digest('base64');
+    if (!headers['Content-Md5']) {
+      headers['Content-Md5'] = crypto
+        .createHash('md5')
+        .update(Buffer.from(params.content, 'utf8'))
+        .digest('base64');
+    }
     if (!headers['Content-Length']) {
       headers['Content-Length'] = params.content.length;
     }

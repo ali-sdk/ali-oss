@@ -31,11 +31,13 @@ class Client {
     }
     _unSupportBrowserTip();
 
+    if (!Client.prototype._createStream) {
+      Client.prototype._createStream = _createStream;
+    }
+
     Object.keys(base).forEach(prop => {
       Client.prototype[prop] = base[prop];
     });
-
-    Client.prototype._createStream = _createStream;
 
     this.setConfig(options, ctx);
   }

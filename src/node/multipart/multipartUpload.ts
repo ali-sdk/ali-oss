@@ -47,7 +47,7 @@ export async function multipartUpload(this: any, name: string, file: any, option
 
   const fileSize = await getFileSize(file);
   if (fileSize < minPartSize) {
-    const stream = this._createStream(file, 0, fileSize);
+    const stream = await this._createStream(file, 0, fileSize);
     options.contentLength = fileSize;
 
     const result = await putStream.call(this, name, stream, options);

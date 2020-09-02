@@ -42,7 +42,7 @@ export async function put(this: any, name: string, file: any, options: PutObject
       }
     }
 
-    const stream = this._createStream(file, 0, file.size);
+    const stream = await this._createStream(file, 0, file.size);
     options.contentLength = await getFileSize(file);
     try {
       const result = await putStream.call(this, name, stream, options);

@@ -12,7 +12,7 @@ import { handleUploadPart } from './handleUploadPart';
  */
 export async function uploadPart(this: any, name: string, uploadId: string, partNo: number, file, start: number, end: number, options: any = {}) {
   const data = {
-    stream: this._createStream(file, start, end),
+    stream: await this._createStream(file, start, end, true),
     size: end - start
   };
   return await handleUploadPart.call(this, name, uploadId, partNo, data, options);
