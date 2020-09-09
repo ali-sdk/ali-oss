@@ -111,6 +111,12 @@ All operation use es7 async/await to implement. All api is async function.
   - versioning
     - [.getBucketVersioning(name, [, options])](#getBucketVersioningname-options)
     - [.putBucketVersioning(name, status[, options])](#putBucketVersioningname-status-options)
+  - worm
+    - [.abortBucketWorm(name[, options])](#abortBucketWormname-options)
+    - [.completeBucketWorm(name, wormId[, options])](#completeBucketWormname-wormId-options)
+    - [.extendBucketWorm(name, wormId, days[, options])](#extendBucketWormname-wormId-days-options)
+    - [.getBucketWorm(name[, options])](#getBucketWormname-options)
+    - [.initiateBucketWorm(name, days[, options])](#initiateBucketWormname-days-options)
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
@@ -1250,6 +1256,95 @@ parameters:
 
 Success will return:
 
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .abortBucketWorm(name[, options])
+
+used to delete an unlocked retention policy.
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .completeBucketWorm(name, wormId[, options])
+
+used to lock a retention policy.
+
+parameters:
+
+- name {String} the bucket name
+- wormId {String} worm id
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .extendBucketWorm(name, wormId, days[, options])
+
+ used to extend the retention period of objects in a bucket whose retention policy is locked.
+
+parameters:
+
+- name {String} the bucket name
+- wormId {String} worm id
+- days {String | Number} retention days
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .getBucketWorm(name[, options])
+
+ used to query the retention policy information of the specified bucket.
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- wormId {String} worm id
+- state {String} `Locked` or `InProgress`
+- days {String} retention days
+- creationDate {String}
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .initiateBucketWorm(name, days[, options])
+
+create a retention policy.
+
+parameters:
+
+- name {String} the bucket name
+- days {String | Number}} set retention days
+- [options] {Object} optional args
+
+Success will return:
+
+- wormId {String} worm id
 - status {Number} response status
 - res {Object} response info
 
