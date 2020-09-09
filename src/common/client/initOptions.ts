@@ -60,6 +60,8 @@ export function initOptions(options) {
       headerEncoding: 'utf-8',
       amendTimeSkewed: 0, // record the time difference between client and server
       refreshSTSToken: null, // auto set sts config
+      enableProxy: false,
+      proxy: null,
     },
     options
   );

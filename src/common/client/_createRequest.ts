@@ -107,6 +107,8 @@ export function _createRequest(this: any, params) {
   if (this.httpsAgent) {
     reqParams.httpsAgent = this.httpsAgent;
   }
+  reqParams.enableProxy = !!this.options.enableProxy;
+  reqParams.proxy = this.options.proxy ? this.options.proxy : null;
 
   return {
     url,

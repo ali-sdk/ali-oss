@@ -329,6 +329,8 @@ options:
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
 - [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with 
 `fetch` mode ,else `XMLHttpRequest`
+- [enableProxy] {Boolean}, Enable proxy request, default is false.
+- [proxy] {String | Object}, proxy agent uri or options, default is null.
 
 example:
 
