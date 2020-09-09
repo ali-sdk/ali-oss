@@ -1,5 +1,6 @@
 import _debug from 'debug';
 import { parseXML } from '../utils/parseXML';
+import { setSTSToken } from '../utils/setSTSToken';
 
 const debug = _debug('ali-oss');
 
@@ -55,6 +56,17 @@ export async function request(this: any, params) {
     if (this.sendToWormhole && params.customResponse && result && result.res) {
       // consume the response stream
       await this.sendToWormhole(result.res);
+    }
+
+    if (err.status === 403 && err.code === 'InvalidAccessKeyId' &&
+     this.options.accessKeyId.startsWith('STS.') &&
+     typeof this.options.refreshSTSToken === 'function') {
+      // prevent infinite loop, only trigger once within 10 seconds
+      if (!this._setOptions || Date.now() - this._setOptions > 10000) {
+        this._setOptions = Date.now();
+        await setSTSToken.call(this);
+        return this.request(params);
+      }
     }
     throw err;
   }
