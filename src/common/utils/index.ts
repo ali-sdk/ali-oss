@@ -4,7 +4,6 @@ import { checkBrowserAndVersion } from './checkBrowserAndVersion';
 import { checkBucketName } from './checkBucketName';
 import { checkBucketTag } from './checkBucketTag';
 import { checkObjectTag } from './checkObjectTag';
-import { checkUserAgent } from './checkUserAgent';
 import { checkValid } from './checkValid';
 import { convertMetaToHeaders } from './convertMetaToHeaders';
 import { deepCopy } from './deepCopy';
@@ -20,7 +19,6 @@ import { getReqUrl } from './getReqUrl';
 import { getResource } from './getResource';
 import { getSourceName } from './getSourceName';
 import { getStrBytesCount } from './getStrBytesCount';
-import { getUserAgent } from './getUserAgent';
 import { isArray } from './isArray';
 import { isBlob } from './isBlob';
 import { isFile } from './isFile';
@@ -42,7 +40,6 @@ export default {
   checkBucketName,
   checkBucketTag,
   checkObjectTag,
-  checkUserAgent,
   checkValid,
   convertMetaToHeaders,
   deepCopy,
@@ -58,7 +55,6 @@ export default {
   getResource,
   getSourceName,
   getStrBytesCount,
-  getUserAgent,
   isArray,
   isBlob,
   isFile,

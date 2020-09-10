@@ -16,6 +16,7 @@
     "utility": "./shims/utility.js",
     "crypto": "./shims/crypto/crypto.js",
     "debug": "./shims/debug",
+    "platform": "./shims/platform",
     "fs": false,
     "child_process": false,
     "is-type-of": "./shims/is-type-of.js"
