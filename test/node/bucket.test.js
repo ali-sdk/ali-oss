@@ -1,3 +1,5 @@
+/* eslint-disable no-loop-func */
+/* eslint-disable no-await-in-loop */
 
 const assert = require('assert');
 const utils = require('./utils');
@@ -374,7 +376,7 @@ describe('test/bucket.test.js', () => {
       const result1 = await store.putBucketWebsite(bucket, website);
       assert.strictEqual(result1.res.status, 200);
       const rules1 = await store.getBucketWebsite(bucket);
-      includesConf(rules1.routingRules, routingRules);
+      assert(includesConf(rules1.routingRules, routingRules));
       assert.strictEqual(rules1.supportSubDir, website.supportSubDir);
       assert.strictEqual(rules1.type, website.type);
 
@@ -382,7 +384,7 @@ describe('test/bucket.test.js', () => {
       const result2 = await store.putBucketWebsite(bucket, website);
       assert.strictEqual(result2.res.status, 200);
       const rules2 = await store.getBucketWebsite(bucket);
-      includesConf(rules2.routingRules, website.routingRules);
+      assert(includesConf(rules2.routingRules, website.routingRules));
     });
 
     it('should throw error when RoutingRules is not Array', async () => {
@@ -1278,6 +1280,136 @@ describe('test/bucket.test.js', () => {
           assert(result.days - days === 1);
         } catch (error) {
           assert(false, error);
+        }
+      });
+    });
+  });
+
+  describe('inventory()', () => {
+    const inventory = {
+      id: 'default',
+      isEnabled: false,
+      prefix: 'ttt',
+      OSSBucketDestination: {
+        format: 'CSV',
+        accountId: '1817184078010220',
+        rolename: 'AliyunOSSRole',
+        bucket,
+        prefix: 'test',
+      },
+      frequency: 'Daily',
+      includedObjectVersions: 'All',
+      optionalFields: {
+        Field: ['Size', 'LastModifiedDate'],
+      },
+    };
+
+    describe('putBucketInventory', () => {
+      before(() => {
+        inventory.OSSBucketDestination.bucket = bucket;
+      });
+      it('should put bucket inventory', async () => {
+        try {
+          await store.putBucketInventory(bucket, inventory);
+        } catch (err) {
+          assert(false, err);
+        }
+      });
+      it('should put bucket inventory when no optionalFields or no field', async () => {
+        try {
+          inventory.id = 'test_optionalFields';
+          delete inventory.optionalFields;
+          await store.putBucketInventory(bucket, inventory);
+
+          inventory.id = 'test_field';
+          inventory.optionalFields = {};
+          await store.putBucketInventory(bucket, inventory);
+          assert(true);
+        } catch (err) {
+          assert(false, err);
+        }
+      });
+      it('should put bucket inventory when no prefix', async () => {
+        try {
+          inventory.id = 'test_prefix';
+          delete inventory.prefix;
+          await store.putBucketInventory(bucket, inventory);
+          assert(true);
+        } catch (err) {
+          assert(false, err);
+        }
+      });
+      it('should put bucket inventory when no OSSBucketDestination prefix', async () => {
+        try {
+          inventory.id = 'test_OSSBucketDestination_prefix';
+          delete inventory.OSSBucketDestination.prefix;
+          await store.putBucketInventory(bucket, inventory);
+          assert(true);
+        } catch (err) {
+          assert(false, err);
+        }
+      });
+      it('should put bucket inventory when has encryption', async () => {
+        try {
+          inventory.id = 'test_encryption_SSE-OSS';
+          inventory.OSSBucketDestination.encryption = { 'SSE-OSS': '' };
+          await store.putBucketInventory(bucket, inventory);
+          assert(true);
+        } catch (err) {
+          assert(false, err);
+        }
+      });
+    });
+    describe('getBucketInventory', () => {
+      it('should get bucket inventory by inventoryId', async () => {
+        try {
+          const result = await store.getBucketInventory(bucket, inventory.id);
+          assert(includesConf(result.inventory, inventory));
+        } catch (err) {
+          assert(false);
+        }
+      });
+    });
+    describe('listBucketInventory', () => {
+      before(async () => {
+        let _index = 0;
+        async function putInventoryList() {
+          await Promise.all(
+            new Array(10).fill(1).map(_ => {
+              _index++;
+              return store.putBucketInventory(bucket, Object.assign({}, inventory, { id: `test_list_${_index}` }));
+            })
+          );
+        }
+
+        await putInventoryList();
+      });
+      it('should list bucket inventory', async () => {
+        const inventoryRes = await store.listBucketInventory(bucket);
+        assert.strictEqual(inventoryRes.status, 200);
+      });
+    });
+    describe('deleteBucketInventory', () => {
+      it('should delete bukcet inventory', async () => {
+        let inventoryList = [];
+        let isTruncated;
+        let continuationToken;
+        do {
+          const inventoryRes = await store.listBucketInventory(bucket, { continuationToken });
+          inventoryList = [...inventoryList, ...inventoryRes.inventoryList];
+          isTruncated = inventoryRes.isTruncated;
+          continuationToken = inventoryRes.nextContinuationToken;
+        } while (isTruncated);
+        try {
+          // avoid Qps limit
+          do {
+            const list = inventoryList.splice(0, 10);
+            await Promise.all(list.map(_ => store.deleteBucketInventory(bucket, _.id)));
+            utils.sleep(400);
+          } while (inventoryList.length);
+          assert(true);
+        } catch (err) {
+          assert(false, err);
         }
       });
     });
