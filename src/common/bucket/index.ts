@@ -3,6 +3,7 @@ import { completeBucketWorm } from './completeBucketWorm';
 import { deleteBucket } from './deleteBucket';
 import { deleteBucketCORS } from './deleteBucketCORS';
 import { deleteBucketEncryption } from './deleteBucketEncryption';
+import { deleteBucketInventory } from './deleteBucketInventory';
 import { deleteBucketLifecycle } from './deleteBucketLifecycle';
 import { deleteBucketLogging } from './deleteBucketLogging';
 import { deleteBucketPolicy } from './deleteBucketPolicy';
@@ -14,6 +15,7 @@ import { getBucketACL } from './getBucketACL';
 import { getBucketCORS } from './getBucketCORS';
 import { getBucketEncryption } from './getBucketEncryption';
 import { getBucketInfo } from './getBucketInfo';
+import { getBucketInventory } from './getBucketInventory';
 import { getBucketLifecycle } from './getBucketLifecycle';
 import { getBucketLocation } from './getBucketLocation';
 import { getBucketLogging } from './getBucketLogging';
@@ -25,11 +27,13 @@ import { getBucketVersioning } from './getBucketVersioning';
 import { getBucketWebsite } from './getBucketWebsite';
 import { getBucketWorm } from './getBucketWorm';
 import { initiateBucketWorm } from './initiateBucketWorm';
+import { listBucketInventory } from './listBucketInventory';
 import { listBuckets } from './listBuckets';
 import { putBucket } from './putBucket';
 import { putBucketACL } from './putBucketACL';
 import { putBucketCORS } from './putBucketCORS';
 import { putBucketEncryption } from './putBucketEncryption';
+import { putBucketInventory } from './putBucketInventory';
 import { putBucketLifecycle } from './putBucketLifecycle';
 import { putBucketLogging } from './putBucketLogging';
 import { putBucketPolicy } from './putBucketPolicy';
@@ -45,6 +49,7 @@ export default {
   deleteBucket,
   deleteBucketCORS,
   deleteBucketEncryption,
+  deleteBucketInventory,
   deleteBucketLifecycle,
   deleteBucketLogging,
   deleteBucketPolicy,
@@ -56,6 +61,7 @@ export default {
   getBucketCORS,
   getBucketEncryption,
   getBucketInfo,
+  getBucketInventory,
   getBucketLifecycle,
   getBucketLocation,
   getBucketLogging,
@@ -67,11 +73,13 @@ export default {
   getBucketWebsite,
   getBucketWorm,
   initiateBucketWorm,
+  listBucketInventory,
   listBuckets,
   putBucket,
   putBucketACL,
   putBucketCORS,
   putBucketEncryption,
+  putBucketInventory,
   putBucketLifecycle,
   putBucketLogging,
   putBucketPolicy,

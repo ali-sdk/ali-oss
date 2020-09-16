@@ -43,8 +43,20 @@ function build(options, callback) {
   browserify(brOpts).add('./lib/browser/index.js')
     .transform(babelify, {
       "global": true,
-      "presets": ["es2015"],
-      "plugins": ["transform-runtime", "babel-plugin-transform-regenerator", "babel-plugin-transform-es2015-modules-commonjs"],
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "useBuiltIns": "usage",
+            "corejs": 3,
+            "targets": {
+              "chrome": "58",
+              "ie": "10"
+            }
+          }
+        ],
+      ],
+      "plugins": ["@babel/plugin-transform-runtime", "@babel/plugin-transform-regenerator"],
       "only": ['lib/*', 'shims/*', 'shims/crypto/*'],
     }).transform(aliasify, {
       global: true,

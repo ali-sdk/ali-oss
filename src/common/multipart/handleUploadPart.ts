@@ -23,7 +23,13 @@ export async function handleUploadPart(this: any, name: string, uploadId: string
   };
   const params = this._objectRequestParams('PUT', name, opt);
   params.mime = opt.mime;
-  params.stream = data.stream;
+  data.stream = data.stream.stream || data.stream;
+  if (data.stream && data.stream.pipe) {
+    params.stream = data.stream;
+  } else {
+    params.content = data.stream;
+  }
+
   params.successStatuses = [200];
 
   const result = await this.request(params);

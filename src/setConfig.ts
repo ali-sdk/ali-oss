@@ -1,6 +1,6 @@
 import urllib from 'urllib';
 import AgentKeepalive from 'agentkeepalive';
-import { getUserAgent } from './common/utils/getUserAgent';
+import { _getUserAgent } from './common/client/_getUserAgent';
 import { initOptions } from './common/client/initOptions';
 import base from './common/client';
 import { _unSupportBrowserTip } from './common/utils/_unSupportBrowserTip';
@@ -31,16 +31,18 @@ class Client {
     }
     _unSupportBrowserTip();
 
+    if (!Client.prototype._createStream) {
+      Client.prototype._createStream = _createStream;
+    }
+
     Object.keys(base).forEach(prop => {
       Client.prototype[prop] = base[prop];
     });
 
-    Client.prototype._createStream = _createStream;
-
     this.setConfig(options, ctx);
   }
 
-  use(...fn: any) {
+  static use(...fn: any) {
     if (Array.isArray(fn)) {
       fn.filter(_ => typeof _ === 'function').forEach(f => {
         this[f.name] = f.bind(this);
@@ -66,7 +68,7 @@ class Client {
       this.httpsAgent = this.options.httpsAgent || globalHttpsAgent;
     }
     this.ctx = ctx;
-    this.userAgent = getUserAgent();
+    this.userAgent = _getUserAgent();
   }
 }
 

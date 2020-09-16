@@ -36,16 +36,18 @@ export async function resumeMultipart(
       try {
         if (!this.isCancel()) {
           const pi = partOffs[partNo - 1];
-          const stream = this._createStream(file, pi.start, pi.end);
+          const stream = await this._createStream(file, pi.start, pi.end, true);
           const data = {
             stream,
             size: pi.end - pi.start,
           };
 
-          if (isArray(this.multipartUploadStreams)) {
-            this.multipartUploadStreams.push(stream);
-          } else {
-            this.multipartUploadStreams = [stream];
+          if (stream && stream.pipe) {
+            if (isArray(this.multipartUploadStreams)) {
+              this.multipartUploadStreams.push(stream);
+            } else {
+              this.multipartUploadStreams = [stream];
+            }
           }
 
           const result = await handleUploadPart.call(

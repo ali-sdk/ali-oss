@@ -31,7 +31,6 @@ declare const _default: {
     checkBucketName: (name: string, createBucket?: boolean) => void;
     checkBucketTag: (tag: object) => void;
     checkObjectTag: typeof checkObjectTag;
-    checkUserAgent: (ua: any) => any;
     checkValid: typeof checkValid;
     convertMetaToHeaders: typeof convertMetaToHeaders;
     deepCopy: (obj: any) => any;
@@ -47,7 +46,6 @@ declare const _default: {
     getResource: typeof getResource;
     getSourceName: typeof getSourceName;
     getStrBytesCount: typeof getStrBytesCount;
-    getUserAgent: () => any;
     isArray: (obj: any) => boolean;
     isBlob: typeof isBlob;
     isFile: (obj: any) => boolean;
