@@ -1,6 +1,23 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [6.10.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.9.0...v6.10.0) (2020-07-14)
+
+
+### Features
+
+* add async task ([#818](https://github.com/aliyun/oss-nodejs-sdk/issues/818)) ([8d27f24](https://github.com/aliyun/oss-nodejs-sdk/commit/8d27f245f6340291b801613b9c23c3162039c18d)), closes [#810](https://github.com/aliyun/oss-nodejs-sdk/issues/810) [#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814) [#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)
+* add typescript support ([#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814)) ([8ef7528](https://github.com/aliyun/oss-nodejs-sdk/commit/8ef7528d4d39ef641ed2e6998a7dd9ce74a3b57c))
+* asyncFetch ([#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)) ([bbe2ded](https://github.com/aliyun/oss-nodejs-sdk/commit/bbe2dedb3ff92fa2234f567b07bed3da04946515))
+* listBucket support search by tagging ([#819](https://github.com/aliyun/oss-nodejs-sdk/issues/819)) ([4b8edf6](https://github.com/aliyun/oss-nodejs-sdk/commit/4b8edf6b9cdc2e46d438847a3894d4a090e56a55))
+
+
+### Bug Fixes
+
+* **browser:** put unhandle non-RequestTimeTooSkewed error ([#825](https://github.com/aliyun/oss-nodejs-sdk/issues/825)) ([87dd7d6](https://github.com/aliyun/oss-nodejs-sdk/commit/87dd7d6ff964fceae503707ba1bbdb309ac1c033))
+* crypto each exports, close [#473](https://github.com/aliyun/oss-nodejs-sdk/issues/473) ([#830](https://github.com/aliyun/oss-nodejs-sdk/issues/830)) ([1cf7231](https://github.com/aliyun/oss-nodejs-sdk/commit/1cf7231488c21c5fdc9f1c039379d924669df6a8))
+* WebFileReadStream no throw error when filereader onerror ([#824](https://github.com/aliyun/oss-nodejs-sdk/issues/824)) ([d4977bf](https://github.com/aliyun/oss-nodejs-sdk/commit/d4977bf52858b83fac11f65b2c348180b457a5be))
 
 <a name="6.9.0"></a>
 # [6.9.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.8.0...v6.9.0) (2020-06-05)

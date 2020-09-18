@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.9.0
+// Aliyun OSS SDK for JavaScript v6.10.0
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -42,9 +42,14 @@ var urllib = require('urllib');
 var pkg = require('./version');
 var bowser = require('bowser');
 var signUtils = require('../common/signUtils');
-var _isIP = require('../common/utils/isIP');
+
+var _require = require('../common/utils/isIP'),
+    _isIP = _require.isIP;
+
 var _initOptions = require('../common/client/initOptions');
-var createRequest = require('../common/utils/createRequest');
+
+var _require2 = require('../common/utils/createRequest'),
+    createRequest = _require2.createRequest;
 
 var globalHttpAgent = new AgentKeepalive();
 
@@ -574,8 +579,12 @@ var util = require('util');
 var path = require('path');
 var mime = require('mime');
 var copy = require('copy-to');
-var isBlob = require('../common/utils/isBlob');
-var isFile = require('../common/utils/isFile');
+
+var _require = require('../common/utils/isBlob'),
+    isBlob = _require.isBlob;
+
+var _require2 = require('../common/utils/isFile'),
+    isFile = _require2.isFile;
 
 var proto = exports;
 
@@ -773,6 +782,7 @@ proto._resumeMultipart = function _resumeMultipart(checkpoint, options) {
           uploadPartJob = function uploadPartJob(self, partNo) {
             var _this = this;
 
+            // eslint-disable-next-line no-async-promise-executor
             return new _promise2.default(function _callee(resolve, reject) {
               var pi, data, result, tempErr;
               return _regenerator2.default.async(function _callee$(_context2) {
@@ -962,8 +972,8 @@ proto._getFileSize = function _getFileSize(file) {
  * Readable stream for Web File
  */
 
-var _require = require('stream'),
-    Readable = _require.Readable;
+var _require3 = require('stream'),
+    Readable = _require3.Readable;
 
 function WebFileReadStream(file, options) {
   if (!(this instanceof WebFileReadStream)) {
@@ -1090,8 +1100,12 @@ var mime = require('mime');
 var callback = require('../common/callback');
 var signHelper = require('../common/signUtils');
 var merge = require('merge-descriptors');
-var isBlob = require('../common/utils/isBlob');
-var isFile = require('../common/utils/isFile');
+
+var _require = require('../common/utils/isBlob'),
+    isBlob = _require.isBlob;
+
+var _require2 = require('../common/utils/isFile'),
+    isFile = _require2.isFile;
 
 // var assert = require('assert');
 
@@ -1175,12 +1189,12 @@ proto.put = function put(name, file, options) {
           }
 
           content = file;
-          _context2.next = 30;
+          _context2.next = 33;
           break;
 
         case 7:
           if (!(isBlob(file) || isFile(file))) {
-            _context2.next = 29;
+            _context2.next = 32;
             break;
           }
 
@@ -1211,7 +1225,7 @@ proto.put = function put(name, file, options) {
           _context2.t0 = _context2['catch'](13);
 
           if (!(_context2.t0.code === 'RequestTimeTooSkewed')) {
-            _context2.next = 27;
+            _context2.next = 29;
             break;
           }
 
@@ -1222,14 +1236,17 @@ proto.put = function put(name, file, options) {
         case 26:
           return _context2.abrupt('return', _context2.sent);
 
-        case 27:
-          _context2.next = 30;
-          break;
-
         case 29:
-          throw new TypeError('Must provide Buffer/Blob/File for put.');
+          throw _context2.t0;
 
         case 30:
+          _context2.next = 33;
+          break;
+
+        case 32:
+          throw new TypeError('Must provide Buffer/Blob/File for put.');
+
+        case 33:
 
           options.headers = options.headers || {};
           this._convertMetaToHeaders(options.meta, options.headers);
@@ -1242,10 +1259,10 @@ proto.put = function put(name, file, options) {
           params.content = content;
           params.successStatuses = [200];
 
-          _context2.next = 40;
+          _context2.next = 43;
           return _regenerator2.default.awrap(this.request(params));
 
-        case 40:
+        case 43:
           result = _context2.sent;
           ret = {
             name: name,
@@ -1260,7 +1277,7 @@ proto.put = function put(name, file, options) {
 
           return _context2.abrupt('return', ret);
 
-        case 44:
+        case 47:
         case 'end':
           return _context2.stop();
       }
@@ -1611,7 +1628,7 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
 },{"../common/callback":14,"../common/image":16,"../common/object/copyObject":19,"../common/object/delete":20,"../common/object/deleteMulti":21,"../common/object/deleteObjectTagging":22,"../common/object/get":23,"../common/object/getACL":24,"../common/object/getBucketVersions":25,"../common/object/getObjectMeta":26,"../common/object/getObjectTagging":27,"../common/object/getSymlink":28,"../common/object/head":29,"../common/object/putACL":30,"../common/object/putObjectTagging":31,"../common/object/putSymlink":32,"../common/signUtils":34,"../common/utils/isBlob":43,"../common/utils/isFile":44,"babel-runtime/core-js/object/assign":54,"babel-runtime/core-js/object/keys":60,"babel-runtime/core-js/promise":61,"babel-runtime/regenerator":68,"copy-to":76,"fs":71,"is-type-of":289,"merge-descriptors":200,"mime":202,"path":205,"url":238,"utility":290}],5:[function(require,module,exports){
 "use strict";
 
-exports.version = "6.9.0";
+exports.version = "6.10.0";
 
 },{}],6:[function(require,module,exports){
 'use strict';
@@ -1622,7 +1639,8 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
 
 var proto = exports;
 
@@ -1662,7 +1680,8 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
 
 var proto = exports;
 
@@ -1702,9 +1721,14 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
-var isArray = require('../utils/isArray');
-var formatObjKey = require('../utils/formatObjKey');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
+
+var _require2 = require('../utils/isArray'),
+    isArray = _require2.isArray;
+
+var _require3 = require('../utils/formatObjKey'),
+    formatObjKey = _require3.formatObjKey;
 
 var proto = exports;
 
@@ -1763,7 +1787,8 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
 
 var proto = exports;
 /**
@@ -1811,8 +1836,11 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
-var isObject = require('../utils/isObject');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
+
+var _require2 = require('../utils/isObject'),
+    isObject = _require2.isObject;
 
 var proto = exports;
 
@@ -1868,13 +1896,26 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* eslint-disable no-use-before-define */
-var _checkBucketName = require('../utils/checkBucketName');
-var isArray = require('../utils/isArray');
-var deepCopy = require('../utils/deepCopy');
-var isObject = require('../utils/isObject');
-var obj2xml = require('../utils/obj2xml');
-var checkObjectTag = require('../utils/checkObjectTag');
-var getStrBytesCount = require('../utils/getStrBytesCount');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
+
+var _require2 = require('../utils/isArray'),
+    isArray = _require2.isArray;
+
+var _require3 = require('../utils/deepCopy'),
+    deepCopy = _require3.deepCopy;
+
+var _require4 = require('../utils/isObject'),
+    isObject = _require4.isObject;
+
+var _require5 = require('../utils/obj2xml'),
+    obj2xml = _require5.obj2xml;
+
+var _require6 = require('../utils/checkObjectTag'),
+    checkObjectTag = _require6.checkObjectTag;
+
+var _require7 = require('../utils/getStrBytesCount'),
+    getStrBytesCount = _require7.getStrBytesCount;
 
 var proto = exports;
 
@@ -2025,8 +2066,11 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
-var obj2xml = require('../utils/obj2xml');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
+
+var _require2 = require('../utils/obj2xml'),
+    obj2xml = _require2.obj2xml;
 
 var proto = exports;
 /**
@@ -2093,9 +2137,14 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
-var obj2xml = require('../utils/obj2xml');
-var isArray = require('../utils/isArray');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
+
+var _require2 = require('../utils/obj2xml'),
+    obj2xml = _require2.obj2xml;
+
+var _require3 = require('../utils/isArray'),
+    isArray = _require3.isArray;
 
 var proto = exports;
 proto.putBucketWebsite = function putBucketWebsite(name) {
@@ -2227,7 +2276,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var ms = require('humanize-ms');
 var urlutil = require('url');
-var _checkBucketName = require('../utils/checkBucketName');
+
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
 
 function setEndpoint(endpoint, secure) {
   var url = urlutil.parse(endpoint);
@@ -2312,11 +2363,13 @@ var _regenerator2 = _interopRequireDefault(_regenerator);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* eslint-disable no-use-before-define */
-var _checkBucketName = require('../utils/checkBucketName');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
+
 var querystring = require('querystring');
 
-var _require = require('js-base64'),
-    str2Base64 = _require.Base64.encode;
+var _require2 = require('js-base64'),
+    str2Base64 = _require2.Base64.encode;
 
 var proto = exports;
 
@@ -2385,7 +2438,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var copy = require('copy-to');
 var callback = require('./callback');
-var deepCopy = require('./utils/deepCopy');
+
+var _require = require('./utils/deepCopy'),
+    deepCopy = _require.deepCopy;
 
 var proto = exports;
 
@@ -2787,7 +2842,8 @@ var _typeof3 = _interopRequireDefault(_typeof2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _checkBucketName = require('../utils/checkBucketName');
+var _require = require('../utils/checkBucketName'),
+    _checkBucketName = _require.checkBucketName;
 
 var proto = exports;
 
@@ -2938,7 +2994,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /* eslint-disable object-curly-newline */
 var utility = require('utility');
-var obj2xml = require('../utils/obj2xml');
+
+var _require = require('../utils/obj2xml'),
+    obj2xml = _require.obj2xml;
 
 var proto = exports;
 
@@ -3261,8 +3319,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /* eslint-disable no-use-before-define */
 var proto = exports;
-var isObject = require('../utils/isObject');
-var isArray = require('../utils/isArray');
+
+var _require = require('../utils/isObject'),
+    isObject = _require.isObject;
+
+var _require2 = require('../utils/isArray'),
+    isArray = _require2.isArray;
 
 proto.getBucketVersions = getBucketVersions;
 proto.listObjectVersions = getBucketVersions;
@@ -3455,7 +3517,9 @@ var _assign2 = _interopRequireDefault(_assign);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var proto = exports;
-var isObject = require('../utils/isObject');
+
+var _require = require('../utils/isObject'),
+    isObject = _require.isObject;
 /**
  * getObjectTagging
  * @param {String} name - object name
@@ -3714,8 +3778,11 @@ var _assign2 = _interopRequireDefault(_assign);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var obj2xml = require('../utils/obj2xml');
-var checkTag = require('../utils/checkObjectTag');
+var _require = require('../utils/obj2xml'),
+    obj2xml = _require.obj2xml;
+
+var _require2 = require('../utils/checkObjectTag'),
+    checkObjectTag = _require2.checkObjectTag;
 
 var proto = exports;
 /**
@@ -3732,7 +3799,7 @@ proto.putObjectTagging = function putObjectTagging(name, tag) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
-          checkTag(tag);
+          checkObjectTag(tag);
 
           options.subres = (0, _assign2.default)({ tagging: '' }, options.subres);
           if (options.versionId) {
@@ -4247,374 +4314,366 @@ exports._signatureForURL = function _signatureForURL(accessKeySecret) {
 
 }).call(this,require("buffer").Buffer)
 },{"./../../shims/crypto/crypto.js":284,"babel-runtime/core-js/json/stringify":53,"babel-runtime/core-js/object/keys":60,"buffer":73,"is-type-of":289}],35:[function(require,module,exports){
-'use strict';
+"use strict";
 
-/**
- * check Bucket Name
- */
-
-module.exports = function (name, createBucket) {
-  var bucketRegex = createBucket ? /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/ : /^[a-z0-9_][a-z0-9-_]{1,61}[a-z0-9_]$/;
-  if (!bucketRegex.test(name)) {
-    throw new Error('The bucket must be conform to the specifications');
-  }
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkBucketName = void 0;
+exports.checkBucketName = function (name, createBucket) {
+    var bucketRegex = createBucket ? /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/ : /^[a-z0-9_][a-z0-9-_]{1,61}[a-z0-9_]$/;
+    if (!bucketRegex.test(name)) {
+        throw new Error('The bucket must be conform to the specifications');
+    }
 };
 
 },{}],36:[function(require,module,exports){
-'use strict';
+"use strict";
 
-var _entries = require('babel-runtime/core-js/object/entries');
+var _entries = require("babel-runtime/core-js/object/entries");
 
 var _entries2 = _interopRequireDefault(_entries);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var checkValid = require('./checkValid');
-var isObject = require('./isObject');
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkObjectTag = void 0;
+
+var _require = require('./checkValid'),
+    checkValid = _require.checkValid;
+
+var _require2 = require('./isObject'),
+    isObject = _require2.isObject;
 
 var commonRules = [{
-  validator: function validator(value) {
-    if (typeof value !== 'string') {
-      throw new Error('the key and value of the tag must be String');
+    validator: function validator(value) {
+        if (typeof value !== 'string') {
+            throw new Error('the key and value of the tag must be String');
+        }
     }
-  }
 }, {
-  pattern: /^[a-zA-Z0-9 +-=._:/]+$/,
-  msg: 'tag can contain letters, numbers, spaces, and the following symbols: plus sign (+), hyphen (-), equal sign (=), period (.), underscore (_), colon (:), and forward slash (/)'
+    pattern: /^[a-zA-Z0-9 +-=._:/]+$/,
+    msg: 'tag can contain letters, numbers, spaces, and the following symbols: plus sign (+), hyphen (-), equal sign (=), period (.), underscore (_), colon (:), and forward slash (/)'
 }];
-
 var rules = {
-  key: [].concat(commonRules, [{
-    pattern: /^.{1,128}$/,
-    msg: 'tag key can be a maximum of 128 bytes in length'
-  }]),
-  value: [].concat(commonRules, [{
-    pattern: /^.{0,256}$/,
-    msg: 'tag value can be a maximum of 256 bytes in length'
-  }])
+    key: [].concat(commonRules, [{
+        pattern: /^.{1,128}$/,
+        msg: 'tag key can be a maximum of 128 bytes in length'
+    }]),
+    value: [].concat(commonRules, [{
+        pattern: /^.{0,256}$/,
+        msg: 'tag value can be a maximum of 256 bytes in length'
+    }])
 };
-
-module.exports = function checkTag(tag) {
-  if (!isObject(tag)) {
-    throw new Error('tag must be Object');
-  }
-
-  var entries = (0, _entries2.default)(tag);
-
-  if (entries.length > 10) {
-    throw new Error('maximum of 10 tags for a object');
-  }
-
-  var rulesIndexKey = ['key', 'value'];
-
-  entries.forEach(function (keyValue) {
-    keyValue.forEach(function (item, index) {
-      checkValid(item, rules[rulesIndexKey[index]]);
+function checkObjectTag(tag) {
+    if (!isObject(tag)) {
+        throw new Error('tag must be Object');
+    }
+    var entries = (0, _entries2.default)(tag);
+    if (entries.length > 10) {
+        throw new Error('maximum of 10 tags for a object');
+    }
+    var rulesIndexKey = ['key', 'value'];
+    entries.forEach(function (keyValue) {
+        keyValue.forEach(function (item, index) {
+            checkValid(item, rules[rulesIndexKey[index]]);
+        });
     });
-  });
-};
+}
+exports.checkObjectTag = checkObjectTag;
 
 },{"./checkValid":37,"./isObject":46,"babel-runtime/core-js/object/entries":57}],37:[function(require,module,exports){
 "use strict";
 
-module.exports = function checkValid(_value, _rules) {
-  _rules.forEach(function (rule) {
-    if (rule.validator) {
-      rule.validator(_value);
-    } else if (rule.pattern && !rule.pattern.test(_value)) {
-      throw new Error(rule.msg);
-    }
-  });
-};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkValid = void 0;
+function checkValid(_value, _rules) {
+    _rules.forEach(function (rule) {
+        if (rule.validator) {
+            rule.validator(_value);
+        } else if (rule.pattern && !rule.pattern.test(_value)) {
+            throw new Error(rule.msg);
+        }
+    });
+}
+exports.checkValid = checkValid;
 
 },{}],38:[function(require,module,exports){
 (function (Buffer){
-'use strict';
+"use strict";
 
-var _assign = require('babel-runtime/core-js/object/assign');
+var _assign = require("babel-runtime/core-js/object/assign");
 
 var _assign2 = _interopRequireDefault(_assign);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createRequest = void 0;
 var crypto = require('./../../../shims/crypto/crypto.js');
 var debug = require('debug')('ali-oss');
 var mime = require('mime');
 var dateFormat = require('dateformat');
 var copy = require('copy-to');
 var path = require('path');
-
 function getHeader(headers, name) {
-  return headers[name] || headers[name.toLowerCase()];
+    return headers[name] || headers[name.toLowerCase()];
 }
-
 function delHeader(headers, name) {
-  delete headers[name];
-  delete headers[name.toLowerCase()];
+    delete headers[name];
+    delete headers[name.toLowerCase()];
 }
-
-module.exports = function createRequest(params) {
-  var date = new Date();
-  if (this.options.amendTimeSkewed) {
-    date = +new Date() + this.options.amendTimeSkewed;
-  }
-  var headers = {
-    'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
-    'x-oss-user-agent': this.userAgent
-  };
-
-  if (this.userAgent.includes('nodejs')) {
-    headers['User-Agent'] = this.userAgent;
-  }
-
-  if (this.options.isRequestPay) {
-    (0, _assign2.default)(headers, { 'x-oss-request-payer': 'requester' });
-  }
-
-  if (this.options.stsToken) {
-    headers['x-oss-security-token'] = this.options.stsToken;
-  }
-
-  copy(params.headers).to(headers);
-
-  if (!getHeader(headers, 'Content-Type')) {
-    if (params.mime && params.mime.indexOf('/') > 0) {
-      headers['Content-Type'] = params.mime;
-    } else {
-      headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));
+function createRequest(params) {
+    var date = new Date();
+    if (this.options.amendTimeSkewed) {
+        date = +new Date() + this.options.amendTimeSkewed;
     }
-  }
-
-  if (!getHeader(headers, 'Content-Type')) {
-    delHeader(headers, 'Content-Type');
-  }
-
-  if (params.content) {
-    headers['Content-Md5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
-    if (!headers['Content-Length']) {
-      headers['Content-Length'] = params.content.length;
+    var headers = {
+        'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
+        'x-oss-user-agent': this.userAgent
+    };
+    if (this.userAgent.includes('nodejs')) {
+        headers['User-Agent'] = this.userAgent;
     }
-  }
-
-  var authResource = this._getResource(params);
-  headers.authorization = this.authorization(params.method, authResource, params.subres, headers);
-
-  var url = this._getReqUrl(params);
-  debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
-  var timeout = params.timeout || this.options.timeout;
-  var reqParams = {
-    method: params.method,
-    content: params.content,
-    stream: params.stream,
-    headers: headers,
-    timeout: timeout,
-    writeStream: params.writeStream,
-    customResponse: params.customResponse,
-    ctx: params.ctx || this.ctx
-  };
-  if (this.agent) {
-    reqParams.agent = this.agent;
-  }
-  if (this.httpsAgent) {
-    reqParams.httpsAgent = this.httpsAgent;
-  }
-
-  return {
-    url: url,
-    params: reqParams
-  };
-};
+    if (this.options.isRequestPay) {
+        (0, _assign2.default)(headers, { 'x-oss-request-payer': 'requester' });
+    }
+    if (this.options.stsToken) {
+        headers['x-oss-security-token'] = this.options.stsToken;
+    }
+    copy(params.headers).to(headers);
+    if (!getHeader(headers, 'Content-Type')) {
+        if (params.mime && params.mime.indexOf('/') > 0) {
+            headers['Content-Type'] = params.mime;
+        } else {
+            headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));
+        }
+    }
+    if (!getHeader(headers, 'Content-Type')) {
+        delHeader(headers, 'Content-Type');
+    }
+    if (params.content) {
+        headers['Content-Md5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
+        if (!headers['Content-Length']) {
+            headers['Content-Length'] = params.content.length;
+        }
+    }
+    var authResource = this._getResource(params);
+    headers.authorization = this.authorization(params.method, authResource, params.subres, headers);
+    var url = this._getReqUrl(params);
+    debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
+    var timeout = params.timeout || this.options.timeout;
+    var reqParams = {
+        method: params.method,
+        content: params.content,
+        stream: params.stream,
+        headers: headers,
+        timeout: timeout,
+        writeStream: params.writeStream,
+        customResponse: params.customResponse,
+        ctx: params.ctx || this.ctx
+    };
+    if (this.agent) {
+        reqParams.agent = this.agent;
+    }
+    if (this.httpsAgent) {
+        reqParams.httpsAgent = this.httpsAgent;
+    }
+    return {
+        url: url,
+        params: reqParams
+    };
+}
+exports.createRequest = createRequest;
 
 }).call(this,require("buffer").Buffer)
 },{"./../../../shims/crypto/crypto.js":284,"babel-runtime/core-js/object/assign":54,"buffer":73,"copy-to":76,"dateformat":190,"debug":288,"mime":202,"path":205}],39:[function(require,module,exports){
-'use strict';
+"use strict";
 
-var _keys = require('babel-runtime/core-js/object/keys');
+var _keys = require("babel-runtime/core-js/object/keys");
 
 var _keys2 = _interopRequireDefault(_keys);
 
-var _typeof2 = require('babel-runtime/helpers/typeof');
+var _typeof2 = require("babel-runtime/helpers/typeof");
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-module.exports = function deepCopy(obj) {
-  var cache = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-
-  if (obj === null || (typeof obj === 'undefined' ? 'undefined' : (0, _typeof3.default)(obj)) !== 'object') {
-    return obj;
-  }
-  var hit = cache.filter(function (c) {
-    return c.original === obj;
-  })[0];
-  if (hit) {
-    return hit.copy;
-  }
-  var copy = Array.isArray(obj) ? [] : {};
-  cache.push({
-    original: obj,
-    copy: copy
-  });
-
-  (0, _keys2.default)(obj).forEach(function (key) {
-    copy[key] = deepCopy(obj[key], cache);
-  });
-
-  return copy;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deepCopy = void 0;
+exports.deepCopy = function (obj) {
+    if (obj === null || (typeof obj === "undefined" ? "undefined" : (0, _typeof3.default)(obj)) !== 'object') {
+        return obj;
+    }
+    var copy = Array.isArray(obj) ? [] : {};
+    (0, _keys2.default)(obj).forEach(function (key) {
+        copy[key] = exports.deepCopy(obj[key]);
+    });
+    return copy;
 };
 
 },{"babel-runtime/core-js/object/keys":60,"babel-runtime/helpers/typeof":67}],40:[function(require,module,exports){
-'use strict';
+"use strict";
 
-var _keys = require('babel-runtime/core-js/object/keys');
+var _keys = require("babel-runtime/core-js/object/keys");
 
 var _keys2 = _interopRequireDefault(_keys);
 
-var _typeof2 = require('babel-runtime/helpers/typeof');
+var _typeof2 = require("babel-runtime/helpers/typeof");
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/* eslint-disable no-use-before-define */
-module.exports = function formatObjKey(obj, type) {
-  if (obj === null || (typeof obj === 'undefined' ? 'undefined' : (0, _typeof3.default)(obj)) !== 'object') {
-    return obj;
-  }
-
-  var o = void 0;
-  if (Array.isArray(obj)) {
-    o = [];
-    for (var i = 0; i < obj.length; i++) {
-      o.push(formatObjKey(obj[i], type));
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.formatObjKey = void 0;
+function formatObjKey(obj, type) {
+    if (obj === null || (typeof obj === "undefined" ? "undefined" : (0, _typeof3.default)(obj)) !== 'object') {
+        return obj;
     }
-  } else {
-    o = {};
-    (0, _keys2.default)(obj).forEach(function (key) {
-      o[handelFormat(key, type)] = formatObjKey(obj[key], type);
-    });
-  }
-  return o;
-};
-
+    var o = void 0;
+    if (Array.isArray(obj)) {
+        o = [];
+        for (var i = 0; i < obj.length; i++) {
+            o.push(formatObjKey(obj[i], type));
+        }
+    } else {
+        o = {};
+        (0, _keys2.default)(obj).forEach(function (key) {
+            o[handelFormat(key, type)] = formatObjKey(obj[key], type);
+        });
+    }
+    return o;
+}
+exports.formatObjKey = formatObjKey;
 function handelFormat(key, type) {
-  if (type === 'firstUpperCase') {
-    key = key.replace(/^./, function (_) {
-      return _.toUpperCase();
-    });
-  } else if (type === 'firstLowerCase') {
-    key = key.replace(/^./, function (_) {
-      return _.toLowerCase();
-    });
-  }
-  return key;
+    if (type === 'firstUpperCase') {
+        key = key.replace(/^./, function (_) {
+            return _.toUpperCase();
+        });
+    } else if (type === 'firstLowerCase') {
+        key = key.replace(/^./, function (_) {
+            return _.toLowerCase();
+        });
+    }
+    return key;
 }
 
 },{"babel-runtime/core-js/object/keys":60,"babel-runtime/helpers/typeof":67}],41:[function(require,module,exports){
 "use strict";
 
-module.exports = function getStrBytesCount(str) {
-  var bytesCount = 0;
-  for (var i = 0; i < str.length; i++) {
-    var c = str.charAt(i);
-    if (/^[\u00-\uff]$/.test(c)) {
-      bytesCount += 1;
-    } else {
-      bytesCount += 2;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getStrBytesCount = void 0;
+function getStrBytesCount(str) {
+    var bytesCount = 0;
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
+        if (/^[\u00-\uff]$/.test(c)) {
+            bytesCount += 1;
+        } else {
+            bytesCount += 2;
+        }
     }
-  }
-  return bytesCount;
-};
+    return bytesCount;
+}
+exports.getStrBytesCount = getStrBytesCount;
 
 },{}],42:[function(require,module,exports){
-'use strict';
+"use strict";
 
-module.exports = function isArray(obj) {
-  return Object.prototype.toString.call(obj) === '[object Array]';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isArray = void 0;
+exports.isArray = function (obj) {
+    return Object.prototype.toString.call(obj) === '[object Array]';
 };
 
 },{}],43:[function(require,module,exports){
-'use strict';
+"use strict";
 
-module.exports = function isBlob(blob) {
-  return typeof Blob !== 'undefined' && blob instanceof Blob;
-};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isBlob = void 0;
+function isBlob(blob) {
+    return typeof Blob !== 'undefined' && blob instanceof Blob;
+}
+exports.isBlob = isBlob;
 
 },{}],44:[function(require,module,exports){
-'use strict';
+"use strict";
 
-module.exports = function isFile(obj) {
-  return typeof File !== 'undefined' && obj instanceof File;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isFile = void 0;
+exports.isFile = function (obj) {
+    return typeof File !== 'undefined' && obj instanceof File;
 };
 
 },{}],45:[function(require,module,exports){
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isIP = void 0;
 // it provide commont methods for node and browser , we will add more solutions later in this file
 /**
  * Judge isIP include ipv4 or ipv6
  * @param {String} options
  * @return {Array} the multipart uploads
  */
-module.exports = function (host) {
+exports.isIP = function (host) {
   var ipv4Regex = /^(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$/;
   var ipv6Regex = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/;
-  var isIP = ipv4Regex.test(host) || ipv6Regex.test(host);
-  return isIP;
+  return ipv4Regex.test(host) || ipv6Regex.test(host);
 };
 
 },{}],46:[function(require,module,exports){
-'use strict';
+"use strict";
 
-module.exports = function isObject(obj) {
-  return Object.prototype.toString.call(obj) === '[object Object]';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isObject = void 0;
+exports.isObject = function (obj) {
+    return Object.prototype.toString.call(obj) === '[object Object]';
 };
 
 },{}],47:[function(require,module,exports){
-'use strict';
+"use strict";
 
-var _keys = require('babel-runtime/core-js/object/keys');
+var _keys = require("babel-runtime/core-js/object/keys");
 
 var _keys2 = _interopRequireDefault(_keys);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var formatObjKey = require('./formatObjKey');
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.obj2xml = void 0;
+var formatObjKey_1 = require("./formatObjKey");
 function type(params) {
-  return Object.prototype.toString.call(params).replace(/(.*? |])/g, '').toLowerCase();
+    return Object.prototype.toString.call(params).replace(/(.*? |])/g, '').toLowerCase();
 }
-
 function obj2xml(obj, options) {
-  var s = '';
-  if (options && options.headers) {
-    s = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  }
-  if (options && options.firstUpperCase) {
-    obj = formatObjKey(obj, 'firstUpperCase');
-  }
-  if (type(obj) === 'object') {
-    (0, _keys2.default)(obj).forEach(function (key) {
-      if (type(obj[key]) === 'string' || type(obj[key]) === 'number') {
-        s += '<' + key + '>' + obj[key] + '</' + key + '>';
-      } else if (type(obj[key]) === 'object') {
-        s += '<' + key + '>' + obj2xml(obj[key]) + '</' + key + '>';
-      } else if (type(obj[key]) === 'array') {
-        s += obj[key].map(function (keyChild) {
-          return '<' + key + '>' + obj2xml(keyChild) + '</' + key + '>';
-        }).join('');
-      } else {
-        s += '<' + key + '>' + obj[key].toString() + '</' + key + '>';
-      }
-    });
-  } else {
-    s += obj.toString();
-  }
-  return s;
+    var s = '';
+    if (options && options.headers) {
+        s = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    }
+    if (options && options.firstUpperCase) {
+        obj = formatObjKey_1.formatObjKey(obj, 'firstUpperCase');
+    }
+    if (type(obj) === 'object') {
+        (0, _keys2.default)(obj).forEach(function (key) {
+            if (type(obj[key]) === 'string' || type(obj[key]) === 'number') {
+                s += "<" + key + ">" + obj[key] + "</" + key + ">";
+            } else if (type(obj[key]) === 'object') {
+                s += "<" + key + ">" + obj2xml(obj[key]) + "</" + key + ">";
+            } else if (type(obj[key]) === 'array') {
+                s += obj[key].map(function (keyChild) {
+                    return "<" + key + ">" + obj2xml(keyChild) + "</" + key + ">";
+                }).join('');
+            } else {
+                s += "<" + key + ">" + obj[key].toString() + "</" + key + ">";
+            }
+        });
+    } else {
+        s += obj.toString();
+    }
+    return s;
 }
-
-module.exports = obj2xml;
+exports.obj2xml = obj2xml;
 
 },{"./formatObjKey":40,"babel-runtime/core-js/object/keys":60}],48:[function(require,module,exports){
 module.exports = noop;
@@ -26760,18 +26819,33 @@ exports.createHmac = function (alg, key) {
   return hash(alg, key);
 };
 
-function each(a, f) {
-  for (var i in a) {
-    f(a[i], i);
-  }
-}
-
-// the least I can do is make error messages for the rest of the node.js/crypto api.
-each(['createCredentials', 'createCipher', 'createCipheriv', 'createDecipher', 'createDecipheriv', 'createSign', 'createVerify', 'createDiffieHellman', 'pbkdf2'], function (name) {
-  exports[name] = function () {
-    error('sorry,', name, 'is not implemented yet');
-  };
-});
+exports.createCredentials = function () {
+  error('sorry,createCredentials is not implemented yet');
+};
+exports.createCipher = function () {
+  error('sorry,createCipher is not implemented yet');
+};
+exports.createCipheriv = function () {
+  error('sorry,createCipheriv is not implemented yet');
+};
+exports.createDecipher = function () {
+  error('sorry,createDecipher is not implemented yet');
+};
+exports.createDecipheriv = function () {
+  error('sorry,createDecipheriv is not implemented yet');
+};
+exports.createSign = function () {
+  error('sorry,createSign is not implemented yet');
+};
+exports.createVerify = function () {
+  error('sorry,createVerify is not implemented yet');
+};
+exports.createDiffieHellman = function () {
+  error('sorry,createDiffieHellman is not implemented yet');
+};
+exports.pbkdf2 = function () {
+  error('sorry,pbkdf2 is not implemented yet');
+};
 
 },{"./md5":286,"./sha":287,"buffer":73}],285:[function(require,module,exports){
 'use strict';
@@ -27082,7 +27156,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _require = require('stream'),
     Stream = _require.Stream;
 
-var isArray = require('../lib/common/utils/isArray');
+var _require2 = require('../lib/common/utils/isArray'),
+    isArray = _require2.isArray;
 
 module.exports.string = function isString(obj) {
   return typeof obj === 'string';

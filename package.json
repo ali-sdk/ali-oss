@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "6.9.0",
+  "version": "6.10.0",
   "description": "aliyun oss(object storage service) node client",
   "main": "lib/client.js",
   "files": [
@@ -27,7 +27,7 @@
     "autod": "autod",
     "build-test": "MINIFY=1 node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js && node task/browser-test-build.js > test/browser/build/tests.js",
     "browser-test": "npm run build-test && karma start",
-    "build-dist": "node browser-build.js > dist/aliyun-oss-sdk.js && MINIFY=1 node browser-build.js > dist/aliyun-oss-sdk.min.js",
+    "build-dist": "npm run tsc && node browser-build.js > dist/aliyun-oss-sdk.js && MINIFY=1 node browser-build.js > dist/aliyun-oss-sdk.min.js",
     "publish-to-npm": "node publish-npm-check.js && npm publish",
     "publish-to-cdn": "node publish.js",
     "snyk-protect": "snyk protect",
@@ -109,7 +109,7 @@
     "should": "^11.0.0",
     "sinon": "^1.17.7",
     "snyk": "^1.231.0",
-    "standard-version": "^4.4.0",
+    "standard-version": "^8.0.1",
     "stream-equal": "^1.1.0",
     "thunk-mocha": "^1.0.3",
     "timemachine": "^0.3.0",

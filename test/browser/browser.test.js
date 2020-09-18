@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 /* eslint no-await-in-loop: [0] */
 const assert = require('assert');
@@ -277,7 +278,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:6000/gems/');
+      assert.equal(url, 'http://127.0.0.1:6000/');
     });
 
     it('should create request url with bucket/object/subres', () => {
@@ -345,7 +346,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
+      assert.equal(url, 'http://127.0.0.1:3000/hello');
     });
 
     it('should set User-Agent', () => {
@@ -1071,6 +1072,32 @@ describe('browser', () => {
         assert.deepEqual(md5(object.content), md5(fileBuf));
       });
 
+      it('should upload buffer', async () => {
+        // create a buffer with 1M random data
+        const bufferString = Array(1024 * 1024).fill('a').join('');
+        const fileBuf = Buffer.from(bufferString);
+
+        const name = `${prefix}multipart/upload-buffer`;
+
+        let progress = 0;
+        const result = await store.multipartUpload(name, fileBuf, {
+          partSize: 100 * 1024,
+          progress() {
+            progress++;
+          }
+        });
+        sinon.restore();
+        assert.equal(result.res.status, 200);
+        assert.equal(progress, 12);
+
+        const object = await store.get(name);
+        assert.equal(object.res.status, 200);
+
+        assert.equal(object.content.length, fileBuf.length);
+        // avoid comparing buffers directly for it may hang when generating diffs
+        assert.deepEqual(md5(object.content), md5(fileBuf));
+      });
+
       it('should return requestId in init, upload part, complete', async () => {
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-fallback');
@@ -1225,15 +1252,14 @@ describe('browser', () => {
 
         const parts = await Promise.all(Array(10)
           .fill(1)
-          .map((v, i) =>
-            store.uploadPart(
-              name,
-              uploadId,
-              i + 1,
-              file,
-              i * partSize,
-              Math.min((i + 1) * partSize, 10 * 100 * 1024)
-            )));
+          .map((v, i) => store.uploadPart(
+            name,
+            uploadId,
+            i + 1,
+            file,
+            i * partSize,
+            Math.min((i + 1) * partSize, 10 * 100 * 1024)
+          )));
         const dones = parts.map((_, i) => ({
           number: i + 1,
           etag: _.etag
