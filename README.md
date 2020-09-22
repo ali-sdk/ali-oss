@@ -111,6 +111,11 @@ All operation use es7 async/await to implement. All api is async function.
   - versioning
     - [.getBucketVersioning(name, [, options])](#getBucketVersioningname-options)
     - [.putBucketVersioning(name, status[, options])](#putBucketVersioningname-status-options)
+  - inventory
+      - [.getBucketInventory(name, inventoryId[, options])](#getBucketInventoryname-inventoryid-options)
+      - [.putBucketInventory(name, inventory[, options])](#putBucketInventoryname-inventory-options)
+      - [.deleteBucketInventory(name, inventoryId[, options])](#deleteBucketInventoryname-inventoryid-options)
+      - [.listBucketInventory(name, [, options])](#listBucketInventoryname-options)
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
@@ -1258,6 +1263,163 @@ Success will return:
 - res {Object} response info
 
 ---
+
+
+### .getBucketInventory(name, inventoryId[, options])
+
+get bucket inventory by inventory-id
+
+parameters:
+
+- name {String} the bucket name
+- inventoryId {String} inventory-id
+- [options] {Object} optional args
+
+Success will return:
+
+- inventory {Inventory}
+- status {Number} response status
+- res {Object} response info
+
+```js
+async function getBucketInventoryById() {
+  try {
+    const result = await client.getBucketInventory('bucket', 'inventoryid');
+    console.log(result.inventory)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+getBucketInventoryById();
+```
+
+### putBucketInventory(name, inventory[, options])
+
+set bucket inventory
+
+parameters:
+
+- name {String} the bucket name
+- inventory {Inventory} inventory config
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+```ts
+type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
+interface Inventory {
+  id: string;
+  isEnabled: true | false;
+  prefix?: string;
+  OSSBucketDestination: {
+    format: 'CSV';
+    accountId: string;
+    rolename: string;
+    bucket: string;
+    prefix?: string;
+    encryption?:
+    | {'SSE-OSS': ''}
+    | {
+      'SSE-KMS': {
+        keyId: string;
+      };
+    };
+  };
+  frequency: 'Daily' | 'Weekly';
+  includedObjectVersions: 'Current' | 'All';
+  optionalFields?: {
+    field?: Field[];
+  };
+}
+```
+```js
+const inventory = {
+  id: 'default',
+  isEnabled: false, // `true` | `false`
+  prefix: 'ttt', // filter prefix
+  OSSBucketDestination: {
+    format: 'CSV',
+    accountId: '1817184078010220',
+    rolename: 'AliyunOSSRole',
+    bucket: 'your bucket',
+    prefix: 'test',
+    //encryption: {'SSE-OSS': ''},
+    /*
+      encryption: {
+      'SSE-KMS': {
+        keyId: 'test-kms-id';
+      };, 
+    */
+  },
+  frequency: 'Daily', // `WEEKLY` | `Daily`
+  includedObjectVersions: 'All', // `All` | `Current`
+  optionalFields: {
+    field: ["Size", "LastModifiedDate", "ETag", "StorageClass", "IsMultipartUploaded", "EncryptionStatus"]
+  },
+}
+
+async function putInventory(){
+  const bucket = 'Your Bucket Name';
+  try {
+    await client.putBucketInventory(bucket, inventory);
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+putInventory()
+```
+
+### deleteBucketInventory(name, inventoryId[, options])
+
+delete bucket inventory by inventory-id
+
+parameters:
+
+- name {String} the bucket name
+- inventoryId {String} inventory-id
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+### listBucketInventory(name[, options])
+
+list bucket inventory
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+  - continuationToken used by search next page
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+example: 
+
+```js
+async function listBucketInventory() {
+  const bucket = 'Your Bucket Name';
+  let nextContinuationToken;
+  // list all inventory of the bucket
+  do {
+    const result = await client.listBucketInventory(bucket, nextContinuationToken);
+    console.log(result.inventoryList);
+    nextContinuationToken = result.nextContinuationToken;
+  } while (nextContinuationToken)
+}
+
+listBucketInventory();
+```
 
 ## Object Operations
 
