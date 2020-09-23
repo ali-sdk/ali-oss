@@ -319,6 +319,7 @@ options:
 - accessKeyId {String} access key you create on aliyun console website
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
+- [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`.
