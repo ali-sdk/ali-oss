@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.11.0
+// Aliyun OSS SDK for JavaScript v6.11.1
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -1796,7 +1796,7 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
 },{"../common/callback":23,"../common/image":26,"../common/object/copyObject":29,"../common/object/delete":30,"../common/object/deleteMulti":31,"../common/object/deleteObjectTagging":32,"../common/object/generateObjectUrl":33,"../common/object/get":34,"../common/object/getACL":35,"../common/object/getBucketVersions":36,"../common/object/getObjectMeta":37,"../common/object/getObjectTagging":38,"../common/object/getObjectUrl":39,"../common/object/getSymlink":40,"../common/object/head":41,"../common/object/putACL":42,"../common/object/putObjectTagging":43,"../common/object/putSymlink":44,"../common/object/signatureUrl":45,"../common/utils/isBlob":59,"../common/utils/isBuffer":60,"../common/utils/isFile":61,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"copy-to":101,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.map":241,"core-js/modules/es.function.name":244,"core-js/modules/es.number.constructor":245,"core-js/modules/es.object.assign":246,"core-js/modules/es.object.keys":248,"core-js/modules/es.object.to-string":249,"core-js/modules/es.promise":250,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.regexp.to-string":252,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285,"fs":78,"merge-descriptors":298,"mime":300,"path":303,"regenerator-runtime/runtime":324}],5:[function(require,module,exports){
 "use strict";
 
-exports.version = "6.11.0";
+exports.version = "6.11.1";
 
 },{}],6:[function(require,module,exports){
 "use strict";
