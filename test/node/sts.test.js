@@ -14,9 +14,12 @@
 const assert = require('assert');
 const utils = require('./utils');
 const sts = require('../..').STS;
-const oss = require('../..');
+const OSS = require('../..');
+const { formatObjKey } = require('../../lib/common/utils/formatObjKey');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
+const mm = require('mm');
+const { obj2xml } = require('../../lib/common/utils/obj2xml');
 
 describe('test/sts.test.js', () => {
   const { prefix } = utils;
@@ -93,7 +96,7 @@ describe('test/sts.test.js', () => {
       let result = await stsClient.assumeRole(stsConfig.roleArn);
       assert.equal(result.res.status, 200);
 
-      const ossClient = oss({
+      const ossClient = new OSS({
         region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
@@ -131,7 +134,7 @@ describe('test/sts.test.js', () => {
       let result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
 
-      let ossClient = oss({
+      let ossClient = new OSS({
         region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
@@ -170,7 +173,7 @@ describe('test/sts.test.js', () => {
       result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.equal(result.res.status, 200);
 
-      ossClient = oss({
+      ossClient = new OSS({
         region: config.region,
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
@@ -182,4 +185,44 @@ describe('test/sts.test.js', () => {
       assert.equal(result.res.status, 200);
     });
   });
+
+  describe('refreshSTSToken()', () => {
+    const stsClient = sts(stsConfig);
+
+    let store;
+    before(async () => {
+      let { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
+      credentials = formatObjKey(credentials, 'firstLowerCase');
+      const testRefreshSTSTokenConf = {
+        ...credentials,
+      };
+      store = new OSS(testRefreshSTSTokenConf);
+    });
+    it('should refresh sts token when token is expired', async () => {
+      try {
+        store.options.refreshSTSToken = async () => {
+          mm.restore();
+          const { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
+          return credentials;
+        };
+        // 模拟sts过期错误
+        const errData = {
+          Test: {
+            Code: 'InvalidAccessKeyId'
+          }
+        };
+        mm.error(store.urllib, 'request', {
+          status: 403,
+          headers: {},
+          data: obj2xml(errData)
+        });
+        const res = await store.listBuckets();
+        assert.strictEqual(res.res.status, 200);
+        assert(res.buckets && Array.isArray(res.buckets));
+      } catch (error) {
+        assert(false, error);
+      }
+    });
+  });
+
 });
