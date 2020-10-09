@@ -303,9 +303,9 @@ describe('test/client.test.js', () => {
     const result = await store.listBuckets();
     assert.equal(result.res.status, 200);
     assert(header['User-Agent']);
-    assert(header['User-Agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
+    assert(new RegExp(`aliyun-sdk-nodejs/(.+?) Node.js ${process.version.slice(1)}`).test(header['User-Agent']));
     assert(header['x-oss-user-agent']);
-    assert(header['x-oss-user-agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
+    assert(new RegExp(`aliyun-sdk-nodejs/(.+?) Node.js ${process.version.slice(1)}`).test(header['x-oss-user-agent']));
   });
 
   it('should check beta or alpha User-Agent', () => {
