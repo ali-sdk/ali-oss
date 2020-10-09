@@ -159,13 +159,13 @@ function xml2obj(html, options = {
 
   parseEndTag();
 
-  root = formatObj(root);
+  root = formatObj(root) || {};
 
   if (!options.explicitRoot) {
     root = root[Object.keys(root)[0]];
   }
 
-  return root;
+  return root || {};
 
   function advance(n) {
     index += n;
