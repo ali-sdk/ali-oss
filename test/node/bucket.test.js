@@ -104,7 +104,7 @@ describe('test/bucket.test.js', () => {
       });
     });
 
-    it('should create an ZRS bucket', async () => {
+    it.skip('should create an ZRS bucket', async () => {
       const ZRS_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
       const ZRS_put_res = await store.putBucket(ZRS_name, {
         dataRedundancyType: 'ZRS'
@@ -192,7 +192,7 @@ describe('test/bucket.test.js', () => {
       assert.equal(resultAcl.bucket, bucket);
 
       // Need wait some time for bucket meta sync
-      await utils.sleep(ms(metaSyncTime));
+      await utils.sleep(1000);
 
       const r = await store.getBucketACL(bucket);
       assert.equal(r.res.status, 200);
