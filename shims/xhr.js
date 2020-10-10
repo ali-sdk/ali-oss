@@ -397,10 +397,6 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     };
   }
 
-  // set user-agent
-  if (!options.headers['User-Agent'] && !options.headers['user-agent']) {
-    options.headers['User-Agent'] = navigator.userAgent;
-  }
 
   if (args.gzip) {
     if (!options.headers['Accept-Encoding'] && !options.headers['accept-encoding']) {
