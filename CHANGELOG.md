@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.11.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.0...v6.11.2) (2020-10-10)
+
+
+### Bug Fixes
+
+* **browser:** delete set header "User-Agent" ([#873](https://github.com/aliyun/oss-nodejs-sdk/issues/873)) ([b11c162](https://github.com/aliyun/oss-nodejs-sdk/commit/b11c162ed162c4a71788b88b78ba5ebeea70093a))
+
 ## [6.11.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.10.0...v6.11.0) (2020-10-09)
 
 
