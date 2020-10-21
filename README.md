@@ -336,6 +336,7 @@ options:
 `fetch` mode ,else `XMLHttpRequest`
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
+- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.
 
 example:
 
