@@ -1,5 +1,6 @@
 import _debug from 'debug';
 import { parseXML } from '../utils/parseXML';
+import { retry } from '../utils/retry';
 import { setSTSToken } from '../utils/setSTSToken';
 
 const debug = _debug('ali-oss');
@@ -23,7 +24,7 @@ const debug = _debug('ali-oss');
  * @api private
  */
 
-export async function request(this: any, params) {
+export async function _request(this: any, params) {
   const reqParams = this._createRequest(params);
   const isNode = this._getUserAgent().includes('nodejs');
 
@@ -75,4 +76,24 @@ export async function request(this: any, params) {
     result.data = await parseXML(result.data);
   }
   return result;
+}
+
+
+export async function request(this: any, params) {
+  if (this.options.retryMax) {
+    const requestfn = retry(_request.bind(this), this.options.retryMax, {
+      errorHandler: (err) => {
+        const _errHandle = (_err) => {
+          const statusErr = [-1, -2].includes(_err.status);
+          const requestErrorRetryHandle = this.options.requestErrorRetryHandle || (() => true);
+          return statusErr && requestErrorRetryHandle(_err);
+        };
+        if (_errHandle(err)) return true;
+        return false;
+      }
+    });
+    return await requestfn(params);
+  } else {
+    return await _request.bind(this)(params);
+  }
 }

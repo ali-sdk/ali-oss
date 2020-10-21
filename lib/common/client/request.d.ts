@@ -16,4 +16,5 @@
  *
  * @api private
  */
+export declare function _request(this: any, params: any): Promise<any>;
 export declare function request(this: any, params: any): Promise<any>;
