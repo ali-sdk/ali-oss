@@ -28,13 +28,29 @@ function build(options, callback) {
     basedir: path.resolve(__dirname, '.'),
     fullPaths: false,
     standalone: 'OSS',
-    debug: false
+    debug: false,
+    builtins: {
+      ...require("browserify/lib/builtins"),
+      _process: path.join(__dirname, "shims/process.js")
+    }
   };
   browserify(brOpts).add('./lib/browser.js')
     .transform(babelify, {
       "global": true,
-      "presets": ["es2015"],
-      "plugins": ["transform-runtime", "babel-plugin-transform-regenerator", "babel-plugin-transform-es2015-modules-commonjs"],
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "useBuiltIns": "usage",
+            "corejs": 3,
+            "targets": {
+              "chrome": "58",
+              "ie": "10"
+            }
+          }
+        ],
+      ],
+      "plugins": ["@babel/plugin-transform-runtime", "@babel/plugin-transform-regenerator"],
       "only": ['lib/*', 'shims/*', 'shims/crypto/*'],
     }).transform(aliasify, {
       global: true,

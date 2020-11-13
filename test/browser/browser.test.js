@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 /* eslint no-await-in-loop: [0] */
 const assert = require('assert');
@@ -277,7 +278,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:6000/gems/');
+      assert.equal(url, 'http://127.0.0.1:6000/');
     });
 
     it('should create request url with bucket/object/subres', () => {
@@ -345,7 +346,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
+      assert.equal(url, 'http://127.0.0.1:3000/hello');
     });
 
     it('should set User-Agent', () => {
@@ -562,6 +563,25 @@ describe('browser', () => {
         assert(true);
       }
     });
+
+    it('should throw ConnectionTimeoutError when putstream timeout', async () => {
+      const name = `${prefix}put/test`;
+      const content = Array(1024 * 1024 * 10).fill(1).join('');
+      const body = new Blob([content], { type: 'text/plain' });
+      const options = {
+        timeout: 300
+      };
+      try {
+        setTimeout(() => {
+          options.timeout = 60000;
+        }, 200);
+        await store.put(name, body, options);
+        assert(false);
+      } catch (error) {
+        assert(error.name === 'ConnectionTimeoutError');
+      }
+    });
+
   });
 
   describe('test-content-type', () => {
@@ -1052,6 +1072,32 @@ describe('browser', () => {
         assert.deepEqual(md5(object.content), md5(fileBuf));
       });
 
+      it('should upload buffer', async () => {
+        // create a buffer with 1M random data
+        const bufferString = Array(1024 * 1024).fill('a').join('');
+        const fileBuf = Buffer.from(bufferString);
+
+        const name = `${prefix}multipart/upload-buffer`;
+
+        let progress = 0;
+        const result = await store.multipartUpload(name, fileBuf, {
+          partSize: 100 * 1024,
+          progress() {
+            progress++;
+          }
+        });
+        sinon.restore();
+        assert.equal(result.res.status, 200);
+        assert.equal(progress, 12);
+
+        const object = await store.get(name);
+        assert.equal(object.res.status, 200);
+
+        assert.equal(object.content.length, fileBuf.length);
+        // avoid comparing buffers directly for it may hang when generating diffs
+        assert.deepEqual(md5(object.content), md5(fileBuf));
+      });
+
       it('should return requestId in init, upload part, complete', async () => {
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-fallback');
@@ -1167,6 +1213,34 @@ describe('browser', () => {
         }
       });
 
+      it('should multipart upload file with checkpoint', async () => {
+        const client = store;
+        // create a file with 1M random data
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
+
+        const name = `${prefix}multipart/upload-file-checkpoint`;
+        let checkpoint;
+        const options = {
+          async progress(p, _checkpoint) {
+            if (p > 0.5 && !checkpoint) {
+              client.resetCancelFlag();
+              checkpoint = _checkpoint;
+            }
+          },
+          partSize: 100 * 1024,
+          checkpoint
+        };
+        try {
+          await client.multipartUpload(name, file, options);
+        } catch (err) {
+          assert.equal(true, client.isCancel());
+        }
+        await client.multipartUpload(name, file, options);
+        const result = await client.get(name);
+        assert.equal(result.content.length, 1024 * 1024);
+      });
+
       it('should upload with uploadPart', async () => {
         const fileContent = Array(10 * 100 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-part');
@@ -1178,15 +1252,14 @@ describe('browser', () => {
 
         const parts = await Promise.all(Array(10)
           .fill(1)
-          .map((v, i) =>
-            store.uploadPart(
-              name,
-              uploadId,
-              i + 1,
-              file,
-              i * partSize,
-              Math.min((i + 1) * partSize, 10 * 100 * 1024)
-            )));
+          .map((v, i) => store.uploadPart(
+            name,
+            uploadId,
+            i + 1,
+            file,
+            i * partSize,
+            Math.min((i + 1) * partSize, 10 * 100 * 1024)
+          )));
         const dones = parts.map((_, i) => ({
           number: i + 1,
           etag: _.etag
@@ -1587,6 +1660,62 @@ describe('browser', () => {
       assert.equal(netErrz.status, -1);
 
       store.urllib.request.restore();
+    });
+  });
+
+  describe('options.headerEncoding', () => {
+    let store;
+    const utf8_content = '阿达的大多';
+    const latin1_content = Buffer.from(utf8_content).toString('latin1');
+    let name;
+    before(async () => {
+      store = oss(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
+      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
+      const result = await store.put(name, Buffer.from('123'), {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('copy() should return 200 when set zh-cn meta', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('putMeta() should return 200', async () => {
+      const result = await store.putMeta(name, {
+        b: utf8_content
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.b, latin1_content);
     });
   });
 });

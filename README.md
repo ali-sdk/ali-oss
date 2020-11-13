@@ -111,6 +111,17 @@ All operation use es7 async/await to implement. All api is async function.
   - versioning
     - [.getBucketVersioning(name, [, options])](#getBucketVersioningname-options)
     - [.putBucketVersioning(name, status[, options])](#putBucketVersioningname-status-options)
+  - inventory
+      - [.getBucketInventory(name, inventoryId[, options])](#getBucketInventoryname-inventoryid-options)
+      - [.putBucketInventory(name, inventory[, options])](#putBucketInventoryname-inventory-options)
+      - [.deleteBucketInventory(name, inventoryId[, options])](#deleteBucketInventoryname-inventoryid-options)
+      - [.listBucketInventory(name, [, options])](#listBucketInventoryname-options)
+  - worm
+    - [.abortBucketWorm(name[, options])](#abortBucketWormname-options)
+    - [.completeBucketWorm(name, wormId[, options])](#completeBucketWormname-wormId-options)
+    - [.extendBucketWorm(name, wormId, days[, options])](#extendBucketWormname-wormId-days-options)
+    - [.getBucketWorm(name[, options])](#getBucketWormname-options)
+    - [.initiateBucketWorm(name, days[, options])](#initiateBucketWormname-days-options)
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
@@ -308,6 +319,7 @@ options:
 - accessKeyId {String} access key you create on aliyun console website
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
+- [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`.
@@ -322,6 +334,8 @@ options:
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
 - [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with 
 `fetch` mode ,else `XMLHttpRequest`
+- [enableProxy] {Boolean}, Enable proxy request, default is false.
+- [proxy] {String | Object}, proxy agent uri or options, default is null.
 
 example:
 
@@ -390,8 +404,10 @@ parameters:
   If bucket exists and not belong to current account, will throw BucketAlreadyExistsError.
   If bucket not exists, will create a new bucket and set it's ACL.
 - [options] {Object} optional parameters
+  - [acl] {String} include `private`,`public-read`,`public-read-write`
+  - [storageClass] {String} the storage type include (Standard,IA,Archive)
+  - [dataRedundancyType] {String} default `LRS`, include `LRS`,`ZRS`
   - [timeout] {Number} the operation timeout
-  - [StorageClass] {String} the storage type include (Standard,IA,Archive)
 
 Success will return the bucket name on `bucket` properties.
 
@@ -1255,6 +1271,252 @@ Success will return:
 
 ---
 
+
+### .getBucketInventory(name, inventoryId[, options])
+
+get bucket inventory by inventory-id
+
+parameters:
+
+- name {String} the bucket name
+- inventoryId {String} inventory-id
+- [options] {Object} optional args
+
+Success will return:
+
+- inventory {Inventory}
+- status {Number} response status
+- res {Object} response info
+
+```js
+async function getBucketInventoryById() {
+  try {
+    const result = await client.getBucketInventory('bucket', 'inventoryid');
+    console.log(result.inventory)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+getBucketInventoryById();
+```
+
+### putBucketInventory(name, inventory[, options])
+
+set bucket inventory
+
+parameters:
+
+- name {String} the bucket name
+- inventory {Inventory} inventory config
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+```ts
+type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
+interface Inventory {
+  id: string;
+  isEnabled: true | false;
+  prefix?: string;
+  OSSBucketDestination: {
+    format: 'CSV';
+    accountId: string;
+    rolename: string;
+    bucket: string;
+    prefix?: string;
+    encryption?:
+    | {'SSE-OSS': ''}
+    | {
+      'SSE-KMS': {
+        keyId: string;
+      };
+    };
+  };
+  frequency: 'Daily' | 'Weekly';
+  includedObjectVersions: 'Current' | 'All';
+  optionalFields?: {
+    field?: Field[];
+  };
+}
+```
+```js
+const inventory = {
+  id: 'default',
+  isEnabled: false, // `true` | `false`
+  prefix: 'ttt', // filter prefix
+  OSSBucketDestination: {
+    format: 'CSV',
+    accountId: '1817184078010220',
+    rolename: 'AliyunOSSRole',
+    bucket: 'your bucket',
+    prefix: 'test',
+    //encryption: {'SSE-OSS': ''},
+    /*
+      encryption: {
+      'SSE-KMS': {
+        keyId: 'test-kms-id';
+      };, 
+    */
+  },
+  frequency: 'Daily', // `WEEKLY` | `Daily`
+  includedObjectVersions: 'All', // `All` | `Current`
+  optionalFields: {
+    field: ["Size", "LastModifiedDate", "ETag", "StorageClass", "IsMultipartUploaded", "EncryptionStatus"]
+  },
+}
+
+async function putInventory(){
+  const bucket = 'Your Bucket Name';
+  try {
+    await client.putBucketInventory(bucket, inventory);
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+putInventory()
+```
+
+### deleteBucketInventory(name, inventoryId[, options])
+
+delete bucket inventory by inventory-id
+
+parameters:
+
+- name {String} the bucket name
+- inventoryId {String} inventory-id
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+### listBucketInventory(name[, options])
+
+list bucket inventory
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+  - continuationToken used by search next page
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+example: 
+
+```js
+async function listBucketInventory() {
+  const bucket = 'Your Bucket Name';
+  let nextContinuationToken;
+  // list all inventory of the bucket
+  do {
+    const result = await client.listBucketInventory(bucket, nextContinuationToken);
+    console.log(result.inventoryList);
+    nextContinuationToken = result.nextContinuationToken;
+  } while (nextContinuationToken)
+}
+
+listBucketInventory();
+```
+
+### .abortBucketWorm(name[, options])
+
+used to delete an unlocked retention policy.
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .completeBucketWorm(name, wormId[, options])
+
+used to lock a retention policy.
+
+parameters:
+
+- name {String} the bucket name
+- wormId {String} worm id
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .extendBucketWorm(name, wormId, days[, options])
+
+ used to extend the retention period of objects in a bucket whose retention policy is locked.
+
+parameters:
+
+- name {String} the bucket name
+- wormId {String} worm id
+- days {String | Number} retention days
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .getBucketWorm(name[, options])
+
+ used to query the retention policy information of the specified bucket.
+
+parameters:
+
+- name {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- wormId {String} worm id
+- state {String} `Locked` or `InProgress`
+- days {String} retention days
+- creationDate {String}
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .initiateBucketWorm(name, days[, options])
+
+create a retention policy.
+
+parameters:
+
+- name {String} the bucket name
+- days {String | Number}} set retention days
+- [options] {Object} optional args
+
+Success will return:
+
+- wormId {String} worm id
+- status {Number} response status
+- res {Object} response info
+
+---
+
 ## Object Operations
 
 All operations function return Promise, except `signatureUrl`.
@@ -2028,7 +2290,7 @@ console.log(result.objects);
 
 ### .getBucketVersions(query[, options])
 
-List objects in the bucket.
+List the version information of all objects in the bucket, including the delete marker (Delete Marker).
 
 parameters:
 
@@ -2623,10 +2885,10 @@ or give tips in your business code;
 parameters:
 
 - name {String} object name
-- file {String|File(only support Browser)|Blob(only support Browser)} file path or HTML5 Web File or web Blob
+- file {String|File(only support Browser)|Blob(only support Browser)|Buffer} file path or HTML5 Web File or web Blob or content buffer
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
-  - [partSize] {Number} the suggested size for each part
+  - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
@@ -2730,6 +2992,33 @@ const result2 = await store.multipartUpload('object', '/tmp/file', {
 
 ```
 
+- multipartUpload with abort
+
+>tips: abort multipartUpload support on node and browser
+
+```js
+
+//start upload
+let abortCheckpoint;
+store.multipartUpload('object', '/tmp/file', {
+  progress: function (p, cpt, res) {
+    abortCheckpoint = cpt;
+  }
+}).then(res => {
+  // do something
+}.catch(err => {
+   //if abort will catch abort event
+  if (err.name === 'abort') {
+    // handle abort
+    console.log('error: ', err.message)
+  }
+}))
+
+// abort
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
+
+```
+
 - multipartUpload with cancel
 
 >tips: cancel multipartUpload support on node and browser
@@ -2795,7 +3084,7 @@ parameters:
 - [options] {Object} optional args
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [parallel] {Number} the number of parts to be uploaded in parallel
-  - [partSize] {Number} the suggested size for each part
+  - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
   - [versionId] {String} the version id of history object 
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
@@ -2871,6 +3160,36 @@ const result = await store.multipartUploadCopy('object', {
 console.log(result);
 
 ```
+
+- multipartUploadCopy with abort
+
+```js
+
+//start upload
+let abortCheckpoint;
+store.multipartUploadCopy('object', {
+    sourceKey: 'sourceKey',
+    sourceBucketName: 'sourceBucketName'
+  }, {
+  progress: function (p, cpt, res) {
+    abortCheckpoint = cpt;
+  }
+}).then(res => {
+  // do something
+}.catch(err => {
+   //if abort will catch abort event
+  if (err.name === 'abort') {
+    // handle abort
+    console.log('error: ', err.message)
+  }
+}))
+
+//the other event to abort, for example: click event
+//to abort upload must use the same client instance
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
+
+```
+
 - multipartUploadCopy with cancel
 
 ```js
@@ -3902,6 +4221,10 @@ Each error return by OSS server will contains these properties:
 - requestId {String} uuid for this request, if you meet some unhandled problem,
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
+
+The following table lists the OSS error codes:
+
+[More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
 name | code | status | message | message in Chinese
 ---  | ---  | --- | ---     | ---

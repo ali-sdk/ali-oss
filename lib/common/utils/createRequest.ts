@@ -4,6 +4,10 @@ const mime = require('mime');
 const dateFormat = require('dateformat');
 const copy = require('copy-to');
 const path = require('path');
+const { encoder } = require('./encoder');
+const { isIP } = require('./isIP');
+const { setRegion } = require('./setRegion');
+const { getReqUrl } = require('../client/getReqUrl');
 
 interface Headers {
   [propName: string]: any
@@ -70,10 +74,23 @@ export function createRequest(this: any, params) {
     }
   }
 
-  const authResource = this._getResource(params);
-  headers.authorization = this.authorization(params.method, authResource, params.subres, headers);
+  const { hasOwnProperty } = Object.prototype;
+  for (const k in headers) {
+    if (headers[k] && hasOwnProperty.call(headers, k)) {
+      headers[k] = encoder(String(headers[k]), this.options.headerEncoding);
+    }
+  }
 
-  const url = this._getReqUrl(params);
+  const authResource = this._getResource(params);
+  headers.authorization = this.authorization(params.method, authResource, params.subres, headers, this.options.headerEncoding);
+
+  // const url = this._getReqUrl(params);
+  if (isIP(this.options.endpoint.hostname)) {
+    const { region, internal, secure } = this.options;
+    const hostInfo = setRegion(region, internal, secure);
+    headers.host = `${params.bucket}.${hostInfo.host}`;
+  }
+  const url = getReqUrl.bind(this)(params);
   debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
   const timeout = params.timeout || this.options.timeout;
   const reqParams: ReqParams = {
@@ -92,6 +109,9 @@ export function createRequest(this: any, params) {
   if (this.httpsAgent) {
     reqParams.httpsAgent = this.httpsAgent;
   }
+
+  reqParams.enableProxy = !!this.options.enableProxy;
+  reqParams.proxy = this.options.proxy ? this.options.proxy : null;
 
   return {
     url,
