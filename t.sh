@@ -1,0 +1,1 @@
+ALI_SDK_OSS_ID=LTAI4G6v5cgUbU9PzGo67oYi ALI_SDK_OSS_SECRET=gne9j3Jfom7lBPZe8MuJCed6KNx2bw ALI_SDK_STS_ID=LTAI4FdDoEHAgCLDkJbYE2eM ALI_SDK_STS_SECRET=2wDNM7wQnEKUZY4S5H0XybGLx6lSWZ ALI_SDK_STS_ROLE=acs:ram::1817184078010220:role/test ALI_SDK_STS_BUCKET=borwser-sdk-test ALI_SDK_STS_REGION=oss-cn-hangzhou npx mocha -t 60000 -r thunk-mocha -r should test/node/multipart.test.js

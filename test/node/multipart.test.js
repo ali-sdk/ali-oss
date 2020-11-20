@@ -650,7 +650,6 @@ describe('test/multipart.test.js', () => {
       assert.equal(complete.res.status, 200);
     });
 
-
     it('should copy with multipart upload copy', async () => {
       const client = store;
       const copyName = `${prefix}multipart/upload-file-with-copy-new`;
@@ -791,5 +790,39 @@ describe('test/multipart.test.js', () => {
 
       assert.equal(result.res.status, 200);
     });
+  });
+
+  describe('multipartUploadStreams', () => {
+    afterEach(mm.restore);
+    it('multipartUploadStreams.length', async () => {
+      const uploadPart = store._uploadPart;
+      let i = 0;
+      const LIMIT = 1;
+      mm(store, '_uploadPart', function (name, uploadId, partNo, data) {
+        if (i === LIMIT) {
+          throw new Error('mock upload part fail.');
+        } else {
+          i++;
+          return uploadPart.call(this, name, uploadId, partNo, data);
+        }
+      });
+
+      const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
+      const name = `${prefix}multipart/upload-file-${Date.now()}`;
+      const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
+      try {
+        await Promise.all([
+          store.multipartUpload(name, fileName),
+          store.multipartUpload(name1, fileName),
+        ]);
+      } catch (e) {}
+      mm.restore();
+      await Promise.all([
+        store.multipartUpload(name, fileName),
+        store.multipartUpload(name1, fileName),
+      ]);
+      assert.strictEqual(store.multipartUploadStreams.length, 0);
+    });
+
   });
 });
