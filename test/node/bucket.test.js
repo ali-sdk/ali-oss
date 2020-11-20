@@ -104,7 +104,7 @@ describe('test/bucket.test.js', () => {
       });
     });
 
-    it('should create an ZRS bucket', async () => {
+    it.skip('should create an ZRS bucket', async () => {
       const ZRS_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
       const ZRS_put_res = await store.putBucket(ZRS_name, {
         dataRedundancyType: 'ZRS'
@@ -192,7 +192,7 @@ describe('test/bucket.test.js', () => {
       assert.equal(resultAcl.bucket, bucket);
 
       // Need wait some time for bucket meta sync
-      await utils.sleep(ms(metaSyncTime));
+      await utils.sleep(1000);
 
       const r = await store.getBucketACL(bucket);
       assert.equal(r.res.status, 200);
@@ -1300,7 +1300,7 @@ describe('test/bucket.test.js', () => {
       frequency: 'Daily',
       includedObjectVersions: 'All',
       optionalFields: {
-        Field: ['Size', 'LastModifiedDate'],
+        field: ['Size', 'LastModifiedDate'],
       },
     };
 
@@ -1315,6 +1315,12 @@ describe('test/bucket.test.js', () => {
           assert(false, err);
         }
       });
+      it('should return inventory array when inventory is one config', async () => {
+        const inventoryRes = await store.listBucketInventory(bucket);
+        assert(Array.isArray(inventoryRes.inventoryList));
+        assert(inventoryRes.inventoryList.length === 1);
+        assert.strictEqual(inventoryRes.status, 200);
+      });
       it('should put bucket inventory when no optionalFields or no field', async () => {
         try {
           inventory.id = 'test_optionalFields';
@@ -1323,6 +1329,12 @@ describe('test/bucket.test.js', () => {
 
           inventory.id = 'test_field';
           inventory.optionalFields = {};
+          await store.putBucketInventory(bucket, inventory);
+
+          inventory.id = 'test_field_is_one';
+          inventory.optionalFields = {
+            field: ['Size'],
+          };
           await store.putBucketInventory(bucket, inventory);
           assert(true);
         } catch (err) {
@@ -1361,10 +1373,24 @@ describe('test/bucket.test.js', () => {
       });
     });
     describe('getBucketInventory', () => {
+      let testGetInventory;
       it('should get bucket inventory by inventoryId', async () => {
         try {
           const result = await store.getBucketInventory(bucket, inventory.id);
-          assert(includesConf(result.inventory, inventory));
+          testGetInventory = result.inventory;
+          assert(includesConf(testGetInventory, inventory));
+        } catch (err) {
+          assert(false);
+        }
+      });
+      it('should return Field array when Field value is one length Array', async () => {
+        try {
+          assert(
+            testGetInventory.optionalFields &&
+              testGetInventory.optionalFields.field &&
+              Array.isArray(testGetInventory.optionalFields.field) &&
+              testGetInventory.optionalFields.field.length === 1
+          );
         } catch (err) {
           assert(false);
         }
@@ -1375,7 +1401,7 @@ describe('test/bucket.test.js', () => {
         let _index = 0;
         async function putInventoryList() {
           await Promise.all(
-            new Array(10).fill(1).map(_ => {
+            new Array(1).fill(1).map(() => {
               _index++;
               return store.putBucketInventory(bucket, Object.assign({}, inventory, { id: `test_list_${_index}` }));
             })

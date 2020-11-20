@@ -39,6 +39,9 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 `Note`:
 - For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
 
+### Tree Shaking
+- [Guide](https://github.com/ali-sdk/ali-oss/blob/ts/ts-guide.md)
+
 ### QA
 You can join DingDing Talk Group, [Group Link](https://qr.dingtalk.com/action/joingroup?code=v1,k1,inkSDqCxm7LilkaR/kknRVBDQ8PDA0Lj5hj4Cf9io3w=&_dt_no_comment=1&origin=11)
 
@@ -336,6 +339,7 @@ options:
 `fetch` mode ,else `XMLHttpRequest`
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
+- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.
 
 example:
 

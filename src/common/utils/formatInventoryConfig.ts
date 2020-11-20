@@ -32,7 +32,7 @@ function formatFn(_) {
     conf.frequency = conf.Schedule.Frequency;
     delete conf.Schedule.Frequency;
     // optionalFields
-    if (isObject(conf.optionalFields?.Field)) conf.optionalFields.Field = [conf.optionalFields.Field];
+    if (conf?.OptionalFields?.Field && !isArray(conf.OptionalFields?.Field)) conf.OptionalFields.Field = [conf.OptionalFields.Field];
   });
   // firstLowerCase
   _ = formatObjKey(_, 'firstLowerCase', { exclude: ['OSSBucketDestination', 'SSE-OSS', 'SSE-KMS'] });

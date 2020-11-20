@@ -1,11 +1,22 @@
 const assert = require('assert');
 const { dataFix } = require('../../lib/common/utils/dataFix');
-const { sleep } = require('../node/utils');
+const { sleep } = require('./utils');
 
 describe('dataFix()', () => {
   before(async () => {
     await sleep(1000);
   });
+  describe('data is not object', () => {
+    it('should return without handle', () => {
+      const data = 'string';
+
+      const conf = {
+        remove: ['rm', 'rm2'],
+      };
+      dataFix(data, conf);
+    });
+  });
+
   describe('remove : array - remove unwanted props', () => {
     it('should remove what is not needed', () => {
       const data = {
@@ -170,7 +181,7 @@ describe('dataFix()', () => {
     };
 
     dataFix(data, {
-      camel: Object.keys(data),
+      camel: [...Object.keys(data), 'noExistkey'],
     });
 
     it('should covert and remove the Old', () => {
@@ -181,6 +192,11 @@ describe('dataFix()', () => {
     it('should not covert if camel will replace existed', () => {
       assert.strictEqual(Both, data['Both-both']);
       assert.strictEqual(both, data.bothBoth);
+    });
+
+    it('should not covert if camel origin key is not exist', () => {
+      // eslint-disable-next-line no-prototype-builtins
+      assert(!data.hasOwnProperty('NoExistkey'));
     });
   });
 

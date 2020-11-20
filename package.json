@@ -23,8 +23,8 @@
   },
   "scripts": {
     "build-change-log": "standard-version",
-    "test": "mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js",
-    "test-cov": "nyc --reporter=lcov node_modules/.bin/_mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js",
+    "test": "mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js test/node/**/*.test.js",
+    "test-cov": "nyc --reporter=lcov node_modules/.bin/_mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js test/node/**/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
     "build-test": "MINIFY=1 node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js && node task/browser-test-build.js > test/browser/build/tests.js",
@@ -36,7 +36,7 @@
     "prepublish": "npm run snyk-protect",
     "lint-staged": "lint-staged",
     "detect-secrets": "node task/detect-secrets",
-    "tsc": "npm run tsc:clean && tsc:build",
+    "tsc": "npm run tsc:clean && npm run tsc:build",
     "tsc:build": "tsc -b tsconfig-es.json tsconfig-cjs.json && node task/handle-es-export.js",
     "tsc:watch": "tsc -b tsconfig-es.json tsconfig-cjs.json --watch",
     "tsc:clean": "tsc -b tsconfig-es.json tsconfig-cjs.json --clean "

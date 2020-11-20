@@ -33,7 +33,7 @@ export function _parallel(
           jobErr.push(_err);
           res(jobErr);
         })
-        .finally(() => {
+        .then(() => {
           doing.pop();
           if (!doing.length) res();
         });

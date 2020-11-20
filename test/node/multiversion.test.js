@@ -10,6 +10,7 @@ describe('test/multiversion.test.js', () => {
   const suspended = 'Suspended';
   let store;
   let bucket;
+  const originRegion = config.region;
   before(async () => {
     config.region = 'oss-cn-chengdu';
     store = new OSS(config);
@@ -27,6 +28,7 @@ describe('test/multiversion.test.js', () => {
   });
 
   after(async () => {
+    config.region = originRegion;
     await utils.cleanBucket(store, bucket, true);
   });
 

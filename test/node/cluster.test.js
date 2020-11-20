@@ -21,7 +21,7 @@ describe('test/Cluster.test.js', () => {
 
   before(function (done) {
     const options = {
-      Cluster: [
+      cluster: [
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
@@ -53,11 +53,11 @@ describe('test/Cluster.test.js', () => {
   });
 
   describe('init', () => {
-    it('require options.Cluster to be an array', () => {
+    it('require options.cluster to be an array', () => {
       (function () {
         // eslint-disable-next-line no-new
         new Cluster({});
-      }).should.throw('require options.Cluster to be an array');
+      }).should.throw('require options.cluster to be an array');
     });
 
     it('should _init() _checkAvailable throw error', function (done) {
