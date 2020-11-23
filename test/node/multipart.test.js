@@ -824,5 +824,22 @@ describe('test/multipart.test.js', () => {
       assert.strictEqual(store.multipartUploadStreams.length, 0);
     });
 
+    it('destroy the stream when multipartUploaded and the cancel method is called', async () => {
+      const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
+      let stream;
+      mm(store, '_uploadPart', (_name, _uploadId, _partNo, data) => {
+        stream = data.stream;
+        throw new Error('mock upload part fail.');
+      });
+
+      const name = `${prefix}multipart/upload-file-${Date.now()}`;
+      try {
+        await store.multipartUpload(name, fileName);
+      } catch (e) {
+        store.cancel();
+      }
+      mm.restore();
+      assert.strictEqual(stream.destroyed, true);
+    });
   });
 });
