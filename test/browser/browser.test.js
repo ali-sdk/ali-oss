@@ -1302,6 +1302,52 @@ describe('browser', () => {
         assert.equal(result.res.status, 200);
       });
 
+      it('multipartUploadStreams.length', async () => {
+        const uploadPart = store._uploadPart;
+        let i = 0;
+        const LIMIT = 1;
+        mm(store, '_uploadPart', function (name, uploadId, partNo, data) {
+          if (i === LIMIT) {
+            throw new Error('mock upload part fail.');
+          } else {
+            i++;
+            return uploadPart.call(this, name, uploadId, partNo, data);
+          }
+        });
+        const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
+        const name = `${prefix}multipart/upload-file-${Date.now()}`;
+        const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
+        try {
+          await Promise.all([
+            store.multipartUpload(name, fileName),
+            store.multipartUpload(name1, fileName),
+          ]);
+        } catch (e) {}
+        mm.restore();
+        await Promise.all([
+          store.multipartUpload(name, fileName),
+          store.multipartUpload(name1, fileName),
+        ]);
+        assert.strictEqual(store.multipartUploadStreams.length, 0);
+      });
+
+      it('destroy the stream when multipartUploaded and the cancel method is called', async () => {
+        const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
+        let stream;
+        mm(store, '_uploadPart', (_name, _uploadId, _partNo, data) => {
+          stream = data.stream;
+          throw new Error('mock upload part fail.');
+        });
+
+        const name = `${prefix}multipart/upload-file-${Date.now()}`;
+        try {
+          await store.multipartUpload(name, fileName);
+        } catch (e) {
+          store.cancel();
+        }
+        mm.restore();
+        assert.strictEqual(stream.destroyed, true);
+      });
       // TODO fix callback server
       // it('should upload no more 100k file with callback server', async () => {
       //   const fileContent = Array(50 * 1024).fill('a').join('');
