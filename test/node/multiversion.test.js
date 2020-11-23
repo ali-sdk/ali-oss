@@ -116,7 +116,7 @@ describe('test/multiversion.test.js', () => {
           noncurrentDays: 1
         }
       }]);
-      assert.equal(putresult1.res.status, 200);
+      assert.strictEqual(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
     });

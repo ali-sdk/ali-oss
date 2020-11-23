@@ -1707,6 +1707,27 @@ describe('browser', () => {
 
       store.urllib.request.restore();
     });
+
+    it('should request throw ResponseTimeoutError', async () => {
+      const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      const name = `${prefix}multipart/upload-file`;
+
+      const stubNetError = sinon.stub(store.urllib, 'request');
+      const netErr = new Error('ResponseTimeoutError');
+      netErr.status = -1;
+      netErr.code = 'ResponseTimeoutError';
+      netErr.name = 'ResponseTimeoutError';
+      stubNetError.throws(netErr);
+
+      let netErrs;
+      try {
+        await store.multipartUpload(name, fileName);
+      } catch (err) {
+        netErrs = err;
+      }
+      assert.strictEqual(netErrs.name, 'ResponseTimeoutError');
+      store.urllib.request.restore();
+    });
   });
 
   describe('options.headerEncoding', () => {

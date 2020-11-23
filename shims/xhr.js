@@ -49,11 +49,7 @@ exports.request = function request(url, args, callback) {
     return exports.requestWithCallback(url, args, callback);
   }
 
-  // Promise
-  if (!_Promise) {
-    _Promise = require('any-promise');
-  }
-  return new _Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     exports.requestWithCallback(url, args, makeCallback(resolve, reject));
   });
 };
