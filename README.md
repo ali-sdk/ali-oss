@@ -2324,8 +2324,8 @@ Success will return objects list on `objects` properties.
     - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
     - versionId {String} object versionId
 - isTruncated {Boolean} truncate or not
-- NextKeyMarker {String} next marker string
-- NextVersionIdMarker {String} next version ID marker string
+- nextKeyMarker (nextMarker) {String} next marker string
+- nextVersionIdMarker (NextVersionIdMarker) {String} next version ID marker string
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
