@@ -26,13 +26,13 @@ timemachine.reset();
 
 const cleanBucket = async store => {
   let result = await store.list({
-    'max-keys': 1000,
+    'max-keys': 1000
   });
   result.objects = result.objects || [];
   await Promise.all(result.objects.map(_ => store.delete(_.name)));
 
   result = await store.listUploads({
-    'max-uploads': 1000,
+    'max-uploads': 1000
   });
   const uploads = result.uploads || [];
   await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
@@ -46,7 +46,7 @@ describe('browser', () => {
       accessKeyId: stsConfig.Credentials.AccessKeyId,
       accessKeySecret: stsConfig.Credentials.AccessKeySecret,
       stsToken: stsConfig.Credentials.SecurityToken,
-      bucket: stsConfig.bucket,
+      bucket: stsConfig.bucket
     };
 
     // this.store = oss({
@@ -70,7 +70,7 @@ describe('browser', () => {
       let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
       assert.equal(store.options.endpoint.format(), 'http://oss-cn-hangzhou.aliyuncs.com/');
@@ -79,7 +79,7 @@ describe('browser', () => {
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou',
-        internal: true,
+        internal: true
       });
 
       assert.equal(store.options.endpoint.format(), 'http://oss-cn-hangzhou-internal.aliyuncs.com/');
@@ -89,7 +89,7 @@ describe('browser', () => {
         accessKeySecret: 'bar',
         region: 'oss-cn-hangzhou',
         internal: true,
-        secure: true,
+        secure: true
       });
 
       assert.equal(store.options.endpoint.format(), 'https://oss-cn-hangzhou-internal.aliyuncs.com/');
@@ -97,7 +97,7 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'vpc100-oss-cn-beijing',
+        region: 'vpc100-oss-cn-beijing'
       });
 
       assert.equal(store.options.endpoint.format(), 'http://vpc100-oss-cn-beijing.aliyuncs.com/');
@@ -106,7 +106,7 @@ describe('browser', () => {
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         region: 'vpc100-oss-cn-shenzhen',
-        internal: true,
+        internal: true
       });
 
       assert.equal(store.options.endpoint.format(), 'http://vpc100-oss-cn-shenzhen.aliyuncs.com/');
@@ -116,7 +116,7 @@ describe('browser', () => {
         accessKeySecret: 'bar',
         region: 'vpc100-oss-cn-hangzhou',
         internal: true,
-        secure: true,
+        secure: true
       });
 
       assert.equal(store.options.endpoint.format(), 'https://vpc100-oss-cn-hangzhou.aliyuncs.com/');
@@ -127,7 +127,7 @@ describe('browser', () => {
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
-        cname: true,
+        cname: true
       });
 
       assert.equal(store.options.endpoint.format(), 'http://foo.bar.com/');
@@ -136,7 +136,7 @@ describe('browser', () => {
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'http://foo.bar.com',
-        cname: true,
+        cname: true
       });
 
       assert.equal(store.options.endpoint.format(), 'http://foo.bar.com/');
@@ -146,7 +146,7 @@ describe('browser', () => {
       let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: 'test.oss.com',
+        endpoint: 'test.oss.com'
       });
 
       assert.equal(store.options.endpoint.format(), 'http://test.oss.com/');
@@ -155,7 +155,7 @@ describe('browser', () => {
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         secure: true,
-        endpoint: 'test.oss.com',
+        endpoint: 'test.oss.com'
       });
 
       assert.equal(store.options.endpoint.format(), 'https://test.oss.com/');
@@ -163,7 +163,7 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: 'http://test.oss.com',
+        endpoint: 'http://test.oss.com'
       });
 
       assert.equal(store.options.endpoint.format(), 'http://test.oss.com/');
@@ -171,7 +171,7 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: 'https://test.oss.com',
+        endpoint: 'https://test.oss.com'
       });
 
       assert.equal(store.options.endpoint.format(), 'https://test.oss.com/');
@@ -181,7 +181,7 @@ describe('browser', () => {
       const store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: '127.0.0.1',
+        endpoint: '127.0.0.1'
       });
 
       assert.equal(store.options.endpoint.format(), 'http://127.0.0.1/');
@@ -191,11 +191,11 @@ describe('browser', () => {
       let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
       let params = {
-        bucket: 'gems',
+        bucket: 'gems'
       };
 
       let url = store._getReqUrl(params);
@@ -204,11 +204,11 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: 'test.oss.com',
+        endpoint: 'test.oss.com'
       });
 
       params = {
-        bucket: 'gems',
+        bucket: 'gems'
       };
 
       url = store._getReqUrl(params);
@@ -218,11 +218,11 @@ describe('browser', () => {
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
-        cname: true,
+        cname: true
       });
 
       params = {
-        bucket: 'gems',
+        bucket: 'gems'
       };
 
       url = store._getReqUrl(params);
@@ -231,11 +231,11 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: 'http://127.0.0.1:6000',
+        endpoint: 'http://127.0.0.1:6000'
       });
 
       params = {
-        bucket: 'gems',
+        bucket: 'gems'
       };
 
       url = store._getReqUrl(params);
@@ -246,12 +246,12 @@ describe('browser', () => {
       let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
       let params = {
         bucket: 'gems',
-        object: 'hello',
+        object: 'hello'
       };
 
       let url = store._getReqUrl(params);
@@ -260,7 +260,7 @@ describe('browser', () => {
       params = {
         bucket: 'gems',
         object: 'hello',
-        subres: { acl: '', mime: '' },
+        subres: { acl: '', mime: '' }
       };
 
       url = store._getReqUrl(params);
@@ -269,12 +269,12 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: 'test.oss.com',
+        endpoint: 'test.oss.com'
       });
 
       params = {
         bucket: 'gems',
-        object: 'hello',
+        object: 'hello'
       };
 
       url = store._getReqUrl(params);
@@ -284,12 +284,12 @@ describe('browser', () => {
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
         endpoint: 'foo.bar.com',
-        cname: true,
+        cname: true
       });
 
       params = {
         bucket: 'gems',
-        object: 'hello',
+        object: 'hello'
       };
 
       url = store._getReqUrl(params);
@@ -298,12 +298,12 @@ describe('browser', () => {
       store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
-        endpoint: 'http://127.0.0.1:3000',
+        endpoint: 'http://127.0.0.1:3000'
       });
 
       params = {
         bucket: 'gems',
-        object: 'hello',
+        object: 'hello'
       };
 
       url = store._getReqUrl(params);
@@ -329,7 +329,7 @@ describe('browser', () => {
       const store = oss({
         accessKeyId: '  \tfoo\t\n  ',
         accessKeySecret: '  \tbar\n\r   ',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
 
       assert.equal(store.options.accessKeyId, 'foo');
@@ -341,14 +341,14 @@ describe('browser', () => {
       const store1 = oss({
         accessKeyId: 'hi-oss-check-key-id',
         accessKeySecret: 'hi-oss-check-key-id-secret',
-        region: 'oss-cn-hangzhou',
+        region: 'oss-cn-hangzhou'
       });
       assert.equal(store1.options.useFetch, false);
       const store2 = oss({
         accessKeyId: 'hi-oss-check-key-id',
         accessKeySecret: 'hi-oss-check-key-id-secret',
         region: 'oss-cn-hangzhou',
-        useFetch: true,
+        useFetch: true
       });
       assert.equal(store2.options.useFetch, true);
     });
@@ -386,7 +386,7 @@ describe('browser', () => {
 
     it('should list only 1 object', async () => {
       const result = await client.list({
-        'max-keys': 1,
+        'max-keys': 1
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
@@ -397,7 +397,7 @@ describe('browser', () => {
 
     it('should list top 3 objects', async () => {
       const result = await client.list({
-        'max-keys': 3,
+        'max-keys': 3
       });
       assert.equal(result.objects.length, 3);
       result.objects.map(checkObjectProperties);
@@ -408,7 +408,7 @@ describe('browser', () => {
       // next 2
       const result2 = await client.list({
         'max-keys': 2,
-        marker: result.nextMarker,
+        marker: result.nextMarker
       });
       assert.equal(result2.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -419,7 +419,7 @@ describe('browser', () => {
 
     it('should list with prefix', async () => {
       let result = await client.list({
-        prefix: `${listPrefix}fun/movie/`,
+        prefix: `${listPrefix}fun/movie/`
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -428,7 +428,7 @@ describe('browser', () => {
       assert.equal(result.prefixes, null);
 
       result = await client.list({
-        prefix: `${listPrefix}fun/movie`,
+        prefix: `${listPrefix}fun/movie`
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -440,7 +440,7 @@ describe('browser', () => {
     it('should list current dir files only', async () => {
       let result = await client.list({
         prefix: listPrefix,
-        delimiter: '/',
+        delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
@@ -450,7 +450,7 @@ describe('browser', () => {
 
       result = await client.list({
         prefix: `${listPrefix}fun/`,
-        delimiter: '/',
+        delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
@@ -460,7 +460,7 @@ describe('browser', () => {
 
       result = await client.list({
         prefix: `${listPrefix}fun/movie/`,
-        delimiter: '/',
+        delimiter: '/'
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -498,7 +498,7 @@ describe('browser', () => {
 
     it('should list top 3 objects', async () => {
       const result = await store.listV2({
-        'max-keys': 1,
+        'max-keys': 1
       });
       assert.equal(result.objects.length, 1);
       result.objects.forEach(checkObjectProperties);
@@ -509,7 +509,7 @@ describe('browser', () => {
       // next 2
       const result2 = await store.listV2({
         'max-keys': 2,
-        continuationTOken: result.nextContinuationToken,
+        continuationTOken: result.nextContinuationToken
       });
       assert.equal(result2.objects.length, 2);
       result.objects.forEach(checkObjectProperties);
@@ -521,7 +521,7 @@ describe('browser', () => {
     it('should list with prefix', async () => {
       let result = await store.listV2({
         prefix: `${listPrefix}fun/movie/`,
-        'fetch-owner': true,
+        'fetch-owner': true
       });
       assert.equal(result.objects.length, 2);
       result.objects.forEach(obj => checkObjectProperties(obj, { owner: true }));
@@ -530,7 +530,7 @@ describe('browser', () => {
       assert.equal(result.prefixes, null);
 
       result = await store.listV2({
-        prefix: `${listPrefix}fun/movie`,
+        prefix: `${listPrefix}fun/movie`
       });
       assert.equal(result.objects.length, 2);
       result.objects.forEach(checkObjectProperties);
@@ -542,7 +542,7 @@ describe('browser', () => {
     it('should list current dir files only', async () => {
       let result = await store.listV2({
         prefix: listPrefix,
-        delimiter: '/',
+        delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
       result.objects.forEach(checkObjectProperties);
@@ -552,7 +552,7 @@ describe('browser', () => {
 
       result = await store.listV2({
         prefix: `${listPrefix}fun/`,
-        delimiter: '/',
+        delimiter: '/'
       });
       assert.equal(result.objects.length, 1);
       result.objects.forEach(checkObjectProperties);
@@ -562,7 +562,7 @@ describe('browser', () => {
 
       result = await store.listV2({
         prefix: `${listPrefix}fun/movie/`,
-        delimiter: '/',
+        delimiter: '/'
       });
       assert.equal(result.objects.length, 2);
       result.objects.forEach(checkObjectProperties);
@@ -575,20 +575,20 @@ describe('browser', () => {
       // todo
       let result = await store.listV2({
         'start-after': `${listPrefix}fun`,
-        'max-keys': 1,
+        'max-keys': 1
       });
       assert(result.objects[0].name === `${listPrefix}fun/movie/001.avi`);
 
       result = await store.listV2({
         'start-after': `${listPrefix}fun/movie/001.avi`,
-        'max-keys': 1,
+        'max-keys': 1
       });
       assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
 
       result = await store.listV2({
         delimiter: '/',
         prefix: `${listPrefix}fun/movie/`,
-        'start-after': `${listPrefix}fun/movie/002.avi`,
+        'start-after': `${listPrefix}fun/movie/002.avi`
       });
       assert(result.objects.length === 1);
       assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
@@ -641,7 +641,7 @@ describe('browser', () => {
       assert.equal(resultPut.res.status, 200);
       try {
         await store.put(name, body, {
-          headers: { 'x-oss-forbid-overwrite': 'true' },
+          headers: { 'x-oss-forbid-overwrite': 'true' }
         });
       } catch (error) {
         assert(true);
@@ -655,7 +655,7 @@ describe('browser', () => {
         .join('');
       const body = new Blob([content], { type: 'text/plain' });
       const options = {
-        timeout: 300,
+        timeout: 300
       };
       try {
         setTimeout(() => {
@@ -703,8 +703,8 @@ describe('browser', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
     });
@@ -750,8 +750,8 @@ describe('browser', () => {
         meta: {
           uid: 2,
           pid: '1234',
-          slus: 'test1.html',
-        },
+          slus: 'test1.html'
+        }
       });
 
       const originname = `${prefix}ali-sdk/oss/copy-new_测试.js`;
@@ -774,8 +774,8 @@ describe('browser', () => {
         meta: {
           uid: 3,
           pid: '12345',
-          slus: 'test2.html',
-        },
+          slus: 'test2.html'
+        }
       });
 
       let info = await store.head(sourceName);
@@ -803,8 +803,8 @@ describe('browser', () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
       const result = await store.copy(originname, name, {
         meta: {
-          uid: '2',
-        },
+          uid: '2'
+        }
       });
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
@@ -830,8 +830,8 @@ describe('browser', () => {
       // add Cache-Control header to a exists object
       result = await store.copy(originname, originname, {
         headers: {
-          'Cache-Control': 'max-age=0, s-maxage=86400',
-        },
+          'Cache-Control': 'max-age=0, s-maxage=86400'
+        }
       });
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
@@ -852,8 +852,8 @@ describe('browser', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(object.res.status, 200);
       // 不允许跨域获取 x-oss-request-id
@@ -865,8 +865,8 @@ describe('browser', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(object.res.status, 200);
       // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
@@ -903,11 +903,11 @@ describe('browser', () => {
       const url = store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
-        'Content-Md5': contentMd5,
+        'Content-Md5': contentMd5
       });
       const headers = {
         'Content-Type': 'text/plain; charset=UTF-8',
-        'Content-MD5': contentMd5,
+        'Content-MD5': contentMd5
       };
       const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
@@ -925,7 +925,7 @@ describe('browser', () => {
     it('should signature url with reponse limitation', async () => {
       const response = {
         'content-type': 'xml',
-        'content-language': 'zh-cn',
+        'content-language': 'zh-cn'
       };
       const url = store.signatureUrl(name, { response });
       assert(url.indexOf('response-content-type=xml') !== -1);
@@ -936,7 +936,7 @@ describe('browser', () => {
       const signatureStore = oss(
         Object.assign({}, ossConfig, {
           endpoint: 'www.aliyun.com',
-          cname: true,
+          cname: true
         })
       );
 
@@ -955,7 +955,7 @@ describe('browser', () => {
     describe('listUploads()', () => {
       beforeEach(async () => {
         const result = await store.listUploads({
-          'max-uploads': 1000,
+          'max-uploads': 1000
         });
         const uploads = result.uploads || [];
         await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
@@ -974,7 +974,7 @@ describe('browser', () => {
 
         // list all uploads
         let result = await store.listUploads({
-          'max-uploads': 10,
+          'max-uploads': 10
         });
         const all = result.uploads.map(up => up.uploadId);
         assert.deepEqual(all, ids);
@@ -982,7 +982,7 @@ describe('browser', () => {
         // after 1
         result = await store.listUploads({
           'max-uploads': 10,
-          'key-marker': name + 0,
+          'key-marker': name + 0
         });
         const after1 = result.uploads.map(up => up.uploadId);
         assert.deepEqual(after1, ids.slice(1));
@@ -990,7 +990,7 @@ describe('browser', () => {
         // // after 5
         result = await store.listUploads({
           'max-uploads': 10,
-          'key-marker': name + 4,
+          'key-marker': name + 4
         });
         const after5 = result.uploads.map(up => up.uploadId);
         assert.deepEqual(after5.length, 0);
@@ -1011,14 +1011,14 @@ describe('browser', () => {
 
         // list all uploads
         let result = await store.listUploads({
-          'max-uploads': 10,
+          'max-uploads': 10
         });
         const all = result.uploads.map(up => up.uploadId);
         assert.deepEqual(all, ids);
         // after 1: upload id marker alone is ignored
         result = await store.listUploads({
           'max-uploads': 10,
-          'upload-id-marker': ids[1],
+          'upload-id-marker': ids[1]
         });
         const after1 = result.uploads.map(up => up.uploadId);
         assert.deepEqual(after1, ids);
@@ -1026,7 +1026,7 @@ describe('browser', () => {
         // after 5: upload id marker alone is ignored
         result = await store.listUploads({
           'max-uploads': 10,
-          'upload-id-marker': ids[4],
+          'upload-id-marker': ids[4]
         });
         const after5 = result.uploads.map(up => up.uploadId);
         assert.deepEqual(after5, ids);
@@ -1061,7 +1061,7 @@ describe('browser', () => {
         const result = await store.listUploads({
           'max-uploads': 10,
           'key-marker': barName,
-          'upload-id-marker': barIds[0],
+          'upload-id-marker': barIds[0]
         });
         const after1 = result.uploads.map(up => up.uploadId);
         after1.sort();
@@ -1072,7 +1072,7 @@ describe('browser', () => {
         const result5 = await store.listUploads({
           'max-uploads': 10,
           'key-marker': barName,
-          'upload-id-marker': barIds[4],
+          'upload-id-marker': barIds[4]
         });
         const after5 = result5.uploads.map(up => up.uploadId);
         assert.deepEqual(after5, fooIds);
@@ -1085,8 +1085,8 @@ describe('browser', () => {
         const name = 'multipart-x-oss-server-side-encryption';
         const result = await store.initMultipartUpload(name, {
           headers: {
-            'x-oss-server-side-encryption': 'AES256',
-          },
+            'x-oss-server-side-encryption': 'AES256'
+          }
         });
 
         assert.equal(result.res.headers['x-oss-server-side-encryption'], 'AES256');
@@ -1100,8 +1100,8 @@ describe('browser', () => {
         const fileName = new File([fileContent], 'multipart-upload-kms');
         const result = await store.multipartUpload(name, fileName, {
           headers: {
-            'x-oss-server-side-encryption': 'KMS',
-          },
+            'x-oss-server-side-encryption': 'KMS'
+          }
         });
         assert.equal(result.res.headers['x-oss-server-side-encryption'], 'KMS');
       });
@@ -1115,7 +1115,7 @@ describe('browser', () => {
         const result = await store.multipartUpload(name, file, {
           progress() {
             progress++;
-          },
+          }
         });
         assert.equal(putStreamSpy.callCount, 1);
         assert.equal(uploadPartSpy.callCount, 0);
@@ -1159,7 +1159,7 @@ describe('browser', () => {
           partSize: 100 * 1024,
           progress() {
             progress++;
-          },
+          }
         });
         sinon.restore();
         assert.equal(result.res.status, 200);
@@ -1192,7 +1192,7 @@ describe('browser', () => {
           partSize: 100 * 1024,
           progress() {
             progress++;
-          },
+          }
         });
         sinon.restore();
         assert.equal(result.res.status, 200);
@@ -1215,7 +1215,7 @@ describe('browser', () => {
         const result = await store.multipartUpload(name, file, {
           progress(p, checkpoint, res) {
             assert.equal(true, res && Object.keys(res).length !== 0);
-          },
+          }
         });
         assert.equal(true, result.res && Object.keys(result.res).length !== 0);
         assert.equal(result.res.status, 200);
@@ -1242,7 +1242,7 @@ describe('browser', () => {
         try {
           await store.multipartUpload(name, file, {
             progress() {},
-            partSize: 100 * 1024,
+            partSize: 100 * 1024
           });
         } catch (err) {
           errorMsg = err.message;
@@ -1274,7 +1274,7 @@ describe('browser', () => {
               client.cancel();
             }
           },
-          partSize: 100 * 1024,
+          partSize: 100 * 1024
         };
         try {
           await client.multipartUpload(name, file, options);
@@ -1289,7 +1289,7 @@ describe('browser', () => {
             assert.equal(true, p > 0.5);
           },
           partSize: 100 * 1024,
-          checkpoint: tempCheckpoint,
+          checkpoint: tempCheckpoint
         };
 
         const result = await client.multipartUpload(name, file, options2);
@@ -1316,7 +1316,7 @@ describe('browser', () => {
               await client.abortMultipartUpload(name, uploadIdz);
             }
           },
-          partSize: 100 * 1024,
+          partSize: 100 * 1024
         };
         try {
           await client.multipartUpload(name, file, options);
@@ -1343,7 +1343,7 @@ describe('browser', () => {
             }
           },
           partSize: 100 * 1024,
-          checkpoint,
+          checkpoint
         };
         try {
           await client.multipartUpload(name, file, options);
@@ -1375,7 +1375,7 @@ describe('browser', () => {
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
-          etag: _.etag,
+          etag: _.etag
         }));
 
         const result = await store.completeMultipartUpload(name, uploadId, dones);
@@ -1402,7 +1402,7 @@ describe('browser', () => {
               client.cancel();
             }
           },
-          partSize: 100 * 1024,
+          partSize: 100 * 1024
         };
         /* eslint no-empty: [0] */
         try {
@@ -1413,7 +1413,7 @@ describe('browser', () => {
           name,
           uploadIdz,
           {
-            'max-parts': 1000,
+            'max-parts': 1000
           },
           {}
         );
@@ -1540,7 +1540,7 @@ describe('browser', () => {
             partSize: 14.56,
             progress() {
               progress++;
-            },
+            }
           });
         } catch (e) {
           assert.equal('partSize must be int number', e.message);
@@ -1561,8 +1561,8 @@ describe('browser', () => {
         storageClass: 'IA',
         meta: {
           uid: '1',
-          slus: 'test.html',
-        },
+          slus: 'test.html'
+        }
       });
       assert.equal(result.res.status, 200);
 
@@ -1638,7 +1638,7 @@ describe('browser', () => {
     it('should delete in quiet mode', async () => {
       const store = oss(ossConfig);
       const result = await store.deleteMulti(names, {
-        quiet: true,
+        quiet: true
       });
       assert(result.deleted.length === 0);
       assert.equal(result.res.status, 200);
@@ -1692,7 +1692,7 @@ describe('browser', () => {
 
       timemachine.config({
         dateString: 'December 25, 1991 13:12:59',
-        tick: true,
+        tick: true
       });
       const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
@@ -1723,7 +1723,7 @@ describe('browser', () => {
 
       timemachine.config({
         dateString: 'December 25, 1991 13:12:59',
-        tick: true,
+        tick: true
       });
       const resultPut = await store.put(name, file);
       assert.equal(resultPut.res.status, 200);
@@ -1752,7 +1752,7 @@ describe('browser', () => {
         accessKeySecret: stsConfig.Credentials.AccessKeySecret,
         stsToken: stsConfig.Credentials.SecurityToken,
         bucket: stsConfig.bucket,
-        timeout: 1,
+        timeout: 1
       };
       store = oss(ossConfigz);
     });
@@ -1810,8 +1810,8 @@ describe('browser', () => {
       name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
       const result = await store.put(name, Buffer.from('123'), {
         meta: {
-          a: utf8_content,
-        },
+          a: utf8_content
+        }
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
@@ -1823,8 +1823,8 @@ describe('browser', () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
       const result = await store.copy(originname, name, {
         meta: {
-          a: utf8_content,
-        },
+          a: utf8_content
+        }
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(originname);
@@ -1836,8 +1836,8 @@ describe('browser', () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
       const result = await store.copy(originname, name, {
         meta: {
-          a: utf8_content,
-        },
+          a: utf8_content
+        }
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(originname);
@@ -1847,7 +1847,7 @@ describe('browser', () => {
 
     it('putMeta() should return 200', async () => {
       const result = await store.putMeta(name, {
-        b: utf8_content,
+        b: utf8_content
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
