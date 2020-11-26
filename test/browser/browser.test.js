@@ -1555,7 +1555,7 @@ describe('browser', () => {
       const store = oss(ossConfig);
       const name = `${prefix}put/skew_date`;
       const body = Buffer.from('body');
-      const requestSpy = sinon.spy(store, 'request');
+      const requestSpy = sinon.spy(store.urllib, 'request');
       const requestErrorSpy = sinon.spy(store, 'requestError');
 
       timemachine.config({
@@ -1575,7 +1575,8 @@ describe('browser', () => {
 
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
-
+      store.urllib.request.restore();
+      store.requestError.restore();
       timemachine.reset();
     });
 
@@ -1583,7 +1584,7 @@ describe('browser', () => {
     it('date is skew, put file will retry', async () => {
       const store = oss(ossConfig);
       const name = `${prefix}put/skew_date_file`;
-      const requestSpy = sinon.spy(store, 'request');
+      const requestSpy = sinon.spy(store.urllib, 'request');
       const requestErrorSpy = sinon.spy(store, 'requestError');
       const fileContent = Array(1024 * 1024).fill('a').join('');
       const file = new File([fileContent], 'skew_date_file');
@@ -1605,7 +1606,8 @@ describe('browser', () => {
 
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
-
+      store.urllib.request.restore();
+      store.requestError.restore();
       timemachine.reset();
     });
   });
@@ -1737,6 +1739,78 @@ describe('browser', () => {
       const info = await store.head(name);
       assert.equal(info.status, 200);
       assert.equal(info.meta.b, latin1_content);
+    });
+  });
+
+  describe('test/retry.test.js', () => {
+    let store;
+    const RETRY_MAX = 3;
+    let testRetryCount = 0;
+    let autoRestoreWhenRETRY_LIMIE = true;
+
+    let ORIGIN_REQUEST;
+    const mock = () => {
+      store.urllib.request = () => {
+        const e = new Error('NetError');
+        e.status = -1;
+        throw e;
+      };
+    };
+    const restore = () => {
+      store.urllib.request = ORIGIN_REQUEST;
+    };
+
+    before(async () => {
+      const ossConfigz = {
+        region: stsConfig.region,
+        accessKeyId: stsConfig.Credentials.AccessKeyId,
+        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+        stsToken: stsConfig.Credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+        retryMax: RETRY_MAX,
+        requestErrorRetryHandle: () => {
+          testRetryCount++;
+          if (testRetryCount === RETRY_MAX && autoRestoreWhenRETRY_LIMIE) {
+            restore();
+          }
+          return true;
+        }
+      };
+      store = oss(ossConfigz);
+      ORIGIN_REQUEST = store.urllib.request;
+    });
+    beforeEach(() => {
+      testRetryCount = 0;
+      autoRestoreWhenRETRY_LIMIE = true;
+      mock();
+    });
+    afterEach(() => {
+      restore();
+    });
+
+    it('set retryMax to test request auto retry when networkError or timeout', async () => {
+      const res = await store.list();
+      assert.strictEqual(res.res.status, 200);
+      assert.strictEqual(testRetryCount, RETRY_MAX);
+    });
+
+    it('should throw when retry count bigger than options retryMax', async () => {
+      autoRestoreWhenRETRY_LIMIE = false;
+      try {
+        await store.list();
+        assert(false, 'should throw error');
+      } catch (error) {
+        assert(error.status === -1);
+      }
+    });
+
+    it('should succeed when put with filename', async () => {
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const res = await store.put(name, new File([1, 2, 3, 4, 5, 6, 7], name));
+      assert.strictEqual(res.res.status, 200);
+      assert.strictEqual(testRetryCount, RETRY_MAX);
+      const onlineFile = await store.get(name);
+      assert.strictEqual(onlineFile.content.toString(), '1234567');
     });
   });
 });
