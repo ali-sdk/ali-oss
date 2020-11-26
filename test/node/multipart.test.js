@@ -513,7 +513,7 @@ describe('test/multipart.test.js', () => {
           },
         });
       } catch (e) {
-        assert.ok(e.message.starstWith('partSize must not be smaller'));
+        assert.ok(e.message.startsWith('partSize must not be smaller'));
       }
     });
 
