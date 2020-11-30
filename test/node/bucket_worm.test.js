@@ -4,7 +4,7 @@ const utils = require('./utils');
 const oss = require('../..');
 const config = require('../config').oss;
 
-describe('test/bucket.test.js', () => {
+describe('test/bucket_worm.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
@@ -26,7 +26,7 @@ describe('test/bucket.test.js', () => {
 
     config.region = defaultRegion;
     store = oss(config);
-    bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `ali-oss-test-bucket-worm-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
     const result = await store.putBucket(bucket);
