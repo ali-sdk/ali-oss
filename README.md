@@ -336,6 +336,7 @@ options:
 `fetch` mode ,else `XMLHttpRequest`
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
+- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.
 
 example:
 
@@ -2324,8 +2325,8 @@ Success will return objects list on `objects` properties.
     - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
     - versionId {String} object versionId
 - isTruncated {Boolean} truncate or not
-- nextMarker {String} next marker string
-- NextVersionIdMarker {String} next version ID marker string
+- nextKeyMarker (nextMarker) {String} next marker string
+- nextVersionIdMarker (NextVersionIdMarker) {String} next version ID marker string
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
