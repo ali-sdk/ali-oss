@@ -1925,11 +1925,24 @@ describe('browser', () => {
 
     it('should succeed when put with filename', async () => {
       const name = `ali-oss-test-retry-file-${Date.now()}`;
-      const res = await store.put(name, new File([1, 2, 3, 4, 5, 6, 7], name));
+      const res = await store.put(name, );
       assert.strictEqual(res.res.status, 200);
       assert.strictEqual(testRetryCount, RETRY_MAX);
       const onlineFile = await store.get(name);
       assert.strictEqual(onlineFile.content.toString(), '1234567');
+    });
+
+    it.only('should fail when putStream', async () => {
+      autoRestoreWhenRETRY_LIMIE = false;
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const file = new File([1, 2, 3, 4, 5, 6, 7], name);
+      const stream = store._createStream(file, 0, file.size);
+      try {
+        await store.putStream(name, stream);
+        assert(false, 'should not reach here');
+      } catch (e) {
+        assert.strictEqual(e.status, -1);
+      }
     });
   });
 
