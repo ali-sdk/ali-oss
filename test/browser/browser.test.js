@@ -1302,6 +1302,52 @@ describe('browser', () => {
         assert.equal(result.res.status, 200);
       });
 
+      it('multipartUploadStreams.length', async () => {
+        const stubNetError = sinon.stub(store, '_uploadPart');
+        const netErr = new Error('TestNetErrorException');
+        netErr.status = -1;
+        netErr.code = 'RequestError';
+        netErr.name = 'RequestError';
+        stubNetError.throws(netErr);
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const filename = `multipart-upload-file-${Date.now()}`;
+        const file = new File([fileContent], filename);
+        const name = `${prefix}multipart/upload-file-${Date.now()}`;
+        const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
+        try {
+          await Promise.all([
+            store.multipartUpload(name, file),
+            store.multipartUpload(name1, file),
+          ]);
+        } catch (e) {
+        }
+        store._uploadPart.restore();
+        await Promise.all([
+          store.multipartUpload(name, file),
+          store.multipartUpload(name1, file),
+        ]);
+        assert.strictEqual(store.multipartUploadStreams.length, 0);
+      });
+
+      it('destroy the stream when multipartUploaded and the cancel method is called', async () => {
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const filename = `multipart-upload-file-${Date.now()}`;
+        const file = new File([fileContent], filename);
+        let stream;
+        const uploadPart = store._uploadPart;
+        store._uploadPart = (_name, _uploadId, _partNo, data) => {
+          stream = data.stream;
+          throw new Error('mock upload part fail.');
+        };
+        const name = `${prefix}multipart/upload-file-${Date.now()}`;
+        try {
+          await store.multipartUpload(name, file);
+        } catch (e) {
+          store.cancel();
+        }
+        store._uploadPart = uploadPart;
+        assert.strictEqual(stream.destroyed, true);
+      });
       // TODO fix callback server
       // it('should upload no more 100k file with callback server', async () => {
       //   const fileContent = Array(50 * 1024).fill('a').join('');
@@ -1408,23 +1454,95 @@ describe('browser', () => {
       //   assert.equal(result.res.status, 200);
       // });
 
-      it('should upload partSize be number', async () => {
+      it('should upload partSize be int number and greater then minPartSize', async () => {
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
-        const file = new File([fileContent], 'multipart-fallback');
-
-        const name = `${prefix}multipart/upload-file.js`;
+        const filename = `multipart-upload-file-${Date.now()}`;
+        const file = new File([fileContent], filename);
+        const name = `${prefix}multipart/upload-file`;
+        let progress = 0;
         try {
-          await store.multipartUpload(name, file, {
+          const result = await store.multipartUpload(name, file, {
             partSize: 14.56,
             progress() {
               progress++;
-            }
+            },
           });
         } catch (e) {
           assert.equal('partSize must be int number', e.message);
         }
+
+        try {
+          await store.multipartUpload(name, file, {
+            partSize: 1,
+            progress() {
+              progress++;
+            },
+          });
+        } catch (e) {
+          assert.ok(e.message.startsWith('partSize must not be smaller'));
+        }
       });
+
+      it('should skip doneParts when re-upload mutilpart files', async () => {
+        const PART_SIZE = 1024 * 100;
+        const FILE_SIZE = 1024 * 500;
+        const SUSPENSION_LIMIT = 3;
+        const object = `multipart-${Date.now()}`;
+        const fileContent = Array(FILE_SIZE).fill('a').join('');
+        const file = new File([fileContent], object);
+        const uploadPart = store._uploadPart;
+        let checkpoint;
+        store._uploadPart = function (name, uploadId, partNo, data) {
+          if (partNo === SUSPENSION_LIMIT) {
+            throw new Error('mock upload part fail.');
+          } else {
+            return uploadPart.call(this, name, uploadId, partNo, data);
+          }
+        };
+        try {
+          await store.multipartUpload(object, file, {
+            parallel: 1,
+            partSize: PART_SIZE,
+            progress: (percentage, c) => {
+              checkpoint = c;
+            },
+          });
+        } catch (e) {
+          assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
+        }
+        store._uploadPart = uploadPart;
+        const uploadPartSpy = sinon.spy(store, '_uploadPart');
+        await store.multipartUpload(object, file, {
+          parallel: 1,
+          partSize: PART_SIZE,
+          checkpoint,
+        });
+        assert.strictEqual(uploadPartSpy.callCount, (FILE_SIZE / PART_SIZE) - SUSPENSION_LIMIT + 1);
+        store._uploadPart.restore();
+      });
+
+      it('should request throw abort event', async () => {
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
+        const name = `${prefix}multipart/upload-file`;
+        const uploadPart = store._uploadPart;
+        store._uploadPart = () => {
+          const e = new Error('TEST Not Found');
+          e.status = 404;
+          throw e;
+        };
+        let netErrs;
+        try {
+          await store.multipartUpload(name, file);
+        } catch (err) {
+          netErrs = err;
+        }
+        console.log(netErrs)
+        assert.strictEqual(netErrs.status, 0);
+        assert.strictEqual(netErrs.name, 'abort');
+        store._uploadPart = uploadPart;
+      });  
     });
   });
 
@@ -1665,7 +1783,8 @@ describe('browser', () => {
     });
 
     it('should request throw ResponseTimeoutError', async () => {
-      const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);// 1m
+      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileName = new File([fileContent], 'multipart-upload-file');
       const name = `${prefix}multipart/upload-file`;
 
       const stubNetError = sinon.stub(store.urllib, 'request');
