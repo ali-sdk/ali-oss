@@ -2060,11 +2060,80 @@ describe('browser', () => {
 
     it('should succeed when put with filename', async () => {
       const name = `ali-oss-test-retry-file-${Date.now()}`;
-      const res = await store.put(name, new File([1, 2, 3, 4, 5, 6, 7], name));
+      const res = await store.put(name, );
       assert.strictEqual(res.res.status, 200);
       assert.strictEqual(testRetryCount, RETRY_MAX);
       const onlineFile = await store.get(name);
       assert.strictEqual(onlineFile.content.toString(), '1234567');
+    });
+
+    it.only('should fail when putStream', async () => {
+      autoRestoreWhenRETRY_LIMIE = false;
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const file = new File([1, 2, 3, 4, 5, 6, 7], name);
+      const stream = store._createStream(file, 0, file.size);
+      try {
+        await store.putStream(name, stream);
+        assert(false, 'should not reach here');
+      } catch (e) {
+        assert.strictEqual(e.status, -1);
+      }
+    });
+  });
+
+  describe('options.headerEncoding', () => {
+    let store;
+    const utf8_content = '阿达的大多';
+    const latin1_content = Buffer.from(utf8_content).toString('latin1');
+    let name;
+    before(async () => {
+      store = oss(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
+      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
+      const result = await store.put(name, Buffer.from('123'), {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('copy() should return 200 when set zh-cn meta', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
+      const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
+      const result = await store.copy(originname, name, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(originname);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.a, latin1_content);
+    });
+
+    it('putMeta() should return 200', async () => {
+      const result = await store.putMeta(name, {
+        b: utf8_content
+      });
+      assert.equal(result.res.status, 200);
+      const info = await store.head(name);
+      assert.equal(info.status, 200);
+      assert.equal(info.meta.b, latin1_content);
     });
   });
 
