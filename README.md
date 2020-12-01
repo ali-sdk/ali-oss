@@ -2942,6 +2942,7 @@ example:
 
 ```js
 const result = await store.multipartUpload('object', '/tmp/file');
+let savedCpt;
 console.log(result);
 
 const result = await store.multipartUpload('object', '/tmp/file', {
@@ -2949,6 +2950,7 @@ const result = await store.multipartUpload('object', '/tmp/file', {
   partSize: 1024 * 1024,
   progress: function (p, cpt, res) {
     console.log(p);
+    savedCpt = cpt;
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
   }
@@ -3129,6 +3131,7 @@ const result = await store.multipartUploadCopy('object', {
   sourceKey: 'sourceKey',
   sourceBucketName: 'sourceBucketName'
 });
+let savedCpt;
 console.log(result);
 
 const result = await store.multipartUploadCopy('object', {
@@ -3139,6 +3142,7 @@ const result = await store.multipartUploadCopy('object', {
   partSize: 1024 * 1024,
   progress: function (p, cpt, res) {
     console.log(p);
+    savedCpt = cpt;
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
   }
