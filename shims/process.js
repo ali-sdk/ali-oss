@@ -3,7 +3,6 @@ var process = module.exports = {};
 process.nextTick = immediate
 
 process.title = 'browser';
-process.title1 = 'test';
 process.browser = true;
 process.env = {};
 process.argv = [];
