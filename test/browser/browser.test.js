@@ -472,8 +472,10 @@ describe('browser', () => {
 
   describe('listV2()', () => {
     let listPrefix;
+    let store;
     before(async () => {
       listPrefix = `${prefix}ali-sdk/listV2/`;
+      store = oss(ossConfig);
       await store.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
       await store.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
       await store.put(`${listPrefix}fun/movie/001.avi`, Buffer.from('fun/movie/001.avi'));
@@ -2060,14 +2062,15 @@ describe('browser', () => {
 
     it('should succeed when put with filename', async () => {
       const name = `ali-oss-test-retry-file-${Date.now()}`;
-      const res = await store.put(name, );
+      const file = new File([1, 2, 3, 4, 5, 6, 7], name);
+      const res = await store.put(name, file);
       assert.strictEqual(res.res.status, 200);
       assert.strictEqual(testRetryCount, RETRY_MAX);
       const onlineFile = await store.get(name);
       assert.strictEqual(onlineFile.content.toString(), '1234567');
     });
 
-    it.only('should fail when putStream', async () => {
+    it('should fail when putStream', async () => {
       autoRestoreWhenRETRY_LIMIE = false;
       const name = `ali-oss-test-retry-file-${Date.now()}`;
       const file = new File([1, 2, 3, 4, 5, 6, 7], name);
