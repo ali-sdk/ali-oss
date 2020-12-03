@@ -1,6 +1,6 @@
 const fs = require('fs');
 const files = process.argv.slice(2)
-const reg = /['"]([A-Za-z0-9+/=]{16}|[A-Za-z0-9+/=]{24}|[A-Za-z0-9+/=]{30})['"]/;
+const reg = /['"]LT([A-Za-z0-9+/=]{14}|LT[A-Za-z0-9+/=]{22}|LT[A-Za-z0-9+/=]{28})['"]/;
 files.forEach((val, index) => {
   try {
     const data = fs.readFileSync(val, 'utf8');
