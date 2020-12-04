@@ -5,7 +5,10 @@ const debug = _debug('ali-oss');
 
 export async function requestError(this: any, result) {
   let err: any = null;
-  if (!result.data || !result.data.length) {
+  if (result.name === 'ResponseTimeoutError') {
+    err = new Error(result.message);
+    err.name = result.name;
+  } else if (!result.data || !result.data.length) {
     if (result.status === -1 || result.status === -2) { // -1 is net error , -2 is timeout
       err = new Error(result.message);
       err.name = result.name;

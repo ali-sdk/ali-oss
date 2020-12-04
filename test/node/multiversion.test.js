@@ -118,7 +118,7 @@ describe('test/multiversion.test.js', () => {
           noncurrentDays: 1
         }
       }]);
-      assert.equal(putresult1.res.status, 200);
+      assert.strictEqual(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
     });
@@ -168,7 +168,7 @@ describe('test/multiversion.test.js', () => {
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
       const result = await store.put(name, __filename);
-      store.delete(name);
+      await store.delete(name);
       versionId = result.res.headers['x-oss-version-id'];
     });
 
@@ -201,7 +201,7 @@ describe('test/multiversion.test.js', () => {
     });
 
     // 暂停多版本, 进行copy, copy后object的versionId为null
-    it('should copy latest object when no versionId', async () => {
+    it('should copy latest object with versionId `null` when the bucket is suspended', async () => {
       const target = `${name.replace('file.js', 'file-target-suspended.js')}`;
       const suspendedRes = await store.putBucketVersioning(bucket, suspended);
       assert.strictEqual(suspendedRes.res.status, 200);

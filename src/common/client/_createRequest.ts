@@ -8,6 +8,8 @@ import { getResource } from '../utils/getResource';
 import { authorization } from '../utils/authorization';
 import { getReqUrl } from '../utils/getReqUrl';
 import { encoder } from '../utils/encoder';
+import { isIP } from '../utils/isIP';
+import { setRegion } from './initOptions';
 
 const _debug = debug('ali-oss');
 
@@ -89,6 +91,11 @@ export function _createRequest(this: any, params) {
   headers.authorization = authorization(params.method, authResource, params.subres, headers, this.options, this.options.headerEncoding);
 
   const url = getReqUrl(params, this.options);
+  if (isIP(this.options.endpoint.hostname)) {
+    const { region, internal, secure } = this.options;
+    const hostInfo = setRegion(region, internal, secure);
+    headers.host = `${params.bucket}.${hostInfo.host}`;
+  }
   _debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
   const timeout = params.timeout || this.options.timeout;
   const reqParams: ReqParams = {
@@ -107,6 +114,9 @@ export function _createRequest(this: any, params) {
   if (this.httpsAgent) {
     reqParams.httpsAgent = this.httpsAgent;
   }
+  reqParams.enableProxy = !!this.options.enableProxy;
+  reqParams.proxy = this.options.proxy ? this.options.proxy : null;
+
   reqParams.enableProxy = !!this.options.enableProxy;
   reqParams.proxy = this.options.proxy ? this.options.proxy : null;
 

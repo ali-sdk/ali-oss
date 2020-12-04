@@ -6,5 +6,7 @@ export declare function getBucketVersions(this: any, query?: getBucketVersionsQu
     prefixes: any;
     nextMarker: any;
     NextVersionIdMarker: any;
+    nextKeyMarker: any;
+    nextVersionIdMarker: any;
     isTruncated: boolean;
 }>;

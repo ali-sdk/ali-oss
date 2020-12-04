@@ -1,8 +1,10 @@
 import ms from 'humanize-ms';
 import urlutil from 'url';
 import { checkBucketName } from '../utils/checkBucketName';
+import { checkValidEndpoint, checkValidRegion } from '../utils/checkValid';
 
 function setEndpoint(endpoint, secure) {
+  checkValidEndpoint(endpoint);
   let url = urlutil.parse(endpoint);
 
   if (!url.protocol) {
@@ -16,7 +18,8 @@ function setEndpoint(endpoint, secure) {
   return url;
 }
 
-function setRegion(region, internal, secure) {
+export function setRegion(region, internal, secure) {
+  checkValidRegion(region);
   const protocol = secure ? 'https://' : 'http://';
   let suffix = internal ? '-internal.aliyuncs.com' : '.aliyuncs.com';
   const prefix = 'vpc100-oss-cn-';

@@ -2,7 +2,7 @@ import path from 'path';
 import mime from 'mime';
 import { initMultipartUpload } from '../../common/multipart/initMultipartUpload';
 import { resumeMultipart } from '../../common/multipart/resumeMultipart';
-import { putStream } from '../object/putStream';
+import { put } from '../object/put';
 import { isFile } from '../../common/utils/isFile';
 import { isBlob } from '../../common/utils/isBlob';
 import { getPartSize } from '../../common/utils/getPartSize';
@@ -51,10 +51,8 @@ export async function multipartUpload(this: any, name: string, file: any, option
 
   const fileSize = await getFileSize(file);
   if (fileSize < minPartSize) {
-    const stream = await this._createStream(file, 0, fileSize);
     options.contentLength = fileSize;
-
-    const result = await putStream.call(this, name, stream, options);
+    const result = await put.call(this, name, file, options);
     if (options && options.progress) {
       await options.progress(1);
     }

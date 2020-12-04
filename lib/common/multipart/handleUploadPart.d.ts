@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { RequestOptions } from '../../types/params';
 /**
  * Upload a part in a multipart upload transaction
@@ -7,7 +8,10 @@ import { RequestOptions } from '../../types/params';
  * @param {Object} data the body data
  * @param {Object} options
  */
-export declare function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: any, options?: RequestOptions): Promise<{
+export declare function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: {
+    stream: Buffer | ReadableStream | null;
+    size: number;
+}, options?: RequestOptions): Promise<{
     name: string;
     etag: any;
     res: any;

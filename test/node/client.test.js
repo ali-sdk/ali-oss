@@ -218,7 +218,7 @@ describe('test/client.test.js', () => {
     };
 
     url = store._getReqUrl(params);
-    assert.equal(url, 'http://127.0.0.1:6000/gems/');
+    assert.equal(url, 'http://127.0.0.1:6000/');
   });
 
   it('should create request url with bucket/object/subres', () => {
@@ -286,7 +286,7 @@ describe('test/client.test.js', () => {
     };
 
     url = store._getReqUrl(params);
-    assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
+    assert.equal(url, 'http://127.0.0.1:3000/hello');
   });
 
   it('should set User-Agent', async () => {
@@ -332,5 +332,85 @@ describe('test/client.test.js', () => {
 
     assert.equal(store.options.accessKeyId, 'foo');
     assert.equal(store.options.accessKeySecret, 'bar');
+  });
+
+  describe('checkConfigValid', () => {
+    it('should success when endpoint is invalid', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        endpoint: 'vpc100-oss-cn-hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        OSS(checkConfig);
+      } catch (error) {
+        assert(false);
+      }
+    });
+    it('should throw when endpoint includes invalid character', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        endpoint: 'vpc100-oss-cn-hang<tag />zhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        OSS(checkConfig);
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('endpoint'));
+      }
+    });
+    it('should throw when endpoint change to invalid character', async () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        endpoint: 'vpc100-oss-cn-hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        const store = OSS(checkConfig);
+        const invalidHost = 'vpc100-oss-cn-hangzhou.《》.com';
+        store.options.endpoint.host = invalidHost;
+        store.options.endpoint.hostname = invalidHost;
+        await store.listBuckets();
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('endpoint'));
+      }
+    });
+    it('should success when region is valid', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        region: 'oss-cn-hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        OSS(checkConfig);
+      } catch (error) {
+        assert(false);
+      }
+    });
+    it('should throw when region includes invalid character', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        region: 'oss-cn-?hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        OSS(checkConfig);
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('region'));
+      }
+    });
   });
 });

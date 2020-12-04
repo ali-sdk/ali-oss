@@ -92,8 +92,8 @@ export function computeSignature(accessKeySecret: string, canonicalString: strin
  * @param {String} accessKeySecret
  * @param {String} canonicalString
  */
-export function authorization(accessKeyId, accessKeySecret, canonicalString) {
-  return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString)}`;
+export function authorization(accessKeyId, accessKeySecret, canonicalString, headerEncoding) {
+  return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString, headerEncoding)}`;
 }
 
 /**

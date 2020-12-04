@@ -38,7 +38,12 @@ function build(options, callback) {
     basedir: path.resolve(__dirname, '.'),
     fullPaths: false,
     standalone: 'OSS',
-    debug: false
+    debug: false,
+    builtins: {
+      ...require("browserify/lib/builtins"),
+      _process: path.join(__dirname, "shims/process.js"),
+      url: path.join(__dirname, "shims/url/index.js")
+    }
   };
   browserify(brOpts).add('./lib/browser/index.js')
     .transform(babelify, {

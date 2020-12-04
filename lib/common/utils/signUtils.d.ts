@@ -23,7 +23,7 @@ export declare function computeSignature(accessKeySecret: string, canonicalStrin
  * @param {String} accessKeySecret
  * @param {String} canonicalString
  */
-export declare function authorization(accessKeyId: any, accessKeySecret: any, canonicalString: any): string;
+export declare function authorization(accessKeyId: any, accessKeySecret: any, canonicalString: any, headerEncoding: any): string;
 /**
  *
  * @param {String} accessKeySecret

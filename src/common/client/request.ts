@@ -69,6 +69,10 @@ export async function _request(this: any, params) {
         return this.request(params);
       }
     }
+
+    if (err.name === 'ResponseTimeoutError') {
+      err.message = `${err.message.split(',')[0]}, please increase the timeout or use multipartDownload.`;
+    }
     throw err;
   }
 
@@ -80,7 +84,8 @@ export async function _request(this: any, params) {
 
 
 export async function request(this: any, params) {
-  if (this.options.retryMax) {
+  const isAvailableStream = params.stream ? params.stream.readable : true;
+  if (this.options.retryMax && isAvailableStream) {
     const requestfn = retry(_request.bind(this), this.options.retryMax, {
       errorHandler: (err) => {
         const _errHandle = (_err) => {
