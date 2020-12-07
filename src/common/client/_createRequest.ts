@@ -117,9 +117,6 @@ export function _createRequest(this: any, params) {
   reqParams.enableProxy = !!this.options.enableProxy;
   reqParams.proxy = this.options.proxy ? this.options.proxy : null;
 
-  reqParams.enableProxy = !!this.options.enableProxy;
-  reqParams.proxy = this.options.proxy ? this.options.proxy : null;
-
   return {
     url,
     params: reqParams
