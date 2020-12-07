@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build-change-log": "standard-version",
-    "test": "mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js test/node/**/*.test.js",
+    "test": "mocha -t 60000 -r thunk-mocha -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
     "test-cov": "nyc --reporter=lcov node_modules/.bin/_mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js test/node/**/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",

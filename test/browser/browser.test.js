@@ -475,7 +475,7 @@ describe('browser', () => {
     let store;
     before(async () => {
       listPrefix = `${prefix}ali-sdk/listV2/`;
-      store = oss(ossConfig);
+      store = new OSS(ossConfig);
       await store.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
       await store.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
       await store.put(`${listPrefix}fun/movie/001.avi`, Buffer.from('fun/movie/001.avi'));
@@ -1552,19 +1552,21 @@ describe('browser', () => {
       it('should skip doneParts when re-upload mutilpart files', async () => {
         const PART_SIZE = 1024 * 100;
         const FILE_SIZE = 1024 * 500;
+        let partNo = 1;
         const SUSPENSION_LIMIT = 3;
         const object = `multipart-${Date.now()}`;
         const fileContent = Array(FILE_SIZE).fill('a').join('');
         const file = new File([fileContent], object);
-        const uploadPart = store._uploadPart;
+        const { _createStream } = store;
         let checkpoint;
-        store._uploadPart = function (name, uploadId, partNo, data) {
+        const createStreamStub = sinon.stub(store, '_createStream', (fileobj, start, end) => {
           if (partNo === SUSPENSION_LIMIT) {
             throw new Error('mock upload part fail.');
           } else {
-            return uploadPart.call(this, name, uploadId, partNo, data);
+            partNo++;
+            return _createStream(fileobj, start, end);
           }
-        };
+        });
         try {
           await store.multipartUpload(object, file, {
             parallel: 1,
@@ -1576,27 +1578,26 @@ describe('browser', () => {
         } catch (e) {
           assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
         }
-        store._uploadPart = uploadPart;
-        const uploadPartSpy = sinon.spy(store, '_uploadPart');
+        createStreamStub.restore();
+        const createStreamSpy = sinon.spy(store, '_createStream');
         await store.multipartUpload(object, file, {
           parallel: 1,
           partSize: PART_SIZE,
           checkpoint,
         });
-        assert.strictEqual(uploadPartSpy.callCount, (FILE_SIZE / PART_SIZE) - SUSPENSION_LIMIT + 1);
-        store._uploadPart.restore();
+        assert.strictEqual(createStreamSpy.callCount, (FILE_SIZE / PART_SIZE) - SUSPENSION_LIMIT + 1);
+        createStreamSpy.restore();
       });
 
       it('should request throw abort event', async () => {
         const fileContent = Array(1024 * 1024).fill('a').join('');
         const file = new File([fileContent], 'multipart-upload-file');
         const name = `${prefix}multipart/upload-file`;
-        const uploadPart = store._uploadPart;
-        store._uploadPart = () => {
+        const createStreamStub = sinon.stub(store, '_createStream', () => {
           const e = new Error('TEST Not Found');
           e.status = 404;
           throw e;
-        };
+        });
         let netErrs;
         try {
           await store.multipartUpload(name, file);
@@ -1605,7 +1606,7 @@ describe('browser', () => {
         }
         assert.strictEqual(netErrs.status, 0);
         assert.strictEqual(netErrs.name, 'abort');
-        store._uploadPart = uploadPart;
+        createStreamStub.restore();
       });
     });
   });
@@ -1891,7 +1892,7 @@ describe('browser', () => {
     const latin1_content = Buffer.from(utf8_content).toString('latin1');
     let name;
     before(async () => {
-      store = oss(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
+      store = new OSS(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
       name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
       const result = await store.put(name, Buffer.from('123'), {
         meta: {
@@ -1975,7 +1976,7 @@ describe('browser', () => {
           return true;
         }
       };
-      store = oss(ossConfigz);
+      store = new OSS(ossConfigz);
       ORIGIN_REQUEST = store.urllib.request;
     });
     beforeEach(() => {
@@ -2013,11 +2014,11 @@ describe('browser', () => {
       assert.strictEqual(onlineFile.content.toString(), '1234567');
     });
 
-    it('should fail when putStream', async () => {
+    it.only('should fail when putStream', async () => {
       autoRestoreWhenRETRY_LIMIE = false;
       const name = `ali-oss-test-retry-file-${Date.now()}`;
       const file = new File([1, 2, 3, 4, 5, 6, 7], name);
-      const stream = store._createStream(file, 0, file.size);
+      const stream = await store._createStream(file, 0, file.size);
       try {
         await store.putStream(name, stream);
         assert(false, 'should not reach here');

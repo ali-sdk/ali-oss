@@ -335,6 +335,7 @@ describe('test/client.test.js', () => {
   });
 
   describe('checkConfigValid', () => {
+    let store;
     it('should success when endpoint is invalid', () => {
       const checkConfig = {
         accessKeyId: 'foo',
@@ -344,7 +345,7 @@ describe('test/client.test.js', () => {
         secure: true
       };
       try {
-        OSS(checkConfig);
+        store = new OSS(checkConfig);
       } catch (error) {
         assert(false);
       }
@@ -358,7 +359,7 @@ describe('test/client.test.js', () => {
         secure: true
       };
       try {
-        OSS(checkConfig);
+        store = new OSS(checkConfig);
         assert(false);
       } catch (error) {
         assert(error.message.includes('endpoint'));
@@ -373,7 +374,7 @@ describe('test/client.test.js', () => {
         secure: true
       };
       try {
-        const store = OSS(checkConfig);
+        store = new OSS(checkConfig);
         const invalidHost = 'vpc100-oss-cn-hangzhou.《》.com';
         store.options.endpoint.host = invalidHost;
         store.options.endpoint.hostname = invalidHost;
@@ -392,7 +393,7 @@ describe('test/client.test.js', () => {
         secure: true
       };
       try {
-        OSS(checkConfig);
+        store = new OSS(checkConfig);
       } catch (error) {
         assert(false);
       }
@@ -406,7 +407,7 @@ describe('test/client.test.js', () => {
         secure: true
       };
       try {
-        OSS(checkConfig);
+        store = new OSS(checkConfig);
         assert(false);
       } catch (error) {
         assert(error.message.includes('region'));

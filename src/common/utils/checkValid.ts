@@ -11,18 +11,22 @@ export function checkValid(_value: any, _rules: Array<{ validator?: Function, pa
 export function checkValidEndpoint(value) {
   return checkValid(value, [{
     validator: function checkEndpoint(endpoint) {
+      let isValid = true;
       if (typeof endpoint === 'string') {
-        return /^[a-zA-Z0-9._:/-]+$/.test(endpoint);
+        isValid = /^[a-zA-Z0-9._:/-]+$/.test(endpoint);
       } else if (endpoint.host) {
-        return /^[a-zA-Z0-9._:/-]+$/.test(endpoint.host);
+        isValid = /^[a-zA-Z0-9._:/-]+$/.test(endpoint.host);
       }
-      return false;
+      if (!isValid) {
+        throw new Error('The endpoint must be conform to the specifications');
+      }
     }
   }]);
 }
 
 export function checkValidRegion(value) {
   return checkValid(value, [{
-    pattern: /^[a-zA-Z0-9\-_]+$/
+    pattern: /^[a-zA-Z0-9\-_]+$/,
+    msg: 'The region must be conform to the specifications'
   }]);
 }

@@ -1,7 +1,7 @@
 
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
+const OSS = require('../..');
 const config = require('../config').oss;
 
 describe('test/bucket_worm.test.js', () => {
@@ -10,7 +10,7 @@ describe('test/bucket_worm.test.js', () => {
   let bucket;
   const defaultRegion = config.region;
   before(async () => {
-    store = oss(config);
+    store = new OSS(config);
 
     const bucketResult = await store.listBuckets({
       'max-keys': 20
@@ -20,12 +20,12 @@ describe('test/bucket_worm.test.js', () => {
       .filter(_ => _.name.startsWith('ali-oss'))
       .map(_bucket => utils
         .cleanBucket(
-          oss(Object.assign(config, { region: _bucket.region })),
+          new OSS(Object.assign(config, { region: _bucket.region })),
           _bucket.name
         )));
 
     config.region = defaultRegion;
-    store = oss(config);
+    store = new OSS(config);
     bucket = `ali-oss-test-bucket-worm-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
@@ -37,6 +37,7 @@ describe('test/bucket_worm.test.js', () => {
   after(async () => {
     await utils.cleanBucket(store, bucket);
   });
+
   describe('worm()', () => {
     describe('initiateBucketWorm()', () => {
       it('should init bucket worm', async () => {

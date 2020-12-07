@@ -4,10 +4,11 @@ import urlutil from 'url';
 import merge from 'merge-descriptors';
 import { isIP } from './isIP';
 import { escapeName } from './escapeName';
-
+import { checkValidEndpoint } from "./checkValid";
 
 export function getReqUrl(params, options) {
   const ep: any = {};
+  checkValidEndpoint(options.endpoint);
   copy(options.endpoint, false).to(ep);
   const _isIP = isIP(ep.hostname);
   const isCname = options.cname;
@@ -16,7 +17,7 @@ export function getReqUrl(params, options) {
   }
 
   let resourcePath = '/';
-  if (params.bucket && (options.sldEnable || _isIP)) {
+  if (params.bucket && options.sldEnable) {
     resourcePath += `${params.bucket}/`;
   }
 

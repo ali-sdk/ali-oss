@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { checkValidEndpoint, checkValidRegion } = require('../../../lib/common/utils/checkConfigValid');
+const { checkValidEndpoint, checkValidRegion } = require('../../../lib/common/utils/checkValid');
 
 describe('checkConfigValid()', () => {
   describe('endpoint', () => {

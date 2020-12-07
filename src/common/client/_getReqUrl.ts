@@ -19,7 +19,7 @@ export function _getReqUrl(this: any, params) {
   }
 
   let resourcePath = '/';
-  if (params.bucket && (this.options.sldEnable || _isIP)) {
+  if (params.bucket && this.options.sldEnable) {
     resourcePath += `${params.bucket}/`;
   }
 

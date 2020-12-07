@@ -15,6 +15,7 @@ import { getObjectUrl } from './getObjectUrl';
 import { getSymlink } from './getSymlink';
 import { head } from './head';
 import { list } from './list';
+import { listV2 } from './listV2';
 import { postAsyncFetch } from './postAsyncFetch';
 import { putACL } from './putACL';
 import { putMeta } from './putMeta';
@@ -42,6 +43,7 @@ declare const _default: {
     getSymlink: typeof getSymlink;
     head: typeof head;
     list: typeof list;
+    listV2: typeof listV2;
     postAsyncFetch: typeof postAsyncFetch;
     putACL: typeof putACL;
     putMeta: typeof putMeta;

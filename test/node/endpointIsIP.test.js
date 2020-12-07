@@ -1,7 +1,7 @@
 const dns = require('dns');
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../../lib/client');
+const OSS = require('../../lib/node/');
 const config = require('../config').oss;
 
 async function getIP(hostname) {
@@ -21,7 +21,7 @@ describe('test/endpoint.test.js', () => {
   let store;
   let bucket;
   before(async () => {
-    store = oss(config);
+    store = new OSS(config);
     bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
@@ -31,7 +31,7 @@ describe('test/endpoint.test.js', () => {
       cname: true,
       endpoint
     });
-    store = oss(testEndponitConfig);
+    store = new OSS(testEndponitConfig);
     store.useBucket(bucket);
   });
 

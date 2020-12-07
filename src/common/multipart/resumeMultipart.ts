@@ -3,6 +3,7 @@ import { divideParts } from '../../common/utils/divideParts';
 import { completeMultipartUpload } from './completeMultipartUpload';
 import { handleUploadPart } from './handleUploadPart';
 import { _makeCancelEvent } from '../utils/_makeCancelEvent';
+import { _makeAbortEvent } from '../utils/_makeAbortEvent';
 import { _parallel } from '../utils/_parallel';
 import { Checkpoint } from '../../types/params';
 
@@ -41,33 +42,40 @@ export async function resumeMultipart(
             size: pi.end - pi.start,
           };
 
+          const removeStreamFromMultipartUploadStreams = () => {
+            if (!stream.destroyed) {
+              stream.destroy();
+            }
+            if (!Array.isArray(this.multipartUploadStreams)) return;
+            const index = this.multipartUploadStreams.indexOf(stream);
+            if (index !== -1) {
+              this.multipartUploadStreams.splice(index, 1);
+            }
+          };
           if (stream && stream.pipe) {
             if (Array.isArray(this.multipartUploadStreams)) {
               this.multipartUploadStreams.push(data.stream);
             } else {
               this.multipartUploadStreams = [data.stream];
             }
-            const removeStreamFromMultipartUploadStreams = () => {
-              if (!stream.destroyed) {
-                stream.destroy();
-              }
-              const index = this.multipartUploadStreams.indexOf(stream);
-              if (index !== -1) {
-                this.multipartUploadStreams.splice(index, 1);
-              }
-            };
             stream.on('close', removeStreamFromMultipartUploadStreams);
             stream.on('error', removeStreamFromMultipartUploadStreams);
           }
 
-          const result = await handleUploadPart.call(
-            this,
-            name,
-            uploadId,
-            partNo,
-            data,
-            options
-          );
+          let result;
+          try {
+            result = await handleUploadPart.call(
+              this,
+              name,
+              uploadId,
+              partNo,
+              data,
+              options
+            );
+          } catch (error) {
+            removeStreamFromMultipartUploadStreams();
+            throw error;
+          }
 
           hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
           if (hasUploadPart) {
@@ -98,6 +106,9 @@ export async function resumeMultipart(
         resolve();
       } catch (err) {
         err.partNum = partNo;
+        if (err.status === 404) {
+          reject(_makeAbortEvent());
+        }
         reject(err);
       }
     });
@@ -131,6 +142,9 @@ export async function resumeMultipart(
     }
 
     if (jobErr && jobErr.length > 0) {
+      const abortEvent = jobErr.find(err => err.name === 'abort');
+      if (abortEvent) throw abortEvent;
+
       jobErr[0].message = `Failed to upload some parts with error: ${jobErr[0].toString()} part_num: ${jobErr[0].partNum
         }`;
       throw jobErr[0];
