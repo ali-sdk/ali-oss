@@ -2298,7 +2298,7 @@ parameters:
 
 - [query] {Object} query parameters, default is `null`
   - [prefix] {String} search object using `prefix` key
-  - [continuationToken] {String} search start from `continuationToken`, including `continuationToken` key
+  - [continuation-token] (continuationToken) {String} search start from `continuationToken`, including `continuationToken` key
   - [delimiter] {String} delimiter search scope
     e.g. `/` only search current dir, not including subdir
   - [max-keys] {String|Number} max objects, default is `100`, limit to `1000`
@@ -2322,6 +2322,7 @@ Success will return objects list on `objects` properties.
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextContinuationToken {String} next continuation-token string
+- keyCount {Number} The number of keys returned for this request. If Delimiter is specified, KeyCount is the sum of the elements in Key and CommonPrefixes.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
