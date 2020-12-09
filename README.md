@@ -1550,7 +1550,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
 
 Success will return the object information.
@@ -1674,7 +1674,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
 
 Success will return the object information.
 
@@ -1734,7 +1734,7 @@ All parameters are same as put except for options.position
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
 
 object:
 
@@ -2298,7 +2298,7 @@ parameters:
 
 - [query] {Object} query parameters, default is `null`
   - [prefix] {String} search object using `prefix` key
-  - [continuationToken] {String} search start from `continuationToken`, including `continuationToken` key
+  - [continuation-token] (continuationToken) {String} search start from `continuationToken`, including `continuationToken` key
   - [delimiter] {String} delimiter search scope
     e.g. `/` only search current dir, not including subdir
   - [max-keys] {String|Number} max objects, default is `100`, limit to `1000`
@@ -2322,6 +2322,7 @@ Success will return objects list on `objects` properties.
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextContinuationToken {String} next continuation-token string
+- keyCount {Number} The number of keys returned for this request. If Delimiter is specified, KeyCount is the sum of the elements in Key and CommonPrefixes.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -2727,7 +2728,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - [x-oss-server-side-encryption]
     Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
     if use in browser you should be set cors expose header x-oss-server-side-encryption
@@ -2998,7 +2999,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
 
@@ -3177,7 +3178,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
     - [x-oss-copy-source-if-match]  only uploadPartCopy api used, default none<br>

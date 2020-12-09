@@ -595,6 +595,24 @@ describe('browser', () => {
       assert(result.objects.length === 1);
       assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
     });
+
+    it('should list with continuation-token', async () => {
+      let nextContinuationToken = null;
+      let keyCount = 0;
+      do {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await store.listV2(
+          {
+            prefix: listPrefix,
+            'max-keys': 2,
+            'continuation-token': nextContinuationToken,
+          },
+        );
+        keyCount += result.keyCount;
+        nextContinuationToken = result.nextContinuationToken;
+      } while (nextContinuationToken);
+      assert.strictEqual(keyCount, 6);
+    });
   });
 
   describe('put', () => {
