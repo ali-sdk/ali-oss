@@ -2357,13 +2357,13 @@ const result = await store.listV2({
 console.log(result.objects);
 ```
 
-- List `a/` dir objects, after `a/b` and include `a/b`
+- List `a/` dir objects, after `a/b` and not include `a/b`
 
 ```js
 const result = await store.listV2({
   delimiter: '/',
   prefix: 'a/',
-  'start-after': 'b'
+  'start-after': 'a/b'
 });
 console.log(result.objects);
 ```
