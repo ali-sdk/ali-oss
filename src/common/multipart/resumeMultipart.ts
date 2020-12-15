@@ -42,22 +42,22 @@ export async function resumeMultipart(
             size: pi.end - pi.start,
           };
 
-          const removeStreamFromMultipartUploadStreams = () => {
-            if (!stream.destroyed) {
-              stream.destroy();
-            }
-            if (!Array.isArray(this.multipartUploadStreams)) return;
-            const index = this.multipartUploadStreams.indexOf(stream);
-            if (index !== -1) {
-              this.multipartUploadStreams.splice(index, 1);
-            }
-          };
           if (stream && stream.pipe) {
             if (Array.isArray(this.multipartUploadStreams)) {
               this.multipartUploadStreams.push(data.stream);
             } else {
               this.multipartUploadStreams = [data.stream];
             }
+            const removeStreamFromMultipartUploadStreams = () => {
+              if (!stream.destroyed) {
+                stream.destroy();
+              }
+              if (!Array.isArray(this.multipartUploadStreams)) return;
+              const index = this.multipartUploadStreams.indexOf(stream);
+              if (index !== -1) {
+                this.multipartUploadStreams.splice(index, 1);
+              }
+            };
             stream.on('close', removeStreamFromMultipartUploadStreams);
             stream.on('error', removeStreamFromMultipartUploadStreams);
           }
@@ -73,7 +73,9 @@ export async function resumeMultipart(
               options
             );
           } catch (error) {
-            removeStreamFromMultipartUploadStreams();
+            if (typeof stream.destroy === 'function') {
+              stream.destroy();
+            }
             throw error;
           }
 

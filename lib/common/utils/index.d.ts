@@ -63,7 +63,6 @@ declare const _default: {
         buildCanonicalizedResource: typeof import("./signUtils").buildCanonicalizedResource;
         buildCanonicalString: typeof import("./signUtils").buildCanonicalString;
         computeSignature: typeof import("./signUtils").computeSignature;
-        authorization: typeof import("./signUtils").authorization;
         _signatureForURL: typeof import("./signUtils")._signatureForURL;
     };
     WebFileReadStream: typeof WebFileReadStream;

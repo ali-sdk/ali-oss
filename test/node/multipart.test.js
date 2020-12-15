@@ -537,7 +537,8 @@ describe('test/multipart.test.js', () => {
               fileName,
               i * partSize,
               Math.min((i + 1) * partSize, 10 * 100 * 1024)
-            ))
+            )
+          )
       );
       const dones = parts.map((_, i) => ({
         number: i + 1,
@@ -584,13 +585,17 @@ describe('test/multipart.test.js', () => {
       let checkpoint;
       const handleUploadPartModule = require('../../lib/common/multipart/handleUploadPart');
       const uploadPart = handleUploadPartModule.handleUploadPart;
-      const stubUploadPart = sinon.stub(handleUploadPartModule, 'handleUploadPart', function (name, uploadId, partNo, data) {
-        if (partNo === SUSPENSION_LIMIT) {
-          throw new Error('mock upload part fail.');
-        } else {
-          return uploadPart.call(this, name, uploadId, partNo, data);
+      const stubUploadPart = sinon.stub(
+        handleUploadPartModule,
+        'handleUploadPart',
+        function (name, uploadId, partNo, data) {
+          if (partNo === SUSPENSION_LIMIT) {
+            throw new Error('mock upload part fail.');
+          } else {
+            return uploadPart.call(this, name, uploadId, partNo, data);
+          }
         }
-      });
+      );
 
       try {
         await store.multipartUpload(object, fileName, {
@@ -940,6 +945,29 @@ describe('test/multipart.test.js', () => {
 
       assert.equal(result.res.status, 200);
     });
+
+    it('should request throw abort event', async () => {
+      const nameCopy = `${prefix}multipart/upload-file-copy-${Date.now()}`;
+      const handleUploadPartModule = require('../../lib/common/multipart/uploadPartCopy');
+      const stubNetError = sinon.stub(handleUploadPartModule, 'uploadPartCopy');
+      const netErr = new Error('Not Found');
+      netErr.status = 404;
+      netErr.code = 'Not Found';
+      netErr.name = 'Not Found';
+      stubNetError.throws(netErr);
+      let netErrs;
+      try {
+        await store.multipartUploadCopy(nameCopy, {
+          sourceKey: name,
+          sourceBucketName: bucket
+        });
+      } catch (err) {
+        netErrs = err;
+      }
+      assert.strictEqual(netErrs.status, 0);
+      assert.strictEqual(netErrs.name, 'abort');
+      stubNetError.restore();
+    });
   });
 
   describe('multipartUploadStreams', () => {
@@ -949,14 +977,18 @@ describe('test/multipart.test.js', () => {
       const LIMIT = 1;
       const handleUploadPartModule = require('../../lib/common/multipart/handleUploadPart');
       const uploadPart = handleUploadPartModule.handleUploadPart;
-      const stubHandleUploadPart = sinon.stub(handleUploadPartModule, 'handleUploadPart', function (name, uploadId, partNo, data) {
-        if (i === LIMIT) {
-          throw new Error('mock upload part fail.');
-        } else {
-          i++;
-          return uploadPart.call(this, name, uploadId, partNo, data);
+      const stubHandleUploadPart = sinon.stub(
+        handleUploadPartModule,
+        'handleUploadPart',
+        function (name, uploadId, partNo, data) {
+          if (i === LIMIT) {
+            throw new Error('mock upload part fail.');
+          } else {
+            i++;
+            return uploadPart.call(this, name, uploadId, partNo, data);
+          }
         }
-      });
+      );
       const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
       const name = `${prefix}multipart/upload-file-${Date.now()}`;
       const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
@@ -972,10 +1004,14 @@ describe('test/multipart.test.js', () => {
       const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
       let stream;
       const handleUploadPartModule = require('../../lib/common/multipart/handleUploadPart');
-      const stubHandleUploadPart = sinon.stub(handleUploadPartModule, 'handleUploadPart', (_name, _uploadId, _partNo, data) => {
-        stream = data.stream;
-        throw new Error('mock upload part fail.');
-      });
+      const stubHandleUploadPart = sinon.stub(
+        handleUploadPartModule,
+        'handleUploadPart',
+        (_name, _uploadId, _partNo, data) => {
+          stream = data.stream;
+          throw new Error('mock upload part fail.');
+        }
+      );
 
       const name = `${prefix}multipart/upload-file-${Date.now()}`;
       try {

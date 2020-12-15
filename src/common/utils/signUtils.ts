@@ -88,15 +88,6 @@ export function computeSignature(accessKeySecret: string, canonicalString: strin
 }
 
 /**
- * @param {String} accessKeyId
- * @param {String} accessKeySecret
- * @param {String} canonicalString
- */
-export function authorization(accessKeyId, accessKeySecret, canonicalString, headerEncoding) {
-  return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString, headerEncoding)}`;
-}
-
-/**
  *
  * @param {String} accessKeySecret
  * @param {Object} options
@@ -177,7 +168,6 @@ export default {
   buildCanonicalizedResource,
   buildCanonicalString,
   computeSignature,
-  authorization,
   _signatureForURL
 };
 
