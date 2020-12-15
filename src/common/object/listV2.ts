@@ -1,12 +1,19 @@
 import { objectUrl } from '../utils/objectUrl';
 import { listV2Query } from '../../types/params';
 
-export async function listV2(this: any, query: listV2Query, options = {}) {
+export async function listV2(this: any, query: listV2Query, options: { subres?: any } = {}) {
+  const continuation_token = query['continuation-token'];
+  delete query['continuation-token'];
+  if (continuation_token) {
+    options.subres = Object.assign(
+      {
+        'continuation-token': continuation_token
+      },
+      options.subres
+    );
+  }
   const params = this._objectRequestParams('GET', '', options);
-  params.query = {
-    'list-type': 2,
-    ...query
-  };
+  params.query = Object.assign({ 'list-type': 2 }, query);
   params.xmlResponse = true;
   params.successStatuses = [200];
 
@@ -44,7 +51,7 @@ export async function listV2(this: any, query: listV2Query, options = {}) {
     objects,
     prefixes,
     isTruncated: result.data.IsTruncated === 'true',
-    keyCount: result.data.KeyCount,
+    keyCount: +result.data.KeyCount,
     continuationToken: result.data.ContinuationToken || null,
     nextContinuationToken: result.data.NextContinuationToken || null
   };

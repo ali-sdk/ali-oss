@@ -1,666 +1,13 @@
-// Aliyun OSS SDK for JavaScript v6.11.2
+// Aliyun OSS SDK for JavaScript v7.0.0-beta.1
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-"use strict";
-
-var OSS = require('./browser/client');
-
-OSS.Buffer = require('buffer').Buffer;
-OSS.urllib = require('../shims/xhr');
-OSS.version = require('./browser/version').version;
-module.exports = OSS;
-
-},{"../shims/xhr":383,"./browser/client":2,"./browser/version":5,"buffer":98}],2:[function(require,module,exports){
-(function (Buffer,process){
-"use strict";
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-require("core-js/modules/es.symbol");
-
-require("core-js/modules/es.symbol.description");
-
-require("core-js/modules/es.array.concat");
-
-require("core-js/modules/es.array.index-of");
-
-require("core-js/modules/es.array.slice");
-
-require("core-js/modules/es.function.name");
-
-require("core-js/modules/es.object.assign");
-
-require("core-js/modules/es.object.to-string");
-
-require("core-js/modules/es.promise");
-
-require("core-js/modules/es.regexp.exec");
-
-require("core-js/modules/es.regexp.to-string");
-
-require("core-js/modules/es.string.replace");
-
-require("core-js/modules/es.string.split");
-
-require("core-js/modules/es.string.starts-with");
-
-var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
-
-require("regenerator-runtime/runtime");
-
-var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
-
-var debug = require('debug')('ali-oss');
-
-var xml = require('xml2js');
-
-var AgentKeepalive = require('agentkeepalive');
-
-var merge = require('merge-descriptors');
-
-var platform = require('platform');
-
-var utility = require('utility');
-
-var urllib = require('urllib');
-
-var pkg = require('./version');
-
-var bowser = require('bowser');
-
-var signUtils = require('../common/signUtils');
-
-var _initOptions = require('../common/client/initOptions');
-
-var _require = require('../common/utils/createRequest'),
-    createRequest = _require.createRequest;
-
-var _require2 = require('../common/utils/encoder'),
-    encoder = _require2.encoder;
-
-var _require3 = require('../common/client/getReqUrl'),
-    getReqUrl = _require3.getReqUrl;
-
-var _require4 = require('../common/utils/setSTSToken'),
-    setSTSToken = _require4.setSTSToken;
-
-var globalHttpAgent = new AgentKeepalive();
-
-function _unSupportBrowserTip() {
-  var name = platform.name,
-      version = platform.version;
-
-  if (name && name.toLowerCase && name.toLowerCase() === 'ie' && version.split('.')[0] < 10) {
-    // eslint-disable-next-line no-console
-    console.warn('ali-oss does not support the current browser');
-  }
-} // check local web protocol,if https secure default set true , if http secure default set false
-
-
-function isHttpsWebProtocol() {
-  // for web worker not use window.location.
-  // eslint-disable-next-line no-restricted-globals
-  return location && location.protocol === 'https:';
-}
-
-function Client(options, ctx) {
-  _unSupportBrowserTip();
-
-  if (!(this instanceof Client)) {
-    return new Client(options, ctx);
-  }
-
-  if (options && options.inited) {
-    this.options = options;
-  } else {
-    this.options = Client.initOptions(options);
-  }
-
-  this.options.cancelFlag = false; // cancel flag: if true need to be cancelled, default false
-  // support custom agent and urllib client
-
-  if (this.options.urllib) {
-    this.urllib = this.options.urllib;
-  } else {
-    this.urllib = urllib;
-    this.agent = this.options.agent || globalHttpAgent;
-  }
-
-  this.ctx = ctx;
-  this.userAgent = this._getUserAgent(); // record the time difference between client and server
-
-  this.options.amendTimeSkewed = 0;
-}
-/**
- * Expose `Client`
- */
-
-
-module.exports = Client;
-
-Client.initOptions = function initOptions(options) {
-  if (!options.stsToken) {
-    console.warn('Please use STS Token for safety, see more details at https://help.aliyun.com/document_detail/32077.html');
-  }
-
-  var opts = Object.assign({
-    secure: isHttpsWebProtocol(),
-    // for browser compatibility disable fetch.
-    useFetch: false
-  }, options);
-  return _initOptions(opts);
-};
-/**
- * prototype
- */
-
-
-var proto = Client.prototype; // mount debug on proto
-
-proto.debug = debug;
-/**
- * Object operations
- */
-
-merge(proto, require('./object'));
-/**
- * Bucket operations
- */
-
-merge(proto, require('../common/bucket/getBucketWebsite'));
-merge(proto, require('../common/bucket/putBucketWebsite'));
-merge(proto, require('../common/bucket/deleteBucketWebsite')); // lifecycle
-
-merge(proto, require('../common/bucket/getBucketLifecycle'));
-merge(proto, require('../common/bucket/putBucketLifecycle'));
-merge(proto, require('../common/bucket/deleteBucketLifecycle')); // multiversion
-
-merge(proto, require('../common/bucket/putBucketVersioning'));
-merge(proto, require('../common/bucket/getBucketVersioning')); // inventory
-
-merge(proto, require('../common/bucket/getBucketInventory'));
-merge(proto, require('../common/bucket/deleteBucketInventory'));
-merge(proto, require('../common/bucket/listBucketInventory'));
-merge(proto, require('../common/bucket/putBucketInventory')); // worm
-
-merge(proto, require('../common/bucket/abortBucketWorm'));
-merge(proto, require('../common/bucket/completeBucketWorm'));
-merge(proto, require('../common/bucket/extendBucketWorm'));
-merge(proto, require('../common/bucket/getBucketWorm'));
-merge(proto, require('../common/bucket/initiateBucketWorm')); // multipart upload
-
-merge(proto, require('./managed-upload'));
-/**
- * Multipart operations
- */
-
-merge(proto, require('../common/multipart'));
-/**
- * Common module parallel
- */
-
-merge(proto, require('../common/parallel'));
-/**
- * get OSS signature
- * @param {String} stringToSign
- * @return {String} the signature
- */
-
-proto.signature = function signature(stringToSign) {
-  this.debug('authorization stringToSign: %s', stringToSign, 'info');
-  return signUtils.computeSignature(this.options.accessKeySecret, stringToSign, this.options.headerEncoding);
-};
-
-proto._getReqUrl = getReqUrl;
-/**
- * get author header
- *
- * "Authorization: OSS " + Access Key Id + ":" + Signature
- *
- * Signature = base64(hmac-sha1(Access Key Secret + "\n"
- *  + VERB + "\n"
- *  + CONTENT-MD5 + "\n"
- *  + CONTENT-TYPE + "\n"
- *  + DATE + "\n"
- *  + CanonicalizedOSSHeaders
- *  + CanonicalizedResource))
- *
- * @param {String} method
- * @param {String} resource
- * @param {Object} header
- * @return {String}
- *
- * @api private
- */
-
-proto.authorization = function authorization(method, resource, subres, headers) {
-  var stringToSign = signUtils.buildCanonicalString(method.toUpperCase(), resource, {
-    headers: headers,
-    parameters: subres
-  });
-  return signUtils.authorization(this.options.accessKeyId, this.options.accessKeySecret, stringToSign, this.options.headerEncoding);
-};
-/**
- * request oss server
- * @param {Object} params
- *   - {String} object
- *   - {String} bucket
- *   - {Object} [headers]
- *   - {Object} [query]
- *   - {Buffer} [content]
- *   - {Stream} [stream]
- *   - {Stream} [writeStream]
- *   - {String} [mime]
- *   - {Boolean} [xmlResponse]
- *   - {Boolean} [customResponse]
- *   - {Number} [timeout]
- *   - {Object} [ctx] request context, default is `this.ctx`
- *
- * @api private
- */
-
-
-proto.request = /*#__PURE__*/function () {
-  var _request = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(params) {
-    var reqParams, result, reqErr, useStream, err, parseData;
-    return _regenerator.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            reqParams = createRequest.call(this, params);
-
-            if (!this.options.useFetch) {
-              reqParams.params.mode = 'disable-fetch';
-            }
-
-            useStream = !!params.stream;
-            _context.prev = 3;
-            _context.next = 6;
-            return this.urllib.request(reqParams.url, reqParams.params);
-
-          case 6:
-            result = _context.sent;
-            this.debug('response %s %s, got %s, headers: %j', params.method, reqParams.url, result.status, result.headers, 'info');
-            _context.next = 13;
-            break;
-
-          case 10:
-            _context.prev = 10;
-            _context.t0 = _context["catch"](3);
-            reqErr = _context.t0;
-
-          case 13:
-            if (!(result && params.successStatuses && params.successStatuses.indexOf(result.status) === -1)) {
-              _context.next = 25;
-              break;
-            }
-
-            _context.next = 16;
-            return this.requestError(result);
-
-          case 16:
-            err = _context.sent;
-
-            if (!(err.code === 'RequestTimeTooSkewed' && !useStream)) {
-              _context.next = 22;
-              break;
-            }
-
-            this.options.amendTimeSkewed = +new Date(err.serverTime) - new Date();
-            _context.next = 21;
-            return this.request(params);
-
-          case 21:
-            return _context.abrupt("return", _context.sent);
-
-          case 22:
-            err.params = params;
-            _context.next = 29;
-            break;
-
-          case 25:
-            if (!reqErr) {
-              _context.next = 29;
-              break;
-            }
-
-            _context.next = 28;
-            return this.requestError(reqErr);
-
-          case 28:
-            err = _context.sent;
-
-          case 29:
-            if (!err) {
-              _context.next = 37;
-              break;
-            }
-
-            if (!(err.status === 403 && err.code === 'InvalidAccessKeyId' && this.options.accessKeyId.startsWith('STS.') && typeof this.options.refreshSTSToken === 'function')) {
-              _context.next = 36;
-              break;
-            }
-
-            if (!(!this._setOptions || Date.now() - this._setOptions > 10000)) {
-              _context.next = 36;
-              break;
-            }
-
-            this._setOptions = Date.now();
-            _context.next = 35;
-            return setSTSToken.call(this);
-
-          case 35:
-            return _context.abrupt("return", this.request(params));
-
-          case 36:
-            throw err;
-
-          case 37:
-            if (!params.xmlResponse) {
-              _context.next = 42;
-              break;
-            }
-
-            _context.next = 40;
-            return this.parseXML(result.data);
-
-          case 40:
-            parseData = _context.sent;
-            result.data = parseData;
-
-          case 42:
-            return _context.abrupt("return", result);
-
-          case 43:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee, this, [[3, 10]]);
-  }));
-
-  function request(_x) {
-    return _request.apply(this, arguments);
-  }
-
-  return request;
-}();
-
-proto._getResource = function _getResource(params) {
-  var resource = '/';
-  if (params.bucket) resource += "".concat(params.bucket, "/");
-  if (params.object) resource += encoder(params.object, this.options.headerEncoding);
-  return resource;
-};
-
-proto._escape = function _escape(name) {
-  return utility.encodeURIComponent(name).replace(/%2F/g, '/');
-};
-/*
- * Get User-Agent for browser & node.js
- * @example
- *   aliyun-sdk-nodejs/4.1.2 Node.js 5.3.0 on Darwin 64-bit
- *   aliyun-sdk-js/4.1.2 Safari 9.0 on Apple iPhone(iOS 9.2.1)
- *   aliyun-sdk-js/4.1.2 Chrome 43.0.2357.134 32-bit on Windows Server 2008 R2 / 7 64-bit
- */
-
-
-proto._getUserAgent = function _getUserAgent() {
-  var agent = process && process.browser ? 'js' : 'nodejs';
-  var sdk = "aliyun-sdk-".concat(agent, "/").concat(pkg.version);
-  var plat = platform.description;
-
-  if (!plat && process) {
-    plat = "Node.js ".concat(process.version.slice(1), " on ").concat(process.platform, " ").concat(process.arch);
-  }
-
-  return this._checkUserAgent("".concat(sdk, " ").concat(plat));
-};
-
-proto._checkUserAgent = function _checkUserAgent(ua) {
-  var userAgent = ua.replace(/\u03b1/, 'alpha').replace(/\u03b2/, 'beta');
-  return userAgent;
-};
-/*
- * Check Browser And Version
- * @param {String} [name] browser name: like IE, Chrome, Firefox
- * @param {String} [version] browser major version: like 10(IE 10.x), 55(Chrome 55.x), 50(Firefox 50.x)
- * @return {Bool} true or false
- * @api private
- */
-
-
-proto.checkBrowserAndVersion = function checkBrowserAndVersion(name, version) {
-  return bowser.name === name && bowser.version.split('.')[0] === version;
-};
-/**
- * thunkify xml.parseString
- * @param {String|Buffer} str
- *
- * @api private
- */
-
-
-proto.parseXML = function parseXMLThunk(str) {
-  return new Promise(function (resolve, reject) {
-    if (Buffer.isBuffer(str)) {
-      str = str.toString();
-    }
-
-    xml.parseString(str, {
-      explicitRoot: false,
-      explicitArray: false
-    }, function (err, result) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-};
-/**
- * generater a request error with request response
- * @param {Object} result
- *
- * @api private
- */
-
-
-proto.requestError = /*#__PURE__*/function () {
-  var _requestError = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(result) {
-    var err, message, info, msg;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            err = null;
-
-            if (!(!result.data || !result.data.length)) {
-              _context2.next = 5;
-              break;
-            }
-
-            if (result.status === -1 || result.status === -2) {
-              // -1 is net error , -2 is timeout
-              err = new Error(result.message);
-              err.name = result.name;
-              err.status = result.status;
-              err.code = result.name;
-            } else {
-              // HEAD not exists resource
-              if (result.status === 404) {
-                err = new Error('Object not exists');
-                err.name = 'NoSuchKeyError';
-                err.status = 404;
-                err.code = 'NoSuchKey';
-              } else if (result.status === 412) {
-                err = new Error('Pre condition failed');
-                err.name = 'PreconditionFailedError';
-                err.status = 412;
-                err.code = 'PreconditionFailed';
-              } else {
-                err = new Error("Unknow error, status: ".concat(result.status));
-                err.name = 'UnknowError';
-                err.status = result.status;
-              }
-
-              err.requestId = result.headers['x-oss-request-id'];
-              err.host = '';
-            }
-
-            _context2.next = 32;
-            break;
-
-          case 5:
-            message = String(result.data);
-            this.debug('request response error data: %s', message, 'error');
-            _context2.prev = 7;
-            _context2.next = 10;
-            return this.parseXML(message);
-
-          case 10:
-            _context2.t0 = _context2.sent;
-
-            if (_context2.t0) {
-              _context2.next = 13;
-              break;
-            }
-
-            _context2.t0 = {};
-
-          case 13:
-            info = _context2.t0;
-            _context2.next = 23;
-            break;
-
-          case 16:
-            _context2.prev = 16;
-            _context2.t1 = _context2["catch"](7);
-            this.debug(message, 'error');
-            _context2.t1.message += "\nraw xml: ".concat(message);
-            _context2.t1.status = result.status;
-            _context2.t1.requestId = result.headers['x-oss-request-id'];
-            return _context2.abrupt("return", _context2.t1);
-
-          case 23:
-            msg = info.Message || "unknow request error, status: ".concat(result.status);
-
-            if (info.Condition) {
-              msg += " (condition: ".concat(info.Condition, ")");
-            }
-
-            err = new Error(msg);
-            err.name = info.Code ? "".concat(info.Code, "Error") : 'UnknowError';
-            err.status = result.status;
-            err.code = info.Code;
-            err.requestId = info.RequestId;
-            err.hostId = info.HostId;
-            err.serverTime = info.ServerTime;
-
-          case 32:
-            this.debug('generate error %j', err, 'error');
-            return _context2.abrupt("return", err);
-
-          case 34:
-          case "end":
-            return _context2.stop();
-        }
-      }
-    }, _callee2, this, [[7, 16]]);
-  }));
-
-  function requestError(_x2) {
-    return _requestError.apply(this, arguments);
-  }
-
-  return requestError;
-}();
-
-}).call(this,{"isBuffer":require("../../node_modules/is-buffer/index.js")},require('_process'))
-},{"../../node_modules/is-buffer/index.js":295,"../common/bucket/abortBucketWorm":6,"../common/bucket/completeBucketWorm":7,"../common/bucket/deleteBucketInventory":8,"../common/bucket/deleteBucketLifecycle":9,"../common/bucket/deleteBucketWebsite":10,"../common/bucket/extendBucketWorm":11,"../common/bucket/getBucketInventory":12,"../common/bucket/getBucketLifecycle":13,"../common/bucket/getBucketVersioning":14,"../common/bucket/getBucketWebsite":15,"../common/bucket/getBucketWorm":16,"../common/bucket/initiateBucketWorm":17,"../common/bucket/listBucketInventory":18,"../common/bucket/putBucketInventory":19,"../common/bucket/putBucketLifecycle":20,"../common/bucket/putBucketVersioning":21,"../common/bucket/putBucketWebsite":22,"../common/client/getReqUrl":24,"../common/client/initOptions":25,"../common/multipart":28,"../common/parallel":46,"../common/signUtils":47,"../common/utils/createRequest":51,"../common/utils/encoder":54,"../common/utils/setSTSToken":66,"./managed-upload":3,"./object":4,"./version":5,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"_process":306,"agentkeepalive":72,"bowser":77,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.index-of":238,"core-js/modules/es.array.slice":242,"core-js/modules/es.function.name":244,"core-js/modules/es.object.assign":246,"core-js/modules/es.object.to-string":249,"core-js/modules/es.promise":250,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.regexp.to-string":252,"core-js/modules/es.string.replace":255,"core-js/modules/es.string.split":256,"core-js/modules/es.string.starts-with":257,"core-js/modules/es.symbol":260,"core-js/modules/es.symbol.description":259,"debug":380,"merge-descriptors":298,"platform":304,"regenerator-runtime/runtime":324,"urllib":383,"utility":382,"xml2js":341}],3:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-require("core-js/modules/es.array.concat");
-
-require("core-js/modules/es.array.filter");
-
-require("core-js/modules/es.array.find");
-
-require("core-js/modules/es.array.from");
-
-require("core-js/modules/es.array.index-of");
-
-require("core-js/modules/es.array.iterator");
-
-require("core-js/modules/es.array.map");
-
 require("core-js/modules/es.array.slice");
-
-require("core-js/modules/es.array-buffer.slice");
-
-require("core-js/modules/es.function.name");
-
-require("core-js/modules/es.object.to-string");
-
-require("core-js/modules/es.promise");
-
-require("core-js/modules/es.regexp.to-string");
-
-require("core-js/modules/es.string.iterator");
-
-require("core-js/modules/es.typed-array.uint8-array");
-
-require("core-js/modules/es.typed-array.copy-within");
-
-require("core-js/modules/es.typed-array.every");
-
-require("core-js/modules/es.typed-array.fill");
-
-require("core-js/modules/es.typed-array.filter");
-
-require("core-js/modules/es.typed-array.find");
-
-require("core-js/modules/es.typed-array.find-index");
-
-require("core-js/modules/es.typed-array.for-each");
-
-require("core-js/modules/es.typed-array.includes");
-
-require("core-js/modules/es.typed-array.index-of");
-
-require("core-js/modules/es.typed-array.iterator");
-
-require("core-js/modules/es.typed-array.join");
-
-require("core-js/modules/es.typed-array.last-index-of");
-
-require("core-js/modules/es.typed-array.map");
-
-require("core-js/modules/es.typed-array.reduce");
-
-require("core-js/modules/es.typed-array.reduce-right");
-
-require("core-js/modules/es.typed-array.reverse");
-
-require("core-js/modules/es.typed-array.set");
-
-require("core-js/modules/es.typed-array.slice");
-
-require("core-js/modules/es.typed-array.some");
-
-require("core-js/modules/es.typed-array.sort");
-
-require("core-js/modules/es.typed-array.subarray");
-
-require("core-js/modules/es.typed-array.to-locale-string");
-
-require("core-js/modules/es.typed-array.to-string");
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -668,29 +15,205 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-// var debug = require('debug')('ali-oss:multipart');
-var util = require('util');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._createStream = void 0;
 
-var path = require('path');
+var isBlob_1 = require("../../common/utils/isBlob");
 
-var mime = require('mime');
+var isFile_1 = require("../../common/utils/isFile");
 
-var copy = require('copy-to');
+var isBuffer_1 = require("../../common/utils/isBuffer");
 
-var _require = require('../common/utils/isBlob'),
-    isBlob = _require.isBlob;
+function _createStream(_x, _x2, _x3) {
+  return _createStream2.apply(this, arguments);
+}
 
-var _require2 = require('../common/utils/isFile'),
-    isFile = _require2.isFile;
+function _createStream2() {
+  _createStream2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(file, start, end) {
+    var _file, fileContent;
 
-var _require3 = require('../common/utils/isBuffer'),
-    isBuffer = _require3.isBuffer;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!(isBlob_1.isBlob(file) || isFile_1.isFile(file))) {
+              _context.next = 8;
+              break;
+            }
 
-var proto = exports;
-/**
- * Multipart operations
- */
+            _file = file.slice(start, end);
+            _context.next = 4;
+            return _file.arrayBuffer();
 
+          case 4:
+            fileContent = _context.sent;
+            return _context.abrupt("return", Buffer.from(fileContent));
+
+          case 8:
+            if (!isBuffer_1.isBuffer(file)) {
+              _context.next = 12;
+              break;
+            }
+
+            return _context.abrupt("return", file.subarray(start, end));
+
+          case 12:
+            throw new Error('_createStream requires File/Blob/Buffer.');
+
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _createStream2.apply(this, arguments);
+}
+
+exports._createStream = _createStream;
+
+}).call(this,require("buffer").Buffer)
+},{"../../common/utils/isBlob":143,"../../common/utils/isBuffer":144,"../../common/utils/isFile":145,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"buffer":196,"core-js/modules/es.array.slice":344,"regenerator-runtime/runtime":434}],2:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createStream_1 = require("./_createStream");
+
+exports.default = {
+  _createStream: _createStream_1._createStream
+};
+
+},{"./_createStream":1}],3:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var buffer_1 = require("buffer");
+
+var setConfig_1 = require("../setConfig");
+
+var version_1 = require("./version");
+
+var object_1 = __importDefault(require("../common/object"));
+
+var multipart_1 = __importDefault(require("../common/multipart"));
+
+var utils_1 = __importDefault(require("../common/utils"));
+
+var image_1 = __importDefault(require("../common/image"));
+
+var bucket_1 = __importDefault(require("../common/bucket"));
+
+var client_1 = __importDefault(require("../common/client"));
+
+var object_2 = __importDefault(require("./object"));
+
+var client_2 = __importDefault(require("./client"));
+
+var multipart_2 = __importDefault(require("./multipart"));
+
+function initClientProto(protos) {
+  Object.keys(protos).forEach(function (prop) {
+    setConfig_1.Client.prototype[prop] = protos[prop];
+  });
+}
+
+var OSS = setConfig_1.Client;
+OSS.urllib = require('../../shims/xhr');
+OSS.version = version_1.version;
+OSS.Buffer = buffer_1.Buffer;
+initClientProto(object_1.default);
+initClientProto(multipart_1.default);
+initClientProto(utils_1.default);
+initClientProto(image_1.default);
+initClientProto(bucket_1.default);
+initClientProto(client_1.default);
+initClientProto(object_2.default);
+initClientProto(client_2.default);
+initClientProto(multipart_2.default);
+module.exports = OSS;
+
+},{"../../shims/xhr":455,"../common/bucket":39,"../common/client":65,"../common/image":74,"../common/multipart":79,"../common/object":103,"../common/utils":141,"../setConfig":159,"./client":2,"./multipart":4,"./object":6,"./version":10,"buffer":196,"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.keys":351,"core-js/modules/web.dom-collections.for-each":391}],4:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var multipartUpload_1 = require("./multipartUpload");
+
+exports.default = {
+  multipartUpload: multipartUpload_1.multipartUpload
+};
+
+},{"./multipartUpload":5}],5:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.regexp.to-string");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.multipartUpload = void 0;
+
+var path_1 = __importDefault(require("path"));
+
+var mime_1 = __importDefault(require("mime"));
+
+var initMultipartUpload_1 = require("../../common/multipart/initMultipartUpload");
+
+var resumeMultipart_1 = require("../../common/multipart/resumeMultipart");
+
+var put_1 = require("../object/put");
+
+var isFile_1 = require("../../common/utils/isFile");
+
+var isBlob_1 = require("../../common/utils/isBlob");
+
+var getPartSize_1 = require("../../common/utils/getPartSize");
+
+var convertMetaToHeaders_1 = require("../../common/utils/convertMetaToHeaders");
+
+var getFileSize_1 = require("../utils/getFileSize");
+
+var isBuffer_1 = require("../../common/utils/isBuffer");
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
@@ -708,75 +231,85 @@ var proto = exports;
  *                  }
  */
 
-proto.multipartUpload = /*#__PURE__*/function () {
-  var _multipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, file, options) {
-    var minPartSize, fileSize, stream, result, ret, initResult, uploadId, partSize, checkpoint;
+
+function multipartUpload(_x, _x2) {
+  return _multipartUpload.apply(this, arguments);
+}
+
+function _multipartUpload() {
+  _multipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, file) {
+    var options,
+        minPartSize,
+        fileSize,
+        result,
+        ret,
+        initResult,
+        uploadId,
+        partSize,
+        checkpoint,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
             this.resetCancelFlag();
-            options = options || {};
 
             if (!(options.checkpoint && options.checkpoint.uploadId)) {
-              _context.next = 7;
+              _context.next = 6;
               break;
             }
 
-            if (file && isFile(file)) options.checkpoint.file = file;
-            _context.next = 6;
-            return this._resumeMultipart(options.checkpoint, options);
+            _context.next = 5;
+            return resumeMultipart_1.resumeMultipart.call(this, options.checkpoint, options);
 
-          case 6:
+          case 5:
             return _context.abrupt("return", _context.sent);
 
-          case 7:
+          case 6:
             minPartSize = 100 * 1024;
 
             if (!options.mime) {
-              if (isFile(file)) {
-                options.mime = mime.getType(path.extname(file.name));
-              } else if (isBlob(file)) {
+              if (isFile_1.isFile(file)) {
+                options.mime = mime_1.default.getType(path_1.default.extname(file.name));
+              } else if (isBlob_1.isBlob(file)) {
                 options.mime = file.type;
-              } else if (isBuffer(file)) {
+              } else if (isBuffer_1.isBuffer(file)) {
                 options.mime = '';
               } else {
-                options.mime = mime.getType(path.extname(file));
+                options.mime = mime_1.default.getType(path_1.default.extname(file));
               }
             }
 
             options.headers = options.headers || {};
+            convertMetaToHeaders_1.convertMetaToHeaders(options.meta, options.headers);
+            _context.next = 12;
+            return getFileSize_1.getFileSize(file);
 
-            this._convertMetaToHeaders(options.meta, options.headers);
-
-            _context.next = 13;
-            return this._getFileSize(file);
-
-          case 13:
+          case 12:
             fileSize = _context.sent;
 
             if (!(fileSize < minPartSize)) {
-              _context.next = 26;
+              _context.next = 24;
               break;
             }
 
-            stream = this._createStream(file, 0, fileSize);
             options.contentLength = fileSize;
-            _context.next = 19;
-            return this.putStream(name, stream, options);
+            _context.next = 17;
+            return put_1.put.call(this, name, file, options);
 
-          case 19:
+          case 17:
             result = _context.sent;
 
             if (!(options && options.progress)) {
-              _context.next = 23;
+              _context.next = 21;
               break;
             }
 
-            _context.next = 23;
+            _context.next = 21;
             return options.progress(1);
 
-          case 23:
+          case 21:
             ret = {
               res: result.res,
               bucket: this.options.bucket,
@@ -790,30 +323,30 @@ proto.multipartUpload = /*#__PURE__*/function () {
 
             return _context.abrupt("return", ret);
 
-          case 26:
-            if (!(options.partSize && !(parseInt(options.partSize, 10) === options.partSize))) {
-              _context.next = 28;
+          case 24:
+            if (!(options.partSize && !(parseInt(options.partSize.toString(), 10) === options.partSize))) {
+              _context.next = 26;
               break;
             }
 
             throw new Error('partSize must be int number');
 
-          case 28:
+          case 26:
             if (!(options.partSize && options.partSize < minPartSize)) {
-              _context.next = 30;
+              _context.next = 28;
               break;
             }
 
             throw new Error("partSize must not be smaller than ".concat(minPartSize));
 
-          case 30:
-            _context.next = 32;
-            return this.initMultipartUpload(name, options);
+          case 28:
+            _context.next = 30;
+            return initMultipartUpload_1.initMultipartUpload.call(this, name, options);
 
-          case 32:
+          case 30:
             initResult = _context.sent;
             uploadId = initResult.uploadId;
-            partSize = this._getPartSize(fileSize, options.partSize);
+            partSize = getPartSize_1.getPartSize(fileSize, options.partSize);
             checkpoint = {
               file: file,
               name: name,
@@ -824,444 +357,58 @@ proto.multipartUpload = /*#__PURE__*/function () {
             };
 
             if (!(options && options.progress)) {
-              _context.next = 39;
+              _context.next = 37;
               break;
             }
 
-            _context.next = 39;
+            _context.next = 37;
             return options.progress(0, checkpoint, initResult.res);
 
-          case 39:
-            _context.next = 41;
-            return this._resumeMultipart(checkpoint, options);
+          case 37:
+            _context.next = 39;
+            return resumeMultipart_1.resumeMultipart.call(this, checkpoint, options);
 
-          case 41:
+          case 39:
             return _context.abrupt("return", _context.sent);
 
-          case 42:
+          case 40:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
-
-  function multipartUpload(_x, _x2, _x3) {
-    return _multipartUpload.apply(this, arguments);
-  }
-
-  return multipartUpload;
-}();
-/*
- * Resume multipart upload from checkpoint. The checkpoint will be
- * updated after each successful part upload.
- * @param {Object} checkpoint the checkpoint
- * @param {Object} options
- */
-
-
-proto._resumeMultipart = /*#__PURE__*/function () {
-  var _resumeMultipart2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3(checkpoint, options) {
-    var that, file, fileSize, partSize, uploadId, doneParts, name, internalDoneParts, partOffs, numParts, multipartFinish, uploadPartJob, all, done, todo, defaultParallel, parallel, jobErr, abortEvent;
-    return _regenerator.default.wrap(function _callee3$(_context3) {
-      while (1) {
-        switch (_context3.prev = _context3.next) {
-          case 0:
-            that = this;
-
-            if (!this.isCancel()) {
-              _context3.next = 3;
-              break;
-            }
-
-            throw this._makeCancelEvent();
-
-          case 3:
-            file = checkpoint.file, fileSize = checkpoint.fileSize, partSize = checkpoint.partSize, uploadId = checkpoint.uploadId, doneParts = checkpoint.doneParts, name = checkpoint.name;
-            internalDoneParts = [];
-
-            if (doneParts.length > 0) {
-              copy(doneParts).to(internalDoneParts);
-            }
-
-            partOffs = this._divideParts(fileSize, partSize);
-            numParts = partOffs.length;
-            multipartFinish = false;
-
-            uploadPartJob = function uploadPartJob(self, partNo) {
-              // eslint-disable-next-line no-async-promise-executor
-              return new Promise( /*#__PURE__*/function () {
-                var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(resolve, reject) {
-                  var pi, data, result, tempErr;
-                  return _regenerator.default.wrap(function _callee2$(_context2) {
-                    while (1) {
-                      switch (_context2.prev = _context2.next) {
-                        case 0:
-                          _context2.prev = 0;
-
-                          if (self.isCancel()) {
-                            _context2.next = 26;
-                            break;
-                          }
-
-                          pi = partOffs[partNo - 1];
-                          data = {
-                            stream: self._createStream(file, pi.start, pi.end),
-                            size: pi.end - pi.start
-                          };
-                          _context2.prev = 4;
-                          _context2.next = 7;
-                          return self._uploadPart(name, uploadId, partNo, data);
-
-                        case 7:
-                          result = _context2.sent;
-                          _context2.next = 15;
-                          break;
-
-                        case 10:
-                          _context2.prev = 10;
-                          _context2.t0 = _context2["catch"](4);
-
-                          if (!(_context2.t0.status === 404)) {
-                            _context2.next = 14;
-                            break;
-                          }
-
-                          throw self._makeAbortEvent();
-
-                        case 14:
-                          throw _context2.t0;
-
-                        case 15:
-                          if (!(!self.isCancel() && !multipartFinish)) {
-                            _context2.next = 23;
-                            break;
-                          }
-
-                          checkpoint.doneParts.push({
-                            number: partNo,
-                            etag: result.res.headers.etag
-                          });
-
-                          if (!options.progress) {
-                            _context2.next = 20;
-                            break;
-                          }
-
-                          _context2.next = 20;
-                          return options.progress(doneParts.length / numParts, checkpoint, result.res);
-
-                        case 20:
-                          resolve({
-                            number: partNo,
-                            etag: result.res.headers.etag
-                          });
-                          _context2.next = 24;
-                          break;
-
-                        case 23:
-                          resolve();
-
-                        case 24:
-                          _context2.next = 27;
-                          break;
-
-                        case 26:
-                          resolve();
-
-                        case 27:
-                          _context2.next = 38;
-                          break;
-
-                        case 29:
-                          _context2.prev = 29;
-                          _context2.t1 = _context2["catch"](0);
-                          tempErr = new Error();
-                          tempErr.name = _context2.t1.name;
-                          tempErr.message = _context2.t1.message;
-                          tempErr.stack = _context2.t1.stack;
-                          tempErr.partNum = partNo;
-                          copy(_context2.t1).to(tempErr);
-                          reject(tempErr);
-
-                        case 38:
-                        case "end":
-                          return _context2.stop();
-                      }
-                    }
-                  }, _callee2, null, [[0, 29], [4, 10]]);
-                }));
-
-                return function (_x6, _x7) {
-                  return _ref.apply(this, arguments);
-                };
-              }());
-            };
-
-            all = Array.from(new Array(numParts), function (x, i) {
-              return i + 1;
-            });
-            done = internalDoneParts.map(function (p) {
-              return p.number;
-            });
-            todo = all.filter(function (p) {
-              return done.indexOf(p) < 0;
-            });
-            defaultParallel = 5;
-            parallel = options.parallel || defaultParallel; // upload in parallel
-
-            _context3.next = 17;
-            return this._parallel(todo, parallel, function (value) {
-              return new Promise(function (resolve, reject) {
-                uploadPartJob(that, value).then(function (result) {
-                  if (result) {
-                    internalDoneParts.push(result);
-                  }
-
-                  resolve();
-                }).catch(function (err) {
-                  reject(err);
-                });
-              });
-            });
-
-          case 17:
-            jobErr = _context3.sent;
-            multipartFinish = true;
-            abortEvent = jobErr.find(function (err) {
-              return err.name === 'abort';
-            });
-
-            if (!abortEvent) {
-              _context3.next = 22;
-              break;
-            }
-
-            throw abortEvent;
-
-          case 22:
-            if (!this.isCancel()) {
-              _context3.next = 25;
-              break;
-            }
-
-            uploadPartJob = null;
-            throw this._makeCancelEvent();
-
-          case 25:
-            if (!(jobErr && jobErr.length > 0)) {
-              _context3.next = 28;
-              break;
-            }
-
-            jobErr[0].message = "Failed to upload some parts with error: ".concat(jobErr[0].toString(), " part_num: ").concat(jobErr[0].partNum);
-            throw jobErr[0];
-
-          case 28:
-            _context3.next = 30;
-            return this.completeMultipartUpload(name, uploadId, internalDoneParts, options);
-
-          case 30:
-            return _context3.abrupt("return", _context3.sent);
-
-          case 31:
-          case "end":
-            return _context3.stop();
-        }
-      }
-    }, _callee3, this);
-  }));
-
-  function _resumeMultipart(_x4, _x5) {
-    return _resumeMultipart2.apply(this, arguments);
-  }
-
-  return _resumeMultipart;
-}();
-/**
- * Get file size
- */
-
-
-proto._getFileSize = /*#__PURE__*/function () {
-  var _getFileSize2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4(file) {
-    return _regenerator.default.wrap(function _callee4$(_context4) {
-      while (1) {
-        switch (_context4.prev = _context4.next) {
-          case 0:
-            if (!isBuffer(file)) {
-              _context4.next = 4;
-              break;
-            }
-
-            return _context4.abrupt("return", file.length);
-
-          case 4:
-            if (!(isBlob(file) || isFile(file))) {
-              _context4.next = 6;
-              break;
-            }
-
-            return _context4.abrupt("return", file.size);
-
-          case 6:
-            throw new Error('_getFileSize requires Buffer/File/Blob.');
-
-          case 7:
-          case "end":
-            return _context4.stop();
-        }
-      }
-    }, _callee4);
-  }));
-
-  function _getFileSize(_x8) {
-    return _getFileSize2.apply(this, arguments);
-  }
-
-  return _getFileSize;
-}();
-/*
- * Readable stream for Web File
- */
-
-
-var _require4 = require('stream'),
-    Readable = _require4.Readable;
-
-function WebFileReadStream(file, options) {
-  if (!(this instanceof WebFileReadStream)) {
-    return new WebFileReadStream(file, options);
-  }
-
-  Readable.call(this, options);
-  this.file = file;
-  this.reader = new FileReader();
-  this.start = 0;
-  this.finish = false;
-  this.fileBuffer = null;
+  return _multipartUpload.apply(this, arguments);
 }
 
-util.inherits(WebFileReadStream, Readable);
+exports.multipartUpload = multipartUpload;
 
-WebFileReadStream.prototype.readFileAndPush = function readFileAndPush(size) {
-  if (this.fileBuffer) {
-    var pushRet = true;
+},{"../../common/multipart/initMultipartUpload":80,"../../common/multipart/resumeMultipart":84,"../../common/utils/convertMetaToHeaders":124,"../../common/utils/getPartSize":136,"../../common/utils/isBlob":143,"../../common/utils/isBuffer":144,"../../common/utils/isFile":145,"../object/put":7,"../utils/getFileSize":9,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.function.name":347,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356,"mime":411,"path":414,"regenerator-runtime/runtime":434}],6:[function(require,module,exports){
+"use strict";
 
-    while (pushRet && this.fileBuffer && this.start < this.fileBuffer.length) {
-      var start = this.start;
-      var end = start + size;
-      end = end > this.fileBuffer.length ? this.fileBuffer.length : end;
-      this.start = end;
-      pushRet = this.push(this.fileBuffer.slice(start, end));
-    }
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var putStream_1 = require("./putStream");
+
+var put_1 = require("./put");
+
+exports.default = {
+  putStream: putStream_1.putStream,
+  put: put_1.put
 };
 
-WebFileReadStream.prototype._read = function _read(size) {
-  if (this.file && this.start >= this.file.size || this.fileBuffer && this.start >= this.fileBuffer.length || this.finish || this.start === 0 && !this.file) {
-    if (!this.finish) {
-      this.fileBuffer = null;
-      this.finish = true;
-    }
-
-    this.push(null);
-    return;
-  }
-
-  var defaultReadSize = 16 * 1024;
-  size = size || defaultReadSize;
-  var that = this;
-
-  this.reader.onload = function onload(e) {
-    that.fileBuffer = Buffer.from(new Uint8Array(e.target.result));
-    that.file = null;
-    that.readFileAndPush(size);
-  };
-
-  if (this.start === 0) {
-    this.reader.readAsArrayBuffer(this.file);
-  } else {
-    this.readFileAndPush(size);
-  }
-};
-
-proto._createStream = function _createStream(file, start, end) {
-  if (isBlob(file) || isFile(file)) {
-    return new WebFileReadStream(file.slice(start, end));
-  } else if (isBuffer(file)) {
-    // we can't use Readable.from() since it is only support in Node v10
-    var iterable = file.subarray(start, end);
-    return new Readable({
-      read: function read() {
-        this.push(iterable);
-        this.push(null);
-      }
-    });
-  }
-
-  throw new Error('_createStream requires Buffer/File/Blob.');
-};
-
-proto._getPartSize = function _getPartSize(fileSize, partSize) {
-  var maxNumParts = 10 * 1000;
-  var defaultPartSize = 1 * 1024 * 1024;
-  if (!partSize) partSize = defaultPartSize;
-  var safeSize = Math.ceil(fileSize / maxNumParts);
-
-  if (partSize < safeSize) {
-    partSize = safeSize;
-    console.warn("partSize has been set to ".concat(partSize, ", because the partSize you provided causes partNumber to be greater than 10,000"));
-  }
-
-  return partSize;
-};
-
-proto._divideParts = function _divideParts(fileSize, partSize) {
-  var numParts = Math.ceil(fileSize / partSize);
-  var partOffs = [];
-
-  for (var i = 0; i < numParts; i++) {
-    var start = partSize * i;
-    var end = Math.min(start + partSize, fileSize);
-    partOffs.push({
-      start: start,
-      end: end
-    });
-  }
-
-  return partOffs;
-};
-
-}).call(this,require("buffer").Buffer)
-},{"../common/utils/isBlob":59,"../common/utils/isBuffer":60,"../common/utils/isFile":61,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"buffer":98,"copy-to":101,"core-js/modules/es.array-buffer.slice":230,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.filter":233,"core-js/modules/es.array.find":234,"core-js/modules/es.array.from":236,"core-js/modules/es.array.index-of":238,"core-js/modules/es.array.iterator":239,"core-js/modules/es.array.map":241,"core-js/modules/es.array.slice":242,"core-js/modules/es.function.name":244,"core-js/modules/es.object.to-string":249,"core-js/modules/es.promise":250,"core-js/modules/es.regexp.to-string":252,"core-js/modules/es.string.iterator":254,"core-js/modules/es.typed-array.copy-within":261,"core-js/modules/es.typed-array.every":262,"core-js/modules/es.typed-array.fill":263,"core-js/modules/es.typed-array.filter":264,"core-js/modules/es.typed-array.find":266,"core-js/modules/es.typed-array.find-index":265,"core-js/modules/es.typed-array.for-each":267,"core-js/modules/es.typed-array.includes":268,"core-js/modules/es.typed-array.index-of":269,"core-js/modules/es.typed-array.iterator":270,"core-js/modules/es.typed-array.join":271,"core-js/modules/es.typed-array.last-index-of":272,"core-js/modules/es.typed-array.map":273,"core-js/modules/es.typed-array.reduce":275,"core-js/modules/es.typed-array.reduce-right":274,"core-js/modules/es.typed-array.reverse":276,"core-js/modules/es.typed-array.set":277,"core-js/modules/es.typed-array.slice":278,"core-js/modules/es.typed-array.some":279,"core-js/modules/es.typed-array.sort":280,"core-js/modules/es.typed-array.subarray":281,"core-js/modules/es.typed-array.to-locale-string":282,"core-js/modules/es.typed-array.to-string":283,"core-js/modules/es.typed-array.uint8-array":284,"mime":300,"path":303,"regenerator-runtime/runtime":324,"stream":327,"util":335}],4:[function(require,module,exports){
+},{"./put":7,"./putStream":8}],7:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-require("core-js/modules/es.array.for-each");
-
-require("core-js/modules/es.array.map");
-
 require("core-js/modules/es.function.name");
-
-require("core-js/modules/es.number.constructor");
-
-require("core-js/modules/es.object.assign");
-
-require("core-js/modules/es.object.keys");
 
 require("core-js/modules/es.object.to-string");
 
-require("core-js/modules/es.promise");
-
-require("core-js/modules/es.regexp.exec");
-
 require("core-js/modules/es.regexp.to-string");
-
-require("core-js/modules/es.string.replace");
-
-require("core-js/modules/web.dom-collections.for-each");
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -1269,78 +416,38 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-// const debug = require('debug')('ali-oss:object');
-var fs = require('fs');
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-var copy = require('copy-to');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.put = void 0;
 
-var path = require('path');
+var path_1 = __importDefault(require("path"));
 
-var mime = require('mime');
+var mime_1 = __importDefault(require("mime"));
 
-var callback = require('../common/callback');
+var putStream_1 = require("./putStream");
 
-var merge = require('merge-descriptors');
+var isBlob_1 = require("../../common/utils/isBlob");
 
-var _require = require('../common/utils/isBlob'),
-    isBlob = _require.isBlob;
+var isFile_1 = require("../../common/utils/isFile");
 
-var _require2 = require('../common/utils/isFile'),
-    isFile = _require2.isFile;
+var objectName_1 = require("../../common/utils/objectName");
 
-var _require3 = require('../common/utils/isBuffer'),
-    isBuffer = _require3.isBuffer; // var assert = require('assert');
+var encodeCallback_1 = require("../../common/utils/encodeCallback");
 
+var objectUrl_1 = require("../../common/utils/objectUrl");
 
-var proto = exports;
-/**
- * Object operations
- */
+var convertMetaToHeaders_1 = require("../../common/utils/convertMetaToHeaders");
 
-/**
-  * append an object from String(file path)/Buffer/ReadableStream
-  * @param {String} name the object key
-  * @param {Mixed} file String(file path)/Buffer/ReadableStream
-  * @param {Object} options
-  * @return {Object}
-  */
+var getFileSize_1 = require("../utils/getFileSize");
 
-proto.append = /*#__PURE__*/function () {
-  var _append = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, file, options) {
-    var result;
-    return _regenerator.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            options = options || {};
-            if (options.position === undefined) options.position = '0';
-            options.subres = {
-              append: '',
-              position: options.position
-            };
-            options.method = 'POST';
-            _context.next = 6;
-            return this.put(name, file, options);
-
-          case 6:
-            result = _context.sent;
-            result.nextAppendPosition = result.res.headers['x-oss-next-append-position'];
-            return _context.abrupt("return", result);
-
-          case 9:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee, this);
-  }));
-
-  function append(_x, _x2, _x3) {
-    return _append.apply(this, arguments);
-  }
-
-  return append;
-}();
+var isBuffer_1 = require("../../common/utils/isBuffer");
 /**
  * put an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -1360,99 +467,113 @@ proto.append = /*#__PURE__*/function () {
  */
 
 
-proto.put = /*#__PURE__*/function () {
-  var _put = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(name, file, options) {
-    var content, stream, _result, method, params, result, ret;
+function put(_x, _x2) {
+  return _put.apply(this, arguments);
+}
 
-    return _regenerator.default.wrap(function _callee2$(_context2) {
+function _put() {
+  _put = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, file) {
+    var options,
+        content,
+        stream,
+        _result,
+        method,
+        params,
+        result,
+        ret,
+        _args = arguments;
+
+    return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
-        switch (_context2.prev = _context2.next) {
+        switch (_context.prev = _context.next) {
           case 0:
-            options = options || {};
-            name = this._objectName(name);
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            name = objectName_1.objectName(name);
 
-            if (!isBuffer(file)) {
-              _context2.next = 6;
+            if (!isBuffer_1.isBuffer(file)) {
+              _context.next = 6;
               break;
             }
 
             content = file;
-            _context2.next = 32;
+            _context.next = 34;
             break;
 
           case 6:
-            if (!(isBlob(file) || isFile(file))) {
-              _context2.next = 31;
+            if (!(isBlob_1.isBlob(file) || isFile_1.isFile(file))) {
+              _context.next = 33;
               break;
             }
 
             if (!options.mime) {
-              if (isFile(file)) {
-                options.mime = mime.getType(path.extname(file.name));
+              if (isFile_1.isFile(file)) {
+                options.mime = mime_1.default.getType(path_1.default.extname(file.name));
               } else {
                 options.mime = file.type;
               }
             }
 
-            stream = this._createStream(file, 0, file.size);
-            _context2.next = 11;
-            return this._getFileSize(file);
+            _context.next = 10;
+            return this._createStream(file, 0, file.size);
 
-          case 11:
-            options.contentLength = _context2.sent;
-            _context2.prev = 12;
-            _context2.next = 15;
-            return this.putStream(name, stream, options);
+          case 10:
+            stream = _context.sent;
+            _context.next = 13;
+            return getFileSize_1.getFileSize(file);
 
-          case 15:
-            _result = _context2.sent;
-            return _context2.abrupt("return", _result);
+          case 13:
+            options.contentLength = _context.sent;
+            _context.prev = 14;
+            _context.next = 17;
+            return putStream_1.putStream.call(this, name, stream, options);
 
-          case 19:
-            _context2.prev = 19;
-            _context2.t0 = _context2["catch"](12);
+          case 17:
+            _result = _context.sent;
+            return _context.abrupt("return", _result);
 
-            if (!(_context2.t0.code === 'RequestTimeTooSkewed')) {
-              _context2.next = 28;
+          case 21:
+            _context.prev = 21;
+            _context.t0 = _context["catch"](14);
+
+            if (!(_context.t0.code === 'RequestTimeTooSkewed')) {
+              _context.next = 30;
               break;
             }
 
-            this.options.amendTimeSkewed = +new Date(_context2.t0.serverTime) - new Date();
-            _context2.next = 25;
-            return this.put(name, file, options);
+            this.options.amendTimeSkewed = +new Date(_context.t0.serverTime) - new Date().valueOf();
+            _context.next = 27;
+            return put.call(this, name, file, options);
 
-          case 25:
-            return _context2.abrupt("return", _context2.sent);
+          case 27:
+            return _context.abrupt("return", _context.sent);
 
-          case 28:
-            throw _context2.t0;
-
-          case 29:
-            _context2.next = 32;
-            break;
+          case 30:
+            throw _context.t0;
 
           case 31:
+            _context.next = 34;
+            break;
+
+          case 33:
             throw new TypeError('Must provide Buffer/Blob/File for put.');
 
-          case 32:
+          case 34:
             options.headers = options.headers || {};
-
-            this._convertMetaToHeaders(options.meta, options.headers);
-
+            convertMetaToHeaders_1.convertMetaToHeaders(options.meta, options.headers);
             method = options.method || 'PUT';
             params = this._objectRequestParams(method, name, options);
-            callback.encodeCallback(params, options);
+            encodeCallback_1.encodeCallback(params, options);
             params.mime = options.mime;
             params.content = content;
             params.successStatuses = [200];
-            _context2.next = 42;
+            _context.next = 44;
             return this.request(params);
 
-          case 42:
-            result = _context2.sent;
+          case 44:
+            result = _context.sent;
             ret = {
               name: name,
-              url: this._objectUrl(name),
+              url: objectUrl_1.objectUrl(name, this.options),
               res: result.res
             };
 
@@ -1460,22 +581,47 @@ proto.put = /*#__PURE__*/function () {
               ret.data = JSON.parse(result.data.toString());
             }
 
-            return _context2.abrupt("return", ret);
+            return _context.abrupt("return", ret);
 
-          case 46:
+          case 48:
           case "end":
-            return _context2.stop();
+            return _context.stop();
         }
       }
-    }, _callee2, this, [[12, 19]]);
+    }, _callee, this, [[14, 21]]);
   }));
+  return _put.apply(this, arguments);
+}
 
-  function put(_x4, _x5, _x6) {
-    return _put.apply(this, arguments);
-  }
+exports.put = put;
 
-  return put;
-}();
+},{"../../common/utils/convertMetaToHeaders":124,"../../common/utils/encodeCallback":129,"../../common/utils/isBlob":143,"../../common/utils/isBuffer":144,"../../common/utils/isFile":145,"../../common/utils/objectName":150,"../../common/utils/objectUrl":151,"../utils/getFileSize":9,"./putStream":8,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.function.name":347,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356,"mime":411,"path":414,"regenerator-runtime/runtime":434}],8:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.regexp.to-string");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putStream = void 0;
+
+var objectName_1 = require("../../common/utils/objectName");
+
+var convertMetaToHeaders_1 = require("../../common/utils/convertMetaToHeaders");
+
+var objectUrl_1 = require("../../common/utils/objectUrl");
+
+var encodeCallback_1 = require("../../common/utils/encodeCallback");
 /**
  * put an object from ReadableStream. If `options.contentLength` is
  * not provided, chunked encoding is used.
@@ -1486,16 +632,25 @@ proto.put = /*#__PURE__*/function () {
  */
 
 
-proto.putStream = /*#__PURE__*/function () {
-  var _putStream = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3(name, stream, options) {
-    var method, params, result, ret;
-    return _regenerator.default.wrap(function _callee3$(_context3) {
+function putStream(_x, _x2) {
+  return _putStream.apply(this, arguments);
+}
+
+function _putStream() {
+  _putStream = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, stream) {
+    var options,
+        method,
+        params,
+        result,
+        ret,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context.prev = _context.next) {
           case 0:
-            options = options || {};
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
             options.headers = options.headers || {};
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
 
             if (options.contentLength) {
               options.headers['Content-Length'] = options.contentLength;
@@ -1503,22 +658,27 @@ proto.putStream = /*#__PURE__*/function () {
               options.headers['Transfer-Encoding'] = 'chunked';
             }
 
-            this._convertMetaToHeaders(options.meta, options.headers);
-
+            convertMetaToHeaders_1.convertMetaToHeaders(options.meta, options.headers);
             method = options.method || 'PUT';
             params = this._objectRequestParams(method, name, options);
-            callback.encodeCallback(params, options);
+            encodeCallback_1.encodeCallback(params, options);
             params.mime = options.mime;
-            params.stream = stream;
+
+            if (stream.pipe) {
+              params.stream = stream;
+            } else {
+              params.content = stream;
+            }
+
             params.successStatuses = [200];
-            _context3.next = 13;
+            _context.next = 13;
             return this.request(params);
 
           case 13:
-            result = _context3.sent;
+            result = _context.sent;
             ret = {
               name: name,
-              url: this._objectUrl(name),
+              url: objectUrl_1.objectUrl(name, this.options),
               res: result.res
             };
 
@@ -1526,279 +686,92 @@ proto.putStream = /*#__PURE__*/function () {
               ret.data = JSON.parse(result.data.toString());
             }
 
-            return _context3.abrupt("return", ret);
+            return _context.abrupt("return", ret);
 
           case 17:
           case "end":
-            return _context3.stop();
+            return _context.stop();
         }
       }
-    }, _callee3, this);
+    }, _callee, this);
   }));
+  return _putStream.apply(this, arguments);
+}
 
-  function putStream(_x7, _x8, _x9) {
-    return _putStream.apply(this, arguments);
-  }
+exports.putStream = putStream;
 
-  return putStream;
-}();
-
-merge(proto, require('../common/object/copyObject'));
-merge(proto, require('../common/object/getObjectTagging'));
-merge(proto, require('../common/object/putObjectTagging'));
-merge(proto, require('../common/object/deleteObjectTagging'));
-merge(proto, require('../common/image'));
-merge(proto, require('../common/object/getBucketVersions'));
-merge(proto, require('../common/object/getACL'));
-merge(proto, require('../common/object/putACL'));
-merge(proto, require('../common/object/head'));
-merge(proto, require('../common/object/delete'));
-merge(proto, require('../common/object/get'));
-merge(proto, require('../common/object/putSymlink'));
-merge(proto, require('../common/object/getSymlink'));
-merge(proto, require('../common/object/deleteMulti'));
-merge(proto, require('../common/object/getObjectMeta'));
-merge(proto, require('../common/object/getObjectUrl'));
-merge(proto, require('../common/object/generateObjectUrl'));
-merge(proto, require('../common/object/signatureUrl'));
-
-proto.putMeta = /*#__PURE__*/function () {
-  var _putMeta = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4(name, meta, options) {
-    var copyResult;
-    return _regenerator.default.wrap(function _callee4$(_context4) {
-      while (1) {
-        switch (_context4.prev = _context4.next) {
-          case 0:
-            _context4.next = 2;
-            return this.copy(name, name, {
-              meta: meta || {},
-              timeout: options && options.timeout,
-              ctx: options && options.ctx
-            });
-
-          case 2:
-            copyResult = _context4.sent;
-            return _context4.abrupt("return", copyResult);
-
-          case 4:
-          case "end":
-            return _context4.stop();
-        }
-      }
-    }, _callee4, this);
-  }));
-
-  function putMeta(_x10, _x11, _x12) {
-    return _putMeta.apply(this, arguments);
-  }
-
-  return putMeta;
-}();
-
-proto.list = /*#__PURE__*/function () {
-  var _list = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5(query, options) {
-    var params, result, objects, that, prefixes;
-    return _regenerator.default.wrap(function _callee5$(_context5) {
-      while (1) {
-        switch (_context5.prev = _context5.next) {
-          case 0:
-            // prefix, marker, max-keys, delimiter
-            params = this._objectRequestParams('GET', '', options);
-            params.query = query;
-            params.xmlResponse = true;
-            params.successStatuses = [200];
-            _context5.next = 6;
-            return this.request(params);
-
-          case 6:
-            result = _context5.sent;
-            objects = result.data.Contents;
-            that = this;
-
-            if (objects) {
-              if (!Array.isArray(objects)) {
-                objects = [objects];
-              }
-
-              objects = objects.map(function (obj) {
-                return {
-                  name: obj.Key,
-                  url: that._objectUrl(obj.Key),
-                  lastModified: obj.LastModified,
-                  etag: obj.ETag,
-                  type: obj.Type,
-                  size: Number(obj.Size),
-                  storageClass: obj.StorageClass,
-                  owner: {
-                    id: obj.Owner.ID,
-                    displayName: obj.Owner.DisplayName
-                  }
-                };
-              });
-            }
-
-            prefixes = result.data.CommonPrefixes || null;
-
-            if (prefixes) {
-              if (!Array.isArray(prefixes)) {
-                prefixes = [prefixes];
-              }
-
-              prefixes = prefixes.map(function (item) {
-                return item.Prefix;
-              });
-            }
-
-            return _context5.abrupt("return", {
-              res: result.res,
-              objects: objects,
-              prefixes: prefixes,
-              nextMarker: result.data.NextMarker || null,
-              isTruncated: result.data.IsTruncated === 'true'
-            });
-
-          case 13:
-          case "end":
-            return _context5.stop();
-        }
-      }
-    }, _callee5, this);
-  }));
-
-  function list(_x13, _x14) {
-    return _list.apply(this, arguments);
-  }
-
-  return list;
-}();
-/**
- * Restore Object
- * @param {String} name the object key
- * @param {Object} options
- * @returns {{res}}
- */
-
-
-proto.restore = /*#__PURE__*/function () {
-  var _restore = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee6(name, options) {
-    var params, result;
-    return _regenerator.default.wrap(function _callee6$(_context6) {
-      while (1) {
-        switch (_context6.prev = _context6.next) {
-          case 0:
-            options = options || {};
-            options.subres = Object.assign({
-              restore: ''
-            }, options.subres);
-
-            if (options.versionId) {
-              options.subres.versionId = options.versionId;
-            }
-
-            params = this._objectRequestParams('POST', name, options);
-            params.successStatuses = [202];
-            _context6.next = 7;
-            return this.request(params);
-
-          case 7:
-            result = _context6.sent;
-            return _context6.abrupt("return", {
-              res: result.res
-            });
-
-          case 9:
-          case "end":
-            return _context6.stop();
-        }
-      }
-    }, _callee6, this);
-  }));
-
-  function restore(_x15, _x16) {
-    return _restore.apply(this, arguments);
-  }
-
-  return restore;
-}();
-
-proto._objectUrl = function _objectUrl(name) {
-  return this._getReqUrl({
-    bucket: this.options.bucket,
-    object: name
-  });
-};
-/**
- * generator request params
- * @return {Object} params
- *
- * @api private
- */
-
-
-proto._objectRequestParams = function _objectRequestParams(method, name, options) {
-  if (!this.options.bucket) {
-    throw new Error('Please create a bucket first');
-  }
-
-  options = options || {};
-  name = this._objectName(name);
-  var params = {
-    object: name,
-    bucket: this.options.bucket,
-    method: method,
-    subres: options && options.subres,
-    timeout: options && options.timeout,
-    ctx: options && options.ctx
-  };
-
-  if (options.headers) {
-    params.headers = {};
-    copy(options.headers).to(params.headers);
-  }
-
-  return params;
-};
-
-proto._objectName = function _objectName(name) {
-  return name.replace(/^\/+/, '');
-};
-
-proto._convertMetaToHeaders = function _convertMetaToHeaders(meta, headers) {
-  if (!meta) {
-    return;
-  }
-
-  Object.keys(meta).forEach(function (k) {
-    headers["x-oss-meta-".concat(k)] = meta[k];
-  });
-};
-
-proto._deleteFileSafe = function _deleteFileSafe(filepath) {
-  var _this = this;
-
-  return new Promise(function (resolve) {
-    fs.exists(filepath, function (exists) {
-      if (!exists) {
-        resolve();
-      } else {
-        fs.unlink(filepath, function (err) {
-          if (err) {
-            _this.debug('unlink %j error: %s', filepath, err, 'error');
-          }
-
-          resolve();
-        });
-      }
-    });
-  });
-};
-
-},{"../common/callback":23,"../common/image":26,"../common/object/copyObject":29,"../common/object/delete":30,"../common/object/deleteMulti":31,"../common/object/deleteObjectTagging":32,"../common/object/generateObjectUrl":33,"../common/object/get":34,"../common/object/getACL":35,"../common/object/getBucketVersions":36,"../common/object/getObjectMeta":37,"../common/object/getObjectTagging":38,"../common/object/getObjectUrl":39,"../common/object/getSymlink":40,"../common/object/head":41,"../common/object/putACL":42,"../common/object/putObjectTagging":43,"../common/object/putSymlink":44,"../common/object/signatureUrl":45,"../common/utils/isBlob":59,"../common/utils/isBuffer":60,"../common/utils/isFile":61,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"copy-to":101,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.map":241,"core-js/modules/es.function.name":244,"core-js/modules/es.number.constructor":245,"core-js/modules/es.object.assign":246,"core-js/modules/es.object.keys":248,"core-js/modules/es.object.to-string":249,"core-js/modules/es.promise":250,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.regexp.to-string":252,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285,"fs":78,"merge-descriptors":298,"mime":300,"path":303,"regenerator-runtime/runtime":324}],5:[function(require,module,exports){
+},{"../../common/utils/convertMetaToHeaders":124,"../../common/utils/encodeCallback":129,"../../common/utils/objectName":150,"../../common/utils/objectUrl":151,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356,"regenerator-runtime/runtime":434}],9:[function(require,module,exports){
 "use strict";
 
-exports.version = "6.11.2";
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-},{}],6:[function(require,module,exports){
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getFileSize = void 0;
+
+var isBlob_1 = require("../../common/utils/isBlob");
+
+var isFile_1 = require("../../common/utils/isFile");
+
+var isBuffer_1 = require("../../common/utils/isBuffer");
+
+function getFileSize(_x) {
+  return _getFileSize.apply(this, arguments);
+}
+
+function _getFileSize() {
+  _getFileSize = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(file) {
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!isBuffer_1.isBuffer(file)) {
+              _context.next = 4;
+              break;
+            }
+
+            return _context.abrupt("return", file.length);
+
+          case 4:
+            if (!(isBlob_1.isBlob(file) || isFile_1.isFile(file))) {
+              _context.next = 6;
+              break;
+            }
+
+            return _context.abrupt("return", file.size);
+
+          case 6:
+            throw new Error('getFileSize requires Buffer/File/Blob.');
+
+          case 7:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _getFileSize.apply(this, arguments);
+}
+
+exports.getFileSize = getFileSize;
+
+},{"../../common/utils/isBlob":143,"../../common/utils/isBuffer":144,"../../common/utils/isFile":145,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],10:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.version = void 0;
+exports.version = '7.0.0-beta.1';
+
+},{}],11:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1816,30 +789,34 @@ exports.abortBucketWorm = void 0;
 
 var checkBucketName_1 = require("../utils/checkBucketName");
 
-function abortBucketWorm(_x, _x2) {
+function abortBucketWorm(_x) {
   return _abortBucketWorm.apply(this, arguments);
 }
 
 function _abortBucketWorm() {
-  _abortBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var params, result;
+  _abortBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
             checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('DELETE', name, 'worm', options);
-            _context.next = 4;
+            _context.next = 5;
             return this.request(params);
 
-          case 4:
+          case 5:
             result = _context.sent;
             return _context.abrupt("return", {
               res: result.res,
               status: result.status
             });
 
-          case 6:
+          case 7:
           case "end":
             return _context.stop();
         }
@@ -1851,7 +828,7 @@ function _abortBucketWorm() {
 
 exports.abortBucketWorm = abortBucketWorm;
 
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],7:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],12:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1869,32 +846,36 @@ exports.completeBucketWorm = void 0;
 
 var checkBucketName_1 = require("../utils/checkBucketName");
 
-function completeBucketWorm(_x, _x2, _x3) {
+function completeBucketWorm(_x, _x2) {
   return _completeBucketWorm.apply(this, arguments);
 }
 
 function _completeBucketWorm() {
-  _completeBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, wormId, options) {
-    var params, result;
+  _completeBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, wormId) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
             checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('POST', name, {
               wormId: wormId
             }, options);
-            _context.next = 4;
+            _context.next = 5;
             return this.request(params);
 
-          case 4:
+          case 5:
             result = _context.sent;
             return _context.abrupt("return", {
               res: result.res,
               status: result.status
             });
 
-          case 6:
+          case 7:
           case "end":
             return _context.stop();
         }
@@ -1906,7 +887,197 @@ function _completeBucketWorm() {
 
 exports.completeBucketWorm = completeBucketWorm;
 
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],8:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],13:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucket = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function deleteBucket(_x) {
+  return _deleteBucket.apply(this, arguments);
+}
+
+function _deleteBucket() {
+  _deleteBucket = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('DELETE', name, '', options);
+            _context.next = 5;
+            return this.request(params);
+
+          case 5:
+            result = _context.sent;
+
+            if (!(result.status === 200 || result.status === 204)) {
+              _context.next = 8;
+              break;
+            }
+
+            return _context.abrupt("return", {
+              res: result.res
+            });
+
+          case 8:
+            _context.next = 10;
+            return this.requestError(result);
+
+          case 10:
+            throw _context.sent;
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _deleteBucket.apply(this, arguments);
+}
+
+exports.deleteBucket = deleteBucket;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],14:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketCORS = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function deleteBucketCORS(_x) {
+  return _deleteBucketCORS.apply(this, arguments);
+}
+
+function _deleteBucketCORS() {
+  _deleteBucketCORS = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('DELETE', name, 'cors', options);
+            params.successStatuses = [204];
+            _context.next = 6;
+            return this.request(params);
+
+          case 6:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res
+            });
+
+          case 8:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _deleteBucketCORS.apply(this, arguments);
+}
+
+exports.deleteBucketCORS = deleteBucketCORS;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],15:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketEncryption = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+/**
+ * deleteBucketEncryption
+ * @param {String} bucketName - bucket name
+ */
+
+
+function deleteBucketEncryption(_x) {
+  return _deleteBucketEncryption.apply(this, arguments);
+}
+
+function _deleteBucketEncryption() {
+  _deleteBucketEncryption = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('DELETE', bucketName, 'encryption', options);
+            params.successStatuses = [204];
+            params.xmlResponse = true;
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              status: result.status,
+              res: result.res
+            });
+
+          case 9:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _deleteBucketEncryption.apply(this, arguments);
+}
+
+exports.deleteBucketEncryption = deleteBucketEncryption;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],16:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1978,7 +1149,7 @@ function _deleteBucketInventory() {
 
 exports.deleteBucketInventory = deleteBucketInventory;
 
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],9:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],17:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1989,47 +1160,53 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketLifecycle = void 0;
 
-var proto = exports;
+var checkBucketName_1 = require("../utils/checkBucketName");
 
-proto.deleteBucketLifecycle = /*#__PURE__*/function () {
-  var _deleteBucketLifecycle = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var params, result;
+function deleteBucketLifecycle(_x) {
+  return _deleteBucketLifecycle.apply(this, arguments);
+}
+
+function _deleteBucketLifecycle() {
+  _deleteBucketLifecycle = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _checkBucketName(name);
-
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('DELETE', name, 'lifecycle', options);
             params.successStatuses = [204];
-            _context.next = 5;
+            _context.next = 6;
             return this.request(params);
 
-          case 5:
+          case 6:
             result = _context.sent;
             return _context.abrupt("return", {
               res: result.res
             });
 
-          case 7:
+          case 8:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
+  return _deleteBucketLifecycle.apply(this, arguments);
+}
 
-  function deleteBucketLifecycle(_x, _x2) {
-    return _deleteBucketLifecycle.apply(this, arguments);
-  }
+exports.deleteBucketLifecycle = deleteBucketLifecycle;
 
-  return deleteBucketLifecycle;
-}();
-
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],10:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],18:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2040,47 +1217,290 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketLogging = void 0;
 
-var proto = exports;
+var checkBucketName_1 = require("../utils/checkBucketName");
 
-proto.deleteBucketWebsite = /*#__PURE__*/function () {
-  var _deleteBucketWebsite = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var params, result;
+function deleteBucketLogging(_x) {
+  return _deleteBucketLogging.apply(this, arguments);
+}
+
+function _deleteBucketLogging() {
+  _deleteBucketLogging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _checkBucketName(name);
-
-            params = this._bucketRequestParams('DELETE', name, 'website', options);
-            params.successStatuses = [204];
-            _context.next = 5;
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('DELETE', name, 'logging', options);
+            params.successStatuses = [204, 200];
+            _context.next = 6;
             return this.request(params);
 
-          case 5:
+          case 6:
             result = _context.sent;
             return _context.abrupt("return", {
               res: result.res
             });
 
-          case 7:
+          case 8:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
+  return _deleteBucketLogging.apply(this, arguments);
+}
 
-  function deleteBucketWebsite(_x, _x2) {
-    return _deleteBucketWebsite.apply(this, arguments);
-  }
+exports.deleteBucketLogging = deleteBucketLogging;
 
-  return deleteBucketWebsite;
-}();
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],19:[function(require,module,exports){
+"use strict";
 
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],11:[function(require,module,exports){
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketPolicy = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+/**
+ * deleteBucketPolicy
+ * @param {String} bucketName - bucket name
+ * @param {Object} options
+ */
+
+
+function deleteBucketPolicy(_x) {
+  return _deleteBucketPolicy.apply(this, arguments);
+}
+
+function _deleteBucketPolicy() {
+  _deleteBucketPolicy = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('DELETE', bucketName, 'policy', options);
+            params.successStatuses = [204];
+            _context.next = 6;
+            return this.request(params);
+
+          case 6:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              status: result.status,
+              res: result.res
+            });
+
+          case 8:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _deleteBucketPolicy.apply(this, arguments);
+}
+
+exports.deleteBucketPolicy = deleteBucketPolicy;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],20:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketReferer = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var putBucketReferer_1 = require("./putBucketReferer");
+
+function deleteBucketReferer(_x) {
+  return _deleteBucketReferer.apply(this, arguments);
+}
+
+function _deleteBucketReferer() {
+  _deleteBucketReferer = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            _context.next = 4;
+            return putBucketReferer_1.putBucketReferer.call(this, name, true, null, options);
+
+          case 4:
+            return _context.abrupt("return", _context.sent);
+
+          case 5:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _deleteBucketReferer.apply(this, arguments);
+}
+
+exports.deleteBucketReferer = deleteBucketReferer;
+
+},{"../utils/checkBucketName":120,"./putBucketReferer":51,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],21:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketTags = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+/**
+ * deleteBucketTags
+ * @param {String} name - bucket name
+ * @param {Object} options
+ */
+
+
+function deleteBucketTags(_x) {
+  return _deleteBucketTags.apply(this, arguments);
+}
+
+function _deleteBucketTags() {
+  _deleteBucketTags = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('DELETE', name, 'tagging', options);
+            params.successStatuses = [204];
+            _context.next = 6;
+            return this.request(params);
+
+          case 6:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              status: result.status,
+              res: result.res
+            });
+
+          case 8:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _deleteBucketTags.apply(this, arguments);
+}
+
+exports.deleteBucketTags = deleteBucketTags;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],22:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteBucketWebsite = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function deleteBucketWebsite(_x) {
+  return _deleteBucketWebsite.apply(this, arguments);
+}
+
+function _deleteBucketWebsite() {
+  _deleteBucketWebsite = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('DELETE', name, 'website', options);
+            params.successStatuses = [204];
+            _context.next = 6;
+            return this.request(params);
+
+          case 6:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res
+            });
+
+          case 8:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _deleteBucketWebsite.apply(this, arguments);
+}
+
+exports.deleteBucketWebsite = deleteBucketWebsite;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],23:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2100,17 +1520,22 @@ var checkBucketName_1 = require("../utils/checkBucketName");
 
 var obj2xml_1 = require("../utils/obj2xml");
 
-function extendBucketWorm(_x, _x2, _x3, _x4) {
+function extendBucketWorm(_x, _x2, _x3) {
   return _extendBucketWorm.apply(this, arguments);
 }
 
 function _extendBucketWorm() {
-  _extendBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, wormId, days, options) {
-    var params, paramlXMLObJ, result;
+  _extendBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, wormId, days) {
+    var options,
+        params,
+        paramlXMLObJ,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            options = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
             checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('POST', name, {
               wormExtend: '',
@@ -2126,17 +1551,17 @@ function _extendBucketWorm() {
               headers: true
             });
             params.successStatuses = [200];
-            _context.next = 8;
+            _context.next = 9;
             return this.request(params);
 
-          case 8:
+          case 9:
             result = _context.sent;
             return _context.abrupt("return", {
               res: result.res,
               status: result.status
             });
 
-          case 10:
+          case 11:
           case "end":
             return _context.stop();
         }
@@ -2148,7 +1573,282 @@ function _extendBucketWorm() {
 
 exports.extendBucketWorm = extendBucketWorm;
 
-},{"../utils/checkBucketName":48,"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],12:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],24:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketACL = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function getBucketACL(_x) {
+  return _getBucketACL.apply(this, arguments);
+}
+
+function _getBucketACL() {
+  _getBucketACL = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('GET', name, 'acl', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              acl: result.data.AccessControlList.Grant,
+              owner: {
+                id: result.data.Owner.ID,
+                displayName: result.data.Owner.DisplayName
+              },
+              res: result.res
+            });
+
+          case 9:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketACL.apply(this, arguments);
+}
+
+exports.getBucketACL = getBucketACL;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],25:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.array.slice");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketCORS = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var isArray_1 = require("../utils/isArray");
+
+function getBucketCORS(_x) {
+  return _getBucketCORS.apply(this, arguments);
+}
+
+function _getBucketCORS() {
+  _getBucketCORS = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        rules,
+        CORSRule,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('GET', name, 'cors', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            rules = [];
+
+            if (result.data && result.data.CORSRule) {
+              CORSRule = result.data.CORSRule;
+              if (!isArray_1.isArray(CORSRule)) CORSRule = [CORSRule];
+              CORSRule.forEach(function (rule) {
+                var r = {};
+                Object.keys(rule).forEach(function (key) {
+                  r[key.slice(0, 1).toLowerCase() + key.slice(1, key.length)] = rule[key];
+                });
+                rules.push(r);
+              });
+            }
+
+            return _context.abrupt("return", {
+              rules: rules,
+              res: result.res
+            });
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketCORS.apply(this, arguments);
+}
+
+exports.getBucketCORS = getBucketCORS;
+
+},{"../utils/checkBucketName":120,"../utils/isArray":142,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.slice":344,"core-js/modules/es.object.keys":351,"core-js/modules/web.dom-collections.for-each":391,"regenerator-runtime/runtime":434}],26:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketEncryption = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+/**
+ * getBucketEncryption
+ * @param {String} bucketName - bucket name
+ */
+
+
+function getBucketEncryption(_x) {
+  return _getBucketEncryption.apply(this, arguments);
+}
+
+function _getBucketEncryption() {
+  _getBucketEncryption = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName) {
+    var options,
+        params,
+        result,
+        encryption,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('GET', bucketName, 'encryption', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            encryption = result.data.ApplyServerSideEncryptionByDefault;
+            return _context.abrupt("return", {
+              encryption: encryption,
+              status: result.status,
+              res: result.res
+            });
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketEncryption.apply(this, arguments);
+}
+
+exports.getBucketEncryption = getBucketEncryption;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],27:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketInfo = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function getBucketInfo(_x) {
+  return _getBucketInfo.apply(this, arguments);
+}
+
+function _getBucketInfo() {
+  _getBucketInfo = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            name = name || this.options.bucket;
+            params = this._bucketRequestParams('GET', name, 'bucketInfo', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 8;
+            return this.request(params);
+
+          case 8:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              bucket: result.data.Bucket,
+              res: result.res
+            });
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketInfo.apply(this, arguments);
+}
+
+exports.getBucketInfo = getBucketInfo;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],28:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2224,7 +1924,7 @@ function _getBucketInventory() {
 
 exports.getBucketInventory = getBucketInventory;
 
-},{"../utils/checkBucketName":48,"../utils/formatInventoryConfig":55,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],13:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/formatInventoryConfig":132,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],29:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2237,38 +1937,46 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketLifecycle = void 0;
 
-var _require2 = require('../utils/isArray'),
-    isArray = _require2.isArray;
+var checkBucketName_1 = require("../utils/checkBucketName");
 
-var _require3 = require('../utils/formatObjKey'),
-    formatObjKey = _require3.formatObjKey;
+var isArray_1 = require("../utils/isArray");
 
-var proto = exports;
+var formatObjKey_1 = require("../utils/formatObjKey");
 
-proto.getBucketLifecycle = /*#__PURE__*/function () {
-  var _getBucketLifecycle = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var params, result, rules;
+function getBucketLifecycle(_x) {
+  return _getBucketLifecycle.apply(this, arguments);
+}
+
+function _getBucketLifecycle() {
+  _getBucketLifecycle = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        rules,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _checkBucketName(name);
-
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('GET', name, 'lifecycle', options);
             params.successStatuses = [200];
             params.xmlResponse = true;
-            _context.next = 6;
+            _context.next = 7;
             return this.request(params);
 
-          case 6:
+          case 7:
             result = _context.sent;
             rules = result.data.Rule || null;
 
             if (rules) {
-              if (!isArray(rules)) {
+              if (!isArray_1.isArray(rules)) {
                 rules = [rules];
               }
 
@@ -2278,16 +1986,76 @@ proto.getBucketLifecycle = /*#__PURE__*/function () {
                   delete _.ID;
                 }
 
-                if (_.Tag && !isArray(_.Tag)) {
+                if (_.Tag && !isArray_1.isArray(_.Tag)) {
                   _.Tag = [_.Tag];
                 }
 
-                return formatObjKey(_, 'firstLowerCase');
+                return formatObjKey_1.formatObjKey(_, 'firstLowerCase');
               });
             }
 
             return _context.abrupt("return", {
               rules: rules,
+              res: result.res
+            });
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketLifecycle.apply(this, arguments);
+}
+
+exports.getBucketLifecycle = getBucketLifecycle;
+
+},{"../utils/checkBucketName":120,"../utils/formatObjKey":133,"../utils/isArray":142,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.map":343,"regenerator-runtime/runtime":434}],30:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketLocation = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function getBucketLocation(_x) {
+  return _getBucketLocation.apply(this, arguments);
+}
+
+function _getBucketLocation() {
+  _getBucketLocation = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            name = name || this.options.bucket;
+            params = this._bucketRequestParams('GET', name, 'location', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 8;
+            return this.request(params);
+
+          case 8:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              location: result.data,
               res: result.res
             });
 
@@ -2298,15 +2066,12 @@ proto.getBucketLifecycle = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _getBucketLocation.apply(this, arguments);
+}
 
-  function getBucketLifecycle(_x, _x2) {
-    return _getBucketLifecycle.apply(this, arguments);
-  }
+exports.getBucketLocation = getBucketLocation;
 
-  return getBucketLifecycle;
-}();
-
-},{"../utils/checkBucketName":48,"../utils/formatObjKey":56,"../utils/isArray":58,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.map":241,"regenerator-runtime/runtime":324}],14:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],31:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2317,37 +2082,256 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketLogging = void 0;
 
-var proto = exports;
-/**
- * getBucketVersioning
- * @param {String} bucketName - bucket name
- */
+var checkBucketName_1 = require("../utils/checkBucketName");
 
-proto.getBucketVersioning = /*#__PURE__*/function () {
-  var _getBucketVersioning = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName, options) {
-    var params, result, versionStatus;
+function getBucketLogging(_x) {
+  return _getBucketLogging.apply(this, arguments);
+}
+
+function _getBucketLogging() {
+  _getBucketLogging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        enable,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _checkBucketName(bucketName);
-
-            params = this._bucketRequestParams('GET', bucketName, 'versioning', options);
-            params.xmlResponse = true;
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('GET', name, 'logging', options);
             params.successStatuses = [200];
-            _context.next = 6;
+            params.xmlResponse = true;
+            _context.next = 7;
             return this.request(params);
 
-          case 6:
+          case 7:
             result = _context.sent;
-            versionStatus = result.data.Status;
+            enable = result.data.LoggingEnabled;
+            return _context.abrupt("return", {
+              enable: !!enable,
+              prefix: enable && enable.TargetPrefix || null,
+              res: result.res
+            });
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketLogging.apply(this, arguments);
+}
+
+exports.getBucketLogging = getBucketLogging;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],32:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.regexp.to-string");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketPolicy = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+/**
+ * getBucketPolicy
+ * @param {String} bucketName - bucket name
+ * @param {Object} options
+ */
+
+
+function getBucketPolicy(_x) {
+  return _getBucketPolicy.apply(this, arguments);
+}
+
+function _getBucketPolicy() {
+  _getBucketPolicy = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName) {
+    var options,
+        params,
+        result,
+        policy,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('GET', bucketName, 'policy', options);
+            _context.next = 5;
+            return this.request(params);
+
+          case 5:
+            result = _context.sent;
+            params.successStatuses = [200];
+            policy = null;
+
+            if (result.res.status === 200) {
+              policy = JSON.parse(result.res.data.toString());
+            }
+
+            return _context.abrupt("return", {
+              policy: policy,
+              status: result.status,
+              res: result.res
+            });
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketPolicy.apply(this, arguments);
+}
+
+exports.getBucketPolicy = getBucketPolicy;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356,"regenerator-runtime/runtime":434}],33:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketReferer = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var isArray_1 = require("../utils/isArray");
+
+function getBucketReferer(_x) {
+  return _getBucketReferer.apply(this, arguments);
+}
+
+function _getBucketReferer() {
+  _getBucketReferer = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        referers,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('GET', name, 'referer', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            referers = result.data.RefererList.Referer || null;
+
+            if (referers) {
+              if (!isArray_1.isArray(referers)) {
+                referers = [referers];
+              }
+            }
+
+            return _context.abrupt("return", {
+              allowEmpty: result.data.AllowEmptyReferer === 'true',
+              referers: referers,
+              res: result.res
+            });
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketReferer.apply(this, arguments);
+}
+
+exports.getBucketReferer = getBucketReferer;
+
+},{"../utils/checkBucketName":120,"../utils/isArray":142,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],34:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketRequestPayment = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+/**
+ * getBucketRequestPayment
+ * @param {String} bucketName - bucket name
+ * @param {Object} options
+ */
+
+
+function getBucketRequestPayment(_x) {
+  return _getBucketRequestPayment.apply(this, arguments);
+}
+
+function _getBucketRequestPayment() {
+  _getBucketRequestPayment = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('GET', bucketName, 'requestPayment', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
             return _context.abrupt("return", {
               status: result.status,
-              versionStatus: versionStatus,
-              res: result.res
+              res: result.res,
+              payer: result.data.Payer
             });
 
           case 9:
@@ -2357,15 +2341,12 @@ proto.getBucketVersioning = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _getBucketRequestPayment.apply(this, arguments);
+}
 
-  function getBucketVersioning(_x, _x2) {
-    return _getBucketVersioning.apply(this, arguments);
-  }
+exports.getBucketRequestPayment = getBucketRequestPayment;
 
-  return getBucketVersioning;
-}();
-
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],15:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],35:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2376,35 +2357,182 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketTags = void 0;
 
-var _require2 = require('../utils/isObject'),
-    isObject = _require2.isObject;
+var checkBucketName_1 = require("../utils/checkBucketName");
 
-var proto = exports;
+var formatTag_1 = require("../utils/formatTag");
+/**
+ * getBucketTags
+ * @param {String} name - bucket name
+ * @param {Object} options
+ * @return {Object}
+ */
 
-proto.getBucketWebsite = /*#__PURE__*/function () {
-  var _getBucketWebsite = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var params, result, routingRules;
+
+function getBucketTags(_x) {
+  return _getBucketTags.apply(this, arguments);
+}
+
+function _getBucketTags() {
+  _getBucketTags = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        Tagging,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _checkBucketName(name);
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('GET', name, 'tagging', options);
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 7;
+            return this.request(params);
 
+          case 7:
+            result = _context.sent;
+            Tagging = result.data;
+            return _context.abrupt("return", {
+              status: result.status,
+              res: result.res,
+              tag: formatTag_1.formatTag(Tagging)
+            });
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketTags.apply(this, arguments);
+}
+
+exports.getBucketTags = getBucketTags;
+
+},{"../utils/checkBucketName":120,"../utils/formatTag":135,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],36:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketVersioning = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+/**
+ * getBucketVersioning
+ * @param {String} bucketName - bucket name
+ */
+
+
+function getBucketVersioning(_x) {
+  return _getBucketVersioning.apply(this, arguments);
+}
+
+function _getBucketVersioning() {
+  _getBucketVersioning = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName) {
+    var options,
+        params,
+        result,
+        versionStatus,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('GET', bucketName, 'versioning', options);
+            params.xmlResponse = true;
+            params.successStatuses = [200];
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            versionStatus = result.data.Status;
+            return _context.abrupt("return", {
+              status: result.status,
+              versionStatus: versionStatus,
+              res: result.res
+            });
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getBucketVersioning.apply(this, arguments);
+}
+
+exports.getBucketVersioning = getBucketVersioning;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],37:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketWebsite = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var isObject_1 = require("../utils/isObject");
+
+function getBucketWebsite(_x) {
+  return _getBucketWebsite.apply(this, arguments);
+}
+
+function _getBucketWebsite() {
+  _getBucketWebsite = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        routingRules,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('GET', name, 'website', options);
             params.successStatuses = [200];
             params.xmlResponse = true;
-            _context.next = 6;
+            _context.next = 7;
             return this.request(params);
 
-          case 6:
+          case 7:
             result = _context.sent;
             routingRules = [];
 
             if (result.data.RoutingRules && result.data.RoutingRules.RoutingRule) {
-              if (isObject(result.data.RoutingRules.RoutingRule)) {
+              if (isObject_1.isObject(result.data.RoutingRules.RoutingRule)) {
                 routingRules = [result.data.RoutingRules.RoutingRule];
               } else {
                 routingRules = result.data.RoutingRules.RoutingRule;
@@ -2420,22 +2548,19 @@ proto.getBucketWebsite = /*#__PURE__*/function () {
               res: result.res
             });
 
-          case 10:
+          case 11:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
+  return _getBucketWebsite.apply(this, arguments);
+}
 
-  function getBucketWebsite(_x, _x2) {
-    return _getBucketWebsite.apply(this, arguments);
-  }
+exports.getBucketWebsite = getBucketWebsite;
 
-  return getBucketWebsite;
-}();
-
-},{"../utils/checkBucketName":48,"../utils/isObject":63,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],16:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/isObject":147,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],38:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2457,25 +2582,29 @@ var checkBucketName_1 = require("../utils/checkBucketName");
 
 var dataFix_1 = require("../utils/dataFix");
 
-function getBucketWorm(_x, _x2) {
+function getBucketWorm(_x) {
   return _getBucketWorm.apply(this, arguments);
 }
 
 function _getBucketWorm() {
-  _getBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var params, result;
+  _getBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
             checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('GET', name, 'worm', options);
             params.successStatuses = [200];
             params.xmlResponse = true;
-            _context.next = 6;
+            _context.next = 7;
             return this.request(params);
 
-          case 6:
+          case 7:
             result = _context.sent;
             dataFix_1.dataFix(result.data, {
               lowerFirst: true,
@@ -2488,7 +2617,7 @@ function _getBucketWorm() {
               status: result.status
             }));
 
-          case 9:
+          case 10:
           case "end":
             return _context.stop();
         }
@@ -2500,7 +2629,149 @@ function _getBucketWorm() {
 
 exports.getBucketWorm = getBucketWorm;
 
-},{"../utils/checkBucketName":48,"../utils/dataFix":52,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],17:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/dataFix":125,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],39:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var abortBucketWorm_1 = require("./abortBucketWorm");
+
+var completeBucketWorm_1 = require("./completeBucketWorm");
+
+var deleteBucket_1 = require("./deleteBucket");
+
+var deleteBucketCORS_1 = require("./deleteBucketCORS");
+
+var deleteBucketEncryption_1 = require("./deleteBucketEncryption");
+
+var deleteBucketInventory_1 = require("./deleteBucketInventory");
+
+var deleteBucketLifecycle_1 = require("./deleteBucketLifecycle");
+
+var deleteBucketLogging_1 = require("./deleteBucketLogging");
+
+var deleteBucketPolicy_1 = require("./deleteBucketPolicy");
+
+var deleteBucketReferer_1 = require("./deleteBucketReferer");
+
+var deleteBucketTags_1 = require("./deleteBucketTags");
+
+var deleteBucketWebsite_1 = require("./deleteBucketWebsite");
+
+var extendBucketWorm_1 = require("./extendBucketWorm");
+
+var getBucketACL_1 = require("./getBucketACL");
+
+var getBucketCORS_1 = require("./getBucketCORS");
+
+var getBucketEncryption_1 = require("./getBucketEncryption");
+
+var getBucketInfo_1 = require("./getBucketInfo");
+
+var getBucketInventory_1 = require("./getBucketInventory");
+
+var getBucketLifecycle_1 = require("./getBucketLifecycle");
+
+var getBucketLocation_1 = require("./getBucketLocation");
+
+var getBucketLogging_1 = require("./getBucketLogging");
+
+var getBucketPolicy_1 = require("./getBucketPolicy");
+
+var getBucketReferer_1 = require("./getBucketReferer");
+
+var getBucketRequestPayment_1 = require("./getBucketRequestPayment");
+
+var getBucketTags_1 = require("./getBucketTags");
+
+var getBucketVersioning_1 = require("./getBucketVersioning");
+
+var getBucketWebsite_1 = require("./getBucketWebsite");
+
+var getBucketWorm_1 = require("./getBucketWorm");
+
+var initiateBucketWorm_1 = require("./initiateBucketWorm");
+
+var listBucketInventory_1 = require("./listBucketInventory");
+
+var listBuckets_1 = require("./listBuckets");
+
+var putBucket_1 = require("./putBucket");
+
+var putBucketACL_1 = require("./putBucketACL");
+
+var putBucketCORS_1 = require("./putBucketCORS");
+
+var putBucketEncryption_1 = require("./putBucketEncryption");
+
+var putBucketInventory_1 = require("./putBucketInventory");
+
+var putBucketLifecycle_1 = require("./putBucketLifecycle");
+
+var putBucketLogging_1 = require("./putBucketLogging");
+
+var putBucketPolicy_1 = require("./putBucketPolicy");
+
+var putBucketReferer_1 = require("./putBucketReferer");
+
+var putBucketRequestPayment_1 = require("./putBucketRequestPayment");
+
+var putBucketTags_1 = require("./putBucketTags");
+
+var putBucketVersioning_1 = require("./putBucketVersioning");
+
+var putBucketWebsite_1 = require("./putBucketWebsite");
+
+exports.default = {
+  abortBucketWorm: abortBucketWorm_1.abortBucketWorm,
+  completeBucketWorm: completeBucketWorm_1.completeBucketWorm,
+  deleteBucket: deleteBucket_1.deleteBucket,
+  deleteBucketCORS: deleteBucketCORS_1.deleteBucketCORS,
+  deleteBucketEncryption: deleteBucketEncryption_1.deleteBucketEncryption,
+  deleteBucketInventory: deleteBucketInventory_1.deleteBucketInventory,
+  deleteBucketLifecycle: deleteBucketLifecycle_1.deleteBucketLifecycle,
+  deleteBucketLogging: deleteBucketLogging_1.deleteBucketLogging,
+  deleteBucketPolicy: deleteBucketPolicy_1.deleteBucketPolicy,
+  deleteBucketReferer: deleteBucketReferer_1.deleteBucketReferer,
+  deleteBucketTags: deleteBucketTags_1.deleteBucketTags,
+  deleteBucketWebsite: deleteBucketWebsite_1.deleteBucketWebsite,
+  extendBucketWorm: extendBucketWorm_1.extendBucketWorm,
+  getBucketACL: getBucketACL_1.getBucketACL,
+  getBucketCORS: getBucketCORS_1.getBucketCORS,
+  getBucketEncryption: getBucketEncryption_1.getBucketEncryption,
+  getBucketInfo: getBucketInfo_1.getBucketInfo,
+  getBucketInventory: getBucketInventory_1.getBucketInventory,
+  getBucketLifecycle: getBucketLifecycle_1.getBucketLifecycle,
+  getBucketLocation: getBucketLocation_1.getBucketLocation,
+  getBucketLogging: getBucketLogging_1.getBucketLogging,
+  getBucketPolicy: getBucketPolicy_1.getBucketPolicy,
+  getBucketReferer: getBucketReferer_1.getBucketReferer,
+  getBucketRequestPayment: getBucketRequestPayment_1.getBucketRequestPayment,
+  getBucketTags: getBucketTags_1.getBucketTags,
+  getBucketVersioning: getBucketVersioning_1.getBucketVersioning,
+  getBucketWebsite: getBucketWebsite_1.getBucketWebsite,
+  getBucketWorm: getBucketWorm_1.getBucketWorm,
+  initiateBucketWorm: initiateBucketWorm_1.initiateBucketWorm,
+  listBucketInventory: listBucketInventory_1.listBucketInventory,
+  listBuckets: listBuckets_1.listBuckets,
+  putBucket: putBucket_1.putBucket,
+  putBucketACL: putBucketACL_1.putBucketACL,
+  putBucketCORS: putBucketCORS_1.putBucketCORS,
+  putBucketEncryption: putBucketEncryption_1.putBucketEncryption,
+  putBucketInventory: putBucketInventory_1.putBucketInventory,
+  putBucketLifecycle: putBucketLifecycle_1.putBucketLifecycle,
+  putBucketLogging: putBucketLogging_1.putBucketLogging,
+  putBucketPolicy: putBucketPolicy_1.putBucketPolicy,
+  putBucketReferer: putBucketReferer_1.putBucketReferer,
+  putBucketRequestPayment: putBucketRequestPayment_1.putBucketRequestPayment,
+  putBucketTags: putBucketTags_1.putBucketTags,
+  putBucketVersioning: putBucketVersioning_1.putBucketVersioning,
+  putBucketWebsite: putBucketWebsite_1.putBucketWebsite
+};
+
+},{"./abortBucketWorm":11,"./completeBucketWorm":12,"./deleteBucket":13,"./deleteBucketCORS":14,"./deleteBucketEncryption":15,"./deleteBucketInventory":16,"./deleteBucketLifecycle":17,"./deleteBucketLogging":18,"./deleteBucketPolicy":19,"./deleteBucketReferer":20,"./deleteBucketTags":21,"./deleteBucketWebsite":22,"./extendBucketWorm":23,"./getBucketACL":24,"./getBucketCORS":25,"./getBucketEncryption":26,"./getBucketInfo":27,"./getBucketInventory":28,"./getBucketLifecycle":29,"./getBucketLocation":30,"./getBucketLogging":31,"./getBucketPolicy":32,"./getBucketReferer":33,"./getBucketRequestPayment":34,"./getBucketTags":35,"./getBucketVersioning":36,"./getBucketWebsite":37,"./getBucketWorm":38,"./initiateBucketWorm":40,"./listBucketInventory":41,"./listBuckets":42,"./putBucket":43,"./putBucketACL":44,"./putBucketCORS":45,"./putBucketEncryption":46,"./putBucketInventory":47,"./putBucketLifecycle":48,"./putBucketLogging":49,"./putBucketPolicy":50,"./putBucketReferer":51,"./putBucketRequestPayment":52,"./putBucketTags":53,"./putBucketVersioning":54,"./putBucketWebsite":55}],40:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2520,17 +2791,22 @@ var obj2xml_1 = require("../utils/obj2xml");
 
 var checkBucketName_1 = require("../utils/checkBucketName");
 
-function initiateBucketWorm(_x, _x2, _x3) {
+function initiateBucketWorm(_x, _x2) {
   return _initiateBucketWorm.apply(this, arguments);
 }
 
 function _initiateBucketWorm() {
-  _initiateBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, days, options) {
-    var params, paramlXMLObJ, result;
+  _initiateBucketWorm = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, days) {
+    var options,
+        params,
+        paramlXMLObJ,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
             checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('POST', name, 'worm', options);
             paramlXMLObJ = {
@@ -2543,10 +2819,10 @@ function _initiateBucketWorm() {
               headers: true
             });
             params.successStatuses = [200];
-            _context.next = 8;
+            _context.next = 9;
             return this.request(params);
 
-          case 8:
+          case 9:
             result = _context.sent;
             return _context.abrupt("return", {
               res: result.res,
@@ -2554,7 +2830,7 @@ function _initiateBucketWorm() {
               status: result.status
             });
 
-          case 10:
+          case 11:
           case "end":
             return _context.stop();
         }
@@ -2566,7 +2842,7 @@ function _initiateBucketWorm() {
 
 exports.initiateBucketWorm = initiateBucketWorm;
 
-},{"../utils/checkBucketName":48,"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],18:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],41:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2651,7 +2927,467 @@ function _listBucketInventory() {
 
 exports.listBucketInventory = listBucketInventory;
 
-},{"../utils/checkBucketName":48,"../utils/formatInventoryConfig":55,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],19:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/formatInventoryConfig":132,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],42:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.object.assign");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.listBuckets = void 0;
+
+var isArray_1 = require("../utils/isArray");
+
+var formatTag_1 = require("../utils/formatTag");
+
+function listBuckets() {
+  return _listBuckets.apply(this, arguments);
+}
+
+function _listBuckets() {
+  _listBuckets = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+    var query,
+        options,
+        _query$subres,
+        subres,
+        restParams,
+        key,
+        params,
+        result,
+        data,
+        buckets,
+        _args = arguments;
+
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            query = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            // prefix, marker, max-keys
+            _query$subres = query.subres, subres = _query$subres === void 0 ? {} : _query$subres;
+            restParams = {};
+
+            for (key in query) {
+              if (key !== 'subres') {
+                restParams[key] = query[key];
+              }
+            }
+
+            params = this._bucketRequestParams('GET', '', Object.assign(subres, options.subres), options);
+            params.xmlResponse = true;
+            params.query = restParams || {};
+            _context.next = 10;
+            return this.request(params);
+
+          case 10:
+            result = _context.sent;
+
+            if (!(result.status === 200)) {
+              _context.next = 16;
+              break;
+            }
+
+            data = result.data;
+            buckets = data.Buckets || null;
+
+            if (buckets) {
+              if (buckets.Bucket) {
+                buckets = buckets.Bucket;
+              }
+
+              if (!isArray_1.isArray(buckets)) {
+                buckets = [buckets];
+              }
+
+              buckets = buckets.map(function (item) {
+                return {
+                  name: item.Name,
+                  region: item.Location,
+                  creationDate: item.CreationDate,
+                  StorageClass: item.StorageClass,
+                  tag: formatTag_1.formatTag(item)
+                };
+              });
+            }
+
+            return _context.abrupt("return", {
+              buckets: buckets,
+              owner: {
+                id: data.Owner.ID,
+                displayName: data.Owner.DisplayName
+              },
+              isTruncated: data.IsTruncated === 'true',
+              nextMarker: data.NextMarker || null,
+              res: result.res
+            });
+
+          case 16:
+            _context.next = 18;
+            return this.requestError(result);
+
+          case 18:
+            throw _context.sent;
+
+          case 19:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _listBuckets.apply(this, arguments);
+}
+
+exports.listBuckets = listBuckets;
+
+},{"../utils/formatTag":135,"../utils/isArray":142,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.map":343,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],43:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucket = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var obj2xml_1 = require("../utils/obj2xml");
+
+function putBucket(_x) {
+  return _putBucket.apply(this, arguments);
+}
+
+function _putBucket() {
+  _putBucket = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        CreateBucketConfiguration,
+        paramlXMLObJ,
+        storageClass,
+        dataRedundancyType,
+        _options,
+        acl,
+        _options$headers,
+        headers,
+        result,
+        _args = arguments;
+
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            checkBucketName_1.checkBucketName(name, true);
+            options = options || {};
+            params = this._bucketRequestParams('PUT', name, '', options);
+            CreateBucketConfiguration = {};
+            paramlXMLObJ = {
+              CreateBucketConfiguration: CreateBucketConfiguration
+            };
+            storageClass = options.StorageClass || options.storageClass;
+            dataRedundancyType = options.DataRedundancyType || options.dataRedundancyType;
+
+            if (storageClass || dataRedundancyType) {
+              storageClass && (CreateBucketConfiguration.StorageClass = storageClass);
+              dataRedundancyType && (CreateBucketConfiguration.DataRedundancyType = dataRedundancyType);
+              params.mime = 'xml';
+              params.content = obj2xml_1.obj2xml(paramlXMLObJ, {
+                headers: true
+              });
+            }
+
+            _options = options, acl = _options.acl, _options$headers = _options.headers, headers = _options$headers === void 0 ? {} : _options$headers;
+            acl && (headers['x-oss-acl'] = acl);
+            params.headers = headers;
+            params.successStatuses = [200];
+            _context.next = 15;
+            return this.request(params);
+
+          case 15:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              bucket: result.headers.location && result.headers.location.substring(1) || null,
+              res: result.res
+            });
+
+          case 17:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucket.apply(this, arguments);
+}
+
+exports.putBucket = putBucket;
+
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],44:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketACL = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function putBucketACL(_x, _x2) {
+  return _putBucketACL.apply(this, arguments);
+}
+
+function _putBucketACL() {
+  _putBucketACL = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, acl) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('PUT', name, 'acl', options);
+            params.headers = {
+              'x-oss-acl': acl
+            };
+            params.successStatuses = [200];
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              bucket: result.headers.location && result.headers.location.substring(1) || null,
+              res: result.res
+            });
+
+          case 9:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketACL.apply(this, arguments);
+}
+
+exports.putBucketACL = putBucketACL;
+
+},{"../utils/checkBucketName":120,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],45:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketCORS = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var obj2xml_1 = require("../utils/obj2xml");
+
+function putBucketCORS(_x) {
+  return _putBucketCORS.apply(this, arguments);
+}
+
+function _putBucketCORS() {
+  _putBucketCORS = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var rules,
+        options,
+        params,
+        CORSRule,
+        parseXMLobj,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            rules = _args.length > 1 && _args[1] !== undefined ? _args[1] : [];
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            checkBucketName_1.checkBucketName(name);
+
+            if (rules.length) {
+              _context.next = 5;
+              break;
+            }
+
+            throw new Error('rules is required');
+
+          case 5:
+            rules.forEach(function (rule) {
+              if (!rule.allowedOrigin) {
+                throw new Error('allowedOrigin is required');
+              }
+
+              if (!rule.allowedMethod) {
+                throw new Error('allowedMethod is required');
+              }
+            });
+            params = this._bucketRequestParams('PUT', name, 'cors', options);
+            CORSRule = rules.map(function (_) {
+              var rule = {
+                AllowedOrigin: _.allowedOrigin,
+                AllowedMethod: _.allowedMethod,
+                AllowedHeader: _.allowedHeader || '',
+                ExposeHeader: _.exposeHeader || ''
+              };
+              if (_.maxAgeSeconds) rule.MaxAgeSeconds = _.maxAgeSeconds;
+              return rule;
+            });
+            parseXMLobj = {
+              CORSConfiguration: {
+                CORSRule: CORSRule
+              }
+            };
+            params.content = obj2xml_1.obj2xml(parseXMLobj, {
+              headers: true
+            });
+            params.mime = 'xml';
+            params.successStatuses = [200];
+            _context.next = 14;
+            return this.request(params);
+
+          case 14:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res
+            });
+
+          case 16:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketCORS.apply(this, arguments);
+}
+
+exports.putBucketCORS = putBucketCORS;
+
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.map":343,"core-js/modules/web.dom-collections.for-each":391,"regenerator-runtime/runtime":434}],46:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketEncryption = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var obj2xml_1 = require("../utils/obj2xml");
+/**
+ * putBucketEncryption
+ * @param {String} bucketName - bucket name
+ * @param {Object} options
+ */
+
+
+function putBucketEncryption(_x, _x2) {
+  return _putBucketEncryption.apply(this, arguments);
+}
+
+function _putBucketEncryption() {
+  _putBucketEncryption = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName, options) {
+    var params, paramXMLObj, paramXML, result;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('PUT', bucketName, 'encryption', options);
+            params.successStatuses = [200];
+            paramXMLObj = {
+              ServerSideEncryptionRule: {
+                ApplyServerSideEncryptionByDefault: {
+                  SSEAlgorithm: options.SSEAlgorithm
+                }
+              }
+            };
+
+            if (options.KMSMasterKeyID !== undefined) {
+              paramXMLObj.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.KMSMasterKeyID = options.KMSMasterKeyID;
+            }
+
+            paramXML = obj2xml_1.obj2xml(paramXMLObj, {
+              headers: true
+            });
+            params.mime = 'xml';
+            params.content = paramXML;
+            _context.next = 10;
+            return this.request(params);
+
+          case 10:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              status: result.status,
+              res: result.res
+            });
+
+          case 12:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketEncryption.apply(this, arguments);
+}
+
+exports.putBucketEncryption = putBucketEncryption;
+
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],47:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2769,7 +3505,7 @@ function _putBucketInventory() {
 
 exports.putBucketInventory = putBucketInventory;
 
-},{"../utils/checkBucketName":48,"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.concat":231,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],20:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.concat":332,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],48:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2786,47 +3522,53 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-/* eslint-disable no-use-before-define */
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketLifecycle = void 0;
 
-var _require2 = require('../utils/isArray'),
-    isArray = _require2.isArray;
+var checkBucketName_1 = require("../utils/checkBucketName");
 
-var _require3 = require('../utils/deepCopy'),
-    deepCopy = _require3.deepCopy;
+var isArray_1 = require("../utils/isArray");
 
-var _require4 = require('../utils/isObject'),
-    isObject = _require4.isObject;
+var deepCopy_1 = require("../utils/deepCopy");
 
-var _require5 = require('../utils/obj2xml'),
-    obj2xml = _require5.obj2xml;
+var isObject_1 = require("../utils/isObject");
 
-var _require6 = require('../utils/checkObjectTag'),
-    checkObjectTag = _require6.checkObjectTag;
+var obj2xml_1 = require("../utils/obj2xml");
 
-var _require7 = require('../utils/getStrBytesCount'),
-    getStrBytesCount = _require7.getStrBytesCount;
+var checkObjectTag_1 = require("../utils/checkObjectTag");
 
-var proto = exports;
+var getStrBytesCount_1 = require("../utils/getStrBytesCount");
 
-proto.putBucketLifecycle = /*#__PURE__*/function () {
-  var _putBucketLifecycle = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, rules, options) {
-    var params, Rule, paramXMLObj, paramXML, result;
+function putBucketLifecycle(_x, _x2) {
+  return _putBucketLifecycle.apply(this, arguments);
+}
+
+function _putBucketLifecycle() {
+  _putBucketLifecycle = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, rules) {
+    var options,
+        params,
+        Rule,
+        paramXMLObj,
+        paramXML,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _checkBucketName(name);
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            checkBucketName_1.checkBucketName(name);
 
-            if (isArray(rules)) {
-              _context.next = 3;
+            if (isArray_1.isArray(rules)) {
+              _context.next = 4;
               break;
             }
 
             throw new Error('rules must be Array');
 
-          case 3:
+          case 4:
             params = this._bucketRequestParams('PUT', name, 'lifecycle', options);
             Rule = [];
             paramXMLObj = {
@@ -2838,45 +3580,42 @@ proto.putBucketLifecycle = /*#__PURE__*/function () {
               defaultDaysAndDate2Expiration(_); // todo delete, 兼容旧版本
 
               checkRule(_);
+              var rule = deepCopy_1.deepCopy(_);
 
-              if (_.id) {
-                _.ID = _.id;
-                delete _.id;
+              if (rule.id) {
+                rule.ID = rule.id;
+                delete rule.id;
               }
 
-              Rule.push(_);
+              Rule.push(rule);
             });
-            paramXML = obj2xml(paramXMLObj, {
+            paramXML = obj2xml_1.obj2xml(paramXMLObj, {
               headers: true,
               firstUpperCase: true
             });
             params.content = paramXML;
             params.mime = 'xml';
             params.successStatuses = [200];
-            _context.next = 13;
+            _context.next = 14;
             return this.request(params);
 
-          case 13:
+          case 14:
             result = _context.sent;
             return _context.abrupt("return", {
               res: result.res
             });
 
-          case 15:
+          case 16:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
+  return _putBucketLifecycle.apply(this, arguments);
+}
 
-  function putBucketLifecycle(_x, _x2, _x3) {
-    return _putBucketLifecycle.apply(this, arguments);
-  }
-
-  return putBucketLifecycle;
-}(); // todo delete, 兼容旧版本
-
+exports.putBucketLifecycle = putBucketLifecycle; // todo delete, 兼容旧版本
 
 function defaultDaysAndDate2Expiration(obj) {
   if (obj.days) {
@@ -2906,21 +3645,21 @@ function checkDaysAndDate(obj, key) {
 }
 
 function handleCheckTag(tag) {
-  if (!isArray(tag) && !isObject(tag)) {
+  if (!isArray_1.isArray(tag) && !isObject_1.isObject(tag)) {
     throw new Error('tag must be Object or Array');
   }
 
-  tag = isObject(tag) ? [tag] : tag;
+  tag = isObject_1.isObject(tag) ? [tag] : tag;
   var tagObj = {};
-  var tagClone = deepCopy(tag);
+  var tagClone = deepCopy_1.deepCopy(tag);
   tagClone.forEach(function (v) {
     tagObj[v.key] = v.value;
   });
-  checkObjectTag(tagObj);
+  checkObjectTag_1.checkObjectTag(tagObj);
 }
 
 function checkRule(rule) {
-  if (rule.id && getStrBytesCount(rule.id) > 255) throw new Error('ID is composed of 255 bytes at most');
+  if (rule.id && getStrBytesCount_1.getStrBytesCount(rule.id) > 255) throw new Error('ID is composed of 255 bytes at most');
   if (rule.prefix === undefined) throw new Error('Rule must includes prefix');
   if (!['Enabled', 'Disabled'].includes(rule.status)) throw new Error('Status must be  Enabled or Disabled');
 
@@ -2954,7 +3693,412 @@ function checkRule(rule) {
   }
 }
 
-},{"../utils/checkBucketName":48,"../utils/checkObjectTag":49,"../utils/deepCopy":53,"../utils/getStrBytesCount":57,"../utils/isArray":58,"../utils/isObject":63,"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.includes":237,"core-js/modules/web.dom-collections.for-each":285,"regenerator-runtime/runtime":324}],21:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/checkObjectTag":122,"../utils/deepCopy":126,"../utils/getStrBytesCount":140,"../utils/isArray":142,"../utils/isObject":147,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.includes":338,"core-js/modules/web.dom-collections.for-each":391,"regenerator-runtime/runtime":434}],49:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketLogging = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var obj2xml_1 = require("../utils/obj2xml");
+
+function putBucketLogging(_x) {
+  return _putBucketLogging.apply(this, arguments);
+}
+
+function _putBucketLogging() {
+  _putBucketLogging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var prefix,
+        options,
+        params,
+        parseXMLObj,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            prefix = _args.length > 1 && _args[1] !== undefined ? _args[1] : '';
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('PUT', name, 'logging', options);
+            parseXMLObj = {
+              BucketLoggingStatus: {
+                LoggingEnabled: {
+                  TargetBucket: name,
+                  TargetPrefix: prefix
+                }
+              }
+            };
+            params.content = obj2xml_1.obj2xml(parseXMLObj, {
+              headers: true
+            });
+            params.mime = 'xml';
+            params.successStatuses = [200];
+            _context.next = 10;
+            return this.request(params);
+
+          case 10:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res
+            });
+
+          case 12:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketLogging.apply(this, arguments);
+}
+
+exports.putBucketLogging = putBucketLogging;
+
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],50:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketPolicy = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var policy2Str_1 = require("../utils/policy2Str");
+
+var isObject_1 = require("../utils/isObject");
+/**
+ * putBucketPolicy
+ * @param {String} bucketName - bucket name
+ * @param {Object} policy - bucket policy
+ * @param {Object} options
+ */
+
+
+function putBucketPolicy(_x, _x2) {
+  return _putBucketPolicy.apply(this, arguments);
+}
+
+function _putBucketPolicy() {
+  _putBucketPolicy = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName, policy) {
+    var options,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            checkBucketName_1.checkBucketName(bucketName);
+
+            if (isObject_1.isObject(policy)) {
+              _context.next = 4;
+              break;
+            }
+
+            throw new Error('policy is not Object');
+
+          case 4:
+            params = this._bucketRequestParams('PUT', bucketName, 'policy', options);
+            params.content = policy2Str_1.policy2Str(policy);
+            params.successStatuses = [200];
+            _context.next = 9;
+            return this.request(params);
+
+          case 9:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              status: result.status,
+              res: result.res
+            });
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketPolicy.apply(this, arguments);
+}
+
+exports.putBucketPolicy = putBucketPolicy;
+
+},{"../utils/checkBucketName":120,"../utils/isObject":147,"../utils/policy2Str":153,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],51:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketReferer = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var obj2xml_1 = require("../utils/obj2xml");
+
+function putBucketReferer(_x, _x2, _x3) {
+  return _putBucketReferer.apply(this, arguments);
+}
+
+function _putBucketReferer() {
+  _putBucketReferer = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, allowEmpty, referers) {
+    var options,
+        params,
+        parseXMLObj,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
+            checkBucketName_1.checkBucketName(name);
+            params = this._bucketRequestParams('PUT', name, 'referer', options);
+            parseXMLObj = {
+              RefererConfiguration: {
+                AllowEmptyReferer: allowEmpty ? 'true' : 'false',
+                RefererList: referers && referers.length > 0 ? {
+                  Referer: referers
+                } : ''
+              }
+            };
+            params.content = obj2xml_1.obj2xml(parseXMLObj);
+            params.mime = 'xml';
+            params.successStatuses = [200];
+            _context.next = 9;
+            return this.request(params);
+
+          case 9:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res
+            });
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketReferer.apply(this, arguments);
+}
+
+exports.putBucketReferer = putBucketReferer;
+
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],52:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.index-of");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketRequestPayment = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var obj2xml_1 = require("../utils/obj2xml");
+/**
+ * putBucketRequestPayment
+ * @param {String} bucketName
+ * @param {String} payer
+ * @param {Object} options
+ */
+
+
+var payerAll = ['BucketOwner', 'Requester'];
+
+function putBucketRequestPayment(_x, _x2) {
+  return _putBucketRequestPayment.apply(this, arguments);
+}
+
+function _putBucketRequestPayment() {
+  _putBucketRequestPayment = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucketName, payer) {
+    var options,
+        params,
+        paramXMLObj,
+        paramXML,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+
+            if (!(!payer || payerAll.indexOf(payer) < 0)) {
+              _context.next = 3;
+              break;
+            }
+
+            throw new Error('payer must be BucketOwner or Requester');
+
+          case 3:
+            checkBucketName_1.checkBucketName(bucketName);
+            params = this._bucketRequestParams('PUT', bucketName, 'requestPayment', options);
+            params.successStatuses = [200];
+            paramXMLObj = {
+              RequestPaymentConfiguration: {
+                Payer: payer
+              }
+            };
+            paramXML = obj2xml_1.obj2xml(paramXMLObj, {
+              headers: true
+            });
+            params.mime = 'xml';
+            params.content = paramXML;
+            _context.next = 12;
+            return this.request(params);
+
+          case 12:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              status: result.status,
+              res: result.res
+            });
+
+          case 14:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketRequestPayment.apply(this, arguments);
+}
+
+exports.putBucketRequestPayment = putBucketRequestPayment;
+
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.index-of":339,"regenerator-runtime/runtime":434}],53:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.object.keys");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketTags = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var obj2xml_1 = require("../utils/obj2xml");
+
+var checkBucketTag_1 = require("../utils/checkBucketTag");
+/**
+ * putBucketTags
+ * @param {String} name - bucket name
+ * @param {Object} tag -  bucket tag, eg: `{a: "1", b: "2"}`
+ * @param {Object} options
+ */
+
+
+function putBucketTags(_x, _x2) {
+  return _putBucketTags.apply(this, arguments);
+}
+
+function _putBucketTags() {
+  _putBucketTags = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, tag) {
+    var options,
+        params,
+        paramXMLObj,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            checkBucketName_1.checkBucketName(name);
+            checkBucketTag_1.checkBucketTag(tag);
+            params = this._bucketRequestParams('PUT', name, 'tagging', options);
+            params.successStatuses = [200];
+            tag = Object.keys(tag).map(function (key) {
+              return {
+                Key: key,
+                Value: tag[key]
+              };
+            });
+            paramXMLObj = {
+              Tagging: {
+                TagSet: {
+                  Tag: tag
+                }
+              }
+            };
+            params.mime = 'xml';
+            params.content = obj2xml_1.obj2xml(paramXMLObj);
+            _context.next = 11;
+            return this.request(params);
+
+          case 11:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res,
+              status: result.status
+            });
+
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putBucketTags.apply(this, arguments);
+}
+
+exports.putBucketTags = putBucketTags;
+
+},{"../utils/checkBucketName":120,"../utils/checkBucketTag":121,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.map":343,"core-js/modules/es.object.keys":351,"regenerator-runtime/runtime":434}],54:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -2967,13 +4111,14 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketVersioning = void 0;
 
-var _require2 = require('../utils/obj2xml'),
-    obj2xml = _require2.obj2xml;
+var obj2xml_1 = require("../utils/obj2xml");
 
-var proto = exports;
+var checkBucketName_1 = require("../utils/checkBucketName");
 /**
  * putBucketVersioning
  * @param {String} name - bucket name
@@ -2981,8 +4126,13 @@ var proto = exports;
  * @param {Object} options
  */
 
-proto.putBucketVersioning = /*#__PURE__*/function () {
-  var _putBucketVersioning = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, status) {
+
+function putBucketVersioning(_x, _x2) {
+  return _putBucketVersioning.apply(this, arguments);
+}
+
+function _putBucketVersioning() {
+  _putBucketVersioning = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, status) {
     var options,
         params,
         paramXMLObj,
@@ -2993,8 +4143,7 @@ proto.putBucketVersioning = /*#__PURE__*/function () {
         switch (_context.prev = _context.next) {
           case 0:
             options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
-
-            _checkBucketName(name);
+            checkBucketName_1.checkBucketName(name);
 
             if (['Enabled', 'Suspended'].includes(status)) {
               _context.next = 4;
@@ -3011,7 +4160,7 @@ proto.putBucketVersioning = /*#__PURE__*/function () {
               }
             };
             params.mime = 'xml';
-            params.content = obj2xml(paramXMLObj, {
+            params.content = obj2xml_1.obj2xml(paramXMLObj, {
               headers: true
             });
             _context.next = 10;
@@ -3031,15 +4180,12 @@ proto.putBucketVersioning = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _putBucketVersioning.apply(this, arguments);
+}
 
-  function putBucketVersioning(_x, _x2) {
-    return _putBucketVersioning.apply(this, arguments);
-  }
+exports.putBucketVersioning = putBucketVersioning;
 
-  return putBucketVersioning;
-}();
-
-},{"../utils/checkBucketName":48,"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.includes":237,"regenerator-runtime/runtime":324}],22:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.includes":338,"regenerator-runtime/runtime":434}],55:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -3050,19 +4196,23 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putBucketWebsite = void 0;
 
-var _require2 = require('../utils/obj2xml'),
-    obj2xml = _require2.obj2xml;
+var checkBucketName_1 = require("../utils/checkBucketName");
 
-var _require3 = require('../utils/isArray'),
-    isArray = _require3.isArray;
+var obj2xml_1 = require("../utils/obj2xml");
 
-var proto = exports;
+var isArray_1 = require("../utils/isArray");
 
-proto.putBucketWebsite = /*#__PURE__*/function () {
-  var _putBucketWebsite = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+function putBucketWebsite(_x) {
+  return _putBucketWebsite.apply(this, arguments);
+}
+
+function _putBucketWebsite() {
+  _putBucketWebsite = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
     var config,
         options,
         params,
@@ -3075,11 +4225,11 @@ proto.putBucketWebsite = /*#__PURE__*/function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            config = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-            options = _args.length > 2 ? _args[2] : undefined;
-
-            _checkBucketName(name);
-
+            config = _args.length > 1 && _args[1] !== undefined ? _args[1] : {
+              index: 'index.html'
+            };
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            checkBucketName_1.checkBucketName(name);
             params = this._bucketRequestParams('PUT', name, 'website', options);
             IndexDocument = {
               Suffix: config.index || 'index.html'
@@ -3110,7 +4260,7 @@ proto.putBucketWebsite = /*#__PURE__*/function () {
               break;
             }
 
-            if (isArray(config.routingRules)) {
+            if (isArray_1.isArray(config.routingRules)) {
               _context.next = 13;
               break;
             }
@@ -3123,7 +4273,7 @@ proto.putBucketWebsite = /*#__PURE__*/function () {
             };
 
           case 14:
-            website = obj2xml(website);
+            website = obj2xml_1.obj2xml(website);
             params.content = website;
             params.mime = 'xml';
             params.successStatuses = [200];
@@ -3143,62 +4293,215 @@ proto.putBucketWebsite = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _putBucketWebsite.apply(this, arguments);
+}
 
-  function putBucketWebsite(_x) {
-    return _putBucketWebsite.apply(this, arguments);
-  }
+exports.putBucketWebsite = putBucketWebsite;
 
-  return putBucketWebsite;
-}();
+},{"../utils/checkBucketName":120,"../utils/isArray":142,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],56:[function(require,module,exports){
+"use strict";
 
-},{"../utils/checkBucketName":48,"../utils/isArray":58,"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"regenerator-runtime/runtime":324}],23:[function(require,module,exports){
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._bucketRequestParams = void 0;
+
+function _bucketRequestParams(method, bucket, subres, options) {
+  return {
+    method: method,
+    bucket: bucket,
+    subres: subres,
+    timeout: options && options.timeout,
+    ctx: options && options.ctx
+  };
+}
+
+exports._bucketRequestParams = _bucketRequestParams;
+
+},{}],57:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.replace");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._checkUserAgent = void 0;
+
+function _checkUserAgent(ua) {
+  var userAgent = ua.replace(/\u03b1/, 'alpha').replace(/\u03b2/, 'beta');
+  return userAgent;
+}
+
+exports._checkUserAgent = _checkUserAgent;
+
+},{"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360}],58:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
-require("core-js/modules/es.array.for-each");
+require("core-js/modules/es.array.concat");
 
-require("core-js/modules/es.object.keys");
+require("core-js/modules/es.array.includes");
 
-require("core-js/modules/es.object.to-string");
+require("core-js/modules/es.array.index-of");
 
-require("core-js/modules/es.regexp.to-string");
+require("core-js/modules/es.object.assign");
 
-require("core-js/modules/web.dom-collections.for-each");
+require("core-js/modules/es.string.includes");
 
-exports.encodeCallback = function encodeCallback(reqParams, options) {
-  reqParams.headers = reqParams.headers || {};
-
-  if (!Object.prototype.hasOwnProperty.call(reqParams.headers, 'x-oss-callback')) {
-    if (options.callback) {
-      var json = {
-        callbackUrl: encodeURI(options.callback.url),
-        callbackBody: options.callback.body
-      };
-
-      if (options.callback.host) {
-        json.callbackHost = options.callback.host;
-      }
-
-      if (options.callback.contentType) {
-        json.callbackBodyType = options.callback.contentType;
-      }
-
-      var callback = Buffer.from(JSON.stringify(json)).toString('base64');
-      reqParams.headers['x-oss-callback'] = callback;
-
-      if (options.callback.customValue) {
-        var callbackVar = {};
-        Object.keys(options.callback.customValue).forEach(function (key) {
-          callbackVar["x:".concat(key)] = options.callback.customValue[key];
-        });
-        reqParams.headers['x-oss-callback-var'] = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
-      }
-    }
-  }
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
 };
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._createRequest = void 0;
+
+var crypto_1 = __importDefault(require('./../../../shims/crypto/crypto.js'));
+
+var mime_1 = __importDefault(require("mime"));
+
+var dateformat_1 = __importDefault(require("dateformat"));
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var path_1 = __importDefault(require("path"));
+
+var debug_1 = __importDefault(require("debug"));
+
+var getResource_1 = require("../utils/getResource");
+
+var authorization_1 = require("../utils/authorization");
+
+var getReqUrl_1 = require("../utils/getReqUrl");
+
+var encoder_1 = require("../utils/encoder");
+
+var isIP_1 = require("../utils/isIP");
+
+var initOptions_1 = require("./initOptions");
+
+var _debug = debug_1.default('ali-oss');
+
+function getHeader(headers, name) {
+  return headers[name] || headers[name.toLowerCase()];
+}
+
+function delHeader(headers, name) {
+  delete headers[name];
+  delete headers[name.toLowerCase()];
+}
+
+function _createRequest(params) {
+  var date = new Date();
+
+  if (this.options.amendTimeSkewed) {
+    date = +new Date() + this.options.amendTimeSkewed;
+  }
+
+  var headers = {
+    'x-oss-date': dateformat_1.default(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
+    'x-oss-user-agent': this.userAgent
+  };
+
+  if (this.userAgent.includes('nodejs')) {
+    headers['User-Agent'] = this.userAgent;
+  }
+
+  if (this.options.isRequestPay) {
+    Object.assign(headers, {
+      'x-oss-request-payer': 'requester'
+    });
+  }
+
+  if (this.options.stsToken) {
+    headers['x-oss-security-token'] = this.options.stsToken;
+  }
+
+  copy_to_1.default(params.headers).to(headers);
+
+  if (!getHeader(headers, 'Content-Type')) {
+    if (params.mime && params.mime.indexOf('/') > 0) {
+      headers['Content-Type'] = params.mime;
+    } else {
+      headers['Content-Type'] = mime_1.default.getType(params.mime || path_1.default.extname(params.object || ''));
+    }
+  }
+
+  if (!getHeader(headers, 'Content-Type')) {
+    delHeader(headers, 'Content-Type');
+  }
+
+  if (params.content) {
+    if (!headers['Content-Md5']) {
+      headers['Content-Md5'] = crypto_1.default.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
+    }
+
+    if (!headers['Content-Length']) {
+      headers['Content-Length'] = params.content.length;
+    }
+  }
+
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+  for (var k in headers) {
+    if (headers[k] && hasOwnProperty.call(headers, k)) {
+      headers[k] = encoder_1.encoder(String(headers[k]), this.options.headerEncoding);
+    }
+  }
+
+  var authResource = getResource_1.getResource(params, this.options.headerEncoding);
+  headers.authorization = authorization_1.authorization(params.method, authResource, params.subres, headers, this.options, this.options.headerEncoding);
+  var url = getReqUrl_1.getReqUrl(params, this.options);
+
+  if (isIP_1.isIP(this.options.endpoint.hostname)) {
+    var _this$options = this.options,
+        region = _this$options.region,
+        internal = _this$options.internal,
+        secure = _this$options.secure;
+    var hostInfo = initOptions_1.setRegion(region, internal, secure);
+    headers.host = "".concat(params.bucket, ".").concat(hostInfo.host);
+  }
+
+  _debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
+
+  var timeout = params.timeout || this.options.timeout;
+  var reqParams = {
+    method: params.method,
+    content: params.content,
+    stream: params.stream,
+    headers: headers,
+    timeout: timeout,
+    writeStream: params.writeStream,
+    customResponse: params.customResponse,
+    ctx: params.ctx || this.ctx
+  };
+
+  if (this.agent) {
+    reqParams.agent = this.agent;
+  }
+
+  if (this.httpsAgent) {
+    reqParams.httpsAgent = this.httpsAgent;
+  }
+
+  reqParams.enableProxy = !!this.options.enableProxy;
+  reqParams.proxy = this.options.proxy ? this.options.proxy : null;
+  return {
+    url: url,
+    params: reqParams
+  };
+}
+
+exports._createRequest = _createRequest;
+
 }).call(this,require("buffer").Buffer)
-},{"buffer":98,"core-js/modules/es.array.for-each":235,"core-js/modules/es.object.keys":248,"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.to-string":252,"core-js/modules/web.dom-collections.for-each":285}],24:[function(require,module,exports){
+},{"../utils/authorization":118,"../utils/encoder":130,"../utils/getReqUrl":137,"../utils/getResource":138,"../utils/isIP":146,"./../../../shims/crypto/crypto.js":444,"./initOptions":66,"buffer":196,"copy-to":199,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.includes":338,"core-js/modules/es.array.index-of":339,"core-js/modules/es.object.assign":349,"core-js/modules/es.string.includes":357,"dateformat":393,"debug":448,"mime":411,"path":414}],59:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
@@ -3220,11 +4523,11 @@ var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getReqUrl = void 0;
-
-var copy_to_1 = __importDefault(require("copy-to"));
+exports._getReqUrl = void 0;
 
 var url_1 = __importDefault(require("url"));
+
+var copy_to_1 = __importDefault(require("copy-to"));
 
 var merge_descriptors_1 = __importDefault(require("merge-descriptors"));
 
@@ -3232,12 +4535,22 @@ var is_type_of_1 = __importDefault(require("is-type-of"));
 
 var isIP_1 = require("../utils/isIP");
 
-function getReqUrl(params) {
+var checkValid_1 = require("../utils/checkValid");
+
+var escapeName_1 = require("../utils/escapeName");
+
+function _getReqUrl(params) {
+  var _escape = this._escape || escapeName_1.escapeName;
+
   var ep = {};
-  var isCname = this.options.cname;
+  checkValid_1.checkValidEndpoint(this.options.endpoint);
   copy_to_1.default(this.options.endpoint).to(ep);
 
-  if (params.bucket && !isCname && !isIP_1.isIP(ep.hostname) && !this.options.sldEnable) {
+  var _isIP = isIP_1.isIP(ep.hostname);
+
+  var isCname = this.options.cname;
+
+  if (params.bucket && !isCname && !_isIP && !this.options.sldEnable) {
     ep.host = "".concat(params.bucket, ".").concat(ep.host);
   }
 
@@ -3249,7 +4562,7 @@ function getReqUrl(params) {
 
   if (params.object) {
     // Preserve '/' in result url
-    resourcePath += this._escape(params.object).replace(/\+/g, '%2B');
+    resourcePath += _escape(params.object).replace(/\+/g, '%2B');
   }
 
   ep.pathname = resourcePath;
@@ -3279,9 +4592,237 @@ function getReqUrl(params) {
   return url_1.default.format(ep);
 }
 
-exports.getReqUrl = getReqUrl;
+exports._getReqUrl = _getReqUrl;
 
-},{"../utils/isIP":62,"copy-to":101,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.for-each":235,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285,"is-type-of":381,"merge-descriptors":298,"url":330}],25:[function(require,module,exports){
+},{"../utils/checkValid":123,"../utils/escapeName":131,"../utils/isIP":146,"copy-to":199,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.for-each":336,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360,"core-js/modules/web.dom-collections.for-each":391,"is-type-of":449,"merge-descriptors":409,"url":452}],60:[function(require,module,exports){
+(function (process){
+"use strict";
+
+require("core-js/modules/es.symbol");
+
+require("core-js/modules/es.symbol.description");
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.array.slice");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._getUserAgent = void 0;
+
+var platform_1 = __importDefault(require("platform"));
+
+var version_1 = require("../../browser/version");
+
+var _checkUserAgent_1 = require("./_checkUserAgent");
+
+function _getUserAgent() {
+  var agent = process && process.browser ? 'js' : 'nodejs';
+  var sdk = "aliyun-sdk-".concat(agent, "/").concat(version_1.version);
+  var plat = platform_1.default.description;
+
+  if (!plat && process) {
+    plat = "Node.js ".concat(process.version.slice(1), " on ").concat(process.platform, " ").concat(process.arch);
+  }
+
+  return _checkUserAgent_1._checkUserAgent("".concat(sdk, " ").concat(plat));
+}
+
+exports._getUserAgent = _getUserAgent;
+
+}).call(this,require('_process'))
+},{"../../browser/version":10,"./_checkUserAgent":57,"_process":451,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.slice":344,"core-js/modules/es.symbol":366,"core-js/modules/es.symbol.description":365,"platform":450}],61:[function(require,module,exports){
+"use strict";
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._objectRequestParams = void 0;
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var objectName_1 = require("../utils/objectName");
+
+function _objectRequestParams(method, name) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var bucket = this.options.bucket;
+
+  if (!bucket) {
+    throw new Error('Please create a bucket first');
+  }
+
+  name = objectName_1.objectName(name);
+  var params = {
+    object: name,
+    bucket: bucket,
+    method: method,
+    subres: options && options.subres,
+    timeout: options && options.timeout,
+    ctx: options && options.ctx
+  };
+
+  if (options.headers) {
+    params.headers = {};
+    copy_to_1.default(options.headers).to(params.headers);
+  }
+
+  return params;
+}
+
+exports._objectRequestParams = _objectRequestParams;
+
+},{"../utils/objectName":150,"copy-to":199}],62:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._stop = void 0;
+
+function _stop() {
+  this.options.cancelFlag = true;
+}
+
+exports._stop = _stop;
+
+},{}],63:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.cancel = void 0;
+
+var abortMultipartUpload_1 = require("../multipart/abortMultipartUpload");
+
+var isArray_1 = require("../utils/isArray");
+/**
+ * cancel operation, now can use with multipartUpload
+ * @param {Object} abort
+ *        {String} anort.name object key
+ *        {String} anort.uploadId upload id
+ *        {String} anort.options timeout
+ */
+
+
+function cancel(abort) {
+  this.options.cancelFlag = true;
+
+  if (isArray_1.isArray(this.multipartUploadStreams)) {
+    this.multipartUploadStreams.forEach(function (_) {
+      if (_.destroyed === false) {
+        var err = {
+          name: 'cancel',
+          message: 'multipartUpload cancel'
+        };
+
+        _.destroy(err);
+      }
+    });
+  }
+
+  this.multipartUploadStreams = [];
+
+  if (abort) {
+    abortMultipartUpload_1.abortMultipartUpload.call(this, abort.name, abort.uploadId, abort.options);
+  }
+}
+
+exports.cancel = cancel;
+
+},{"../multipart/abortMultipartUpload":76,"../utils/isArray":142,"core-js/modules/es.array.for-each":336,"core-js/modules/es.function.name":347,"core-js/modules/web.dom-collections.for-each":391}],64:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucket = void 0;
+
+function getBucket() {
+  return this.options.bucket;
+}
+
+exports.getBucket = getBucket;
+
+},{}],65:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _bucketRequestParams_1 = require("./_bucketRequestParams");
+
+var _checkUserAgent_1 = require("./_checkUserAgent");
+
+var _createRequest_1 = require("./_createRequest");
+
+var _getReqUrl_1 = require("./_getReqUrl");
+
+var _getUserAgent_1 = require("./_getUserAgent");
+
+var _objectRequestParams_1 = require("./_objectRequestParams");
+
+var _stop_1 = require("./_stop");
+
+var cancel_1 = require("./cancel");
+
+var getBucket_1 = require("./getBucket");
+
+var isCancel_1 = require("./isCancel");
+
+var request_1 = require("./request");
+
+var requestError_1 = require("./requestError");
+
+var resetCancelFlag_1 = require("./resetCancelFlag");
+
+var setBucket_1 = require("./setBucket");
+
+var setSLDEnabled_1 = require("./setSLDEnabled");
+
+var signature_1 = require("./signature");
+
+exports.default = {
+  _bucketRequestParams: _bucketRequestParams_1._bucketRequestParams,
+  _checkUserAgent: _checkUserAgent_1._checkUserAgent,
+  _createRequest: _createRequest_1._createRequest,
+  _getReqUrl: _getReqUrl_1._getReqUrl,
+  _getUserAgent: _getUserAgent_1._getUserAgent,
+  _objectRequestParams: _objectRequestParams_1._objectRequestParams,
+  _stop: _stop_1._stop,
+  cancel: cancel_1.cancel,
+  getBucket: getBucket_1.getBucket,
+  isCancel: isCancel_1.isCancel,
+  request: request_1.request,
+  requestError: requestError_1.requestError,
+  resetCancelFlag: resetCancelFlag_1.resetCancelFlag,
+  setBucket: setBucket_1.setBucket,
+  useBucket: setBucket_1.setBucket,
+  setSLDEnabled: setSLDEnabled_1.setSLDEnabled,
+  signature: signature_1.signature
+};
+
+},{"./_bucketRequestParams":56,"./_checkUserAgent":57,"./_createRequest":58,"./_getReqUrl":59,"./_getUserAgent":60,"./_objectRequestParams":61,"./_stop":62,"./cancel":63,"./getBucket":64,"./isCancel":67,"./request":68,"./requestError":69,"./resetCancelFlag":70,"./setBucket":71,"./setSLDEnabled":72,"./signature":73}],66:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
@@ -3290,21 +4831,31 @@ require("core-js/modules/es.object.assign");
 
 require("core-js/modules/es.string.trim");
 
-var ms = require('humanize-ms');
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-var urlutil = require('url');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initOptions = exports.setRegion = void 0;
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+var humanize_ms_1 = __importDefault(require("humanize-ms"));
 
-var _require2 = require('../utils/setRegion'),
-    setRegion = _require2.setRegion;
+var url_1 = __importDefault(require("url"));
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var checkValid_1 = require("../utils/checkValid");
 
 function setEndpoint(endpoint, secure) {
-  var url = urlutil.parse(endpoint);
+  checkValid_1.checkValidEndpoint(endpoint);
+  var url = url_1.default.parse(endpoint);
 
   if (!url.protocol) {
-    url = urlutil.parse("http".concat(secure ? 's' : '', "://").concat(endpoint));
+    url = url_1.default.parse("http".concat(secure ? 's' : '', "://").concat(endpoint));
   }
 
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
@@ -3314,33 +4865,62 @@ function setEndpoint(endpoint, secure) {
   return url;
 }
 
-module.exports = function (options) {
+function setRegion(region, internal, secure) {
+  checkValid_1.checkValidRegion(region);
+  var protocol = secure ? 'https://' : 'http://';
+  var suffix = internal ? '-internal.aliyuncs.com' : '.aliyuncs.com';
+  var prefix = 'vpc100-oss-cn-'; // aliyun VPC region: https://help.aliyun.com/knowledge_detail/38740.html
+
+  if (region.substr(0, prefix.length) === prefix) {
+    suffix = '.aliyuncs.com';
+  }
+
+  return url_1.default.parse(protocol + region + suffix);
+}
+
+exports.setRegion = setRegion; // check local web protocol,if https secure default set true , if http secure default set false
+
+function isHttpsWebProtocol() {
+  var secure = false;
+
+  try {
+    secure = location && location.protocol === 'https:'; // eslint-disable-next-line no-empty
+  } catch (error) {}
+
+  return secure;
+}
+
+function initOptions(options) {
   if (!options || !options.accessKeyId || !options.accessKeySecret) {
     throw new Error('require accessKeyId, accessKeySecret');
   }
 
   if (options.bucket) {
-    _checkBucketName(options.bucket);
+    checkBucketName_1.checkBucketName(options.bucket);
   }
 
   var opts = Object.assign({
     region: 'oss-cn-hangzhou',
     internal: false,
-    secure: false,
+    secure: isHttpsWebProtocol(),
     timeout: 60000,
     bucket: null,
     endpoint: null,
     cname: false,
     isRequestPay: false,
     sldEnable: false,
+    useFetch: false,
     headerEncoding: 'utf-8',
-    refreshSTSToken: null
+    amendTimeSkewed: 0,
+    refreshSTSToken: null,
+    enableProxy: false,
+    proxy: null
   }, options);
   opts.accessKeyId = opts.accessKeyId.trim();
   opts.accessKeySecret = opts.accessKeySecret.trim();
 
   if (opts.timeout) {
-    opts.timeout = ms(opts.timeout);
+    opts.timeout = humanize_ms_1.default(opts.timeout);
   }
 
   if (opts.endpoint) {
@@ -3353,17 +4933,525 @@ module.exports = function (options) {
 
   opts.inited = true;
   return opts;
-};
+}
 
-},{"../utils/checkBucketName":48,"../utils/setRegion":65,"core-js/modules/es.array.concat":231,"core-js/modules/es.object.assign":246,"core-js/modules/es.string.trim":258,"humanize-ms":292,"url":330}],26:[function(require,module,exports){
+exports.initOptions = initOptions;
+
+},{"../utils/checkBucketName":120,"../utils/checkValid":123,"core-js/modules/es.array.concat":332,"core-js/modules/es.object.assign":349,"core-js/modules/es.string.trim":364,"humanize-ms":397,"url":452}],67:[function(require,module,exports){
 "use strict";
 
-var merge = require('merge-descriptors');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.isCancel = void 0;
 
-var proto = exports;
-merge(proto, require('./processObjectSave'));
+function isCancel() {
+  return this.options.cancelFlag;
+}
 
-},{"./processObjectSave":27,"merge-descriptors":298}],27:[function(require,module,exports){
+exports.isCancel = isCancel;
+
+},{}],68:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.includes");
+
+require("core-js/modules/es.array.index-of");
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.includes");
+
+require("core-js/modules/es.string.split");
+
+require("core-js/modules/es.string.starts-with");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.request = exports._request = void 0;
+
+var debug_1 = __importDefault(require("debug"));
+
+var parseXML_1 = require("../utils/parseXML");
+
+var retry_1 = require("../utils/retry");
+
+var setSTSToken_1 = require("../utils/setSTSToken");
+
+var debug = debug_1.default('ali-oss');
+/**
+ * request oss server
+ * @param {Object} params
+ *   - {String} object
+ *   - {String} bucket
+ *   - {Object} [headers]
+ *   - {Object} [query]
+ *   - {Buffer} [content]
+ *   - {Stream} [stream]
+ *   - {Stream} [writeStream]
+ *   - {String} [mime]
+ *   - {Boolean} [xmlResponse]
+ *   - {Boolean} [customResponse]
+ *   - {Number} [timeout]
+ *   - {Object} [ctx] request context, default is `this.ctx`
+ *
+ * @api private
+ */
+
+function _request(_x) {
+  return _request2.apply(this, arguments);
+}
+
+function _request2() {
+  _request2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(params) {
+    var reqParams, isNode, result, reqErr, useStream, err;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            reqParams = this._createRequest(params);
+            isNode = this._getUserAgent().includes('nodejs');
+
+            if (!isNode && !this.options.useFetch) {
+              reqParams.params.mode = 'disable-fetch';
+            }
+
+            useStream = !!params.stream;
+            _context.prev = 4;
+            _context.next = 7;
+            return this.urllib.request(reqParams.url, reqParams.params);
+
+          case 7:
+            result = _context.sent;
+            debug('response %s %s, got %s, headers: %j', params.method, reqParams.url, result.status, result.headers);
+            _context.next = 14;
+            break;
+
+          case 11:
+            _context.prev = 11;
+            _context.t0 = _context["catch"](4);
+            reqErr = _context.t0;
+
+          case 14:
+            if (!(result && params.successStatuses && params.successStatuses.indexOf(result.status) === -1)) {
+              _context.next = 26;
+              break;
+            }
+
+            _context.next = 17;
+            return this.requestError(result);
+
+          case 17:
+            err = _context.sent;
+
+            if (!(err.code === 'RequestTimeTooSkewed' && !useStream && !isNode)) {
+              _context.next = 23;
+              break;
+            }
+
+            this.options.amendTimeSkewed = +new Date(err.serverTime) - new Date().valueOf();
+            _context.next = 22;
+            return this.request(params);
+
+          case 22:
+            return _context.abrupt("return", _context.sent);
+
+          case 23:
+            err.params = params;
+            _context.next = 30;
+            break;
+
+          case 26:
+            if (!reqErr) {
+              _context.next = 30;
+              break;
+            }
+
+            _context.next = 29;
+            return this.requestError(reqErr);
+
+          case 29:
+            err = _context.sent;
+
+          case 30:
+            if (!err) {
+              _context.next = 42;
+              break;
+            }
+
+            if (!(this.sendToWormhole && params.customResponse && result && result.res)) {
+              _context.next = 34;
+              break;
+            }
+
+            _context.next = 34;
+            return this.sendToWormhole(result.res);
+
+          case 34:
+            if (!(err.status === 403 && err.code === 'InvalidAccessKeyId' && this.options.accessKeyId.startsWith('STS.') && typeof this.options.refreshSTSToken === 'function')) {
+              _context.next = 40;
+              break;
+            }
+
+            if (!(!this._setOptions || Date.now() - this._setOptions > 10000)) {
+              _context.next = 40;
+              break;
+            }
+
+            this._setOptions = Date.now();
+            _context.next = 39;
+            return setSTSToken_1.setSTSToken.call(this);
+
+          case 39:
+            return _context.abrupt("return", this.request(params));
+
+          case 40:
+            if (err.name === 'ResponseTimeoutError') {
+              err.message = "".concat(err.message.split(',')[0], ", please increase the timeout or use multipartDownload.");
+            }
+
+            throw err;
+
+          case 42:
+            if (!params.xmlResponse) {
+              _context.next = 46;
+              break;
+            }
+
+            _context.next = 45;
+            return parseXML_1.parseXML(result.data);
+
+          case 45:
+            result.data = _context.sent;
+
+          case 46:
+            return _context.abrupt("return", result);
+
+          case 47:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this, [[4, 11]]);
+  }));
+  return _request2.apply(this, arguments);
+}
+
+exports._request = _request;
+
+function request(_x2) {
+  return _request3.apply(this, arguments);
+}
+
+function _request3() {
+  _request3 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(params) {
+    var _this = this;
+
+    var isAvailableStream, requestfn;
+    return _regenerator.default.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            isAvailableStream = params.stream ? params.stream.readable : true;
+
+            if (!(this.options.retryMax && isAvailableStream)) {
+              _context2.next = 8;
+              break;
+            }
+
+            requestfn = retry_1.retry(_request.bind(this), this.options.retryMax, {
+              errorHandler: function errorHandler(err) {
+                var _errHandle = function _errHandle(_err) {
+                  var statusErr = [-1, -2].includes(_err.status);
+
+                  var requestErrorRetryHandle = _this.options.requestErrorRetryHandle || function () {
+                    return true;
+                  };
+
+                  return statusErr && requestErrorRetryHandle(_err);
+                };
+
+                if (_errHandle(err)) return true;
+                return false;
+              }
+            });
+            _context2.next = 5;
+            return requestfn(params);
+
+          case 5:
+            return _context2.abrupt("return", _context2.sent);
+
+          case 8:
+            _context2.next = 10;
+            return _request.bind(this)(params);
+
+          case 10:
+            return _context2.abrupt("return", _context2.sent);
+
+          case 11:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2, this);
+  }));
+  return _request3.apply(this, arguments);
+}
+
+exports.request = request;
+
+},{"../utils/parseXML":152,"../utils/retry":154,"../utils/setSTSToken":155,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.includes":338,"core-js/modules/es.array.index-of":339,"core-js/modules/es.function.name":347,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.includes":357,"core-js/modules/es.string.split":362,"core-js/modules/es.string.starts-with":363,"debug":448,"regenerator-runtime/runtime":434}],69:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.function.name");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.requestError = void 0;
+
+var debug_1 = __importDefault(require("debug"));
+
+var parseXML_1 = require("../utils/parseXML");
+
+var debug = debug_1.default('ali-oss');
+
+function requestError(_x) {
+  return _requestError.apply(this, arguments);
+}
+
+function _requestError() {
+  _requestError = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(result) {
+    var err, message, info, msg;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            err = null;
+
+            if (!(result.name === 'ResponseTimeoutError')) {
+              _context.next = 6;
+              break;
+            }
+
+            err = new Error(result.message);
+            err.name = result.name;
+            _context.next = 37;
+            break;
+
+          case 6:
+            if (!(!result.data || !result.data.length)) {
+              _context.next = 10;
+              break;
+            }
+
+            if (result.status === -1 || result.status === -2) {
+              // -1 is net error , -2 is timeout
+              err = new Error(result.message);
+              err.name = result.name;
+              err.status = result.status;
+              err.code = result.name;
+            } else {
+              // HEAD not exists resource
+              if (result.status === 404) {
+                err = new Error('Object not exists');
+                err.name = 'NoSuchKeyError';
+                err.status = 404;
+                err.code = 'NoSuchKey';
+              } else if (result.status === 412) {
+                err = new Error('Pre condition failed');
+                err.name = 'PreconditionFailedError';
+                err.status = 412;
+                err.code = 'PreconditionFailed';
+              } else {
+                err = new Error("Unknow error, status: ".concat(result.status));
+                err.name = 'UnknowError';
+                err.status = result.status;
+              }
+
+              err.requestId = result.headers['x-oss-request-id'];
+              err.host = '';
+            }
+
+            _context.next = 37;
+            break;
+
+          case 10:
+            message = String(result.data);
+            debug('request response error data: %s', message);
+            _context.prev = 12;
+            _context.next = 15;
+            return parseXML_1.parseXML(message);
+
+          case 15:
+            _context.t0 = _context.sent;
+
+            if (_context.t0) {
+              _context.next = 18;
+              break;
+            }
+
+            _context.t0 = {};
+
+          case 18:
+            info = _context.t0;
+            _context.next = 28;
+            break;
+
+          case 21:
+            _context.prev = 21;
+            _context.t1 = _context["catch"](12);
+            debug(message);
+            _context.t1.message += "\nraw xml: ".concat(message);
+            _context.t1.status = result.status;
+            _context.t1.requestId = result.headers['x-oss-request-id'];
+            return _context.abrupt("return", _context.t1);
+
+          case 28:
+            msg = info.Message || "unknow request error, status: ".concat(result.status);
+
+            if (info.Condition) {
+              msg += " (condition: ".concat(info.Condition, ")");
+            }
+
+            err = new Error(msg);
+            err.name = info.Code ? "".concat(info.Code, "Error") : 'UnknowError';
+            err.status = result.status;
+            err.code = info.Code;
+            err.requestId = info.RequestId;
+            err.hostId = info.HostId;
+            err.serverTime = info.ServerTime;
+
+          case 37:
+            debug('generate error %j', err);
+            return _context.abrupt("return", err);
+
+          case 39:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, null, [[12, 21]]);
+  }));
+  return _requestError.apply(this, arguments);
+}
+
+exports.requestError = requestError;
+
+},{"../utils/parseXML":152,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.function.name":347,"debug":448,"regenerator-runtime/runtime":434}],70:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.resetCancelFlag = void 0;
+
+function resetCancelFlag() {
+  this.options.cancelFlag = false;
+}
+
+exports.resetCancelFlag = resetCancelFlag;
+
+},{}],71:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.setBucket = void 0;
+
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+function setBucket(name) {
+  checkBucketName_1.checkBucketName(name);
+  this.options.bucket = name;
+  return this;
+}
+
+exports.setBucket = setBucket;
+
+},{"../utils/checkBucketName":120}],72:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.setSLDEnabled = void 0;
+
+function setSLDEnabled(enable) {
+  this.options.sldEnable = !!enable;
+  return this;
+}
+
+exports.setSLDEnabled = setSLDEnabled;
+
+},{}],73:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.signature = void 0;
+
+var signUtils_1 = require("../utils/signUtils");
+/**
+ * get OSS signature
+ * @param {String} stringToSign
+ * @return {String} the signature
+ */
+
+
+function signature(stringToSign) {
+  return signUtils_1.computeSignature(this.options.accessKeySecret, stringToSign, this.options.headerEncoding);
+}
+
+exports.signature = signature;
+
+},{"../utils/signUtils":156}],74:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var processObjectSave_1 = require("./processObjectSave");
+
+exports.default = {
+  processObjectSave: processObjectSave_1.processObjectSave
+};
+
+},{"./processObjectSave":75}],75:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -3376,19 +5464,31 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-/* eslint-disable no-use-before-define */
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-var querystring = require('querystring');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.processObjectSave = void 0;
 
-var _require2 = require('js-base64'),
-    str2Base64 = _require2.Base64.encode;
+var querystring_1 = __importDefault(require("querystring"));
 
-var proto = exports;
+var js_base64_1 = require("js-base64");
 
-proto.processObjectSave = /*#__PURE__*/function () {
-  var _processObjectSave = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(sourceObject, targetObject, process, targetBucket) {
+var checkBucketName_1 = require("../utils/checkBucketName");
+
+var objectName_1 = require("../utils/objectName");
+
+function processObjectSave(_x, _x2, _x3, _x4) {
+  return _processObjectSave.apply(this, arguments);
+}
+
+function _processObjectSave() {
+  _processObjectSave = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(sourceObject, targetObject, process, targetBucket) {
     var params, bucketParam, content, result;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
@@ -3397,21 +5497,21 @@ proto.processObjectSave = /*#__PURE__*/function () {
             checkArgs(sourceObject, 'sourceObject');
             checkArgs(targetObject, 'targetObject');
             checkArgs(process, 'process');
-            targetObject = this._objectName(targetObject);
+            targetObject = objectName_1.objectName(targetObject);
 
             if (targetBucket) {
-              _checkBucketName(targetBucket);
+              checkBucketName_1.checkBucketName(targetBucket);
             }
 
             params = this._objectRequestParams('POST', sourceObject, {
               subres: 'x-oss-process'
             });
-            bucketParam = targetBucket ? ",b_".concat(str2Base64(targetBucket)) : '';
-            targetObject = str2Base64(targetObject);
+            bucketParam = targetBucket ? ",b_".concat(js_base64_1.Base64.encode(targetBucket)) : '';
+            targetObject = js_base64_1.Base64.encode(targetObject);
             content = {
               'x-oss-process': "".concat(process, "|sys/saveas,o_").concat(targetObject).concat(bucketParam)
             };
-            params.content = querystring.stringify(content);
+            params.content = querystring_1.default.stringify(content);
             _context.next = 12;
             return this.request(params);
 
@@ -3429,13 +5529,10 @@ proto.processObjectSave = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _processObjectSave.apply(this, arguments);
+}
 
-  function processObjectSave(_x, _x2, _x3, _x4) {
-    return _processObjectSave.apply(this, arguments);
-  }
-
-  return processObjectSave;
-}();
+exports.processObjectSave = processObjectSave;
 
 function checkArgs(name, key) {
   if (!name) {
@@ -3447,7 +5544,87 @@ function checkArgs(name, key) {
   }
 }
 
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.concat":231,"js-base64":297,"querystring":310,"regenerator-runtime/runtime":324}],28:[function(require,module,exports){
+},{"../utils/checkBucketName":120,"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.concat":332,"js-base64":408,"querystring":420,"regenerator-runtime/runtime":434}],76:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.abortMultipartUpload = void 0;
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var _stop_1 = require("../client/_stop");
+/**
+ * Abort a multipart upload transaction
+ * @param {String} name the object name
+ * @param {String} uploadId the upload id
+ * @param {Object} options
+ */
+
+
+function abortMultipartUpload(_x, _x2) {
+  return _abortMultipartUpload.apply(this, arguments);
+}
+
+function _abortMultipartUpload() {
+  _abortMultipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, uploadId) {
+    var options,
+        opt,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+
+            _stop_1._stop.call(this);
+
+            opt = {};
+            copy_to_1.default(options).to(opt);
+            opt.subres = {
+              uploadId: uploadId
+            };
+            params = this._objectRequestParams('DELETE', name, opt);
+            params.successStatuses = [204];
+            _context.next = 9;
+            return this.request(params);
+
+          case 9:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res
+            });
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _abortMultipartUpload.apply(this, arguments);
+}
+
+exports.abortMultipartUpload = abortMultipartUpload;
+
+},{"../client/_stop":62,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"copy-to":199,"regenerator-runtime/runtime":434}],77:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -3470,14 +5647,456 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var copy = require('copy-to');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.completeMultipartUpload = void 0;
 
-var callback = require('./callback');
+var deepCopy_1 = require("../utils/deepCopy");
 
-var _require = require('./utils/deepCopy'),
-    deepCopy = _require.deepCopy;
+var encodeCallback_1 = require("../utils/encodeCallback");
 
-var proto = exports;
+var obj2xml_1 = require("../utils/obj2xml");
+/**
+ * Complete a multipart upload transaction
+ * @param {String} name the object name
+ * @param {String} uploadId the upload id
+ * @param {Array} parts the uploaded parts, each in the structure:
+ *        {Integer} number partNo
+ *        {String} etag  part etag  uploadPartCopy result.res.header.etag
+ * @param {Object} options
+ *         {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
+ *         {String} options.callback.url  the OSS sends a callback request to this URL
+ *         {String} options.callback.host  The host header value for initiating callback requests
+ *         {String} options.callback.body  The value of the request body when a callback is initiated
+ *         {String} options.callback.contentType  The Content-Type of the callback requests initiatiated
+ *         {Object} options.callback.customValue  Custom parameters are a map of key-values, e.g:
+ *                   customValue = {
+ *                     key1: 'value1',
+ *                     key2: 'value2'
+ *                   }
+ */
+
+
+function completeMultipartUpload(_x, _x2, _x3) {
+  return _completeMultipartUpload.apply(this, arguments);
+}
+
+function _completeMultipartUpload() {
+  _completeMultipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, uploadId, parts) {
+    var options,
+        completeParts,
+        xmlParamObj,
+        opt,
+        params,
+        result,
+        ret,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
+            completeParts = parts.concat().sort(function (a, b) {
+              return a.number - b.number;
+            }).filter(function (item, index, arr) {
+              return !index || item.number !== arr[index - 1].number;
+            });
+            xmlParamObj = {
+              CompleteMultipartUpload: {
+                Part: completeParts.map(function (_) {
+                  return {
+                    PartNumber: _.number,
+                    ETag: _.etag
+                  };
+                })
+              }
+            };
+            opt = deepCopy_1.deepCopy(options);
+            if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
+            opt.subres = {
+              uploadId: uploadId
+            };
+            params = this._objectRequestParams('POST', name, opt);
+            encodeCallback_1.encodeCallback(params, opt);
+            params.mime = 'xml';
+            params.content = obj2xml_1.obj2xml(xmlParamObj, {
+              headers: true
+            });
+
+            if (!(params.headers && params.headers['x-oss-callback'])) {
+              params.xmlResponse = true;
+            }
+
+            params.successStatuses = [200];
+            _context.next = 14;
+            return this.request(params);
+
+          case 14:
+            result = _context.sent;
+            ret = {
+              res: result.res,
+              bucket: params.bucket,
+              name: name,
+              etag: result.res.headers.etag
+            };
+
+            if (params.headers && params.headers['x-oss-callback']) {
+              ret.data = JSON.parse(result.data.toString());
+            }
+
+            return _context.abrupt("return", ret);
+
+          case 18:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _completeMultipartUpload.apply(this, arguments);
+}
+
+exports.completeMultipartUpload = completeMultipartUpload;
+
+},{"../utils/deepCopy":126,"../utils/encodeCallback":129,"../utils/obj2xml":149,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.filter":334,"core-js/modules/es.array.map":343,"core-js/modules/es.array.sort":345,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356,"regenerator-runtime/runtime":434}],78:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.handleUploadPart = void 0;
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var isStreamLike = function isStreamLike(stream) {
+  return stream && stream.pipe;
+};
+/**
+ * Upload a part in a multipart upload transaction
+ * @param {String} name the object name
+ * @param {String} uploadId the upload id
+ * @param {Integer} partNo the part number
+ * @param {Object} data the body data
+ * @param {Object} options
+ */
+
+
+function handleUploadPart(_x, _x2, _x3, _x4) {
+  return _handleUploadPart.apply(this, arguments);
+}
+
+function _handleUploadPart() {
+  _handleUploadPart = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, uploadId, partNo, data) {
+    var options,
+        opt,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 4 && _args[4] !== undefined ? _args[4] : {};
+            opt = {};
+            copy_to_1.default(options, false).to(opt);
+            opt.headers = opt.headers || {};
+            opt.headers['Content-Length'] = data.size;
+            delete opt.headers['x-oss-server-side-encryption'];
+            opt.subres = {
+              partNumber: partNo,
+              uploadId: uploadId
+            };
+            params = this._objectRequestParams('PUT', name, opt);
+            params.mime = opt.mime;
+
+            if (isStreamLike(data.stream)) {
+              params.stream = data.stream;
+            } else {
+              params.content = data.stream;
+            }
+
+            params.successStatuses = [200];
+            _context.next = 13;
+            return this.request(params);
+
+          case 13:
+            result = _context.sent;
+
+            if (result.res.headers.etag) {
+              _context.next = 16;
+              break;
+            }
+
+            throw new Error('Please set the etag of expose-headers in OSS \n https://help.aliyun.com/document_detail/32069.html');
+
+          case 16:
+            data.stream = null;
+            params.stream = null;
+            return _context.abrupt("return", {
+              name: name,
+              etag: result.res.headers.etag,
+              res: result.res
+            });
+
+          case 19:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _handleUploadPart.apply(this, arguments);
+}
+
+exports.handleUploadPart = handleUploadPart;
+
+},{"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"copy-to":199,"regenerator-runtime/runtime":434}],79:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var completeMultipartUpload_1 = require("./completeMultipartUpload");
+
+var initMultipartUpload_1 = require("./initMultipartUpload");
+
+var listUploads_1 = require("./listUploads");
+
+var listParts_1 = require("./listParts");
+
+var abortMultipartUpload_1 = require("./abortMultipartUpload");
+
+var uploadPart_1 = require("./uploadPart");
+
+var handleUploadPart_1 = require("./handleUploadPart");
+
+var resumeMultipart_1 = require("./resumeMultipart");
+
+var multipartUploadCopy_1 = require("./multipartUploadCopy");
+
+var uploadPartCopy_1 = require("./uploadPartCopy");
+
+exports.default = {
+  completeMultipartUpload: completeMultipartUpload_1.completeMultipartUpload,
+  initMultipartUpload: initMultipartUpload_1.initMultipartUpload,
+  listUploads: listUploads_1.listUploads,
+  listParts: listParts_1.listParts,
+  abortMultipartUpload: abortMultipartUpload_1.abortMultipartUpload,
+  uploadPart: uploadPart_1.uploadPart,
+  handleUploadPart: handleUploadPart_1.handleUploadPart,
+  resumeMultipart: resumeMultipart_1.resumeMultipart,
+  multipartUploadCopy: multipartUploadCopy_1.multipartUploadCopy,
+  uploadPartCopy: uploadPartCopy_1.uploadPartCopy
+};
+
+},{"./abortMultipartUpload":76,"./completeMultipartUpload":77,"./handleUploadPart":78,"./initMultipartUpload":80,"./listParts":81,"./listUploads":82,"./multipartUploadCopy":83,"./resumeMultipart":84,"./uploadPart":85,"./uploadPartCopy":86}],80:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initMultipartUpload = void 0;
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var convertMetaToHeaders_1 = require("../utils/convertMetaToHeaders");
+
+function initMultipartUpload(_x) {
+  return _initMultipartUpload.apply(this, arguments);
+}
+
+function _initMultipartUpload() {
+  _initMultipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        opt,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            opt = {};
+            copy_to_1.default(options).to(opt);
+            opt.headers = opt.headers || {};
+            convertMetaToHeaders_1.convertMetaToHeaders(options.meta, opt.headers);
+            opt.subres = 'uploads';
+            params = this._objectRequestParams('POST', name, opt);
+            params.mime = options.mime;
+            params.xmlResponse = true;
+            params.successStatuses = [200];
+            _context.next = 12;
+            return this.request(params);
+
+          case 12:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res,
+              bucket: result.data.Bucket,
+              name: result.data.Key,
+              uploadId: result.data.UploadId
+            });
+
+          case 14:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _initMultipartUpload.apply(this, arguments);
+}
+
+exports.initMultipartUpload = initMultipartUpload;
+
+},{"../utils/convertMetaToHeaders":124,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"copy-to":199,"regenerator-runtime/runtime":434}],81:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.listParts = void 0;
+
+var copy_to_1 = __importDefault(require("copy-to"));
+/**
+ * List the done uploadPart parts
+ * @param {String} name object name
+ * @param {String} uploadId multipart upload id
+ * @param {Object} query
+ * {Number} query.max-parts The maximum part number in the response of the OSS. Default value: 1000
+ * {Number} query.part-number-marker Starting position of a specific list.
+ * {String} query.encoding-type Specify the encoding of the returned content and the encoding type.
+ * @param {Object} options
+ * @return {Object} result
+ */
+
+
+function listParts(_x, _x2) {
+  return _listParts.apply(this, arguments);
+}
+
+function _listParts() {
+  _listParts = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, uploadId) {
+    var query,
+        options,
+        opt,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            query = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            options = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
+            opt = {};
+            copy_to_1.default(options).to(opt);
+            opt.subres = {
+              uploadId: uploadId
+            };
+            params = this._objectRequestParams('GET', name, opt);
+            params.query = query;
+            params.xmlResponse = true;
+            params.successStatuses = [200];
+            _context.next = 11;
+            return this.request(params);
+
+          case 11:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res,
+              uploadId: result.data.UploadId,
+              bucket: result.data.Bucket,
+              name: result.data.Key,
+              partNumberMarker: result.data.PartNumberMarker,
+              nextPartNumberMarker: result.data.NextPartNumberMarker,
+              maxParts: result.data.MaxParts,
+              isTruncated: result.data.IsTruncated,
+              parts: result.data.Part || []
+            });
+
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _listParts.apply(this, arguments);
+}
+
+exports.listParts = listParts;
+
+},{"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"copy-to":199,"regenerator-runtime/runtime":434}],82:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.map");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.listUploads = void 0;
+
+var copy_to_1 = __importDefault(require("copy-to"));
 /**
  * List the on-going multipart uploads
  * https://help.aliyun.com/document_detail/31997.html
@@ -3485,25 +6104,37 @@ var proto = exports;
  * @return {Array} the multipart uploads
  */
 
-proto.listUploads = /*#__PURE__*/function () {
-  var _listUploads = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(query, options) {
-    var opt, params, result, uploads;
+
+function listUploads() {
+  return _listUploads.apply(this, arguments);
+}
+
+function _listUploads() {
+  _listUploads = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+    var query,
+        options,
+        opt,
+        params,
+        result,
+        uploads,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            options = options || {};
+            query = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
             opt = {};
-            copy(options).to(opt);
+            copy_to_1.default(options).to(opt);
             opt.subres = 'uploads';
             params = this._objectRequestParams('GET', '', opt);
             params.query = query;
             params.xmlResponse = true;
             params.successStatuses = [200];
-            _context.next = 10;
+            _context.next = 11;
             return this.request(params);
 
-          case 10:
+          case 11:
             result = _context.sent;
             uploads = result.data.Upload || [];
 
@@ -3527,182 +6158,806 @@ proto.listUploads = /*#__PURE__*/function () {
               isTruncated: result.data.IsTruncated === 'true'
             });
 
-          case 15:
+          case 16:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
+  return _listUploads.apply(this, arguments);
+}
 
-  function listUploads(_x, _x2) {
-    return _listUploads.apply(this, arguments);
-  }
+exports.listUploads = listUploads;
 
-  return listUploads;
-}();
+},{"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"copy-to":199,"core-js/modules/es.array.map":343,"regenerator-runtime/runtime":434}],83:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.array.filter");
+
+require("core-js/modules/es.array.from");
+
+require("core-js/modules/es.array.index-of");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.promise");
+
+require("core-js/modules/es.regexp.to-string");
+
+require("core-js/modules/es.string.iterator");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._divideMultipartCopyParts = exports._resumeMultipartCopy = exports.multipartUploadCopy = void 0;
+/* eslint-disable require-atomic-updates */
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var debug_1 = __importDefault(require("debug"));
+
+var _getObjectMeta_1 = require("../utils/_getObjectMeta");
+
+var initMultipartUpload_1 = require("./initMultipartUpload");
+
+var getPartSize_1 = require("../utils/getPartSize");
+
+var _makeCancelEvent_1 = require("../utils/_makeCancelEvent");
+
+var _makeAbortEvent_1 = require("../utils/_makeAbortEvent");
+
+var _parallel_1 = require("../utils/_parallel");
+
+var uploadPartCopy_1 = require("./uploadPartCopy");
+
+var completeMultipartUpload_1 = require("./completeMultipartUpload");
+
+var debug = debug_1.default('ali-oss:multipart-copy');
 /**
- * List the done uploadPart parts
- * @param {String} name object name
- * @param {String} uploadId multipart upload id
- * @param {Object} query
- * {Number} query.max-parts The maximum part number in the response of the OSS. Default value: 1000
- * {Number} query.part-number-marker Starting position of a specific list.
- * {String} query.encoding-type Specify the encoding of the returned content and the encoding type.
+ * @param {String} name copy object name
+ * @param {Object} sourceData
+ *        {String} sourceData.sourceKey  the source object name
+ *        {String} sourceData.sourceBucketName  the source bucket name
+ *        {Number} sourceData.startOffset  data copy start byte offset, e.g: 0
+ *        {Number} sourceData.endOffset  data copy end byte offset, e.g: 102400
  * @param {Object} options
- * @return {Object} result
+ *        {Number} options.partSize
  */
 
+function multipartUploadCopy(_x2, _x3) {
+  return _multipartUploadCopy.apply(this, arguments);
+}
 
-proto.listParts = /*#__PURE__*/function () {
-  var _listParts = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(name, uploadId, query, options) {
-    var opt, params, result;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
+function _multipartUploadCopy() {
+  _multipartUploadCopy = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, sourceData) {
+    var options,
+        _options$versionId,
+        versionId,
+        metaOpt,
+        objectMeta,
+        fileSize,
+        minPartSize,
+        copySize,
+        init,
+        uploadId,
+        partSize,
+        checkpoint,
+        _args = arguments;
+
+    return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
-        switch (_context2.prev = _context2.next) {
+        switch (_context.prev = _context.next) {
           case 0:
-            options = options || {};
-            opt = {};
-            copy(options).to(opt);
-            opt.subres = {
-              uploadId: uploadId
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            this.resetCancelFlag();
+            _options$versionId = options.versionId, versionId = _options$versionId === void 0 ? null : _options$versionId;
+            metaOpt = {
+              versionId: versionId
             };
-            params = this._objectRequestParams('GET', name, opt);
-            params.query = query;
-            params.xmlResponse = true;
-            params.successStatuses = [200];
-            _context2.next = 10;
-            return this.request(params);
+            _context.next = 6;
+            return _getObjectMeta_1._getObjectMeta.call(this, sourceData.sourceBucketName, sourceData.sourceKey, metaOpt);
 
-          case 10:
-            result = _context2.sent;
-            return _context2.abrupt("return", {
-              res: result.res,
-              uploadId: result.data.UploadId,
-              bucket: result.data.Bucket,
-              name: result.data.Key,
-              partNumberMarker: result.data.PartNumberMarker,
-              nextPartNumberMarker: result.data.NextPartNumberMarker,
-              maxParts: result.data.MaxParts,
-              isTruncated: result.data.IsTruncated,
-              parts: result.data.Part || []
-            });
+          case 6:
+            objectMeta = _context.sent;
+            fileSize = objectMeta.res.headers['content-length'];
+            sourceData.startOffset = sourceData.startOffset || 0;
+            sourceData.endOffset = sourceData.endOffset || fileSize;
 
-          case 12:
+            if (!(options.checkpoint && options.checkpoint.uploadId)) {
+              _context.next = 14;
+              break;
+            }
+
+            _context.next = 13;
+            return _resumeMultipartCopy.call(this, options.checkpoint, sourceData, options);
+
+          case 13:
+            return _context.abrupt("return", _context.sent);
+
+          case 14:
+            minPartSize = 100 * 1024;
+            copySize = sourceData.endOffset - sourceData.startOffset;
+
+            if (!(copySize < minPartSize)) {
+              _context.next = 18;
+              break;
+            }
+
+            throw new Error("copySize must not be smaller than ".concat(minPartSize));
+
+          case 18:
+            if (!(options.partSize && options.partSize < minPartSize)) {
+              _context.next = 20;
+              break;
+            }
+
+            throw new Error("partSize must not be smaller than ".concat(minPartSize));
+
+          case 20:
+            _context.next = 22;
+            return initMultipartUpload_1.initMultipartUpload.call(this, name, options);
+
+          case 22:
+            init = _context.sent;
+            uploadId = init.uploadId;
+            partSize = getPartSize_1.getPartSize(copySize, options.partSize);
+            checkpoint = {
+              name: name,
+              copySize: copySize,
+              partSize: partSize,
+              uploadId: uploadId,
+              doneParts: []
+            };
+
+            if (!(options && options.progress)) {
+              _context.next = 29;
+              break;
+            }
+
+            _context.next = 29;
+            return options.progress(0, checkpoint, init.res);
+
+          case 29:
+            _context.next = 31;
+            return _resumeMultipartCopy.call(this, checkpoint, sourceData, options);
+
+          case 31:
+            return _context.abrupt("return", _context.sent);
+
+          case 32:
           case "end":
-            return _context2.stop();
+            return _context.stop();
         }
       }
-    }, _callee2, this);
+    }, _callee, this);
   }));
+  return _multipartUploadCopy.apply(this, arguments);
+}
 
-  function listParts(_x3, _x4, _x5, _x6) {
-    return _listParts.apply(this, arguments);
-  }
-
-  return listParts;
-}();
-/**
- * Abort a multipart upload transaction
- * @param {String} name the object name
- * @param {String} uploadId the upload id
+exports.multipartUploadCopy = multipartUploadCopy;
+/*
+ * Resume multipart copy from checkpoint. The checkpoint will be
+ * updated after each successful part copy.
+ * @param {Object} checkpoint the checkpoint
  * @param {Object} options
  */
 
+function _resumeMultipartCopy(_x4, _x5, _x6) {
+  return _resumeMultipartCopy2.apply(this, arguments);
+}
 
-proto.abortMultipartUpload = /*#__PURE__*/function () {
-  var _abortMultipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3(name, uploadId, options) {
-    var opt, params, result;
+function _resumeMultipartCopy2() {
+  _resumeMultipartCopy2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3(checkpoint, sourceData, options) {
+    var _this = this;
+
+    var _options$versionId2, versionId, metaOpt, copySize, partSize, uploadId, doneParts, name, partOffs, numParts, uploadPartCopyOptions, uploadPartJob, all, done, todo, defaultParallel, parallel, i, errors, err;
+
     return _regenerator.default.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            this._stop();
+            if (!this.isCancel()) {
+              _context3.next = 2;
+              break;
+            }
 
-            options = options || {};
-            opt = {};
-            copy(options).to(opt);
-            opt.subres = {
-              uploadId: uploadId
+            throw _makeCancelEvent_1._makeCancelEvent();
+
+          case 2:
+            _options$versionId2 = options.versionId, versionId = _options$versionId2 === void 0 ? null : _options$versionId2;
+            metaOpt = {
+              versionId: versionId
             };
-            params = this._objectRequestParams('DELETE', name, opt);
-            params.successStatuses = [204];
-            _context3.next = 9;
-            return this.request(params);
+            copySize = checkpoint.copySize, partSize = checkpoint.partSize, uploadId = checkpoint.uploadId, doneParts = checkpoint.doneParts, name = checkpoint.name;
+            partOffs = _divideMultipartCopyParts(copySize, partSize, sourceData.startOffset);
+            numParts = partOffs.length;
+            uploadPartCopyOptions = {
+              headers: {}
+            };
 
-          case 9:
-            result = _context3.sent;
-            return _context3.abrupt("return", {
-              res: result.res
+            if (options.copyheaders) {
+              copy_to_1.default(options.copyheaders).to(uploadPartCopyOptions.headers);
+            }
+
+            if (versionId) {
+              copy_to_1.default(metaOpt).to(uploadPartCopyOptions);
+            }
+
+            uploadPartJob = function uploadPartJob(partNo, source) {
+              // eslint-disable-next-line no-async-promise-executor
+              return new Promise( /*#__PURE__*/function () {
+                var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(resolve, reject) {
+                  var pi, range, result;
+                  return _regenerator.default.wrap(function _callee2$(_context2) {
+                    while (1) {
+                      switch (_context2.prev = _context2.next) {
+                        case 0:
+                          _context2.prev = 0;
+
+                          if (_this.isCancel()) {
+                            _context2.next = 14;
+                            break;
+                          }
+
+                          pi = partOffs[partNo - 1];
+                          range = "".concat(pi.start, "-").concat(pi.end - 1);
+                          _context2.next = 6;
+                          return uploadPartCopy_1.uploadPartCopy.call(_this, name, uploadId, partNo, range, source, uploadPartCopyOptions);
+
+                        case 6:
+                          result = _context2.sent;
+
+                          if (_this.isCancel()) {
+                            _context2.next = 14;
+                            break;
+                          }
+
+                          debug("content-range ".concat(result.res.headers['content-range']));
+                          doneParts.push({
+                            number: partNo,
+                            etag: result.res.headers.etag
+                          });
+                          checkpoint.doneParts = doneParts;
+
+                          if (!(options && options.progress)) {
+                            _context2.next = 14;
+                            break;
+                          }
+
+                          _context2.next = 14;
+                          return options.progress(doneParts.length / numParts, checkpoint, result.res);
+
+                        case 14:
+                          resolve();
+                          _context2.next = 22;
+                          break;
+
+                        case 17:
+                          _context2.prev = 17;
+                          _context2.t0 = _context2["catch"](0);
+                          _context2.t0.partNum = partNo;
+
+                          if (_context2.t0.status === 404) {
+                            reject(_makeAbortEvent_1._makeAbortEvent());
+                          }
+
+                          reject(_context2.t0);
+
+                        case 22:
+                        case "end":
+                          return _context2.stop();
+                      }
+                    }
+                  }, _callee2, null, [[0, 17]]);
+                }));
+
+                return function (_x7, _x8) {
+                  return _ref.apply(this, arguments);
+                };
+              }());
+            };
+
+            all = Array.from(new Array(numParts), function (_x, i) {
+              return i + 1;
             });
+            done = doneParts.map(function (p) {
+              return p.number;
+            });
+            todo = all.filter(function (p) {
+              return done.indexOf(p) < 0;
+            });
+            defaultParallel = 5;
+            parallel = options.parallel || defaultParallel;
 
-          case 11:
+            if (!(this.checkBrowserAndVersion('Internet Explorer', '10') || parallel === 1)) {
+              _context3.next = 28;
+              break;
+            }
+
+            i = 0;
+
+          case 18:
+            if (!(i < todo.length)) {
+              _context3.next = 26;
+              break;
+            }
+
+            if (!this.isCancel()) {
+              _context3.next = 21;
+              break;
+            }
+
+            throw _makeCancelEvent_1._makeCancelEvent();
+
+          case 21:
+            _context3.next = 23;
+            return uploadPartJob(todo[i], sourceData);
+
+          case 23:
+            i++;
+            _context3.next = 18;
+            break;
+
+          case 26:
+            _context3.next = 37;
+            break;
+
+          case 28:
+            _context3.next = 30;
+            return _parallel_1._parallel.call(this, todo, parallel, uploadPartJob, sourceData);
+
+          case 30:
+            errors = _context3.sent;
+
+            if (!this.isCancel()) {
+              _context3.next = 33;
+              break;
+            }
+
+            throw _makeCancelEvent_1._makeCancelEvent();
+
+          case 33:
+            if (!(errors && errors.length > 0)) {
+              _context3.next = 37;
+              break;
+            }
+
+            err = errors[0];
+            err.message = "Failed to copy some parts with error: ".concat(err.toString(), " part_num: ").concat(err.partNum);
+            throw err;
+
+          case 37:
+            _context3.next = 39;
+            return completeMultipartUpload_1.completeMultipartUpload.call(this, name, uploadId, doneParts, options);
+
+          case 39:
+            return _context3.abrupt("return", _context3.sent);
+
+          case 40:
           case "end":
             return _context3.stop();
         }
       }
     }, _callee3, this);
   }));
+  return _resumeMultipartCopy2.apply(this, arguments);
+}
 
-  function abortMultipartUpload(_x7, _x8, _x9) {
-    return _abortMultipartUpload.apply(this, arguments);
+exports._resumeMultipartCopy = _resumeMultipartCopy;
+
+function _divideMultipartCopyParts(fileSize, partSize, startOffset) {
+  var numParts = Math.ceil(fileSize / partSize);
+  var partOffs = [];
+
+  for (var i = 0; i < numParts; i++) {
+    var start = partSize * i + startOffset;
+    var end = Math.min(start + partSize, fileSize + startOffset);
+    partOffs.push({
+      start: start,
+      end: end
+    });
   }
 
-  return abortMultipartUpload;
-}();
-/**
- * Initiate a multipart upload transaction
- * @param {String} name the object name
+  return partOffs;
+}
+
+exports._divideMultipartCopyParts = _divideMultipartCopyParts;
+
+},{"../utils/_getObjectMeta":113,"../utils/_makeAbortEvent":114,"../utils/_makeCancelEvent":115,"../utils/_parallel":116,"../utils/getPartSize":136,"./completeMultipartUpload":77,"./initMultipartUpload":80,"./uploadPartCopy":86,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"copy-to":199,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.filter":334,"core-js/modules/es.array.from":337,"core-js/modules/es.array.index-of":339,"core-js/modules/es.array.map":343,"core-js/modules/es.function.name":347,"core-js/modules/es.object.to-string":352,"core-js/modules/es.promise":353,"core-js/modules/es.regexp.to-string":356,"core-js/modules/es.string.iterator":358,"debug":448,"regenerator-runtime/runtime":434}],84:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.array.filter");
+
+require("core-js/modules/es.array.find");
+
+require("core-js/modules/es.array.from");
+
+require("core-js/modules/es.array.index-of");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.array.splice");
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.promise");
+
+require("core-js/modules/es.regexp.to-string");
+
+require("core-js/modules/es.string.iterator");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.resumeMultipart = void 0;
+/* eslint-disable no-async-promise-executor */
+
+var divideParts_1 = require("../../common/utils/divideParts");
+
+var completeMultipartUpload_1 = require("./completeMultipartUpload");
+
+var handleUploadPart_1 = require("./handleUploadPart");
+
+var _makeCancelEvent_1 = require("../utils/_makeCancelEvent");
+
+var _makeAbortEvent_1 = require("../utils/_makeAbortEvent");
+
+var _parallel_1 = require("../utils/_parallel");
+/*
+ * Resume multipart upload from checkpoint. The checkpoint will be
+ * updated after each successful part upload.
+ * @param {Object} checkpoint the checkpoint
  * @param {Object} options
- * @return {String} upload id
  */
 
 
-proto.initMultipartUpload = /*#__PURE__*/function () {
-  var _initMultipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4(name, options) {
-    var opt, params, result;
-    return _regenerator.default.wrap(function _callee4$(_context4) {
+function resumeMultipart(_x2) {
+  return _resumeMultipart.apply(this, arguments);
+}
+
+function _resumeMultipart() {
+  _resumeMultipart = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(checkpoint) {
+    var _this = this;
+
+    var options,
+        file,
+        fileSize,
+        partSize,
+        uploadId,
+        doneParts,
+        name,
+        partOffs,
+        numParts,
+        uploadPartJob,
+        all,
+        done,
+        todo,
+        defaultParallel,
+        parallel,
+        i,
+        jobErr,
+        abortEvent,
+        _args2 = arguments;
+    return _regenerator.default.wrap(function _callee2$(_context2) {
       while (1) {
-        switch (_context4.prev = _context4.next) {
+        switch (_context2.prev = _context2.next) {
           case 0:
-            options = options || {};
-            opt = {};
-            copy(options).to(opt);
-            opt.headers = opt.headers || {};
+            options = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
 
-            this._convertMetaToHeaders(options.meta, opt.headers);
+            if (!this.isCancel()) {
+              _context2.next = 3;
+              break;
+            }
 
-            opt.subres = 'uploads';
-            params = this._objectRequestParams('POST', name, opt);
-            params.mime = options.mime;
-            params.xmlResponse = true;
-            params.successStatuses = [200];
-            _context4.next = 12;
-            return this.request(params);
+            throw _makeCancelEvent_1._makeCancelEvent();
 
-          case 12:
-            result = _context4.sent;
-            return _context4.abrupt("return", {
-              res: result.res,
-              bucket: result.data.Bucket,
-              name: result.data.Key,
-              uploadId: result.data.UploadId
+          case 3:
+            file = checkpoint.file, fileSize = checkpoint.fileSize, partSize = checkpoint.partSize, uploadId = checkpoint.uploadId, doneParts = checkpoint.doneParts, name = checkpoint.name;
+            partOffs = divideParts_1.divideParts(fileSize, partSize);
+            numParts = partOffs.length;
+
+            uploadPartJob = function uploadPartJob(partNo) {
+              return new Promise( /*#__PURE__*/function () {
+                var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(resolve, reject) {
+                  var hasUploadPart, pi, stream, data, removeStreamFromMultipartUploadStreams, result;
+                  return _regenerator.default.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch (_context.prev = _context.next) {
+                        case 0:
+                          hasUploadPart = checkpoint.doneParts.find(function (_) {
+                            return _.number === partNo;
+                          });
+
+                          if (!hasUploadPart) {
+                            _context.next = 4;
+                            break;
+                          }
+
+                          resolve(hasUploadPart);
+                          return _context.abrupt("return");
+
+                        case 4:
+                          _context.prev = 4;
+
+                          if (_this.isCancel()) {
+                            _context.next = 33;
+                            break;
+                          }
+
+                          pi = partOffs[partNo - 1];
+                          _context.next = 9;
+                          return _this._createStream(file, pi.start, pi.end);
+
+                        case 9:
+                          stream = _context.sent;
+                          data = {
+                            stream: stream,
+                            size: pi.end - pi.start
+                          };
+
+                          if (stream && stream.pipe) {
+                            if (Array.isArray(_this.multipartUploadStreams)) {
+                              _this.multipartUploadStreams.push(data.stream);
+                            } else {
+                              _this.multipartUploadStreams = [data.stream];
+                            }
+
+                            removeStreamFromMultipartUploadStreams = function removeStreamFromMultipartUploadStreams() {
+                              if (!stream.destroyed) {
+                                stream.destroy();
+                              }
+
+                              if (!Array.isArray(_this.multipartUploadStreams)) return;
+
+                              var index = _this.multipartUploadStreams.indexOf(stream);
+
+                              if (index !== -1) {
+                                _this.multipartUploadStreams.splice(index, 1);
+                              }
+                            };
+
+                            stream.on('close', removeStreamFromMultipartUploadStreams);
+                            stream.on('error', removeStreamFromMultipartUploadStreams);
+                          }
+
+                          _context.prev = 12;
+                          _context.next = 15;
+                          return handleUploadPart_1.handleUploadPart.call(_this, name, uploadId, partNo, data, options);
+
+                        case 15:
+                          result = _context.sent;
+                          _context.next = 22;
+                          break;
+
+                        case 18:
+                          _context.prev = 18;
+                          _context.t0 = _context["catch"](12);
+
+                          if (typeof stream.destroy === 'function') {
+                            stream.destroy();
+                          }
+
+                          throw _context.t0;
+
+                        case 22:
+                          hasUploadPart = checkpoint.doneParts.find(function (_) {
+                            return _.number === partNo;
+                          });
+
+                          if (!hasUploadPart) {
+                            _context.next = 26;
+                            break;
+                          }
+
+                          resolve(hasUploadPart);
+                          return _context.abrupt("return");
+
+                        case 26:
+                          if (_this.isCancel()) {
+                            _context.next = 33;
+                            break;
+                          }
+
+                          doneParts.push({
+                            number: partNo,
+                            etag: result.res.headers.etag
+                          });
+                          checkpoint.doneParts = doneParts;
+
+                          if (!options.progress) {
+                            _context.next = 32;
+                            break;
+                          }
+
+                          _context.next = 32;
+                          return options.progress(doneParts.length / numParts, checkpoint, result.res);
+
+                        case 32:
+                          resolve({
+                            number: partNo,
+                            etag: result.res.headers.etag
+                          });
+
+                        case 33:
+                          resolve();
+                          _context.next = 41;
+                          break;
+
+                        case 36:
+                          _context.prev = 36;
+                          _context.t1 = _context["catch"](4);
+                          _context.t1.partNum = partNo;
+
+                          if (_context.t1.status === 404) {
+                            reject(_makeAbortEvent_1._makeAbortEvent());
+                          }
+
+                          reject(_context.t1);
+
+                        case 41:
+                        case "end":
+                          return _context.stop();
+                      }
+                    }
+                  }, _callee, null, [[4, 36], [12, 18]]);
+                }));
+
+                return function (_x3, _x4) {
+                  return _ref.apply(this, arguments);
+                };
+              }());
+            };
+
+            all = Array.from(new Array(numParts), function (_x, i) {
+              return i + 1;
             });
+            done = doneParts.map(function (p) {
+              return p.number;
+            });
+            todo = all.filter(function (p) {
+              return done.indexOf(p) < 0;
+            });
+            defaultParallel = 5;
+            parallel = options.parallel || defaultParallel;
+
+            if (!(this.checkBrowserAndVersion('Internet Explorer', '10') || parallel === 1)) {
+              _context2.next = 24;
+              break;
+            }
+
+            i = 0;
 
           case 14:
+            if (!(i < todo.length)) {
+              _context2.next = 22;
+              break;
+            }
+
+            if (!this.isCancel()) {
+              _context2.next = 17;
+              break;
+            }
+
+            throw _makeCancelEvent_1._makeCancelEvent();
+
+          case 17:
+            _context2.next = 19;
+            return uploadPartJob(todo[i]);
+
+          case 19:
+            i++;
+            _context2.next = 14;
+            break;
+
+          case 22:
+            _context2.next = 36;
+            break;
+
+          case 24:
+            _context2.next = 26;
+            return _parallel_1._parallel.call(this, todo, parallel, uploadPartJob);
+
+          case 26:
+            jobErr = _context2.sent;
+
+            if (!this.isCancel()) {
+              _context2.next = 30;
+              break;
+            }
+
+            uploadPartJob = null;
+            throw _makeCancelEvent_1._makeCancelEvent();
+
+          case 30:
+            if (!(jobErr && jobErr.length > 0)) {
+              _context2.next = 36;
+              break;
+            }
+
+            abortEvent = jobErr.find(function (err) {
+              return err.name === 'abort';
+            });
+
+            if (!abortEvent) {
+              _context2.next = 34;
+              break;
+            }
+
+            throw abortEvent;
+
+          case 34:
+            jobErr[0].message = "Failed to upload some parts with error: ".concat(jobErr[0].toString(), " part_num: ").concat(jobErr[0].partNum);
+            throw jobErr[0];
+
+          case 36:
+            _context2.next = 38;
+            return completeMultipartUpload_1.completeMultipartUpload.call(this, name, uploadId, doneParts, options);
+
+          case 38:
+            return _context2.abrupt("return", _context2.sent);
+
+          case 39:
           case "end":
-            return _context4.stop();
+            return _context2.stop();
         }
       }
-    }, _callee4, this);
+    }, _callee2, this);
   }));
+  return _resumeMultipart.apply(this, arguments);
+}
 
-  function initMultipartUpload(_x10, _x11) {
-    return _initMultipartUpload.apply(this, arguments);
-  }
+exports.resumeMultipart = resumeMultipart;
 
-  return initMultipartUpload;
-}();
+},{"../../common/utils/divideParts":128,"../utils/_makeAbortEvent":114,"../utils/_makeCancelEvent":115,"../utils/_parallel":116,"./completeMultipartUpload":77,"./handleUploadPart":78,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.filter":334,"core-js/modules/es.array.find":335,"core-js/modules/es.array.from":337,"core-js/modules/es.array.index-of":339,"core-js/modules/es.array.map":343,"core-js/modules/es.array.splice":346,"core-js/modules/es.function.name":347,"core-js/modules/es.object.to-string":352,"core-js/modules/es.promise":353,"core-js/modules/es.regexp.to-string":356,"core-js/modules/es.string.iterator":358,"regenerator-runtime/runtime":434}],85:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.uploadPart = void 0;
+
+var handleUploadPart_1 = require("./handleUploadPart");
 /**
  * Upload a part in a multipart upload transaction
  * @param {String} name the object name
@@ -3715,199 +6970,272 @@ proto.initMultipartUpload = /*#__PURE__*/function () {
  */
 
 
-proto.uploadPart = /*#__PURE__*/function () {
-  var _uploadPart2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5(name, uploadId, partNo, file, start, end, options) {
-    var data;
-    return _regenerator.default.wrap(function _callee5$(_context5) {
+function uploadPart(_x, _x2, _x3, _x4, _x5, _x6) {
+  return _uploadPart.apply(this, arguments);
+}
+
+function _uploadPart() {
+  _uploadPart = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, uploadId, partNo, file, start, end) {
+    var options,
+        data,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
-        switch (_context5.prev = _context5.next) {
+        switch (_context.prev = _context.next) {
           case 0:
-            data = {
-              stream: this._createStream(file, start, end),
-              size: end - start
-            };
-            _context5.next = 3;
-            return this._uploadPart(name, uploadId, partNo, data, options);
+            options = _args.length > 6 && _args[6] !== undefined ? _args[6] : {};
+            _context.next = 3;
+            return this._createStream(file, start, end, true);
 
           case 3:
-            return _context5.abrupt("return", _context5.sent);
+            _context.t0 = _context.sent;
+            _context.t1 = end - start;
+            data = {
+              stream: _context.t0,
+              size: _context.t1
+            };
+            _context.next = 8;
+            return handleUploadPart_1.handleUploadPart.call(this, name, uploadId, partNo, data, options);
 
-          case 4:
+          case 8:
+            return _context.abrupt("return", _context.sent);
+
+          case 9:
           case "end":
-            return _context5.stop();
+            return _context.stop();
         }
       }
-    }, _callee5, this);
+    }, _callee, this);
   }));
+  return _uploadPart.apply(this, arguments);
+}
 
-  function uploadPart(_x12, _x13, _x14, _x15, _x16, _x17, _x18) {
-    return _uploadPart2.apply(this, arguments);
-  }
+exports.uploadPart = uploadPart;
 
-  return uploadPart;
-}();
+},{"./handleUploadPart":78,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],86:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.concat");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.uploadPartCopy = void 0;
+
+var deepCopy_1 = require("../utils/deepCopy");
 /**
- * Complete a multipart upload transaction
- * @param {String} name the object name
+ * Upload a part copy in a multipart from the source bucket/object
+ * used with initMultipartUpload and completeMultipartUpload.
+ * @param {String} name copy object name
  * @param {String} uploadId the upload id
- * @param {Array} parts the uploaded parts, each in the structure:
- *        {Integer} number partNo
- *        {String} etag  part etag  uploadPartCopy result.res.header.etag
+ * @param {Number} partNo the part number
+ * @param {String} range  like 0-102400  part size need to copy
+ * @param {Object} sourceData
+ *        {String} sourceData.sourceKey  the source object name
+ *        {String} sourceData.sourceBucketName  the source bucket name
  * @param {Object} options
- *         {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
- *         {String} options.callback.url  the OSS sends a callback request to this URL
- *         {String} options.callback.host  The host header value for initiating callback requests
- *         {String} options.callback.body  The value of the request body when a callback is initiated
- *         {String} options.callback.contentType  The Content-Type of the callback requests initiatiated
- *         {Object} options.callback.customValue  Custom parameters are a map of key-values, e.g:
- *                   customValue = {
- *                     key1: 'value1',
- *                     key2: 'value2'
- *                   }
  */
 
 
-proto.completeMultipartUpload = /*#__PURE__*/function () {
-  var _completeMultipartUpload = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee6(name, uploadId, parts, options) {
-    var completeParts, xml, i, p, opt, params, result, ret;
-    return _regenerator.default.wrap(function _callee6$(_context6) {
-      while (1) {
-        switch (_context6.prev = _context6.next) {
-          case 0:
-            completeParts = parts.concat().sort(function (a, b) {
-              return a.number - b.number;
-            }).filter(function (item, index, arr) {
-              return !index || item.number !== arr[index - 1].number;
-            });
-            xml = '<?xml version="1.0" encoding="UTF-8"?>\n<CompleteMultipartUpload>\n';
+function uploadPartCopy(_x, _x2, _x3, _x4, _x5) {
+  return _uploadPartCopy.apply(this, arguments);
+}
 
-            for (i = 0; i < completeParts.length; i++) {
-              p = completeParts[i];
-              xml += '<Part>\n';
-              xml += "<PartNumber>".concat(p.number, "</PartNumber>\n");
-              xml += "<ETag>".concat(p.etag, "</ETag>\n");
-              xml += '</Part>\n';
+function _uploadPartCopy() {
+  _uploadPartCopy = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, uploadId, partNo, range, sourceData) {
+    var options,
+        opt,
+        versionId,
+        copySource,
+        params,
+        result,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 5 && _args[5] !== undefined ? _args[5] : {};
+            opt = deepCopy_1.deepCopy(options);
+            opt.headers = opt.headers || {};
+            versionId = opt.versionId || opt.subres && opt.subres.versionId || null;
+
+            if (versionId) {
+              copySource = "/".concat(sourceData.sourceBucketName, "/").concat(encodeURIComponent(sourceData.sourceKey), "?versionId=").concat(versionId);
+            } else {
+              copySource = "/".concat(sourceData.sourceBucketName, "/").concat(encodeURIComponent(sourceData.sourceKey));
             }
 
-            xml += '</CompleteMultipartUpload>';
-            options = options || {};
-            opt = {};
-            opt = deepCopy(options);
+            opt.headers['x-oss-copy-source'] = copySource;
+            if (range) opt.headers['x-oss-copy-source-range'] = "bytes=".concat(range);
             if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
-            opt.subres = {
-              uploadId: uploadId
-            };
-            params = this._objectRequestParams('POST', name, opt);
-            callback.encodeCallback(params, opt);
-            params.mime = 'xml';
-            params.content = xml;
-
-            if (!(params.headers && params.headers['x-oss-callback'])) {
-              params.xmlResponse = true;
-            }
-
-            params.successStatuses = [200];
-            _context6.next = 17;
-            return this.request(params);
-
-          case 17:
-            result = _context6.sent;
-            ret = {
-              res: result.res,
-              bucket: params.bucket,
-              name: name,
-              etag: result.res.headers.etag
-            };
-
-            if (params.headers && params.headers['x-oss-callback']) {
-              ret.data = JSON.parse(result.data.toString());
-            }
-
-            return _context6.abrupt("return", ret);
-
-          case 21:
-          case "end":
-            return _context6.stop();
-        }
-      }
-    }, _callee6, this);
-  }));
-
-  function completeMultipartUpload(_x19, _x20, _x21, _x22) {
-    return _completeMultipartUpload.apply(this, arguments);
-  }
-
-  return completeMultipartUpload;
-}();
-/**
- * Upload a part in a multipart upload transaction
- * @param {String} name the object name
- * @param {String} uploadId the upload id
- * @param {Integer} partNo the part number
- * @param {Object} data the body data
- * @param {Object} options
- */
-
-
-proto._uploadPart = /*#__PURE__*/function () {
-  var _uploadPart3 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee7(name, uploadId, partNo, data, options) {
-    var opt, params, result;
-    return _regenerator.default.wrap(function _callee7$(_context7) {
-      while (1) {
-        switch (_context7.prev = _context7.next) {
-          case 0:
-            options = options || {};
-            opt = {};
-            copy(options).to(opt);
-            opt.headers = {
-              'Content-Length': data.size
-            };
             opt.subres = {
               partNumber: partNo,
               uploadId: uploadId
             };
             params = this._objectRequestParams('PUT', name, opt);
             params.mime = opt.mime;
-            params.stream = data.stream;
             params.successStatuses = [200];
-            _context7.next = 11;
+            _context.next = 14;
             return this.request(params);
 
-          case 11:
-            result = _context7.sent;
-
-            if (result.res.headers.etag) {
-              _context7.next = 14;
-              break;
-            }
-
-            throw new Error('Please set the etag of expose-headers in OSS \n https://help.aliyun.com/document_detail/32069.html');
-
           case 14:
-            data.stream = null;
-            params.stream = null;
-            return _context7.abrupt("return", {
+            result = _context.sent;
+            return _context.abrupt("return", {
               name: name,
               etag: result.res.headers.etag,
               res: result.res
             });
 
-          case 17:
+          case 16:
           case "end":
-            return _context7.stop();
+            return _context.stop();
         }
       }
-    }, _callee7, this);
+    }, _callee, this);
   }));
+  return _uploadPartCopy.apply(this, arguments);
+}
 
-  function _uploadPart(_x23, _x24, _x25, _x26, _x27) {
-    return _uploadPart3.apply(this, arguments);
+exports.uploadPartCopy = uploadPartCopy;
+
+},{"../utils/deepCopy":126,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.concat":332,"regenerator-runtime/runtime":434}],87:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.append = void 0;
+/**
+ * append an object from String(file path)/Buffer/ReadableStream
+ * @param {String} name the object key
+ * @param {Mixed} file String(file path)/Buffer/ReadableStream
+ * @param {Object} options
+ * @return {Object}
+ */
+
+function append(_x, _x2) {
+  return _append.apply(this, arguments);
+}
+
+function _append() {
+  _append = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, file) {
+    var options,
+        _options$put,
+        put,
+        result,
+        _args = arguments;
+
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            _options$put = options.put, put = _options$put === void 0 ? this.put : _options$put;
+
+            if (!(typeof put !== 'function')) {
+              _context.next = 4;
+              break;
+            }
+
+            throw 'please set put in options, put path is browser/object/put';
+
+          case 4:
+            if (options.position === undefined) options.position = '0';
+            options.subres = {
+              append: '',
+              position: options.position
+            };
+            options.method = 'POST';
+            _context.next = 9;
+            return put.call(this, name, file, options);
+
+          case 9:
+            result = _context.sent;
+            result.nextAppendPosition = result.res.headers['x-oss-next-append-position'];
+            return _context.abrupt("return", result);
+
+          case 12:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _append.apply(this, arguments);
+}
+
+exports.append = append;
+
+},{"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],88:[function(require,module,exports){
+(function (Buffer){
+"use strict";
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.regexp.to-string");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.calculatePostSignature = void 0;
+
+var policy2Str_1 = require("../utils/policy2Str");
+
+var signUtils_1 = require("../utils/signUtils");
+
+var isObject_1 = require("../utils/isObject");
+/**
+ * @param {Object or JSON} policy specifies the validity of the fields in the request.
+ * @return {Object} params
+ *         {String} params.OSSAccessKeyId
+ *         {String} params.Signature
+ *         {String} params.policy JSON text encoded with UTF-8 and Base64.
+ */
+
+
+function calculatePostSignature(policy) {
+  if (!isObject_1.isObject(policy) && typeof policy !== 'string') {
+    throw new Error('policy must be JSON string or Object');
   }
 
-  return _uploadPart;
-}();
+  if (!isObject_1.isObject(policy)) {
+    try {
+      JSON.stringify(JSON.parse(policy));
+    } catch (error) {
+      throw new Error('policy must be JSON string or Object');
+    }
+  }
 
-},{"./callback":23,"./utils/deepCopy":53,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"copy-to":101,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.filter":233,"core-js/modules/es.array.map":241,"core-js/modules/es.array.sort":243,"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.to-string":252,"regenerator-runtime/runtime":324}],29:[function(require,module,exports){
+  policy = Buffer.from(policy2Str_1.policy2Str(policy), 'utf8').toString('base64');
+  var Signature = signUtils_1.computeSignature(this.options.accessKeySecret, policy);
+  var query = {
+    OSSAccessKeyId: this.options.accessKeyId,
+    Signature: Signature,
+    policy: policy
+  };
+  return query;
+}
+
+exports.calculatePostSignature = calculatePostSignature;
+
+}).call(this,require("buffer").Buffer)
+},{"../utils/isObject":147,"../utils/policy2Str":153,"../utils/signUtils":156,"buffer":196,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356}],89:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -3922,10 +7250,6 @@ require("core-js/modules/es.array.includes");
 
 require("core-js/modules/es.object.keys");
 
-require("core-js/modules/es.regexp.exec");
-
-require("core-js/modules/es.string.replace");
-
 require("core-js/modules/web.dom-collections.for-each");
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
@@ -3936,14 +7260,23 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/checkBucketName'),
-    _checkBucketName = _require.checkBucketName;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.copy = void 0;
 
-var proto = exports;
+var getSourceName_1 = require("../utils/getSourceName");
+
+var convertMetaToHeaders_1 = require("../utils/convertMetaToHeaders");
+
 var REPLACE_HEDERS = ['content-type', 'content-encoding', 'content-language', 'content-disposition', 'cache-control', 'expires'];
 
-proto.copy = /*#__PURE__*/function () {
-  var _copy = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, sourceName, bucketName, options) {
+function copy(_x, _x2, _x3, _x4) {
+  return _copy.apply(this, arguments);
+}
+
+function _copy() {
+  _copy = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, sourceName, bucketName, options) {
     var params, result, data;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
@@ -3965,9 +7298,8 @@ proto.copy = /*#__PURE__*/function () {
               options.headers['x-oss-metadata-directive'] = 'REPLACE';
             }
 
-            this._convertMetaToHeaders(options.meta, options.headers);
-
-            sourceName = this._getSourceName(sourceName, bucketName);
+            convertMetaToHeaders_1.convertMetaToHeaders(options.meta, options.headers);
+            sourceName = getSourceName_1.getSourceName(sourceName, bucketName, this.options.bucket);
 
             if (options.versionId) {
               sourceName = "".concat(sourceName, "?versionId=").concat(options.versionId);
@@ -4003,33 +7335,12 @@ proto.copy = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _copy.apply(this, arguments);
+}
 
-  function copy(_x, _x2, _x3, _x4) {
-    return _copy.apply(this, arguments);
-  }
+exports.copy = copy;
 
-  return copy;
-}(); // todo delete
-
-
-proto._getSourceName = function _getSourceName(sourceName, bucketName) {
-  if (typeof bucketName === 'string') {
-    sourceName = this._objectName(sourceName);
-  } else if (sourceName[0] !== '/') {
-    bucketName = this.options.bucket;
-  } else {
-    bucketName = sourceName.replace(/\/(.+?)(\/.*)/, '$1');
-    sourceName = sourceName.replace(/(\/.+?\/)(.*)/, '$2');
-  }
-
-  _checkBucketName(bucketName);
-
-  sourceName = encodeURI(sourceName);
-  sourceName = "/".concat(bucketName, "/").concat(sourceName);
-  return sourceName;
-};
-
-},{"../utils/checkBucketName":48,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/helpers/typeof":69,"@babel/runtime/regenerator":71,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.find":234,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.includes":237,"core-js/modules/es.object.keys":248,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285,"regenerator-runtime/runtime":324}],30:[function(require,module,exports){
+},{"../utils/convertMetaToHeaders":124,"../utils/getSourceName":139,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"@babel/runtime/regenerator":172,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.find":335,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.includes":338,"core-js/modules/es.object.keys":351,"core-js/modules/web.dom-collections.for-each":391,"regenerator-runtime/runtime":434}],90:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4042,7 +7353,10 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteObject = void 0;
 /**
  * delete
  * @param {String} name - object name
@@ -4050,8 +7364,12 @@ var proto = exports;
  * @param {{res}}
  */
 
-proto.delete = /*#__PURE__*/function () {
-  var _delete2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+function deleteObject(_x) {
+  return _deleteObject.apply(this, arguments);
+}
+
+function _deleteObject() {
+  _deleteObject = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
     var options,
         params,
         result,
@@ -4085,15 +7403,12 @@ proto.delete = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _deleteObject.apply(this, arguments);
+}
 
-  function _delete(_x) {
-    return _delete2.apply(this, arguments);
-  }
+exports.deleteObject = deleteObject;
 
-  return _delete;
-}();
-
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],31:[function(require,module,exports){
+},{"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],91:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4106,16 +7421,30 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteMulti = void 0;
 /* eslint-disable object-curly-newline */
-var utility = require('utility');
 
-var _require = require('../utils/obj2xml'),
-    obj2xml = _require.obj2xml;
+var utility_1 = __importDefault(require("utility"));
 
-var proto = exports;
+var obj2xml_1 = require("../utils/obj2xml");
 
-proto.deleteMulti = /*#__PURE__*/function () {
-  var _deleteMulti = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(names) {
+var objectName_1 = require("../utils/objectName");
+
+function deleteMulti(_x) {
+  return _deleteMulti.apply(this, arguments);
+}
+
+function _deleteMulti() {
+  _deleteMulti = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(names) {
     var options,
         objects,
         i,
@@ -4150,10 +7479,10 @@ proto.deleteMulti = /*#__PURE__*/function () {
               object = {};
 
               if (typeof names[i] === 'string') {
-                object.Key = utility.escape(this._objectName(names[i]));
+                object.Key = utility_1.default.escape(objectName_1.objectName(names[i]));
               } else {
                 _names$i = names[i], key = _names$i.key, versionId = _names$i.versionId;
-                object.Key = utility.escape(this._objectName(key));
+                object.Key = utility_1.default.escape(objectName_1.objectName(key));
                 object.VersionId = versionId;
               }
 
@@ -4166,7 +7495,7 @@ proto.deleteMulti = /*#__PURE__*/function () {
                 Object: objects
               }
             };
-            paramXML = obj2xml(paramXMLObj, {
+            paramXML = obj2xml_1.obj2xml(paramXMLObj, {
               headers: true
             });
             options.subres = Object.assign({
@@ -4208,15 +7537,12 @@ proto.deleteMulti = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _deleteMulti.apply(this, arguments);
+}
 
-  function deleteMulti(_x) {
-    return _deleteMulti.apply(this, arguments);
-  }
+exports.deleteMulti = deleteMulti;
 
-  return deleteMulti;
-}();
-
-},{"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324,"utility":382}],32:[function(require,module,exports){
+},{"../utils/obj2xml":149,"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434,"utility":454}],92:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4229,15 +7555,25 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteObjectTagging = void 0;
+
+var objectName_1 = require("../utils/objectName");
 /**
  * deleteObjectTagging
  * @param {String} name - object name
  * @param {Object} options
  */
 
-proto.deleteObjectTagging = /*#__PURE__*/function () {
-  var _deleteObjectTagging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+
+function deleteObjectTagging(_x) {
+  return _deleteObjectTagging.apply(this, arguments);
+}
+
+function _deleteObjectTagging() {
+  _deleteObjectTagging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
     var options,
         params,
         result,
@@ -4255,7 +7591,7 @@ proto.deleteObjectTagging = /*#__PURE__*/function () {
               options.subres.versionId = options.versionId;
             }
 
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
             params = this._objectRequestParams('DELETE', name, options);
             params.successStatuses = [204];
             _context.next = 8;
@@ -4275,25 +7611,32 @@ proto.deleteObjectTagging = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _deleteObjectTagging.apply(this, arguments);
+}
 
-  function deleteObjectTagging(_x) {
-    return _deleteObjectTagging.apply(this, arguments);
-  }
+exports.deleteObjectTagging = deleteObjectTagging;
 
-  return deleteObjectTagging;
-}();
-
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],33:[function(require,module,exports){
+},{"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],93:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
 
-var urlutil = require('url');
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-var _require = require('../utils/isIP'),
-    isIP = _require.isIP;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.generateObjectUrl = void 0;
 
-var proto = exports;
+var url_1 = __importDefault(require("url"));
+
+var objectName_1 = require("../utils/objectName");
+
+var escapeName_1 = require("../utils/escapeName");
 /**
  * Get Object url by name
  * @param {String} name - object name
@@ -4301,14 +7644,11 @@ var proto = exports;
  * @return {String} object url include bucket
  */
 
-proto.generateObjectUrl = function generateObjectUrl(name, baseUrl) {
-  if (isIP(this.options.endpoint.hostname)) {
-    throw new Error('can not get the object URL when endpoint is IP');
-  }
 
+function generateObjectUrl(name, baseUrl) {
   if (!baseUrl) {
     baseUrl = this.options.endpoint.format();
-    var copyUrl = urlutil.parse(baseUrl);
+    var copyUrl = url_1.default.parse(baseUrl);
     var bucket = this.options.bucket;
     copyUrl.hostname = "".concat(bucket, ".").concat(copyUrl.hostname);
     copyUrl.host = "".concat(bucket, ".").concat(copyUrl.host);
@@ -4317,10 +7657,12 @@ proto.generateObjectUrl = function generateObjectUrl(name, baseUrl) {
     baseUrl += '/';
   }
 
-  return baseUrl + this._escape(this._objectName(name));
-};
+  return baseUrl + escapeName_1.escapeName(objectName_1.objectName(name));
+}
 
-},{"../utils/isIP":62,"core-js/modules/es.array.concat":231,"url":330}],34:[function(require,module,exports){
+exports.generateObjectUrl = generateObjectUrl;
+
+},{"../utils/escapeName":131,"../utils/objectName":150,"core-js/modules/es.array.concat":332,"url":452}],94:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4333,11 +7675,24 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var fs = require('fs');
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-var is = require('is-type-of');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.get = void 0;
 
-var proto = exports;
+var fs_1 = __importDefault(require("fs"));
+
+var is_type_of_1 = __importDefault(require("is-type-of"));
+
+var deleteFileSafe_1 = require("../utils/deleteFileSafe");
+
+var isObject_1 = require("../utils/isObject");
 /**
  * get
  * @param {String} name - object name
@@ -4346,8 +7701,13 @@ var proto = exports;
  * @param {{res}}
  */
 
-proto.get = /*#__PURE__*/function () {
-  var _get = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, file) {
+
+function get(_x, _x2) {
+  return _get.apply(this, arguments);
+}
+
+function _get() {
+  _get = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, file) {
     var options,
         writeStream,
         needDestroy,
@@ -4362,17 +7722,15 @@ proto.get = /*#__PURE__*/function () {
             writeStream = null;
             needDestroy = false;
 
-            if (is.writableStream(file)) {
+            if (is_type_of_1.default.writableStream(file)) {
               writeStream = file;
-            } else if (is.string(file)) {
-              writeStream = fs.createWriteStream(file);
+            } else if (is_type_of_1.default.string(file)) {
+              writeStream = fs_1.default.createWriteStream(file);
               needDestroy = true;
-            } else {
-              // get(name, options)
+            } else if (isObject_1.isObject(file)) {
               options = file;
             }
 
-            options = options || {};
             options.subres = Object.assign({}, options.subres);
 
             if (options.versionId) {
@@ -4383,62 +7741,59 @@ proto.get = /*#__PURE__*/function () {
               options.subres['x-oss-process'] = options.process;
             }
 
-            _context.prev = 8;
+            _context.prev = 7;
             params = this._objectRequestParams('GET', name, options);
             params.writeStream = writeStream;
             params.successStatuses = [200, 206, 304];
-            _context.next = 14;
+            _context.next = 13;
             return this.request(params);
 
-          case 14:
+          case 13:
             result = _context.sent;
 
             if (needDestroy) {
               writeStream.destroy();
             }
 
-            _context.next = 25;
+            _context.next = 24;
             break;
 
-          case 18:
-            _context.prev = 18;
-            _context.t0 = _context["catch"](8);
+          case 17:
+            _context.prev = 17;
+            _context.t0 = _context["catch"](7);
 
             if (!needDestroy) {
-              _context.next = 24;
+              _context.next = 23;
               break;
             }
 
             writeStream.destroy(); // should delete the exists file before throw error
 
-            _context.next = 24;
-            return this._deleteFileSafe(file);
+            _context.next = 23;
+            return deleteFileSafe_1.deleteFileSafe(file);
 
-          case 24:
+          case 23:
             throw _context.t0;
 
-          case 25:
+          case 24:
             return _context.abrupt("return", {
               res: result.res,
               content: result.data
             });
 
-          case 26:
+          case 25:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, this, [[8, 18]]);
+    }, _callee, this, [[7, 17]]);
   }));
+  return _get.apply(this, arguments);
+}
 
-  function get(_x, _x2) {
-    return _get.apply(this, arguments);
-  }
+exports.get = get;
 
-  return get;
-}();
-
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"fs":78,"is-type-of":381,"regenerator-runtime/runtime":324}],35:[function(require,module,exports){
+},{"../utils/deleteFileSafe":127,"../utils/isObject":147,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"fs":176,"is-type-of":449,"regenerator-runtime/runtime":434}],95:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4451,7 +7806,12 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getACL = void 0;
+
+var objectName_1 = require("../utils/objectName");
 /*
  * Get object's ACL
  * @param {String} name the object key
@@ -4459,8 +7819,13 @@ var proto = exports;
  * @return {Object}
  */
 
-proto.getACL = /*#__PURE__*/function () {
-  var _getACL = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+
+function getACL(_x) {
+  return _getACL.apply(this, arguments);
+}
+
+function _getACL() {
+  _getACL = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
     var options,
         params,
         result,
@@ -4478,7 +7843,7 @@ proto.getACL = /*#__PURE__*/function () {
               options.subres.versionId = options.versionId;
             }
 
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
             params = this._objectRequestParams('GET', name, options);
             params.successStatuses = [200];
             params.xmlResponse = true;
@@ -4503,34 +7868,17 @@ proto.getACL = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _getACL.apply(this, arguments);
+}
 
-  function getACL(_x) {
-    return _getACL.apply(this, arguments);
-  }
+exports.getACL = getACL;
 
-  return getACL;
-}();
-
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],36:[function(require,module,exports){
+},{"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],96:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-require("core-js/modules/es.array.for-each");
-
-require("core-js/modules/es.array.map");
-
-require("core-js/modules/es.number.constructor");
-
 require("core-js/modules/es.object.assign");
-
-require("core-js/modules/es.object.keys");
-
-require("core-js/modules/es.regexp.exec");
-
-require("core-js/modules/es.string.replace");
-
-require("core-js/modules/web.dom-collections.for-each");
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -4538,17 +7886,97 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-/* eslint-disable no-use-before-define */
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getAsyncFetch = void 0;
 
-var _require = require('../utils/isObject'),
-    isObject = _require.isObject;
+var formatObjKey_1 = require("../utils/formatObjKey");
+/*
+ * getAsyncFetch
+ * @param {String} asyncFetch taskId
+ * @param {Object} options
+ */
 
-var _require2 = require('../utils/isArray'),
-    isArray = _require2.isArray;
 
-proto.getBucketVersions = getBucketVersions;
-proto.listObjectVersions = getBucketVersions;
+function getAsyncFetch(_x) {
+  return _getAsyncFetch.apply(this, arguments);
+}
+
+function _getAsyncFetch() {
+  _getAsyncFetch = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(taskId) {
+    var options,
+        params,
+        result,
+        taskInfo,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            options.subres = Object.assign({
+              asyncFetch: ''
+            }, options.subres);
+            options.headers = options.headers || {};
+            params = this._objectRequestParams('GET', '', options);
+            params.headers['x-oss-task-id'] = taskId;
+            params.successStatuses = [200];
+            params.xmlResponse = true;
+            _context.next = 9;
+            return this.request(params);
+
+          case 9:
+            result = _context.sent;
+            taskInfo = formatObjKey_1.formatObjKey(result.data.TaskInfo, 'firstLowerCase');
+            return _context.abrupt("return", {
+              res: result.res,
+              status: result.status,
+              state: result.data.State,
+              taskInfo: taskInfo
+            });
+
+          case 12:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _getAsyncFetch.apply(this, arguments);
+}
+
+exports.getAsyncFetch = getAsyncFetch;
+
+},{"../utils/formatObjKey":133,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],97:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.number.constructor");
+
+require("core-js/modules/es.object.assign");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBucketVersions = void 0;
+
+var formatQuery_1 = require("../utils/formatQuery");
+
+var isArray_1 = require("../utils/isArray");
+
+var objectUrl_1 = require("../utils/objectUrl"); // proto.getBucketVersions = getBucketVersions;
+// proto.listObjectVersions = getBucketVersions;
+
 
 function getBucketVersions() {
   return _getBucketVersions.apply(this, arguments);
@@ -4556,13 +7984,14 @@ function getBucketVersions() {
 
 function _getBucketVersions() {
   _getBucketVersions = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+    var _this = this;
+
     var query,
         options,
         params,
         result,
         objects,
         deleteMarker,
-        that,
         prefixes,
         _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
@@ -4591,7 +8020,7 @@ function _getBucketVersions() {
             params = this._objectRequestParams('GET', '', options);
             params.xmlResponse = true;
             params.successStatuses = [200];
-            params.query = formatQuery(query);
+            params.query = formatQuery_1.formatQuery(query);
             _context.next = 12;
             return this.request(params);
 
@@ -4599,7 +8028,6 @@ function _getBucketVersions() {
             result = _context.sent;
             objects = result.data.Version || [];
             deleteMarker = result.data.DeleteMarker || [];
-            that = this;
 
             if (objects) {
               if (!Array.isArray(objects)) {
@@ -4609,7 +8037,7 @@ function _getBucketVersions() {
               objects = objects.map(function (obj) {
                 return {
                   name: obj.Key,
-                  url: that._objectUrl(obj.Key),
+                  url: objectUrl_1.objectUrl(obj.Key, _this.options),
                   lastModified: obj.LastModified,
                   isLatest: obj.IsLatest === 'true',
                   versionId: obj.VersionId,
@@ -4626,7 +8054,7 @@ function _getBucketVersions() {
             }
 
             if (deleteMarker) {
-              if (!isArray(deleteMarker)) {
+              if (!isArray_1.isArray(deleteMarker)) {
                 deleteMarker = [deleteMarker];
               }
 
@@ -4646,7 +8074,7 @@ function _getBucketVersions() {
             prefixes = result.data.CommonPrefixes || null;
 
             if (prefixes) {
-              if (!isArray(prefixes)) {
+              if (!isArray_1.isArray(prefixes)) {
                 prefixes = [prefixes];
               }
 
@@ -4660,12 +8088,16 @@ function _getBucketVersions() {
               objects: objects,
               deleteMarker: deleteMarker,
               prefixes: prefixes,
+              // attirbute of legacy error
               nextMarker: result.data.NextMarker || null,
+              // attirbute of legacy error
               NextVersionIdMarker: result.data.NextVersionIdMarker || null,
+              nextKeyMarker: result.data.NextKeyMarker || null,
+              nextVersionIdMarker: result.data.NextVersionIdMarker || null,
               isTruncated: result.data.IsTruncated === 'true'
             });
 
-          case 21:
+          case 20:
           case "end":
             return _context.stop();
         }
@@ -4675,24 +8107,9 @@ function _getBucketVersions() {
   return _getBucketVersions.apply(this, arguments);
 }
 
-function camel2Line(name) {
-  return name.replace(/([A-Z])/g, '-$1').toLowerCase();
-}
+exports.getBucketVersions = getBucketVersions;
 
-function formatQuery() {
-  var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var obj = {};
-
-  if (isObject(query)) {
-    Object.keys(query).forEach(function (key) {
-      obj[camel2Line(key)] = query[key];
-    });
-  }
-
-  return obj;
-}
-
-},{"../utils/isArray":58,"../utils/isObject":63,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.map":241,"core-js/modules/es.number.constructor":245,"core-js/modules/es.object.assign":246,"core-js/modules/es.object.keys":248,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285,"regenerator-runtime/runtime":324}],37:[function(require,module,exports){
+},{"../utils/formatQuery":134,"../utils/isArray":142,"../utils/objectUrl":151,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.map":343,"core-js/modules/es.number.constructor":348,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],98:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4705,7 +8122,12 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getObjectMeta = void 0;
+
+var objectName_1 = require("../utils/objectName");
 /**
  * getObjectMeta
  * @param {String} name - object name
@@ -4713,15 +8135,23 @@ var proto = exports;
  * @param {{res}}
  */
 
-proto.getObjectMeta = /*#__PURE__*/function () {
-  var _getObjectMeta = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var params, result;
+
+function getObjectMeta(_x) {
+  return _getObjectMeta.apply(this, arguments);
+}
+
+function _getObjectMeta() {
+  _getObjectMeta = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            options = options || {};
-            name = this._objectName(name);
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            name = objectName_1.objectName(name);
             options.subres = Object.assign({
               objectMeta: ''
             }, options.subres);
@@ -4749,24 +8179,17 @@ proto.getObjectMeta = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _getObjectMeta.apply(this, arguments);
+}
 
-  function getObjectMeta(_x, _x2) {
-    return _getObjectMeta.apply(this, arguments);
-  }
+exports.getObjectMeta = getObjectMeta;
 
-  return getObjectMeta;
-}();
-
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],38:[function(require,module,exports){
+},{"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],99:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-require("core-js/modules/es.array.for-each");
-
 require("core-js/modules/es.object.assign");
-
-require("core-js/modules/web.dom-collections.for-each");
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -4774,10 +8197,16 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getObjectTagging = void 0;
 
-var _require = require('../utils/isObject'),
-    isObject = _require.isObject;
+var objectName_1 = require("../utils/objectName");
+
+var formatTag_1 = require("../utils/formatTag");
+
+var parseXML_1 = require("../utils/parseXML");
 /**
  * getObjectTagging
  * @param {String} name - object name
@@ -4786,14 +8215,16 @@ var _require = require('../utils/isObject'),
  */
 
 
-proto.getObjectTagging = /*#__PURE__*/function () {
-  var _getObjectTagging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+function getObjectTagging(_x) {
+  return _getObjectTagging.apply(this, arguments);
+}
+
+function _getObjectTagging() {
+  _getObjectTagging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
     var options,
         params,
         result,
         Tagging,
-        Tag,
-        tag,
         _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
@@ -4808,7 +8239,7 @@ proto.getObjectTagging = /*#__PURE__*/function () {
               options.subres.versionId = options.versionId;
             }
 
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
             params = this._objectRequestParams('GET', name, options);
             params.successStatuses = [200];
             _context.next = 8;
@@ -4817,67 +8248,60 @@ proto.getObjectTagging = /*#__PURE__*/function () {
           case 8:
             result = _context.sent;
             _context.next = 11;
-            return this.parseXML(result.data);
+            return parseXML_1.parseXML(result.data);
 
           case 11:
             Tagging = _context.sent;
-            Tag = Tagging.TagSet.Tag;
-            Tag = Tag && isObject(Tag) ? [Tag] : Tag || [];
-            tag = {};
-            Tag.forEach(function (item) {
-              tag[item.Key] = item.Value;
-            });
             return _context.abrupt("return", {
               status: result.status,
               res: result.res,
-              tag: tag
+              tag: formatTag_1.formatTag(Tagging)
             });
 
-          case 17:
+          case 13:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
+  return _getObjectTagging.apply(this, arguments);
+}
 
-  function getObjectTagging(_x) {
-    return _getObjectTagging.apply(this, arguments);
-  }
+exports.getObjectTagging = getObjectTagging;
 
-  return getObjectTagging;
-}();
-
-},{"../utils/isObject":63,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.for-each":235,"core-js/modules/es.object.assign":246,"core-js/modules/web.dom-collections.for-each":285,"regenerator-runtime/runtime":324}],39:[function(require,module,exports){
+},{"../utils/formatTag":135,"../utils/objectName":150,"../utils/parseXML":152,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],100:[function(require,module,exports){
 "use strict";
 
-var _require = require('../utils/isIP'),
-    isIP = _require.isIP;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getObjectUrl = void 0;
 
-var proto = exports;
+var objectName_1 = require("../utils/objectName");
+
+var escapeName_1 = require("../utils/escapeName");
 /**
  * Get Object url by name
  * @param {String} name - object name
- * @param {String} [baseUrl] - If provide `baseUrl`,
- *        will use `baseUrl` instead the default `endpoint`.
+ * @param {String} [baseUrl] - If provide `baseUrl`, will use `baseUrl` instead the default `endpoint`.
  * @return {String} object url
  */
 
-proto.getObjectUrl = function getObjectUrl(name, baseUrl) {
-  if (isIP(this.options.endpoint.hostname)) {
-    throw new Error('can not get the object URL when endpoint is IP');
-  }
 
+function getObjectUrl(name, baseUrl) {
   if (!baseUrl) {
     baseUrl = this.options.endpoint.format();
   } else if (baseUrl[baseUrl.length - 1] !== '/') {
     baseUrl += '/';
   }
 
-  return baseUrl + this._escape(this._objectName(name));
-};
+  return baseUrl + escapeName_1.escapeName(objectName_1.objectName(name));
+}
 
-},{"../utils/isIP":62}],40:[function(require,module,exports){
+exports.getObjectUrl = getObjectUrl;
+
+},{"../utils/escapeName":131,"../utils/objectName":150}],101:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4890,7 +8314,12 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getSymlink = void 0;
+
+var objectName_1 = require("../utils/objectName");
 /**
  * getSymlink
  * @param {String} name - object name
@@ -4898,8 +8327,13 @@ var proto = exports;
  * @param {{res}}
  */
 
-proto.getSymlink = /*#__PURE__*/function () {
-  var _getSymlink = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+
+function getSymlink(_x) {
+  return _getSymlink.apply(this, arguments);
+}
+
+function _getSymlink() {
+  _getSymlink = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
     var options,
         params,
         result,
@@ -4918,7 +8352,7 @@ proto.getSymlink = /*#__PURE__*/function () {
               options.subres.versionId = options.versionId;
             }
 
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
             params = this._objectRequestParams('GET', name, options);
             params.successStatuses = [200];
             _context.next = 8;
@@ -4939,15 +8373,12 @@ proto.getSymlink = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _getSymlink.apply(this, arguments);
+}
 
-  function getSymlink(_x) {
-    return _getSymlink.apply(this, arguments);
-  }
+exports.getSymlink = getSymlink;
 
-  return getSymlink;
-}();
-
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],41:[function(require,module,exports){
+},{"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],102:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4968,7 +8399,10 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.head = void 0;
 /**
  * head
  * @param {String} name - object name
@@ -4976,8 +8410,12 @@ var proto = exports;
  * @param {{res}}
  */
 
-proto.head = /*#__PURE__*/function () {
-  var _head = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+function head(_x) {
+  return _head.apply(this, arguments);
+}
+
+function _head() {
+  _head = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
     var options,
         params,
         result,
@@ -5028,15 +8466,322 @@ proto.head = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _head.apply(this, arguments);
+}
 
-  function head(_x) {
-    return _head.apply(this, arguments);
-  }
+exports.head = head;
 
-  return head;
-}();
+},{"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.index-of":339,"core-js/modules/es.object.assign":349,"core-js/modules/es.object.keys":351,"core-js/modules/web.dom-collections.for-each":391,"regenerator-runtime/runtime":434}],103:[function(require,module,exports){
+"use strict";
 
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.index-of":238,"core-js/modules/es.object.assign":246,"core-js/modules/es.object.keys":248,"core-js/modules/web.dom-collections.for-each":285,"regenerator-runtime/runtime":324}],42:[function(require,module,exports){
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var append_1 = require("./append");
+
+var calculatePostSignature_1 = require("./calculatePostSignature");
+
+var copy_1 = require("./copy");
+
+var delete_1 = require("./delete");
+
+var deleteMulti_1 = require("./deleteMulti");
+
+var deleteObjectTagging_1 = require("./deleteObjectTagging");
+
+var generateObjectUrl_1 = require("./generateObjectUrl");
+
+var get_1 = require("./get");
+
+var getACL_1 = require("./getACL");
+
+var getAsyncFetch_1 = require("./getAsyncFetch");
+
+var getBucketVersions_1 = require("./getBucketVersions");
+
+var getObjectMeta_1 = require("./getObjectMeta");
+
+var getObjectTagging_1 = require("./getObjectTagging");
+
+var getObjectUrl_1 = require("./getObjectUrl");
+
+var getSymlink_1 = require("./getSymlink");
+
+var head_1 = require("./head");
+
+var list_1 = require("./list");
+
+var listV2_1 = require("./listV2");
+
+var postAsyncFetch_1 = require("./postAsyncFetch");
+
+var putACL_1 = require("./putACL");
+
+var putMeta_1 = require("./putMeta");
+
+var putObjectTagging_1 = require("./putObjectTagging");
+
+var putSymlink_1 = require("./putSymlink");
+
+var restore_1 = require("./restore");
+
+var signatureUrl_1 = require("./signatureUrl");
+
+exports.default = {
+  append: append_1.append,
+  calculatePostSignature: calculatePostSignature_1.calculatePostSignature,
+  copy: copy_1.copy,
+  delete: delete_1.deleteObject,
+  deleteObject: // 兼容旧版本
+  delete_1.deleteObject,
+  deleteMulti: deleteMulti_1.deleteMulti,
+  deleteObjectTagging: deleteObjectTagging_1.deleteObjectTagging,
+  generateObjectUrl: generateObjectUrl_1.generateObjectUrl,
+  get: get_1.get,
+  getACL: getACL_1.getACL,
+  getAsyncFetch: getAsyncFetch_1.getAsyncFetch,
+  getBucketVersions: getBucketVersions_1.getBucketVersions,
+  listObjectVersions: getBucketVersions_1.getBucketVersions,
+  getObjectMeta: // 兼容旧版本
+  getObjectMeta_1.getObjectMeta,
+  getObjectTagging: getObjectTagging_1.getObjectTagging,
+  getObjectUrl: getObjectUrl_1.getObjectUrl,
+  getSymlink: getSymlink_1.getSymlink,
+  head: head_1.head,
+  list: list_1.list,
+  listV2: listV2_1.listV2,
+  postAsyncFetch: postAsyncFetch_1.postAsyncFetch,
+  putACL: putACL_1.putACL,
+  putMeta: putMeta_1.putMeta,
+  putObjectTagging: putObjectTagging_1.putObjectTagging,
+  putSymlink: putSymlink_1.putSymlink,
+  restore: restore_1.restore,
+  signatureUrl: signatureUrl_1.signatureUrl
+};
+
+},{"./append":87,"./calculatePostSignature":88,"./copy":89,"./delete":90,"./deleteMulti":91,"./deleteObjectTagging":92,"./generateObjectUrl":93,"./get":94,"./getACL":95,"./getAsyncFetch":96,"./getBucketVersions":97,"./getObjectMeta":98,"./getObjectTagging":99,"./getObjectUrl":100,"./getSymlink":101,"./head":102,"./list":104,"./listV2":105,"./postAsyncFetch":106,"./putACL":107,"./putMeta":108,"./putObjectTagging":109,"./putSymlink":110,"./restore":111,"./signatureUrl":112}],104:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.number.constructor");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.list = void 0;
+
+var objectUrl_1 = require("../utils/objectUrl");
+
+function list() {
+  return _list.apply(this, arguments);
+}
+
+function _list() {
+  _list = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+    var _this = this;
+
+    var query,
+        options,
+        params,
+        result,
+        objects,
+        prefixes,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            query = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            // prefix, marker, max-keys, delimiter
+            params = this._objectRequestParams('GET', '', options);
+            params.query = query;
+            params.xmlResponse = true;
+            params.successStatuses = [200];
+            _context.next = 8;
+            return this.request(params);
+
+          case 8:
+            result = _context.sent;
+            objects = result.data.Contents;
+
+            if (objects) {
+              if (!Array.isArray(objects)) {
+                objects = [objects];
+              }
+
+              objects = objects.map(function (obj) {
+                return {
+                  name: obj.Key,
+                  url: objectUrl_1.objectUrl(obj.Key, _this.options),
+                  lastModified: obj.LastModified,
+                  etag: obj.ETag,
+                  type: obj.Type,
+                  size: Number(obj.Size),
+                  storageClass: obj.StorageClass,
+                  owner: {
+                    id: obj.Owner.ID,
+                    displayName: obj.Owner.DisplayName
+                  }
+                };
+              });
+            }
+
+            prefixes = result.data.CommonPrefixes || null;
+
+            if (prefixes) {
+              if (!Array.isArray(prefixes)) {
+                prefixes = [prefixes];
+              }
+
+              prefixes = prefixes.map(function (item) {
+                return item.Prefix;
+              });
+            }
+
+            return _context.abrupt("return", {
+              res: result.res,
+              objects: objects,
+              prefixes: prefixes,
+              nextMarker: result.data.NextMarker || null,
+              isTruncated: result.data.IsTruncated === 'true'
+            });
+
+          case 14:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _list.apply(this, arguments);
+}
+
+exports.list = list;
+
+},{"../utils/objectUrl":151,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.map":343,"core-js/modules/es.number.constructor":348,"regenerator-runtime/runtime":434}],105:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.number.constructor");
+
+require("core-js/modules/es.object.assign");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.listV2 = void 0;
+
+var objectUrl_1 = require("../utils/objectUrl");
+
+function listV2(_x) {
+  return _listV.apply(this, arguments);
+}
+
+function _listV() {
+  _listV = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(query) {
+    var _this = this;
+
+    var options,
+        params,
+        result,
+        objects,
+        prefixes,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            params = this._objectRequestParams('GET', '', options);
+            params.query = Object.assign({
+              'list-type': 2
+            }, query);
+            params.xmlResponse = true;
+            params.successStatuses = [200];
+            _context.next = 7;
+            return this.request(params);
+
+          case 7:
+            result = _context.sent;
+            objects = result.data.Contents;
+
+            if (objects) {
+              if (!Array.isArray(objects)) {
+                objects = [objects];
+              }
+
+              objects = objects.map(function (obj) {
+                return {
+                  name: obj.Key,
+                  url: objectUrl_1.objectUrl(obj.Key, _this.options),
+                  lastModified: obj.LastModified,
+                  etag: obj.ETag,
+                  type: obj.Type,
+                  size: Number(obj.Size),
+                  storageClass: obj.StorageClass,
+                  owner: obj.Owner ? {
+                    id: obj.Owner.ID,
+                    displayName: obj.Owner.DisplayName
+                  } : null
+                };
+              });
+            }
+
+            prefixes = result.data.CommonPrefixes || null;
+
+            if (prefixes) {
+              if (!Array.isArray(prefixes)) {
+                prefixes = [prefixes];
+              }
+
+              prefixes = prefixes.map(function (item) {
+                return item.Prefix;
+              });
+            }
+
+            return _context.abrupt("return", {
+              res: result.res,
+              objects: objects,
+              prefixes: prefixes,
+              isTruncated: result.data.IsTruncated === 'true',
+              keyCount: result.data.KeyCount,
+              continuationToken: result.data.ContinuationToken || null,
+              nextContinuationToken: result.data.NextContinuationToken || null
+            });
+
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _listV.apply(this, arguments);
+}
+
+exports.listV2 = listV2;
+
+},{"../utils/objectUrl":151,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.map":343,"core-js/modules/es.number.constructor":348,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],106:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5049,7 +8794,118 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.postAsyncFetch = void 0;
+
+var obj2xml_1 = require("../utils/obj2xml");
+
+var objectName_1 = require("../utils/objectName");
+/*
+ * postAsyncFetch
+ * @param {String} name the object key
+ * @param {String} url
+ * @param {Object} options
+ *        {String} options.host
+ *        {String} options.contentMD5
+ *        {String} options.callback
+ *        {String} options.storageClass Standard/IA/Archive
+ *        {Boolean} options.ignoreSameKey  default value true
+ */
+
+
+function postAsyncFetch(_x, _x2) {
+  return _postAsyncFetch.apply(this, arguments);
+}
+
+function _postAsyncFetch() {
+  _postAsyncFetch = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(object, url) {
+    var options,
+        _options$host,
+        host,
+        _options$contentMD,
+        contentMD5,
+        _options$callback,
+        callback,
+        _options$storageClass,
+        storageClass,
+        _options$ignoreSameKe,
+        ignoreSameKey,
+        paramXMLObj,
+        params,
+        result,
+        _args = arguments;
+
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            options.subres = Object.assign({
+              asyncFetch: ''
+            }, options.subres);
+            options.headers = options.headers || {};
+            object = objectName_1.objectName(object);
+            _options$host = options.host, host = _options$host === void 0 ? '' : _options$host, _options$contentMD = options.contentMD5, contentMD5 = _options$contentMD === void 0 ? '' : _options$contentMD, _options$callback = options.callback, callback = _options$callback === void 0 ? '' : _options$callback, _options$storageClass = options.storageClass, storageClass = _options$storageClass === void 0 ? '' : _options$storageClass, _options$ignoreSameKe = options.ignoreSameKey, ignoreSameKey = _options$ignoreSameKe === void 0 ? true : _options$ignoreSameKe;
+            paramXMLObj = {
+              AsyncFetchTaskConfiguration: {
+                Url: url,
+                Object: object,
+                Host: host,
+                ContentMD5: contentMD5,
+                Callback: callback,
+                StorageClass: storageClass,
+                IgnoreSameKey: ignoreSameKey
+              }
+            };
+            params = this._objectRequestParams('POST', '', options);
+            params.mime = 'xml';
+            params.xmlResponse = true;
+            params.successStatuses = [200];
+            params.content = obj2xml_1.obj2xml(paramXMLObj);
+            _context.next = 13;
+            return this.request(params);
+
+          case 13:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res,
+              status: result.status,
+              taskId: result.data.TaskId
+            });
+
+          case 15:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _postAsyncFetch.apply(this, arguments);
+}
+
+exports.postAsyncFetch = postAsyncFetch;
+
+},{"../utils/obj2xml":149,"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],107:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.object.assign");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putACL = void 0;
+
+var objectName_1 = require("../utils/objectName");
 /*
  * Set object's ACL
  * @param {String} name the object key
@@ -5057,14 +8913,22 @@ var proto = exports;
  * @param {Object} options
  */
 
-proto.putACL = /*#__PURE__*/function () {
-  var _putACL = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, acl, options) {
-    var params, result;
+
+function putACL(_x, _x2) {
+  return _putACL.apply(this, arguments);
+}
+
+function _putACL() {
+  _putACL = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, acl) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            options = options || {};
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
             options.subres = Object.assign({
               acl: ''
             }, options.subres);
@@ -5075,7 +8939,7 @@ proto.putACL = /*#__PURE__*/function () {
 
             options.headers = options.headers || {};
             options.headers['x-oss-object-acl'] = acl;
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
             params = this._objectRequestParams('PUT', name, options);
             params.successStatuses = [200];
             _context.next = 10;
@@ -5094,15 +8958,67 @@ proto.putACL = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _putACL.apply(this, arguments);
+}
 
-  function putACL(_x, _x2, _x3) {
-    return _putACL.apply(this, arguments);
-  }
+exports.putACL = putACL;
 
-  return putACL;
-}();
+},{"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],108:[function(require,module,exports){
+"use strict";
 
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],43:[function(require,module,exports){
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+require("regenerator-runtime/runtime");
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putMeta = void 0;
+
+var copy_1 = require("./copy");
+
+function putMeta(_x, _x2) {
+  return _putMeta.apply(this, arguments);
+}
+
+function _putMeta() {
+  _putMeta = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, meta) {
+    var options,
+        copyResult,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            _context.next = 3;
+            return copy_1.copy.call(this, name, name, {
+              meta: meta || {},
+              timeout: options && options.timeout,
+              ctx: options && options.ctx
+            });
+
+          case 3:
+            copyResult = _context.sent;
+            return _context.abrupt("return", copyResult);
+
+          case 5:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _putMeta.apply(this, arguments);
+}
+
+exports.putMeta = putMeta;
+
+},{"./copy":89,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],109:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5119,13 +9035,16 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _require = require('../utils/obj2xml'),
-    obj2xml = _require.obj2xml;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putObjectTagging = void 0;
 
-var _require2 = require('../utils/checkObjectTag'),
-    checkObjectTag = _require2.checkObjectTag;
+var obj2xml_1 = require("../utils/obj2xml");
 
-var proto = exports;
+var checkObjectTag_1 = require("../utils/checkObjectTag");
+
+var objectName_1 = require("../utils/objectName");
 /**
  * putObjectTagging
  * @param {String} name - object name
@@ -5133,8 +9052,13 @@ var proto = exports;
  * @param {Object} options
  */
 
-proto.putObjectTagging = /*#__PURE__*/function () {
-  var _putObjectTagging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, tag) {
+
+function putObjectTagging(_x, _x2) {
+  return _putObjectTagging.apply(this, arguments);
+}
+
+function _putObjectTagging() {
+  _putObjectTagging = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, tag) {
     var options,
         params,
         paramXMLObj,
@@ -5145,7 +9069,7 @@ proto.putObjectTagging = /*#__PURE__*/function () {
         switch (_context.prev = _context.next) {
           case 0:
             options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
-            checkObjectTag(tag);
+            checkObjectTag_1.checkObjectTag(tag);
             options.subres = Object.assign({
               tagging: ''
             }, options.subres);
@@ -5154,7 +9078,7 @@ proto.putObjectTagging = /*#__PURE__*/function () {
               options.subres.versionId = options.versionId;
             }
 
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
             params = this._objectRequestParams('PUT', name, options);
             params.successStatuses = [200];
             tag = Object.keys(tag).map(function (key) {
@@ -5171,7 +9095,7 @@ proto.putObjectTagging = /*#__PURE__*/function () {
               }
             };
             params.mime = 'xml';
-            params.content = obj2xml(paramXMLObj);
+            params.content = obj2xml_1.obj2xml(paramXMLObj);
             _context.next = 13;
             return this.request(params);
 
@@ -5189,15 +9113,12 @@ proto.putObjectTagging = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _putObjectTagging.apply(this, arguments);
+}
 
-  function putObjectTagging(_x, _x2) {
-    return _putObjectTagging.apply(this, arguments);
-  }
+exports.putObjectTagging = putObjectTagging;
 
-  return putObjectTagging;
-}();
-
-},{"../utils/checkObjectTag":49,"../utils/obj2xml":64,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.map":241,"core-js/modules/es.object.assign":246,"core-js/modules/es.object.keys":248,"regenerator-runtime/runtime":324}],44:[function(require,module,exports){
+},{"../utils/checkObjectTag":122,"../utils/obj2xml":149,"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.map":343,"core-js/modules/es.object.assign":349,"core-js/modules/es.object.keys":351,"regenerator-runtime/runtime":434}],110:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5210,7 +9131,16 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.putSymlink = void 0;
+
+var objectName_1 = require("../utils/objectName");
+
+var convertMetaToHeaders_1 = require("../utils/convertMetaToHeaders");
+
+var escapeName_1 = require("../utils/escapeName");
 /**
  * putSymlink
  * @param {String} name - object name
@@ -5219,19 +9149,25 @@ var proto = exports;
  * @param {{res}}
  */
 
-proto.putSymlink = /*#__PURE__*/function () {
-  var _putSymlink = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, targetName, options) {
-    var params, result;
+
+function putSymlink(_x, _x2) {
+  return _putSymlink.apply(this, arguments);
+}
+
+function _putSymlink() {
+  _putSymlink = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, targetName) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            options = options || {};
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
             options.headers = options.headers || {};
-            targetName = this._escape(this._objectName(targetName));
-
-            this._convertMetaToHeaders(options.meta, options.headers);
-
+            targetName = escapeName_1.escapeName(objectName_1.objectName(targetName));
+            convertMetaToHeaders_1.convertMetaToHeaders(options.meta, options.headers);
             options.headers['x-oss-symlink-target'] = targetName;
             options.subres = Object.assign({
               symlink: ''
@@ -5245,7 +9181,7 @@ proto.putSymlink = /*#__PURE__*/function () {
               options.headers['x-oss-storage-class'] = options.storageClass;
             }
 
-            name = this._objectName(name);
+            name = objectName_1.objectName(name);
             params = this._objectRequestParams('PUT', name, options);
             params.successStatuses = [200];
             _context.next = 13;
@@ -5264,78 +9200,17 @@ proto.putSymlink = /*#__PURE__*/function () {
       }
     }, _callee, this);
   }));
+  return _putSymlink.apply(this, arguments);
+}
 
-  function putSymlink(_x, _x2, _x3) {
-    return _putSymlink.apply(this, arguments);
-  }
+exports.putSymlink = putSymlink;
 
-  return putSymlink;
-}();
-
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.object.assign":246,"regenerator-runtime/runtime":324}],45:[function(require,module,exports){
-"use strict";
-
-var urlutil = require('url');
-
-var utility = require('utility');
-
-var copy = require('copy-to');
-
-var signHelper = require('../../common/signUtils');
-
-var _require = require('../utils/isIP'),
-    isIP = _require.isIP;
-
-var proto = exports;
-
-proto.signatureUrl = function signatureUrl(name, options) {
-  if (isIP(this.options.endpoint.hostname)) {
-    throw new Error('can not get the object URL when endpoint is IP');
-  }
-
-  options = options || {};
-  name = this._objectName(name);
-  options.method = options.method || 'GET';
-  var expires = utility.timestamp() + (options.expires || 1800);
-  var params = {
-    bucket: this.options.bucket,
-    object: name
-  };
-
-  var resource = this._getResource(params);
-
-  if (this.options.stsToken) {
-    options['security-token'] = this.options.stsToken;
-  }
-
-  var signRes = signHelper._signatureForURL(this.options.accessKeySecret, options, resource, expires);
-
-  var url = urlutil.parse(this._getReqUrl(params));
-  url.query = {
-    OSSAccessKeyId: this.options.accessKeyId,
-    Expires: expires,
-    Signature: signRes.Signature
-  };
-  copy(signRes.subResource).to(url.query);
-  return url.format();
-};
-
-},{"../../common/signUtils":47,"../utils/isIP":62,"copy-to":101,"url":330,"utility":382}],46:[function(require,module,exports){
+},{"../utils/convertMetaToHeaders":124,"../utils/escapeName":131,"../utils/objectName":150,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],111:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-require("core-js/modules/es.array.iterator");
-
-require("core-js/modules/es.function.name");
-
-require("core-js/modules/es.object.to-string");
-
-require("core-js/modules/es.promise");
-
-require("core-js/modules/es.string.iterator");
-
-require("core-js/modules/web.dom-collections.iterator");
+require("core-js/modules/es.object.assign");
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -5343,446 +9218,371 @@ require("regenerator-runtime/runtime");
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var proto = exports;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.restore = void 0;
+/**
+ * Restore Object
+ * @param {String} name the object key
+ * @param {Object} options
+ * @returns {{res}}
+ */
 
-proto._parallelNode = /*#__PURE__*/function () {
-  var _parallelNode2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(todo, parallel, fn, sourceData) {
-    var that, jobErr, jobs, tempBatch, remainder, batch, taskIndex, i;
+function restore(_x) {
+  return _restore.apply(this, arguments);
+}
+
+function _restore() {
+  _restore = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name) {
+    var options,
+        params,
+        result,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            that = this; // upload in parallel
+            options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+            options.subres = Object.assign({
+              restore: ''
+            }, options.subres);
 
-            jobErr = [];
-            jobs = [];
-            tempBatch = todo.length / parallel;
-            remainder = todo.length % parallel;
-            batch = remainder === 0 ? tempBatch : (todo.length - remainder) / parallel + 1;
-            taskIndex = 1;
-            i = 0;
-
-          case 8:
-            if (!(i < todo.length)) {
-              _context.next = 26;
-              break;
+            if (options.versionId) {
+              options.subres.versionId = options.versionId;
             }
 
-            if (!that.isCancel()) {
-              _context.next = 11;
-              break;
-            }
+            params = this._objectRequestParams('POST', name, options);
+            params.successStatuses = [202];
+            _context.next = 7;
+            return this.request(params);
 
-            return _context.abrupt("break", 26);
+          case 7:
+            result = _context.sent;
+            return _context.abrupt("return", {
+              res: result.res
+            });
 
-          case 11:
-            if (sourceData) {
-              jobs.push(fn(that, todo[i], sourceData));
-            } else {
-              jobs.push(fn(that, todo[i]));
-            }
-
-            if (!(jobs.length === parallel || taskIndex === batch && i === todo.length - 1)) {
-              _context.next = 23;
-              break;
-            }
-
-            _context.prev = 13;
-            taskIndex += 1;
-            /* eslint no-await-in-loop: [0] */
-
-            _context.next = 17;
-            return Promise.all(jobs);
-
-          case 17:
-            _context.next = 22;
-            break;
-
-          case 19:
-            _context.prev = 19;
-            _context.t0 = _context["catch"](13);
-            jobErr.push(_context.t0);
-
-          case 22:
-            jobs = [];
-
-          case 23:
-            i++;
-            _context.next = 8;
-            break;
-
-          case 26:
-            return _context.abrupt("return", jobErr);
-
-          case 27:
+          case 9:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, this, [[13, 19]]);
+    }, _callee, this);
   }));
+  return _restore.apply(this, arguments);
+}
 
-  function _parallelNode(_x, _x2, _x3, _x4) {
-    return _parallelNode2.apply(this, arguments);
+exports.restore = restore;
+
+},{"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.object.assign":349,"regenerator-runtime/runtime":434}],112:[function(require,module,exports){
+"use strict";
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.signatureUrl = void 0;
+
+var utility_1 = __importDefault(require("utility"));
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var url_1 = __importDefault(require("url"));
+
+var objectName_1 = require("../../common/utils/objectName");
+
+var getResource_1 = require("../../common/utils/getResource");
+
+var signUtils_1 = require("../../common/utils/signUtils");
+
+var getReqUrl_1 = require("../../common/utils/getReqUrl");
+
+function signatureUrl(name) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  name = objectName_1.objectName(name);
+  options.method = options.method || 'GET';
+  var expires = utility_1.default.timestamp() + (options.expires || 1800);
+  var params = {
+    bucket: this.options.bucket,
+    object: name
+  };
+  var resource = getResource_1.getResource(params, this.options.headerEncoding);
+
+  if (this.options.stsToken) {
+    options['security-token'] = this.options.stsToken;
   }
 
-  return _parallelNode;
-}();
+  var signRes = signUtils_1._signatureForURL(this.options.accessKeySecret, options, resource, expires);
 
-proto._parallel = function _parallel(todo, parallel, jobPromise) {
-  var that = this;
-  return new Promise(function (resolve) {
-    var _jobErr = [];
+  var url = url_1.default.parse(getReqUrl_1.getReqUrl(params, this.options));
+  url.query = {
+    OSSAccessKeyId: this.options.accessKeyId,
+    Expires: expires,
+    Signature: signRes.Signature
+  };
+  copy_to_1.default(signRes.subResource).to(url.query);
+  return url.format();
+}
 
-    if (parallel <= 0 || !todo) {
-      resolve(_jobErr);
-      return;
-    }
+exports.signatureUrl = signatureUrl;
 
-    function onlyOnce(fn) {
-      return function () {
-        if (fn === null) throw new Error('Callback was already called.');
-        var callFn = fn;
-        fn = null;
+},{"../../common/utils/getReqUrl":137,"../../common/utils/getResource":138,"../../common/utils/objectName":150,"../../common/utils/signUtils":156,"copy-to":199,"url":452,"utility":454}],113:[function(require,module,exports){
+"use strict";
 
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-        callFn.apply(this, args);
-      };
-    }
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
-    function createArrayIterator(coll) {
-      var i = -1;
-      var len = coll.length;
-      return function next() {
-        return ++i < len && !that.isCancel() ? {
-          value: coll[i],
-          key: i
-        } : null;
-      };
-    }
+require("regenerator-runtime/runtime");
 
-    var nextElem = createArrayIterator(todo);
-    var done = false;
-    var running = 0;
-    var looping = false;
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-    function iterateeCallback(err, value) {
-      running -= 1;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._getObjectMeta = void 0;
 
-      if (err) {
-        done = true;
-
-        _jobErr.push(err);
-
-        resolve(_jobErr);
-      } else if (value === {} || done && running <= 0) {
-        done = true;
-        resolve(_jobErr);
-      } else if (!looping) {
-        /* eslint no-use-before-define: [0] */
-        if (that.isCancel()) {
-          resolve(_jobErr);
-        } else {
-          replenish();
-        }
-      }
-    }
-
-    function iteratee(value, callback) {
-      jobPromise(value).then(function (result) {
-        callback(null, result);
-      }).catch(function (err) {
-        callback(err);
-      });
-    }
-
-    function replenish() {
-      looping = true;
-
-      while (running < parallel && !done && !that.isCancel()) {
-        var elem = nextElem();
-
-        if (elem === null || _jobErr.length > 0) {
-          done = true;
-
-          if (running <= 0) {
-            resolve(_jobErr);
-          }
-
-          return;
-        }
-
-        running += 1;
-        iteratee(elem.value, onlyOnce(iterateeCallback));
-      }
-
-      looping = false;
-    }
-
-    replenish();
-  });
-};
+var head_1 = require("../object/head");
 /**
- * cancel operation, now can use with multipartUpload
- * @param {Object} abort
- *        {String} anort.name object key
- *        {String} anort.uploadId upload id
- *        {String} anort.options timeout
+ * Get Object Meta
+ * @param {String} bucket  bucket name
+ * @param {String} name   object name
+ * @param {Object} options
  */
 
 
-proto.cancel = function cancel(abort) {
-  this.options.cancelFlag = true;
+function _getObjectMeta(_x, _x2) {
+  return _getObjectMeta2.apply(this, arguments);
+}
 
-  if (abort) {
-    this.abortMultipartUpload(abort.name, abort.uploadId, abort.options);
-  }
-};
+function _getObjectMeta2() {
+  _getObjectMeta2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(bucket, name) {
+    var options,
+        currentBucket,
+        data,
+        _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+            currentBucket = this.options.bucket;
+            this.setBucket(bucket);
+            _context.prev = 3;
+            _context.next = 6;
+            return head_1.head.call(this, name, options);
 
-proto.isCancel = function isCancel() {
-  return this.options.cancelFlag;
-};
+          case 6:
+            data = _context.sent;
+            this.setBucket(currentBucket);
+            return _context.abrupt("return", data);
 
-proto.resetCancelFlag = function resetCancelFlag() {
-  this.options.cancelFlag = false;
-};
+          case 11:
+            _context.prev = 11;
+            _context.t0 = _context["catch"](3);
+            this.setBucket(currentBucket);
+            throw _context.t0;
 
-proto._stop = function _stop() {
-  this.options.cancelFlag = true;
-}; // cancel is not error , so create an object
+          case 15:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this, [[3, 11]]);
+  }));
+  return _getObjectMeta2.apply(this, arguments);
+}
 
+exports._getObjectMeta = _getObjectMeta;
 
-proto._makeCancelEvent = function _makeCancelEvent() {
-  var cancelEvent = {
-    status: 0,
-    name: 'cancel'
-  };
-  return cancelEvent;
-}; // abort is not error , so create an object
+},{"../object/head":102,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"regenerator-runtime/runtime":434}],114:[function(require,module,exports){
+"use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._makeAbortEvent = void 0;
 
-proto._makeAbortEvent = function _makeAbortEvent() {
+function _makeAbortEvent() {
   var abortEvent = {
     status: 0,
     name: 'abort',
     message: 'upload task has been abort'
   };
   return abortEvent;
+}
+
+exports._makeAbortEvent = _makeAbortEvent;
+
+},{}],115:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._makeCancelEvent = void 0;
+
+function _makeCancelEvent() {
+  var cancelEvent = {
+    status: 0,
+    name: 'cancel'
+  };
+  return cancelEvent;
+}
+
+exports._makeCancelEvent = _makeCancelEvent;
+
+},{}],116:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.promise");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._parallel = void 0;
+
+function _parallel(todo, num, fn, sourceData) {
+  var that = this;
+  return new Promise(function (res) {
+    var jobErr = [];
+    var doing = [];
+    var jobs = todo.map(function (_) {
+      return function () {
+        return fn(_, sourceData);
+      };
+    });
+
+    for (var i = 0; i < num && todo && todo.length && !that.isCancel(); i++) {
+      continueFn(jobs);
+    }
+
+    function continueFn(queue) {
+      if (!queue || !queue.length || that.isCancel()) {
+        return;
+      }
+
+      var item = queue.pop();
+      doing.push(item);
+      item().then(function (_res) {
+        continueFn(queue);
+      }).catch(function (_err) {
+        queue.length = 0;
+        jobErr.push(_err);
+        res(jobErr);
+      }).then(function () {
+        doing.pop();
+        if (!doing.length) res();
+      });
+    }
+  });
+}
+
+exports._parallel = _parallel;
+
+},{"core-js/modules/es.array.map":343,"core-js/modules/es.object.to-string":352,"core-js/modules/es.promise":353}],117:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.split");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
 };
 
-},{"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.iterator":239,"core-js/modules/es.function.name":244,"core-js/modules/es.object.to-string":249,"core-js/modules/es.promise":250,"core-js/modules/es.string.iterator":254,"core-js/modules/web.dom-collections.iterator":286,"regenerator-runtime/runtime":324}],47:[function(require,module,exports){
-(function (Buffer){
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._unSupportBrowserTip = void 0;
+
+var platform_1 = __importDefault(require("platform"));
+
+function _unSupportBrowserTip() {
+  var _platform_1$default = platform_1.default,
+      name = _platform_1$default.name,
+      version = _platform_1$default.version;
+
+  if (name && name.toLowerCase && name.toLowerCase() === 'ie' && version.split('.')[0] < 10) {
+    console.warn('ali-oss does not support the current browser');
+  }
+}
+
+exports._unSupportBrowserTip = _unSupportBrowserTip;
+
+},{"core-js/modules/es.function.name":347,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.split":362,"platform":450}],118:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
 
-require("core-js/modules/es.array.for-each");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.authorization = void 0;
 
-require("core-js/modules/es.array.index-of");
+var signUtils_1 = require("./signUtils");
 
-require("core-js/modules/es.array.join");
-
-require("core-js/modules/es.array.sort");
-
-require("core-js/modules/es.object.keys");
-
-require("core-js/modules/es.object.to-string");
-
-require("core-js/modules/es.regexp.to-string");
-
-require("core-js/modules/es.string.trim");
-
-require("core-js/modules/web.dom-collections.for-each");
-
-var crypto = require('./../../shims/crypto/crypto.js');
-
-var is = require('is-type-of');
-/**
- *
- * @param {String} resourcePath
- * @param {Object} parameters
- * @return
- */
-
-
-exports.buildCanonicalizedResource = function buildCanonicalizedResource(resourcePath, parameters) {
-  var canonicalizedResource = "".concat(resourcePath);
-  var separatorString = '?';
-
-  if (is.string(parameters) && parameters.trim() !== '') {
-    canonicalizedResource += separatorString + parameters;
-  } else if (is.array(parameters)) {
-    parameters.sort();
-    canonicalizedResource += separatorString + parameters.join('&');
-  } else if (parameters) {
-    var compareFunc = function compareFunc(entry1, entry2) {
-      if (entry1[0] > entry2[0]) {
-        return 1;
-      } else if (entry1[0] < entry2[0]) {
-        return -1;
-      }
-
-      return 0;
-    };
-
-    var processFunc = function processFunc(key) {
-      canonicalizedResource += separatorString + key;
-
-      if (parameters[key]) {
-        canonicalizedResource += "=".concat(parameters[key]);
-      }
-
-      separatorString = '&';
-    };
-
-    Object.keys(parameters).sort(compareFunc).forEach(processFunc);
-  }
-
-  return canonicalizedResource;
-};
-/**
- * @param {String} method
- * @param {String} resourcePath
- * @param {Object} request
- * @param {String} expires
- * @return {String} canonicalString
- */
-
-
-exports.buildCanonicalString = function canonicalString(method, resourcePath, request, expires) {
-  request = request || {};
-  var headers = request.headers || {};
-  var OSS_PREFIX = 'x-oss-';
-  var ossHeaders = [];
-  var headersToSign = {};
-  var signContent = [method.toUpperCase(), headers['Content-Md5'] || '', headers['Content-Type'] || headers['Content-Type'.toLowerCase()], expires || headers['x-oss-date']];
-  Object.keys(headers).forEach(function (key) {
-    var lowerKey = key.toLowerCase();
-
-    if (lowerKey.indexOf(OSS_PREFIX) === 0) {
-      headersToSign[lowerKey] = String(headers[key]).trim();
-    }
-  });
-  Object.keys(headersToSign).sort().forEach(function (key) {
-    ossHeaders.push("".concat(key, ":").concat(headersToSign[key]));
-  });
-  signContent = signContent.concat(ossHeaders);
-  signContent.push(this.buildCanonicalizedResource(resourcePath, request.parameters));
-  return signContent.join('\n');
-};
-/**
- * @param {String} accessKeySecret
- * @param {String} canonicalString
- */
-
-
-exports.computeSignature = function computeSignature(accessKeySecret, canonicalString) {
-  var headerEncoding = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'utf-8';
-  var signature = crypto.createHmac('sha1', accessKeySecret);
-  return signature.update(Buffer.from(canonicalString, headerEncoding)).digest('base64');
-};
-/**
- * @param {String} accessKeyId
- * @param {String} accessKeySecret
- * @param {String} canonicalString
- */
-
-
-exports.authorization = function authorization(accessKeyId, accessKeySecret, canonicalString, headerEncoding) {
-  return "OSS ".concat(accessKeyId, ":").concat(this.computeSignature(accessKeySecret, canonicalString, headerEncoding));
-};
-/**
- *
- * @param {String} accessKeySecret
- * @param {Object} options
- * @param {String} resource
- * @param {Number} expires
- */
-
-
-exports._signatureForURL = function _signatureForURL(accessKeySecret) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var resource = arguments.length > 2 ? arguments[2] : undefined;
-  var expires = arguments.length > 3 ? arguments[3] : undefined;
-  var headerEncoding = arguments.length > 4 ? arguments[4] : undefined;
-  var headers = {};
-  var _options$subResource = options.subResource,
-      subResource = _options$subResource === void 0 ? {} : _options$subResource;
-
-  if (options.process) {
-    var processKeyword = 'x-oss-process';
-    subResource[processKeyword] = options.process;
-  }
-
-  if (options.trafficLimit) {
-    var trafficLimitKey = 'x-oss-traffic-limit';
-    subResource[trafficLimitKey] = options.trafficLimit;
-  }
-
-  if (options.response) {
-    Object.keys(options.response).forEach(function (k) {
-      var key = "response-".concat(k.toLowerCase());
-      subResource[key] = options.response[k];
-    });
-  }
-
-  Object.keys(options).forEach(function (key) {
-    var lowerKey = key.toLowerCase();
-    var value = options[key];
-
-    if (lowerKey.indexOf('x-oss-') === 0) {
-      headers[lowerKey] = value;
-    } else if (lowerKey.indexOf('content-md5') === 0) {
-      headers[key] = value;
-    } else if (lowerKey.indexOf('content-type') === 0) {
-      headers[key] = value;
-    }
-  });
-
-  if (Object.prototype.hasOwnProperty.call(options, 'security-token')) {
-    subResource['security-token'] = options['security-token'];
-  }
-
-  if (Object.prototype.hasOwnProperty.call(options, 'callback')) {
-    var json = {
-      callbackUrl: encodeURI(options.callback.url),
-      callbackBody: options.callback.body
-    };
-
-    if (options.callback.host) {
-      json.callbackHost = options.callback.host;
-    }
-
-    if (options.callback.contentType) {
-      json.callbackBodyType = options.callback.contentType;
-    }
-
-    subResource.callback = Buffer.from(JSON.stringify(json)).toString('base64');
-
-    if (options.callback.customValue) {
-      var callbackVar = {};
-      Object.keys(options.callback.customValue).forEach(function (key) {
-        callbackVar["x:".concat(key)] = options.callback.customValue[key];
-      });
-      subResource['callback-var'] = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
-    }
-  }
-
-  var canonicalString = this.buildCanonicalString(options.method, resource, {
+function authorization(method, resource, subres, headers, config, headerEncoding) {
+  var stringToSign = signUtils_1.buildCanonicalString(method.toUpperCase(), resource, {
     headers: headers,
-    parameters: subResource
-  }, expires.toString());
-  return {
-    Signature: this.computeSignature(accessKeySecret, canonicalString, headerEncoding),
-    subResource: subResource
+    parameters: subres
+  });
+  return "OSS ".concat(config.accessKeyId, ":").concat(signUtils_1.computeSignature(config.accessKeySecret, stringToSign, headerEncoding));
+}
+
+exports.authorization = authorization;
+
+},{"./signUtils":156,"core-js/modules/es.array.concat":332}],119:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.split");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
   };
 };
 
-}).call(this,require("buffer").Buffer)
-},{"./../../shims/crypto/crypto.js":376,"buffer":98,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.index-of":238,"core-js/modules/es.array.join":240,"core-js/modules/es.array.sort":243,"core-js/modules/es.object.keys":248,"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.to-string":252,"core-js/modules/es.string.trim":258,"core-js/modules/web.dom-collections.for-each":285,"is-type-of":381}],48:[function(require,module,exports){
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.checkBrowserAndVersion = void 0;
+
+var bowser_1 = __importDefault(require("bowser"));
+/*
+ * Check Browser And Version
+ * @param {String} [name] browser name: like IE, Chrome, Firefox
+ * @param {String} [version] browser major version: like 10(IE 10.x), 55(Chrome 55.x), 50(Firefox 50.x)
+ * @return {Bool} true or false
+ * @api private
+ */
+
+
+function checkBrowserAndVersion(name, version) {
+  return bowser_1.default.name === name && bowser_1.default.version.split('.')[0] === version;
+}
+
+exports.checkBrowserAndVersion = checkBrowserAndVersion;
+
+},{"bowser":175,"core-js/modules/es.function.name":347,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.split":362}],120:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5799,7 +9599,67 @@ exports.checkBucketName = function (name) {
   }
 };
 
-},{}],49:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.object.entries");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.checkBucketTag = void 0;
+
+var checkValid_1 = require("./checkValid");
+
+var isObject_1 = require("./isObject");
+
+var commonRules = [{
+  validator: function validator(value) {
+    if (typeof value !== 'string') {
+      throw new Error('the key and value of the tag must be String');
+    }
+  }
+}];
+var rules = {
+  key: [].concat(commonRules, [{
+    pattern: /^.{1,64}$/,
+    msg: 'tag key can be a maximum of 64 bytes in length'
+  }, {
+    pattern: /^(?!https*:\/\/|Aliyun)/,
+    msg: 'tag key can not startsWith: http://, https://, Aliyun'
+  }]),
+  value: [].concat(commonRules, [{
+    pattern: /^.{0,128}$/,
+    msg: 'tag value can be a maximum of 128 bytes in length'
+  }])
+};
+
+exports.checkBucketTag = function (tag) {
+  if (!isObject_1.isObject(tag)) {
+    throw new Error('bucket tag must be Object');
+  }
+
+  var entries = Object.entries(tag);
+
+  if (entries.length > 20) {
+    throw new Error('maximum of 20 tags for a bucket');
+  }
+
+  var rulesIndexKey = ['key', 'value'];
+  entries.forEach(function (keyValue) {
+    keyValue.forEach(function (item, index) {
+      checkValid_1.checkValid(item, rules[rulesIndexKey[index]]);
+    });
+  });
+};
+
+},{"./checkValid":123,"./isObject":147,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.entries":350,"core-js/modules/web.dom-collections.for-each":391}],122:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
@@ -5815,11 +9675,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.checkObjectTag = void 0;
 
-var _require = require('./checkValid'),
-    checkValid = _require.checkValid;
+var checkValid_1 = require("./checkValid");
 
-var _require2 = require('./isObject'),
-    isObject = _require2.isObject;
+var isObject_1 = require("./isObject");
 
 var commonRules = [{
   validator: function validator(value) {
@@ -5843,7 +9701,7 @@ var rules = {
 };
 
 function checkObjectTag(tag) {
-  if (!isObject(tag)) {
+  if (!isObject_1.isObject(tag)) {
     throw new Error('tag must be Object');
   }
 
@@ -5856,14 +9714,14 @@ function checkObjectTag(tag) {
   var rulesIndexKey = ['key', 'value'];
   entries.forEach(function (keyValue) {
     keyValue.forEach(function (item, index) {
-      checkValid(item, rules[rulesIndexKey[index]]);
+      checkValid_1.checkValid(item, rules[rulesIndexKey[index]]);
     });
   });
 }
 
 exports.checkObjectTag = checkObjectTag;
 
-},{"./checkValid":50,"./isObject":63,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.for-each":235,"core-js/modules/es.object.entries":247,"core-js/modules/web.dom-collections.for-each":285}],50:[function(require,module,exports){
+},{"./checkValid":123,"./isObject":147,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.entries":350,"core-js/modules/web.dom-collections.for-each":391}],123:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.for-each");
@@ -5873,7 +9731,7 @@ require("core-js/modules/web.dom-collections.for-each");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.checkValid = void 0;
+exports.checkValidRegion = exports.checkValidEndpoint = exports.checkValid = void 0;
 
 function checkValid(_value, _rules) {
   _rules.forEach(function (rule) {
@@ -5887,161 +9745,59 @@ function checkValid(_value, _rules) {
 
 exports.checkValid = checkValid;
 
-},{"core-js/modules/es.array.for-each":235,"core-js/modules/web.dom-collections.for-each":285}],51:[function(require,module,exports){
-(function (Buffer){
+function checkValidEndpoint(value) {
+  return checkValid(value, [{
+    validator: function checkEndpoint(endpoint) {
+      var isValid = true;
+
+      if (typeof endpoint === 'string') {
+        isValid = /^[a-zA-Z0-9._:/-]+$/.test(endpoint);
+      } else if (endpoint.host) {
+        isValid = /^[a-zA-Z0-9._:/-]+$/.test(endpoint.host);
+      }
+
+      if (!isValid) {
+        throw new Error('The endpoint must be conform to the specifications');
+      }
+    }
+  }]);
+}
+
+exports.checkValidEndpoint = checkValidEndpoint;
+
+function checkValidRegion(value) {
+  return checkValid(value, [{
+    pattern: /^[a-zA-Z0-9\-_]+$/,
+    msg: 'The region must be conform to the specifications'
+  }]);
+}
+
+exports.checkValidRegion = checkValidRegion;
+
+},{"core-js/modules/es.array.for-each":336,"core-js/modules/web.dom-collections.for-each":391}],124:[function(require,module,exports){
 "use strict";
 
-require("core-js/modules/es.array.concat");
+require("core-js/modules/es.array.for-each");
 
-require("core-js/modules/es.array.includes");
+require("core-js/modules/es.object.keys");
 
-require("core-js/modules/es.array.index-of");
-
-require("core-js/modules/es.object.assign");
-
-require("core-js/modules/es.string.includes");
+require("core-js/modules/web.dom-collections.for-each");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createRequest = void 0;
+exports.convertMetaToHeaders = void 0;
 
-var crypto = require('./../../../shims/crypto/crypto.js');
-
-var debug = require('debug')('ali-oss');
-
-var mime = require('mime');
-
-var dateFormat = require('dateformat');
-
-var copy = require('copy-to');
-
-var path = require('path');
-
-var _require = require('./encoder'),
-    encoder = _require.encoder;
-
-var _require2 = require('./isIP'),
-    isIP = _require2.isIP;
-
-var _require3 = require('./setRegion'),
-    setRegion = _require3.setRegion;
-
-var _require4 = require('../client/getReqUrl'),
-    getReqUrl = _require4.getReqUrl;
-
-function getHeader(headers, name) {
-  return headers[name] || headers[name.toLowerCase()];
+function convertMetaToHeaders(meta, headers) {
+  if (!meta) return;
+  Object.keys(meta).forEach(function (k) {
+    headers["x-oss-meta-".concat(k)] = meta[k];
+  });
 }
 
-function delHeader(headers, name) {
-  delete headers[name];
-  delete headers[name.toLowerCase()];
-}
+exports.convertMetaToHeaders = convertMetaToHeaders;
 
-function createRequest(params) {
-  var date = new Date();
-
-  if (this.options.amendTimeSkewed) {
-    date = +new Date() + this.options.amendTimeSkewed;
-  }
-
-  var headers = {
-    'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
-    'x-oss-user-agent': this.userAgent
-  };
-
-  if (this.userAgent.includes('nodejs')) {
-    headers['User-Agent'] = this.userAgent;
-  }
-
-  if (this.options.isRequestPay) {
-    Object.assign(headers, {
-      'x-oss-request-payer': 'requester'
-    });
-  }
-
-  if (this.options.stsToken) {
-    headers['x-oss-security-token'] = this.options.stsToken;
-  }
-
-  copy(params.headers).to(headers);
-
-  if (!getHeader(headers, 'Content-Type')) {
-    if (params.mime && params.mime.indexOf('/') > 0) {
-      headers['Content-Type'] = params.mime;
-    } else {
-      headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));
-    }
-  }
-
-  if (!getHeader(headers, 'Content-Type')) {
-    delHeader(headers, 'Content-Type');
-  }
-
-  if (params.content) {
-    headers['Content-Md5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
-
-    if (!headers['Content-Length']) {
-      headers['Content-Length'] = params.content.length;
-    }
-  }
-
-  var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-  for (var k in headers) {
-    if (headers[k] && hasOwnProperty.call(headers, k)) {
-      headers[k] = encoder(String(headers[k]), this.options.headerEncoding);
-    }
-  }
-
-  var authResource = this._getResource(params);
-
-  headers.authorization = this.authorization(params.method, authResource, params.subres, headers, this.options.headerEncoding); // const url = this._getReqUrl(params);
-
-  if (isIP(this.options.endpoint.hostname)) {
-    var _this$options = this.options,
-        region = _this$options.region,
-        internal = _this$options.internal,
-        secure = _this$options.secure;
-    var hostInfo = setRegion(region, internal, secure);
-    headers.host = "".concat(params.bucket, ".").concat(hostInfo.host);
-  }
-
-  var url = getReqUrl.bind(this)(params);
-  debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
-  var timeout = params.timeout || this.options.timeout;
-  var reqParams = {
-    method: params.method,
-    content: params.content,
-    stream: params.stream,
-    headers: headers,
-    timeout: timeout,
-    writeStream: params.writeStream,
-    customResponse: params.customResponse,
-    ctx: params.ctx || this.ctx
-  };
-
-  if (this.agent) {
-    reqParams.agent = this.agent;
-  }
-
-  if (this.httpsAgent) {
-    reqParams.httpsAgent = this.httpsAgent;
-  }
-
-  reqParams.enableProxy = !!this.options.enableProxy;
-  reqParams.proxy = this.options.proxy ? this.options.proxy : null;
-  return {
-    url: url,
-    params: reqParams
-  };
-}
-
-exports.createRequest = createRequest;
-
-}).call(this,require("buffer").Buffer)
-},{"../client/getReqUrl":24,"./../../../shims/crypto/crypto.js":376,"./encoder":54,"./isIP":62,"./setRegion":65,"buffer":98,"copy-to":101,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.includes":237,"core-js/modules/es.array.index-of":238,"core-js/modules/es.object.assign":246,"core-js/modules/es.string.includes":253,"dateformat":288,"debug":380,"mime":300,"path":303}],52:[function(require,module,exports){
+},{"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.keys":351,"core-js/modules/web.dom-collections.for-each":391}],125:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.for-each");
@@ -6140,7 +9896,7 @@ function fixLowerFirst(o, lowerFirst) {
   }
 }
 
-},{"./isObject":63,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.includes":237,"core-js/modules/es.object.entries":247,"core-js/modules/es.object.keys":248,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285}],53:[function(require,module,exports){
+},{"./isObject":147,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.includes":338,"core-js/modules/es.object.entries":350,"core-js/modules/es.object.keys":351,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360,"core-js/modules/web.dom-collections.for-each":391}],126:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6170,7 +9926,131 @@ exports.deepCopy = function (obj) {
   return copy;
 };
 
-},{"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/helpers/typeof":69,"core-js/modules/es.array.for-each":235,"core-js/modules/es.object.keys":248,"core-js/modules/web.dom-collections.for-each":285}],54:[function(require,module,exports){
+},{"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.keys":351,"core-js/modules/web.dom-collections.for-each":391}],127:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.promise");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.deleteFileSafe = void 0;
+
+var fs_1 = __importDefault(require("fs"));
+
+var debug_1 = __importDefault(require("debug"));
+
+var debug = debug_1.default('ali-oss');
+
+function deleteFileSafe(filepath) {
+  return new Promise(function (resolve) {
+    fs_1.default.exists(filepath, function (exists) {
+      if (!exists) {
+        resolve();
+      } else {
+        fs_1.default.unlink(filepath, function (err) {
+          if (err) {
+            debug('unlink %j error: %s', filepath, err);
+          }
+
+          resolve();
+        });
+      }
+    });
+  });
+}
+
+exports.deleteFileSafe = deleteFileSafe;
+
+},{"core-js/modules/es.object.to-string":352,"core-js/modules/es.promise":353,"debug":448,"fs":176}],128:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.divideParts = void 0;
+
+function divideParts(fileSize, partSize) {
+  var numParts = Math.ceil(fileSize / partSize);
+  var partOffs = [];
+
+  for (var i = 0; i < numParts; i++) {
+    var start = partSize * i;
+    var end = Math.min(start + partSize, fileSize);
+    partOffs.push({
+      start: start,
+      end: end
+    });
+  }
+
+  return partOffs;
+}
+
+exports.divideParts = divideParts;
+
+},{}],129:[function(require,module,exports){
+(function (Buffer){
+"use strict";
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.regexp.to-string");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.encodeCallback = void 0;
+
+function encodeCallback(reqParams, options) {
+  reqParams.headers = reqParams.headers || {};
+
+  if (!Object.prototype.hasOwnProperty.call(reqParams.headers, 'x-oss-callback')) {
+    if (options.callback) {
+      var json = {
+        callbackUrl: encodeURI(options.callback.url),
+        callbackBody: options.callback.body
+      };
+
+      if (options.callback.host) {
+        json.callbackHost = options.callback.host;
+      }
+
+      if (options.callback.contentType) {
+        json.callbackBodyType = options.callback.contentType;
+      }
+
+      var callback = Buffer.from(JSON.stringify(json)).toString('base64');
+      reqParams.headers['x-oss-callback'] = callback;
+
+      if (options.callback.customValue) {
+        var callbackVar = {};
+        Object.keys(options.callback.customValue).forEach(function (key) {
+          callbackVar["x:".concat(key)] = options.callback.customValue[key];
+        });
+        reqParams.headers['x-oss-callback-var'] = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
+      }
+    }
+  }
+}
+
+exports.encodeCallback = encodeCallback;
+
+}).call(this,require("buffer").Buffer)
+},{"buffer":196,"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.keys":351,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356,"core-js/modules/web.dom-collections.for-each":391}],130:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -6192,7 +10072,41 @@ function encoder(str) {
 exports.encoder = encoder;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":98,"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.to-string":252}],55:[function(require,module,exports){
+},{"buffer":196,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356}],131:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.replace");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.escapeName = void 0;
+
+var utility_1 = __importDefault(require("utility"));
+
+var _defaultConfig = {
+  reg: /%2F/g,
+  str: '/'
+};
+
+function escapeName(name) {
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _defaultConfig;
+  var reg = config.reg,
+      str = config.str;
+  return utility_1.default.encodeURIComponent(name).replace(reg, str);
+}
+
+exports.escapeName = escapeName;
+
+},{"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360,"utility":454}],132:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.map");
@@ -6260,7 +10174,7 @@ function formatFn(_) {
   return _;
 }
 
-},{"../utils/dataFix":52,"../utils/formatObjKey":56,"../utils/isArray":58,"../utils/isObject":63,"core-js/modules/es.array.map":241,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.string.replace":255}],56:[function(require,module,exports){
+},{"../utils/dataFix":125,"../utils/formatObjKey":133,"../utils/isArray":142,"../utils/isObject":147,"core-js/modules/es.array.map":343,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360}],133:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6329,7 +10243,249 @@ function handelFormat(key, type, options) {
   return key;
 }
 
-},{"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/helpers/typeof":69,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.includes":237,"core-js/modules/es.object.keys":248,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.string.includes":253,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285}],57:[function(require,module,exports){
+},{"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.includes":338,"core-js/modules/es.object.keys":351,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.includes":357,"core-js/modules/es.string.replace":360,"core-js/modules/web.dom-collections.for-each":391}],134:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.replace");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.formatQuery = void 0;
+
+var isObject_1 = require("./isObject");
+
+function camel2Line(name) {
+  return name.replace(/([A-Z])/g, '-$1').toLowerCase();
+}
+
+function formatQuery() {
+  var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var obj = {};
+
+  if (isObject_1.isObject(query)) {
+    Object.keys(query).forEach(function (key) {
+      obj[camel2Line(key)] = query[key];
+    });
+  }
+
+  return obj;
+}
+
+exports.formatQuery = formatQuery;
+
+},{"./isObject":147,"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.keys":351,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360,"core-js/modules/web.dom-collections.for-each":391}],135:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.formatTag = void 0;
+
+var isObject_1 = require("./isObject");
+
+function formatTag(obj) {
+  if (obj.Tagging !== undefined) {
+    obj = obj.Tagging.TagSet.Tag;
+  } else if (obj.TagSet !== undefined) {
+    obj = obj.TagSet.Tag;
+  } else if (obj.Tag !== undefined) {
+    obj = obj.Tag;
+  }
+
+  obj = obj && isObject_1.isObject(obj) ? [obj] : obj || [];
+  var tag = {};
+  obj.forEach(function (item) {
+    tag[item.Key] = item.Value;
+  });
+  return tag;
+}
+
+exports.formatTag = formatTag;
+
+},{"./isObject":147,"core-js/modules/es.array.for-each":336,"core-js/modules/web.dom-collections.for-each":391}],136:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getPartSize = void 0;
+var defaultPartSize = 1 * 1024 * 1024;
+
+function getPartSize(fileSize, partSize) {
+  var maxNumParts = 10 * 1000;
+  var safeSize = Math.ceil(fileSize / maxNumParts);
+  if (!partSize) partSize = defaultPartSize;
+
+  if (partSize < safeSize) {
+    partSize = safeSize;
+    console.warn("partSize has been set to ".concat(partSize, ", because the partSize you provided causes partNumber to be greater than 10,000"));
+  }
+
+  return partSize;
+}
+
+exports.getPartSize = getPartSize;
+
+},{}],137:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.replace");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getReqUrl = void 0;
+
+var is_type_of_1 = __importDefault(require("is-type-of"));
+
+var copy_to_1 = __importDefault(require("copy-to"));
+
+var url_1 = __importDefault(require("url"));
+
+var merge_descriptors_1 = __importDefault(require("merge-descriptors"));
+
+var isIP_1 = require("./isIP");
+
+var escapeName_1 = require("./escapeName");
+
+var checkValid_1 = require("./checkValid");
+
+function getReqUrl(params, options) {
+  var ep = {};
+  checkValid_1.checkValidEndpoint(options.endpoint);
+  copy_to_1.default(options.endpoint, false).to(ep);
+
+  var _isIP = isIP_1.isIP(ep.hostname);
+
+  var isCname = options.cname;
+
+  if (params.bucket && !isCname && !_isIP && !options.sldEnable) {
+    ep.host = "".concat(params.bucket, ".").concat(ep.host);
+  }
+
+  var resourcePath = '/';
+
+  if (params.bucket && options.sldEnable) {
+    resourcePath += "".concat(params.bucket, "/");
+  }
+
+  if (params.object) {
+    // Preserve '/' in result url
+    resourcePath += escapeName_1.escapeName(params.object).replace(/\+/g, '%2B');
+  }
+
+  ep.pathname = resourcePath;
+  var query = {};
+
+  if (params.query) {
+    merge_descriptors_1.default(query, params.query);
+  }
+
+  if (params.subres) {
+    var subresAsQuery = {};
+
+    if (is_type_of_1.default.string(params.subres)) {
+      subresAsQuery[params.subres] = '';
+    } else if (is_type_of_1.default.array(params.subres)) {
+      params.subres.forEach(function (k) {
+        subresAsQuery[k] = '';
+      });
+    } else {
+      subresAsQuery = params.subres;
+    }
+
+    merge_descriptors_1.default(query, subresAsQuery);
+  }
+
+  ep.query = query;
+  return url_1.default.format(ep);
+}
+
+exports.getReqUrl = getReqUrl;
+
+},{"./checkValid":123,"./escapeName":131,"./isIP":146,"copy-to":199,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.for-each":336,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360,"core-js/modules/web.dom-collections.for-each":391,"is-type-of":449,"merge-descriptors":409,"url":452}],138:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getResource = void 0;
+
+var encoder_1 = require("./encoder");
+
+function getResource(params, headerEncoding) {
+  var resource = '/';
+  if (params.bucket) resource += "".concat(params.bucket, "/");
+  if (params.object) resource += encoder_1.encoder(params.object, headerEncoding);
+  return resource;
+}
+
+exports.getResource = getResource;
+
+},{"./encoder":130}],139:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.replace");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getSourceName = void 0;
+
+var checkBucketName_1 = require("./checkBucketName");
+
+var objectName_1 = require("./objectName");
+
+function getSourceName(sourceName, bucketName, configBucket) {
+  if (typeof bucketName === 'string') {
+    sourceName = objectName_1.objectName(sourceName);
+  } else if (sourceName[0] !== '/') {
+    bucketName = configBucket;
+  } else {
+    bucketName = sourceName.replace(/\/(.+?)(\/.*)/, '$1');
+    sourceName = sourceName.replace(/(\/.+?\/)(.*)/, '$2');
+  }
+
+  checkBucketName_1.checkBucketName(bucketName, false);
+  sourceName = encodeURI(sourceName);
+  sourceName = "/".concat(bucketName, "/").concat(sourceName);
+  return sourceName;
+}
+
+exports.getSourceName = getSourceName;
+
+},{"./checkBucketName":120,"./objectName":150,"core-js/modules/es.array.concat":332,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360}],140:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6355,7 +10511,127 @@ function getStrBytesCount(str) {
 
 exports.getStrBytesCount = getStrBytesCount;
 
-},{}],58:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
+"use strict";
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _getObjectMeta_1 = require("./_getObjectMeta");
+
+var authorization_1 = require("./authorization");
+
+var checkBrowserAndVersion_1 = require("./checkBrowserAndVersion");
+
+var checkBucketName_1 = require("./checkBucketName");
+
+var checkBucketTag_1 = require("./checkBucketTag");
+
+var checkObjectTag_1 = require("./checkObjectTag");
+
+var checkValid_1 = require("./checkValid");
+
+var convertMetaToHeaders_1 = require("./convertMetaToHeaders");
+
+var deepCopy_1 = require("./deepCopy");
+
+var deleteFileSafe_1 = require("./deleteFileSafe");
+
+var divideParts_1 = require("./divideParts");
+
+var encodeCallback_1 = require("./encodeCallback");
+
+var escapeName_1 = require("./escapeName");
+
+var formatObjKey_1 = require("./formatObjKey");
+
+var formatQuery_1 = require("./formatQuery");
+
+var formatTag_1 = require("./formatTag");
+
+var getPartSize_1 = require("./getPartSize");
+
+var getReqUrl_1 = require("./getReqUrl");
+
+var getResource_1 = require("./getResource");
+
+var getSourceName_1 = require("./getSourceName");
+
+var getStrBytesCount_1 = require("./getStrBytesCount");
+
+var isArray_1 = require("./isArray");
+
+var isBlob_1 = require("./isBlob");
+
+var isFile_1 = require("./isFile");
+
+var isIP_1 = require("./isIP");
+
+var isObject_1 = require("./isObject");
+
+var mergeDefault_1 = require("./mergeDefault");
+
+var obj2xml_1 = require("./obj2xml");
+
+var objectName_1 = require("./objectName");
+
+var objectUrl_1 = require("./objectUrl");
+
+var parseXML_1 = require("./parseXML");
+
+var policy2Str_1 = require("./policy2Str");
+
+var signUtils_1 = __importDefault(require("./signUtils"));
+
+var webFileReadStream_1 = require("./webFileReadStream");
+
+exports.default = {
+  _getObjectMeta: _getObjectMeta_1._getObjectMeta,
+  authorization: authorization_1.authorization,
+  checkBrowserAndVersion: checkBrowserAndVersion_1.checkBrowserAndVersion,
+  checkBucketName: checkBucketName_1.checkBucketName,
+  checkBucketTag: checkBucketTag_1.checkBucketTag,
+  checkObjectTag: checkObjectTag_1.checkObjectTag,
+  checkValid: checkValid_1.checkValid,
+  convertMetaToHeaders: convertMetaToHeaders_1.convertMetaToHeaders,
+  deepCopy: deepCopy_1.deepCopy,
+  deleteFileSafe: deleteFileSafe_1.deleteFileSafe,
+  divideParts: divideParts_1.divideParts,
+  encodeCallback: encodeCallback_1.encodeCallback,
+  escapeName: escapeName_1.escapeName,
+  formatObjKey: formatObjKey_1.formatObjKey,
+  formatQuery: formatQuery_1.formatQuery,
+  formatTag: formatTag_1.formatTag,
+  getPartSize: getPartSize_1.getPartSize,
+  getReqUrl: getReqUrl_1.getReqUrl,
+  getResource: getResource_1.getResource,
+  getSourceName: getSourceName_1.getSourceName,
+  getStrBytesCount: getStrBytesCount_1.getStrBytesCount,
+  isArray: isArray_1.isArray,
+  isBlob: isBlob_1.isBlob,
+  isFile: isFile_1.isFile,
+  isIP: isIP_1.isIP,
+  isObject: isObject_1.isObject,
+  mergeDefault: mergeDefault_1.mergeDefault,
+  obj2xml: obj2xml_1.obj2xml,
+  objectName: objectName_1.objectName,
+  _objectName: objectName_1.objectName,
+  objectUrl: objectUrl_1.objectUrl,
+  _objectUrl: objectUrl_1.objectUrl,
+  parseXML: parseXML_1.parseXML,
+  policy2Str: policy2Str_1.policy2Str,
+  signUtils: signUtils_1.default,
+  WebFileReadStream: webFileReadStream_1.WebFileReadStream
+};
+
+},{"./_getObjectMeta":113,"./authorization":118,"./checkBrowserAndVersion":119,"./checkBucketName":120,"./checkBucketTag":121,"./checkObjectTag":122,"./checkValid":123,"./convertMetaToHeaders":124,"./deepCopy":126,"./deleteFileSafe":127,"./divideParts":128,"./encodeCallback":129,"./escapeName":131,"./formatObjKey":133,"./formatQuery":134,"./formatTag":135,"./getPartSize":136,"./getReqUrl":137,"./getResource":138,"./getSourceName":139,"./getStrBytesCount":140,"./isArray":142,"./isBlob":143,"./isFile":145,"./isIP":146,"./isObject":147,"./mergeDefault":148,"./obj2xml":149,"./objectName":150,"./objectUrl":151,"./parseXML":152,"./policy2Str":153,"./signUtils":156,"./webFileReadStream":157}],142:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.object.to-string");
@@ -6371,7 +10647,7 @@ exports.isArray = function (obj) {
   return Object.prototype.toString.call(obj) === '[object Array]';
 };
 
-},{"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.to-string":252}],59:[function(require,module,exports){
+},{"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356}],143:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6385,7 +10661,7 @@ function isBlob(blob) {
 
 exports.isBlob = isBlob;
 
-},{}],60:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -6401,7 +10677,7 @@ function isBuffer(obj) {
 exports.isBuffer = isBuffer;
 
 }).call(this,{"isBuffer":require("../../../node_modules/is-buffer/index.js")})
-},{"../../../node_modules/is-buffer/index.js":295}],61:[function(require,module,exports){
+},{"../../../node_modules/is-buffer/index.js":406}],145:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6413,7 +10689,7 @@ exports.isFile = function (obj) {
   return typeof File !== 'undefined' && obj instanceof File;
 };
 
-},{}],62:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6433,7 +10709,7 @@ exports.isIP = function (host) {
   return ipv4Regex.test(host) || ipv6Regex.test(host);
 };
 
-},{}],63:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.object.to-string");
@@ -6449,7 +10725,29 @@ exports.isObject = function (obj) {
   return Object.prototype.toString.call(obj) === '[object Object]';
 };
 
-},{"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.to-string":252}],64:[function(require,module,exports){
+},{"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356}],148:[function(require,module,exports){
+"use strict";
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.mergeDefault = void 0;
+
+var merge_descriptors_1 = __importDefault(require("merge-descriptors"));
+
+function mergeDefault(source, mod) {
+  merge_descriptors_1.default(source, mod.default ? mod.default : mod);
+}
+
+exports.mergeDefault = mergeDefault;
+
+},{"merge-descriptors":409}],149:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
@@ -6520,39 +10818,139 @@ function obj2xml(obj, options) {
 
 exports.obj2xml = obj2xml;
 
-},{"./formatObjKey":56,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.for-each":235,"core-js/modules/es.array.join":240,"core-js/modules/es.array.map":241,"core-js/modules/es.object.keys":248,"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.exec":251,"core-js/modules/es.regexp.to-string":252,"core-js/modules/es.string.replace":255,"core-js/modules/web.dom-collections.for-each":285}],65:[function(require,module,exports){
+},{"./formatObjKey":133,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.join":341,"core-js/modules/es.array.map":343,"core-js/modules/es.object.keys":351,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.regexp.to-string":356,"core-js/modules/es.string.replace":360,"core-js/modules/web.dom-collections.for-each":391}],150:[function(require,module,exports){
 "use strict";
 
-var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.replace");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.setRegion = void 0;
+exports.objectName = void 0;
 
-var url_1 = __importDefault(require("url"));
-
-function setRegion(region) {
-  var internal = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  var secure = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  var protocol = secure ? 'https://' : 'http://';
-  var suffix = internal ? '-internal.aliyuncs.com' : '.aliyuncs.com';
-  var prefix = 'vpc100-oss-cn-'; // aliyun VPC region: https://help.aliyun.com/knowledge_detail/38740.html
-
-  if (region.substr(0, prefix.length) === prefix) {
-    suffix = '.aliyuncs.com';
-  }
-
-  return url_1.default.parse(protocol + region + suffix);
+function objectName(name) {
+  return name.replace(/^\/+/, '');
 }
 
-exports.setRegion = setRegion;
+exports.objectName = objectName;
 
-},{"url":330}],66:[function(require,module,exports){
+},{"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.replace":360}],151:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.objectUrl = void 0;
+
+var getReqUrl_1 = require("./getReqUrl");
+
+function objectUrl(name, options) {
+  options = options || this.options;
+  return getReqUrl_1.getReqUrl({
+    bucket: options.bucket,
+    object: name
+  }, options);
+}
+
+exports.objectUrl = objectUrl;
+
+},{"./getReqUrl":137}],152:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var xml2js_1 = require("./xml2js");
+
+Object.defineProperty(exports, "parseXML", {
+  enumerable: true,
+  get: function get() {
+    return xml2js_1.xml2objPromise;
+  }
+});
+
+},{"./xml2js":158}],153:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.policy2Str = void 0;
+
+function policy2Str(policy) {
+  var policyStr;
+
+  if (policy) {
+    if (typeof policy === 'string') {
+      try {
+        policyStr = JSON.stringify(JSON.parse(policy));
+      } catch (err) {
+        throw new Error("Policy string is not a valid JSON: ".concat(err.message));
+      }
+    } else {
+      policyStr = JSON.stringify(policy);
+    }
+  }
+
+  return policyStr;
+}
+
+exports.policy2Str = policy2Str;
+
+},{}],154:[function(require,module,exports){
+"use strict";
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.promise");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.retry = void 0;
+
+function retry(func, retryMax) {
+  var config = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var retryNum = 0;
+  var _config$retryDelay = config.retryDelay,
+      retryDelay = _config$retryDelay === void 0 ? 500 : _config$retryDelay,
+      _config$errorHandler = config.errorHandler,
+      errorHandler = _config$errorHandler === void 0 ? function () {
+    return true;
+  } : _config$errorHandler;
+
+  var funcR = function funcR() {
+    for (var _len = arguments.length, arg = new Array(_len), _key = 0; _key < _len; _key++) {
+      arg[_key] = arguments[_key];
+    }
+
+    return new Promise(function (resolve, reject) {
+      func.apply(void 0, arg).then(function (result) {
+        retryNum = 0;
+        resolve(result);
+      }).catch(function (err) {
+        if (retryNum < retryMax && errorHandler(err)) {
+          retryNum++;
+          setTimeout(function () {
+            resolve(funcR.apply(void 0, arg));
+          }, retryDelay);
+        } else {
+          retryNum = 0;
+          reject(err);
+        }
+      });
+    });
+  };
+
+  return funcR;
+}
+
+exports.retry = retry;
+
+},{"core-js/modules/es.object.to-string":352,"core-js/modules/es.promise":353}],155:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6628,7 +11026,919 @@ function checkCredentials(obj) {
   });
 }
 
-},{"./formatObjKey":56,"@babel/runtime/helpers/asyncToGenerator":67,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/regenerator":71,"core-js/modules/es.array.find":234,"core-js/modules/es.array.for-each":235,"core-js/modules/es.object.assign":246,"core-js/modules/es.object.keys":248,"regenerator-runtime/runtime":324}],67:[function(require,module,exports){
+},{"./formatObjKey":133,"@babel/runtime/helpers/asyncToGenerator":161,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/regenerator":172,"core-js/modules/es.array.find":335,"core-js/modules/es.array.for-each":336,"core-js/modules/es.object.assign":349,"core-js/modules/es.object.keys":351,"regenerator-runtime/runtime":434}],156:[function(require,module,exports){
+(function (Buffer){
+"use strict";
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.array.index-of");
+
+require("core-js/modules/es.array.join");
+
+require("core-js/modules/es.array.sort");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.regexp.to-string");
+
+require("core-js/modules/es.string.trim");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._signatureForURL = exports.computeSignature = exports.buildCanonicalString = exports.buildCanonicalizedResource = void 0;
+
+var crypto_1 = __importDefault(require('./../../../shims/crypto/crypto.js'));
+
+var is_type_of_1 = __importDefault(require("is-type-of"));
+/**
+ *
+ * @param {String} resourcePath
+ * @param {Object} parameters
+ * @return
+ */
+
+
+function buildCanonicalizedResource(resourcePath, parameters) {
+  var canonicalizedResource = "".concat(resourcePath);
+  var separatorString = '?';
+
+  if (is_type_of_1.default.string(parameters) && parameters.trim() !== '') {
+    canonicalizedResource += separatorString + parameters;
+  } else if (is_type_of_1.default.array(parameters)) {
+    parameters.sort();
+    canonicalizedResource += separatorString + parameters.join('&');
+  } else if (parameters) {
+    var compareFunc = function compareFunc(entry1, entry2) {
+      if (entry1[0] > entry2[0]) {
+        return 1;
+      } else if (entry1[0] < entry2[0]) {
+        return -1;
+      }
+
+      return 0;
+    };
+
+    var processFunc = function processFunc(key) {
+      canonicalizedResource += separatorString + key;
+
+      if (parameters[key]) {
+        canonicalizedResource += "=".concat(parameters[key]);
+      }
+
+      separatorString = '&';
+    };
+
+    Object.keys(parameters).sort(compareFunc).forEach(processFunc);
+  }
+
+  return canonicalizedResource;
+}
+
+exports.buildCanonicalizedResource = buildCanonicalizedResource;
+/**
+ * @param {String} method
+ * @param {String} resourcePath
+ * @param {Object} request
+ * @param {String} expires
+ * @return {String} canonicalString
+ */
+
+function buildCanonicalString(method, resourcePath, request, expires) {
+  request = request || {};
+  var headers = request.headers || {};
+  var OSS_PREFIX = 'x-oss-';
+  var ossHeaders = [];
+  var headersToSign = {};
+  var signContent = [method.toUpperCase(), headers['Content-Md5'] || '', headers['Content-Type'] || headers['Content-Type'.toLowerCase()], expires || headers['x-oss-date']];
+  Object.keys(headers).forEach(function (key) {
+    var lowerKey = key.toLowerCase();
+
+    if (lowerKey.indexOf(OSS_PREFIX) === 0) {
+      headersToSign[lowerKey] = String(headers[key]).trim();
+    }
+  });
+  Object.keys(headersToSign).sort().forEach(function (key) {
+    ossHeaders.push("".concat(key, ":").concat(headersToSign[key]));
+  });
+  signContent = signContent.concat(ossHeaders);
+  signContent.push(buildCanonicalizedResource(resourcePath, request.parameters));
+  return signContent.join('\n');
+}
+
+exports.buildCanonicalString = buildCanonicalString;
+/**
+ * @param {String} accessKeySecret
+ * @param {String} canonicalString
+ */
+
+function computeSignature(accessKeySecret, canonicalString) {
+  var headerEncoding = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'utf-8';
+  var signature = crypto_1.default.createHmac('sha1', accessKeySecret);
+  return signature.update(Buffer.from(canonicalString, headerEncoding)).digest('base64');
+}
+
+exports.computeSignature = computeSignature;
+/**
+ *
+ * @param {String} accessKeySecret
+ * @param {Object} options
+ * @param {String} resource
+ * @param {Number} expires
+ */
+
+function _signatureForURL(accessKeySecret) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var resource = arguments.length > 2 ? arguments[2] : undefined;
+  var expires = arguments.length > 3 ? arguments[3] : undefined;
+  var headerEncoding = arguments.length > 4 ? arguments[4] : undefined;
+  var headers = {};
+  var _options$subResource = options.subResource,
+      subResource = _options$subResource === void 0 ? {} : _options$subResource;
+
+  if (options.process) {
+    var processKeyword = 'x-oss-process';
+    subResource[processKeyword] = options.process;
+  }
+
+  if (options.trafficLimit) {
+    var trafficLimitKey = 'x-oss-traffic-limit';
+    subResource[trafficLimitKey] = options.trafficLimit;
+  }
+
+  if (options.response) {
+    Object.keys(options.response).forEach(function (k) {
+      var key = "response-".concat(k.toLowerCase());
+      subResource[key] = options.response[k];
+    });
+  }
+
+  Object.keys(options).forEach(function (key) {
+    var lowerKey = key.toLowerCase();
+    var value = options[key];
+
+    if (lowerKey.indexOf('x-oss-') === 0) {
+      headers[lowerKey] = value;
+    } else if (lowerKey.indexOf('content-md5') === 0) {
+      headers[key] = value;
+    } else if (lowerKey.indexOf('content-type') === 0) {
+      headers[key] = value;
+    }
+  });
+
+  if (Object.prototype.hasOwnProperty.call(options, 'security-token')) {
+    subResource['security-token'] = options['security-token'];
+  }
+
+  if (Object.prototype.hasOwnProperty.call(options, 'callback')) {
+    var json = {
+      callbackUrl: encodeURI(options.callback.url),
+      callbackBody: options.callback.body
+    };
+
+    if (options.callback.host) {
+      json.callbackHost = options.callback.host;
+    }
+
+    if (options.callback.contentType) {
+      json.callbackBodyType = options.callback.contentType;
+    }
+
+    subResource.callback = Buffer.from(JSON.stringify(json)).toString('base64');
+
+    if (options.callback.customValue) {
+      var callbackVar = {};
+      Object.keys(options.callback.customValue).forEach(function (key) {
+        callbackVar["x:".concat(key)] = options.callback.customValue[key];
+      });
+      subResource['callback-var'] = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
+    }
+  }
+
+  var canonicalString = buildCanonicalString(options.method, resource, {
+    headers: headers,
+    parameters: subResource
+  }, expires.toString());
+  return {
+    Signature: computeSignature(accessKeySecret, canonicalString, headerEncoding),
+    subResource: subResource
+  };
+}
+
+exports._signatureForURL = _signatureForURL;
+exports.default = {
+  buildCanonicalizedResource: buildCanonicalizedResource,
+  buildCanonicalString: buildCanonicalString,
+  computeSignature: computeSignature,
+  _signatureForURL: _signatureForURL
+};
+
+}).call(this,require("buffer").Buffer)
+},{"./../../../shims/crypto/crypto.js":444,"buffer":196,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.index-of":339,"core-js/modules/es.array.join":341,"core-js/modules/es.array.sort":345,"core-js/modules/es.object.keys":351,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356,"core-js/modules/es.string.trim":364,"core-js/modules/web.dom-collections.for-each":391,"is-type-of":449}],157:[function(require,module,exports){
+(function (Buffer){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.iterator");
+
+require("core-js/modules/es.array.slice");
+
+require("core-js/modules/es.array-buffer.slice");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.typed-array.uint8-array");
+
+require("core-js/modules/es.typed-array.copy-within");
+
+require("core-js/modules/es.typed-array.every");
+
+require("core-js/modules/es.typed-array.fill");
+
+require("core-js/modules/es.typed-array.filter");
+
+require("core-js/modules/es.typed-array.find");
+
+require("core-js/modules/es.typed-array.find-index");
+
+require("core-js/modules/es.typed-array.for-each");
+
+require("core-js/modules/es.typed-array.includes");
+
+require("core-js/modules/es.typed-array.index-of");
+
+require("core-js/modules/es.typed-array.iterator");
+
+require("core-js/modules/es.typed-array.join");
+
+require("core-js/modules/es.typed-array.last-index-of");
+
+require("core-js/modules/es.typed-array.map");
+
+require("core-js/modules/es.typed-array.reduce");
+
+require("core-js/modules/es.typed-array.reduce-right");
+
+require("core-js/modules/es.typed-array.reverse");
+
+require("core-js/modules/es.typed-array.set");
+
+require("core-js/modules/es.typed-array.slice");
+
+require("core-js/modules/es.typed-array.some");
+
+require("core-js/modules/es.typed-array.sort");
+
+require("core-js/modules/es.typed-array.subarray");
+
+require("core-js/modules/es.typed-array.to-locale-string");
+
+require("core-js/modules/es.typed-array.to-string");
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2.default)(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2.default)(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2.default)(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.WebFileReadStream = void 0;
+
+var stream_1 = require("stream");
+
+var WebFileReadStream = /*#__PURE__*/function (_stream_1$Readable) {
+  (0, _inherits2.default)(WebFileReadStream, _stream_1$Readable);
+
+  var _super = _createSuper(WebFileReadStream);
+
+  function WebFileReadStream(file) {
+    var _this;
+
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    (0, _classCallCheck2.default)(this, WebFileReadStream);
+    _this = _super.call(this, options);
+    if (!((0, _assertThisInitialized2.default)(_this) instanceof WebFileReadStream)) return (0, _possibleConstructorReturn2.default)(_this, new WebFileReadStream(file, options));
+    _this.file = file;
+    _this.reader = new FileReader();
+    _this.start = 0;
+    _this.finish = false;
+    _this.fileBuffer = null;
+    return _this;
+  }
+
+  (0, _createClass2.default)(WebFileReadStream, [{
+    key: "readFileAndPush",
+    value: function readFileAndPush(size) {
+      if (this.fileBuffer) {
+        var pushRet = true;
+
+        while (pushRet && this.fileBuffer && this.start < this.fileBuffer.length) {
+          var start = this.start;
+          var end = start + size;
+          end = end > this.fileBuffer.length ? this.fileBuffer.length : end;
+          this.start = end;
+          pushRet = this.push(this.fileBuffer.slice(start, end));
+        }
+      }
+    }
+  }, {
+    key: "_read",
+    value: function _read(size) {
+      if (this.file && this.start >= this.file.size || this.fileBuffer && this.start >= this.fileBuffer.length || this.finish || this.start === 0 && !this.file) {
+        if (!this.finish) {
+          this.fileBuffer = null;
+          this.finish = true;
+        }
+
+        this.push(null);
+        return;
+      }
+
+      var defaultReadSize = 16 * 1024;
+      size = size || defaultReadSize;
+      var that = this;
+
+      this.reader.onload = function (e) {
+        that.fileBuffer = Buffer.from(new Uint8Array(e.target.result));
+        that.file = null;
+        that.readFileAndPush(size);
+      };
+
+      this.reader.onerror = function onload(e) {
+        var error = e.srcElement && e.srcElement.error;
+        if (error) throw error;
+        throw e;
+      };
+
+      if (this.start === 0) {
+        this.reader.readAsArrayBuffer(this.file);
+      } else {
+        this.readFileAndPush(size);
+      }
+    }
+  }]);
+  return WebFileReadStream;
+}(stream_1.Readable);
+
+exports.WebFileReadStream = WebFileReadStream;
+
+}).call(this,require("buffer").Buffer)
+},{"@babel/runtime/helpers/assertThisInitialized":160,"@babel/runtime/helpers/classCallCheck":162,"@babel/runtime/helpers/createClass":163,"@babel/runtime/helpers/getPrototypeOf":165,"@babel/runtime/helpers/inherits":166,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/possibleConstructorReturn":168,"buffer":196,"core-js/modules/es.array-buffer.slice":331,"core-js/modules/es.array.iterator":340,"core-js/modules/es.array.slice":344,"core-js/modules/es.object.to-string":352,"core-js/modules/es.typed-array.copy-within":367,"core-js/modules/es.typed-array.every":368,"core-js/modules/es.typed-array.fill":369,"core-js/modules/es.typed-array.filter":370,"core-js/modules/es.typed-array.find":372,"core-js/modules/es.typed-array.find-index":371,"core-js/modules/es.typed-array.for-each":373,"core-js/modules/es.typed-array.includes":374,"core-js/modules/es.typed-array.index-of":375,"core-js/modules/es.typed-array.iterator":376,"core-js/modules/es.typed-array.join":377,"core-js/modules/es.typed-array.last-index-of":378,"core-js/modules/es.typed-array.map":379,"core-js/modules/es.typed-array.reduce":381,"core-js/modules/es.typed-array.reduce-right":380,"core-js/modules/es.typed-array.reverse":382,"core-js/modules/es.typed-array.set":383,"core-js/modules/es.typed-array.slice":384,"core-js/modules/es.typed-array.some":385,"core-js/modules/es.typed-array.sort":386,"core-js/modules/es.typed-array.subarray":387,"core-js/modules/es.typed-array.to-locale-string":388,"core-js/modules/es.typed-array.to-string":389,"core-js/modules/es.typed-array.uint8-array":390,"stream":436}],158:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.filter");
+
+require("core-js/modules/es.array.find");
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.array.index-of");
+
+require("core-js/modules/es.array.map");
+
+require("core-js/modules/es.object.entries");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.promise");
+
+require("core-js/modules/es.regexp.constructor");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.regexp.to-string");
+
+require("core-js/modules/es.string.match");
+
+require("core-js/modules/es.string.replace");
+
+require("core-js/modules/es.string.starts-with");
+
+require("core-js/modules/es.string.trim");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.parseString = exports.xml2objPromise = void 0;
+
+var isArray_1 = require("./isArray");
+
+var isObject_1 = require("./isObject");
+
+var ncname = '[a-zA-Z_][\\w\\-\\.]*';
+var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")");
+var startTagOpen = new RegExp("^<".concat(qnameCapture));
+var startTagClose = /^\s*>/;
+var startTagSelfClose = /^\s*\/>/;
+var endTag = new RegExp("^<\\/".concat(qnameCapture, "[^>]*>"));
+var headLine = /<?.*version=.*?>/;
+var decodingMap = {
+  '&lt;': '<',
+  '&gt;': '>',
+  '&quot;': '"',
+  '&amp;': '&',
+  '&#10;': '\n',
+  '&#9;': '\t',
+  '&#39;': "'"
+};
+var encodedAttr = /&(?:lt|gt|quot|amp|#39);/g;
+var encodedAttr1 = /&#([0-9]?[0-9]?[0-9]);/g;
+
+function decodeAttr(value) {
+  return value.replace(encodedAttr, function (match) {
+    return decodingMap[match];
+  }).replace(encodedAttr1, function (match) {
+    return String.fromCharCode(match.replace(/[^0-9]/g, ''));
+  });
+}
+
+function unique(arr) {
+  if (!isArray_1.isArray(arr)) {
+    return arr;
+  }
+
+  var uniqueArr = [];
+  arr.forEach(function (item) {
+    var hasTag = uniqueArr.find(function (_) {
+      return _.tag === item.tag;
+    });
+
+    if (hasTag && hasTag.children) {
+      var index = Object.keys(hasTag).filter(function (_) {
+        return _.startsWith('children');
+      }).length;
+      hasTag["children".concat(index)] = item.children;
+    } else {
+      uniqueArr.push(item);
+    }
+  });
+  return uniqueArr;
+}
+
+function formatObj(obj) {
+  if (obj === null || (0, _typeof2.default)(obj) !== 'object') {
+    return obj;
+  }
+
+  var o = {};
+
+  if (isObject_1.isObject(obj)) {
+    if (obj.children) {
+      obj.children = unique(obj.children);
+    }
+
+    var children = Object.entries(obj).filter(function (_) {
+      return _[0].startsWith('children');
+    }).map(function (_) {
+      return _[1];
+    });
+
+    if (children.length > 1) {
+      o[obj.tag] = children.map(function (_) {
+        return formatObj(_);
+      });
+    } else {
+      o[obj.tag] = formatObj(children[0]);
+    }
+  }
+
+  if (isArray_1.isArray(obj)) {
+    if (obj.length === 0) {
+      return '';
+    }
+
+    if (obj.find(function (_) {
+      return !_.tag;
+    })) {
+      o = [];
+    }
+
+    var _loop = function _loop(i) {
+      var _ = obj[i];
+      Object.keys(_).filter(function (key) {
+        return key.startsWith('children');
+      }).forEach(function (key) {
+        _[key] = unique(_[key]);
+      });
+
+      if (isArray_1.isArray(o)) {
+        if (_.tag) {
+          o.push((0, _defineProperty2.default)({}, _.tag, formatObj(_.children)));
+        } else {
+          o.push(formatObj(_));
+        }
+      } else {
+        var _children = Object.entries(_).filter(function (item) {
+          return item[0].startsWith('children');
+        }).map(function (item) {
+          return item[1];
+        });
+
+        if (_children.length > 1) {
+          o[_.tag] = _children.map(function (item) {
+            return formatObj(item);
+          });
+        } else {
+          o[_.tag] = formatObj(_children[0]);
+        }
+      }
+    };
+
+    for (var i = 0; i < obj.length; i++) {
+      _loop(i);
+    }
+  }
+
+  return o;
+}
+
+function xml2obj(html) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+    explicitRoot: false,
+    explicitArray: false
+  };
+  var stack = [];
+  var stackInner = [];
+  var root;
+  var currentParent;
+  var index = 0;
+  var last;
+
+  if (typeof html !== 'string') {
+    html = html.toString();
+  }
+
+  html = html.replace(headLine, '');
+
+  if (root === undefined && html === '') {
+    return null;
+  }
+
+  while (html) {
+    last = html;
+    var textEnd = html.indexOf('<');
+
+    if (textEnd === 0) {
+      // End tag:
+      var endTagMatch = html.match(endTag);
+
+      if (endTagMatch) {
+        advance(endTagMatch[0].length);
+        parseEndTag(endTagMatch[0], endTagMatch[1], index, index);
+        continue;
+      } // Start tag:
+
+
+      var startTagMatch = parseStartTag();
+
+      if (startTagMatch) {
+        handleStartTag(startTagMatch);
+        continue;
+      }
+    }
+
+    var text = 0;
+
+    if (textEnd > 0) {
+      text = html.substring(0, textEnd);
+      advance(textEnd);
+    }
+
+    if (textEnd < 0) {
+      text = html;
+      html = '';
+    }
+
+    if (handleChars && text) {
+      handleChars(text);
+    }
+
+    if (html === last && handleChars) {
+      handleChars(html);
+      break;
+    }
+  }
+
+  parseEndTag();
+  root = formatObj(root) || {};
+
+  if (!options.explicitRoot) {
+    root = root[Object.keys(root)[0]];
+  }
+
+  return root || {};
+
+  function advance(n) {
+    index += n;
+    html = html.substring(n);
+  }
+
+  function parseStartTag() {
+    var start = html.match(startTagOpen);
+
+    if (start) {
+      var match = {
+        tagName: start[1],
+        start: index
+      };
+      advance(start[0].length);
+      var endSelf = html.match(startTagSelfClose);
+
+      if (endSelf) {
+        html = html.replace(startTagSelfClose, function (_) {
+          return _.replace('/>', "></".concat(start[1], ">"));
+        });
+      }
+
+      var end = html.match(startTagClose);
+
+      if (end) {
+        advance(end[0].length);
+        match.end = index;
+        return match;
+      }
+    }
+
+    return false;
+  }
+
+  function handleStartTag(match) {
+    var tagName = match.tagName;
+    stackInner.push({
+      tag: tagName
+    });
+    handleStart(tagName);
+  }
+
+  function parseEndTag(_tag) {
+    var tagName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+    var start = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var end = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+    var pos;
+
+    if (start == null) {
+      start = index;
+    }
+
+    if (end == null) {
+      end = index;
+    }
+
+    if (tagName) {
+      var needle = tagName.toLowerCase();
+
+      for (pos = stackInner.length - 1; pos >= 0; pos--) {
+        if (stackInner[pos].tag.toLowerCase() === needle) {
+          break;
+        }
+      }
+    } else {
+      pos = 0;
+    }
+
+    if (pos >= 0) {
+      for (var i = stackInner.length - 1; i >= pos; i--) {
+        handleEnd();
+      }
+
+      stackInner.length = pos;
+    }
+  }
+
+  function handleStart(tag) {
+    var element = {
+      tag: tag,
+      children: []
+    };
+
+    if (!root) {
+      root = element;
+    }
+
+    if (currentParent) {
+      currentParent.children.push(element);
+    }
+
+    currentParent = element;
+    stack.push(element);
+  }
+
+  function handleEnd() {
+    stack.length -= 1;
+    currentParent = stack[stack.length - 1];
+  }
+
+  function handleChars(text) {
+    if (!currentParent) {
+      return;
+    } // text = text.trim();
+
+
+    if (text.trim()) {
+      currentParent.children = decodeAttr(text);
+    }
+  }
+}
+
+function xml2objPromise() {
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+
+  return new Promise(function (resolve, reject) {
+    try {
+      var result = xml2obj(args);
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+exports.xml2objPromise = xml2objPromise;
+
+function parseString(str, options, cb) {
+  try {
+    var result = xml2obj(str, options);
+    cb(null, result);
+  } catch (error) {
+    cb(error, null);
+  }
+}
+
+exports.parseString = parseString;
+exports.default = {
+  xml2obj: xml2obj,
+  xml2objPromise: xml2objPromise,
+  parseString: parseString
+};
+
+},{"./isArray":142,"./isObject":147,"@babel/runtime/helpers/defineProperty":164,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"core-js/modules/es.array.filter":334,"core-js/modules/es.array.find":335,"core-js/modules/es.array.for-each":336,"core-js/modules/es.array.index-of":339,"core-js/modules/es.array.map":343,"core-js/modules/es.object.entries":350,"core-js/modules/es.object.keys":351,"core-js/modules/es.object.to-string":352,"core-js/modules/es.promise":353,"core-js/modules/es.regexp.constructor":354,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.regexp.to-string":356,"core-js/modules/es.string.match":359,"core-js/modules/es.string.replace":360,"core-js/modules/es.string.starts-with":363,"core-js/modules/es.string.trim":364,"core-js/modules/web.dom-collections.for-each":391}],159:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.filter");
+
+require("core-js/modules/es.array.for-each");
+
+require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/web.dom-collections.for-each");
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Client = exports.initClient = void 0;
+
+var urllib_1 = __importDefault(require("urllib"));
+
+var agentkeepalive_1 = __importDefault(require("agentkeepalive"));
+
+var _getUserAgent_1 = require("./common/client/_getUserAgent");
+
+var initOptions_1 = require("./common/client/initOptions");
+
+var client_1 = __importDefault(require("./common/client"));
+
+var _unSupportBrowserTip_1 = require("./common/utils/_unSupportBrowserTip");
+
+var _createStream_1 = require("./browser/client/_createStream");
+
+var HttpsAgentKeepalive = agentkeepalive_1.default.HttpsAgent;
+var globalHttpAgent = new agentkeepalive_1.default();
+var globalHttpsAgent = new HttpsAgentKeepalive();
+
+var Client = /*#__PURE__*/function () {
+  function Client(options, ctx) {
+    (0, _classCallCheck2.default)(this, Client);
+
+    if (!(this instanceof Client)) {
+      return new Client(options, ctx);
+    }
+
+    _unSupportBrowserTip_1._unSupportBrowserTip();
+
+    if (!Client.prototype._createStream) {
+      Client.prototype._createStream = _createStream_1._createStream;
+    }
+
+    Object.keys(client_1.default).forEach(function (prop) {
+      Client.prototype[prop] = client_1.default[prop];
+    });
+    this.setConfig(options, ctx);
+  }
+
+  (0, _createClass2.default)(Client, [{
+    key: "setConfig",
+    value: function setConfig(options, ctx) {
+      if (options && options.inited) {
+        this.options = options;
+      } else {
+        this.options = initOptions_1.initOptions(options);
+      } // support custom agent and urllib client
+
+
+      if (this.options.urllib) {
+        this.urllib = this.options.urllib;
+      } else {
+        this.urllib = urllib_1.default;
+        this.agent = this.options.agent || globalHttpAgent;
+        this.httpsAgent = this.options.httpsAgent || globalHttpsAgent;
+      }
+
+      this.ctx = ctx;
+      this.userAgent = _getUserAgent_1._getUserAgent();
+    }
+  }], [{
+    key: "use",
+    value: function use() {
+      var _this = this;
+
+      for (var _len = arguments.length, fn = new Array(_len), _key = 0; _key < _len; _key++) {
+        fn[_key] = arguments[_key];
+      }
+
+      if (Array.isArray(fn)) {
+        fn.filter(function (_) {
+          return typeof _ === 'function';
+        }).forEach(function (f) {
+          _this[f.name] = f.bind(_this);
+          Client.prototype[f.name] = f;
+        });
+      }
+
+      return this;
+    }
+  }]);
+  return Client;
+}();
+
+exports.Client = Client;
+
+exports.initClient = function (options, ctx) {
+  return new Client(options, ctx);
+};
+
+},{"./browser/client/_createStream":1,"./common/client":65,"./common/client/_getUserAgent":60,"./common/client/initOptions":66,"./common/utils/_unSupportBrowserTip":117,"@babel/runtime/helpers/classCallCheck":162,"@babel/runtime/helpers/createClass":163,"@babel/runtime/helpers/interopRequireDefault":167,"agentkeepalive":173,"core-js/modules/es.array.filter":334,"core-js/modules/es.array.for-each":336,"core-js/modules/es.function.name":347,"core-js/modules/es.object.keys":351,"core-js/modules/web.dom-collections.for-each":391,"urllib":455}],160:[function(require,module,exports){
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+module.exports = _assertThisInitialized;
+},{}],161:[function(require,module,exports){
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
     var info = gen[key](arg);
@@ -6666,7 +11976,78 @@ function _asyncToGenerator(fn) {
 }
 
 module.exports = _asyncToGenerator;
-},{}],68:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+module.exports = _classCallCheck;
+},{}],163:[function(require,module,exports){
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+module.exports = _createClass;
+},{}],164:[function(require,module,exports){
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+module.exports = _defineProperty;
+},{}],165:[function(require,module,exports){
+function _getPrototypeOf(o) {
+  module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+module.exports = _getPrototypeOf;
+},{}],166:[function(require,module,exports){
+var setPrototypeOf = require("./setPrototypeOf");
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) setPrototypeOf(subClass, superClass);
+}
+
+module.exports = _inherits;
+},{"./setPrototypeOf":169}],167:[function(require,module,exports){
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {
     "default": obj
@@ -6674,7 +12055,32 @@ function _interopRequireDefault(obj) {
 }
 
 module.exports = _interopRequireDefault;
-},{}],69:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
+var _typeof = require("@babel/runtime/helpers/typeof");
+
+var assertThisInitialized = require("./assertThisInitialized");
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (_typeof(call) === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return assertThisInitialized(self);
+}
+
+module.exports = _possibleConstructorReturn;
+},{"./assertThisInitialized":160,"@babel/runtime/helpers/typeof":170}],169:[function(require,module,exports){
+function _setPrototypeOf(o, p) {
+  module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+module.exports = _setPrototypeOf;
+},{}],170:[function(require,module,exports){
 function _typeof(obj) {
   "@babel/helpers - typeof";
 
@@ -6692,7 +12098,7 @@ function _typeof(obj) {
 }
 
 module.exports = _typeof;
-},{}],70:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -7442,120 +12848,17 @@ try {
   Function("r", "regeneratorRuntime = r")(runtime);
 }
 
-},{}],71:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 module.exports = require("regenerator-runtime");
 
-},{"regenerator-runtime":70}],72:[function(require,module,exports){
+},{"regenerator-runtime":171}],173:[function(require,module,exports){
 module.exports = noop;
 module.exports.HttpsAgent = noop;
 
 // Noop function for browser since native api's don't use agents.
 function noop () {}
 
-},{}],73:[function(require,module,exports){
-module.exports = require('./register')().Promise
-
-},{"./register":75}],74:[function(require,module,exports){
-"use strict"
-    // global key for user preferred registration
-var REGISTRATION_KEY = '@@any-promise/REGISTRATION',
-    // Prior registration (preferred or detected)
-    registered = null
-
-/**
- * Registers the given implementation.  An implementation must
- * be registered prior to any call to `require("any-promise")`,
- * typically on application load.
- *
- * If called with no arguments, will return registration in
- * following priority:
- *
- * For Node.js:
- *
- * 1. Previous registration
- * 2. global.Promise if node.js version >= 0.12
- * 3. Auto detected promise based on first sucessful require of
- *    known promise libraries. Note this is a last resort, as the
- *    loaded library is non-deterministic. node.js >= 0.12 will
- *    always use global.Promise over this priority list.
- * 4. Throws error.
- *
- * For Browser:
- *
- * 1. Previous registration
- * 2. window.Promise
- * 3. Throws error.
- *
- * Options:
- *
- * Promise: Desired Promise constructor
- * global: Boolean - Should the registration be cached in a global variable to
- * allow cross dependency/bundle registration?  (default true)
- */
-module.exports = function(root, loadImplementation){
-  return function register(implementation, opts){
-    implementation = implementation || null
-    opts = opts || {}
-    // global registration unless explicitly  {global: false} in options (default true)
-    var registerGlobal = opts.global !== false;
-
-    // load any previous global registration
-    if(registered === null && registerGlobal){
-      registered = root[REGISTRATION_KEY] || null
-    }
-
-    if(registered !== null
-        && implementation !== null
-        && registered.implementation !== implementation){
-      // Throw error if attempting to redefine implementation
-      throw new Error('any-promise already defined as "'+registered.implementation+
-        '".  You can only register an implementation before the first '+
-        ' call to require("any-promise") and an implementation cannot be changed')
-    }
-
-    if(registered === null){
-      // use provided implementation
-      if(implementation !== null && typeof opts.Promise !== 'undefined'){
-        registered = {
-          Promise: opts.Promise,
-          implementation: implementation
-        }
-      } else {
-        // require implementation if implementation is specified but not provided
-        registered = loadImplementation(implementation)
-      }
-
-      if(registerGlobal){
-        // register preference globally in case multiple installations
-        root[REGISTRATION_KEY] = registered
-      }
-    }
-
-    return registered
-  }
-}
-
-},{}],75:[function(require,module,exports){
-"use strict";
-module.exports = require('./loader')(window, loadImplementation)
-
-/**
- * Browser specific loadImplementation.  Always uses `window.Promise`
- *
- * To register a custom implementation, must register with `Promise` option.
- */
-function loadImplementation(){
-  if(typeof window.Promise === 'undefined'){
-    throw new Error("any-promise browser requires a polyfill or explicit registration"+
-      " e.g: require('any-promise/register/bluebird')")
-  }
-  return {
-    Promise: window.Promise,
-    implementation: 'window.Promise'
-  }
-}
-
-},{"./loader":74}],76:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -7709,7 +13012,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],77:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 /*!
  * Bowser - a browser detector
  * https://github.com/ded/bowser
@@ -8355,9 +13658,9 @@ function fromByteArray (uint8) {
   return bowser
 });
 
-},{}],78:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 
-},{}],79:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 (function (global){
 var ClientRequest = require('./lib/request')
 var response = require('./lib/response')
@@ -8445,7 +13748,7 @@ http.METHODS = [
 	'UNSUBSCRIBE'
 ]
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/request":81,"./lib/response":82,"builtin-status-codes":99,"url":330,"xtend":375}],80:[function(require,module,exports){
+},{"./lib/request":179,"./lib/response":180,"builtin-status-codes":197,"url":452,"xtend":443}],178:[function(require,module,exports){
 (function (global){
 exports.fetch = isFunction(global.fetch) && isFunction(global.ReadableStream)
 
@@ -8508,7 +13811,7 @@ function isFunction (value) {
 xhr = null // Help gc
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],81:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 (function (process,global,Buffer){
 var capability = require('./capability')
 var inherits = require('inherits')
@@ -8826,7 +14129,7 @@ var unsafeHeaders = [
 ]
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":80,"./response":82,"_process":306,"buffer":98,"inherits":294,"readable-stream":97}],82:[function(require,module,exports){
+},{"./capability":178,"./response":180,"_process":451,"buffer":196,"inherits":405,"readable-stream":195}],180:[function(require,module,exports){
 (function (process,global,Buffer){
 var capability = require('./capability')
 var inherits = require('inherits')
@@ -9037,7 +14340,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":80,"_process":306,"buffer":98,"inherits":294,"readable-stream":97}],83:[function(require,module,exports){
+},{"./capability":178,"_process":451,"buffer":196,"inherits":405,"readable-stream":195}],181:[function(require,module,exports){
 'use strict';
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
@@ -9166,7 +14469,7 @@ createErrorType('ERR_UNKNOWN_ENCODING', function (arg) {
 createErrorType('ERR_STREAM_UNSHIFT_AFTER_END_EVENT', 'stream.unshift() after end event');
 module.exports.codes = codes;
 
-},{}],84:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -9308,7 +14611,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
   }
 });
 }).call(this,require('_process'))
-},{"./_stream_readable":86,"./_stream_writable":88,"_process":306,"inherits":294}],85:[function(require,module,exports){
+},{"./_stream_readable":184,"./_stream_writable":186,"_process":451,"inherits":405}],183:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9348,7 +14651,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":87,"inherits":294}],86:[function(require,module,exports){
+},{"./_stream_transform":185,"inherits":405}],184:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -10475,7 +15778,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":83,"./_stream_duplex":84,"./internal/streams/async_iterator":89,"./internal/streams/buffer_list":90,"./internal/streams/destroy":91,"./internal/streams/from":93,"./internal/streams/state":95,"./internal/streams/stream":96,"_process":306,"buffer":98,"events":290,"inherits":294,"string_decoder/":328,"util":78}],87:[function(require,module,exports){
+},{"../errors":181,"./_stream_duplex":182,"./internal/streams/async_iterator":187,"./internal/streams/buffer_list":188,"./internal/streams/destroy":189,"./internal/streams/from":191,"./internal/streams/state":193,"./internal/streams/stream":194,"_process":451,"buffer":196,"events":395,"inherits":405,"string_decoder/":437,"util":176}],185:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10677,7 +15980,7 @@ function done(stream, er, data) {
   if (stream._transformState.transforming) throw new ERR_TRANSFORM_ALREADY_TRANSFORMING();
   return stream.push(null);
 }
-},{"../errors":83,"./_stream_duplex":84,"inherits":294}],88:[function(require,module,exports){
+},{"../errors":181,"./_stream_duplex":182,"inherits":405}],186:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -11377,7 +16680,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":83,"./_stream_duplex":84,"./internal/streams/destroy":91,"./internal/streams/state":95,"./internal/streams/stream":96,"_process":306,"buffer":98,"inherits":294,"util-deprecate":332}],89:[function(require,module,exports){
+},{"../errors":181,"./_stream_duplex":182,"./internal/streams/destroy":189,"./internal/streams/state":193,"./internal/streams/stream":194,"_process":451,"buffer":196,"inherits":405,"util-deprecate":439}],187:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -11587,7 +16890,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 
 module.exports = createReadableStreamAsyncIterator;
 }).call(this,require('_process'))
-},{"./end-of-stream":92,"_process":306}],90:[function(require,module,exports){
+},{"./end-of-stream":190,"_process":451}],188:[function(require,module,exports){
 'use strict';
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -11798,7 +17101,7 @@ function () {
 
   return BufferList;
 }();
-},{"buffer":98,"util":78}],91:[function(require,module,exports){
+},{"buffer":196,"util":176}],189:[function(require,module,exports){
 (function (process){
 'use strict'; // undocumented cb() API, needed for core, not for public API
 
@@ -11906,7 +17209,7 @@ module.exports = {
   errorOrDestroy: errorOrDestroy
 };
 }).call(this,require('_process'))
-},{"_process":306}],92:[function(require,module,exports){
+},{"_process":451}],190:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/end-of-stream with
 // permission from the author, Mathias Buus (@mafintosh).
 'use strict';
@@ -12011,12 +17314,12 @@ function eos(stream, opts, callback) {
 }
 
 module.exports = eos;
-},{"../../../errors":83}],93:[function(require,module,exports){
+},{"../../../errors":181}],191:[function(require,module,exports){
 module.exports = function () {
   throw new Error('Readable.from is not available in the browser')
 };
 
-},{}],94:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/pump with
 // permission from the author, Mathias Buus (@mafintosh).
 'use strict';
@@ -12114,7 +17417,7 @@ function pipeline() {
 }
 
 module.exports = pipeline;
-},{"../../../errors":83,"./end-of-stream":92}],95:[function(require,module,exports){
+},{"../../../errors":181,"./end-of-stream":190}],193:[function(require,module,exports){
 'use strict';
 
 var ERR_INVALID_OPT_VALUE = require('../../../errors').codes.ERR_INVALID_OPT_VALUE;
@@ -12142,10 +17445,10 @@ function getHighWaterMark(state, options, duplexKey, isDuplex) {
 module.exports = {
   getHighWaterMark: getHighWaterMark
 };
-},{"../../../errors":83}],96:[function(require,module,exports){
+},{"../../../errors":181}],194:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":290}],97:[function(require,module,exports){
+},{"events":395}],195:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -12156,7 +17459,7 @@ exports.PassThrough = require('./lib/_stream_passthrough.js');
 exports.finished = require('./lib/internal/streams/end-of-stream.js');
 exports.pipeline = require('./lib/internal/streams/pipeline.js');
 
-},{"./lib/_stream_duplex.js":84,"./lib/_stream_passthrough.js":85,"./lib/_stream_readable.js":86,"./lib/_stream_transform.js":87,"./lib/_stream_writable.js":88,"./lib/internal/streams/end-of-stream.js":92,"./lib/internal/streams/pipeline.js":94}],98:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":182,"./lib/_stream_passthrough.js":183,"./lib/_stream_readable.js":184,"./lib/_stream_transform.js":185,"./lib/_stream_writable.js":186,"./lib/internal/streams/end-of-stream.js":190,"./lib/internal/streams/pipeline.js":192}],196:[function(require,module,exports){
 (function (Buffer){
 /*!
  * The buffer module from node.js, for the browser.
@@ -13937,7 +19240,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"base64-js":76,"buffer":98,"ieee754":293}],99:[function(require,module,exports){
+},{"base64-js":174,"buffer":196,"ieee754":398}],197:[function(require,module,exports){
 module.exports = {
   "100": "Continue",
   "101": "Switching Protocols",
@@ -14003,7 +19306,7 @@ module.exports = {
   "511": "Network Authentication Required"
 }
 
-},{}],100:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 module.exports={
   "O_RDONLY": 0,
   "O_WRONLY": 1,
@@ -14214,7 +19517,7 @@ module.exports={
   "UV_UDP_REUSEADDR": 4
 }
 
-},{}],101:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 /*!
  * copy-to - index.js
  * Copyright(c) 2014 dead_horse <dead_horse@qq.com>
@@ -14377,14 +19680,14 @@ function notDefined(obj, key) {
     && obj.__lookupSetter__(key) === undefined;
 }
 
-},{}],102:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 module.exports = function (it) {
   if (typeof it != 'function') {
     throw TypeError(String(it) + ' is not a function');
   } return it;
 };
 
-},{}],103:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 var isObject = require('../internals/is-object');
 
 module.exports = function (it) {
@@ -14393,7 +19696,7 @@ module.exports = function (it) {
   } return it;
 };
 
-},{"../internals/is-object":163}],104:[function(require,module,exports){
+},{"../internals/is-object":262}],202:[function(require,module,exports){
 var wellKnownSymbol = require('../internals/well-known-symbol');
 var create = require('../internals/object-create');
 var definePropertyModule = require('../internals/object-define-property');
@@ -14415,7 +19718,7 @@ module.exports = function (key) {
   ArrayPrototype[UNSCOPABLES][key] = true;
 };
 
-},{"../internals/object-create":176,"../internals/object-define-property":178,"../internals/well-known-symbol":228}],105:[function(require,module,exports){
+},{"../internals/object-create":276,"../internals/object-define-property":278,"../internals/well-known-symbol":329}],203:[function(require,module,exports){
 'use strict';
 var charAt = require('../internals/string-multibyte').charAt;
 
@@ -14425,14 +19728,14 @@ module.exports = function (S, index, unicode) {
   return index + (unicode ? charAt(S, index).length : 1);
 };
 
-},{"../internals/string-multibyte":208}],106:[function(require,module,exports){
+},{"../internals/string-multibyte":309}],204:[function(require,module,exports){
 module.exports = function (it, Constructor, name) {
   if (!(it instanceof Constructor)) {
     throw TypeError('Incorrect ' + (name ? name + ' ' : '') + 'invocation');
   } return it;
 };
 
-},{}],107:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 var isObject = require('../internals/is-object');
 
 module.exports = function (it) {
@@ -14441,10 +19744,10 @@ module.exports = function (it) {
   } return it;
 };
 
-},{"../internals/is-object":163}],108:[function(require,module,exports){
+},{"../internals/is-object":262}],206:[function(require,module,exports){
 module.exports = typeof ArrayBuffer !== 'undefined' && typeof DataView !== 'undefined';
 
-},{}],109:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 'use strict';
 var NATIVE_ARRAY_BUFFER = require('../internals/array-buffer-native');
 var DESCRIPTORS = require('../internals/descriptors');
@@ -14602,7 +19905,7 @@ module.exports = {
   TypedArrayPrototype: TypedArrayPrototype
 };
 
-},{"../internals/array-buffer-native":108,"../internals/classof":126,"../internals/create-non-enumerable-property":131,"../internals/descriptors":136,"../internals/global":149,"../internals/has":150,"../internals/is-object":163,"../internals/object-define-property":178,"../internals/object-get-prototype-of":183,"../internals/object-set-prototype-of":187,"../internals/redefine":195,"../internals/uid":225,"../internals/well-known-symbol":228}],110:[function(require,module,exports){
+},{"../internals/array-buffer-native":206,"../internals/classof":224,"../internals/create-non-enumerable-property":229,"../internals/descriptors":234,"../internals/global":248,"../internals/has":249,"../internals/is-object":262,"../internals/object-define-property":278,"../internals/object-get-prototype-of":283,"../internals/object-set-prototype-of":287,"../internals/redefine":295,"../internals/uid":326,"../internals/well-known-symbol":329}],208:[function(require,module,exports){
 'use strict';
 var global = require('../internals/global');
 var DESCRIPTORS = require('../internals/descriptors');
@@ -14830,7 +20133,7 @@ module.exports = {
   DataView: $DataView
 };
 
-},{"../internals/an-instance":106,"../internals/array-buffer-native":108,"../internals/array-fill":112,"../internals/create-non-enumerable-property":131,"../internals/descriptors":136,"../internals/fails":144,"../internals/global":149,"../internals/ieee754":155,"../internals/internal-state":159,"../internals/object-define-property":178,"../internals/object-get-own-property-names":181,"../internals/object-get-prototype-of":183,"../internals/object-set-prototype-of":187,"../internals/redefine-all":194,"../internals/set-to-string-tag":203,"../internals/to-index":213,"../internals/to-integer":215,"../internals/to-length":216}],111:[function(require,module,exports){
+},{"../internals/an-instance":204,"../internals/array-buffer-native":206,"../internals/array-fill":210,"../internals/create-non-enumerable-property":229,"../internals/descriptors":234,"../internals/fails":243,"../internals/global":248,"../internals/ieee754":254,"../internals/internal-state":258,"../internals/object-define-property":278,"../internals/object-get-own-property-names":281,"../internals/object-get-prototype-of":283,"../internals/object-set-prototype-of":287,"../internals/redefine-all":294,"../internals/set-to-string-tag":304,"../internals/to-index":314,"../internals/to-integer":316,"../internals/to-length":317}],209:[function(require,module,exports){
 'use strict';
 var toObject = require('../internals/to-object');
 var toAbsoluteIndex = require('../internals/to-absolute-index');
@@ -14861,7 +20164,7 @@ module.exports = [].copyWithin || function copyWithin(target /* = 0 */, start /*
   } return O;
 };
 
-},{"../internals/to-absolute-index":212,"../internals/to-length":216,"../internals/to-object":217}],112:[function(require,module,exports){
+},{"../internals/to-absolute-index":313,"../internals/to-length":317,"../internals/to-object":318}],210:[function(require,module,exports){
 'use strict';
 var toObject = require('../internals/to-object');
 var toAbsoluteIndex = require('../internals/to-absolute-index');
@@ -14880,7 +20183,7 @@ module.exports = function fill(value /* , start = 0, end = @length */) {
   return O;
 };
 
-},{"../internals/to-absolute-index":212,"../internals/to-length":216,"../internals/to-object":217}],113:[function(require,module,exports){
+},{"../internals/to-absolute-index":313,"../internals/to-length":317,"../internals/to-object":318}],211:[function(require,module,exports){
 'use strict';
 var $forEach = require('../internals/array-iteration').forEach;
 var arrayMethodIsStrict = require('../internals/array-method-is-strict');
@@ -14895,7 +20198,7 @@ module.exports = (!STRICT_METHOD || !USES_TO_LENGTH) ? function forEach(callback
   return $forEach(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
 } : [].forEach;
 
-},{"../internals/array-iteration":116,"../internals/array-method-is-strict":119,"../internals/array-method-uses-to-length":120}],114:[function(require,module,exports){
+},{"../internals/array-iteration":214,"../internals/array-method-is-strict":217,"../internals/array-method-uses-to-length":218}],212:[function(require,module,exports){
 'use strict';
 var bind = require('../internals/function-bind-context');
 var toObject = require('../internals/to-object');
@@ -14938,7 +20241,7 @@ module.exports = function from(arrayLike /* , mapfn = undefined, thisArg = undef
   return result;
 };
 
-},{"../internals/call-with-safe-iteration-closing":123,"../internals/create-property":133,"../internals/function-bind-context":146,"../internals/get-iterator-method":148,"../internals/is-array-iterator-method":160,"../internals/to-length":216,"../internals/to-object":217}],115:[function(require,module,exports){
+},{"../internals/call-with-safe-iteration-closing":221,"../internals/create-property":231,"../internals/function-bind-context":245,"../internals/get-iterator-method":247,"../internals/is-array-iterator-method":259,"../internals/to-length":317,"../internals/to-object":318}],213:[function(require,module,exports){
 var toIndexedObject = require('../internals/to-indexed-object');
 var toLength = require('../internals/to-length');
 var toAbsoluteIndex = require('../internals/to-absolute-index');
@@ -14972,7 +20275,7 @@ module.exports = {
   indexOf: createMethod(false)
 };
 
-},{"../internals/to-absolute-index":212,"../internals/to-indexed-object":214,"../internals/to-length":216}],116:[function(require,module,exports){
+},{"../internals/to-absolute-index":313,"../internals/to-indexed-object":315,"../internals/to-length":317}],214:[function(require,module,exports){
 var bind = require('../internals/function-bind-context');
 var IndexedObject = require('../internals/indexed-object');
 var toObject = require('../internals/to-object');
@@ -15039,7 +20342,7 @@ module.exports = {
   findIndex: createMethod(6)
 };
 
-},{"../internals/array-species-create":122,"../internals/function-bind-context":146,"../internals/indexed-object":156,"../internals/to-length":216,"../internals/to-object":217}],117:[function(require,module,exports){
+},{"../internals/array-species-create":220,"../internals/function-bind-context":245,"../internals/indexed-object":255,"../internals/to-length":317,"../internals/to-object":318}],215:[function(require,module,exports){
 'use strict';
 var toIndexedObject = require('../internals/to-indexed-object');
 var toInteger = require('../internals/to-integer');
@@ -15069,7 +20372,7 @@ module.exports = FORCED ? function lastIndexOf(searchElement /* , fromIndex = @[
   return -1;
 } : nativeLastIndexOf;
 
-},{"../internals/array-method-is-strict":119,"../internals/array-method-uses-to-length":120,"../internals/to-indexed-object":214,"../internals/to-integer":215,"../internals/to-length":216}],118:[function(require,module,exports){
+},{"../internals/array-method-is-strict":217,"../internals/array-method-uses-to-length":218,"../internals/to-indexed-object":315,"../internals/to-integer":316,"../internals/to-length":317}],216:[function(require,module,exports){
 var fails = require('../internals/fails');
 var wellKnownSymbol = require('../internals/well-known-symbol');
 var V8_VERSION = require('../internals/engine-v8-version');
@@ -15090,7 +20393,7 @@ module.exports = function (METHOD_NAME) {
   });
 };
 
-},{"../internals/engine-v8-version":141,"../internals/fails":144,"../internals/well-known-symbol":228}],119:[function(require,module,exports){
+},{"../internals/engine-v8-version":240,"../internals/fails":243,"../internals/well-known-symbol":329}],217:[function(require,module,exports){
 'use strict';
 var fails = require('../internals/fails');
 
@@ -15102,7 +20405,7 @@ module.exports = function (METHOD_NAME, argument) {
   });
 };
 
-},{"../internals/fails":144}],120:[function(require,module,exports){
+},{"../internals/fails":243}],218:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var fails = require('../internals/fails');
 var has = require('../internals/has');
@@ -15131,7 +20434,7 @@ module.exports = function (METHOD_NAME, options) {
   });
 };
 
-},{"../internals/descriptors":136,"../internals/fails":144,"../internals/has":150}],121:[function(require,module,exports){
+},{"../internals/descriptors":234,"../internals/fails":243,"../internals/has":249}],219:[function(require,module,exports){
 var aFunction = require('../internals/a-function');
 var toObject = require('../internals/to-object');
 var IndexedObject = require('../internals/indexed-object');
@@ -15173,7 +20476,7 @@ module.exports = {
   right: createMethod(true)
 };
 
-},{"../internals/a-function":102,"../internals/indexed-object":156,"../internals/to-length":216,"../internals/to-object":217}],122:[function(require,module,exports){
+},{"../internals/a-function":200,"../internals/indexed-object":255,"../internals/to-length":317,"../internals/to-object":318}],220:[function(require,module,exports){
 var isObject = require('../internals/is-object');
 var isArray = require('../internals/is-array');
 var wellKnownSymbol = require('../internals/well-known-symbol');
@@ -15195,8 +20498,9 @@ module.exports = function (originalArray, length) {
   } return new (C === undefined ? Array : C)(length === 0 ? 0 : length);
 };
 
-},{"../internals/is-array":161,"../internals/is-object":163,"../internals/well-known-symbol":228}],123:[function(require,module,exports){
+},{"../internals/is-array":260,"../internals/is-object":262,"../internals/well-known-symbol":329}],221:[function(require,module,exports){
 var anObject = require('../internals/an-object');
+var iteratorClose = require('../internals/iterator-close');
 
 // call something on iterator step with safe closing on error
 module.exports = function (iterator, fn, value, ENTRIES) {
@@ -15204,13 +20508,12 @@ module.exports = function (iterator, fn, value, ENTRIES) {
     return ENTRIES ? fn(anObject(value)[0], value[1]) : fn(value);
   // 7.4.6 IteratorClose(iterator, completion)
   } catch (error) {
-    var returnMethod = iterator['return'];
-    if (returnMethod !== undefined) anObject(returnMethod.call(iterator));
+    iteratorClose(iterator);
     throw error;
   }
 };
 
-},{"../internals/an-object":107}],124:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/iterator-close":266}],222:[function(require,module,exports){
 var wellKnownSymbol = require('../internals/well-known-symbol');
 
 var ITERATOR = wellKnownSymbol('iterator');
@@ -15250,14 +20553,14 @@ module.exports = function (exec, SKIP_CLOSING) {
   return ITERATION_SUPPORT;
 };
 
-},{"../internals/well-known-symbol":228}],125:[function(require,module,exports){
+},{"../internals/well-known-symbol":329}],223:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = function (it) {
   return toString.call(it).slice(8, -1);
 };
 
-},{}],126:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 var TO_STRING_TAG_SUPPORT = require('../internals/to-string-tag-support');
 var classofRaw = require('../internals/classof-raw');
 var wellKnownSymbol = require('../internals/well-known-symbol');
@@ -15285,7 +20588,7 @@ module.exports = TO_STRING_TAG_SUPPORT ? classofRaw : function (it) {
     : (result = classofRaw(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : result;
 };
 
-},{"../internals/classof-raw":125,"../internals/to-string-tag-support":221,"../internals/well-known-symbol":228}],127:[function(require,module,exports){
+},{"../internals/classof-raw":223,"../internals/to-string-tag-support":322,"../internals/well-known-symbol":329}],225:[function(require,module,exports){
 var has = require('../internals/has');
 var ownKeys = require('../internals/own-keys');
 var getOwnPropertyDescriptorModule = require('../internals/object-get-own-property-descriptor');
@@ -15301,7 +20604,7 @@ module.exports = function (target, source) {
   }
 };
 
-},{"../internals/has":150,"../internals/object-define-property":178,"../internals/object-get-own-property-descriptor":179,"../internals/own-keys":190}],128:[function(require,module,exports){
+},{"../internals/has":249,"../internals/object-define-property":278,"../internals/object-get-own-property-descriptor":279,"../internals/own-keys":290}],226:[function(require,module,exports){
 var wellKnownSymbol = require('../internals/well-known-symbol');
 
 var MATCH = wellKnownSymbol('match');
@@ -15310,15 +20613,15 @@ module.exports = function (METHOD_NAME) {
   var regexp = /./;
   try {
     '/./'[METHOD_NAME](regexp);
-  } catch (e) {
+  } catch (error1) {
     try {
       regexp[MATCH] = false;
       return '/./'[METHOD_NAME](regexp);
-    } catch (f) { /* empty */ }
+    } catch (error2) { /* empty */ }
   } return false;
 };
 
-},{"../internals/well-known-symbol":228}],129:[function(require,module,exports){
+},{"../internals/well-known-symbol":329}],227:[function(require,module,exports){
 var fails = require('../internals/fails');
 
 module.exports = !fails(function () {
@@ -15327,7 +20630,7 @@ module.exports = !fails(function () {
   return Object.getPrototypeOf(new F()) !== F.prototype;
 });
 
-},{"../internals/fails":144}],130:[function(require,module,exports){
+},{"../internals/fails":243}],228:[function(require,module,exports){
 'use strict';
 var IteratorPrototype = require('../internals/iterators-core').IteratorPrototype;
 var create = require('../internals/object-create');
@@ -15345,7 +20648,7 @@ module.exports = function (IteratorConstructor, NAME, next) {
   return IteratorConstructor;
 };
 
-},{"../internals/create-property-descriptor":132,"../internals/iterators":168,"../internals/iterators-core":167,"../internals/object-create":176,"../internals/set-to-string-tag":203}],131:[function(require,module,exports){
+},{"../internals/create-property-descriptor":230,"../internals/iterators":268,"../internals/iterators-core":267,"../internals/object-create":276,"../internals/set-to-string-tag":304}],229:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var definePropertyModule = require('../internals/object-define-property');
 var createPropertyDescriptor = require('../internals/create-property-descriptor');
@@ -15357,7 +20660,7 @@ module.exports = DESCRIPTORS ? function (object, key, value) {
   return object;
 };
 
-},{"../internals/create-property-descriptor":132,"../internals/descriptors":136,"../internals/object-define-property":178}],132:[function(require,module,exports){
+},{"../internals/create-property-descriptor":230,"../internals/descriptors":234,"../internals/object-define-property":278}],230:[function(require,module,exports){
 module.exports = function (bitmap, value) {
   return {
     enumerable: !(bitmap & 1),
@@ -15367,7 +20670,7 @@ module.exports = function (bitmap, value) {
   };
 };
 
-},{}],133:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 'use strict';
 var toPrimitive = require('../internals/to-primitive');
 var definePropertyModule = require('../internals/object-define-property');
@@ -15379,7 +20682,7 @@ module.exports = function (object, key, value) {
   else object[propertyKey] = value;
 };
 
-},{"../internals/create-property-descriptor":132,"../internals/object-define-property":178,"../internals/to-primitive":220}],134:[function(require,module,exports){
+},{"../internals/create-property-descriptor":230,"../internals/object-define-property":278,"../internals/to-primitive":321}],232:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var createIteratorConstructor = require('../internals/create-iterator-constructor');
@@ -15471,7 +20774,7 @@ module.exports = function (Iterable, NAME, IteratorConstructor, next, DEFAULT, I
   return methods;
 };
 
-},{"../internals/create-iterator-constructor":130,"../internals/create-non-enumerable-property":131,"../internals/export":143,"../internals/is-pure":164,"../internals/iterators":168,"../internals/iterators-core":167,"../internals/object-get-prototype-of":183,"../internals/object-set-prototype-of":187,"../internals/redefine":195,"../internals/set-to-string-tag":203,"../internals/well-known-symbol":228}],135:[function(require,module,exports){
+},{"../internals/create-iterator-constructor":228,"../internals/create-non-enumerable-property":229,"../internals/export":242,"../internals/is-pure":263,"../internals/iterators":268,"../internals/iterators-core":267,"../internals/object-get-prototype-of":283,"../internals/object-set-prototype-of":287,"../internals/redefine":295,"../internals/set-to-string-tag":304,"../internals/well-known-symbol":329}],233:[function(require,module,exports){
 var path = require('../internals/path');
 var has = require('../internals/has');
 var wrappedWellKnownSymbolModule = require('../internals/well-known-symbol-wrapped');
@@ -15484,7 +20787,7 @@ module.exports = function (NAME) {
   });
 };
 
-},{"../internals/has":150,"../internals/object-define-property":178,"../internals/path":191,"../internals/well-known-symbol-wrapped":227}],136:[function(require,module,exports){
+},{"../internals/has":249,"../internals/object-define-property":278,"../internals/path":291,"../internals/well-known-symbol-wrapped":328}],234:[function(require,module,exports){
 var fails = require('../internals/fails');
 
 // Thank's IE8 for his funny defineProperty
@@ -15492,7 +20795,7 @@ module.exports = !fails(function () {
   return Object.defineProperty({}, 1, { get: function () { return 7; } })[1] != 7;
 });
 
-},{"../internals/fails":144}],137:[function(require,module,exports){
+},{"../internals/fails":243}],235:[function(require,module,exports){
 var global = require('../internals/global');
 var isObject = require('../internals/is-object');
 
@@ -15504,7 +20807,7 @@ module.exports = function (it) {
   return EXISTS ? document.createElement(it) : {};
 };
 
-},{"../internals/global":149,"../internals/is-object":163}],138:[function(require,module,exports){
+},{"../internals/global":248,"../internals/is-object":262}],236:[function(require,module,exports){
 // iterable DOM collections
 // flag - `iterable` interface - 'entries', 'keys', 'values', 'forEach' methods
 module.exports = {
@@ -15541,17 +20844,23 @@ module.exports = {
   TouchList: 0
 };
 
-},{}],139:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 var userAgent = require('../internals/engine-user-agent');
 
 module.exports = /(iphone|ipod|ipad).*applewebkit/i.test(userAgent);
 
-},{"../internals/engine-user-agent":140}],140:[function(require,module,exports){
+},{"../internals/engine-user-agent":239}],238:[function(require,module,exports){
+var classof = require('../internals/classof-raw');
+var global = require('../internals/global');
+
+module.exports = classof(global.process) == 'process';
+
+},{"../internals/classof-raw":223,"../internals/global":248}],239:[function(require,module,exports){
 var getBuiltIn = require('../internals/get-built-in');
 
 module.exports = getBuiltIn('navigator', 'userAgent') || '';
 
-},{"../internals/get-built-in":147}],141:[function(require,module,exports){
+},{"../internals/get-built-in":246}],240:[function(require,module,exports){
 var global = require('../internals/global');
 var userAgent = require('../internals/engine-user-agent');
 
@@ -15573,7 +20882,7 @@ if (v8) {
 
 module.exports = version && +version;
 
-},{"../internals/engine-user-agent":140,"../internals/global":149}],142:[function(require,module,exports){
+},{"../internals/engine-user-agent":239,"../internals/global":248}],241:[function(require,module,exports){
 // IE8- don't enum bug keys
 module.exports = [
   'constructor',
@@ -15585,7 +20894,7 @@ module.exports = [
   'valueOf'
 ];
 
-},{}],143:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 var global = require('../internals/global');
 var getOwnPropertyDescriptor = require('../internals/object-get-own-property-descriptor').f;
 var createNonEnumerableProperty = require('../internals/create-non-enumerable-property');
@@ -15641,7 +20950,7 @@ module.exports = function (options, source) {
   }
 };
 
-},{"../internals/copy-constructor-properties":127,"../internals/create-non-enumerable-property":131,"../internals/global":149,"../internals/is-forced":162,"../internals/object-get-own-property-descriptor":179,"../internals/redefine":195,"../internals/set-global":201}],144:[function(require,module,exports){
+},{"../internals/copy-constructor-properties":225,"../internals/create-non-enumerable-property":229,"../internals/global":248,"../internals/is-forced":261,"../internals/object-get-own-property-descriptor":279,"../internals/redefine":295,"../internals/set-global":302}],243:[function(require,module,exports){
 module.exports = function (exec) {
   try {
     return !!exec();
@@ -15650,7 +20959,7 @@ module.exports = function (exec) {
   }
 };
 
-},{}],145:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 'use strict';
 // TODO: Remove from `core-js@4` since it's moved to entry points
 require('../modules/es.regexp.exec');
@@ -15777,7 +21086,7 @@ module.exports = function (KEY, length, exec, sham) {
   if (sham) createNonEnumerableProperty(RegExp.prototype[SYMBOL], 'sham', true);
 };
 
-},{"../internals/create-non-enumerable-property":131,"../internals/fails":144,"../internals/redefine":195,"../internals/regexp-exec":197,"../internals/well-known-symbol":228,"../modules/es.regexp.exec":251}],146:[function(require,module,exports){
+},{"../internals/create-non-enumerable-property":229,"../internals/fails":243,"../internals/redefine":295,"../internals/regexp-exec":297,"../internals/well-known-symbol":329,"../modules/es.regexp.exec":355}],245:[function(require,module,exports){
 var aFunction = require('../internals/a-function');
 
 // optional / simple context binding
@@ -15803,7 +21112,7 @@ module.exports = function (fn, that, length) {
   };
 };
 
-},{"../internals/a-function":102}],147:[function(require,module,exports){
+},{"../internals/a-function":200}],246:[function(require,module,exports){
 var path = require('../internals/path');
 var global = require('../internals/global');
 
@@ -15816,7 +21125,7 @@ module.exports = function (namespace, method) {
     : path[namespace] && path[namespace][method] || global[namespace] && global[namespace][method];
 };
 
-},{"../internals/global":149,"../internals/path":191}],148:[function(require,module,exports){
+},{"../internals/global":248,"../internals/path":291}],247:[function(require,module,exports){
 var classof = require('../internals/classof');
 var Iterators = require('../internals/iterators');
 var wellKnownSymbol = require('../internals/well-known-symbol');
@@ -15829,7 +21138,7 @@ module.exports = function (it) {
     || Iterators[classof(it)];
 };
 
-},{"../internals/classof":126,"../internals/iterators":168,"../internals/well-known-symbol":228}],149:[function(require,module,exports){
+},{"../internals/classof":224,"../internals/iterators":268,"../internals/well-known-symbol":329}],248:[function(require,module,exports){
 (function (global){
 var check = function (it) {
   return it && it.Math == Math && it;
@@ -15843,20 +21152,20 @@ module.exports =
   check(typeof self == 'object' && self) ||
   check(typeof global == 'object' && global) ||
   // eslint-disable-next-line no-new-func
-  Function('return this')();
+  (function () { return this; })() || Function('return this')();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],150:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 var hasOwnProperty = {}.hasOwnProperty;
 
 module.exports = function (it, key) {
   return hasOwnProperty.call(it, key);
 };
 
-},{}],151:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 module.exports = {};
 
-},{}],152:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 var global = require('../internals/global');
 
 module.exports = function (a, b) {
@@ -15866,12 +21175,12 @@ module.exports = function (a, b) {
   }
 };
 
-},{"../internals/global":149}],153:[function(require,module,exports){
+},{"../internals/global":248}],252:[function(require,module,exports){
 var getBuiltIn = require('../internals/get-built-in');
 
 module.exports = getBuiltIn('document', 'documentElement');
 
-},{"../internals/get-built-in":147}],154:[function(require,module,exports){
+},{"../internals/get-built-in":246}],253:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var fails = require('../internals/fails');
 var createElement = require('../internals/document-create-element');
@@ -15883,7 +21192,7 @@ module.exports = !DESCRIPTORS && !fails(function () {
   }).a != 7;
 });
 
-},{"../internals/descriptors":136,"../internals/document-create-element":137,"../internals/fails":144}],155:[function(require,module,exports){
+},{"../internals/descriptors":234,"../internals/document-create-element":235,"../internals/fails":243}],254:[function(require,module,exports){
 // IEEE754 conversions based on https://github.com/feross/ieee754
 // eslint-disable-next-line no-shadow-restricted-names
 var Infinity = 1 / 0;
@@ -15973,7 +21282,7 @@ module.exports = {
   unpack: unpack
 };
 
-},{}],156:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 var fails = require('../internals/fails');
 var classof = require('../internals/classof-raw');
 
@@ -15988,7 +21297,7 @@ module.exports = fails(function () {
   return classof(it) == 'String' ? split.call(it, '') : Object(it);
 } : Object;
 
-},{"../internals/classof-raw":125,"../internals/fails":144}],157:[function(require,module,exports){
+},{"../internals/classof-raw":223,"../internals/fails":243}],256:[function(require,module,exports){
 var isObject = require('../internals/is-object');
 var setPrototypeOf = require('../internals/object-set-prototype-of');
 
@@ -16007,7 +21316,7 @@ module.exports = function ($this, dummy, Wrapper) {
   return $this;
 };
 
-},{"../internals/is-object":163,"../internals/object-set-prototype-of":187}],158:[function(require,module,exports){
+},{"../internals/is-object":262,"../internals/object-set-prototype-of":287}],257:[function(require,module,exports){
 var store = require('../internals/shared-store');
 
 var functionToString = Function.toString;
@@ -16021,12 +21330,13 @@ if (typeof store.inspectSource != 'function') {
 
 module.exports = store.inspectSource;
 
-},{"../internals/shared-store":205}],159:[function(require,module,exports){
+},{"../internals/shared-store":306}],258:[function(require,module,exports){
 var NATIVE_WEAK_MAP = require('../internals/native-weak-map');
 var global = require('../internals/global');
 var isObject = require('../internals/is-object');
 var createNonEnumerableProperty = require('../internals/create-non-enumerable-property');
 var objectHas = require('../internals/has');
+var shared = require('../internals/shared-store');
 var sharedKey = require('../internals/shared-key');
 var hiddenKeys = require('../internals/hidden-keys');
 
@@ -16047,11 +21357,12 @@ var getterFor = function (TYPE) {
 };
 
 if (NATIVE_WEAK_MAP) {
-  var store = new WeakMap();
+  var store = shared.state || (shared.state = new WeakMap());
   var wmget = store.get;
   var wmhas = store.has;
   var wmset = store.set;
   set = function (it, metadata) {
+    metadata.facade = it;
     wmset.call(store, it, metadata);
     return metadata;
   };
@@ -16065,6 +21376,7 @@ if (NATIVE_WEAK_MAP) {
   var STATE = sharedKey('state');
   hiddenKeys[STATE] = true;
   set = function (it, metadata) {
+    metadata.facade = it;
     createNonEnumerableProperty(it, STATE, metadata);
     return metadata;
   };
@@ -16084,7 +21396,7 @@ module.exports = {
   getterFor: getterFor
 };
 
-},{"../internals/create-non-enumerable-property":131,"../internals/global":149,"../internals/has":150,"../internals/hidden-keys":151,"../internals/is-object":163,"../internals/native-weak-map":172,"../internals/shared-key":204}],160:[function(require,module,exports){
+},{"../internals/create-non-enumerable-property":229,"../internals/global":248,"../internals/has":249,"../internals/hidden-keys":250,"../internals/is-object":262,"../internals/native-weak-map":272,"../internals/shared-key":305,"../internals/shared-store":306}],259:[function(require,module,exports){
 var wellKnownSymbol = require('../internals/well-known-symbol');
 var Iterators = require('../internals/iterators');
 
@@ -16096,7 +21408,7 @@ module.exports = function (it) {
   return it !== undefined && (Iterators.Array === it || ArrayPrototype[ITERATOR] === it);
 };
 
-},{"../internals/iterators":168,"../internals/well-known-symbol":228}],161:[function(require,module,exports){
+},{"../internals/iterators":268,"../internals/well-known-symbol":329}],260:[function(require,module,exports){
 var classof = require('../internals/classof-raw');
 
 // `IsArray` abstract operation
@@ -16105,7 +21417,7 @@ module.exports = Array.isArray || function isArray(arg) {
   return classof(arg) == 'Array';
 };
 
-},{"../internals/classof-raw":125}],162:[function(require,module,exports){
+},{"../internals/classof-raw":223}],261:[function(require,module,exports){
 var fails = require('../internals/fails');
 
 var replacement = /#|\.prototype\./;
@@ -16128,15 +21440,15 @@ var POLYFILL = isForced.POLYFILL = 'P';
 
 module.exports = isForced;
 
-},{"../internals/fails":144}],163:[function(require,module,exports){
+},{"../internals/fails":243}],262:[function(require,module,exports){
 module.exports = function (it) {
   return typeof it === 'object' ? it !== null : typeof it === 'function';
 };
 
-},{}],164:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
 module.exports = false;
 
-},{}],165:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 var isObject = require('../internals/is-object');
 var classof = require('../internals/classof-raw');
 var wellKnownSymbol = require('../internals/well-known-symbol');
@@ -16150,22 +21462,38 @@ module.exports = function (it) {
   return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classof(it) == 'RegExp');
 };
 
-},{"../internals/classof-raw":125,"../internals/is-object":163,"../internals/well-known-symbol":228}],166:[function(require,module,exports){
+},{"../internals/classof-raw":223,"../internals/is-object":262,"../internals/well-known-symbol":329}],265:[function(require,module,exports){
 var anObject = require('../internals/an-object');
 var isArrayIteratorMethod = require('../internals/is-array-iterator-method');
 var toLength = require('../internals/to-length');
 var bind = require('../internals/function-bind-context');
 var getIteratorMethod = require('../internals/get-iterator-method');
-var callWithSafeIterationClosing = require('../internals/call-with-safe-iteration-closing');
+var iteratorClose = require('../internals/iterator-close');
 
 var Result = function (stopped, result) {
   this.stopped = stopped;
   this.result = result;
 };
 
-var iterate = module.exports = function (iterable, fn, that, AS_ENTRIES, IS_ITERATOR) {
-  var boundFunction = bind(fn, that, AS_ENTRIES ? 2 : 1);
+module.exports = function (iterable, unboundFunction, options) {
+  var that = options && options.that;
+  var AS_ENTRIES = !!(options && options.AS_ENTRIES);
+  var IS_ITERATOR = !!(options && options.IS_ITERATOR);
+  var INTERRUPTED = !!(options && options.INTERRUPTED);
+  var fn = bind(unboundFunction, that, 1 + AS_ENTRIES + INTERRUPTED);
   var iterator, iterFn, index, length, result, next, step;
+
+  var stop = function (condition) {
+    if (iterator) iteratorClose(iterator);
+    return new Result(true, condition);
+  };
+
+  var callFn = function (value) {
+    if (AS_ENTRIES) {
+      anObject(value);
+      return INTERRUPTED ? fn(value[0], value[1], stop) : fn(value[0], value[1]);
+    } return INTERRUPTED ? fn(value, stop) : fn(value);
+  };
 
   if (IS_ITERATOR) {
     iterator = iterable;
@@ -16175,9 +21503,7 @@ var iterate = module.exports = function (iterable, fn, that, AS_ENTRIES, IS_ITER
     // optimisation for array iterators
     if (isArrayIteratorMethod(iterFn)) {
       for (index = 0, length = toLength(iterable.length); length > index; index++) {
-        result = AS_ENTRIES
-          ? boundFunction(anObject(step = iterable[index])[0], step[1])
-          : boundFunction(iterable[index]);
+        result = callFn(iterable[index]);
         if (result && result instanceof Result) return result;
       } return new Result(false);
     }
@@ -16186,16 +21512,27 @@ var iterate = module.exports = function (iterable, fn, that, AS_ENTRIES, IS_ITER
 
   next = iterator.next;
   while (!(step = next.call(iterator)).done) {
-    result = callWithSafeIterationClosing(iterator, boundFunction, step.value, AS_ENTRIES);
+    try {
+      result = callFn(step.value);
+    } catch (error) {
+      iteratorClose(iterator);
+      throw error;
+    }
     if (typeof result == 'object' && result && result instanceof Result) return result;
   } return new Result(false);
 };
 
-iterate.stop = function (result) {
-  return new Result(true, result);
+},{"../internals/an-object":205,"../internals/function-bind-context":245,"../internals/get-iterator-method":247,"../internals/is-array-iterator-method":259,"../internals/iterator-close":266,"../internals/to-length":317}],266:[function(require,module,exports){
+var anObject = require('../internals/an-object');
+
+module.exports = function (iterator) {
+  var returnMethod = iterator['return'];
+  if (returnMethod !== undefined) {
+    return anObject(returnMethod.call(iterator)).value;
+  }
 };
 
-},{"../internals/an-object":107,"../internals/call-with-safe-iteration-closing":123,"../internals/function-bind-context":146,"../internals/get-iterator-method":148,"../internals/is-array-iterator-method":160,"../internals/to-length":216}],167:[function(require,module,exports){
+},{"../internals/an-object":205}],267:[function(require,module,exports){
 'use strict';
 var getPrototypeOf = require('../internals/object-get-prototype-of');
 var createNonEnumerableProperty = require('../internals/create-non-enumerable-property');
@@ -16234,19 +21571,19 @@ module.exports = {
   BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS
 };
 
-},{"../internals/create-non-enumerable-property":131,"../internals/has":150,"../internals/is-pure":164,"../internals/object-get-prototype-of":183,"../internals/well-known-symbol":228}],168:[function(require,module,exports){
-arguments[4][151][0].apply(exports,arguments)
-},{"dup":151}],169:[function(require,module,exports){
+},{"../internals/create-non-enumerable-property":229,"../internals/has":249,"../internals/is-pure":263,"../internals/object-get-prototype-of":283,"../internals/well-known-symbol":329}],268:[function(require,module,exports){
+arguments[4][250][0].apply(exports,arguments)
+},{"dup":250}],269:[function(require,module,exports){
 var global = require('../internals/global');
 var getOwnPropertyDescriptor = require('../internals/object-get-own-property-descriptor').f;
-var classof = require('../internals/classof-raw');
 var macrotask = require('../internals/task').set;
 var IS_IOS = require('../internals/engine-is-ios');
+var IS_NODE = require('../internals/engine-is-node');
 
 var MutationObserver = global.MutationObserver || global.WebKitMutationObserver;
+var document = global.document;
 var process = global.process;
 var Promise = global.Promise;
-var IS_NODE = classof(process) == 'process';
 // Node.js 11 shows ExperimentalWarning on getting `queueMicrotask`
 var queueMicrotaskDescriptor = getOwnPropertyDescriptor(global, 'queueMicrotask');
 var queueMicrotask = queueMicrotaskDescriptor && queueMicrotaskDescriptor.value;
@@ -16272,13 +21609,8 @@ if (!queueMicrotask) {
     if (parent) parent.enter();
   };
 
-  // Node.js
-  if (IS_NODE) {
-    notify = function () {
-      process.nextTick(flush);
-    };
   // browsers with MutationObserver, except iOS - https://github.com/zloirock/core-js/issues/339
-  } else if (MutationObserver && !IS_IOS) {
+  if (!IS_IOS && !IS_NODE && MutationObserver && document) {
     toggle = true;
     node = document.createTextNode('');
     new MutationObserver(flush).observe(node, { characterData: true });
@@ -16292,6 +21624,11 @@ if (!queueMicrotask) {
     then = promise.then;
     notify = function () {
       then.call(promise, flush);
+    };
+  // Node.js without promises
+  } else if (IS_NODE) {
+    notify = function () {
+      process.nextTick(flush);
     };
   // for other environments - macrotask based on:
   // - setImmediate
@@ -16316,12 +21653,12 @@ module.exports = queueMicrotask || function (fn) {
   } last = task;
 };
 
-},{"../internals/classof-raw":125,"../internals/engine-is-ios":139,"../internals/global":149,"../internals/object-get-own-property-descriptor":179,"../internals/task":211}],170:[function(require,module,exports){
+},{"../internals/engine-is-ios":237,"../internals/engine-is-node":238,"../internals/global":248,"../internals/object-get-own-property-descriptor":279,"../internals/task":312}],270:[function(require,module,exports){
 var global = require('../internals/global');
 
 module.exports = global.Promise;
 
-},{"../internals/global":149}],171:[function(require,module,exports){
+},{"../internals/global":248}],271:[function(require,module,exports){
 var fails = require('../internals/fails');
 
 module.exports = !!Object.getOwnPropertySymbols && !fails(function () {
@@ -16330,7 +21667,7 @@ module.exports = !!Object.getOwnPropertySymbols && !fails(function () {
   return !String(Symbol());
 });
 
-},{"../internals/fails":144}],172:[function(require,module,exports){
+},{"../internals/fails":243}],272:[function(require,module,exports){
 var global = require('../internals/global');
 var inspectSource = require('../internals/inspect-source');
 
@@ -16338,7 +21675,7 @@ var WeakMap = global.WeakMap;
 
 module.exports = typeof WeakMap === 'function' && /native code/.test(inspectSource(WeakMap));
 
-},{"../internals/global":149,"../internals/inspect-source":158}],173:[function(require,module,exports){
+},{"../internals/global":248,"../internals/inspect-source":257}],273:[function(require,module,exports){
 'use strict';
 var aFunction = require('../internals/a-function');
 
@@ -16358,7 +21695,7 @@ module.exports.f = function (C) {
   return new PromiseCapability(C);
 };
 
-},{"../internals/a-function":102}],174:[function(require,module,exports){
+},{"../internals/a-function":200}],274:[function(require,module,exports){
 var isRegExp = require('../internals/is-regexp');
 
 module.exports = function (it) {
@@ -16367,7 +21704,7 @@ module.exports = function (it) {
   } return it;
 };
 
-},{"../internals/is-regexp":165}],175:[function(require,module,exports){
+},{"../internals/is-regexp":264}],275:[function(require,module,exports){
 'use strict';
 var DESCRIPTORS = require('../internals/descriptors');
 var fails = require('../internals/fails');
@@ -16421,7 +21758,7 @@ module.exports = !nativeAssign || fails(function () {
   } return T;
 } : nativeAssign;
 
-},{"../internals/descriptors":136,"../internals/fails":144,"../internals/indexed-object":156,"../internals/object-get-own-property-symbols":182,"../internals/object-keys":185,"../internals/object-property-is-enumerable":186,"../internals/to-object":217}],176:[function(require,module,exports){
+},{"../internals/descriptors":234,"../internals/fails":243,"../internals/indexed-object":255,"../internals/object-get-own-property-symbols":282,"../internals/object-keys":285,"../internals/object-property-is-enumerable":286,"../internals/to-object":318}],276:[function(require,module,exports){
 var anObject = require('../internals/an-object');
 var defineProperties = require('../internals/object-define-properties');
 var enumBugKeys = require('../internals/enum-bug-keys');
@@ -16501,7 +21838,7 @@ module.exports = Object.create || function create(O, Properties) {
   return Properties === undefined ? result : defineProperties(result, Properties);
 };
 
-},{"../internals/an-object":107,"../internals/document-create-element":137,"../internals/enum-bug-keys":142,"../internals/hidden-keys":151,"../internals/html":153,"../internals/object-define-properties":177,"../internals/shared-key":204}],177:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/document-create-element":235,"../internals/enum-bug-keys":241,"../internals/hidden-keys":250,"../internals/html":252,"../internals/object-define-properties":277,"../internals/shared-key":305}],277:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var definePropertyModule = require('../internals/object-define-property');
 var anObject = require('../internals/an-object');
@@ -16519,7 +21856,7 @@ module.exports = DESCRIPTORS ? Object.defineProperties : function defineProperti
   return O;
 };
 
-},{"../internals/an-object":107,"../internals/descriptors":136,"../internals/object-define-property":178,"../internals/object-keys":185}],178:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/descriptors":234,"../internals/object-define-property":278,"../internals/object-keys":285}],278:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var IE8_DOM_DEFINE = require('../internals/ie8-dom-define');
 var anObject = require('../internals/an-object');
@@ -16541,7 +21878,7 @@ exports.f = DESCRIPTORS ? nativeDefineProperty : function defineProperty(O, P, A
   return O;
 };
 
-},{"../internals/an-object":107,"../internals/descriptors":136,"../internals/ie8-dom-define":154,"../internals/to-primitive":220}],179:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/descriptors":234,"../internals/ie8-dom-define":253,"../internals/to-primitive":321}],279:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var propertyIsEnumerableModule = require('../internals/object-property-is-enumerable');
 var createPropertyDescriptor = require('../internals/create-property-descriptor');
@@ -16563,7 +21900,7 @@ exports.f = DESCRIPTORS ? nativeGetOwnPropertyDescriptor : function getOwnProper
   if (has(O, P)) return createPropertyDescriptor(!propertyIsEnumerableModule.f.call(O, P), O[P]);
 };
 
-},{"../internals/create-property-descriptor":132,"../internals/descriptors":136,"../internals/has":150,"../internals/ie8-dom-define":154,"../internals/object-property-is-enumerable":186,"../internals/to-indexed-object":214,"../internals/to-primitive":220}],180:[function(require,module,exports){
+},{"../internals/create-property-descriptor":230,"../internals/descriptors":234,"../internals/has":249,"../internals/ie8-dom-define":253,"../internals/object-property-is-enumerable":286,"../internals/to-indexed-object":315,"../internals/to-primitive":321}],280:[function(require,module,exports){
 var toIndexedObject = require('../internals/to-indexed-object');
 var nativeGetOwnPropertyNames = require('../internals/object-get-own-property-names').f;
 
@@ -16587,7 +21924,7 @@ module.exports.f = function getOwnPropertyNames(it) {
     : nativeGetOwnPropertyNames(toIndexedObject(it));
 };
 
-},{"../internals/object-get-own-property-names":181,"../internals/to-indexed-object":214}],181:[function(require,module,exports){
+},{"../internals/object-get-own-property-names":281,"../internals/to-indexed-object":315}],281:[function(require,module,exports){
 var internalObjectKeys = require('../internals/object-keys-internal');
 var enumBugKeys = require('../internals/enum-bug-keys');
 
@@ -16599,10 +21936,10 @@ exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
   return internalObjectKeys(O, hiddenKeys);
 };
 
-},{"../internals/enum-bug-keys":142,"../internals/object-keys-internal":184}],182:[function(require,module,exports){
+},{"../internals/enum-bug-keys":241,"../internals/object-keys-internal":284}],282:[function(require,module,exports){
 exports.f = Object.getOwnPropertySymbols;
 
-},{}],183:[function(require,module,exports){
+},{}],283:[function(require,module,exports){
 var has = require('../internals/has');
 var toObject = require('../internals/to-object');
 var sharedKey = require('../internals/shared-key');
@@ -16621,7 +21958,7 @@ module.exports = CORRECT_PROTOTYPE_GETTER ? Object.getPrototypeOf : function (O)
   } return O instanceof Object ? ObjectPrototype : null;
 };
 
-},{"../internals/correct-prototype-getter":129,"../internals/has":150,"../internals/shared-key":204,"../internals/to-object":217}],184:[function(require,module,exports){
+},{"../internals/correct-prototype-getter":227,"../internals/has":249,"../internals/shared-key":305,"../internals/to-object":318}],284:[function(require,module,exports){
 var has = require('../internals/has');
 var toIndexedObject = require('../internals/to-indexed-object');
 var indexOf = require('../internals/array-includes').indexOf;
@@ -16640,7 +21977,7 @@ module.exports = function (object, names) {
   return result;
 };
 
-},{"../internals/array-includes":115,"../internals/has":150,"../internals/hidden-keys":151,"../internals/to-indexed-object":214}],185:[function(require,module,exports){
+},{"../internals/array-includes":213,"../internals/has":249,"../internals/hidden-keys":250,"../internals/to-indexed-object":315}],285:[function(require,module,exports){
 var internalObjectKeys = require('../internals/object-keys-internal');
 var enumBugKeys = require('../internals/enum-bug-keys');
 
@@ -16650,7 +21987,7 @@ module.exports = Object.keys || function keys(O) {
   return internalObjectKeys(O, enumBugKeys);
 };
 
-},{"../internals/enum-bug-keys":142,"../internals/object-keys-internal":184}],186:[function(require,module,exports){
+},{"../internals/enum-bug-keys":241,"../internals/object-keys-internal":284}],286:[function(require,module,exports){
 'use strict';
 var nativePropertyIsEnumerable = {}.propertyIsEnumerable;
 var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
@@ -16665,7 +22002,7 @@ exports.f = NASHORN_BUG ? function propertyIsEnumerable(V) {
   return !!descriptor && descriptor.enumerable;
 } : nativePropertyIsEnumerable;
 
-},{}],187:[function(require,module,exports){
+},{}],287:[function(require,module,exports){
 var anObject = require('../internals/an-object');
 var aPossiblePrototype = require('../internals/a-possible-prototype');
 
@@ -16691,7 +22028,7 @@ module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
   };
 }() : undefined);
 
-},{"../internals/a-possible-prototype":103,"../internals/an-object":107}],188:[function(require,module,exports){
+},{"../internals/a-possible-prototype":201,"../internals/an-object":205}],288:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var objectKeys = require('../internals/object-keys');
 var toIndexedObject = require('../internals/to-indexed-object');
@@ -16725,7 +22062,7 @@ module.exports = {
   values: createMethod(false)
 };
 
-},{"../internals/descriptors":136,"../internals/object-keys":185,"../internals/object-property-is-enumerable":186,"../internals/to-indexed-object":214}],189:[function(require,module,exports){
+},{"../internals/descriptors":234,"../internals/object-keys":285,"../internals/object-property-is-enumerable":286,"../internals/to-indexed-object":315}],289:[function(require,module,exports){
 'use strict';
 var TO_STRING_TAG_SUPPORT = require('../internals/to-string-tag-support');
 var classof = require('../internals/classof');
@@ -16736,7 +22073,7 @@ module.exports = TO_STRING_TAG_SUPPORT ? {}.toString : function toString() {
   return '[object ' + classof(this) + ']';
 };
 
-},{"../internals/classof":126,"../internals/to-string-tag-support":221}],190:[function(require,module,exports){
+},{"../internals/classof":224,"../internals/to-string-tag-support":322}],290:[function(require,module,exports){
 var getBuiltIn = require('../internals/get-built-in');
 var getOwnPropertyNamesModule = require('../internals/object-get-own-property-names');
 var getOwnPropertySymbolsModule = require('../internals/object-get-own-property-symbols');
@@ -16749,12 +22086,12 @@ module.exports = getBuiltIn('Reflect', 'ownKeys') || function ownKeys(it) {
   return getOwnPropertySymbols ? keys.concat(getOwnPropertySymbols(it)) : keys;
 };
 
-},{"../internals/an-object":107,"../internals/get-built-in":147,"../internals/object-get-own-property-names":181,"../internals/object-get-own-property-symbols":182}],191:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/get-built-in":246,"../internals/object-get-own-property-names":281,"../internals/object-get-own-property-symbols":282}],291:[function(require,module,exports){
 var global = require('../internals/global');
 
 module.exports = global;
 
-},{"../internals/global":149}],192:[function(require,module,exports){
+},{"../internals/global":248}],292:[function(require,module,exports){
 module.exports = function (exec) {
   try {
     return { error: false, value: exec() };
@@ -16763,7 +22100,7 @@ module.exports = function (exec) {
   }
 };
 
-},{}],193:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 var anObject = require('../internals/an-object');
 var isObject = require('../internals/is-object');
 var newPromiseCapability = require('../internals/new-promise-capability');
@@ -16777,7 +22114,7 @@ module.exports = function (C, x) {
   return promiseCapability.promise;
 };
 
-},{"../internals/an-object":107,"../internals/is-object":163,"../internals/new-promise-capability":173}],194:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/is-object":262,"../internals/new-promise-capability":273}],294:[function(require,module,exports){
 var redefine = require('../internals/redefine');
 
 module.exports = function (target, src, options) {
@@ -16785,7 +22122,7 @@ module.exports = function (target, src, options) {
   return target;
 };
 
-},{"../internals/redefine":195}],195:[function(require,module,exports){
+},{"../internals/redefine":295}],295:[function(require,module,exports){
 var global = require('../internals/global');
 var createNonEnumerableProperty = require('../internals/create-non-enumerable-property');
 var has = require('../internals/has');
@@ -16801,9 +22138,15 @@ var TEMPLATE = String(String).split('String');
   var unsafe = options ? !!options.unsafe : false;
   var simple = options ? !!options.enumerable : false;
   var noTargetGet = options ? !!options.noTargetGet : false;
+  var state;
   if (typeof value == 'function') {
-    if (typeof key == 'string' && !has(value, 'name')) createNonEnumerableProperty(value, 'name', key);
-    enforceInternalState(value).source = TEMPLATE.join(typeof key == 'string' ? key : '');
+    if (typeof key == 'string' && !has(value, 'name')) {
+      createNonEnumerableProperty(value, 'name', key);
+    }
+    state = enforceInternalState(value);
+    if (!state.source) {
+      state.source = TEMPLATE.join(typeof key == 'string' ? key : '');
+    }
   }
   if (O === global) {
     if (simple) O[key] = value;
@@ -16821,7 +22164,7 @@ var TEMPLATE = String(String).split('String');
   return typeof this == 'function' && getInternalState(this).source || inspectSource(this);
 });
 
-},{"../internals/create-non-enumerable-property":131,"../internals/global":149,"../internals/has":150,"../internals/inspect-source":158,"../internals/internal-state":159,"../internals/set-global":201}],196:[function(require,module,exports){
+},{"../internals/create-non-enumerable-property":229,"../internals/global":248,"../internals/has":249,"../internals/inspect-source":257,"../internals/internal-state":258,"../internals/set-global":302}],296:[function(require,module,exports){
 var classof = require('./classof-raw');
 var regexpExec = require('./regexp-exec');
 
@@ -16845,7 +22188,7 @@ module.exports = function (R, S) {
 };
 
 
-},{"./classof-raw":125,"./regexp-exec":197}],197:[function(require,module,exports){
+},{"./classof-raw":223,"./regexp-exec":297}],297:[function(require,module,exports){
 'use strict';
 var regexpFlags = require('./regexp-flags');
 var stickyHelpers = require('./regexp-sticky-helpers');
@@ -16934,7 +22277,7 @@ if (PATCH) {
 
 module.exports = patchedExec;
 
-},{"./regexp-flags":198,"./regexp-sticky-helpers":199}],198:[function(require,module,exports){
+},{"./regexp-flags":298,"./regexp-sticky-helpers":299}],298:[function(require,module,exports){
 'use strict';
 var anObject = require('../internals/an-object');
 
@@ -16952,7 +22295,7 @@ module.exports = function () {
   return result;
 };
 
-},{"../internals/an-object":107}],199:[function(require,module,exports){
+},{"../internals/an-object":205}],299:[function(require,module,exports){
 'use strict';
 
 var fails = require('./fails');
@@ -16977,7 +22320,7 @@ exports.BROKEN_CARET = fails(function () {
   return re.exec('str') != null;
 });
 
-},{"./fails":144}],200:[function(require,module,exports){
+},{"./fails":243}],300:[function(require,module,exports){
 // `RequireObjectCoercible` abstract operation
 // https://tc39.github.io/ecma262/#sec-requireobjectcoercible
 module.exports = function (it) {
@@ -16985,7 +22328,15 @@ module.exports = function (it) {
   return it;
 };
 
-},{}],201:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
+// `SameValue` abstract operation
+// https://tc39.github.io/ecma262/#sec-samevalue
+module.exports = Object.is || function is(x, y) {
+  // eslint-disable-next-line no-self-compare
+  return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+};
+
+},{}],302:[function(require,module,exports){
 var global = require('../internals/global');
 var createNonEnumerableProperty = require('../internals/create-non-enumerable-property');
 
@@ -16997,7 +22348,7 @@ module.exports = function (key, value) {
   } return value;
 };
 
-},{"../internals/create-non-enumerable-property":131,"../internals/global":149}],202:[function(require,module,exports){
+},{"../internals/create-non-enumerable-property":229,"../internals/global":248}],303:[function(require,module,exports){
 'use strict';
 var getBuiltIn = require('../internals/get-built-in');
 var definePropertyModule = require('../internals/object-define-property');
@@ -17018,7 +22369,7 @@ module.exports = function (CONSTRUCTOR_NAME) {
   }
 };
 
-},{"../internals/descriptors":136,"../internals/get-built-in":147,"../internals/object-define-property":178,"../internals/well-known-symbol":228}],203:[function(require,module,exports){
+},{"../internals/descriptors":234,"../internals/get-built-in":246,"../internals/object-define-property":278,"../internals/well-known-symbol":329}],304:[function(require,module,exports){
 var defineProperty = require('../internals/object-define-property').f;
 var has = require('../internals/has');
 var wellKnownSymbol = require('../internals/well-known-symbol');
@@ -17031,7 +22382,7 @@ module.exports = function (it, TAG, STATIC) {
   }
 };
 
-},{"../internals/has":150,"../internals/object-define-property":178,"../internals/well-known-symbol":228}],204:[function(require,module,exports){
+},{"../internals/has":249,"../internals/object-define-property":278,"../internals/well-known-symbol":329}],305:[function(require,module,exports){
 var shared = require('../internals/shared');
 var uid = require('../internals/uid');
 
@@ -17041,7 +22392,7 @@ module.exports = function (key) {
   return keys[key] || (keys[key] = uid(key));
 };
 
-},{"../internals/shared":206,"../internals/uid":225}],205:[function(require,module,exports){
+},{"../internals/shared":307,"../internals/uid":326}],306:[function(require,module,exports){
 var global = require('../internals/global');
 var setGlobal = require('../internals/set-global');
 
@@ -17050,19 +22401,19 @@ var store = global[SHARED] || setGlobal(SHARED, {});
 
 module.exports = store;
 
-},{"../internals/global":149,"../internals/set-global":201}],206:[function(require,module,exports){
+},{"../internals/global":248,"../internals/set-global":302}],307:[function(require,module,exports){
 var IS_PURE = require('../internals/is-pure');
 var store = require('../internals/shared-store');
 
 (module.exports = function (key, value) {
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
-  version: '3.6.5',
+  version: '3.7.0',
   mode: IS_PURE ? 'pure' : 'global',
   copyright: '© 2020 Denis Pushkarev (zloirock.ru)'
 });
 
-},{"../internals/is-pure":164,"../internals/shared-store":205}],207:[function(require,module,exports){
+},{"../internals/is-pure":263,"../internals/shared-store":306}],308:[function(require,module,exports){
 var anObject = require('../internals/an-object');
 var aFunction = require('../internals/a-function');
 var wellKnownSymbol = require('../internals/well-known-symbol');
@@ -17077,7 +22428,7 @@ module.exports = function (O, defaultConstructor) {
   return C === undefined || (S = anObject(C)[SPECIES]) == undefined ? defaultConstructor : aFunction(S);
 };
 
-},{"../internals/a-function":102,"../internals/an-object":107,"../internals/well-known-symbol":228}],208:[function(require,module,exports){
+},{"../internals/a-function":200,"../internals/an-object":205,"../internals/well-known-symbol":329}],309:[function(require,module,exports){
 var toInteger = require('../internals/to-integer');
 var requireObjectCoercible = require('../internals/require-object-coercible');
 
@@ -17106,7 +22457,7 @@ module.exports = {
   charAt: createMethod(true)
 };
 
-},{"../internals/require-object-coercible":200,"../internals/to-integer":215}],209:[function(require,module,exports){
+},{"../internals/require-object-coercible":300,"../internals/to-integer":316}],310:[function(require,module,exports){
 var fails = require('../internals/fails');
 var whitespaces = require('../internals/whitespaces');
 
@@ -17120,7 +22471,7 @@ module.exports = function (METHOD_NAME) {
   });
 };
 
-},{"../internals/fails":144,"../internals/whitespaces":229}],210:[function(require,module,exports){
+},{"../internals/fails":243,"../internals/whitespaces":330}],311:[function(require,module,exports){
 var requireObjectCoercible = require('../internals/require-object-coercible');
 var whitespaces = require('../internals/whitespaces');
 
@@ -17150,14 +22501,14 @@ module.exports = {
   trim: createMethod(3)
 };
 
-},{"../internals/require-object-coercible":200,"../internals/whitespaces":229}],211:[function(require,module,exports){
+},{"../internals/require-object-coercible":300,"../internals/whitespaces":330}],312:[function(require,module,exports){
 var global = require('../internals/global');
 var fails = require('../internals/fails');
-var classof = require('../internals/classof-raw');
 var bind = require('../internals/function-bind-context');
 var html = require('../internals/html');
 var createElement = require('../internals/document-create-element');
 var IS_IOS = require('../internals/engine-is-ios');
+var IS_NODE = require('../internals/engine-is-node');
 
 var location = global.location;
 var set = global.setImmediate;
@@ -17211,7 +22562,7 @@ if (!set || !clear) {
     delete queue[id];
   };
   // Node.js 0.8-
-  if (classof(process) == 'process') {
+  if (IS_NODE) {
     defer = function (id) {
       process.nextTick(runner(id));
     };
@@ -17233,8 +22584,8 @@ if (!set || !clear) {
     global.addEventListener &&
     typeof postMessage == 'function' &&
     !global.importScripts &&
-    !fails(post) &&
-    location.protocol !== 'file:'
+    location && location.protocol !== 'file:' &&
+    !fails(post)
   ) {
     defer = post;
     global.addEventListener('message', listener, false);
@@ -17259,7 +22610,7 @@ module.exports = {
   clear: clear
 };
 
-},{"../internals/classof-raw":125,"../internals/document-create-element":137,"../internals/engine-is-ios":139,"../internals/fails":144,"../internals/function-bind-context":146,"../internals/global":149,"../internals/html":153}],212:[function(require,module,exports){
+},{"../internals/document-create-element":235,"../internals/engine-is-ios":237,"../internals/engine-is-node":238,"../internals/fails":243,"../internals/function-bind-context":245,"../internals/global":248,"../internals/html":252}],313:[function(require,module,exports){
 var toInteger = require('../internals/to-integer');
 
 var max = Math.max;
@@ -17273,7 +22624,7 @@ module.exports = function (index, length) {
   return integer < 0 ? max(integer + length, 0) : min(integer, length);
 };
 
-},{"../internals/to-integer":215}],213:[function(require,module,exports){
+},{"../internals/to-integer":316}],314:[function(require,module,exports){
 var toInteger = require('../internals/to-integer');
 var toLength = require('../internals/to-length');
 
@@ -17287,7 +22638,7 @@ module.exports = function (it) {
   return length;
 };
 
-},{"../internals/to-integer":215,"../internals/to-length":216}],214:[function(require,module,exports){
+},{"../internals/to-integer":316,"../internals/to-length":317}],315:[function(require,module,exports){
 // toObject with fallback for non-array-like ES3 strings
 var IndexedObject = require('../internals/indexed-object');
 var requireObjectCoercible = require('../internals/require-object-coercible');
@@ -17296,7 +22647,7 @@ module.exports = function (it) {
   return IndexedObject(requireObjectCoercible(it));
 };
 
-},{"../internals/indexed-object":156,"../internals/require-object-coercible":200}],215:[function(require,module,exports){
+},{"../internals/indexed-object":255,"../internals/require-object-coercible":300}],316:[function(require,module,exports){
 var ceil = Math.ceil;
 var floor = Math.floor;
 
@@ -17306,7 +22657,7 @@ module.exports = function (argument) {
   return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor : ceil)(argument);
 };
 
-},{}],216:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
 var toInteger = require('../internals/to-integer');
 
 var min = Math.min;
@@ -17317,7 +22668,7 @@ module.exports = function (argument) {
   return argument > 0 ? min(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
 };
 
-},{"../internals/to-integer":215}],217:[function(require,module,exports){
+},{"../internals/to-integer":316}],318:[function(require,module,exports){
 var requireObjectCoercible = require('../internals/require-object-coercible');
 
 // `ToObject` abstract operation
@@ -17326,7 +22677,7 @@ module.exports = function (argument) {
   return Object(requireObjectCoercible(argument));
 };
 
-},{"../internals/require-object-coercible":200}],218:[function(require,module,exports){
+},{"../internals/require-object-coercible":300}],319:[function(require,module,exports){
 var toPositiveInteger = require('../internals/to-positive-integer');
 
 module.exports = function (it, BYTES) {
@@ -17335,7 +22686,7 @@ module.exports = function (it, BYTES) {
   return offset;
 };
 
-},{"../internals/to-positive-integer":219}],219:[function(require,module,exports){
+},{"../internals/to-positive-integer":320}],320:[function(require,module,exports){
 var toInteger = require('../internals/to-integer');
 
 module.exports = function (it) {
@@ -17344,7 +22695,7 @@ module.exports = function (it) {
   return result;
 };
 
-},{"../internals/to-integer":215}],220:[function(require,module,exports){
+},{"../internals/to-integer":316}],321:[function(require,module,exports){
 var isObject = require('../internals/is-object');
 
 // `ToPrimitive` abstract operation
@@ -17360,7 +22711,7 @@ module.exports = function (input, PREFERRED_STRING) {
   throw TypeError("Can't convert object to primitive value");
 };
 
-},{"../internals/is-object":163}],221:[function(require,module,exports){
+},{"../internals/is-object":262}],322:[function(require,module,exports){
 var wellKnownSymbol = require('../internals/well-known-symbol');
 
 var TO_STRING_TAG = wellKnownSymbol('toStringTag');
@@ -17370,7 +22721,7 @@ test[TO_STRING_TAG] = 'z';
 
 module.exports = String(test) === '[object z]';
 
-},{"../internals/well-known-symbol":228}],222:[function(require,module,exports){
+},{"../internals/well-known-symbol":329}],323:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var global = require('../internals/global');
@@ -17602,7 +22953,7 @@ if (DESCRIPTORS) {
   };
 } else module.exports = function () { /* empty */ };
 
-},{"../internals/an-instance":106,"../internals/array-buffer":110,"../internals/array-buffer-view-core":109,"../internals/array-iteration":116,"../internals/classof":126,"../internals/create-non-enumerable-property":131,"../internals/create-property-descriptor":132,"../internals/descriptors":136,"../internals/export":143,"../internals/global":149,"../internals/has":150,"../internals/inherit-if-required":157,"../internals/internal-state":159,"../internals/is-object":163,"../internals/object-create":176,"../internals/object-define-property":178,"../internals/object-get-own-property-descriptor":179,"../internals/object-get-own-property-names":181,"../internals/object-set-prototype-of":187,"../internals/set-species":202,"../internals/to-index":213,"../internals/to-length":216,"../internals/to-offset":218,"../internals/to-primitive":220,"../internals/typed-array-constructors-require-wrappers":223,"../internals/typed-array-from":224}],223:[function(require,module,exports){
+},{"../internals/an-instance":204,"../internals/array-buffer":208,"../internals/array-buffer-view-core":207,"../internals/array-iteration":214,"../internals/classof":224,"../internals/create-non-enumerable-property":229,"../internals/create-property-descriptor":230,"../internals/descriptors":234,"../internals/export":242,"../internals/global":248,"../internals/has":249,"../internals/inherit-if-required":256,"../internals/internal-state":258,"../internals/is-object":262,"../internals/object-create":276,"../internals/object-define-property":278,"../internals/object-get-own-property-descriptor":279,"../internals/object-get-own-property-names":281,"../internals/object-set-prototype-of":287,"../internals/set-species":303,"../internals/to-index":314,"../internals/to-length":317,"../internals/to-offset":319,"../internals/to-primitive":321,"../internals/typed-array-constructors-require-wrappers":324,"../internals/typed-array-from":325}],324:[function(require,module,exports){
 /* eslint-disable no-new */
 var global = require('../internals/global');
 var fails = require('../internals/fails');
@@ -17626,7 +22977,7 @@ module.exports = !NATIVE_ARRAY_BUFFER_VIEWS || !fails(function () {
   return new Int8Array(new ArrayBuffer(2), 1, undefined).length !== 1;
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/check-correctness-of-iteration":124,"../internals/fails":144,"../internals/global":149}],224:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/check-correctness-of-iteration":222,"../internals/fails":243,"../internals/global":248}],325:[function(require,module,exports){
 var toObject = require('../internals/to-object');
 var toLength = require('../internals/to-length');
 var getIteratorMethod = require('../internals/get-iterator-method');
@@ -17660,7 +23011,7 @@ module.exports = function from(source /* , mapfn, thisArg */) {
   return result;
 };
 
-},{"../internals/array-buffer-view-core":109,"../internals/function-bind-context":146,"../internals/get-iterator-method":148,"../internals/is-array-iterator-method":160,"../internals/to-length":216,"../internals/to-object":217}],225:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/function-bind-context":245,"../internals/get-iterator-method":247,"../internals/is-array-iterator-method":259,"../internals/to-length":317,"../internals/to-object":318}],326:[function(require,module,exports){
 var id = 0;
 var postfix = Math.random();
 
@@ -17668,7 +23019,7 @@ module.exports = function (key) {
   return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
 };
 
-},{}],226:[function(require,module,exports){
+},{}],327:[function(require,module,exports){
 var NATIVE_SYMBOL = require('../internals/native-symbol');
 
 module.exports = NATIVE_SYMBOL
@@ -17677,12 +23028,12 @@ module.exports = NATIVE_SYMBOL
   // eslint-disable-next-line no-undef
   && typeof Symbol.iterator == 'symbol';
 
-},{"../internals/native-symbol":171}],227:[function(require,module,exports){
+},{"../internals/native-symbol":271}],328:[function(require,module,exports){
 var wellKnownSymbol = require('../internals/well-known-symbol');
 
 exports.f = wellKnownSymbol;
 
-},{"../internals/well-known-symbol":228}],228:[function(require,module,exports){
+},{"../internals/well-known-symbol":329}],329:[function(require,module,exports){
 var global = require('../internals/global');
 var shared = require('../internals/shared');
 var has = require('../internals/has');
@@ -17701,12 +23052,12 @@ module.exports = function (name) {
   } return WellKnownSymbolsStore[name];
 };
 
-},{"../internals/global":149,"../internals/has":150,"../internals/native-symbol":171,"../internals/shared":206,"../internals/uid":225,"../internals/use-symbol-as-uid":226}],229:[function(require,module,exports){
+},{"../internals/global":248,"../internals/has":249,"../internals/native-symbol":271,"../internals/shared":307,"../internals/uid":326,"../internals/use-symbol-as-uid":327}],330:[function(require,module,exports){
 // a string of all valid unicode whitespaces
 // eslint-disable-next-line max-len
 module.exports = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF';
 
-},{}],230:[function(require,module,exports){
+},{}],331:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var fails = require('../internals/fails');
@@ -17744,7 +23095,7 @@ $({ target: 'ArrayBuffer', proto: true, unsafe: true, forced: INCORRECT_SLICE },
   }
 });
 
-},{"../internals/an-object":107,"../internals/array-buffer":110,"../internals/export":143,"../internals/fails":144,"../internals/species-constructor":207,"../internals/to-absolute-index":212,"../internals/to-length":216}],231:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/array-buffer":208,"../internals/export":242,"../internals/fails":243,"../internals/species-constructor":308,"../internals/to-absolute-index":313,"../internals/to-length":317}],332:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var fails = require('../internals/fails');
@@ -17806,7 +23157,7 @@ $({ target: 'Array', proto: true, forced: FORCED }, {
   }
 });
 
-},{"../internals/array-method-has-species-support":118,"../internals/array-species-create":122,"../internals/create-property":133,"../internals/engine-v8-version":141,"../internals/export":143,"../internals/fails":144,"../internals/is-array":161,"../internals/is-object":163,"../internals/to-length":216,"../internals/to-object":217,"../internals/well-known-symbol":228}],232:[function(require,module,exports){
+},{"../internals/array-method-has-species-support":216,"../internals/array-species-create":220,"../internals/create-property":231,"../internals/engine-v8-version":240,"../internals/export":242,"../internals/fails":243,"../internals/is-array":260,"../internals/is-object":262,"../internals/to-length":317,"../internals/to-object":318,"../internals/well-known-symbol":329}],333:[function(require,module,exports){
 var $ = require('../internals/export');
 var fill = require('../internals/array-fill');
 var addToUnscopables = require('../internals/add-to-unscopables');
@@ -17820,7 +23171,7 @@ $({ target: 'Array', proto: true }, {
 // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
 addToUnscopables('fill');
 
-},{"../internals/add-to-unscopables":104,"../internals/array-fill":112,"../internals/export":143}],233:[function(require,module,exports){
+},{"../internals/add-to-unscopables":202,"../internals/array-fill":210,"../internals/export":242}],334:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var $filter = require('../internals/array-iteration').filter;
@@ -17840,7 +23191,7 @@ $({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT || !USES_TO_LENGT
   }
 });
 
-},{"../internals/array-iteration":116,"../internals/array-method-has-species-support":118,"../internals/array-method-uses-to-length":120,"../internals/export":143}],234:[function(require,module,exports){
+},{"../internals/array-iteration":214,"../internals/array-method-has-species-support":216,"../internals/array-method-uses-to-length":218,"../internals/export":242}],335:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var $find = require('../internals/array-iteration').find;
@@ -17866,7 +23217,7 @@ $({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH }, {
 // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
 addToUnscopables(FIND);
 
-},{"../internals/add-to-unscopables":104,"../internals/array-iteration":116,"../internals/array-method-uses-to-length":120,"../internals/export":143}],235:[function(require,module,exports){
+},{"../internals/add-to-unscopables":202,"../internals/array-iteration":214,"../internals/array-method-uses-to-length":218,"../internals/export":242}],336:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var forEach = require('../internals/array-for-each');
@@ -17877,7 +23228,7 @@ $({ target: 'Array', proto: true, forced: [].forEach != forEach }, {
   forEach: forEach
 });
 
-},{"../internals/array-for-each":113,"../internals/export":143}],236:[function(require,module,exports){
+},{"../internals/array-for-each":211,"../internals/export":242}],337:[function(require,module,exports){
 var $ = require('../internals/export');
 var from = require('../internals/array-from');
 var checkCorrectnessOfIteration = require('../internals/check-correctness-of-iteration');
@@ -17892,7 +23243,7 @@ $({ target: 'Array', stat: true, forced: INCORRECT_ITERATION }, {
   from: from
 });
 
-},{"../internals/array-from":114,"../internals/check-correctness-of-iteration":124,"../internals/export":143}],237:[function(require,module,exports){
+},{"../internals/array-from":212,"../internals/check-correctness-of-iteration":222,"../internals/export":242}],338:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var $includes = require('../internals/array-includes').includes;
@@ -17912,7 +23263,7 @@ $({ target: 'Array', proto: true, forced: !USES_TO_LENGTH }, {
 // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
 addToUnscopables('includes');
 
-},{"../internals/add-to-unscopables":104,"../internals/array-includes":115,"../internals/array-method-uses-to-length":120,"../internals/export":143}],238:[function(require,module,exports){
+},{"../internals/add-to-unscopables":202,"../internals/array-includes":213,"../internals/array-method-uses-to-length":218,"../internals/export":242}],339:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var $indexOf = require('../internals/array-includes').indexOf;
@@ -17936,7 +23287,7 @@ $({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD || !US
   }
 });
 
-},{"../internals/array-includes":115,"../internals/array-method-is-strict":119,"../internals/array-method-uses-to-length":120,"../internals/export":143}],239:[function(require,module,exports){
+},{"../internals/array-includes":213,"../internals/array-method-is-strict":217,"../internals/array-method-uses-to-length":218,"../internals/export":242}],340:[function(require,module,exports){
 'use strict';
 var toIndexedObject = require('../internals/to-indexed-object');
 var addToUnscopables = require('../internals/add-to-unscopables');
@@ -17991,7 +23342,7 @@ addToUnscopables('keys');
 addToUnscopables('values');
 addToUnscopables('entries');
 
-},{"../internals/add-to-unscopables":104,"../internals/define-iterator":134,"../internals/internal-state":159,"../internals/iterators":168,"../internals/to-indexed-object":214}],240:[function(require,module,exports){
+},{"../internals/add-to-unscopables":202,"../internals/define-iterator":232,"../internals/internal-state":258,"../internals/iterators":268,"../internals/to-indexed-object":315}],341:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var IndexedObject = require('../internals/indexed-object');
@@ -18011,7 +23362,17 @@ $({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD }, {
   }
 });
 
-},{"../internals/array-method-is-strict":119,"../internals/export":143,"../internals/indexed-object":156,"../internals/to-indexed-object":214}],241:[function(require,module,exports){
+},{"../internals/array-method-is-strict":217,"../internals/export":242,"../internals/indexed-object":255,"../internals/to-indexed-object":315}],342:[function(require,module,exports){
+var $ = require('../internals/export');
+var lastIndexOf = require('../internals/array-last-index-of');
+
+// `Array.prototype.lastIndexOf` method
+// https://tc39.github.io/ecma262/#sec-array.prototype.lastindexof
+$({ target: 'Array', proto: true, forced: lastIndexOf !== [].lastIndexOf }, {
+  lastIndexOf: lastIndexOf
+});
+
+},{"../internals/array-last-index-of":215,"../internals/export":242}],343:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var $map = require('../internals/array-iteration').map;
@@ -18031,7 +23392,7 @@ $({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT || !USES_TO_LENGT
   }
 });
 
-},{"../internals/array-iteration":116,"../internals/array-method-has-species-support":118,"../internals/array-method-uses-to-length":120,"../internals/export":143}],242:[function(require,module,exports){
+},{"../internals/array-iteration":214,"../internals/array-method-has-species-support":216,"../internals/array-method-uses-to-length":218,"../internals/export":242}],344:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var isObject = require('../internals/is-object');
@@ -18082,7 +23443,7 @@ $({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT || !USES_TO_LENGT
   }
 });
 
-},{"../internals/array-method-has-species-support":118,"../internals/array-method-uses-to-length":120,"../internals/create-property":133,"../internals/export":143,"../internals/is-array":161,"../internals/is-object":163,"../internals/to-absolute-index":212,"../internals/to-indexed-object":214,"../internals/to-length":216,"../internals/well-known-symbol":228}],243:[function(require,module,exports){
+},{"../internals/array-method-has-species-support":216,"../internals/array-method-uses-to-length":218,"../internals/create-property":231,"../internals/export":242,"../internals/is-array":260,"../internals/is-object":262,"../internals/to-absolute-index":313,"../internals/to-indexed-object":315,"../internals/to-length":317,"../internals/well-known-symbol":329}],345:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var aFunction = require('../internals/a-function');
@@ -18116,7 +23477,79 @@ $({ target: 'Array', proto: true, forced: FORCED }, {
   }
 });
 
-},{"../internals/a-function":102,"../internals/array-method-is-strict":119,"../internals/export":143,"../internals/fails":144,"../internals/to-object":217}],244:[function(require,module,exports){
+},{"../internals/a-function":200,"../internals/array-method-is-strict":217,"../internals/export":242,"../internals/fails":243,"../internals/to-object":318}],346:[function(require,module,exports){
+'use strict';
+var $ = require('../internals/export');
+var toAbsoluteIndex = require('../internals/to-absolute-index');
+var toInteger = require('../internals/to-integer');
+var toLength = require('../internals/to-length');
+var toObject = require('../internals/to-object');
+var arraySpeciesCreate = require('../internals/array-species-create');
+var createProperty = require('../internals/create-property');
+var arrayMethodHasSpeciesSupport = require('../internals/array-method-has-species-support');
+var arrayMethodUsesToLength = require('../internals/array-method-uses-to-length');
+
+var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('splice');
+var USES_TO_LENGTH = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+
+var max = Math.max;
+var min = Math.min;
+var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+// `Array.prototype.splice` method
+// https://tc39.github.io/ecma262/#sec-array.prototype.splice
+// with adding support of @@species
+$({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT || !USES_TO_LENGTH }, {
+  splice: function splice(start, deleteCount /* , ...items */) {
+    var O = toObject(this);
+    var len = toLength(O.length);
+    var actualStart = toAbsoluteIndex(start, len);
+    var argumentsLength = arguments.length;
+    var insertCount, actualDeleteCount, A, k, from, to;
+    if (argumentsLength === 0) {
+      insertCount = actualDeleteCount = 0;
+    } else if (argumentsLength === 1) {
+      insertCount = 0;
+      actualDeleteCount = len - actualStart;
+    } else {
+      insertCount = argumentsLength - 2;
+      actualDeleteCount = min(max(toInteger(deleteCount), 0), len - actualStart);
+    }
+    if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
+      throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+    }
+    A = arraySpeciesCreate(O, actualDeleteCount);
+    for (k = 0; k < actualDeleteCount; k++) {
+      from = actualStart + k;
+      if (from in O) createProperty(A, k, O[from]);
+    }
+    A.length = actualDeleteCount;
+    if (insertCount < actualDeleteCount) {
+      for (k = actualStart; k < len - actualDeleteCount; k++) {
+        from = k + actualDeleteCount;
+        to = k + insertCount;
+        if (from in O) O[to] = O[from];
+        else delete O[to];
+      }
+      for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+    } else if (insertCount > actualDeleteCount) {
+      for (k = len - actualDeleteCount; k > actualStart; k--) {
+        from = k + actualDeleteCount - 1;
+        to = k + insertCount - 1;
+        if (from in O) O[to] = O[from];
+        else delete O[to];
+      }
+    }
+    for (k = 0; k < insertCount; k++) {
+      O[k + actualStart] = arguments[k + 2];
+    }
+    O.length = len - actualDeleteCount + insertCount;
+    return A;
+  }
+});
+
+},{"../internals/array-method-has-species-support":216,"../internals/array-method-uses-to-length":218,"../internals/array-species-create":220,"../internals/create-property":231,"../internals/export":242,"../internals/to-absolute-index":313,"../internals/to-integer":316,"../internals/to-length":317,"../internals/to-object":318}],347:[function(require,module,exports){
 var DESCRIPTORS = require('../internals/descriptors');
 var defineProperty = require('../internals/object-define-property').f;
 
@@ -18140,7 +23573,7 @@ if (DESCRIPTORS && !(NAME in FunctionPrototype)) {
   });
 }
 
-},{"../internals/descriptors":136,"../internals/object-define-property":178}],245:[function(require,module,exports){
+},{"../internals/descriptors":234,"../internals/object-define-property":278}],348:[function(require,module,exports){
 'use strict';
 var DESCRIPTORS = require('../internals/descriptors');
 var global = require('../internals/global');
@@ -18220,7 +23653,7 @@ if (isForced(NUMBER, !NativeNumber(' 0o1') || !NativeNumber('0b1') || NativeNumb
   redefine(global, NUMBER, NumberWrapper);
 }
 
-},{"../internals/classof-raw":125,"../internals/descriptors":136,"../internals/fails":144,"../internals/global":149,"../internals/has":150,"../internals/inherit-if-required":157,"../internals/is-forced":162,"../internals/object-create":176,"../internals/object-define-property":178,"../internals/object-get-own-property-descriptor":179,"../internals/object-get-own-property-names":181,"../internals/redefine":195,"../internals/string-trim":210,"../internals/to-primitive":220}],246:[function(require,module,exports){
+},{"../internals/classof-raw":223,"../internals/descriptors":234,"../internals/fails":243,"../internals/global":248,"../internals/has":249,"../internals/inherit-if-required":256,"../internals/is-forced":261,"../internals/object-create":276,"../internals/object-define-property":278,"../internals/object-get-own-property-descriptor":279,"../internals/object-get-own-property-names":281,"../internals/redefine":295,"../internals/string-trim":311,"../internals/to-primitive":321}],349:[function(require,module,exports){
 var $ = require('../internals/export');
 var assign = require('../internals/object-assign');
 
@@ -18230,7 +23663,7 @@ $({ target: 'Object', stat: true, forced: Object.assign !== assign }, {
   assign: assign
 });
 
-},{"../internals/export":143,"../internals/object-assign":175}],247:[function(require,module,exports){
+},{"../internals/export":242,"../internals/object-assign":275}],350:[function(require,module,exports){
 var $ = require('../internals/export');
 var $entries = require('../internals/object-to-array').entries;
 
@@ -18242,7 +23675,7 @@ $({ target: 'Object', stat: true }, {
   }
 });
 
-},{"../internals/export":143,"../internals/object-to-array":188}],248:[function(require,module,exports){
+},{"../internals/export":242,"../internals/object-to-array":288}],351:[function(require,module,exports){
 var $ = require('../internals/export');
 var toObject = require('../internals/to-object');
 var nativeKeys = require('../internals/object-keys');
@@ -18258,7 +23691,7 @@ $({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES }, {
   }
 });
 
-},{"../internals/export":143,"../internals/fails":144,"../internals/object-keys":185,"../internals/to-object":217}],249:[function(require,module,exports){
+},{"../internals/export":242,"../internals/fails":243,"../internals/object-keys":285,"../internals/to-object":318}],352:[function(require,module,exports){
 var TO_STRING_TAG_SUPPORT = require('../internals/to-string-tag-support');
 var redefine = require('../internals/redefine');
 var toString = require('../internals/object-to-string');
@@ -18269,7 +23702,7 @@ if (!TO_STRING_TAG_SUPPORT) {
   redefine(Object.prototype, 'toString', toString, { unsafe: true });
 }
 
-},{"../internals/object-to-string":189,"../internals/redefine":195,"../internals/to-string-tag-support":221}],250:[function(require,module,exports){
+},{"../internals/object-to-string":289,"../internals/redefine":295,"../internals/to-string-tag-support":322}],353:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var IS_PURE = require('../internals/is-pure');
@@ -18283,7 +23716,6 @@ var setSpecies = require('../internals/set-species');
 var isObject = require('../internals/is-object');
 var aFunction = require('../internals/a-function');
 var anInstance = require('../internals/an-instance');
-var classof = require('../internals/classof-raw');
 var inspectSource = require('../internals/inspect-source');
 var iterate = require('../internals/iterate');
 var checkCorrectnessOfIteration = require('../internals/check-correctness-of-iteration');
@@ -18297,6 +23729,7 @@ var perform = require('../internals/perform');
 var InternalStateModule = require('../internals/internal-state');
 var isForced = require('../internals/is-forced');
 var wellKnownSymbol = require('../internals/well-known-symbol');
+var IS_NODE = require('../internals/engine-is-node');
 var V8_VERSION = require('../internals/engine-v8-version');
 
 var SPECIES = wellKnownSymbol('species');
@@ -18311,8 +23744,8 @@ var process = global.process;
 var $fetch = getBuiltIn('fetch');
 var newPromiseCapability = newPromiseCapabilityModule.f;
 var newGenericPromiseCapability = newPromiseCapability;
-var IS_NODE = classof(process) == 'process';
 var DISPATCH_EVENT = !!(document && document.createEvent && global.dispatchEvent);
+var NATIVE_REJECTION_EVENT = typeof PromiseRejectionEvent == 'function';
 var UNHANDLED_REJECTION = 'unhandledrejection';
 var REJECTION_HANDLED = 'rejectionhandled';
 var PENDING = 0;
@@ -18330,7 +23763,7 @@ var FORCED = isForced(PROMISE, function () {
     // We can't detect it synchronously, so just check versions
     if (V8_VERSION === 66) return true;
     // Unhandled rejections tracking support, NodeJS Promise without it fails @@species test
-    if (!IS_NODE && typeof PromiseRejectionEvent != 'function') return true;
+    if (!IS_NODE && !NATIVE_REJECTION_EVENT) return true;
   }
   // We need Promise#finally in the pure version for preventing prototype pollution
   if (IS_PURE && !PromiseConstructor.prototype['finally']) return true;
@@ -18358,7 +23791,7 @@ var isThenable = function (it) {
   return isObject(it) && typeof (then = it.then) == 'function' ? then : false;
 };
 
-var notify = function (promise, state, isReject) {
+var notify = function (state, isReject) {
   if (state.notified) return;
   state.notified = true;
   var chain = state.reactions;
@@ -18377,7 +23810,7 @@ var notify = function (promise, state, isReject) {
       try {
         if (handler) {
           if (!ok) {
-            if (state.rejection === UNHANDLED) onHandleUnhandled(promise, state);
+            if (state.rejection === UNHANDLED) onHandleUnhandled(state);
             state.rejection = HANDLED;
           }
           if (handler === true) result = value;
@@ -18402,7 +23835,7 @@ var notify = function (promise, state, isReject) {
     }
     state.reactions = [];
     state.notified = false;
-    if (isReject && !state.rejection) onUnhandled(promise, state);
+    if (isReject && !state.rejection) onUnhandled(state);
   });
 };
 
@@ -18415,12 +23848,13 @@ var dispatchEvent = function (name, promise, reason) {
     event.initEvent(name, false, true);
     global.dispatchEvent(event);
   } else event = { promise: promise, reason: reason };
-  if (handler = global['on' + name]) handler(event);
+  if (!NATIVE_REJECTION_EVENT && (handler = global['on' + name])) handler(event);
   else if (name === UNHANDLED_REJECTION) hostReportErrors('Unhandled promise rejection', reason);
 };
 
-var onUnhandled = function (promise, state) {
+var onUnhandled = function (state) {
   task.call(global, function () {
+    var promise = state.facade;
     var value = state.value;
     var IS_UNHANDLED = isUnhandled(state);
     var result;
@@ -18441,55 +23875,56 @@ var isUnhandled = function (state) {
   return state.rejection !== HANDLED && !state.parent;
 };
 
-var onHandleUnhandled = function (promise, state) {
+var onHandleUnhandled = function (state) {
   task.call(global, function () {
+    var promise = state.facade;
     if (IS_NODE) {
       process.emit('rejectionHandled', promise);
     } else dispatchEvent(REJECTION_HANDLED, promise, state.value);
   });
 };
 
-var bind = function (fn, promise, state, unwrap) {
+var bind = function (fn, state, unwrap) {
   return function (value) {
-    fn(promise, state, value, unwrap);
+    fn(state, value, unwrap);
   };
 };
 
-var internalReject = function (promise, state, value, unwrap) {
+var internalReject = function (state, value, unwrap) {
   if (state.done) return;
   state.done = true;
   if (unwrap) state = unwrap;
   state.value = value;
   state.state = REJECTED;
-  notify(promise, state, true);
+  notify(state, true);
 };
 
-var internalResolve = function (promise, state, value, unwrap) {
+var internalResolve = function (state, value, unwrap) {
   if (state.done) return;
   state.done = true;
   if (unwrap) state = unwrap;
   try {
-    if (promise === value) throw TypeError("Promise can't be resolved itself");
+    if (state.facade === value) throw TypeError("Promise can't be resolved itself");
     var then = isThenable(value);
     if (then) {
       microtask(function () {
         var wrapper = { done: false };
         try {
           then.call(value,
-            bind(internalResolve, promise, wrapper, state),
-            bind(internalReject, promise, wrapper, state)
+            bind(internalResolve, wrapper, state),
+            bind(internalReject, wrapper, state)
           );
         } catch (error) {
-          internalReject(promise, wrapper, error, state);
+          internalReject(wrapper, error, state);
         }
       });
     } else {
       state.value = value;
       state.state = FULFILLED;
-      notify(promise, state, false);
+      notify(state, false);
     }
   } catch (error) {
-    internalReject(promise, { done: false }, error, state);
+    internalReject({ done: false }, error, state);
   }
 };
 
@@ -18502,9 +23937,9 @@ if (FORCED) {
     Internal.call(this);
     var state = getInternalState(this);
     try {
-      executor(bind(internalResolve, this, state), bind(internalReject, this, state));
+      executor(bind(internalResolve, state), bind(internalReject, state));
     } catch (error) {
-      internalReject(this, state, error);
+      internalReject(state, error);
     }
   };
   // eslint-disable-next-line no-unused-vars
@@ -18531,7 +23966,7 @@ if (FORCED) {
       reaction.domain = IS_NODE ? process.domain : undefined;
       state.parent = true;
       state.reactions.push(reaction);
-      if (state.state != PENDING) notify(this, state, false);
+      if (state.state != PENDING) notify(state, false);
       return reaction.promise;
     },
     // `Promise.prototype.catch` method
@@ -18544,8 +23979,8 @@ if (FORCED) {
     var promise = new Internal();
     var state = getInternalState(promise);
     this.promise = promise;
-    this.resolve = bind(internalResolve, promise, state);
-    this.reject = bind(internalReject, promise, state);
+    this.resolve = bind(internalResolve, state);
+    this.reject = bind(internalReject, state);
   };
   newPromiseCapabilityModule.f = newPromiseCapability = function (C) {
     return C === PromiseConstructor || C === PromiseWrapper
@@ -18650,7 +24085,93 @@ $({ target: PROMISE, stat: true, forced: INCORRECT_ITERATION }, {
   }
 });
 
-},{"../internals/a-function":102,"../internals/an-instance":106,"../internals/check-correctness-of-iteration":124,"../internals/classof-raw":125,"../internals/engine-v8-version":141,"../internals/export":143,"../internals/get-built-in":147,"../internals/global":149,"../internals/host-report-errors":152,"../internals/inspect-source":158,"../internals/internal-state":159,"../internals/is-forced":162,"../internals/is-object":163,"../internals/is-pure":164,"../internals/iterate":166,"../internals/microtask":169,"../internals/native-promise-constructor":170,"../internals/new-promise-capability":173,"../internals/perform":192,"../internals/promise-resolve":193,"../internals/redefine":195,"../internals/redefine-all":194,"../internals/set-species":202,"../internals/set-to-string-tag":203,"../internals/species-constructor":207,"../internals/task":211,"../internals/well-known-symbol":228}],251:[function(require,module,exports){
+},{"../internals/a-function":200,"../internals/an-instance":204,"../internals/check-correctness-of-iteration":222,"../internals/engine-is-node":238,"../internals/engine-v8-version":240,"../internals/export":242,"../internals/get-built-in":246,"../internals/global":248,"../internals/host-report-errors":251,"../internals/inspect-source":257,"../internals/internal-state":258,"../internals/is-forced":261,"../internals/is-object":262,"../internals/is-pure":263,"../internals/iterate":265,"../internals/microtask":269,"../internals/native-promise-constructor":270,"../internals/new-promise-capability":273,"../internals/perform":292,"../internals/promise-resolve":293,"../internals/redefine":295,"../internals/redefine-all":294,"../internals/set-species":303,"../internals/set-to-string-tag":304,"../internals/species-constructor":308,"../internals/task":312,"../internals/well-known-symbol":329}],354:[function(require,module,exports){
+var DESCRIPTORS = require('../internals/descriptors');
+var global = require('../internals/global');
+var isForced = require('../internals/is-forced');
+var inheritIfRequired = require('../internals/inherit-if-required');
+var defineProperty = require('../internals/object-define-property').f;
+var getOwnPropertyNames = require('../internals/object-get-own-property-names').f;
+var isRegExp = require('../internals/is-regexp');
+var getFlags = require('../internals/regexp-flags');
+var stickyHelpers = require('../internals/regexp-sticky-helpers');
+var redefine = require('../internals/redefine');
+var fails = require('../internals/fails');
+var setInternalState = require('../internals/internal-state').set;
+var setSpecies = require('../internals/set-species');
+var wellKnownSymbol = require('../internals/well-known-symbol');
+
+var MATCH = wellKnownSymbol('match');
+var NativeRegExp = global.RegExp;
+var RegExpPrototype = NativeRegExp.prototype;
+var re1 = /a/g;
+var re2 = /a/g;
+
+// "new" should create a new object, old webkit bug
+var CORRECT_NEW = new NativeRegExp(re1) !== re1;
+
+var UNSUPPORTED_Y = stickyHelpers.UNSUPPORTED_Y;
+
+var FORCED = DESCRIPTORS && isForced('RegExp', (!CORRECT_NEW || UNSUPPORTED_Y || fails(function () {
+  re2[MATCH] = false;
+  // RegExp constructor can alter flags and IsRegExp works correct with @@match
+  return NativeRegExp(re1) != re1 || NativeRegExp(re2) == re2 || NativeRegExp(re1, 'i') != '/a/i';
+})));
+
+// `RegExp` constructor
+// https://tc39.github.io/ecma262/#sec-regexp-constructor
+if (FORCED) {
+  var RegExpWrapper = function RegExp(pattern, flags) {
+    var thisIsRegExp = this instanceof RegExpWrapper;
+    var patternIsRegExp = isRegExp(pattern);
+    var flagsAreUndefined = flags === undefined;
+    var sticky;
+
+    if (!thisIsRegExp && patternIsRegExp && pattern.constructor === RegExpWrapper && flagsAreUndefined) {
+      return pattern;
+    }
+
+    if (CORRECT_NEW) {
+      if (patternIsRegExp && !flagsAreUndefined) pattern = pattern.source;
+    } else if (pattern instanceof RegExpWrapper) {
+      if (flagsAreUndefined) flags = getFlags.call(pattern);
+      pattern = pattern.source;
+    }
+
+    if (UNSUPPORTED_Y) {
+      sticky = !!flags && flags.indexOf('y') > -1;
+      if (sticky) flags = flags.replace(/y/g, '');
+    }
+
+    var result = inheritIfRequired(
+      CORRECT_NEW ? new NativeRegExp(pattern, flags) : NativeRegExp(pattern, flags),
+      thisIsRegExp ? this : RegExpPrototype,
+      RegExpWrapper
+    );
+
+    if (UNSUPPORTED_Y && sticky) setInternalState(result, { sticky: sticky });
+
+    return result;
+  };
+  var proxy = function (key) {
+    key in RegExpWrapper || defineProperty(RegExpWrapper, key, {
+      configurable: true,
+      get: function () { return NativeRegExp[key]; },
+      set: function (it) { NativeRegExp[key] = it; }
+    });
+  };
+  var keys = getOwnPropertyNames(NativeRegExp);
+  var index = 0;
+  while (keys.length > index) proxy(keys[index++]);
+  RegExpPrototype.constructor = RegExpWrapper;
+  RegExpWrapper.prototype = RegExpPrototype;
+  redefine(global, 'RegExp', RegExpWrapper);
+}
+
+// https://tc39.github.io/ecma262/#sec-get-regexp-@@species
+setSpecies('RegExp');
+
+},{"../internals/descriptors":234,"../internals/fails":243,"../internals/global":248,"../internals/inherit-if-required":256,"../internals/internal-state":258,"../internals/is-forced":261,"../internals/is-regexp":264,"../internals/object-define-property":278,"../internals/object-get-own-property-names":281,"../internals/redefine":295,"../internals/regexp-flags":298,"../internals/regexp-sticky-helpers":299,"../internals/set-species":303,"../internals/well-known-symbol":329}],355:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var exec = require('../internals/regexp-exec');
@@ -18659,7 +24180,7 @@ $({ target: 'RegExp', proto: true, forced: /./.exec !== exec }, {
   exec: exec
 });
 
-},{"../internals/export":143,"../internals/regexp-exec":197}],252:[function(require,module,exports){
+},{"../internals/export":242,"../internals/regexp-exec":297}],356:[function(require,module,exports){
 'use strict';
 var redefine = require('../internals/redefine');
 var anObject = require('../internals/an-object');
@@ -18686,7 +24207,7 @@ if (NOT_GENERIC || INCORRECT_NAME) {
   }, { unsafe: true });
 }
 
-},{"../internals/an-object":107,"../internals/fails":144,"../internals/redefine":195,"../internals/regexp-flags":198}],253:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/fails":243,"../internals/redefine":295,"../internals/regexp-flags":298}],357:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var notARegExp = require('../internals/not-a-regexp');
@@ -18702,7 +24223,7 @@ $({ target: 'String', proto: true, forced: !correctIsRegExpLogic('includes') }, 
   }
 });
 
-},{"../internals/correct-is-regexp-logic":128,"../internals/export":143,"../internals/not-a-regexp":174,"../internals/require-object-coercible":200}],254:[function(require,module,exports){
+},{"../internals/correct-is-regexp-logic":226,"../internals/export":242,"../internals/not-a-regexp":274,"../internals/require-object-coercible":300}],358:[function(require,module,exports){
 'use strict';
 var charAt = require('../internals/string-multibyte').charAt;
 var InternalStateModule = require('../internals/internal-state');
@@ -18733,7 +24254,53 @@ defineIterator(String, 'String', function (iterated) {
   return { value: point, done: false };
 });
 
-},{"../internals/define-iterator":134,"../internals/internal-state":159,"../internals/string-multibyte":208}],255:[function(require,module,exports){
+},{"../internals/define-iterator":232,"../internals/internal-state":258,"../internals/string-multibyte":309}],359:[function(require,module,exports){
+'use strict';
+var fixRegExpWellKnownSymbolLogic = require('../internals/fix-regexp-well-known-symbol-logic');
+var anObject = require('../internals/an-object');
+var toLength = require('../internals/to-length');
+var requireObjectCoercible = require('../internals/require-object-coercible');
+var advanceStringIndex = require('../internals/advance-string-index');
+var regExpExec = require('../internals/regexp-exec-abstract');
+
+// @@match logic
+fixRegExpWellKnownSymbolLogic('match', 1, function (MATCH, nativeMatch, maybeCallNative) {
+  return [
+    // `String.prototype.match` method
+    // https://tc39.github.io/ecma262/#sec-string.prototype.match
+    function match(regexp) {
+      var O = requireObjectCoercible(this);
+      var matcher = regexp == undefined ? undefined : regexp[MATCH];
+      return matcher !== undefined ? matcher.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
+    },
+    // `RegExp.prototype[@@match]` method
+    // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
+    function (regexp) {
+      var res = maybeCallNative(nativeMatch, regexp, this);
+      if (res.done) return res.value;
+
+      var rx = anObject(regexp);
+      var S = String(this);
+
+      if (!rx.global) return regExpExec(rx, S);
+
+      var fullUnicode = rx.unicode;
+      rx.lastIndex = 0;
+      var A = [];
+      var n = 0;
+      var result;
+      while ((result = regExpExec(rx, S)) !== null) {
+        var matchStr = String(result[0]);
+        A[n] = matchStr;
+        if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
+        n++;
+      }
+      return n === 0 ? null : A;
+    }
+  ];
+});
+
+},{"../internals/advance-string-index":203,"../internals/an-object":205,"../internals/fix-regexp-well-known-symbol-logic":244,"../internals/regexp-exec-abstract":296,"../internals/require-object-coercible":300,"../internals/to-length":317}],360:[function(require,module,exports){
 'use strict';
 var fixRegExpWellKnownSymbolLogic = require('../internals/fix-regexp-well-known-symbol-logic');
 var anObject = require('../internals/an-object');
@@ -18870,7 +24437,43 @@ fixRegExpWellKnownSymbolLogic('replace', 2, function (REPLACE, nativeReplace, ma
   }
 });
 
-},{"../internals/advance-string-index":105,"../internals/an-object":107,"../internals/fix-regexp-well-known-symbol-logic":145,"../internals/regexp-exec-abstract":196,"../internals/require-object-coercible":200,"../internals/to-integer":215,"../internals/to-length":216,"../internals/to-object":217}],256:[function(require,module,exports){
+},{"../internals/advance-string-index":203,"../internals/an-object":205,"../internals/fix-regexp-well-known-symbol-logic":244,"../internals/regexp-exec-abstract":296,"../internals/require-object-coercible":300,"../internals/to-integer":316,"../internals/to-length":317,"../internals/to-object":318}],361:[function(require,module,exports){
+'use strict';
+var fixRegExpWellKnownSymbolLogic = require('../internals/fix-regexp-well-known-symbol-logic');
+var anObject = require('../internals/an-object');
+var requireObjectCoercible = require('../internals/require-object-coercible');
+var sameValue = require('../internals/same-value');
+var regExpExec = require('../internals/regexp-exec-abstract');
+
+// @@search logic
+fixRegExpWellKnownSymbolLogic('search', 1, function (SEARCH, nativeSearch, maybeCallNative) {
+  return [
+    // `String.prototype.search` method
+    // https://tc39.github.io/ecma262/#sec-string.prototype.search
+    function search(regexp) {
+      var O = requireObjectCoercible(this);
+      var searcher = regexp == undefined ? undefined : regexp[SEARCH];
+      return searcher !== undefined ? searcher.call(regexp, O) : new RegExp(regexp)[SEARCH](String(O));
+    },
+    // `RegExp.prototype[@@search]` method
+    // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@search
+    function (regexp) {
+      var res = maybeCallNative(nativeSearch, regexp, this);
+      if (res.done) return res.value;
+
+      var rx = anObject(regexp);
+      var S = String(this);
+
+      var previousLastIndex = rx.lastIndex;
+      if (!sameValue(previousLastIndex, 0)) rx.lastIndex = 0;
+      var result = regExpExec(rx, S);
+      if (!sameValue(rx.lastIndex, previousLastIndex)) rx.lastIndex = previousLastIndex;
+      return result === null ? -1 : result.index;
+    }
+  ];
+});
+
+},{"../internals/an-object":205,"../internals/fix-regexp-well-known-symbol-logic":244,"../internals/regexp-exec-abstract":296,"../internals/require-object-coercible":300,"../internals/same-value":301}],362:[function(require,module,exports){
 'use strict';
 var fixRegExpWellKnownSymbolLogic = require('../internals/fix-regexp-well-known-symbol-logic');
 var isRegExp = require('../internals/is-regexp');
@@ -19006,7 +24609,7 @@ fixRegExpWellKnownSymbolLogic('split', 2, function (SPLIT, nativeSplit, maybeCal
   ];
 }, !SUPPORTS_Y);
 
-},{"../internals/advance-string-index":105,"../internals/an-object":107,"../internals/fails":144,"../internals/fix-regexp-well-known-symbol-logic":145,"../internals/is-regexp":165,"../internals/regexp-exec":197,"../internals/regexp-exec-abstract":196,"../internals/require-object-coercible":200,"../internals/species-constructor":207,"../internals/to-length":216}],257:[function(require,module,exports){
+},{"../internals/advance-string-index":203,"../internals/an-object":205,"../internals/fails":243,"../internals/fix-regexp-well-known-symbol-logic":244,"../internals/is-regexp":264,"../internals/regexp-exec":297,"../internals/regexp-exec-abstract":296,"../internals/require-object-coercible":300,"../internals/species-constructor":308,"../internals/to-length":317}],363:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var getOwnPropertyDescriptor = require('../internals/object-get-own-property-descriptor').f;
@@ -19040,7 +24643,7 @@ $({ target: 'String', proto: true, forced: !MDN_POLYFILL_BUG && !CORRECT_IS_REGE
   }
 });
 
-},{"../internals/correct-is-regexp-logic":128,"../internals/export":143,"../internals/is-pure":164,"../internals/not-a-regexp":174,"../internals/object-get-own-property-descriptor":179,"../internals/require-object-coercible":200,"../internals/to-length":216}],258:[function(require,module,exports){
+},{"../internals/correct-is-regexp-logic":226,"../internals/export":242,"../internals/is-pure":263,"../internals/not-a-regexp":274,"../internals/object-get-own-property-descriptor":279,"../internals/require-object-coercible":300,"../internals/to-length":317}],364:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var $trim = require('../internals/string-trim').trim;
@@ -19054,7 +24657,7 @@ $({ target: 'String', proto: true, forced: forcedStringTrimMethod('trim') }, {
   }
 });
 
-},{"../internals/export":143,"../internals/string-trim":210,"../internals/string-trim-forced":209}],259:[function(require,module,exports){
+},{"../internals/export":242,"../internals/string-trim":311,"../internals/string-trim-forced":310}],365:[function(require,module,exports){
 // `Symbol.prototype.description` getter
 // https://tc39.github.io/ecma262/#sec-symbol.prototype.description
 'use strict';
@@ -19106,7 +24709,7 @@ if (DESCRIPTORS && typeof NativeSymbol == 'function' && (!('description' in Nati
   });
 }
 
-},{"../internals/copy-constructor-properties":127,"../internals/descriptors":136,"../internals/export":143,"../internals/global":149,"../internals/has":150,"../internals/is-object":163,"../internals/object-define-property":178}],260:[function(require,module,exports){
+},{"../internals/copy-constructor-properties":225,"../internals/descriptors":234,"../internals/export":242,"../internals/global":248,"../internals/has":249,"../internals/is-object":262,"../internals/object-define-property":278}],366:[function(require,module,exports){
 'use strict';
 var $ = require('../internals/export');
 var global = require('../internals/global');
@@ -19419,7 +25022,7 @@ setToStringTag($Symbol, SYMBOL);
 
 hiddenKeys[HIDDEN] = true;
 
-},{"../internals/an-object":107,"../internals/array-iteration":116,"../internals/create-non-enumerable-property":131,"../internals/create-property-descriptor":132,"../internals/define-well-known-symbol":135,"../internals/descriptors":136,"../internals/export":143,"../internals/fails":144,"../internals/get-built-in":147,"../internals/global":149,"../internals/has":150,"../internals/hidden-keys":151,"../internals/internal-state":159,"../internals/is-array":161,"../internals/is-object":163,"../internals/is-pure":164,"../internals/native-symbol":171,"../internals/object-create":176,"../internals/object-define-property":178,"../internals/object-get-own-property-descriptor":179,"../internals/object-get-own-property-names":181,"../internals/object-get-own-property-names-external":180,"../internals/object-get-own-property-symbols":182,"../internals/object-keys":185,"../internals/object-property-is-enumerable":186,"../internals/redefine":195,"../internals/set-to-string-tag":203,"../internals/shared":206,"../internals/shared-key":204,"../internals/to-indexed-object":214,"../internals/to-object":217,"../internals/to-primitive":220,"../internals/uid":225,"../internals/use-symbol-as-uid":226,"../internals/well-known-symbol":228,"../internals/well-known-symbol-wrapped":227}],261:[function(require,module,exports){
+},{"../internals/an-object":205,"../internals/array-iteration":214,"../internals/create-non-enumerable-property":229,"../internals/create-property-descriptor":230,"../internals/define-well-known-symbol":233,"../internals/descriptors":234,"../internals/export":242,"../internals/fails":243,"../internals/get-built-in":246,"../internals/global":248,"../internals/has":249,"../internals/hidden-keys":250,"../internals/internal-state":258,"../internals/is-array":260,"../internals/is-object":262,"../internals/is-pure":263,"../internals/native-symbol":271,"../internals/object-create":276,"../internals/object-define-property":278,"../internals/object-get-own-property-descriptor":279,"../internals/object-get-own-property-names":281,"../internals/object-get-own-property-names-external":280,"../internals/object-get-own-property-symbols":282,"../internals/object-keys":285,"../internals/object-property-is-enumerable":286,"../internals/redefine":295,"../internals/set-to-string-tag":304,"../internals/shared":307,"../internals/shared-key":305,"../internals/to-indexed-object":315,"../internals/to-object":318,"../internals/to-primitive":321,"../internals/uid":326,"../internals/use-symbol-as-uid":327,"../internals/well-known-symbol":329,"../internals/well-known-symbol-wrapped":328}],367:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $copyWithin = require('../internals/array-copy-within');
@@ -19433,7 +25036,7 @@ exportTypedArrayMethod('copyWithin', function copyWithin(target, start /* , end 
   return $copyWithin.call(aTypedArray(this), target, start, arguments.length > 2 ? arguments[2] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-copy-within":111}],262:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-copy-within":209}],368:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $every = require('../internals/array-iteration').every;
@@ -19447,7 +25050,7 @@ exportTypedArrayMethod('every', function every(callbackfn /* , thisArg */) {
   return $every(aTypedArray(this), callbackfn, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-iteration":116}],263:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-iteration":214}],369:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $fill = require('../internals/array-fill');
@@ -19462,7 +25065,7 @@ exportTypedArrayMethod('fill', function fill(value /* , start, end */) {
   return $fill.apply(aTypedArray(this), arguments);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-fill":112}],264:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-fill":210}],370:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $filter = require('../internals/array-iteration').filter;
@@ -19484,7 +25087,7 @@ exportTypedArrayMethod('filter', function filter(callbackfn /* , thisArg */) {
   return result;
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-iteration":116,"../internals/species-constructor":207}],265:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-iteration":214,"../internals/species-constructor":308}],371:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $findIndex = require('../internals/array-iteration').findIndex;
@@ -19498,7 +25101,7 @@ exportTypedArrayMethod('findIndex', function findIndex(predicate /* , thisArg */
   return $findIndex(aTypedArray(this), predicate, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-iteration":116}],266:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-iteration":214}],372:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $find = require('../internals/array-iteration').find;
@@ -19512,7 +25115,7 @@ exportTypedArrayMethod('find', function find(predicate /* , thisArg */) {
   return $find(aTypedArray(this), predicate, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-iteration":116}],267:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-iteration":214}],373:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $forEach = require('../internals/array-iteration').forEach;
@@ -19526,7 +25129,7 @@ exportTypedArrayMethod('forEach', function forEach(callbackfn /* , thisArg */) {
   $forEach(aTypedArray(this), callbackfn, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-iteration":116}],268:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-iteration":214}],374:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $includes = require('../internals/array-includes').includes;
@@ -19540,7 +25143,7 @@ exportTypedArrayMethod('includes', function includes(searchElement /* , fromInde
   return $includes(aTypedArray(this), searchElement, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-includes":115}],269:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-includes":213}],375:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $indexOf = require('../internals/array-includes').indexOf;
@@ -19554,7 +25157,7 @@ exportTypedArrayMethod('indexOf', function indexOf(searchElement /* , fromIndex 
   return $indexOf(aTypedArray(this), searchElement, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-includes":115}],270:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-includes":213}],376:[function(require,module,exports){
 'use strict';
 var global = require('../internals/global');
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
@@ -19594,7 +25197,7 @@ exportTypedArrayMethod('values', typedArrayValues, !CORRECT_ITER_NAME);
 // https://tc39.github.io/ecma262/#sec-%typedarray%.prototype-@@iterator
 exportTypedArrayMethod(ITERATOR, typedArrayValues, !CORRECT_ITER_NAME);
 
-},{"../internals/array-buffer-view-core":109,"../internals/global":149,"../internals/well-known-symbol":228,"../modules/es.array.iterator":239}],271:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/global":248,"../internals/well-known-symbol":329,"../modules/es.array.iterator":340}],377:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 
@@ -19609,7 +25212,7 @@ exportTypedArrayMethod('join', function join(separator) {
   return $join.apply(aTypedArray(this), arguments);
 });
 
-},{"../internals/array-buffer-view-core":109}],272:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207}],378:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $lastIndexOf = require('../internals/array-last-index-of');
@@ -19624,7 +25227,7 @@ exportTypedArrayMethod('lastIndexOf', function lastIndexOf(searchElement /* , fr
   return $lastIndexOf.apply(aTypedArray(this), arguments);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-last-index-of":117}],273:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-last-index-of":215}],379:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $map = require('../internals/array-iteration').map;
@@ -19642,7 +25245,7 @@ exportTypedArrayMethod('map', function map(mapfn /* , thisArg */) {
   });
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-iteration":116,"../internals/species-constructor":207}],274:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-iteration":214,"../internals/species-constructor":308}],380:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $reduceRight = require('../internals/array-reduce').right;
@@ -19656,7 +25259,7 @@ exportTypedArrayMethod('reduceRight', function reduceRight(callbackfn /* , initi
   return $reduceRight(aTypedArray(this), callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-reduce":121}],275:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-reduce":219}],381:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $reduce = require('../internals/array-reduce').left;
@@ -19670,7 +25273,7 @@ exportTypedArrayMethod('reduce', function reduce(callbackfn /* , initialValue */
   return $reduce(aTypedArray(this), callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-reduce":121}],276:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-reduce":219}],382:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 
@@ -19693,7 +25296,7 @@ exportTypedArrayMethod('reverse', function reverse() {
   } return that;
 });
 
-},{"../internals/array-buffer-view-core":109}],277:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207}],383:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var toLength = require('../internals/to-length');
@@ -19722,7 +25325,7 @@ exportTypedArrayMethod('set', function set(arrayLike /* , offset */) {
   while (index < len) this[offset + index] = src[index++];
 }, FORCED);
 
-},{"../internals/array-buffer-view-core":109,"../internals/fails":144,"../internals/to-length":216,"../internals/to-object":217,"../internals/to-offset":218}],278:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/fails":243,"../internals/to-length":317,"../internals/to-object":318,"../internals/to-offset":319}],384:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var speciesConstructor = require('../internals/species-constructor');
@@ -19750,7 +25353,7 @@ exportTypedArrayMethod('slice', function slice(start, end) {
   return result;
 }, FORCED);
 
-},{"../internals/array-buffer-view-core":109,"../internals/fails":144,"../internals/species-constructor":207}],279:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/fails":243,"../internals/species-constructor":308}],385:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var $some = require('../internals/array-iteration').some;
@@ -19764,7 +25367,7 @@ exportTypedArrayMethod('some', function some(callbackfn /* , thisArg */) {
   return $some(aTypedArray(this), callbackfn, arguments.length > 1 ? arguments[1] : undefined);
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/array-iteration":116}],280:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/array-iteration":214}],386:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 
@@ -19778,7 +25381,7 @@ exportTypedArrayMethod('sort', function sort(comparefn) {
   return $sort.call(aTypedArray(this), comparefn);
 });
 
-},{"../internals/array-buffer-view-core":109}],281:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207}],387:[function(require,module,exports){
 'use strict';
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
 var toLength = require('../internals/to-length');
@@ -19801,7 +25404,7 @@ exportTypedArrayMethod('subarray', function subarray(begin, end) {
   );
 });
 
-},{"../internals/array-buffer-view-core":109,"../internals/species-constructor":207,"../internals/to-absolute-index":212,"../internals/to-length":216}],282:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/species-constructor":308,"../internals/to-absolute-index":313,"../internals/to-length":317}],388:[function(require,module,exports){
 'use strict';
 var global = require('../internals/global');
 var ArrayBufferViewCore = require('../internals/array-buffer-view-core');
@@ -19830,7 +25433,7 @@ exportTypedArrayMethod('toLocaleString', function toLocaleString() {
   return $toLocaleString.apply(TO_LOCALE_STRING_BUG ? $slice.call(aTypedArray(this)) : aTypedArray(this), arguments);
 }, FORCED);
 
-},{"../internals/array-buffer-view-core":109,"../internals/fails":144,"../internals/global":149}],283:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/fails":243,"../internals/global":248}],389:[function(require,module,exports){
 'use strict';
 var exportTypedArrayMethod = require('../internals/array-buffer-view-core').exportTypedArrayMethod;
 var fails = require('../internals/fails');
@@ -19853,7 +25456,7 @@ var IS_NOT_ARRAY_METHOD = Uint8ArrayPrototype.toString != arrayToString;
 // https://tc39.github.io/ecma262/#sec-%typedarray%.prototype.tostring
 exportTypedArrayMethod('toString', arrayToString, IS_NOT_ARRAY_METHOD);
 
-},{"../internals/array-buffer-view-core":109,"../internals/fails":144,"../internals/global":149}],284:[function(require,module,exports){
+},{"../internals/array-buffer-view-core":207,"../internals/fails":243,"../internals/global":248}],390:[function(require,module,exports){
 var createTypedArrayConstructor = require('../internals/typed-array-constructor');
 
 // `Uint8Array` constructor
@@ -19864,7 +25467,7 @@ createTypedArrayConstructor('Uint8', function (init) {
   };
 });
 
-},{"../internals/typed-array-constructor":222}],285:[function(require,module,exports){
+},{"../internals/typed-array-constructor":323}],391:[function(require,module,exports){
 var global = require('../internals/global');
 var DOMIterables = require('../internals/dom-iterables');
 var forEach = require('../internals/array-for-each');
@@ -19881,42 +25484,7 @@ for (var COLLECTION_NAME in DOMIterables) {
   }
 }
 
-},{"../internals/array-for-each":113,"../internals/create-non-enumerable-property":131,"../internals/dom-iterables":138,"../internals/global":149}],286:[function(require,module,exports){
-var global = require('../internals/global');
-var DOMIterables = require('../internals/dom-iterables');
-var ArrayIteratorMethods = require('../modules/es.array.iterator');
-var createNonEnumerableProperty = require('../internals/create-non-enumerable-property');
-var wellKnownSymbol = require('../internals/well-known-symbol');
-
-var ITERATOR = wellKnownSymbol('iterator');
-var TO_STRING_TAG = wellKnownSymbol('toStringTag');
-var ArrayValues = ArrayIteratorMethods.values;
-
-for (var COLLECTION_NAME in DOMIterables) {
-  var Collection = global[COLLECTION_NAME];
-  var CollectionPrototype = Collection && Collection.prototype;
-  if (CollectionPrototype) {
-    // some Chrome versions have non-configurable methods on DOMTokenList
-    if (CollectionPrototype[ITERATOR] !== ArrayValues) try {
-      createNonEnumerableProperty(CollectionPrototype, ITERATOR, ArrayValues);
-    } catch (error) {
-      CollectionPrototype[ITERATOR] = ArrayValues;
-    }
-    if (!CollectionPrototype[TO_STRING_TAG]) {
-      createNonEnumerableProperty(CollectionPrototype, TO_STRING_TAG, COLLECTION_NAME);
-    }
-    if (DOMIterables[COLLECTION_NAME]) for (var METHOD_NAME in ArrayIteratorMethods) {
-      // some Chrome versions have non-configurable methods on DOMTokenList
-      if (CollectionPrototype[METHOD_NAME] !== ArrayIteratorMethods[METHOD_NAME]) try {
-        createNonEnumerableProperty(CollectionPrototype, METHOD_NAME, ArrayIteratorMethods[METHOD_NAME]);
-      } catch (error) {
-        CollectionPrototype[METHOD_NAME] = ArrayIteratorMethods[METHOD_NAME];
-      }
-    }
-  }
-}
-
-},{"../internals/create-non-enumerable-property":131,"../internals/dom-iterables":138,"../internals/global":149,"../internals/well-known-symbol":228,"../modules/es.array.iterator":239}],287:[function(require,module,exports){
+},{"../internals/array-for-each":211,"../internals/create-non-enumerable-property":229,"../internals/dom-iterables":236,"../internals/global":248}],392:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -20027,7 +25595,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":295}],288:[function(require,module,exports){
+},{"../../is-buffer/index.js":406}],393:[function(require,module,exports){
 /*
  * Date Format 1.2.3
  * (c) 2007-2009 Steven Levithan <stevenlevithan.com>
@@ -20255,7 +25823,7 @@ function kindOf(val) {
   }
 })(this);
 
-},{}],289:[function(require,module,exports){
+},{}],394:[function(require,module,exports){
 /*!
  * escape-html
  * Copyright(c) 2012-2013 TJ Holowaychuk
@@ -20335,7 +25903,7 @@ function escapeHtml(string) {
     : html;
 }
 
-},{}],290:[function(require,module,exports){
+},{}],395:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -20860,7 +26428,7 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}],291:[function(require,module,exports){
+},{}],396:[function(require,module,exports){
 var http = require('http')
 var url = require('url')
 
@@ -20893,7 +26461,7 @@ function validateParams (params) {
   return params
 }
 
-},{"http":79,"url":330}],292:[function(require,module,exports){
+},{"http":177,"url":452}],397:[function(require,module,exports){
 /*!
  * humanize-ms - index.js
  * Copyright(c) 2014 dead_horse <dead_horse@qq.com>
@@ -20919,7 +26487,7 @@ module.exports = function (t) {
   return r;
 };
 
-},{"ms":302,"util":335}],293:[function(require,module,exports){
+},{"ms":413,"util":442}],398:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -21005,7 +26573,204 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],294:[function(require,module,exports){
+},{}],399:[function(require,module,exports){
+'use strict';
+var types = [
+  require('./nextTick'),
+  require('./queueMicrotask'),
+  require('./mutation.js'),
+  require('./messageChannel'),
+  require('./stateChange'),
+  require('./timeout')
+];
+var draining;
+var currentQueue;
+var queueIndex = -1;
+var queue = [];
+var scheduled = false;
+function cleanUpNextTick() {
+  if (!draining || !currentQueue) {
+    return;
+  }
+  draining = false;
+  if (currentQueue.length) {
+    queue = currentQueue.concat(queue);
+  } else {
+    queueIndex = -1;
+  }
+  if (queue.length) {
+    nextTick();
+  }
+}
+
+//named nextTick for less confusing stack traces
+function nextTick() {
+  if (draining) {
+    return;
+  }
+  scheduled = false;
+  draining = true;
+  var len = queue.length;
+  var timeout = setTimeout(cleanUpNextTick);
+  while (len) {
+    currentQueue = queue;
+    queue = [];
+    while (currentQueue && ++queueIndex < len) {
+      currentQueue[queueIndex].run();
+    }
+    queueIndex = -1;
+    len = queue.length;
+  }
+  currentQueue = null;
+  queueIndex = -1;
+  draining = false;
+  clearTimeout(timeout);
+}
+var scheduleDrain;
+var i = -1;
+var len = types.length;
+while (++i < len) {
+  if (types[i] && types[i].test && types[i].test()) {
+    scheduleDrain = types[i].install(nextTick);
+    break;
+  }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+  this.fun = fun;
+  this.array = array;
+}
+Item.prototype.run = function () {
+  var fun = this.fun;
+  var array = this.array;
+  switch (array.length) {
+  case 0:
+    return fun();
+  case 1:
+    return fun(array[0]);
+  case 2:
+    return fun(array[0], array[1]);
+  case 3:
+    return fun(array[0], array[1], array[2]);
+  default:
+    return fun.apply(null, array);
+  }
+
+};
+module.exports = immediate;
+function immediate(task) {
+  var args = new Array(arguments.length - 1);
+  if (arguments.length > 1) {
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
+    }
+  }
+  queue.push(new Item(task, args));
+  if (!scheduled && !draining) {
+    scheduled = true;
+    scheduleDrain();
+  }
+}
+
+},{"./messageChannel":400,"./mutation.js":401,"./nextTick":176,"./queueMicrotask":402,"./stateChange":403,"./timeout":404}],400:[function(require,module,exports){
+(function (global){
+'use strict';
+
+exports.test = function () {
+  if (global.setImmediate) {
+    // we can only get here in IE10
+    // which doesn't handel postMessage well
+    return false;
+  }
+  return typeof global.MessageChannel !== 'undefined';
+};
+
+exports.install = function (func) {
+  var channel = new global.MessageChannel();
+  channel.port1.onmessage = func;
+  return function () {
+    channel.port2.postMessage(0);
+  };
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],401:[function(require,module,exports){
+(function (global){
+'use strict';
+//based off rsvp https://github.com/tildeio/rsvp.js
+//license https://github.com/tildeio/rsvp.js/blob/master/LICENSE
+//https://github.com/tildeio/rsvp.js/blob/master/lib/rsvp/asap.js
+
+var Mutation = global.MutationObserver || global.WebKitMutationObserver;
+
+exports.test = function () {
+  return Mutation;
+};
+
+exports.install = function (handle) {
+  var called = 0;
+  var observer = new Mutation(handle);
+  var element = global.document.createTextNode('');
+  observer.observe(element, {
+    characterData: true
+  });
+  return function () {
+    element.data = (called = ++called % 2);
+  };
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],402:[function(require,module,exports){
+(function (global){
+'use strict';
+exports.test = function () {
+  return typeof global.queueMicrotask === 'function';
+};
+
+exports.install = function (func) {
+  return function () {
+    global.queueMicrotask(func);
+  };
+};
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],403:[function(require,module,exports){
+(function (global){
+'use strict';
+
+exports.test = function () {
+  return 'document' in global && 'onreadystatechange' in global.document.createElement('script');
+};
+
+exports.install = function (handle) {
+  return function () {
+
+    // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
+    // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
+    var scriptEl = global.document.createElement('script');
+    scriptEl.onreadystatechange = function () {
+      handle();
+
+      scriptEl.onreadystatechange = null;
+      scriptEl.parentNode.removeChild(scriptEl);
+      scriptEl = null;
+    };
+    global.document.documentElement.appendChild(scriptEl);
+
+    return handle;
+  };
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],404:[function(require,module,exports){
+'use strict';
+exports.test = function () {
+  return true;
+};
+
+exports.install = function (t) {
+  return function () {
+    setTimeout(t, 0);
+  };
+};
+},{}],405:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -21034,7 +26799,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],295:[function(require,module,exports){
+},{}],406:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -21057,14 +26822,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],296:[function(require,module,exports){
+},{}],407:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],297:[function(require,module,exports){
+},{}],408:[function(require,module,exports){
 (function (global){
 /*
  *  base64.js
@@ -21090,16 +26855,7 @@ module.exports = Array.isArray || function (arr) {
     // existing version for noConflict()
     global = global || {};
     var _Base64 = global.Base64;
-    var version = "2.5.2";
-    // if node.js and NOT React Native, we use Buffer
-    var buffer;
-    if (typeof module !== 'undefined' && module.exports) {
-        try {
-            buffer = eval("require('buffer').Buffer");
-        } catch (err) {
-            buffer = undefined;
-        }
-    }
+    var version = "2.6.3";
     // constants
     var b64chars
         = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -21146,24 +26902,41 @@ module.exports = Array.isArray || function (arr) {
         ];
         return chars.join('');
     };
-    var btoa = global.btoa ? function(b) {
-        return global.btoa(b);
-    } : function(b) {
+    var btoa = global.btoa && typeof global.btoa == 'function'
+        ? function(b){ return global.btoa(b) } : function(b) {
+        if (b.match(/[^\x00-\xFF]/)) throw new RangeError(
+            'The string contains invalid characters.'
+        );
         return b.replace(/[\s\S]{1,3}/g, cb_encode);
     };
     var _encode = function(u) {
-        var isUint8Array = Object.prototype.toString.call(u) === '[object Uint8Array]';
-        return isUint8Array ? u.toString('base64')
-            : btoa(utob(String(u)));
-    }
+        return btoa(utob(String(u)));
+    };
+    var mkUriSafe = function (b64) {
+        return b64.replace(/[+\/]/g, function(m0) {
+            return m0 == '+' ? '-' : '_';
+        }).replace(/=/g, '');
+    };
     var encode = function(u, urisafe) {
-        return !urisafe
-            ? _encode(u)
-            : _encode(String(u)).replace(/[+\/]/g, function(m0) {
-                return m0 == '+' ? '-' : '_';
-            }).replace(/=/g, '');
+        return urisafe ? mkUriSafe(_encode(u)) : _encode(u);
     };
     var encodeURI = function(u) { return encode(u, true) };
+    var fromUint8Array;
+    if (global.Uint8Array) fromUint8Array = function(a, urisafe) {
+        // return btoa(fromCharCode.apply(null, a));
+        var b64 = '';
+        for (var i = 0, l = a.length; i < l; i += 3) {
+            var a0 = a[i], a1 = a[i+1], a2 = a[i+2];
+            var ord = a0 << 16 | a1 << 8 | a2;
+            b64 +=    b64chars.charAt( ord >>> 18)
+                +     b64chars.charAt((ord >>> 12) & 63)
+                + ( typeof a1 != 'undefined'
+                    ? b64chars.charAt((ord >>>  6) & 63) : '=')
+                + ( typeof a2 != 'undefined'
+                    ? b64chars.charAt( ord         & 63) : '=');
+        }
+        return urisafe ? mkUriSafe(b64) : b64;
+    };
     // decoder stuff
     var re_btou = /[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3}/g;
     var cb_btou = function(cccc) {
@@ -21207,30 +26980,27 @@ module.exports = Array.isArray || function (arr) {
         chars.length -= [0, 0, 2, 1][padlen];
         return chars.join('');
     };
-    var _atob = global.atob ? function(a) {
-        return global.atob(a);
-    } : function(a){
+    var _atob = global.atob && typeof global.atob == 'function'
+        ? function(a){ return global.atob(a) } : function(a){
         return a.replace(/\S{1,4}/g, cb_decode);
     };
     var atob = function(a) {
         return _atob(String(a).replace(/[^A-Za-z0-9\+\/]/g, ''));
     };
-    var _decode = buffer ?
-        buffer.from && Uint8Array && buffer.from !== Uint8Array.from
-        ? function(a) {
-            return (a.constructor === buffer.constructor
-                    ? a : buffer.from(a, 'base64')).toString();
-        }
-        : function(a) {
-            return (a.constructor === buffer.constructor
-                    ? a : new buffer(a, 'base64')).toString();
-        }
-        : function(a) { return btou(_atob(a)) };
+    var _decode = function(a) { return btou(_atob(a)) };
+    var _fromURI = function(a) {
+        return String(a).replace(/[-_]/g, function(m0) {
+            return m0 == '-' ? '+' : '/'
+        }).replace(/[^A-Za-z0-9\+\/]/g, '');
+    };
     var decode = function(a){
-        return _decode(
-            String(a).replace(/[-_]/g, function(m0) { return m0 == '-' ? '+' : '/' })
-                .replace(/[^A-Za-z0-9\+\/]/g, '')
-        );
+        return _decode(_fromURI(a));
+    };
+    var toUint8Array;
+    if (global.Uint8Array) toUint8Array = function(a) {
+        return Uint8Array.from(atob(_fromURI(a)), function(c) {
+            return c.charCodeAt(0);
+        });
     };
     var noConflict = function() {
         var Base64 = global.Base64;
@@ -21250,7 +27020,8 @@ module.exports = Array.isArray || function (arr) {
         btou: btou,
         decode: decode,
         noConflict: noConflict,
-        __buffer__: buffer
+        fromUint8Array: fromUint8Array,
+        toUint8Array: toUint8Array
     };
     // if ES5 is available, make Base64.extendString() available
     if (typeof Object.defineProperty === 'function') {
@@ -21291,9 +27062,8 @@ module.exports = Array.isArray || function (arr) {
     return {Base64: global.Base64}
 }));
 
-
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],298:[function(require,module,exports){
+},{}],409:[function(require,module,exports){
 /*!
  * merge-descriptors
  * Copyright(c) 2014 Jonathan Ong
@@ -21355,7 +27125,7 @@ function merge(dest, src, redefine) {
   return dest
 }
 
-},{}],299:[function(require,module,exports){
+},{}],410:[function(require,module,exports){
 'use strict';
 
 /**
@@ -21452,15 +27222,15 @@ Mime.prototype.getExtension = function(type) {
 
 module.exports = Mime;
 
-},{}],300:[function(require,module,exports){
+},{}],411:[function(require,module,exports){
 'use strict';
 
 var Mime = require('./Mime');
 module.exports = new Mime(require('./types/standard'));
 
-},{"./Mime":299,"./types/standard":301}],301:[function(require,module,exports){
+},{"./Mime":410,"./types/standard":412}],412:[function(require,module,exports){
 module.exports = {"application/andrew-inset":["ez"],"application/applixware":["aw"],"application/atom+xml":["atom"],"application/atomcat+xml":["atomcat"],"application/atomdeleted+xml":["atomdeleted"],"application/atomsvc+xml":["atomsvc"],"application/atsc-dwd+xml":["dwd"],"application/atsc-held+xml":["held"],"application/atsc-rsat+xml":["rsat"],"application/bdoc":["bdoc"],"application/calendar+xml":["xcs"],"application/ccxml+xml":["ccxml"],"application/cdfx+xml":["cdfx"],"application/cdmi-capability":["cdmia"],"application/cdmi-container":["cdmic"],"application/cdmi-domain":["cdmid"],"application/cdmi-object":["cdmio"],"application/cdmi-queue":["cdmiq"],"application/cu-seeme":["cu"],"application/dash+xml":["mpd"],"application/davmount+xml":["davmount"],"application/docbook+xml":["dbk"],"application/dssc+der":["dssc"],"application/dssc+xml":["xdssc"],"application/ecmascript":["ecma","es"],"application/emma+xml":["emma"],"application/emotionml+xml":["emotionml"],"application/epub+zip":["epub"],"application/exi":["exi"],"application/fdt+xml":["fdt"],"application/font-tdpfr":["pfr"],"application/geo+json":["geojson"],"application/gml+xml":["gml"],"application/gpx+xml":["gpx"],"application/gxf":["gxf"],"application/gzip":["gz"],"application/hjson":["hjson"],"application/hyperstudio":["stk"],"application/inkml+xml":["ink","inkml"],"application/ipfix":["ipfix"],"application/its+xml":["its"],"application/java-archive":["jar","war","ear"],"application/java-serialized-object":["ser"],"application/java-vm":["class"],"application/javascript":["js","mjs"],"application/json":["json","map"],"application/json5":["json5"],"application/jsonml+json":["jsonml"],"application/ld+json":["jsonld"],"application/lgr+xml":["lgr"],"application/lost+xml":["lostxml"],"application/mac-binhex40":["hqx"],"application/mac-compactpro":["cpt"],"application/mads+xml":["mads"],"application/manifest+json":["webmanifest"],"application/marc":["mrc"],"application/marcxml+xml":["mrcx"],"application/mathematica":["ma","nb","mb"],"application/mathml+xml":["mathml"],"application/mbox":["mbox"],"application/mediaservercontrol+xml":["mscml"],"application/metalink+xml":["metalink"],"application/metalink4+xml":["meta4"],"application/mets+xml":["mets"],"application/mmt-aei+xml":["maei"],"application/mmt-usd+xml":["musd"],"application/mods+xml":["mods"],"application/mp21":["m21","mp21"],"application/mp4":["mp4s","m4p"],"application/mrb-consumer+xml":["*xdf"],"application/mrb-publish+xml":["*xdf"],"application/msword":["doc","dot"],"application/mxf":["mxf"],"application/n-quads":["nq"],"application/n-triples":["nt"],"application/node":["cjs"],"application/octet-stream":["bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","exe","dll","deb","dmg","iso","img","msi","msp","msm","buffer"],"application/oda":["oda"],"application/oebps-package+xml":["opf"],"application/ogg":["ogx"],"application/omdoc+xml":["omdoc"],"application/onenote":["onetoc","onetoc2","onetmp","onepkg"],"application/oxps":["oxps"],"application/p2p-overlay+xml":["relo"],"application/patch-ops-error+xml":["*xer"],"application/pdf":["pdf"],"application/pgp-encrypted":["pgp"],"application/pgp-signature":["asc","sig"],"application/pics-rules":["prf"],"application/pkcs10":["p10"],"application/pkcs7-mime":["p7m","p7c"],"application/pkcs7-signature":["p7s"],"application/pkcs8":["p8"],"application/pkix-attr-cert":["ac"],"application/pkix-cert":["cer"],"application/pkix-crl":["crl"],"application/pkix-pkipath":["pkipath"],"application/pkixcmp":["pki"],"application/pls+xml":["pls"],"application/postscript":["ai","eps","ps"],"application/provenance+xml":["provx"],"application/pskc+xml":["pskcxml"],"application/raml+yaml":["raml"],"application/rdf+xml":["rdf","owl"],"application/reginfo+xml":["rif"],"application/relax-ng-compact-syntax":["rnc"],"application/resource-lists+xml":["rl"],"application/resource-lists-diff+xml":["rld"],"application/rls-services+xml":["rs"],"application/route-apd+xml":["rapd"],"application/route-s-tsid+xml":["sls"],"application/route-usd+xml":["rusd"],"application/rpki-ghostbusters":["gbr"],"application/rpki-manifest":["mft"],"application/rpki-roa":["roa"],"application/rsd+xml":["rsd"],"application/rss+xml":["rss"],"application/rtf":["rtf"],"application/sbml+xml":["sbml"],"application/scvp-cv-request":["scq"],"application/scvp-cv-response":["scs"],"application/scvp-vp-request":["spq"],"application/scvp-vp-response":["spp"],"application/sdp":["sdp"],"application/senml+xml":["senmlx"],"application/sensml+xml":["sensmlx"],"application/set-payment-initiation":["setpay"],"application/set-registration-initiation":["setreg"],"application/shf+xml":["shf"],"application/sieve":["siv","sieve"],"application/smil+xml":["smi","smil"],"application/sparql-query":["rq"],"application/sparql-results+xml":["srx"],"application/srgs":["gram"],"application/srgs+xml":["grxml"],"application/sru+xml":["sru"],"application/ssdl+xml":["ssdl"],"application/ssml+xml":["ssml"],"application/swid+xml":["swidtag"],"application/tei+xml":["tei","teicorpus"],"application/thraud+xml":["tfi"],"application/timestamped-data":["tsd"],"application/toml":["toml"],"application/ttml+xml":["ttml"],"application/urc-ressheet+xml":["rsheet"],"application/voicexml+xml":["vxml"],"application/wasm":["wasm"],"application/widget":["wgt"],"application/winhlp":["hlp"],"application/wsdl+xml":["wsdl"],"application/wspolicy+xml":["wspolicy"],"application/xaml+xml":["xaml"],"application/xcap-att+xml":["xav"],"application/xcap-caps+xml":["xca"],"application/xcap-diff+xml":["xdf"],"application/xcap-el+xml":["xel"],"application/xcap-error+xml":["xer"],"application/xcap-ns+xml":["xns"],"application/xenc+xml":["xenc"],"application/xhtml+xml":["xhtml","xht"],"application/xliff+xml":["xlf"],"application/xml":["xml","xsl","xsd","rng"],"application/xml-dtd":["dtd"],"application/xop+xml":["xop"],"application/xproc+xml":["xpl"],"application/xslt+xml":["xslt"],"application/xspf+xml":["xspf"],"application/xv+xml":["mxml","xhvml","xvml","xvm"],"application/yang":["yang"],"application/yin+xml":["yin"],"application/zip":["zip"],"audio/3gpp":["*3gpp"],"audio/adpcm":["adp"],"audio/basic":["au","snd"],"audio/midi":["mid","midi","kar","rmi"],"audio/mobile-xmf":["mxmf"],"audio/mp3":["*mp3"],"audio/mp4":["m4a","mp4a"],"audio/mpeg":["mpga","mp2","mp2a","mp3","m2a","m3a"],"audio/ogg":["oga","ogg","spx"],"audio/s3m":["s3m"],"audio/silk":["sil"],"audio/wav":["wav"],"audio/wave":["*wav"],"audio/webm":["weba"],"audio/xm":["xm"],"font/collection":["ttc"],"font/otf":["otf"],"font/ttf":["ttf"],"font/woff":["woff"],"font/woff2":["woff2"],"image/aces":["exr"],"image/apng":["apng"],"image/bmp":["bmp"],"image/cgm":["cgm"],"image/dicom-rle":["drle"],"image/emf":["emf"],"image/fits":["fits"],"image/g3fax":["g3"],"image/gif":["gif"],"image/heic":["heic"],"image/heic-sequence":["heics"],"image/heif":["heif"],"image/heif-sequence":["heifs"],"image/hej2k":["hej2"],"image/hsj2":["hsj2"],"image/ief":["ief"],"image/jls":["jls"],"image/jp2":["jp2","jpg2"],"image/jpeg":["jpeg","jpg","jpe"],"image/jph":["jph"],"image/jphc":["jhc"],"image/jpm":["jpm"],"image/jpx":["jpx","jpf"],"image/jxr":["jxr"],"image/jxra":["jxra"],"image/jxrs":["jxrs"],"image/jxs":["jxs"],"image/jxsc":["jxsc"],"image/jxsi":["jxsi"],"image/jxss":["jxss"],"image/ktx":["ktx"],"image/png":["png"],"image/sgi":["sgi"],"image/svg+xml":["svg","svgz"],"image/t38":["t38"],"image/tiff":["tif","tiff"],"image/tiff-fx":["tfx"],"image/webp":["webp"],"image/wmf":["wmf"],"message/disposition-notification":["disposition-notification"],"message/global":["u8msg"],"message/global-delivery-status":["u8dsn"],"message/global-disposition-notification":["u8mdn"],"message/global-headers":["u8hdr"],"message/rfc822":["eml","mime"],"model/3mf":["3mf"],"model/gltf+json":["gltf"],"model/gltf-binary":["glb"],"model/iges":["igs","iges"],"model/mesh":["msh","mesh","silo"],"model/mtl":["mtl"],"model/obj":["obj"],"model/stl":["stl"],"model/vrml":["wrl","vrml"],"model/x3d+binary":["*x3db","x3dbz"],"model/x3d+fastinfoset":["x3db"],"model/x3d+vrml":["*x3dv","x3dvz"],"model/x3d+xml":["x3d","x3dz"],"model/x3d-vrml":["x3dv"],"text/cache-manifest":["appcache","manifest"],"text/calendar":["ics","ifb"],"text/coffeescript":["coffee","litcoffee"],"text/css":["css"],"text/csv":["csv"],"text/html":["html","htm","shtml"],"text/jade":["jade"],"text/jsx":["jsx"],"text/less":["less"],"text/markdown":["markdown","md"],"text/mathml":["mml"],"text/mdx":["mdx"],"text/n3":["n3"],"text/plain":["txt","text","conf","def","list","log","in","ini"],"text/richtext":["rtx"],"text/rtf":["*rtf"],"text/sgml":["sgml","sgm"],"text/shex":["shex"],"text/slim":["slim","slm"],"text/stylus":["stylus","styl"],"text/tab-separated-values":["tsv"],"text/troff":["t","tr","roff","man","me","ms"],"text/turtle":["ttl"],"text/uri-list":["uri","uris","urls"],"text/vcard":["vcard"],"text/vtt":["vtt"],"text/xml":["*xml"],"text/yaml":["yaml","yml"],"video/3gpp":["3gp","3gpp"],"video/3gpp2":["3g2"],"video/h261":["h261"],"video/h263":["h263"],"video/h264":["h264"],"video/jpeg":["jpgv"],"video/jpm":["*jpm","jpgm"],"video/mj2":["mj2","mjp2"],"video/mp2t":["ts"],"video/mp4":["mp4","mp4v","mpg4"],"video/mpeg":["mpeg","mpg","mpe","m1v","m2v"],"video/ogg":["ogv"],"video/quicktime":["qt","mov"],"video/webm":["webm"]};
-},{}],302:[function(require,module,exports){
+},{}],413:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -21624,7 +27394,7 @@ function plural(ms, msAbs, n, name) {
   return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
 }
 
-},{}],303:[function(require,module,exports){
+},{}],414:[function(require,module,exports){
 (function (process){
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
@@ -21930,1228 +27700,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":306}],304:[function(require,module,exports){
-(function (global){
-/*!
- * Platform.js <https://mths.be/platform>
- * Copyright 2014-2018 Benjamin Tan <https://bnjmnt4n.now.sh/>
- * Copyright 2011-2013 John-David Dalton <http://allyoucanleet.com/>
- * Available under MIT license <https://mths.be/mit>
- */
-;(function() {
-  'use strict';
-
-  /** Used to determine if values are of the language type `Object`. */
-  var objectTypes = {
-    'function': true,
-    'object': true
-  };
-
-  /** Used as a reference to the global object. */
-  var root = (objectTypes[typeof window] && window) || this;
-
-  /** Backup possible global object. */
-  var oldRoot = root;
-
-  /** Detect free variable `exports`. */
-  var freeExports = objectTypes[typeof exports] && exports;
-
-  /** Detect free variable `module`. */
-  var freeModule = objectTypes[typeof module] && module && !module.nodeType && module;
-
-  /** Detect free variable `global` from Node.js or Browserified code and use it as `root`. */
-  var freeGlobal = freeExports && freeModule && typeof global == 'object' && global;
-  if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
-    root = freeGlobal;
-  }
-
-  /**
-   * Used as the maximum length of an array-like object.
-   * See the [ES6 spec](http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength)
-   * for more details.
-   */
-  var maxSafeInteger = Math.pow(2, 53) - 1;
-
-  /** Regular expression to detect Opera. */
-  var reOpera = /\bOpera/;
-
-  /** Possible global object. */
-  var thisBinding = this;
-
-  /** Used for native method references. */
-  var objectProto = Object.prototype;
-
-  /** Used to check for own properties of an object. */
-  var hasOwnProperty = objectProto.hasOwnProperty;
-
-  /** Used to resolve the internal `[[Class]]` of values. */
-  var toString = objectProto.toString;
-
-  /*--------------------------------------------------------------------------*/
-
-  /**
-   * Capitalizes a string value.
-   *
-   * @private
-   * @param {string} string The string to capitalize.
-   * @returns {string} The capitalized string.
-   */
-  function capitalize(string) {
-    string = String(string);
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  /**
-   * A utility function to clean up the OS name.
-   *
-   * @private
-   * @param {string} os The OS name to clean up.
-   * @param {string} [pattern] A `RegExp` pattern matching the OS name.
-   * @param {string} [label] A label for the OS.
-   */
-  function cleanupOS(os, pattern, label) {
-    // Platform tokens are defined at:
-    // http://msdn.microsoft.com/en-us/library/ms537503(VS.85).aspx
-    // http://web.archive.org/web/20081122053950/http://msdn.microsoft.com/en-us/library/ms537503(VS.85).aspx
-    var data = {
-      '10.0': '10',
-      '6.4':  '10 Technical Preview',
-      '6.3':  '8.1',
-      '6.2':  '8',
-      '6.1':  'Server 2008 R2 / 7',
-      '6.0':  'Server 2008 / Vista',
-      '5.2':  'Server 2003 / XP 64-bit',
-      '5.1':  'XP',
-      '5.01': '2000 SP1',
-      '5.0':  '2000',
-      '4.0':  'NT',
-      '4.90': 'ME'
-    };
-    // Detect Windows version from platform tokens.
-    if (pattern && label && /^Win/i.test(os) && !/^Windows Phone /i.test(os) &&
-        (data = data[/[\d.]+$/.exec(os)])) {
-      os = 'Windows ' + data;
-    }
-    // Correct character case and cleanup string.
-    os = String(os);
-
-    if (pattern && label) {
-      os = os.replace(RegExp(pattern, 'i'), label);
-    }
-
-    os = format(
-      os.replace(/ ce$/i, ' CE')
-        .replace(/\bhpw/i, 'web')
-        .replace(/\bMacintosh\b/, 'Mac OS')
-        .replace(/_PowerPC\b/i, ' OS')
-        .replace(/\b(OS X) [^ \d]+/i, '$1')
-        .replace(/\bMac (OS X)\b/, '$1')
-        .replace(/\/(\d)/, ' $1')
-        .replace(/_/g, '.')
-        .replace(/(?: BePC|[ .]*fc[ \d.]+)$/i, '')
-        .replace(/\bx86\.64\b/gi, 'x86_64')
-        .replace(/\b(Windows Phone) OS\b/, '$1')
-        .replace(/\b(Chrome OS \w+) [\d.]+\b/, '$1')
-        .split(' on ')[0]
-    );
-
-    return os;
-  }
-
-  /**
-   * An iteration utility for arrays and objects.
-   *
-   * @private
-   * @param {Array|Object} object The object to iterate over.
-   * @param {Function} callback The function called per iteration.
-   */
-  function each(object, callback) {
-    var index = -1,
-        length = object ? object.length : 0;
-
-    if (typeof length == 'number' && length > -1 && length <= maxSafeInteger) {
-      while (++index < length) {
-        callback(object[index], index, object);
-      }
-    } else {
-      forOwn(object, callback);
-    }
-  }
-
-  /**
-   * Trim and conditionally capitalize string values.
-   *
-   * @private
-   * @param {string} string The string to format.
-   * @returns {string} The formatted string.
-   */
-  function format(string) {
-    string = trim(string);
-    return /^(?:webOS|i(?:OS|P))/.test(string)
-      ? string
-      : capitalize(string);
-  }
-
-  /**
-   * Iterates over an object's own properties, executing the `callback` for each.
-   *
-   * @private
-   * @param {Object} object The object to iterate over.
-   * @param {Function} callback The function executed per own property.
-   */
-  function forOwn(object, callback) {
-    for (var key in object) {
-      if (hasOwnProperty.call(object, key)) {
-        callback(object[key], key, object);
-      }
-    }
-  }
-
-  /**
-   * Gets the internal `[[Class]]` of a value.
-   *
-   * @private
-   * @param {*} value The value.
-   * @returns {string} The `[[Class]]`.
-   */
-  function getClassOf(value) {
-    return value == null
-      ? capitalize(value)
-      : toString.call(value).slice(8, -1);
-  }
-
-  /**
-   * Host objects can return type values that are different from their actual
-   * data type. The objects we are concerned with usually return non-primitive
-   * types of "object", "function", or "unknown".
-   *
-   * @private
-   * @param {*} object The owner of the property.
-   * @param {string} property The property to check.
-   * @returns {boolean} Returns `true` if the property value is a non-primitive, else `false`.
-   */
-  function isHostType(object, property) {
-    var type = object != null ? typeof object[property] : 'number';
-    return !/^(?:boolean|number|string|undefined)$/.test(type) &&
-      (type == 'object' ? !!object[property] : true);
-  }
-
-  /**
-   * Prepares a string for use in a `RegExp` by making hyphens and spaces optional.
-   *
-   * @private
-   * @param {string} string The string to qualify.
-   * @returns {string} The qualified string.
-   */
-  function qualify(string) {
-    return String(string).replace(/([ -])(?!$)/g, '$1?');
-  }
-
-  /**
-   * A bare-bones `Array#reduce` like utility function.
-   *
-   * @private
-   * @param {Array} array The array to iterate over.
-   * @param {Function} callback The function called per iteration.
-   * @returns {*} The accumulated result.
-   */
-  function reduce(array, callback) {
-    var accumulator = null;
-    each(array, function(value, index) {
-      accumulator = callback(accumulator, value, index, array);
-    });
-    return accumulator;
-  }
-
-  /**
-   * Removes leading and trailing whitespace from a string.
-   *
-   * @private
-   * @param {string} string The string to trim.
-   * @returns {string} The trimmed string.
-   */
-  function trim(string) {
-    return String(string).replace(/^ +| +$/g, '');
-  }
-
-  /*--------------------------------------------------------------------------*/
-
-  /**
-   * Creates a new platform object.
-   *
-   * @memberOf platform
-   * @param {Object|string} [ua=navigator.userAgent] The user agent string or
-   *  context object.
-   * @returns {Object} A platform object.
-   */
-  function parse(ua) {
-
-    /** The environment context object. */
-    var context = root;
-
-    /** Used to flag when a custom context is provided. */
-    var isCustomContext = ua && typeof ua == 'object' && getClassOf(ua) != 'String';
-
-    // Juggle arguments.
-    if (isCustomContext) {
-      context = ua;
-      ua = null;
-    }
-
-    /** Browser navigator object. */
-    var nav = context.navigator || {};
-
-    /** Browser user agent string. */
-    var userAgent = nav.userAgent || '';
-
-    ua || (ua = userAgent);
-
-    /** Used to flag when `thisBinding` is the [ModuleScope]. */
-    var isModuleScope = isCustomContext || thisBinding == oldRoot;
-
-    /** Used to detect if browser is like Chrome. */
-    var likeChrome = isCustomContext
-      ? !!nav.likeChrome
-      : /\bChrome\b/.test(ua) && !/internal|\n/i.test(toString.toString());
-
-    /** Internal `[[Class]]` value shortcuts. */
-    var objectClass = 'Object',
-        airRuntimeClass = isCustomContext ? objectClass : 'ScriptBridgingProxyObject',
-        enviroClass = isCustomContext ? objectClass : 'Environment',
-        javaClass = (isCustomContext && context.java) ? 'JavaPackage' : getClassOf(context.java),
-        phantomClass = isCustomContext ? objectClass : 'RuntimeObject';
-
-    /** Detect Java environments. */
-    var java = /\bJava/.test(javaClass) && context.java;
-
-    /** Detect Rhino. */
-    var rhino = java && getClassOf(context.environment) == enviroClass;
-
-    /** A character to represent alpha. */
-    var alpha = java ? 'a' : '\u03b1';
-
-    /** A character to represent beta. */
-    var beta = java ? 'b' : '\u03b2';
-
-    /** Browser document object. */
-    var doc = context.document || {};
-
-    /**
-     * Detect Opera browser (Presto-based).
-     * http://www.howtocreate.co.uk/operaStuff/operaObject.html
-     * http://dev.opera.com/articles/view/opera-mini-web-content-authoring-guidelines/#operamini
-     */
-    var opera = context.operamini || context.opera;
-
-    /** Opera `[[Class]]`. */
-    var operaClass = reOpera.test(operaClass = (isCustomContext && opera) ? opera['[[Class]]'] : getClassOf(opera))
-      ? operaClass
-      : (opera = null);
-
-    /*------------------------------------------------------------------------*/
-
-    /** Temporary variable used over the script's lifetime. */
-    var data;
-
-    /** The CPU architecture. */
-    var arch = ua;
-
-    /** Platform description array. */
-    var description = [];
-
-    /** Platform alpha/beta indicator. */
-    var prerelease = null;
-
-    /** A flag to indicate that environment features should be used to resolve the platform. */
-    var useFeatures = ua == userAgent;
-
-    /** The browser/environment version. */
-    var version = useFeatures && opera && typeof opera.version == 'function' && opera.version();
-
-    /** A flag to indicate if the OS ends with "/ Version" */
-    var isSpecialCasedOS;
-
-    /* Detectable layout engines (order is important). */
-    var layout = getLayout([
-      { 'label': 'EdgeHTML', 'pattern': 'Edge' },
-      'Trident',
-      { 'label': 'WebKit', 'pattern': 'AppleWebKit' },
-      'iCab',
-      'Presto',
-      'NetFront',
-      'Tasman',
-      'KHTML',
-      'Gecko'
-    ]);
-
-    /* Detectable browser names (order is important). */
-    var name = getName([
-      'Adobe AIR',
-      'Arora',
-      'Avant Browser',
-      'Breach',
-      'Camino',
-      'Electron',
-      'Epiphany',
-      'Fennec',
-      'Flock',
-      'Galeon',
-      'GreenBrowser',
-      'iCab',
-      'Iceweasel',
-      'K-Meleon',
-      'Konqueror',
-      'Lunascape',
-      'Maxthon',
-      { 'label': 'Microsoft Edge', 'pattern': 'Edge' },
-      'Midori',
-      'Nook Browser',
-      'PaleMoon',
-      'PhantomJS',
-      'Raven',
-      'Rekonq',
-      'RockMelt',
-      { 'label': 'Samsung Internet', 'pattern': 'SamsungBrowser' },
-      'SeaMonkey',
-      { 'label': 'Silk', 'pattern': '(?:Cloud9|Silk-Accelerated)' },
-      'Sleipnir',
-      'SlimBrowser',
-      { 'label': 'SRWare Iron', 'pattern': 'Iron' },
-      'Sunrise',
-      'Swiftfox',
-      'Waterfox',
-      'WebPositive',
-      'Opera Mini',
-      { 'label': 'Opera Mini', 'pattern': 'OPiOS' },
-      'Opera',
-      { 'label': 'Opera', 'pattern': 'OPR' },
-      'Chrome',
-      { 'label': 'Chrome Mobile', 'pattern': '(?:CriOS|CrMo)' },
-      { 'label': 'Firefox', 'pattern': '(?:Firefox|Minefield)' },
-      { 'label': 'Firefox for iOS', 'pattern': 'FxiOS' },
-      { 'label': 'IE', 'pattern': 'IEMobile' },
-      { 'label': 'IE', 'pattern': 'MSIE' },
-      'Safari'
-    ]);
-
-    /* Detectable products (order is important). */
-    var product = getProduct([
-      { 'label': 'BlackBerry', 'pattern': 'BB10' },
-      'BlackBerry',
-      { 'label': 'Galaxy S', 'pattern': 'GT-I9000' },
-      { 'label': 'Galaxy S2', 'pattern': 'GT-I9100' },
-      { 'label': 'Galaxy S3', 'pattern': 'GT-I9300' },
-      { 'label': 'Galaxy S4', 'pattern': 'GT-I9500' },
-      { 'label': 'Galaxy S5', 'pattern': 'SM-G900' },
-      { 'label': 'Galaxy S6', 'pattern': 'SM-G920' },
-      { 'label': 'Galaxy S6 Edge', 'pattern': 'SM-G925' },
-      { 'label': 'Galaxy S7', 'pattern': 'SM-G930' },
-      { 'label': 'Galaxy S7 Edge', 'pattern': 'SM-G935' },
-      'Google TV',
-      'Lumia',
-      'iPad',
-      'iPod',
-      'iPhone',
-      'Kindle',
-      { 'label': 'Kindle Fire', 'pattern': '(?:Cloud9|Silk-Accelerated)' },
-      'Nexus',
-      'Nook',
-      'PlayBook',
-      'PlayStation Vita',
-      'PlayStation',
-      'TouchPad',
-      'Transformer',
-      { 'label': 'Wii U', 'pattern': 'WiiU' },
-      'Wii',
-      'Xbox One',
-      { 'label': 'Xbox 360', 'pattern': 'Xbox' },
-      'Xoom'
-    ]);
-
-    /* Detectable manufacturers. */
-    var manufacturer = getManufacturer({
-      'Apple': { 'iPad': 1, 'iPhone': 1, 'iPod': 1 },
-      'Archos': {},
-      'Amazon': { 'Kindle': 1, 'Kindle Fire': 1 },
-      'Asus': { 'Transformer': 1 },
-      'Barnes & Noble': { 'Nook': 1 },
-      'BlackBerry': { 'PlayBook': 1 },
-      'Google': { 'Google TV': 1, 'Nexus': 1 },
-      'HP': { 'TouchPad': 1 },
-      'HTC': {},
-      'LG': {},
-      'Microsoft': { 'Xbox': 1, 'Xbox One': 1 },
-      'Motorola': { 'Xoom': 1 },
-      'Nintendo': { 'Wii U': 1,  'Wii': 1 },
-      'Nokia': { 'Lumia': 1 },
-      'Samsung': { 'Galaxy S': 1, 'Galaxy S2': 1, 'Galaxy S3': 1, 'Galaxy S4': 1 },
-      'Sony': { 'PlayStation': 1, 'PlayStation Vita': 1 }
-    });
-
-    /* Detectable operating systems (order is important). */
-    var os = getOS([
-      'Windows Phone',
-      'Android',
-      'CentOS',
-      { 'label': 'Chrome OS', 'pattern': 'CrOS' },
-      'Debian',
-      'Fedora',
-      'FreeBSD',
-      'Gentoo',
-      'Haiku',
-      'Kubuntu',
-      'Linux Mint',
-      'OpenBSD',
-      'Red Hat',
-      'SuSE',
-      'Ubuntu',
-      'Xubuntu',
-      'Cygwin',
-      'Symbian OS',
-      'hpwOS',
-      'webOS ',
-      'webOS',
-      'Tablet OS',
-      'Tizen',
-      'Linux',
-      'Mac OS X',
-      'Macintosh',
-      'Mac',
-      'Windows 98;',
-      'Windows '
-    ]);
-
-    /*------------------------------------------------------------------------*/
-
-    /**
-     * Picks the layout engine from an array of guesses.
-     *
-     * @private
-     * @param {Array} guesses An array of guesses.
-     * @returns {null|string} The detected layout engine.
-     */
-    function getLayout(guesses) {
-      return reduce(guesses, function(result, guess) {
-        return result || RegExp('\\b' + (
-          guess.pattern || qualify(guess)
-        ) + '\\b', 'i').exec(ua) && (guess.label || guess);
-      });
-    }
-
-    /**
-     * Picks the manufacturer from an array of guesses.
-     *
-     * @private
-     * @param {Array} guesses An object of guesses.
-     * @returns {null|string} The detected manufacturer.
-     */
-    function getManufacturer(guesses) {
-      return reduce(guesses, function(result, value, key) {
-        // Lookup the manufacturer by product or scan the UA for the manufacturer.
-        return result || (
-          value[product] ||
-          value[/^[a-z]+(?: +[a-z]+\b)*/i.exec(product)] ||
-          RegExp('\\b' + qualify(key) + '(?:\\b|\\w*\\d)', 'i').exec(ua)
-        ) && key;
-      });
-    }
-
-    /**
-     * Picks the browser name from an array of guesses.
-     *
-     * @private
-     * @param {Array} guesses An array of guesses.
-     * @returns {null|string} The detected browser name.
-     */
-    function getName(guesses) {
-      return reduce(guesses, function(result, guess) {
-        return result || RegExp('\\b' + (
-          guess.pattern || qualify(guess)
-        ) + '\\b', 'i').exec(ua) && (guess.label || guess);
-      });
-    }
-
-    /**
-     * Picks the OS name from an array of guesses.
-     *
-     * @private
-     * @param {Array} guesses An array of guesses.
-     * @returns {null|string} The detected OS name.
-     */
-    function getOS(guesses) {
-      return reduce(guesses, function(result, guess) {
-        var pattern = guess.pattern || qualify(guess);
-        if (!result && (result =
-              RegExp('\\b' + pattern + '(?:/[\\d.]+|[ \\w.]*)', 'i').exec(ua)
-            )) {
-          result = cleanupOS(result, pattern, guess.label || guess);
-        }
-        return result;
-      });
-    }
-
-    /**
-     * Picks the product name from an array of guesses.
-     *
-     * @private
-     * @param {Array} guesses An array of guesses.
-     * @returns {null|string} The detected product name.
-     */
-    function getProduct(guesses) {
-      return reduce(guesses, function(result, guess) {
-        var pattern = guess.pattern || qualify(guess);
-        if (!result && (result =
-              RegExp('\\b' + pattern + ' *\\d+[.\\w_]*', 'i').exec(ua) ||
-              RegExp('\\b' + pattern + ' *\\w+-[\\w]*', 'i').exec(ua) ||
-              RegExp('\\b' + pattern + '(?:; *(?:[a-z]+[_-])?[a-z]+\\d+|[^ ();-]*)', 'i').exec(ua)
-            )) {
-          // Split by forward slash and append product version if needed.
-          if ((result = String((guess.label && !RegExp(pattern, 'i').test(guess.label)) ? guess.label : result).split('/'))[1] && !/[\d.]+/.test(result[0])) {
-            result[0] += ' ' + result[1];
-          }
-          // Correct character case and cleanup string.
-          guess = guess.label || guess;
-          result = format(result[0]
-            .replace(RegExp(pattern, 'i'), guess)
-            .replace(RegExp('; *(?:' + guess + '[_-])?', 'i'), ' ')
-            .replace(RegExp('(' + guess + ')[-_.]?(\\w)', 'i'), '$1 $2'));
-        }
-        return result;
-      });
-    }
-
-    /**
-     * Resolves the version using an array of UA patterns.
-     *
-     * @private
-     * @param {Array} patterns An array of UA patterns.
-     * @returns {null|string} The detected version.
-     */
-    function getVersion(patterns) {
-      return reduce(patterns, function(result, pattern) {
-        return result || (RegExp(pattern +
-          '(?:-[\\d.]+/|(?: for [\\w-]+)?[ /-])([\\d.]+[^ ();/_-]*)', 'i').exec(ua) || 0)[1] || null;
-      });
-    }
-
-    /**
-     * Returns `platform.description` when the platform object is coerced to a string.
-     *
-     * @name toString
-     * @memberOf platform
-     * @returns {string} Returns `platform.description` if available, else an empty string.
-     */
-    function toStringPlatform() {
-      return this.description || '';
-    }
-
-    /*------------------------------------------------------------------------*/
-
-    // Convert layout to an array so we can add extra details.
-    layout && (layout = [layout]);
-
-    // Detect product names that contain their manufacturer's name.
-    if (manufacturer && !product) {
-      product = getProduct([manufacturer]);
-    }
-    // Clean up Google TV.
-    if ((data = /\bGoogle TV\b/.exec(product))) {
-      product = data[0];
-    }
-    // Detect simulators.
-    if (/\bSimulator\b/i.test(ua)) {
-      product = (product ? product + ' ' : '') + 'Simulator';
-    }
-    // Detect Opera Mini 8+ running in Turbo/Uncompressed mode on iOS.
-    if (name == 'Opera Mini' && /\bOPiOS\b/.test(ua)) {
-      description.push('running in Turbo/Uncompressed mode');
-    }
-    // Detect IE Mobile 11.
-    if (name == 'IE' && /\blike iPhone OS\b/.test(ua)) {
-      data = parse(ua.replace(/like iPhone OS/, ''));
-      manufacturer = data.manufacturer;
-      product = data.product;
-    }
-    // Detect iOS.
-    else if (/^iP/.test(product)) {
-      name || (name = 'Safari');
-      os = 'iOS' + ((data = / OS ([\d_]+)/i.exec(ua))
-        ? ' ' + data[1].replace(/_/g, '.')
-        : '');
-    }
-    // Detect Kubuntu.
-    else if (name == 'Konqueror' && !/buntu/i.test(os)) {
-      os = 'Kubuntu';
-    }
-    // Detect Android browsers.
-    else if ((manufacturer && manufacturer != 'Google' &&
-        ((/Chrome/.test(name) && !/\bMobile Safari\b/i.test(ua)) || /\bVita\b/.test(product))) ||
-        (/\bAndroid\b/.test(os) && /^Chrome/.test(name) && /\bVersion\//i.test(ua))) {
-      name = 'Android Browser';
-      os = /\bAndroid\b/.test(os) ? os : 'Android';
-    }
-    // Detect Silk desktop/accelerated modes.
-    else if (name == 'Silk') {
-      if (!/\bMobi/i.test(ua)) {
-        os = 'Android';
-        description.unshift('desktop mode');
-      }
-      if (/Accelerated *= *true/i.test(ua)) {
-        description.unshift('accelerated');
-      }
-    }
-    // Detect PaleMoon identifying as Firefox.
-    else if (name == 'PaleMoon' && (data = /\bFirefox\/([\d.]+)\b/.exec(ua))) {
-      description.push('identifying as Firefox ' + data[1]);
-    }
-    // Detect Firefox OS and products running Firefox.
-    else if (name == 'Firefox' && (data = /\b(Mobile|Tablet|TV)\b/i.exec(ua))) {
-      os || (os = 'Firefox OS');
-      product || (product = data[1]);
-    }
-    // Detect false positives for Firefox/Safari.
-    else if (!name || (data = !/\bMinefield\b/i.test(ua) && /\b(?:Firefox|Safari)\b/.exec(name))) {
-      // Escape the `/` for Firefox 1.
-      if (name && !product && /[\/,]|^[^(]+?\)/.test(ua.slice(ua.indexOf(data + '/') + 8))) {
-        // Clear name of false positives.
-        name = null;
-      }
-      // Reassign a generic name.
-      if ((data = product || manufacturer || os) &&
-          (product || manufacturer || /\b(?:Android|Symbian OS|Tablet OS|webOS)\b/.test(os))) {
-        name = /[a-z]+(?: Hat)?/i.exec(/\bAndroid\b/.test(os) ? os : data) + ' Browser';
-      }
-    }
-    // Add Chrome version to description for Electron.
-    else if (name == 'Electron' && (data = (/\bChrome\/([\d.]+)\b/.exec(ua) || 0)[1])) {
-      description.push('Chromium ' + data);
-    }
-    // Detect non-Opera (Presto-based) versions (order is important).
-    if (!version) {
-      version = getVersion([
-        '(?:Cloud9|CriOS|CrMo|Edge|FxiOS|IEMobile|Iron|Opera ?Mini|OPiOS|OPR|Raven|SamsungBrowser|Silk(?!/[\\d.]+$))',
-        'Version',
-        qualify(name),
-        '(?:Firefox|Minefield|NetFront)'
-      ]);
-    }
-    // Detect stubborn layout engines.
-    if ((data =
-          layout == 'iCab' && parseFloat(version) > 3 && 'WebKit' ||
-          /\bOpera\b/.test(name) && (/\bOPR\b/.test(ua) ? 'Blink' : 'Presto') ||
-          /\b(?:Midori|Nook|Safari)\b/i.test(ua) && !/^(?:Trident|EdgeHTML)$/.test(layout) && 'WebKit' ||
-          !layout && /\bMSIE\b/i.test(ua) && (os == 'Mac OS' ? 'Tasman' : 'Trident') ||
-          layout == 'WebKit' && /\bPlayStation\b(?! Vita\b)/i.test(name) && 'NetFront'
-        )) {
-      layout = [data];
-    }
-    // Detect Windows Phone 7 desktop mode.
-    if (name == 'IE' && (data = (/; *(?:XBLWP|ZuneWP)(\d+)/i.exec(ua) || 0)[1])) {
-      name += ' Mobile';
-      os = 'Windows Phone ' + (/\+$/.test(data) ? data : data + '.x');
-      description.unshift('desktop mode');
-    }
-    // Detect Windows Phone 8.x desktop mode.
-    else if (/\bWPDesktop\b/i.test(ua)) {
-      name = 'IE Mobile';
-      os = 'Windows Phone 8.x';
-      description.unshift('desktop mode');
-      version || (version = (/\brv:([\d.]+)/.exec(ua) || 0)[1]);
-    }
-    // Detect IE 11 identifying as other browsers.
-    else if (name != 'IE' && layout == 'Trident' && (data = /\brv:([\d.]+)/.exec(ua))) {
-      if (name) {
-        description.push('identifying as ' + name + (version ? ' ' + version : ''));
-      }
-      name = 'IE';
-      version = data[1];
-    }
-    // Leverage environment features.
-    if (useFeatures) {
-      // Detect server-side environments.
-      // Rhino has a global function while others have a global object.
-      if (isHostType(context, 'global')) {
-        if (java) {
-          data = java.lang.System;
-          arch = data.getProperty('os.arch');
-          os = os || data.getProperty('os.name') + ' ' + data.getProperty('os.version');
-        }
-        if (rhino) {
-          try {
-            version = context.require('ringo/engine').version.join('.');
-            name = 'RingoJS';
-          } catch(e) {
-            if ((data = context.system) && data.global.system == context.system) {
-              name = 'Narwhal';
-              os || (os = data[0].os || null);
-            }
-          }
-          if (!name) {
-            name = 'Rhino';
-          }
-        }
-        else if (
-          typeof context.process == 'object' && !context.process.browser &&
-          (data = context.process)
-        ) {
-          if (typeof data.versions == 'object') {
-            if (typeof data.versions.electron == 'string') {
-              description.push('Node ' + data.versions.node);
-              name = 'Electron';
-              version = data.versions.electron;
-            } else if (typeof data.versions.nw == 'string') {
-              description.push('Chromium ' + version, 'Node ' + data.versions.node);
-              name = 'NW.js';
-              version = data.versions.nw;
-            }
-          }
-          if (!name) {
-            name = 'Node.js';
-            arch = data.arch;
-            os = data.platform;
-            version = /[\d.]+/.exec(data.version);
-            version = version ? version[0] : null;
-          }
-        }
-      }
-      // Detect Adobe AIR.
-      else if (getClassOf((data = context.runtime)) == airRuntimeClass) {
-        name = 'Adobe AIR';
-        os = data.flash.system.Capabilities.os;
-      }
-      // Detect PhantomJS.
-      else if (getClassOf((data = context.phantom)) == phantomClass) {
-        name = 'PhantomJS';
-        version = (data = data.version || null) && (data.major + '.' + data.minor + '.' + data.patch);
-      }
-      // Detect IE compatibility modes.
-      else if (typeof doc.documentMode == 'number' && (data = /\bTrident\/(\d+)/i.exec(ua))) {
-        // We're in compatibility mode when the Trident version + 4 doesn't
-        // equal the document mode.
-        version = [version, doc.documentMode];
-        if ((data = +data[1] + 4) != version[1]) {
-          description.push('IE ' + version[1] + ' mode');
-          layout && (layout[1] = '');
-          version[1] = data;
-        }
-        version = name == 'IE' ? String(version[1].toFixed(1)) : version[0];
-      }
-      // Detect IE 11 masking as other browsers.
-      else if (typeof doc.documentMode == 'number' && /^(?:Chrome|Firefox)\b/.test(name)) {
-        description.push('masking as ' + name + ' ' + version);
-        name = 'IE';
-        version = '11.0';
-        layout = ['Trident'];
-        os = 'Windows';
-      }
-      os = os && format(os);
-    }
-    // Detect prerelease phases.
-    if (version && (data =
-          /(?:[ab]|dp|pre|[ab]\d+pre)(?:\d+\+?)?$/i.exec(version) ||
-          /(?:alpha|beta)(?: ?\d)?/i.exec(ua + ';' + (useFeatures && nav.appMinorVersion)) ||
-          /\bMinefield\b/i.test(ua) && 'a'
-        )) {
-      prerelease = /b/i.test(data) ? 'beta' : 'alpha';
-      version = version.replace(RegExp(data + '\\+?$'), '') +
-        (prerelease == 'beta' ? beta : alpha) + (/\d+\+?/.exec(data) || '');
-    }
-    // Detect Firefox Mobile.
-    if (name == 'Fennec' || name == 'Firefox' && /\b(?:Android|Firefox OS)\b/.test(os)) {
-      name = 'Firefox Mobile';
-    }
-    // Obscure Maxthon's unreliable version.
-    else if (name == 'Maxthon' && version) {
-      version = version.replace(/\.[\d.]+/, '.x');
-    }
-    // Detect Xbox 360 and Xbox One.
-    else if (/\bXbox\b/i.test(product)) {
-      if (product == 'Xbox 360') {
-        os = null;
-      }
-      if (product == 'Xbox 360' && /\bIEMobile\b/.test(ua)) {
-        description.unshift('mobile mode');
-      }
-    }
-    // Add mobile postfix.
-    else if ((/^(?:Chrome|IE|Opera)$/.test(name) || name && !product && !/Browser|Mobi/.test(name)) &&
-        (os == 'Windows CE' || /Mobi/i.test(ua))) {
-      name += ' Mobile';
-    }
-    // Detect IE platform preview.
-    else if (name == 'IE' && useFeatures) {
-      try {
-        if (context.external === null) {
-          description.unshift('platform preview');
-        }
-      } catch(e) {
-        description.unshift('embedded');
-      }
-    }
-    // Detect BlackBerry OS version.
-    // http://docs.blackberry.com/en/developers/deliverables/18169/HTTP_headers_sent_by_BB_Browser_1234911_11.jsp
-    else if ((/\bBlackBerry\b/.test(product) || /\bBB10\b/.test(ua)) && (data =
-          (RegExp(product.replace(/ +/g, ' *') + '/([.\\d]+)', 'i').exec(ua) || 0)[1] ||
-          version
-        )) {
-      data = [data, /BB10/.test(ua)];
-      os = (data[1] ? (product = null, manufacturer = 'BlackBerry') : 'Device Software') + ' ' + data[0];
-      version = null;
-    }
-    // Detect Opera identifying/masking itself as another browser.
-    // http://www.opera.com/support/kb/view/843/
-    else if (this != forOwn && product != 'Wii' && (
-          (useFeatures && opera) ||
-          (/Opera/.test(name) && /\b(?:MSIE|Firefox)\b/i.test(ua)) ||
-          (name == 'Firefox' && /\bOS X (?:\d+\.){2,}/.test(os)) ||
-          (name == 'IE' && (
-            (os && !/^Win/.test(os) && version > 5.5) ||
-            /\bWindows XP\b/.test(os) && version > 8 ||
-            version == 8 && !/\bTrident\b/.test(ua)
-          ))
-        ) && !reOpera.test((data = parse.call(forOwn, ua.replace(reOpera, '') + ';'))) && data.name) {
-      // When "identifying", the UA contains both Opera and the other browser's name.
-      data = 'ing as ' + data.name + ((data = data.version) ? ' ' + data : '');
-      if (reOpera.test(name)) {
-        if (/\bIE\b/.test(data) && os == 'Mac OS') {
-          os = null;
-        }
-        data = 'identify' + data;
-      }
-      // When "masking", the UA contains only the other browser's name.
-      else {
-        data = 'mask' + data;
-        if (operaClass) {
-          name = format(operaClass.replace(/([a-z])([A-Z])/g, '$1 $2'));
-        } else {
-          name = 'Opera';
-        }
-        if (/\bIE\b/.test(data)) {
-          os = null;
-        }
-        if (!useFeatures) {
-          version = null;
-        }
-      }
-      layout = ['Presto'];
-      description.push(data);
-    }
-    // Detect WebKit Nightly and approximate Chrome/Safari versions.
-    if ((data = (/\bAppleWebKit\/([\d.]+\+?)/i.exec(ua) || 0)[1])) {
-      // Correct build number for numeric comparison.
-      // (e.g. "532.5" becomes "532.05")
-      data = [parseFloat(data.replace(/\.(\d)$/, '.0$1')), data];
-      // Nightly builds are postfixed with a "+".
-      if (name == 'Safari' && data[1].slice(-1) == '+') {
-        name = 'WebKit Nightly';
-        prerelease = 'alpha';
-        version = data[1].slice(0, -1);
-      }
-      // Clear incorrect browser versions.
-      else if (version == data[1] ||
-          version == (data[2] = (/\bSafari\/([\d.]+\+?)/i.exec(ua) || 0)[1])) {
-        version = null;
-      }
-      // Use the full Chrome version when available.
-      data[1] = (/\bChrome\/([\d.]+)/i.exec(ua) || 0)[1];
-      // Detect Blink layout engine.
-      if (data[0] == 537.36 && data[2] == 537.36 && parseFloat(data[1]) >= 28 && layout == 'WebKit') {
-        layout = ['Blink'];
-      }
-      // Detect JavaScriptCore.
-      // http://stackoverflow.com/questions/6768474/how-can-i-detect-which-javascript-engine-v8-or-jsc-is-used-at-runtime-in-androi
-      if (!useFeatures || (!likeChrome && !data[1])) {
-        layout && (layout[1] = 'like Safari');
-        data = (data = data[0], data < 400 ? 1 : data < 500 ? 2 : data < 526 ? 3 : data < 533 ? 4 : data < 534 ? '4+' : data < 535 ? 5 : data < 537 ? 6 : data < 538 ? 7 : data < 601 ? 8 : '8');
-      } else {
-        layout && (layout[1] = 'like Chrome');
-        data = data[1] || (data = data[0], data < 530 ? 1 : data < 532 ? 2 : data < 532.05 ? 3 : data < 533 ? 4 : data < 534.03 ? 5 : data < 534.07 ? 6 : data < 534.10 ? 7 : data < 534.13 ? 8 : data < 534.16 ? 9 : data < 534.24 ? 10 : data < 534.30 ? 11 : data < 535.01 ? 12 : data < 535.02 ? '13+' : data < 535.07 ? 15 : data < 535.11 ? 16 : data < 535.19 ? 17 : data < 536.05 ? 18 : data < 536.10 ? 19 : data < 537.01 ? 20 : data < 537.11 ? '21+' : data < 537.13 ? 23 : data < 537.18 ? 24 : data < 537.24 ? 25 : data < 537.36 ? 26 : layout != 'Blink' ? '27' : '28');
-      }
-      // Add the postfix of ".x" or "+" for approximate versions.
-      layout && (layout[1] += ' ' + (data += typeof data == 'number' ? '.x' : /[.+]/.test(data) ? '' : '+'));
-      // Obscure version for some Safari 1-2 releases.
-      if (name == 'Safari' && (!version || parseInt(version) > 45)) {
-        version = data;
-      }
-    }
-    // Detect Opera desktop modes.
-    if (name == 'Opera' &&  (data = /\bzbov|zvav$/.exec(os))) {
-      name += ' ';
-      description.unshift('desktop mode');
-      if (data == 'zvav') {
-        name += 'Mini';
-        version = null;
-      } else {
-        name += 'Mobile';
-      }
-      os = os.replace(RegExp(' *' + data + '$'), '');
-    }
-    // Detect Chrome desktop mode.
-    else if (name == 'Safari' && /\bChrome\b/.exec(layout && layout[1])) {
-      description.unshift('desktop mode');
-      name = 'Chrome Mobile';
-      version = null;
-
-      if (/\bOS X\b/.test(os)) {
-        manufacturer = 'Apple';
-        os = 'iOS 4.3+';
-      } else {
-        os = null;
-      }
-    }
-    // Strip incorrect OS versions.
-    if (version && version.indexOf((data = /[\d.]+$/.exec(os))) == 0 &&
-        ua.indexOf('/' + data + '-') > -1) {
-      os = trim(os.replace(data, ''));
-    }
-    // Add layout engine.
-    if (layout && !/\b(?:Avant|Nook)\b/.test(name) && (
-        /Browser|Lunascape|Maxthon/.test(name) ||
-        name != 'Safari' && /^iOS/.test(os) && /\bSafari\b/.test(layout[1]) ||
-        /^(?:Adobe|Arora|Breach|Midori|Opera|Phantom|Rekonq|Rock|Samsung Internet|Sleipnir|Web)/.test(name) && layout[1])) {
-      // Don't add layout details to description if they are falsey.
-      (data = layout[layout.length - 1]) && description.push(data);
-    }
-    // Combine contextual information.
-    if (description.length) {
-      description = ['(' + description.join('; ') + ')'];
-    }
-    // Append manufacturer to description.
-    if (manufacturer && product && product.indexOf(manufacturer) < 0) {
-      description.push('on ' + manufacturer);
-    }
-    // Append product to description.
-    if (product) {
-      description.push((/^on /.test(description[description.length - 1]) ? '' : 'on ') + product);
-    }
-    // Parse the OS into an object.
-    if (os) {
-      data = / ([\d.+]+)$/.exec(os);
-      isSpecialCasedOS = data && os.charAt(os.length - data[0].length - 1) == '/';
-      os = {
-        'architecture': 32,
-        'family': (data && !isSpecialCasedOS) ? os.replace(data[0], '') : os,
-        'version': data ? data[1] : null,
-        'toString': function() {
-          var version = this.version;
-          return this.family + ((version && !isSpecialCasedOS) ? ' ' + version : '') + (this.architecture == 64 ? ' 64-bit' : '');
-        }
-      };
-    }
-    // Add browser/OS architecture.
-    if ((data = /\b(?:AMD|IA|Win|WOW|x86_|x)64\b/i.exec(arch)) && !/\bi686\b/i.test(arch)) {
-      if (os) {
-        os.architecture = 64;
-        os.family = os.family.replace(RegExp(' *' + data), '');
-      }
-      if (
-          name && (/\bWOW64\b/i.test(ua) ||
-          (useFeatures && /\w(?:86|32)$/.test(nav.cpuClass || nav.platform) && !/\bWin64; x64\b/i.test(ua)))
-      ) {
-        description.unshift('32-bit');
-      }
-    }
-    // Chrome 39 and above on OS X is always 64-bit.
-    else if (
-        os && /^OS X/.test(os.family) &&
-        name == 'Chrome' && parseFloat(version) >= 39
-    ) {
-      os.architecture = 64;
-    }
-
-    ua || (ua = null);
-
-    /*------------------------------------------------------------------------*/
-
-    /**
-     * The platform object.
-     *
-     * @name platform
-     * @type Object
-     */
-    var platform = {};
-
-    /**
-     * The platform description.
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.description = ua;
-
-    /**
-     * The name of the browser's layout engine.
-     *
-     * The list of common layout engines include:
-     * "Blink", "EdgeHTML", "Gecko", "Trident" and "WebKit"
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.layout = layout && layout[0];
-
-    /**
-     * The name of the product's manufacturer.
-     *
-     * The list of manufacturers include:
-     * "Apple", "Archos", "Amazon", "Asus", "Barnes & Noble", "BlackBerry",
-     * "Google", "HP", "HTC", "LG", "Microsoft", "Motorola", "Nintendo",
-     * "Nokia", "Samsung" and "Sony"
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.manufacturer = manufacturer;
-
-    /**
-     * The name of the browser/environment.
-     *
-     * The list of common browser names include:
-     * "Chrome", "Electron", "Firefox", "Firefox for iOS", "IE",
-     * "Microsoft Edge", "PhantomJS", "Safari", "SeaMonkey", "Silk",
-     * "Opera Mini" and "Opera"
-     *
-     * Mobile versions of some browsers have "Mobile" appended to their name:
-     * eg. "Chrome Mobile", "Firefox Mobile", "IE Mobile" and "Opera Mobile"
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.name = name;
-
-    /**
-     * The alpha/beta release indicator.
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.prerelease = prerelease;
-
-    /**
-     * The name of the product hosting the browser.
-     *
-     * The list of common products include:
-     *
-     * "BlackBerry", "Galaxy S4", "Lumia", "iPad", "iPod", "iPhone", "Kindle",
-     * "Kindle Fire", "Nexus", "Nook", "PlayBook", "TouchPad" and "Transformer"
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.product = product;
-
-    /**
-     * The browser's user agent string.
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.ua = ua;
-
-    /**
-     * The browser/environment version.
-     *
-     * @memberOf platform
-     * @type string|null
-     */
-    platform.version = name && version;
-
-    /**
-     * The name of the operating system.
-     *
-     * @memberOf platform
-     * @type Object
-     */
-    platform.os = os || {
-
-      /**
-       * The CPU architecture the OS is built for.
-       *
-       * @memberOf platform.os
-       * @type number|null
-       */
-      'architecture': null,
-
-      /**
-       * The family of the OS.
-       *
-       * Common values include:
-       * "Windows", "Windows Server 2008 R2 / 7", "Windows Server 2008 / Vista",
-       * "Windows XP", "OS X", "Ubuntu", "Debian", "Fedora", "Red Hat", "SuSE",
-       * "Android", "iOS" and "Windows Phone"
-       *
-       * @memberOf platform.os
-       * @type string|null
-       */
-      'family': null,
-
-      /**
-       * The version of the OS.
-       *
-       * @memberOf platform.os
-       * @type string|null
-       */
-      'version': null,
-
-      /**
-       * Returns the OS string.
-       *
-       * @memberOf platform.os
-       * @returns {string} The OS string.
-       */
-      'toString': function() { return 'null'; }
-    };
-
-    platform.parse = parse;
-    platform.toString = toStringPlatform;
-
-    if (platform.version) {
-      description.unshift(version);
-    }
-    if (platform.name) {
-      description.unshift(name);
-    }
-    if (os && name && !(os == String(os).split(' ')[0] && (os == name.split(' ')[0] || product))) {
-      description.push(product ? '(' + os + ')' : 'on ' + os);
-    }
-    if (description.length) {
-      platform.description = description.join(' ');
-    }
-    return platform;
-  }
-
-  /*--------------------------------------------------------------------------*/
-
-  // Export platform.
-  var platform = parse();
-
-  // Some AMD build optimizers, like r.js, check for condition patterns like the following:
-  if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
-    // Expose platform on the global object to prevent errors when platform is
-    // loaded by a script tag in the presence of an AMD loader.
-    // See http://requirejs.org/docs/errors.html#mismatch for more details.
-    root.platform = platform;
-
-    // Define as an anonymous module so platform can be aliased through path mapping.
-    define(function() {
-      return platform;
-    });
-  }
-  // Check for `exports` after `define` in case a build optimizer adds an `exports` object.
-  else if (freeExports && freeModule) {
-    // Export for CommonJS support.
-    forOwn(platform, function(value, key) {
-      freeExports[key] = value;
-    });
-  }
-  else {
-    // Export to the global object.
-    root.platform = platform;
-  }
-}.call(this));
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],305:[function(require,module,exports){
+},{"_process":451}],415:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -23200,7 +27749,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":306}],306:[function(require,module,exports){
+},{"_process":451}],416:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -23386,7 +27935,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],307:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -23923,7 +28472,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],308:[function(require,module,exports){
+},{}],418:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24009,7 +28558,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],309:[function(require,module,exports){
+},{}],419:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24096,16 +28645,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],310:[function(require,module,exports){
+},{}],420:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":308,"./encode":309}],311:[function(require,module,exports){
+},{"./decode":418,"./encode":419}],421:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":312}],312:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":422}],422:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24237,7 +28786,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":314,"./_stream_writable":316,"core-util-is":287,"inherits":294,"process-nextick-args":305}],313:[function(require,module,exports){
+},{"./_stream_readable":424,"./_stream_writable":426,"core-util-is":392,"inherits":405,"process-nextick-args":415}],423:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24285,7 +28834,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":315,"core-util-is":287,"inherits":294}],314:[function(require,module,exports){
+},{"./_stream_transform":425,"core-util-is":392,"inherits":405}],424:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -25307,7 +29856,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":312,"./internal/streams/BufferList":317,"./internal/streams/destroy":318,"./internal/streams/stream":319,"_process":306,"core-util-is":287,"events":290,"inherits":294,"isarray":296,"process-nextick-args":305,"safe-buffer":325,"string_decoder/":328,"util":78}],315:[function(require,module,exports){
+},{"./_stream_duplex":422,"./internal/streams/BufferList":427,"./internal/streams/destroy":428,"./internal/streams/stream":429,"_process":451,"core-util-is":392,"events":395,"inherits":405,"isarray":407,"process-nextick-args":415,"safe-buffer":435,"string_decoder/":437,"util":176}],425:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25522,7 +30071,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":312,"core-util-is":287,"inherits":294}],316:[function(require,module,exports){
+},{"./_stream_duplex":422,"core-util-is":392,"inherits":405}],426:[function(require,module,exports){
 (function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -26212,7 +30761,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":312,"./internal/streams/destroy":318,"./internal/streams/stream":319,"_process":306,"core-util-is":287,"inherits":294,"process-nextick-args":305,"safe-buffer":325,"timers":329,"util-deprecate":332}],317:[function(require,module,exports){
+},{"./_stream_duplex":422,"./internal/streams/destroy":428,"./internal/streams/stream":429,"_process":451,"core-util-is":392,"inherits":405,"process-nextick-args":415,"safe-buffer":435,"timers":438,"util-deprecate":439}],427:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26292,7 +30841,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":325,"util":78}],318:[function(require,module,exports){
+},{"safe-buffer":435,"util":176}],428:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -26367,12 +30916,12 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":305}],319:[function(require,module,exports){
-arguments[4][96][0].apply(exports,arguments)
-},{"dup":96,"events":290}],320:[function(require,module,exports){
+},{"process-nextick-args":415}],429:[function(require,module,exports){
+arguments[4][194][0].apply(exports,arguments)
+},{"dup":194,"events":395}],430:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":321}],321:[function(require,module,exports){
+},{"./readable":431}],431:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -26381,13 +30930,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":312,"./lib/_stream_passthrough.js":313,"./lib/_stream_readable.js":314,"./lib/_stream_transform.js":315,"./lib/_stream_writable.js":316}],322:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":422,"./lib/_stream_passthrough.js":423,"./lib/_stream_readable.js":424,"./lib/_stream_transform.js":425,"./lib/_stream_writable.js":426}],432:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":321}],323:[function(require,module,exports){
+},{"./readable":431}],433:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":316}],324:[function(require,module,exports){
+},{"./lib/_stream_writable.js":426}],434:[function(require,module,exports){
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -27116,7 +31665,7 @@ module.exports = require('./lib/_stream_writable.js');
   (function() { return this })() || Function("return this")()
 );
 
-},{}],325:[function(require,module,exports){
+},{}],435:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -27180,1576 +31729,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":98}],326:[function(require,module,exports){
-(function (Buffer){
-;(function (sax) { // wrapper for non-node envs
-  sax.parser = function (strict, opt) { return new SAXParser(strict, opt) }
-  sax.SAXParser = SAXParser
-  sax.SAXStream = SAXStream
-  sax.createStream = createStream
-
-  // When we pass the MAX_BUFFER_LENGTH position, start checking for buffer overruns.
-  // When we check, schedule the next check for MAX_BUFFER_LENGTH - (max(buffer lengths)),
-  // since that's the earliest that a buffer overrun could occur.  This way, checks are
-  // as rare as required, but as often as necessary to ensure never crossing this bound.
-  // Furthermore, buffers are only tested at most once per write(), so passing a very
-  // large string into write() might have undesirable effects, but this is manageable by
-  // the caller, so it is assumed to be safe.  Thus, a call to write() may, in the extreme
-  // edge case, result in creating at most one complete copy of the string passed in.
-  // Set to Infinity to have unlimited buffers.
-  sax.MAX_BUFFER_LENGTH = 64 * 1024
-
-  var buffers = [
-    'comment', 'sgmlDecl', 'textNode', 'tagName', 'doctype',
-    'procInstName', 'procInstBody', 'entity', 'attribName',
-    'attribValue', 'cdata', 'script'
-  ]
-
-  sax.EVENTS = [
-    'text',
-    'processinginstruction',
-    'sgmldeclaration',
-    'doctype',
-    'comment',
-    'opentagstart',
-    'attribute',
-    'opentag',
-    'closetag',
-    'opencdata',
-    'cdata',
-    'closecdata',
-    'error',
-    'end',
-    'ready',
-    'script',
-    'opennamespace',
-    'closenamespace'
-  ]
-
-  function SAXParser (strict, opt) {
-    if (!(this instanceof SAXParser)) {
-      return new SAXParser(strict, opt)
-    }
-
-    var parser = this
-    clearBuffers(parser)
-    parser.q = parser.c = ''
-    parser.bufferCheckPosition = sax.MAX_BUFFER_LENGTH
-    parser.opt = opt || {}
-    parser.opt.lowercase = parser.opt.lowercase || parser.opt.lowercasetags
-    parser.looseCase = parser.opt.lowercase ? 'toLowerCase' : 'toUpperCase'
-    parser.tags = []
-    parser.closed = parser.closedRoot = parser.sawRoot = false
-    parser.tag = parser.error = null
-    parser.strict = !!strict
-    parser.noscript = !!(strict || parser.opt.noscript)
-    parser.state = S.BEGIN
-    parser.strictEntities = parser.opt.strictEntities
-    parser.ENTITIES = parser.strictEntities ? Object.create(sax.XML_ENTITIES) : Object.create(sax.ENTITIES)
-    parser.attribList = []
-
-    // namespaces form a prototype chain.
-    // it always points at the current tag,
-    // which protos to its parent tag.
-    if (parser.opt.xmlns) {
-      parser.ns = Object.create(rootNS)
-    }
-
-    // mostly just for error reporting
-    parser.trackPosition = parser.opt.position !== false
-    if (parser.trackPosition) {
-      parser.position = parser.line = parser.column = 0
-    }
-    emit(parser, 'onready')
-  }
-
-  if (!Object.create) {
-    Object.create = function (o) {
-      function F () {}
-      F.prototype = o
-      var newf = new F()
-      return newf
-    }
-  }
-
-  if (!Object.keys) {
-    Object.keys = function (o) {
-      var a = []
-      for (var i in o) if (o.hasOwnProperty(i)) a.push(i)
-      return a
-    }
-  }
-
-  function checkBufferLength (parser) {
-    var maxAllowed = Math.max(sax.MAX_BUFFER_LENGTH, 10)
-    var maxActual = 0
-    for (var i = 0, l = buffers.length; i < l; i++) {
-      var len = parser[buffers[i]].length
-      if (len > maxAllowed) {
-        // Text/cdata nodes can get big, and since they're buffered,
-        // we can get here under normal conditions.
-        // Avoid issues by emitting the text node now,
-        // so at least it won't get any bigger.
-        switch (buffers[i]) {
-          case 'textNode':
-            closeText(parser)
-            break
-
-          case 'cdata':
-            emitNode(parser, 'oncdata', parser.cdata)
-            parser.cdata = ''
-            break
-
-          case 'script':
-            emitNode(parser, 'onscript', parser.script)
-            parser.script = ''
-            break
-
-          default:
-            error(parser, 'Max buffer length exceeded: ' + buffers[i])
-        }
-      }
-      maxActual = Math.max(maxActual, len)
-    }
-    // schedule the next check for the earliest possible buffer overrun.
-    var m = sax.MAX_BUFFER_LENGTH - maxActual
-    parser.bufferCheckPosition = m + parser.position
-  }
-
-  function clearBuffers (parser) {
-    for (var i = 0, l = buffers.length; i < l; i++) {
-      parser[buffers[i]] = ''
-    }
-  }
-
-  function flushBuffers (parser) {
-    closeText(parser)
-    if (parser.cdata !== '') {
-      emitNode(parser, 'oncdata', parser.cdata)
-      parser.cdata = ''
-    }
-    if (parser.script !== '') {
-      emitNode(parser, 'onscript', parser.script)
-      parser.script = ''
-    }
-  }
-
-  SAXParser.prototype = {
-    end: function () { end(this) },
-    write: write,
-    resume: function () { this.error = null; return this },
-    close: function () { return this.write(null) },
-    flush: function () { flushBuffers(this) }
-  }
-
-  var Stream
-  try {
-    Stream = require('stream').Stream
-  } catch (ex) {
-    Stream = function () {}
-  }
-
-  var streamWraps = sax.EVENTS.filter(function (ev) {
-    return ev !== 'error' && ev !== 'end'
-  })
-
-  function createStream (strict, opt) {
-    return new SAXStream(strict, opt)
-  }
-
-  function SAXStream (strict, opt) {
-    if (!(this instanceof SAXStream)) {
-      return new SAXStream(strict, opt)
-    }
-
-    Stream.apply(this)
-
-    this._parser = new SAXParser(strict, opt)
-    this.writable = true
-    this.readable = true
-
-    var me = this
-
-    this._parser.onend = function () {
-      me.emit('end')
-    }
-
-    this._parser.onerror = function (er) {
-      me.emit('error', er)
-
-      // if didn't throw, then means error was handled.
-      // go ahead and clear error, so we can write again.
-      me._parser.error = null
-    }
-
-    this._decoder = null
-
-    streamWraps.forEach(function (ev) {
-      Object.defineProperty(me, 'on' + ev, {
-        get: function () {
-          return me._parser['on' + ev]
-        },
-        set: function (h) {
-          if (!h) {
-            me.removeAllListeners(ev)
-            me._parser['on' + ev] = h
-            return h
-          }
-          me.on(ev, h)
-        },
-        enumerable: true,
-        configurable: false
-      })
-    })
-  }
-
-  SAXStream.prototype = Object.create(Stream.prototype, {
-    constructor: {
-      value: SAXStream
-    }
-  })
-
-  SAXStream.prototype.write = function (data) {
-    if (typeof Buffer === 'function' &&
-      typeof Buffer.isBuffer === 'function' &&
-      Buffer.isBuffer(data)) {
-      if (!this._decoder) {
-        var SD = require('string_decoder').StringDecoder
-        this._decoder = new SD('utf8')
-      }
-      data = this._decoder.write(data)
-    }
-
-    this._parser.write(data.toString())
-    this.emit('data', data)
-    return true
-  }
-
-  SAXStream.prototype.end = function (chunk) {
-    if (chunk && chunk.length) {
-      this.write(chunk)
-    }
-    this._parser.end()
-    return true
-  }
-
-  SAXStream.prototype.on = function (ev, handler) {
-    var me = this
-    if (!me._parser['on' + ev] && streamWraps.indexOf(ev) !== -1) {
-      me._parser['on' + ev] = function () {
-        var args = arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments)
-        args.splice(0, 0, ev)
-        me.emit.apply(me, args)
-      }
-    }
-
-    return Stream.prototype.on.call(me, ev, handler)
-  }
-
-  // this really needs to be replaced with character classes.
-  // XML allows all manner of ridiculous numbers and digits.
-  var CDATA = '[CDATA['
-  var DOCTYPE = 'DOCTYPE'
-  var XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace'
-  var XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/'
-  var rootNS = { xml: XML_NAMESPACE, xmlns: XMLNS_NAMESPACE }
-
-  // http://www.w3.org/TR/REC-xml/#NT-NameStartChar
-  // This implementation works on strings, a single character at a time
-  // as such, it cannot ever support astral-plane characters (10000-EFFFF)
-  // without a significant breaking change to either this  parser, or the
-  // JavaScript language.  Implementation of an emoji-capable xml parser
-  // is left as an exercise for the reader.
-  var nameStart = /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
-
-  var nameBody = /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/
-
-  var entityStart = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
-  var entityBody = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/
-
-  function isWhitespace (c) {
-    return c === ' ' || c === '\n' || c === '\r' || c === '\t'
-  }
-
-  function isQuote (c) {
-    return c === '"' || c === '\''
-  }
-
-  function isAttribEnd (c) {
-    return c === '>' || isWhitespace(c)
-  }
-
-  function isMatch (regex, c) {
-    return regex.test(c)
-  }
-
-  function notMatch (regex, c) {
-    return !isMatch(regex, c)
-  }
-
-  var S = 0
-  sax.STATE = {
-    BEGIN: S++, // leading byte order mark or whitespace
-    BEGIN_WHITESPACE: S++, // leading whitespace
-    TEXT: S++, // general stuff
-    TEXT_ENTITY: S++, // &amp and such.
-    OPEN_WAKA: S++, // <
-    SGML_DECL: S++, // <!BLARG
-    SGML_DECL_QUOTED: S++, // <!BLARG foo "bar
-    DOCTYPE: S++, // <!DOCTYPE
-    DOCTYPE_QUOTED: S++, // <!DOCTYPE "//blah
-    DOCTYPE_DTD: S++, // <!DOCTYPE "//blah" [ ...
-    DOCTYPE_DTD_QUOTED: S++, // <!DOCTYPE "//blah" [ "foo
-    COMMENT_STARTING: S++, // <!-
-    COMMENT: S++, // <!--
-    COMMENT_ENDING: S++, // <!-- blah -
-    COMMENT_ENDED: S++, // <!-- blah --
-    CDATA: S++, // <![CDATA[ something
-    CDATA_ENDING: S++, // ]
-    CDATA_ENDING_2: S++, // ]]
-    PROC_INST: S++, // <?hi
-    PROC_INST_BODY: S++, // <?hi there
-    PROC_INST_ENDING: S++, // <?hi "there" ?
-    OPEN_TAG: S++, // <strong
-    OPEN_TAG_SLASH: S++, // <strong /
-    ATTRIB: S++, // <a
-    ATTRIB_NAME: S++, // <a foo
-    ATTRIB_NAME_SAW_WHITE: S++, // <a foo _
-    ATTRIB_VALUE: S++, // <a foo=
-    ATTRIB_VALUE_QUOTED: S++, // <a foo="bar
-    ATTRIB_VALUE_CLOSED: S++, // <a foo="bar"
-    ATTRIB_VALUE_UNQUOTED: S++, // <a foo=bar
-    ATTRIB_VALUE_ENTITY_Q: S++, // <foo bar="&quot;"
-    ATTRIB_VALUE_ENTITY_U: S++, // <foo bar=&quot
-    CLOSE_TAG: S++, // </a
-    CLOSE_TAG_SAW_WHITE: S++, // </a   >
-    SCRIPT: S++, // <script> ...
-    SCRIPT_ENDING: S++ // <script> ... <
-  }
-
-  sax.XML_ENTITIES = {
-    'amp': '&',
-    'gt': '>',
-    'lt': '<',
-    'quot': '"',
-    'apos': "'"
-  }
-
-  sax.ENTITIES = {
-    'amp': '&',
-    'gt': '>',
-    'lt': '<',
-    'quot': '"',
-    'apos': "'",
-    'AElig': 198,
-    'Aacute': 193,
-    'Acirc': 194,
-    'Agrave': 192,
-    'Aring': 197,
-    'Atilde': 195,
-    'Auml': 196,
-    'Ccedil': 199,
-    'ETH': 208,
-    'Eacute': 201,
-    'Ecirc': 202,
-    'Egrave': 200,
-    'Euml': 203,
-    'Iacute': 205,
-    'Icirc': 206,
-    'Igrave': 204,
-    'Iuml': 207,
-    'Ntilde': 209,
-    'Oacute': 211,
-    'Ocirc': 212,
-    'Ograve': 210,
-    'Oslash': 216,
-    'Otilde': 213,
-    'Ouml': 214,
-    'THORN': 222,
-    'Uacute': 218,
-    'Ucirc': 219,
-    'Ugrave': 217,
-    'Uuml': 220,
-    'Yacute': 221,
-    'aacute': 225,
-    'acirc': 226,
-    'aelig': 230,
-    'agrave': 224,
-    'aring': 229,
-    'atilde': 227,
-    'auml': 228,
-    'ccedil': 231,
-    'eacute': 233,
-    'ecirc': 234,
-    'egrave': 232,
-    'eth': 240,
-    'euml': 235,
-    'iacute': 237,
-    'icirc': 238,
-    'igrave': 236,
-    'iuml': 239,
-    'ntilde': 241,
-    'oacute': 243,
-    'ocirc': 244,
-    'ograve': 242,
-    'oslash': 248,
-    'otilde': 245,
-    'ouml': 246,
-    'szlig': 223,
-    'thorn': 254,
-    'uacute': 250,
-    'ucirc': 251,
-    'ugrave': 249,
-    'uuml': 252,
-    'yacute': 253,
-    'yuml': 255,
-    'copy': 169,
-    'reg': 174,
-    'nbsp': 160,
-    'iexcl': 161,
-    'cent': 162,
-    'pound': 163,
-    'curren': 164,
-    'yen': 165,
-    'brvbar': 166,
-    'sect': 167,
-    'uml': 168,
-    'ordf': 170,
-    'laquo': 171,
-    'not': 172,
-    'shy': 173,
-    'macr': 175,
-    'deg': 176,
-    'plusmn': 177,
-    'sup1': 185,
-    'sup2': 178,
-    'sup3': 179,
-    'acute': 180,
-    'micro': 181,
-    'para': 182,
-    'middot': 183,
-    'cedil': 184,
-    'ordm': 186,
-    'raquo': 187,
-    'frac14': 188,
-    'frac12': 189,
-    'frac34': 190,
-    'iquest': 191,
-    'times': 215,
-    'divide': 247,
-    'OElig': 338,
-    'oelig': 339,
-    'Scaron': 352,
-    'scaron': 353,
-    'Yuml': 376,
-    'fnof': 402,
-    'circ': 710,
-    'tilde': 732,
-    'Alpha': 913,
-    'Beta': 914,
-    'Gamma': 915,
-    'Delta': 916,
-    'Epsilon': 917,
-    'Zeta': 918,
-    'Eta': 919,
-    'Theta': 920,
-    'Iota': 921,
-    'Kappa': 922,
-    'Lambda': 923,
-    'Mu': 924,
-    'Nu': 925,
-    'Xi': 926,
-    'Omicron': 927,
-    'Pi': 928,
-    'Rho': 929,
-    'Sigma': 931,
-    'Tau': 932,
-    'Upsilon': 933,
-    'Phi': 934,
-    'Chi': 935,
-    'Psi': 936,
-    'Omega': 937,
-    'alpha': 945,
-    'beta': 946,
-    'gamma': 947,
-    'delta': 948,
-    'epsilon': 949,
-    'zeta': 950,
-    'eta': 951,
-    'theta': 952,
-    'iota': 953,
-    'kappa': 954,
-    'lambda': 955,
-    'mu': 956,
-    'nu': 957,
-    'xi': 958,
-    'omicron': 959,
-    'pi': 960,
-    'rho': 961,
-    'sigmaf': 962,
-    'sigma': 963,
-    'tau': 964,
-    'upsilon': 965,
-    'phi': 966,
-    'chi': 967,
-    'psi': 968,
-    'omega': 969,
-    'thetasym': 977,
-    'upsih': 978,
-    'piv': 982,
-    'ensp': 8194,
-    'emsp': 8195,
-    'thinsp': 8201,
-    'zwnj': 8204,
-    'zwj': 8205,
-    'lrm': 8206,
-    'rlm': 8207,
-    'ndash': 8211,
-    'mdash': 8212,
-    'lsquo': 8216,
-    'rsquo': 8217,
-    'sbquo': 8218,
-    'ldquo': 8220,
-    'rdquo': 8221,
-    'bdquo': 8222,
-    'dagger': 8224,
-    'Dagger': 8225,
-    'bull': 8226,
-    'hellip': 8230,
-    'permil': 8240,
-    'prime': 8242,
-    'Prime': 8243,
-    'lsaquo': 8249,
-    'rsaquo': 8250,
-    'oline': 8254,
-    'frasl': 8260,
-    'euro': 8364,
-    'image': 8465,
-    'weierp': 8472,
-    'real': 8476,
-    'trade': 8482,
-    'alefsym': 8501,
-    'larr': 8592,
-    'uarr': 8593,
-    'rarr': 8594,
-    'darr': 8595,
-    'harr': 8596,
-    'crarr': 8629,
-    'lArr': 8656,
-    'uArr': 8657,
-    'rArr': 8658,
-    'dArr': 8659,
-    'hArr': 8660,
-    'forall': 8704,
-    'part': 8706,
-    'exist': 8707,
-    'empty': 8709,
-    'nabla': 8711,
-    'isin': 8712,
-    'notin': 8713,
-    'ni': 8715,
-    'prod': 8719,
-    'sum': 8721,
-    'minus': 8722,
-    'lowast': 8727,
-    'radic': 8730,
-    'prop': 8733,
-    'infin': 8734,
-    'ang': 8736,
-    'and': 8743,
-    'or': 8744,
-    'cap': 8745,
-    'cup': 8746,
-    'int': 8747,
-    'there4': 8756,
-    'sim': 8764,
-    'cong': 8773,
-    'asymp': 8776,
-    'ne': 8800,
-    'equiv': 8801,
-    'le': 8804,
-    'ge': 8805,
-    'sub': 8834,
-    'sup': 8835,
-    'nsub': 8836,
-    'sube': 8838,
-    'supe': 8839,
-    'oplus': 8853,
-    'otimes': 8855,
-    'perp': 8869,
-    'sdot': 8901,
-    'lceil': 8968,
-    'rceil': 8969,
-    'lfloor': 8970,
-    'rfloor': 8971,
-    'lang': 9001,
-    'rang': 9002,
-    'loz': 9674,
-    'spades': 9824,
-    'clubs': 9827,
-    'hearts': 9829,
-    'diams': 9830
-  }
-
-  Object.keys(sax.ENTITIES).forEach(function (key) {
-    var e = sax.ENTITIES[key]
-    var s = typeof e === 'number' ? String.fromCharCode(e) : e
-    sax.ENTITIES[key] = s
-  })
-
-  for (var s in sax.STATE) {
-    sax.STATE[sax.STATE[s]] = s
-  }
-
-  // shorthand
-  S = sax.STATE
-
-  function emit (parser, event, data) {
-    parser[event] && parser[event](data)
-  }
-
-  function emitNode (parser, nodeType, data) {
-    if (parser.textNode) closeText(parser)
-    emit(parser, nodeType, data)
-  }
-
-  function closeText (parser) {
-    parser.textNode = textopts(parser.opt, parser.textNode)
-    if (parser.textNode) emit(parser, 'ontext', parser.textNode)
-    parser.textNode = ''
-  }
-
-  function textopts (opt, text) {
-    if (opt.trim) text = text.trim()
-    if (opt.normalize) text = text.replace(/\s+/g, ' ')
-    return text
-  }
-
-  function error (parser, er) {
-    closeText(parser)
-    if (parser.trackPosition) {
-      er += '\nLine: ' + parser.line +
-        '\nColumn: ' + parser.column +
-        '\nChar: ' + parser.c
-    }
-    er = new Error(er)
-    parser.error = er
-    emit(parser, 'onerror', er)
-    return parser
-  }
-
-  function end (parser) {
-    if (parser.sawRoot && !parser.closedRoot) strictFail(parser, 'Unclosed root tag')
-    if ((parser.state !== S.BEGIN) &&
-      (parser.state !== S.BEGIN_WHITESPACE) &&
-      (parser.state !== S.TEXT)) {
-      error(parser, 'Unexpected end')
-    }
-    closeText(parser)
-    parser.c = ''
-    parser.closed = true
-    emit(parser, 'onend')
-    SAXParser.call(parser, parser.strict, parser.opt)
-    return parser
-  }
-
-  function strictFail (parser, message) {
-    if (typeof parser !== 'object' || !(parser instanceof SAXParser)) {
-      throw new Error('bad call to strictFail')
-    }
-    if (parser.strict) {
-      error(parser, message)
-    }
-  }
-
-  function newTag (parser) {
-    if (!parser.strict) parser.tagName = parser.tagName[parser.looseCase]()
-    var parent = parser.tags[parser.tags.length - 1] || parser
-    var tag = parser.tag = { name: parser.tagName, attributes: {} }
-
-    // will be overridden if tag contails an xmlns="foo" or xmlns:foo="bar"
-    if (parser.opt.xmlns) {
-      tag.ns = parent.ns
-    }
-    parser.attribList.length = 0
-    emitNode(parser, 'onopentagstart', tag)
-  }
-
-  function qname (name, attribute) {
-    var i = name.indexOf(':')
-    var qualName = i < 0 ? [ '', name ] : name.split(':')
-    var prefix = qualName[0]
-    var local = qualName[1]
-
-    // <x "xmlns"="http://foo">
-    if (attribute && name === 'xmlns') {
-      prefix = 'xmlns'
-      local = ''
-    }
-
-    return { prefix: prefix, local: local }
-  }
-
-  function attrib (parser) {
-    if (!parser.strict) {
-      parser.attribName = parser.attribName[parser.looseCase]()
-    }
-
-    if (parser.attribList.indexOf(parser.attribName) !== -1 ||
-      parser.tag.attributes.hasOwnProperty(parser.attribName)) {
-      parser.attribName = parser.attribValue = ''
-      return
-    }
-
-    if (parser.opt.xmlns) {
-      var qn = qname(parser.attribName, true)
-      var prefix = qn.prefix
-      var local = qn.local
-
-      if (prefix === 'xmlns') {
-        // namespace binding attribute. push the binding into scope
-        if (local === 'xml' && parser.attribValue !== XML_NAMESPACE) {
-          strictFail(parser,
-            'xml: prefix must be bound to ' + XML_NAMESPACE + '\n' +
-            'Actual: ' + parser.attribValue)
-        } else if (local === 'xmlns' && parser.attribValue !== XMLNS_NAMESPACE) {
-          strictFail(parser,
-            'xmlns: prefix must be bound to ' + XMLNS_NAMESPACE + '\n' +
-            'Actual: ' + parser.attribValue)
-        } else {
-          var tag = parser.tag
-          var parent = parser.tags[parser.tags.length - 1] || parser
-          if (tag.ns === parent.ns) {
-            tag.ns = Object.create(parent.ns)
-          }
-          tag.ns[local] = parser.attribValue
-        }
-      }
-
-      // defer onattribute events until all attributes have been seen
-      // so any new bindings can take effect. preserve attribute order
-      // so deferred events can be emitted in document order
-      parser.attribList.push([parser.attribName, parser.attribValue])
-    } else {
-      // in non-xmlns mode, we can emit the event right away
-      parser.tag.attributes[parser.attribName] = parser.attribValue
-      emitNode(parser, 'onattribute', {
-        name: parser.attribName,
-        value: parser.attribValue
-      })
-    }
-
-    parser.attribName = parser.attribValue = ''
-  }
-
-  function openTag (parser, selfClosing) {
-    if (parser.opt.xmlns) {
-      // emit namespace binding events
-      var tag = parser.tag
-
-      // add namespace info to tag
-      var qn = qname(parser.tagName)
-      tag.prefix = qn.prefix
-      tag.local = qn.local
-      tag.uri = tag.ns[qn.prefix] || ''
-
-      if (tag.prefix && !tag.uri) {
-        strictFail(parser, 'Unbound namespace prefix: ' +
-          JSON.stringify(parser.tagName))
-        tag.uri = qn.prefix
-      }
-
-      var parent = parser.tags[parser.tags.length - 1] || parser
-      if (tag.ns && parent.ns !== tag.ns) {
-        Object.keys(tag.ns).forEach(function (p) {
-          emitNode(parser, 'onopennamespace', {
-            prefix: p,
-            uri: tag.ns[p]
-          })
-        })
-      }
-
-      // handle deferred onattribute events
-      // Note: do not apply default ns to attributes:
-      //   http://www.w3.org/TR/REC-xml-names/#defaulting
-      for (var i = 0, l = parser.attribList.length; i < l; i++) {
-        var nv = parser.attribList[i]
-        var name = nv[0]
-        var value = nv[1]
-        var qualName = qname(name, true)
-        var prefix = qualName.prefix
-        var local = qualName.local
-        var uri = prefix === '' ? '' : (tag.ns[prefix] || '')
-        var a = {
-          name: name,
-          value: value,
-          prefix: prefix,
-          local: local,
-          uri: uri
-        }
-
-        // if there's any attributes with an undefined namespace,
-        // then fail on them now.
-        if (prefix && prefix !== 'xmlns' && !uri) {
-          strictFail(parser, 'Unbound namespace prefix: ' +
-            JSON.stringify(prefix))
-          a.uri = prefix
-        }
-        parser.tag.attributes[name] = a
-        emitNode(parser, 'onattribute', a)
-      }
-      parser.attribList.length = 0
-    }
-
-    parser.tag.isSelfClosing = !!selfClosing
-
-    // process the tag
-    parser.sawRoot = true
-    parser.tags.push(parser.tag)
-    emitNode(parser, 'onopentag', parser.tag)
-    if (!selfClosing) {
-      // special case for <script> in non-strict mode.
-      if (!parser.noscript && parser.tagName.toLowerCase() === 'script') {
-        parser.state = S.SCRIPT
-      } else {
-        parser.state = S.TEXT
-      }
-      parser.tag = null
-      parser.tagName = ''
-    }
-    parser.attribName = parser.attribValue = ''
-    parser.attribList.length = 0
-  }
-
-  function closeTag (parser) {
-    if (!parser.tagName) {
-      strictFail(parser, 'Weird empty close tag.')
-      parser.textNode += '</>'
-      parser.state = S.TEXT
-      return
-    }
-
-    if (parser.script) {
-      if (parser.tagName !== 'script') {
-        parser.script += '</' + parser.tagName + '>'
-        parser.tagName = ''
-        parser.state = S.SCRIPT
-        return
-      }
-      emitNode(parser, 'onscript', parser.script)
-      parser.script = ''
-    }
-
-    // first make sure that the closing tag actually exists.
-    // <a><b></c></b></a> will close everything, otherwise.
-    var t = parser.tags.length
-    var tagName = parser.tagName
-    if (!parser.strict) {
-      tagName = tagName[parser.looseCase]()
-    }
-    var closeTo = tagName
-    while (t--) {
-      var close = parser.tags[t]
-      if (close.name !== closeTo) {
-        // fail the first time in strict mode
-        strictFail(parser, 'Unexpected close tag')
-      } else {
-        break
-      }
-    }
-
-    // didn't find it.  we already failed for strict, so just abort.
-    if (t < 0) {
-      strictFail(parser, 'Unmatched closing tag: ' + parser.tagName)
-      parser.textNode += '</' + parser.tagName + '>'
-      parser.state = S.TEXT
-      return
-    }
-    parser.tagName = tagName
-    var s = parser.tags.length
-    while (s-- > t) {
-      var tag = parser.tag = parser.tags.pop()
-      parser.tagName = parser.tag.name
-      emitNode(parser, 'onclosetag', parser.tagName)
-
-      var x = {}
-      for (var i in tag.ns) {
-        x[i] = tag.ns[i]
-      }
-
-      var parent = parser.tags[parser.tags.length - 1] || parser
-      if (parser.opt.xmlns && tag.ns !== parent.ns) {
-        // remove namespace bindings introduced by tag
-        Object.keys(tag.ns).forEach(function (p) {
-          var n = tag.ns[p]
-          emitNode(parser, 'onclosenamespace', { prefix: p, uri: n })
-        })
-      }
-    }
-    if (t === 0) parser.closedRoot = true
-    parser.tagName = parser.attribValue = parser.attribName = ''
-    parser.attribList.length = 0
-    parser.state = S.TEXT
-  }
-
-  function parseEntity (parser) {
-    var entity = parser.entity
-    var entityLC = entity.toLowerCase()
-    var num
-    var numStr = ''
-
-    if (parser.ENTITIES[entity]) {
-      return parser.ENTITIES[entity]
-    }
-    if (parser.ENTITIES[entityLC]) {
-      return parser.ENTITIES[entityLC]
-    }
-    entity = entityLC
-    if (entity.charAt(0) === '#') {
-      if (entity.charAt(1) === 'x') {
-        entity = entity.slice(2)
-        num = parseInt(entity, 16)
-        numStr = num.toString(16)
-      } else {
-        entity = entity.slice(1)
-        num = parseInt(entity, 10)
-        numStr = num.toString(10)
-      }
-    }
-    entity = entity.replace(/^0+/, '')
-    if (isNaN(num) || numStr.toLowerCase() !== entity) {
-      strictFail(parser, 'Invalid character entity')
-      return '&' + parser.entity + ';'
-    }
-
-    return String.fromCodePoint(num)
-  }
-
-  function beginWhiteSpace (parser, c) {
-    if (c === '<') {
-      parser.state = S.OPEN_WAKA
-      parser.startTagPosition = parser.position
-    } else if (!isWhitespace(c)) {
-      // have to process this as a text node.
-      // weird, but happens.
-      strictFail(parser, 'Non-whitespace before first tag.')
-      parser.textNode = c
-      parser.state = S.TEXT
-    }
-  }
-
-  function charAt (chunk, i) {
-    var result = ''
-    if (i < chunk.length) {
-      result = chunk.charAt(i)
-    }
-    return result
-  }
-
-  function write (chunk) {
-    var parser = this
-    if (this.error) {
-      throw this.error
-    }
-    if (parser.closed) {
-      return error(parser,
-        'Cannot write after close. Assign an onready handler.')
-    }
-    if (chunk === null) {
-      return end(parser)
-    }
-    if (typeof chunk === 'object') {
-      chunk = chunk.toString()
-    }
-    var i = 0
-    var c = ''
-    while (true) {
-      c = charAt(chunk, i++)
-      parser.c = c
-
-      if (!c) {
-        break
-      }
-
-      if (parser.trackPosition) {
-        parser.position++
-        if (c === '\n') {
-          parser.line++
-          parser.column = 0
-        } else {
-          parser.column++
-        }
-      }
-
-      switch (parser.state) {
-        case S.BEGIN:
-          parser.state = S.BEGIN_WHITESPACE
-          if (c === '\uFEFF') {
-            continue
-          }
-          beginWhiteSpace(parser, c)
-          continue
-
-        case S.BEGIN_WHITESPACE:
-          beginWhiteSpace(parser, c)
-          continue
-
-        case S.TEXT:
-          if (parser.sawRoot && !parser.closedRoot) {
-            var starti = i - 1
-            while (c && c !== '<' && c !== '&') {
-              c = charAt(chunk, i++)
-              if (c && parser.trackPosition) {
-                parser.position++
-                if (c === '\n') {
-                  parser.line++
-                  parser.column = 0
-                } else {
-                  parser.column++
-                }
-              }
-            }
-            parser.textNode += chunk.substring(starti, i - 1)
-          }
-          if (c === '<' && !(parser.sawRoot && parser.closedRoot && !parser.strict)) {
-            parser.state = S.OPEN_WAKA
-            parser.startTagPosition = parser.position
-          } else {
-            if (!isWhitespace(c) && (!parser.sawRoot || parser.closedRoot)) {
-              strictFail(parser, 'Text data outside of root node.')
-            }
-            if (c === '&') {
-              parser.state = S.TEXT_ENTITY
-            } else {
-              parser.textNode += c
-            }
-          }
-          continue
-
-        case S.SCRIPT:
-          // only non-strict
-          if (c === '<') {
-            parser.state = S.SCRIPT_ENDING
-          } else {
-            parser.script += c
-          }
-          continue
-
-        case S.SCRIPT_ENDING:
-          if (c === '/') {
-            parser.state = S.CLOSE_TAG
-          } else {
-            parser.script += '<' + c
-            parser.state = S.SCRIPT
-          }
-          continue
-
-        case S.OPEN_WAKA:
-          // either a /, ?, !, or text is coming next.
-          if (c === '!') {
-            parser.state = S.SGML_DECL
-            parser.sgmlDecl = ''
-          } else if (isWhitespace(c)) {
-            // wait for it...
-          } else if (isMatch(nameStart, c)) {
-            parser.state = S.OPEN_TAG
-            parser.tagName = c
-          } else if (c === '/') {
-            parser.state = S.CLOSE_TAG
-            parser.tagName = ''
-          } else if (c === '?') {
-            parser.state = S.PROC_INST
-            parser.procInstName = parser.procInstBody = ''
-          } else {
-            strictFail(parser, 'Unencoded <')
-            // if there was some whitespace, then add that in.
-            if (parser.startTagPosition + 1 < parser.position) {
-              var pad = parser.position - parser.startTagPosition
-              c = new Array(pad).join(' ') + c
-            }
-            parser.textNode += '<' + c
-            parser.state = S.TEXT
-          }
-          continue
-
-        case S.SGML_DECL:
-          if ((parser.sgmlDecl + c).toUpperCase() === CDATA) {
-            emitNode(parser, 'onopencdata')
-            parser.state = S.CDATA
-            parser.sgmlDecl = ''
-            parser.cdata = ''
-          } else if (parser.sgmlDecl + c === '--') {
-            parser.state = S.COMMENT
-            parser.comment = ''
-            parser.sgmlDecl = ''
-          } else if ((parser.sgmlDecl + c).toUpperCase() === DOCTYPE) {
-            parser.state = S.DOCTYPE
-            if (parser.doctype || parser.sawRoot) {
-              strictFail(parser,
-                'Inappropriately located doctype declaration')
-            }
-            parser.doctype = ''
-            parser.sgmlDecl = ''
-          } else if (c === '>') {
-            emitNode(parser, 'onsgmldeclaration', parser.sgmlDecl)
-            parser.sgmlDecl = ''
-            parser.state = S.TEXT
-          } else if (isQuote(c)) {
-            parser.state = S.SGML_DECL_QUOTED
-            parser.sgmlDecl += c
-          } else {
-            parser.sgmlDecl += c
-          }
-          continue
-
-        case S.SGML_DECL_QUOTED:
-          if (c === parser.q) {
-            parser.state = S.SGML_DECL
-            parser.q = ''
-          }
-          parser.sgmlDecl += c
-          continue
-
-        case S.DOCTYPE:
-          if (c === '>') {
-            parser.state = S.TEXT
-            emitNode(parser, 'ondoctype', parser.doctype)
-            parser.doctype = true // just remember that we saw it.
-          } else {
-            parser.doctype += c
-            if (c === '[') {
-              parser.state = S.DOCTYPE_DTD
-            } else if (isQuote(c)) {
-              parser.state = S.DOCTYPE_QUOTED
-              parser.q = c
-            }
-          }
-          continue
-
-        case S.DOCTYPE_QUOTED:
-          parser.doctype += c
-          if (c === parser.q) {
-            parser.q = ''
-            parser.state = S.DOCTYPE
-          }
-          continue
-
-        case S.DOCTYPE_DTD:
-          parser.doctype += c
-          if (c === ']') {
-            parser.state = S.DOCTYPE
-          } else if (isQuote(c)) {
-            parser.state = S.DOCTYPE_DTD_QUOTED
-            parser.q = c
-          }
-          continue
-
-        case S.DOCTYPE_DTD_QUOTED:
-          parser.doctype += c
-          if (c === parser.q) {
-            parser.state = S.DOCTYPE_DTD
-            parser.q = ''
-          }
-          continue
-
-        case S.COMMENT:
-          if (c === '-') {
-            parser.state = S.COMMENT_ENDING
-          } else {
-            parser.comment += c
-          }
-          continue
-
-        case S.COMMENT_ENDING:
-          if (c === '-') {
-            parser.state = S.COMMENT_ENDED
-            parser.comment = textopts(parser.opt, parser.comment)
-            if (parser.comment) {
-              emitNode(parser, 'oncomment', parser.comment)
-            }
-            parser.comment = ''
-          } else {
-            parser.comment += '-' + c
-            parser.state = S.COMMENT
-          }
-          continue
-
-        case S.COMMENT_ENDED:
-          if (c !== '>') {
-            strictFail(parser, 'Malformed comment')
-            // allow <!-- blah -- bloo --> in non-strict mode,
-            // which is a comment of " blah -- bloo "
-            parser.comment += '--' + c
-            parser.state = S.COMMENT
-          } else {
-            parser.state = S.TEXT
-          }
-          continue
-
-        case S.CDATA:
-          if (c === ']') {
-            parser.state = S.CDATA_ENDING
-          } else {
-            parser.cdata += c
-          }
-          continue
-
-        case S.CDATA_ENDING:
-          if (c === ']') {
-            parser.state = S.CDATA_ENDING_2
-          } else {
-            parser.cdata += ']' + c
-            parser.state = S.CDATA
-          }
-          continue
-
-        case S.CDATA_ENDING_2:
-          if (c === '>') {
-            if (parser.cdata) {
-              emitNode(parser, 'oncdata', parser.cdata)
-            }
-            emitNode(parser, 'onclosecdata')
-            parser.cdata = ''
-            parser.state = S.TEXT
-          } else if (c === ']') {
-            parser.cdata += ']'
-          } else {
-            parser.cdata += ']]' + c
-            parser.state = S.CDATA
-          }
-          continue
-
-        case S.PROC_INST:
-          if (c === '?') {
-            parser.state = S.PROC_INST_ENDING
-          } else if (isWhitespace(c)) {
-            parser.state = S.PROC_INST_BODY
-          } else {
-            parser.procInstName += c
-          }
-          continue
-
-        case S.PROC_INST_BODY:
-          if (!parser.procInstBody && isWhitespace(c)) {
-            continue
-          } else if (c === '?') {
-            parser.state = S.PROC_INST_ENDING
-          } else {
-            parser.procInstBody += c
-          }
-          continue
-
-        case S.PROC_INST_ENDING:
-          if (c === '>') {
-            emitNode(parser, 'onprocessinginstruction', {
-              name: parser.procInstName,
-              body: parser.procInstBody
-            })
-            parser.procInstName = parser.procInstBody = ''
-            parser.state = S.TEXT
-          } else {
-            parser.procInstBody += '?' + c
-            parser.state = S.PROC_INST_BODY
-          }
-          continue
-
-        case S.OPEN_TAG:
-          if (isMatch(nameBody, c)) {
-            parser.tagName += c
-          } else {
-            newTag(parser)
-            if (c === '>') {
-              openTag(parser)
-            } else if (c === '/') {
-              parser.state = S.OPEN_TAG_SLASH
-            } else {
-              if (!isWhitespace(c)) {
-                strictFail(parser, 'Invalid character in tag name')
-              }
-              parser.state = S.ATTRIB
-            }
-          }
-          continue
-
-        case S.OPEN_TAG_SLASH:
-          if (c === '>') {
-            openTag(parser, true)
-            closeTag(parser)
-          } else {
-            strictFail(parser, 'Forward-slash in opening tag not followed by >')
-            parser.state = S.ATTRIB
-          }
-          continue
-
-        case S.ATTRIB:
-          // haven't read the attribute name yet.
-          if (isWhitespace(c)) {
-            continue
-          } else if (c === '>') {
-            openTag(parser)
-          } else if (c === '/') {
-            parser.state = S.OPEN_TAG_SLASH
-          } else if (isMatch(nameStart, c)) {
-            parser.attribName = c
-            parser.attribValue = ''
-            parser.state = S.ATTRIB_NAME
-          } else {
-            strictFail(parser, 'Invalid attribute name')
-          }
-          continue
-
-        case S.ATTRIB_NAME:
-          if (c === '=') {
-            parser.state = S.ATTRIB_VALUE
-          } else if (c === '>') {
-            strictFail(parser, 'Attribute without value')
-            parser.attribValue = parser.attribName
-            attrib(parser)
-            openTag(parser)
-          } else if (isWhitespace(c)) {
-            parser.state = S.ATTRIB_NAME_SAW_WHITE
-          } else if (isMatch(nameBody, c)) {
-            parser.attribName += c
-          } else {
-            strictFail(parser, 'Invalid attribute name')
-          }
-          continue
-
-        case S.ATTRIB_NAME_SAW_WHITE:
-          if (c === '=') {
-            parser.state = S.ATTRIB_VALUE
-          } else if (isWhitespace(c)) {
-            continue
-          } else {
-            strictFail(parser, 'Attribute without value')
-            parser.tag.attributes[parser.attribName] = ''
-            parser.attribValue = ''
-            emitNode(parser, 'onattribute', {
-              name: parser.attribName,
-              value: ''
-            })
-            parser.attribName = ''
-            if (c === '>') {
-              openTag(parser)
-            } else if (isMatch(nameStart, c)) {
-              parser.attribName = c
-              parser.state = S.ATTRIB_NAME
-            } else {
-              strictFail(parser, 'Invalid attribute name')
-              parser.state = S.ATTRIB
-            }
-          }
-          continue
-
-        case S.ATTRIB_VALUE:
-          if (isWhitespace(c)) {
-            continue
-          } else if (isQuote(c)) {
-            parser.q = c
-            parser.state = S.ATTRIB_VALUE_QUOTED
-          } else {
-            strictFail(parser, 'Unquoted attribute value')
-            parser.state = S.ATTRIB_VALUE_UNQUOTED
-            parser.attribValue = c
-          }
-          continue
-
-        case S.ATTRIB_VALUE_QUOTED:
-          if (c !== parser.q) {
-            if (c === '&') {
-              parser.state = S.ATTRIB_VALUE_ENTITY_Q
-            } else {
-              parser.attribValue += c
-            }
-            continue
-          }
-          attrib(parser)
-          parser.q = ''
-          parser.state = S.ATTRIB_VALUE_CLOSED
-          continue
-
-        case S.ATTRIB_VALUE_CLOSED:
-          if (isWhitespace(c)) {
-            parser.state = S.ATTRIB
-          } else if (c === '>') {
-            openTag(parser)
-          } else if (c === '/') {
-            parser.state = S.OPEN_TAG_SLASH
-          } else if (isMatch(nameStart, c)) {
-            strictFail(parser, 'No whitespace between attributes')
-            parser.attribName = c
-            parser.attribValue = ''
-            parser.state = S.ATTRIB_NAME
-          } else {
-            strictFail(parser, 'Invalid attribute name')
-          }
-          continue
-
-        case S.ATTRIB_VALUE_UNQUOTED:
-          if (!isAttribEnd(c)) {
-            if (c === '&') {
-              parser.state = S.ATTRIB_VALUE_ENTITY_U
-            } else {
-              parser.attribValue += c
-            }
-            continue
-          }
-          attrib(parser)
-          if (c === '>') {
-            openTag(parser)
-          } else {
-            parser.state = S.ATTRIB
-          }
-          continue
-
-        case S.CLOSE_TAG:
-          if (!parser.tagName) {
-            if (isWhitespace(c)) {
-              continue
-            } else if (notMatch(nameStart, c)) {
-              if (parser.script) {
-                parser.script += '</' + c
-                parser.state = S.SCRIPT
-              } else {
-                strictFail(parser, 'Invalid tagname in closing tag.')
-              }
-            } else {
-              parser.tagName = c
-            }
-          } else if (c === '>') {
-            closeTag(parser)
-          } else if (isMatch(nameBody, c)) {
-            parser.tagName += c
-          } else if (parser.script) {
-            parser.script += '</' + parser.tagName
-            parser.tagName = ''
-            parser.state = S.SCRIPT
-          } else {
-            if (!isWhitespace(c)) {
-              strictFail(parser, 'Invalid tagname in closing tag')
-            }
-            parser.state = S.CLOSE_TAG_SAW_WHITE
-          }
-          continue
-
-        case S.CLOSE_TAG_SAW_WHITE:
-          if (isWhitespace(c)) {
-            continue
-          }
-          if (c === '>') {
-            closeTag(parser)
-          } else {
-            strictFail(parser, 'Invalid characters in closing tag')
-          }
-          continue
-
-        case S.TEXT_ENTITY:
-        case S.ATTRIB_VALUE_ENTITY_Q:
-        case S.ATTRIB_VALUE_ENTITY_U:
-          var returnState
-          var buffer
-          switch (parser.state) {
-            case S.TEXT_ENTITY:
-              returnState = S.TEXT
-              buffer = 'textNode'
-              break
-
-            case S.ATTRIB_VALUE_ENTITY_Q:
-              returnState = S.ATTRIB_VALUE_QUOTED
-              buffer = 'attribValue'
-              break
-
-            case S.ATTRIB_VALUE_ENTITY_U:
-              returnState = S.ATTRIB_VALUE_UNQUOTED
-              buffer = 'attribValue'
-              break
-          }
-
-          if (c === ';') {
-            parser[buffer] += parseEntity(parser)
-            parser.entity = ''
-            parser.state = returnState
-          } else if (isMatch(parser.entity.length ? entityBody : entityStart, c)) {
-            parser.entity += c
-          } else {
-            strictFail(parser, 'Invalid character in entity name')
-            parser[buffer] += '&' + parser.entity + c
-            parser.entity = ''
-            parser.state = returnState
-          }
-
-          continue
-
-        default:
-          throw new Error(parser, 'Unknown state: ' + parser.state)
-      }
-    } // while
-
-    if (parser.position >= parser.bufferCheckPosition) {
-      checkBufferLength(parser)
-    }
-    return parser
-  }
-
-  /*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
-  /* istanbul ignore next */
-  if (!String.fromCodePoint) {
-    (function () {
-      var stringFromCharCode = String.fromCharCode
-      var floor = Math.floor
-      var fromCodePoint = function () {
-        var MAX_SIZE = 0x4000
-        var codeUnits = []
-        var highSurrogate
-        var lowSurrogate
-        var index = -1
-        var length = arguments.length
-        if (!length) {
-          return ''
-        }
-        var result = ''
-        while (++index < length) {
-          var codePoint = Number(arguments[index])
-          if (
-            !isFinite(codePoint) || // `NaN`, `+Infinity`, or `-Infinity`
-            codePoint < 0 || // not a valid Unicode code point
-            codePoint > 0x10FFFF || // not a valid Unicode code point
-            floor(codePoint) !== codePoint // not an integer
-          ) {
-            throw RangeError('Invalid code point: ' + codePoint)
-          }
-          if (codePoint <= 0xFFFF) { // BMP code point
-            codeUnits.push(codePoint)
-          } else { // Astral code point; split in surrogate halves
-            // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-            codePoint -= 0x10000
-            highSurrogate = (codePoint >> 10) + 0xD800
-            lowSurrogate = (codePoint % 0x400) + 0xDC00
-            codeUnits.push(highSurrogate, lowSurrogate)
-          }
-          if (index + 1 === length || codeUnits.length > MAX_SIZE) {
-            result += stringFromCharCode.apply(null, codeUnits)
-            codeUnits.length = 0
-          }
-        }
-        return result
-      }
-      /* istanbul ignore next */
-      if (Object.defineProperty) {
-        Object.defineProperty(String, 'fromCodePoint', {
-          value: fromCodePoint,
-          configurable: true,
-          writable: true
-        })
-      } else {
-        String.fromCodePoint = fromCodePoint
-      }
-    }())
-  }
-})(typeof exports === 'undefined' ? this.sax = {} : exports)
-
-}).call(this,require("buffer").Buffer)
-},{"buffer":98,"stream":327,"string_decoder":328}],327:[function(require,module,exports){
+},{"buffer":196}],436:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -28878,7 +31858,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":290,"inherits":294,"readable-stream/duplex.js":311,"readable-stream/passthrough.js":320,"readable-stream/readable.js":321,"readable-stream/transform.js":322,"readable-stream/writable.js":323}],328:[function(require,module,exports){
+},{"events":395,"inherits":405,"readable-stream/duplex.js":421,"readable-stream/passthrough.js":430,"readable-stream/readable.js":431,"readable-stream/transform.js":432,"readable-stream/writable.js":433}],437:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -29175,7 +32155,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":325}],329:[function(require,module,exports){
+},{"safe-buffer":435}],438:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -29254,759 +32234,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":306,"timers":329}],330:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-var punycode = require('punycode');
-var util = require('./util');
-
-exports.parse = urlParse;
-exports.resolve = urlResolve;
-exports.resolveObject = urlResolveObject;
-exports.format = urlFormat;
-
-exports.Url = Url;
-
-function Url() {
-  this.protocol = null;
-  this.slashes = null;
-  this.auth = null;
-  this.host = null;
-  this.port = null;
-  this.hostname = null;
-  this.hash = null;
-  this.search = null;
-  this.query = null;
-  this.pathname = null;
-  this.path = null;
-  this.href = null;
-}
-
-// Reference: RFC 3986, RFC 1808, RFC 2396
-
-// define these here so at least they only have to be
-// compiled once on the first module load.
-var protocolPattern = /^([a-z0-9.+-]+:)/i,
-    portPattern = /:[0-9]*$/,
-
-    // Special case for a simple path URL
-    simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
-
-    // RFC 2396: characters reserved for delimiting URLs.
-    // We actually just auto-escape these.
-    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
-
-    // RFC 2396: characters not allowed for various reasons.
-    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
-
-    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
-    autoEscape = ['\''].concat(unwise),
-    // Characters that are never ever allowed in a hostname.
-    // Note that any invalid chars are also handled, but these
-    // are the ones that are *expected* to be seen, so we fast-path
-    // them.
-    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
-    hostEndingChars = ['/', '?', '#'],
-    hostnameMaxLen = 255,
-    hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
-    hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
-    // protocols that can allow "unsafe" and "unwise" chars.
-    unsafeProtocol = {
-      'javascript': true,
-      'javascript:': true
-    },
-    // protocols that never have a hostname.
-    hostlessProtocol = {
-      'javascript': true,
-      'javascript:': true
-    },
-    // protocols that always contain a // bit.
-    slashedProtocol = {
-      'http': true,
-      'https': true,
-      'ftp': true,
-      'gopher': true,
-      'file': true,
-      'http:': true,
-      'https:': true,
-      'ftp:': true,
-      'gopher:': true,
-      'file:': true
-    },
-    querystring = require('querystring');
-
-function urlParse(url, parseQueryString, slashesDenoteHost) {
-  if (url && util.isObject(url) && url instanceof Url) return url;
-
-  var u = new Url;
-  u.parse(url, parseQueryString, slashesDenoteHost);
-  return u;
-}
-
-Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
-  if (!util.isString(url)) {
-    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
-  }
-
-  // Copy chrome, IE, opera backslash-handling behavior.
-  // Back slashes before the query string get converted to forward slashes
-  // See: https://code.google.com/p/chromium/issues/detail?id=25916
-  var queryIndex = url.indexOf('?'),
-      splitter =
-          (queryIndex !== -1 && queryIndex < url.indexOf('#')) ? '?' : '#',
-      uSplit = url.split(splitter),
-      slashRegex = /\\/g;
-  uSplit[0] = uSplit[0].replace(slashRegex, '/');
-  url = uSplit.join(splitter);
-
-  var rest = url;
-
-  // trim before proceeding.
-  // This is to support parse stuff like "  http://foo.com  \n"
-  rest = rest.trim();
-
-  if (!slashesDenoteHost && url.split('#').length === 1) {
-    // Try fast path regexp
-    var simplePath = simplePathPattern.exec(rest);
-    if (simplePath) {
-      this.path = rest;
-      this.href = rest;
-      this.pathname = simplePath[1];
-      if (simplePath[2]) {
-        this.search = simplePath[2];
-        if (parseQueryString) {
-          this.query = querystring.parse(this.search.substr(1));
-        } else {
-          this.query = this.search.substr(1);
-        }
-      } else if (parseQueryString) {
-        this.search = '';
-        this.query = {};
-      }
-      return this;
-    }
-  }
-
-  var proto = protocolPattern.exec(rest);
-  if (proto) {
-    proto = proto[0];
-    var lowerProto = proto.toLowerCase();
-    this.protocol = lowerProto;
-    rest = rest.substr(proto.length);
-  }
-
-  // figure out if it's got a host
-  // user@server is *always* interpreted as a hostname, and url
-  // resolution will treat //foo/bar as host=foo,path=bar because that's
-  // how the browser resolves relative URLs.
-  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
-    var slashes = rest.substr(0, 2) === '//';
-    if (slashes && !(proto && hostlessProtocol[proto])) {
-      rest = rest.substr(2);
-      this.slashes = true;
-    }
-  }
-
-  if (!hostlessProtocol[proto] &&
-      (slashes || (proto && !slashedProtocol[proto]))) {
-
-    // there's a hostname.
-    // the first instance of /, ?, ;, or # ends the host.
-    //
-    // If there is an @ in the hostname, then non-host chars *are* allowed
-    // to the left of the last @ sign, unless some host-ending character
-    // comes *before* the @-sign.
-    // URLs are obnoxious.
-    //
-    // ex:
-    // http://a@b@c/ => user:a@b host:c
-    // http://a@b?@c => user:a host:c path:/?@c
-
-    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
-    // Review our test case against browsers more comprehensively.
-
-    // find the first instance of any hostEndingChars
-    var hostEnd = -1;
-    for (var i = 0; i < hostEndingChars.length; i++) {
-      var hec = rest.indexOf(hostEndingChars[i]);
-      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-        hostEnd = hec;
-    }
-
-    // at this point, either we have an explicit point where the
-    // auth portion cannot go past, or the last @ char is the decider.
-    var auth, atSign;
-    if (hostEnd === -1) {
-      // atSign can be anywhere.
-      atSign = rest.lastIndexOf('@');
-    } else {
-      // atSign must be in auth portion.
-      // http://a@b/c@d => host:b auth:a path:/c@d
-      atSign = rest.lastIndexOf('@', hostEnd);
-    }
-
-    // Now we have a portion which is definitely the auth.
-    // Pull that off.
-    if (atSign !== -1) {
-      auth = rest.slice(0, atSign);
-      rest = rest.slice(atSign + 1);
-      this.auth = decodeURIComponent(auth);
-    }
-
-    // the host is the remaining to the left of the first non-host char
-    hostEnd = -1;
-    for (var i = 0; i < nonHostChars.length; i++) {
-      var hec = rest.indexOf(nonHostChars[i]);
-      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-        hostEnd = hec;
-    }
-    // if we still have not hit it, then the entire thing is a host.
-    if (hostEnd === -1)
-      hostEnd = rest.length;
-
-    this.host = rest.slice(0, hostEnd);
-    rest = rest.slice(hostEnd);
-
-    // pull out port.
-    this.parseHost();
-
-    // we've indicated that there is a hostname,
-    // so even if it's empty, it has to be present.
-    this.hostname = this.hostname || '';
-
-    // if hostname begins with [ and ends with ]
-    // assume that it's an IPv6 address.
-    var ipv6Hostname = this.hostname[0] === '[' &&
-        this.hostname[this.hostname.length - 1] === ']';
-
-    // validate a little.
-    if (!ipv6Hostname) {
-      var hostparts = this.hostname.split(/\./);
-      for (var i = 0, l = hostparts.length; i < l; i++) {
-        var part = hostparts[i];
-        if (!part) continue;
-        if (!part.match(hostnamePartPattern)) {
-          var newpart = '';
-          for (var j = 0, k = part.length; j < k; j++) {
-            if (part.charCodeAt(j) > 127) {
-              // we replace non-ASCII char with a temporary placeholder
-              // we need this to make sure size of hostname is not
-              // broken by replacing non-ASCII by nothing
-              newpart += 'x';
-            } else {
-              newpart += part[j];
-            }
-          }
-          // we test again with ASCII char only
-          if (!newpart.match(hostnamePartPattern)) {
-            var validParts = hostparts.slice(0, i);
-            var notHost = hostparts.slice(i + 1);
-            var bit = part.match(hostnamePartStart);
-            if (bit) {
-              validParts.push(bit[1]);
-              notHost.unshift(bit[2]);
-            }
-            if (notHost.length) {
-              rest = '/' + notHost.join('.') + rest;
-            }
-            this.hostname = validParts.join('.');
-            break;
-          }
-        }
-      }
-    }
-
-    if (this.hostname.length > hostnameMaxLen) {
-      this.hostname = '';
-    } else {
-      // hostnames are always lower case.
-      this.hostname = this.hostname.toLowerCase();
-    }
-
-    if (!ipv6Hostname) {
-      // IDNA Support: Returns a punycoded representation of "domain".
-      // It only converts parts of the domain name that
-      // have non-ASCII characters, i.e. it doesn't matter if
-      // you call it with a domain that already is ASCII-only.
-      this.hostname = punycode.toASCII(this.hostname);
-    }
-
-    var p = this.port ? ':' + this.port : '';
-    var h = this.hostname || '';
-    this.host = h + p;
-    this.href += this.host;
-
-    // strip [ and ] from the hostname
-    // the host field still retains them, though
-    if (ipv6Hostname) {
-      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
-      if (rest[0] !== '/') {
-        rest = '/' + rest;
-      }
-    }
-  }
-
-  // now rest is set to the post-host stuff.
-  // chop off any delim chars.
-  if (!unsafeProtocol[lowerProto]) {
-
-    // First, make 100% sure that any "autoEscape" chars get
-    // escaped, even if encodeURIComponent doesn't think they
-    // need to be.
-    for (var i = 0, l = autoEscape.length; i < l; i++) {
-      var ae = autoEscape[i];
-      if (rest.indexOf(ae) === -1)
-        continue;
-      var esc = encodeURIComponent(ae);
-      if (esc === ae) {
-        esc = escape(ae);
-      }
-      rest = rest.split(ae).join(esc);
-    }
-  }
-
-
-  // chop off from the tail first.
-  var hash = rest.indexOf('#');
-  if (hash !== -1) {
-    // got a fragment string.
-    this.hash = rest.substr(hash);
-    rest = rest.slice(0, hash);
-  }
-  var qm = rest.indexOf('?');
-  if (qm !== -1) {
-    this.search = rest.substr(qm);
-    this.query = rest.substr(qm + 1);
-    if (parseQueryString) {
-      this.query = querystring.parse(this.query);
-    }
-    rest = rest.slice(0, qm);
-  } else if (parseQueryString) {
-    // no query string, but parseQueryString still requested
-    this.search = '';
-    this.query = {};
-  }
-  if (rest) this.pathname = rest;
-  if (slashedProtocol[lowerProto] &&
-      this.hostname && !this.pathname) {
-    this.pathname = '/';
-  }
-
-  //to support http.request
-  if (this.pathname || this.search) {
-    var p = this.pathname || '';
-    var s = this.search || '';
-    this.path = p + s;
-  }
-
-  // finally, reconstruct the href based on what has been validated.
-  this.href = this.format();
-  return this;
-};
-
-// format a parsed object into a url string
-function urlFormat(obj) {
-  // ensure it's an object, and not a string url.
-  // If it's an obj, this is a no-op.
-  // this way, you can call url_format() on strings
-  // to clean up potentially wonky urls.
-  if (util.isString(obj)) obj = urlParse(obj);
-  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
-  return obj.format();
-}
-
-Url.prototype.format = function() {
-  var auth = this.auth || '';
-  if (auth) {
-    auth = encodeURIComponent(auth);
-    auth = auth.replace(/%3A/i, ':');
-    auth += '@';
-  }
-
-  var protocol = this.protocol || '',
-      pathname = this.pathname || '',
-      hash = this.hash || '',
-      host = false,
-      query = '';
-
-  if (this.host) {
-    host = auth + this.host;
-  } else if (this.hostname) {
-    host = auth + (this.hostname.indexOf(':') === -1 ?
-        this.hostname :
-        '[' + this.hostname + ']');
-    if (this.port) {
-      host += ':' + this.port;
-    }
-  }
-
-  if (this.query &&
-      util.isObject(this.query) &&
-      Object.keys(this.query).length) {
-    query = querystring.stringify(this.query);
-  }
-
-  var search = this.search || (query && ('?' + query)) || '';
-
-  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
-
-  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
-  // unless they had them to begin with.
-  if (this.slashes ||
-      (!protocol || slashedProtocol[protocol]) && host !== false) {
-    host = '//' + (host || '');
-    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
-  } else if (!host) {
-    host = '';
-  }
-
-  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
-  if (search && search.charAt(0) !== '?') search = '?' + search;
-
-  pathname = pathname.replace(/[?#]/g, function(match) {
-    return encodeURIComponent(match);
-  });
-  search = search.replace('#', '%23');
-
-  return protocol + host + pathname + search + hash;
-};
-
-function urlResolve(source, relative) {
-  return urlParse(source, false, true).resolve(relative);
-}
-
-Url.prototype.resolve = function(relative) {
-  return this.resolveObject(urlParse(relative, false, true)).format();
-};
-
-function urlResolveObject(source, relative) {
-  if (!source) return relative;
-  return urlParse(source, false, true).resolveObject(relative);
-}
-
-Url.prototype.resolveObject = function(relative) {
-  if (util.isString(relative)) {
-    var rel = new Url();
-    rel.parse(relative, false, true);
-    relative = rel;
-  }
-
-  var result = new Url();
-  var tkeys = Object.keys(this);
-  for (var tk = 0; tk < tkeys.length; tk++) {
-    var tkey = tkeys[tk];
-    result[tkey] = this[tkey];
-  }
-
-  // hash is always overridden, no matter what.
-  // even href="" will remove it.
-  result.hash = relative.hash;
-
-  // if the relative url is empty, then there's nothing left to do here.
-  if (relative.href === '') {
-    result.href = result.format();
-    return result;
-  }
-
-  // hrefs like //foo/bar always cut to the protocol.
-  if (relative.slashes && !relative.protocol) {
-    // take everything except the protocol from relative
-    var rkeys = Object.keys(relative);
-    for (var rk = 0; rk < rkeys.length; rk++) {
-      var rkey = rkeys[rk];
-      if (rkey !== 'protocol')
-        result[rkey] = relative[rkey];
-    }
-
-    //urlParse appends trailing / to urls like http://www.example.com
-    if (slashedProtocol[result.protocol] &&
-        result.hostname && !result.pathname) {
-      result.path = result.pathname = '/';
-    }
-
-    result.href = result.format();
-    return result;
-  }
-
-  if (relative.protocol && relative.protocol !== result.protocol) {
-    // if it's a known url protocol, then changing
-    // the protocol does weird things
-    // first, if it's not file:, then we MUST have a host,
-    // and if there was a path
-    // to begin with, then we MUST have a path.
-    // if it is file:, then the host is dropped,
-    // because that's known to be hostless.
-    // anything else is assumed to be absolute.
-    if (!slashedProtocol[relative.protocol]) {
-      var keys = Object.keys(relative);
-      for (var v = 0; v < keys.length; v++) {
-        var k = keys[v];
-        result[k] = relative[k];
-      }
-      result.href = result.format();
-      return result;
-    }
-
-    result.protocol = relative.protocol;
-    if (!relative.host && !hostlessProtocol[relative.protocol]) {
-      var relPath = (relative.pathname || '').split('/');
-      while (relPath.length && !(relative.host = relPath.shift()));
-      if (!relative.host) relative.host = '';
-      if (!relative.hostname) relative.hostname = '';
-      if (relPath[0] !== '') relPath.unshift('');
-      if (relPath.length < 2) relPath.unshift('');
-      result.pathname = relPath.join('/');
-    } else {
-      result.pathname = relative.pathname;
-    }
-    result.search = relative.search;
-    result.query = relative.query;
-    result.host = relative.host || '';
-    result.auth = relative.auth;
-    result.hostname = relative.hostname || relative.host;
-    result.port = relative.port;
-    // to support http.request
-    if (result.pathname || result.search) {
-      var p = result.pathname || '';
-      var s = result.search || '';
-      result.path = p + s;
-    }
-    result.slashes = result.slashes || relative.slashes;
-    result.href = result.format();
-    return result;
-  }
-
-  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
-      isRelAbs = (
-          relative.host ||
-          relative.pathname && relative.pathname.charAt(0) === '/'
-      ),
-      mustEndAbs = (isRelAbs || isSourceAbs ||
-                    (result.host && relative.pathname)),
-      removeAllDots = mustEndAbs,
-      srcPath = result.pathname && result.pathname.split('/') || [],
-      relPath = relative.pathname && relative.pathname.split('/') || [],
-      psychotic = result.protocol && !slashedProtocol[result.protocol];
-
-  // if the url is a non-slashed url, then relative
-  // links like ../.. should be able
-  // to crawl up to the hostname, as well.  This is strange.
-  // result.protocol has already been set by now.
-  // Later on, put the first path part into the host field.
-  if (psychotic) {
-    result.hostname = '';
-    result.port = null;
-    if (result.host) {
-      if (srcPath[0] === '') srcPath[0] = result.host;
-      else srcPath.unshift(result.host);
-    }
-    result.host = '';
-    if (relative.protocol) {
-      relative.hostname = null;
-      relative.port = null;
-      if (relative.host) {
-        if (relPath[0] === '') relPath[0] = relative.host;
-        else relPath.unshift(relative.host);
-      }
-      relative.host = null;
-    }
-    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
-  }
-
-  if (isRelAbs) {
-    // it's absolute.
-    result.host = (relative.host || relative.host === '') ?
-                  relative.host : result.host;
-    result.hostname = (relative.hostname || relative.hostname === '') ?
-                      relative.hostname : result.hostname;
-    result.search = relative.search;
-    result.query = relative.query;
-    srcPath = relPath;
-    // fall through to the dot-handling below.
-  } else if (relPath.length) {
-    // it's relative
-    // throw away the existing file, and take the new path instead.
-    if (!srcPath) srcPath = [];
-    srcPath.pop();
-    srcPath = srcPath.concat(relPath);
-    result.search = relative.search;
-    result.query = relative.query;
-  } else if (!util.isNullOrUndefined(relative.search)) {
-    // just pull out the search.
-    // like href='?foo'.
-    // Put this after the other two cases because it simplifies the booleans
-    if (psychotic) {
-      result.hostname = result.host = srcPath.shift();
-      //occationaly the auth can get stuck only in host
-      //this especially happens in cases like
-      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-      var authInHost = result.host && result.host.indexOf('@') > 0 ?
-                       result.host.split('@') : false;
-      if (authInHost) {
-        result.auth = authInHost.shift();
-        result.host = result.hostname = authInHost.shift();
-      }
-    }
-    result.search = relative.search;
-    result.query = relative.query;
-    //to support http.request
-    if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
-      result.path = (result.pathname ? result.pathname : '') +
-                    (result.search ? result.search : '');
-    }
-    result.href = result.format();
-    return result;
-  }
-
-  if (!srcPath.length) {
-    // no path at all.  easy.
-    // we've already handled the other stuff above.
-    result.pathname = null;
-    //to support http.request
-    if (result.search) {
-      result.path = '/' + result.search;
-    } else {
-      result.path = null;
-    }
-    result.href = result.format();
-    return result;
-  }
-
-  // if a url ENDs in . or .., then it must get a trailing slash.
-  // however, if it ends in anything else non-slashy,
-  // then it must NOT get a trailing slash.
-  var last = srcPath.slice(-1)[0];
-  var hasTrailingSlash = (
-      (result.host || relative.host || srcPath.length > 1) &&
-      (last === '.' || last === '..') || last === '');
-
-  // strip single dots, resolve double dots to parent dir
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = srcPath.length; i >= 0; i--) {
-    last = srcPath[i];
-    if (last === '.') {
-      srcPath.splice(i, 1);
-    } else if (last === '..') {
-      srcPath.splice(i, 1);
-      up++;
-    } else if (up) {
-      srcPath.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (!mustEndAbs && !removeAllDots) {
-    for (; up--; up) {
-      srcPath.unshift('..');
-    }
-  }
-
-  if (mustEndAbs && srcPath[0] !== '' &&
-      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
-    srcPath.unshift('');
-  }
-
-  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
-    srcPath.push('');
-  }
-
-  var isAbsolute = srcPath[0] === '' ||
-      (srcPath[0] && srcPath[0].charAt(0) === '/');
-
-  // put the host back
-  if (psychotic) {
-    result.hostname = result.host = isAbsolute ? '' :
-                                    srcPath.length ? srcPath.shift() : '';
-    //occationaly the auth can get stuck only in host
-    //this especially happens in cases like
-    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-    var authInHost = result.host && result.host.indexOf('@') > 0 ?
-                     result.host.split('@') : false;
-    if (authInHost) {
-      result.auth = authInHost.shift();
-      result.host = result.hostname = authInHost.shift();
-    }
-  }
-
-  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
-
-  if (mustEndAbs && !isAbsolute) {
-    srcPath.unshift('');
-  }
-
-  if (!srcPath.length) {
-    result.pathname = null;
-    result.path = null;
-  } else {
-    result.pathname = srcPath.join('/');
-  }
-
-  //to support request.http
-  if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
-    result.path = (result.pathname ? result.pathname : '') +
-                  (result.search ? result.search : '');
-  }
-  result.auth = relative.auth || result.auth;
-  result.slashes = result.slashes || relative.slashes;
-  result.href = result.format();
-  return result;
-};
-
-Url.prototype.parseHost = function() {
-  var host = this.host;
-  var port = portPattern.exec(host);
-  if (port) {
-    port = port[0];
-    if (port !== ':') {
-      this.port = port.substr(1);
-    }
-    host = host.substr(0, host.length - port.length);
-  }
-  if (host) this.hostname = host;
-};
-
-},{"./util":331,"punycode":307,"querystring":310}],331:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-  isString: function(arg) {
-    return typeof(arg) === 'string';
-  },
-  isObject: function(arg) {
-    return typeof(arg) === 'object' && arg !== null;
-  },
-  isNull: function(arg) {
-    return arg === null;
-  },
-  isNullOrUndefined: function(arg) {
-    return arg == null;
-  }
-};
-
-},{}],332:[function(require,module,exports){
+},{"process/browser.js":416,"timers":438}],439:[function(require,module,exports){
 (function (global){
 
 /**
@@ -30077,7 +32305,7 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],333:[function(require,module,exports){
+},{}],440:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -30102,14 +32330,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],334:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],335:[function(require,module,exports){
+},{}],442:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -30699,4815 +32927,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":334,"_process":306,"inherits":333}],336:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  "use strict";
-  exports.stripBOM = function(str) {
-    if (str[0] === '\uFEFF') {
-      return str.substring(1);
-    } else {
-      return str;
-    }
-  };
-
-}).call(this);
-
-},{}],337:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  "use strict";
-  var builder, defaults, escapeCDATA, requiresCDATA, wrapCDATA,
-    hasProp = {}.hasOwnProperty;
-
-  builder = require('xmlbuilder');
-
-  defaults = require('./defaults').defaults;
-
-  requiresCDATA = function(entry) {
-    return typeof entry === "string" && (entry.indexOf('&') >= 0 || entry.indexOf('>') >= 0 || entry.indexOf('<') >= 0);
-  };
-
-  wrapCDATA = function(entry) {
-    return "<![CDATA[" + (escapeCDATA(entry)) + "]]>";
-  };
-
-  escapeCDATA = function(entry) {
-    return entry.replace(']]>', ']]]]><![CDATA[>');
-  };
-
-  exports.Builder = (function() {
-    function Builder(opts) {
-      var key, ref, value;
-      this.options = {};
-      ref = defaults["0.2"];
-      for (key in ref) {
-        if (!hasProp.call(ref, key)) continue;
-        value = ref[key];
-        this.options[key] = value;
-      }
-      for (key in opts) {
-        if (!hasProp.call(opts, key)) continue;
-        value = opts[key];
-        this.options[key] = value;
-      }
-    }
-
-    Builder.prototype.buildObject = function(rootObj) {
-      var attrkey, charkey, render, rootElement, rootName;
-      attrkey = this.options.attrkey;
-      charkey = this.options.charkey;
-      if ((Object.keys(rootObj).length === 1) && (this.options.rootName === defaults['0.2'].rootName)) {
-        rootName = Object.keys(rootObj)[0];
-        rootObj = rootObj[rootName];
-      } else {
-        rootName = this.options.rootName;
-      }
-      render = (function(_this) {
-        return function(element, obj) {
-          var attr, child, entry, index, key, value;
-          if (typeof obj !== 'object') {
-            if (_this.options.cdata && requiresCDATA(obj)) {
-              element.raw(wrapCDATA(obj));
-            } else {
-              element.txt(obj);
-            }
-          } else if (Array.isArray(obj)) {
-            for (index in obj) {
-              if (!hasProp.call(obj, index)) continue;
-              child = obj[index];
-              for (key in child) {
-                entry = child[key];
-                element = render(element.ele(key), entry).up();
-              }
-            }
-          } else {
-            for (key in obj) {
-              if (!hasProp.call(obj, key)) continue;
-              child = obj[key];
-              if (key === attrkey) {
-                if (typeof child === "object") {
-                  for (attr in child) {
-                    value = child[attr];
-                    element = element.att(attr, value);
-                  }
-                }
-              } else if (key === charkey) {
-                if (_this.options.cdata && requiresCDATA(child)) {
-                  element = element.raw(wrapCDATA(child));
-                } else {
-                  element = element.txt(child);
-                }
-              } else if (Array.isArray(child)) {
-                for (index in child) {
-                  if (!hasProp.call(child, index)) continue;
-                  entry = child[index];
-                  if (typeof entry === 'string') {
-                    if (_this.options.cdata && requiresCDATA(entry)) {
-                      element = element.ele(key).raw(wrapCDATA(entry)).up();
-                    } else {
-                      element = element.ele(key, entry).up();
-                    }
-                  } else {
-                    element = render(element.ele(key), entry).up();
-                  }
-                }
-              } else if (typeof child === "object") {
-                element = render(element.ele(key), child).up();
-              } else {
-                if (typeof child === 'string' && _this.options.cdata && requiresCDATA(child)) {
-                  element = element.ele(key).raw(wrapCDATA(child)).up();
-                } else {
-                  if (child == null) {
-                    child = '';
-                  }
-                  element = element.ele(key, child.toString()).up();
-                }
-              }
-            }
-          }
-          return element;
-        };
-      })(this);
-      rootElement = builder.create(rootName, this.options.xmldec, this.options.doctype, {
-        headless: this.options.headless,
-        allowSurrogateChars: this.options.allowSurrogateChars
-      });
-      return render(rootElement, rootObj).end(this.options.renderOpts);
-    };
-
-    return Builder;
-
-  })();
-
-}).call(this);
-
-},{"./defaults":338,"xmlbuilder":374}],338:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  exports.defaults = {
-    "0.1": {
-      explicitCharkey: false,
-      trim: true,
-      normalize: true,
-      normalizeTags: false,
-      attrkey: "@",
-      charkey: "#",
-      explicitArray: false,
-      ignoreAttrs: false,
-      mergeAttrs: false,
-      explicitRoot: false,
-      validator: null,
-      xmlns: false,
-      explicitChildren: false,
-      childkey: '@@',
-      charsAsChildren: false,
-      includeWhiteChars: false,
-      async: false,
-      strict: true,
-      attrNameProcessors: null,
-      attrValueProcessors: null,
-      tagNameProcessors: null,
-      valueProcessors: null,
-      emptyTag: ''
-    },
-    "0.2": {
-      explicitCharkey: false,
-      trim: false,
-      normalize: false,
-      normalizeTags: false,
-      attrkey: "$",
-      charkey: "_",
-      explicitArray: true,
-      ignoreAttrs: false,
-      mergeAttrs: false,
-      explicitRoot: true,
-      validator: null,
-      xmlns: false,
-      explicitChildren: false,
-      preserveChildrenOrder: false,
-      childkey: '$$',
-      charsAsChildren: false,
-      includeWhiteChars: false,
-      async: false,
-      strict: true,
-      attrNameProcessors: null,
-      attrValueProcessors: null,
-      tagNameProcessors: null,
-      valueProcessors: null,
-      rootName: 'root',
-      xmldec: {
-        'version': '1.0',
-        'encoding': 'UTF-8',
-        'standalone': true
-      },
-      doctype: null,
-      renderOpts: {
-        'pretty': true,
-        'indent': '  ',
-        'newline': '\n'
-      },
-      headless: false,
-      chunkSize: 10000,
-      emptyTag: '',
-      cdata: false
-    }
-  };
-
-}).call(this);
-
-},{}],339:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  "use strict";
-  var bom, defaults, events, isEmpty, processItem, processors, sax, setImmediate,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  sax = require('sax');
-
-  events = require('events');
-
-  bom = require('./bom');
-
-  processors = require('./processors');
-
-  setImmediate = require('timers').setImmediate;
-
-  defaults = require('./defaults').defaults;
-
-  isEmpty = function(thing) {
-    return typeof thing === "object" && (thing != null) && Object.keys(thing).length === 0;
-  };
-
-  processItem = function(processors, item, key) {
-    var i, len, process;
-    for (i = 0, len = processors.length; i < len; i++) {
-      process = processors[i];
-      item = process(item, key);
-    }
-    return item;
-  };
-
-  exports.Parser = (function(superClass) {
-    extend(Parser, superClass);
-
-    function Parser(opts) {
-      this.parseStringPromise = bind(this.parseStringPromise, this);
-      this.parseString = bind(this.parseString, this);
-      this.reset = bind(this.reset, this);
-      this.assignOrPush = bind(this.assignOrPush, this);
-      this.processAsync = bind(this.processAsync, this);
-      var key, ref, value;
-      if (!(this instanceof exports.Parser)) {
-        return new exports.Parser(opts);
-      }
-      this.options = {};
-      ref = defaults["0.2"];
-      for (key in ref) {
-        if (!hasProp.call(ref, key)) continue;
-        value = ref[key];
-        this.options[key] = value;
-      }
-      for (key in opts) {
-        if (!hasProp.call(opts, key)) continue;
-        value = opts[key];
-        this.options[key] = value;
-      }
-      if (this.options.xmlns) {
-        this.options.xmlnskey = this.options.attrkey + "ns";
-      }
-      if (this.options.normalizeTags) {
-        if (!this.options.tagNameProcessors) {
-          this.options.tagNameProcessors = [];
-        }
-        this.options.tagNameProcessors.unshift(processors.normalize);
-      }
-      this.reset();
-    }
-
-    Parser.prototype.processAsync = function() {
-      var chunk, err;
-      try {
-        if (this.remaining.length <= this.options.chunkSize) {
-          chunk = this.remaining;
-          this.remaining = '';
-          this.saxParser = this.saxParser.write(chunk);
-          return this.saxParser.close();
-        } else {
-          chunk = this.remaining.substr(0, this.options.chunkSize);
-          this.remaining = this.remaining.substr(this.options.chunkSize, this.remaining.length);
-          this.saxParser = this.saxParser.write(chunk);
-          return setImmediate(this.processAsync);
-        }
-      } catch (error1) {
-        err = error1;
-        if (!this.saxParser.errThrown) {
-          this.saxParser.errThrown = true;
-          return this.emit(err);
-        }
-      }
-    };
-
-    Parser.prototype.assignOrPush = function(obj, key, newValue) {
-      if (!(key in obj)) {
-        if (!this.options.explicitArray) {
-          return obj[key] = newValue;
-        } else {
-          return obj[key] = [newValue];
-        }
-      } else {
-        if (!(obj[key] instanceof Array)) {
-          obj[key] = [obj[key]];
-        }
-        return obj[key].push(newValue);
-      }
-    };
-
-    Parser.prototype.reset = function() {
-      var attrkey, charkey, ontext, stack;
-      this.removeAllListeners();
-      this.saxParser = sax.parser(this.options.strict, {
-        trim: false,
-        normalize: false,
-        xmlns: this.options.xmlns
-      });
-      this.saxParser.errThrown = false;
-      this.saxParser.onerror = (function(_this) {
-        return function(error) {
-          _this.saxParser.resume();
-          if (!_this.saxParser.errThrown) {
-            _this.saxParser.errThrown = true;
-            return _this.emit("error", error);
-          }
-        };
-      })(this);
-      this.saxParser.onend = (function(_this) {
-        return function() {
-          if (!_this.saxParser.ended) {
-            _this.saxParser.ended = true;
-            return _this.emit("end", _this.resultObject);
-          }
-        };
-      })(this);
-      this.saxParser.ended = false;
-      this.EXPLICIT_CHARKEY = this.options.explicitCharkey;
-      this.resultObject = null;
-      stack = [];
-      attrkey = this.options.attrkey;
-      charkey = this.options.charkey;
-      this.saxParser.onopentag = (function(_this) {
-        return function(node) {
-          var key, newValue, obj, processedKey, ref;
-          obj = {};
-          obj[charkey] = "";
-          if (!_this.options.ignoreAttrs) {
-            ref = node.attributes;
-            for (key in ref) {
-              if (!hasProp.call(ref, key)) continue;
-              if (!(attrkey in obj) && !_this.options.mergeAttrs) {
-                obj[attrkey] = {};
-              }
-              newValue = _this.options.attrValueProcessors ? processItem(_this.options.attrValueProcessors, node.attributes[key], key) : node.attributes[key];
-              processedKey = _this.options.attrNameProcessors ? processItem(_this.options.attrNameProcessors, key) : key;
-              if (_this.options.mergeAttrs) {
-                _this.assignOrPush(obj, processedKey, newValue);
-              } else {
-                obj[attrkey][processedKey] = newValue;
-              }
-            }
-          }
-          obj["#name"] = _this.options.tagNameProcessors ? processItem(_this.options.tagNameProcessors, node.name) : node.name;
-          if (_this.options.xmlns) {
-            obj[_this.options.xmlnskey] = {
-              uri: node.uri,
-              local: node.local
-            };
-          }
-          return stack.push(obj);
-        };
-      })(this);
-      this.saxParser.onclosetag = (function(_this) {
-        return function() {
-          var cdata, emptyStr, key, node, nodeName, obj, objClone, old, s, xpath;
-          obj = stack.pop();
-          nodeName = obj["#name"];
-          if (!_this.options.explicitChildren || !_this.options.preserveChildrenOrder) {
-            delete obj["#name"];
-          }
-          if (obj.cdata === true) {
-            cdata = obj.cdata;
-            delete obj.cdata;
-          }
-          s = stack[stack.length - 1];
-          if (obj[charkey].match(/^\s*$/) && !cdata) {
-            emptyStr = obj[charkey];
-            delete obj[charkey];
-          } else {
-            if (_this.options.trim) {
-              obj[charkey] = obj[charkey].trim();
-            }
-            if (_this.options.normalize) {
-              obj[charkey] = obj[charkey].replace(/\s{2,}/g, " ").trim();
-            }
-            obj[charkey] = _this.options.valueProcessors ? processItem(_this.options.valueProcessors, obj[charkey], nodeName) : obj[charkey];
-            if (Object.keys(obj).length === 1 && charkey in obj && !_this.EXPLICIT_CHARKEY) {
-              obj = obj[charkey];
-            }
-          }
-          if (isEmpty(obj)) {
-            obj = _this.options.emptyTag !== '' ? _this.options.emptyTag : emptyStr;
-          }
-          if (_this.options.validator != null) {
-            xpath = "/" + ((function() {
-              var i, len, results;
-              results = [];
-              for (i = 0, len = stack.length; i < len; i++) {
-                node = stack[i];
-                results.push(node["#name"]);
-              }
-              return results;
-            })()).concat(nodeName).join("/");
-            (function() {
-              var err;
-              try {
-                return obj = _this.options.validator(xpath, s && s[nodeName], obj);
-              } catch (error1) {
-                err = error1;
-                return _this.emit("error", err);
-              }
-            })();
-          }
-          if (_this.options.explicitChildren && !_this.options.mergeAttrs && typeof obj === 'object') {
-            if (!_this.options.preserveChildrenOrder) {
-              node = {};
-              if (_this.options.attrkey in obj) {
-                node[_this.options.attrkey] = obj[_this.options.attrkey];
-                delete obj[_this.options.attrkey];
-              }
-              if (!_this.options.charsAsChildren && _this.options.charkey in obj) {
-                node[_this.options.charkey] = obj[_this.options.charkey];
-                delete obj[_this.options.charkey];
-              }
-              if (Object.getOwnPropertyNames(obj).length > 0) {
-                node[_this.options.childkey] = obj;
-              }
-              obj = node;
-            } else if (s) {
-              s[_this.options.childkey] = s[_this.options.childkey] || [];
-              objClone = {};
-              for (key in obj) {
-                if (!hasProp.call(obj, key)) continue;
-                objClone[key] = obj[key];
-              }
-              s[_this.options.childkey].push(objClone);
-              delete obj["#name"];
-              if (Object.keys(obj).length === 1 && charkey in obj && !_this.EXPLICIT_CHARKEY) {
-                obj = obj[charkey];
-              }
-            }
-          }
-          if (stack.length > 0) {
-            return _this.assignOrPush(s, nodeName, obj);
-          } else {
-            if (_this.options.explicitRoot) {
-              old = obj;
-              obj = {};
-              obj[nodeName] = old;
-            }
-            _this.resultObject = obj;
-            _this.saxParser.ended = true;
-            return _this.emit("end", _this.resultObject);
-          }
-        };
-      })(this);
-      ontext = (function(_this) {
-        return function(text) {
-          var charChild, s;
-          s = stack[stack.length - 1];
-          if (s) {
-            s[charkey] += text;
-            if (_this.options.explicitChildren && _this.options.preserveChildrenOrder && _this.options.charsAsChildren && (_this.options.includeWhiteChars || text.replace(/\\n/g, '').trim() !== '')) {
-              s[_this.options.childkey] = s[_this.options.childkey] || [];
-              charChild = {
-                '#name': '__text__'
-              };
-              charChild[charkey] = text;
-              if (_this.options.normalize) {
-                charChild[charkey] = charChild[charkey].replace(/\s{2,}/g, " ").trim();
-              }
-              s[_this.options.childkey].push(charChild);
-            }
-            return s;
-          }
-        };
-      })(this);
-      this.saxParser.ontext = ontext;
-      return this.saxParser.oncdata = (function(_this) {
-        return function(text) {
-          var s;
-          s = ontext(text);
-          if (s) {
-            return s.cdata = true;
-          }
-        };
-      })(this);
-    };
-
-    Parser.prototype.parseString = function(str, cb) {
-      var err;
-      if ((cb != null) && typeof cb === "function") {
-        this.on("end", function(result) {
-          this.reset();
-          return cb(null, result);
-        });
-        this.on("error", function(err) {
-          this.reset();
-          return cb(err);
-        });
-      }
-      try {
-        str = str.toString();
-        if (str.trim() === '') {
-          this.emit("end", null);
-          return true;
-        }
-        str = bom.stripBOM(str);
-        if (this.options.async) {
-          this.remaining = str;
-          setImmediate(this.processAsync);
-          return this.saxParser;
-        }
-        return this.saxParser.write(str).close();
-      } catch (error1) {
-        err = error1;
-        if (!(this.saxParser.errThrown || this.saxParser.ended)) {
-          this.emit('error', err);
-          return this.saxParser.errThrown = true;
-        } else if (this.saxParser.ended) {
-          throw err;
-        }
-      }
-    };
-
-    Parser.prototype.parseStringPromise = function(str) {
-      return new Promise((function(_this) {
-        return function(resolve, reject) {
-          return _this.parseString(str, function(err, value) {
-            if (err) {
-              return reject(err);
-            } else {
-              return resolve(value);
-            }
-          });
-        };
-      })(this));
-    };
-
-    return Parser;
-
-  })(events);
-
-  exports.parseString = function(str, a, b) {
-    var cb, options, parser;
-    if (b != null) {
-      if (typeof b === 'function') {
-        cb = b;
-      }
-      if (typeof a === 'object') {
-        options = a;
-      }
-    } else {
-      if (typeof a === 'function') {
-        cb = a;
-      }
-      options = {};
-    }
-    parser = new exports.Parser(options);
-    return parser.parseString(str, cb);
-  };
-
-  exports.parseStringPromise = function(str, a) {
-    var options, parser;
-    if (typeof a === 'object') {
-      options = a;
-    }
-    parser = new exports.Parser(options);
-    return parser.parseStringPromise(str);
-  };
-
-}).call(this);
-
-},{"./bom":336,"./defaults":338,"./processors":340,"events":290,"sax":326,"timers":329}],340:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  "use strict";
-  var prefixMatch;
-
-  prefixMatch = new RegExp(/(?!xmlns)^.*:/);
-
-  exports.normalize = function(str) {
-    return str.toLowerCase();
-  };
-
-  exports.firstCharLowerCase = function(str) {
-    return str.charAt(0).toLowerCase() + str.slice(1);
-  };
-
-  exports.stripPrefix = function(str) {
-    return str.replace(prefixMatch, '');
-  };
-
-  exports.parseNumbers = function(str) {
-    if (!isNaN(str)) {
-      str = str % 1 === 0 ? parseInt(str, 10) : parseFloat(str);
-    }
-    return str;
-  };
-
-  exports.parseBooleans = function(str) {
-    if (/^(?:true|false)$/i.test(str)) {
-      str = str.toLowerCase() === 'true';
-    }
-    return str;
-  };
-
-}).call(this);
-
-},{}],341:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  "use strict";
-  var builder, defaults, parser, processors,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  defaults = require('./defaults');
-
-  builder = require('./builder');
-
-  parser = require('./parser');
-
-  processors = require('./processors');
-
-  exports.defaults = defaults.defaults;
-
-  exports.processors = processors;
-
-  exports.ValidationError = (function(superClass) {
-    extend(ValidationError, superClass);
-
-    function ValidationError(message) {
-      this.message = message;
-    }
-
-    return ValidationError;
-
-  })(Error);
-
-  exports.Builder = builder.Builder;
-
-  exports.Parser = parser.Parser;
-
-  exports.parseString = parser.parseString;
-
-  exports.parseStringPromise = parser.parseStringPromise;
-
-}).call(this);
-
-},{"./builder":337,"./defaults":338,"./parser":339,"./processors":340}],342:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  module.exports = {
-    Disconnected: 1,
-    Preceding: 2,
-    Following: 4,
-    Contains: 8,
-    ContainedBy: 16,
-    ImplementationSpecific: 32
-  };
-
-}).call(this);
-
-},{}],343:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  module.exports = {
-    Element: 1,
-    Attribute: 2,
-    Text: 3,
-    CData: 4,
-    EntityReference: 5,
-    EntityDeclaration: 6,
-    ProcessingInstruction: 7,
-    Comment: 8,
-    Document: 9,
-    DocType: 10,
-    DocumentFragment: 11,
-    NotationDeclaration: 12,
-    Declaration: 201,
-    Raw: 202,
-    AttributeDeclaration: 203,
-    ElementDeclaration: 204,
-    Dummy: 205
-  };
-
-}).call(this);
-
-},{}],344:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var assign, getValue, isArray, isEmpty, isFunction, isObject, isPlainObject,
-    slice = [].slice,
-    hasProp = {}.hasOwnProperty;
-
-  assign = function() {
-    var i, key, len, source, sources, target;
-    target = arguments[0], sources = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-    if (isFunction(Object.assign)) {
-      Object.assign.apply(null, arguments);
-    } else {
-      for (i = 0, len = sources.length; i < len; i++) {
-        source = sources[i];
-        if (source != null) {
-          for (key in source) {
-            if (!hasProp.call(source, key)) continue;
-            target[key] = source[key];
-          }
-        }
-      }
-    }
-    return target;
-  };
-
-  isFunction = function(val) {
-    return !!val && Object.prototype.toString.call(val) === '[object Function]';
-  };
-
-  isObject = function(val) {
-    var ref;
-    return !!val && ((ref = typeof val) === 'function' || ref === 'object');
-  };
-
-  isArray = function(val) {
-    if (isFunction(Array.isArray)) {
-      return Array.isArray(val);
-    } else {
-      return Object.prototype.toString.call(val) === '[object Array]';
-    }
-  };
-
-  isEmpty = function(val) {
-    var key;
-    if (isArray(val)) {
-      return !val.length;
-    } else {
-      for (key in val) {
-        if (!hasProp.call(val, key)) continue;
-        return false;
-      }
-      return true;
-    }
-  };
-
-  isPlainObject = function(val) {
-    var ctor, proto;
-    return isObject(val) && (proto = Object.getPrototypeOf(val)) && (ctor = proto.constructor) && (typeof ctor === 'function') && (ctor instanceof ctor) && (Function.prototype.toString.call(ctor) === Function.prototype.toString.call(Object));
-  };
-
-  getValue = function(obj) {
-    if (isFunction(obj.valueOf)) {
-      return obj.valueOf();
-    } else {
-      return obj;
-    }
-  };
-
-  module.exports.assign = assign;
-
-  module.exports.isFunction = isFunction;
-
-  module.exports.isObject = isObject;
-
-  module.exports.isArray = isArray;
-
-  module.exports.isEmpty = isEmpty;
-
-  module.exports.isPlainObject = isPlainObject;
-
-  module.exports.getValue = getValue;
-
-}).call(this);
-
-},{}],345:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  module.exports = {
-    None: 0,
-    OpenTag: 1,
-    InsideTag: 2,
-    CloseTag: 3
-  };
-
-}).call(this);
-
-},{}],346:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLAttribute, XMLNode;
-
-  NodeType = require('./NodeType');
-
-  XMLNode = require('./XMLNode');
-
-  module.exports = XMLAttribute = (function() {
-    function XMLAttribute(parent, name, value) {
-      this.parent = parent;
-      if (this.parent) {
-        this.options = this.parent.options;
-        this.stringify = this.parent.stringify;
-      }
-      if (name == null) {
-        throw new Error("Missing attribute name. " + this.debugInfo(name));
-      }
-      this.name = this.stringify.name(name);
-      this.value = this.stringify.attValue(value);
-      this.type = NodeType.Attribute;
-      this.isId = false;
-      this.schemaTypeInfo = null;
-    }
-
-    Object.defineProperty(XMLAttribute.prototype, 'nodeType', {
-      get: function() {
-        return this.type;
-      }
-    });
-
-    Object.defineProperty(XMLAttribute.prototype, 'ownerElement', {
-      get: function() {
-        return this.parent;
-      }
-    });
-
-    Object.defineProperty(XMLAttribute.prototype, 'textContent', {
-      get: function() {
-        return this.value;
-      },
-      set: function(value) {
-        return this.value = value || '';
-      }
-    });
-
-    Object.defineProperty(XMLAttribute.prototype, 'namespaceURI', {
-      get: function() {
-        return '';
-      }
-    });
-
-    Object.defineProperty(XMLAttribute.prototype, 'prefix', {
-      get: function() {
-        return '';
-      }
-    });
-
-    Object.defineProperty(XMLAttribute.prototype, 'localName', {
-      get: function() {
-        return this.name;
-      }
-    });
-
-    Object.defineProperty(XMLAttribute.prototype, 'specified', {
-      get: function() {
-        return true;
-      }
-    });
-
-    XMLAttribute.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLAttribute.prototype.toString = function(options) {
-      return this.options.writer.attribute(this, this.options.writer.filterOptions(options));
-    };
-
-    XMLAttribute.prototype.debugInfo = function(name) {
-      name = name || this.name;
-      if (name == null) {
-        return "parent: <" + this.parent.name + ">";
-      } else {
-        return "attribute: {" + name + "}, parent: <" + this.parent.name + ">";
-      }
-    };
-
-    XMLAttribute.prototype.isEqualNode = function(node) {
-      if (node.namespaceURI !== this.namespaceURI) {
-        return false;
-      }
-      if (node.prefix !== this.prefix) {
-        return false;
-      }
-      if (node.localName !== this.localName) {
-        return false;
-      }
-      if (node.value !== this.value) {
-        return false;
-      }
-      return true;
-    };
-
-    return XMLAttribute;
-
-  })();
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLNode":365}],347:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLCData, XMLCharacterData,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  NodeType = require('./NodeType');
-
-  XMLCharacterData = require('./XMLCharacterData');
-
-  module.exports = XMLCData = (function(superClass) {
-    extend(XMLCData, superClass);
-
-    function XMLCData(parent, text) {
-      XMLCData.__super__.constructor.call(this, parent);
-      if (text == null) {
-        throw new Error("Missing CDATA text. " + this.debugInfo());
-      }
-      this.name = "#cdata-section";
-      this.type = NodeType.CData;
-      this.value = this.stringify.cdata(text);
-    }
-
-    XMLCData.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLCData.prototype.toString = function(options) {
-      return this.options.writer.cdata(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLCData;
-
-  })(XMLCharacterData);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLCharacterData":348}],348:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLCharacterData, XMLNode,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  XMLNode = require('./XMLNode');
-
-  module.exports = XMLCharacterData = (function(superClass) {
-    extend(XMLCharacterData, superClass);
-
-    function XMLCharacterData(parent) {
-      XMLCharacterData.__super__.constructor.call(this, parent);
-      this.value = '';
-    }
-
-    Object.defineProperty(XMLCharacterData.prototype, 'data', {
-      get: function() {
-        return this.value;
-      },
-      set: function(value) {
-        return this.value = value || '';
-      }
-    });
-
-    Object.defineProperty(XMLCharacterData.prototype, 'length', {
-      get: function() {
-        return this.value.length;
-      }
-    });
-
-    Object.defineProperty(XMLCharacterData.prototype, 'textContent', {
-      get: function() {
-        return this.value;
-      },
-      set: function(value) {
-        return this.value = value || '';
-      }
-    });
-
-    XMLCharacterData.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLCharacterData.prototype.substringData = function(offset, count) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLCharacterData.prototype.appendData = function(arg) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLCharacterData.prototype.insertData = function(offset, arg) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLCharacterData.prototype.deleteData = function(offset, count) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLCharacterData.prototype.replaceData = function(offset, count, arg) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLCharacterData.prototype.isEqualNode = function(node) {
-      if (!XMLCharacterData.__super__.isEqualNode.apply(this, arguments).isEqualNode(node)) {
-        return false;
-      }
-      if (node.data !== this.data) {
-        return false;
-      }
-      return true;
-    };
-
-    return XMLCharacterData;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./XMLNode":365}],349:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLCharacterData, XMLComment,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  NodeType = require('./NodeType');
-
-  XMLCharacterData = require('./XMLCharacterData');
-
-  module.exports = XMLComment = (function(superClass) {
-    extend(XMLComment, superClass);
-
-    function XMLComment(parent, text) {
-      XMLComment.__super__.constructor.call(this, parent);
-      if (text == null) {
-        throw new Error("Missing comment text. " + this.debugInfo());
-      }
-      this.name = "#comment";
-      this.type = NodeType.Comment;
-      this.value = this.stringify.comment(text);
-    }
-
-    XMLComment.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLComment.prototype.toString = function(options) {
-      return this.options.writer.comment(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLComment;
-
-  })(XMLCharacterData);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLCharacterData":348}],350:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLDOMConfiguration, XMLDOMErrorHandler, XMLDOMStringList;
-
-  XMLDOMErrorHandler = require('./XMLDOMErrorHandler');
-
-  XMLDOMStringList = require('./XMLDOMStringList');
-
-  module.exports = XMLDOMConfiguration = (function() {
-    function XMLDOMConfiguration() {
-      var clonedSelf;
-      this.defaultParams = {
-        "canonical-form": false,
-        "cdata-sections": false,
-        "comments": false,
-        "datatype-normalization": false,
-        "element-content-whitespace": true,
-        "entities": true,
-        "error-handler": new XMLDOMErrorHandler(),
-        "infoset": true,
-        "validate-if-schema": false,
-        "namespaces": true,
-        "namespace-declarations": true,
-        "normalize-characters": false,
-        "schema-location": '',
-        "schema-type": '',
-        "split-cdata-sections": true,
-        "validate": false,
-        "well-formed": true
-      };
-      this.params = clonedSelf = Object.create(this.defaultParams);
-    }
-
-    Object.defineProperty(XMLDOMConfiguration.prototype, 'parameterNames', {
-      get: function() {
-        return new XMLDOMStringList(Object.keys(this.defaultParams));
-      }
-    });
-
-    XMLDOMConfiguration.prototype.getParameter = function(name) {
-      if (this.params.hasOwnProperty(name)) {
-        return this.params[name];
-      } else {
-        return null;
-      }
-    };
-
-    XMLDOMConfiguration.prototype.canSetParameter = function(name, value) {
-      return true;
-    };
-
-    XMLDOMConfiguration.prototype.setParameter = function(name, value) {
-      if (value != null) {
-        return this.params[name] = value;
-      } else {
-        return delete this.params[name];
-      }
-    };
-
-    return XMLDOMConfiguration;
-
-  })();
-
-}).call(this);
-
-},{"./XMLDOMErrorHandler":351,"./XMLDOMStringList":353}],351:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLDOMErrorHandler;
-
-  module.exports = XMLDOMErrorHandler = (function() {
-    function XMLDOMErrorHandler() {}
-
-    XMLDOMErrorHandler.prototype.handleError = function(error) {
-      throw new Error(error);
-    };
-
-    return XMLDOMErrorHandler;
-
-  })();
-
-}).call(this);
-
-},{}],352:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLDOMImplementation;
-
-  module.exports = XMLDOMImplementation = (function() {
-    function XMLDOMImplementation() {}
-
-    XMLDOMImplementation.prototype.hasFeature = function(feature, version) {
-      return true;
-    };
-
-    XMLDOMImplementation.prototype.createDocumentType = function(qualifiedName, publicId, systemId) {
-      throw new Error("This DOM method is not implemented.");
-    };
-
-    XMLDOMImplementation.prototype.createDocument = function(namespaceURI, qualifiedName, doctype) {
-      throw new Error("This DOM method is not implemented.");
-    };
-
-    XMLDOMImplementation.prototype.createHTMLDocument = function(title) {
-      throw new Error("This DOM method is not implemented.");
-    };
-
-    XMLDOMImplementation.prototype.getFeature = function(feature, version) {
-      throw new Error("This DOM method is not implemented.");
-    };
-
-    return XMLDOMImplementation;
-
-  })();
-
-}).call(this);
-
-},{}],353:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLDOMStringList;
-
-  module.exports = XMLDOMStringList = (function() {
-    function XMLDOMStringList(arr) {
-      this.arr = arr || [];
-    }
-
-    Object.defineProperty(XMLDOMStringList.prototype, 'length', {
-      get: function() {
-        return this.arr.length;
-      }
-    });
-
-    XMLDOMStringList.prototype.item = function(index) {
-      return this.arr[index] || null;
-    };
-
-    XMLDOMStringList.prototype.contains = function(str) {
-      return this.arr.indexOf(str) !== -1;
-    };
-
-    return XMLDOMStringList;
-
-  })();
-
-}).call(this);
-
-},{}],354:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDTDAttList, XMLNode,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  module.exports = XMLDTDAttList = (function(superClass) {
-    extend(XMLDTDAttList, superClass);
-
-    function XMLDTDAttList(parent, elementName, attributeName, attributeType, defaultValueType, defaultValue) {
-      XMLDTDAttList.__super__.constructor.call(this, parent);
-      if (elementName == null) {
-        throw new Error("Missing DTD element name. " + this.debugInfo());
-      }
-      if (attributeName == null) {
-        throw new Error("Missing DTD attribute name. " + this.debugInfo(elementName));
-      }
-      if (!attributeType) {
-        throw new Error("Missing DTD attribute type. " + this.debugInfo(elementName));
-      }
-      if (!defaultValueType) {
-        throw new Error("Missing DTD attribute default. " + this.debugInfo(elementName));
-      }
-      if (defaultValueType.indexOf('#') !== 0) {
-        defaultValueType = '#' + defaultValueType;
-      }
-      if (!defaultValueType.match(/^(#REQUIRED|#IMPLIED|#FIXED|#DEFAULT)$/)) {
-        throw new Error("Invalid default value type; expected: #REQUIRED, #IMPLIED, #FIXED or #DEFAULT. " + this.debugInfo(elementName));
-      }
-      if (defaultValue && !defaultValueType.match(/^(#FIXED|#DEFAULT)$/)) {
-        throw new Error("Default value only applies to #FIXED or #DEFAULT. " + this.debugInfo(elementName));
-      }
-      this.elementName = this.stringify.name(elementName);
-      this.type = NodeType.AttributeDeclaration;
-      this.attributeName = this.stringify.name(attributeName);
-      this.attributeType = this.stringify.dtdAttType(attributeType);
-      if (defaultValue) {
-        this.defaultValue = this.stringify.dtdAttDefault(defaultValue);
-      }
-      this.defaultValueType = defaultValueType;
-    }
-
-    XMLDTDAttList.prototype.toString = function(options) {
-      return this.options.writer.dtdAttList(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLDTDAttList;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLNode":365}],355:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDTDElement, XMLNode,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  module.exports = XMLDTDElement = (function(superClass) {
-    extend(XMLDTDElement, superClass);
-
-    function XMLDTDElement(parent, name, value) {
-      XMLDTDElement.__super__.constructor.call(this, parent);
-      if (name == null) {
-        throw new Error("Missing DTD element name. " + this.debugInfo());
-      }
-      if (!value) {
-        value = '(#PCDATA)';
-      }
-      if (Array.isArray(value)) {
-        value = '(' + value.join(',') + ')';
-      }
-      this.name = this.stringify.name(name);
-      this.type = NodeType.ElementDeclaration;
-      this.value = this.stringify.dtdElementValue(value);
-    }
-
-    XMLDTDElement.prototype.toString = function(options) {
-      return this.options.writer.dtdElement(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLDTDElement;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLNode":365}],356:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDTDEntity, XMLNode, isObject,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  isObject = require('./Utility').isObject;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  module.exports = XMLDTDEntity = (function(superClass) {
-    extend(XMLDTDEntity, superClass);
-
-    function XMLDTDEntity(parent, pe, name, value) {
-      XMLDTDEntity.__super__.constructor.call(this, parent);
-      if (name == null) {
-        throw new Error("Missing DTD entity name. " + this.debugInfo(name));
-      }
-      if (value == null) {
-        throw new Error("Missing DTD entity value. " + this.debugInfo(name));
-      }
-      this.pe = !!pe;
-      this.name = this.stringify.name(name);
-      this.type = NodeType.EntityDeclaration;
-      if (!isObject(value)) {
-        this.value = this.stringify.dtdEntityValue(value);
-        this.internal = true;
-      } else {
-        if (!value.pubID && !value.sysID) {
-          throw new Error("Public and/or system identifiers are required for an external entity. " + this.debugInfo(name));
-        }
-        if (value.pubID && !value.sysID) {
-          throw new Error("System identifier is required for a public external entity. " + this.debugInfo(name));
-        }
-        this.internal = false;
-        if (value.pubID != null) {
-          this.pubID = this.stringify.dtdPubID(value.pubID);
-        }
-        if (value.sysID != null) {
-          this.sysID = this.stringify.dtdSysID(value.sysID);
-        }
-        if (value.nData != null) {
-          this.nData = this.stringify.dtdNData(value.nData);
-        }
-        if (this.pe && this.nData) {
-          throw new Error("Notation declaration is not allowed in a parameter entity. " + this.debugInfo(name));
-        }
-      }
-    }
-
-    Object.defineProperty(XMLDTDEntity.prototype, 'publicId', {
-      get: function() {
-        return this.pubID;
-      }
-    });
-
-    Object.defineProperty(XMLDTDEntity.prototype, 'systemId', {
-      get: function() {
-        return this.sysID;
-      }
-    });
-
-    Object.defineProperty(XMLDTDEntity.prototype, 'notationName', {
-      get: function() {
-        return this.nData || null;
-      }
-    });
-
-    Object.defineProperty(XMLDTDEntity.prototype, 'inputEncoding', {
-      get: function() {
-        return null;
-      }
-    });
-
-    Object.defineProperty(XMLDTDEntity.prototype, 'xmlEncoding', {
-      get: function() {
-        return null;
-      }
-    });
-
-    Object.defineProperty(XMLDTDEntity.prototype, 'xmlVersion', {
-      get: function() {
-        return null;
-      }
-    });
-
-    XMLDTDEntity.prototype.toString = function(options) {
-      return this.options.writer.dtdEntity(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLDTDEntity;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./XMLNode":365}],357:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDTDNotation, XMLNode,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  module.exports = XMLDTDNotation = (function(superClass) {
-    extend(XMLDTDNotation, superClass);
-
-    function XMLDTDNotation(parent, name, value) {
-      XMLDTDNotation.__super__.constructor.call(this, parent);
-      if (name == null) {
-        throw new Error("Missing DTD notation name. " + this.debugInfo(name));
-      }
-      if (!value.pubID && !value.sysID) {
-        throw new Error("Public or system identifiers are required for an external entity. " + this.debugInfo(name));
-      }
-      this.name = this.stringify.name(name);
-      this.type = NodeType.NotationDeclaration;
-      if (value.pubID != null) {
-        this.pubID = this.stringify.dtdPubID(value.pubID);
-      }
-      if (value.sysID != null) {
-        this.sysID = this.stringify.dtdSysID(value.sysID);
-      }
-    }
-
-    Object.defineProperty(XMLDTDNotation.prototype, 'publicId', {
-      get: function() {
-        return this.pubID;
-      }
-    });
-
-    Object.defineProperty(XMLDTDNotation.prototype, 'systemId', {
-      get: function() {
-        return this.sysID;
-      }
-    });
-
-    XMLDTDNotation.prototype.toString = function(options) {
-      return this.options.writer.dtdNotation(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLDTDNotation;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLNode":365}],358:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDeclaration, XMLNode, isObject,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  isObject = require('./Utility').isObject;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  module.exports = XMLDeclaration = (function(superClass) {
-    extend(XMLDeclaration, superClass);
-
-    function XMLDeclaration(parent, version, encoding, standalone) {
-      var ref;
-      XMLDeclaration.__super__.constructor.call(this, parent);
-      if (isObject(version)) {
-        ref = version, version = ref.version, encoding = ref.encoding, standalone = ref.standalone;
-      }
-      if (!version) {
-        version = '1.0';
-      }
-      this.type = NodeType.Declaration;
-      this.version = this.stringify.xmlVersion(version);
-      if (encoding != null) {
-        this.encoding = this.stringify.xmlEncoding(encoding);
-      }
-      if (standalone != null) {
-        this.standalone = this.stringify.xmlStandalone(standalone);
-      }
-    }
-
-    XMLDeclaration.prototype.toString = function(options) {
-      return this.options.writer.declaration(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLDeclaration;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./XMLNode":365}],359:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDTDAttList, XMLDTDElement, XMLDTDEntity, XMLDTDNotation, XMLDocType, XMLNamedNodeMap, XMLNode, isObject,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  isObject = require('./Utility').isObject;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  XMLDTDAttList = require('./XMLDTDAttList');
-
-  XMLDTDEntity = require('./XMLDTDEntity');
-
-  XMLDTDElement = require('./XMLDTDElement');
-
-  XMLDTDNotation = require('./XMLDTDNotation');
-
-  XMLNamedNodeMap = require('./XMLNamedNodeMap');
-
-  module.exports = XMLDocType = (function(superClass) {
-    extend(XMLDocType, superClass);
-
-    function XMLDocType(parent, pubID, sysID) {
-      var child, i, len, ref, ref1, ref2;
-      XMLDocType.__super__.constructor.call(this, parent);
-      this.type = NodeType.DocType;
-      if (parent.children) {
-        ref = parent.children;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
-          if (child.type === NodeType.Element) {
-            this.name = child.name;
-            break;
-          }
-        }
-      }
-      this.documentObject = parent;
-      if (isObject(pubID)) {
-        ref1 = pubID, pubID = ref1.pubID, sysID = ref1.sysID;
-      }
-      if (sysID == null) {
-        ref2 = [pubID, sysID], sysID = ref2[0], pubID = ref2[1];
-      }
-      if (pubID != null) {
-        this.pubID = this.stringify.dtdPubID(pubID);
-      }
-      if (sysID != null) {
-        this.sysID = this.stringify.dtdSysID(sysID);
-      }
-    }
-
-    Object.defineProperty(XMLDocType.prototype, 'entities', {
-      get: function() {
-        var child, i, len, nodes, ref;
-        nodes = {};
-        ref = this.children;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
-          if ((child.type === NodeType.EntityDeclaration) && !child.pe) {
-            nodes[child.name] = child;
-          }
-        }
-        return new XMLNamedNodeMap(nodes);
-      }
-    });
-
-    Object.defineProperty(XMLDocType.prototype, 'notations', {
-      get: function() {
-        var child, i, len, nodes, ref;
-        nodes = {};
-        ref = this.children;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
-          if (child.type === NodeType.NotationDeclaration) {
-            nodes[child.name] = child;
-          }
-        }
-        return new XMLNamedNodeMap(nodes);
-      }
-    });
-
-    Object.defineProperty(XMLDocType.prototype, 'publicId', {
-      get: function() {
-        return this.pubID;
-      }
-    });
-
-    Object.defineProperty(XMLDocType.prototype, 'systemId', {
-      get: function() {
-        return this.sysID;
-      }
-    });
-
-    Object.defineProperty(XMLDocType.prototype, 'internalSubset', {
-      get: function() {
-        throw new Error("This DOM method is not implemented." + this.debugInfo());
-      }
-    });
-
-    XMLDocType.prototype.element = function(name, value) {
-      var child;
-      child = new XMLDTDElement(this, name, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLDocType.prototype.attList = function(elementName, attributeName, attributeType, defaultValueType, defaultValue) {
-      var child;
-      child = new XMLDTDAttList(this, elementName, attributeName, attributeType, defaultValueType, defaultValue);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLDocType.prototype.entity = function(name, value) {
-      var child;
-      child = new XMLDTDEntity(this, false, name, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLDocType.prototype.pEntity = function(name, value) {
-      var child;
-      child = new XMLDTDEntity(this, true, name, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLDocType.prototype.notation = function(name, value) {
-      var child;
-      child = new XMLDTDNotation(this, name, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLDocType.prototype.toString = function(options) {
-      return this.options.writer.docType(this, this.options.writer.filterOptions(options));
-    };
-
-    XMLDocType.prototype.ele = function(name, value) {
-      return this.element(name, value);
-    };
-
-    XMLDocType.prototype.att = function(elementName, attributeName, attributeType, defaultValueType, defaultValue) {
-      return this.attList(elementName, attributeName, attributeType, defaultValueType, defaultValue);
-    };
-
-    XMLDocType.prototype.ent = function(name, value) {
-      return this.entity(name, value);
-    };
-
-    XMLDocType.prototype.pent = function(name, value) {
-      return this.pEntity(name, value);
-    };
-
-    XMLDocType.prototype.not = function(name, value) {
-      return this.notation(name, value);
-    };
-
-    XMLDocType.prototype.up = function() {
-      return this.root() || this.documentObject;
-    };
-
-    XMLDocType.prototype.isEqualNode = function(node) {
-      if (!XMLDocType.__super__.isEqualNode.apply(this, arguments).isEqualNode(node)) {
-        return false;
-      }
-      if (node.name !== this.name) {
-        return false;
-      }
-      if (node.publicId !== this.publicId) {
-        return false;
-      }
-      if (node.systemId !== this.systemId) {
-        return false;
-      }
-      return true;
-    };
-
-    return XMLDocType;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./XMLDTDAttList":354,"./XMLDTDElement":355,"./XMLDTDEntity":356,"./XMLDTDNotation":357,"./XMLNamedNodeMap":364,"./XMLNode":365}],360:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDOMConfiguration, XMLDOMImplementation, XMLDocument, XMLNode, XMLStringWriter, XMLStringifier, isPlainObject,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  isPlainObject = require('./Utility').isPlainObject;
-
-  XMLDOMImplementation = require('./XMLDOMImplementation');
-
-  XMLDOMConfiguration = require('./XMLDOMConfiguration');
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  XMLStringifier = require('./XMLStringifier');
-
-  XMLStringWriter = require('./XMLStringWriter');
-
-  module.exports = XMLDocument = (function(superClass) {
-    extend(XMLDocument, superClass);
-
-    function XMLDocument(options) {
-      XMLDocument.__super__.constructor.call(this, null);
-      this.name = "#document";
-      this.type = NodeType.Document;
-      this.documentURI = null;
-      this.domConfig = new XMLDOMConfiguration();
-      options || (options = {});
-      if (!options.writer) {
-        options.writer = new XMLStringWriter();
-      }
-      this.options = options;
-      this.stringify = new XMLStringifier(options);
-    }
-
-    Object.defineProperty(XMLDocument.prototype, 'implementation', {
-      value: new XMLDOMImplementation()
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'doctype', {
-      get: function() {
-        var child, i, len, ref;
-        ref = this.children;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
-          if (child.type === NodeType.DocType) {
-            return child;
-          }
-        }
-        return null;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'documentElement', {
-      get: function() {
-        return this.rootObject || null;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'inputEncoding', {
-      get: function() {
-        return null;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'strictErrorChecking', {
-      get: function() {
-        return false;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'xmlEncoding', {
-      get: function() {
-        if (this.children.length !== 0 && this.children[0].type === NodeType.Declaration) {
-          return this.children[0].encoding;
-        } else {
-          return null;
-        }
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'xmlStandalone', {
-      get: function() {
-        if (this.children.length !== 0 && this.children[0].type === NodeType.Declaration) {
-          return this.children[0].standalone === 'yes';
-        } else {
-          return false;
-        }
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'xmlVersion', {
-      get: function() {
-        if (this.children.length !== 0 && this.children[0].type === NodeType.Declaration) {
-          return this.children[0].version;
-        } else {
-          return "1.0";
-        }
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'URL', {
-      get: function() {
-        return this.documentURI;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'origin', {
-      get: function() {
-        return null;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'compatMode', {
-      get: function() {
-        return null;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'characterSet', {
-      get: function() {
-        return null;
-      }
-    });
-
-    Object.defineProperty(XMLDocument.prototype, 'contentType', {
-      get: function() {
-        return null;
-      }
-    });
-
-    XMLDocument.prototype.end = function(writer) {
-      var writerOptions;
-      writerOptions = {};
-      if (!writer) {
-        writer = this.options.writer;
-      } else if (isPlainObject(writer)) {
-        writerOptions = writer;
-        writer = this.options.writer;
-      }
-      return writer.document(this, writer.filterOptions(writerOptions));
-    };
-
-    XMLDocument.prototype.toString = function(options) {
-      return this.options.writer.document(this, this.options.writer.filterOptions(options));
-    };
-
-    XMLDocument.prototype.createElement = function(tagName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createDocumentFragment = function() {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createTextNode = function(data) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createComment = function(data) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createCDATASection = function(data) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createProcessingInstruction = function(target, data) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createAttribute = function(name) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createEntityReference = function(name) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.getElementsByTagName = function(tagname) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.importNode = function(importedNode, deep) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createElementNS = function(namespaceURI, qualifiedName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createAttributeNS = function(namespaceURI, qualifiedName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.getElementsByTagNameNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.getElementById = function(elementId) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.adoptNode = function(source) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.normalizeDocument = function() {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.renameNode = function(node, namespaceURI, qualifiedName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.getElementsByClassName = function(classNames) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createEvent = function(eventInterface) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createRange = function() {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createNodeIterator = function(root, whatToShow, filter) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLDocument.prototype.createTreeWalker = function(root, whatToShow, filter) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    return XMLDocument;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./XMLDOMConfiguration":350,"./XMLDOMImplementation":352,"./XMLNode":365,"./XMLStringWriter":370,"./XMLStringifier":371}],361:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, WriterState, XMLAttribute, XMLCData, XMLComment, XMLDTDAttList, XMLDTDElement, XMLDTDEntity, XMLDTDNotation, XMLDeclaration, XMLDocType, XMLDocument, XMLDocumentCB, XMLElement, XMLProcessingInstruction, XMLRaw, XMLStringWriter, XMLStringifier, XMLText, getValue, isFunction, isObject, isPlainObject, ref,
-    hasProp = {}.hasOwnProperty;
-
-  ref = require('./Utility'), isObject = ref.isObject, isFunction = ref.isFunction, isPlainObject = ref.isPlainObject, getValue = ref.getValue;
-
-  NodeType = require('./NodeType');
-
-  XMLDocument = require('./XMLDocument');
-
-  XMLElement = require('./XMLElement');
-
-  XMLCData = require('./XMLCData');
-
-  XMLComment = require('./XMLComment');
-
-  XMLRaw = require('./XMLRaw');
-
-  XMLText = require('./XMLText');
-
-  XMLProcessingInstruction = require('./XMLProcessingInstruction');
-
-  XMLDeclaration = require('./XMLDeclaration');
-
-  XMLDocType = require('./XMLDocType');
-
-  XMLDTDAttList = require('./XMLDTDAttList');
-
-  XMLDTDEntity = require('./XMLDTDEntity');
-
-  XMLDTDElement = require('./XMLDTDElement');
-
-  XMLDTDNotation = require('./XMLDTDNotation');
-
-  XMLAttribute = require('./XMLAttribute');
-
-  XMLStringifier = require('./XMLStringifier');
-
-  XMLStringWriter = require('./XMLStringWriter');
-
-  WriterState = require('./WriterState');
-
-  module.exports = XMLDocumentCB = (function() {
-    function XMLDocumentCB(options, onData, onEnd) {
-      var writerOptions;
-      this.name = "?xml";
-      this.type = NodeType.Document;
-      options || (options = {});
-      writerOptions = {};
-      if (!options.writer) {
-        options.writer = new XMLStringWriter();
-      } else if (isPlainObject(options.writer)) {
-        writerOptions = options.writer;
-        options.writer = new XMLStringWriter();
-      }
-      this.options = options;
-      this.writer = options.writer;
-      this.writerOptions = this.writer.filterOptions(writerOptions);
-      this.stringify = new XMLStringifier(options);
-      this.onDataCallback = onData || function() {};
-      this.onEndCallback = onEnd || function() {};
-      this.currentNode = null;
-      this.currentLevel = -1;
-      this.openTags = {};
-      this.documentStarted = false;
-      this.documentCompleted = false;
-      this.root = null;
-    }
-
-    XMLDocumentCB.prototype.createChildNode = function(node) {
-      var att, attName, attributes, child, i, len, ref1, ref2;
-      switch (node.type) {
-        case NodeType.CData:
-          this.cdata(node.value);
-          break;
-        case NodeType.Comment:
-          this.comment(node.value);
-          break;
-        case NodeType.Element:
-          attributes = {};
-          ref1 = node.attribs;
-          for (attName in ref1) {
-            if (!hasProp.call(ref1, attName)) continue;
-            att = ref1[attName];
-            attributes[attName] = att.value;
-          }
-          this.node(node.name, attributes);
-          break;
-        case NodeType.Dummy:
-          this.dummy();
-          break;
-        case NodeType.Raw:
-          this.raw(node.value);
-          break;
-        case NodeType.Text:
-          this.text(node.value);
-          break;
-        case NodeType.ProcessingInstruction:
-          this.instruction(node.target, node.value);
-          break;
-        default:
-          throw new Error("This XML node type is not supported in a JS object: " + node.constructor.name);
-      }
-      ref2 = node.children;
-      for (i = 0, len = ref2.length; i < len; i++) {
-        child = ref2[i];
-        this.createChildNode(child);
-        if (child.type === NodeType.Element) {
-          this.up();
-        }
-      }
-      return this;
-    };
-
-    XMLDocumentCB.prototype.dummy = function() {
-      return this;
-    };
-
-    XMLDocumentCB.prototype.node = function(name, attributes, text) {
-      var ref1;
-      if (name == null) {
-        throw new Error("Missing node name.");
-      }
-      if (this.root && this.currentLevel === -1) {
-        throw new Error("Document can only have one root node. " + this.debugInfo(name));
-      }
-      this.openCurrent();
-      name = getValue(name);
-      if (attributes == null) {
-        attributes = {};
-      }
-      attributes = getValue(attributes);
-      if (!isObject(attributes)) {
-        ref1 = [attributes, text], text = ref1[0], attributes = ref1[1];
-      }
-      this.currentNode = new XMLElement(this, name, attributes);
-      this.currentNode.children = false;
-      this.currentLevel++;
-      this.openTags[this.currentLevel] = this.currentNode;
-      if (text != null) {
-        this.text(text);
-      }
-      return this;
-    };
-
-    XMLDocumentCB.prototype.element = function(name, attributes, text) {
-      var child, i, len, oldValidationFlag, ref1, root;
-      if (this.currentNode && this.currentNode.type === NodeType.DocType) {
-        this.dtdElement.apply(this, arguments);
-      } else {
-        if (Array.isArray(name) || isObject(name) || isFunction(name)) {
-          oldValidationFlag = this.options.noValidation;
-          this.options.noValidation = true;
-          root = new XMLDocument(this.options).element('TEMP_ROOT');
-          root.element(name);
-          this.options.noValidation = oldValidationFlag;
-          ref1 = root.children;
-          for (i = 0, len = ref1.length; i < len; i++) {
-            child = ref1[i];
-            this.createChildNode(child);
-            if (child.type === NodeType.Element) {
-              this.up();
-            }
-          }
-        } else {
-          this.node(name, attributes, text);
-        }
-      }
-      return this;
-    };
-
-    XMLDocumentCB.prototype.attribute = function(name, value) {
-      var attName, attValue;
-      if (!this.currentNode || this.currentNode.children) {
-        throw new Error("att() can only be used immediately after an ele() call in callback mode. " + this.debugInfo(name));
-      }
-      if (name != null) {
-        name = getValue(name);
-      }
-      if (isObject(name)) {
-        for (attName in name) {
-          if (!hasProp.call(name, attName)) continue;
-          attValue = name[attName];
-          this.attribute(attName, attValue);
-        }
-      } else {
-        if (isFunction(value)) {
-          value = value.apply();
-        }
-        if (this.options.keepNullAttributes && (value == null)) {
-          this.currentNode.attribs[name] = new XMLAttribute(this, name, "");
-        } else if (value != null) {
-          this.currentNode.attribs[name] = new XMLAttribute(this, name, value);
-        }
-      }
-      return this;
-    };
-
-    XMLDocumentCB.prototype.text = function(value) {
-      var node;
-      this.openCurrent();
-      node = new XMLText(this, value);
-      this.onData(this.writer.text(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.cdata = function(value) {
-      var node;
-      this.openCurrent();
-      node = new XMLCData(this, value);
-      this.onData(this.writer.cdata(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.comment = function(value) {
-      var node;
-      this.openCurrent();
-      node = new XMLComment(this, value);
-      this.onData(this.writer.comment(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.raw = function(value) {
-      var node;
-      this.openCurrent();
-      node = new XMLRaw(this, value);
-      this.onData(this.writer.raw(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.instruction = function(target, value) {
-      var i, insTarget, insValue, len, node;
-      this.openCurrent();
-      if (target != null) {
-        target = getValue(target);
-      }
-      if (value != null) {
-        value = getValue(value);
-      }
-      if (Array.isArray(target)) {
-        for (i = 0, len = target.length; i < len; i++) {
-          insTarget = target[i];
-          this.instruction(insTarget);
-        }
-      } else if (isObject(target)) {
-        for (insTarget in target) {
-          if (!hasProp.call(target, insTarget)) continue;
-          insValue = target[insTarget];
-          this.instruction(insTarget, insValue);
-        }
-      } else {
-        if (isFunction(value)) {
-          value = value.apply();
-        }
-        node = new XMLProcessingInstruction(this, target, value);
-        this.onData(this.writer.processingInstruction(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      }
-      return this;
-    };
-
-    XMLDocumentCB.prototype.declaration = function(version, encoding, standalone) {
-      var node;
-      this.openCurrent();
-      if (this.documentStarted) {
-        throw new Error("declaration() must be the first node.");
-      }
-      node = new XMLDeclaration(this, version, encoding, standalone);
-      this.onData(this.writer.declaration(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.doctype = function(root, pubID, sysID) {
-      this.openCurrent();
-      if (root == null) {
-        throw new Error("Missing root node name.");
-      }
-      if (this.root) {
-        throw new Error("dtd() must come before the root node.");
-      }
-      this.currentNode = new XMLDocType(this, pubID, sysID);
-      this.currentNode.rootNodeName = root;
-      this.currentNode.children = false;
-      this.currentLevel++;
-      this.openTags[this.currentLevel] = this.currentNode;
-      return this;
-    };
-
-    XMLDocumentCB.prototype.dtdElement = function(name, value) {
-      var node;
-      this.openCurrent();
-      node = new XMLDTDElement(this, name, value);
-      this.onData(this.writer.dtdElement(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.attList = function(elementName, attributeName, attributeType, defaultValueType, defaultValue) {
-      var node;
-      this.openCurrent();
-      node = new XMLDTDAttList(this, elementName, attributeName, attributeType, defaultValueType, defaultValue);
-      this.onData(this.writer.dtdAttList(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.entity = function(name, value) {
-      var node;
-      this.openCurrent();
-      node = new XMLDTDEntity(this, false, name, value);
-      this.onData(this.writer.dtdEntity(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.pEntity = function(name, value) {
-      var node;
-      this.openCurrent();
-      node = new XMLDTDEntity(this, true, name, value);
-      this.onData(this.writer.dtdEntity(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.notation = function(name, value) {
-      var node;
-      this.openCurrent();
-      node = new XMLDTDNotation(this, name, value);
-      this.onData(this.writer.dtdNotation(node, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
-      return this;
-    };
-
-    XMLDocumentCB.prototype.up = function() {
-      if (this.currentLevel < 0) {
-        throw new Error("The document node has no parent.");
-      }
-      if (this.currentNode) {
-        if (this.currentNode.children) {
-          this.closeNode(this.currentNode);
-        } else {
-          this.openNode(this.currentNode);
-        }
-        this.currentNode = null;
-      } else {
-        this.closeNode(this.openTags[this.currentLevel]);
-      }
-      delete this.openTags[this.currentLevel];
-      this.currentLevel--;
-      return this;
-    };
-
-    XMLDocumentCB.prototype.end = function() {
-      while (this.currentLevel >= 0) {
-        this.up();
-      }
-      return this.onEnd();
-    };
-
-    XMLDocumentCB.prototype.openCurrent = function() {
-      if (this.currentNode) {
-        this.currentNode.children = true;
-        return this.openNode(this.currentNode);
-      }
-    };
-
-    XMLDocumentCB.prototype.openNode = function(node) {
-      var att, chunk, name, ref1;
-      if (!node.isOpen) {
-        if (!this.root && this.currentLevel === 0 && node.type === NodeType.Element) {
-          this.root = node;
-        }
-        chunk = '';
-        if (node.type === NodeType.Element) {
-          this.writerOptions.state = WriterState.OpenTag;
-          chunk = this.writer.indent(node, this.writerOptions, this.currentLevel) + '<' + node.name;
-          ref1 = node.attribs;
-          for (name in ref1) {
-            if (!hasProp.call(ref1, name)) continue;
-            att = ref1[name];
-            chunk += this.writer.attribute(att, this.writerOptions, this.currentLevel);
-          }
-          chunk += (node.children ? '>' : '/>') + this.writer.endline(node, this.writerOptions, this.currentLevel);
-          this.writerOptions.state = WriterState.InsideTag;
-        } else {
-          this.writerOptions.state = WriterState.OpenTag;
-          chunk = this.writer.indent(node, this.writerOptions, this.currentLevel) + '<!DOCTYPE ' + node.rootNodeName;
-          if (node.pubID && node.sysID) {
-            chunk += ' PUBLIC "' + node.pubID + '" "' + node.sysID + '"';
-          } else if (node.sysID) {
-            chunk += ' SYSTEM "' + node.sysID + '"';
-          }
-          if (node.children) {
-            chunk += ' [';
-            this.writerOptions.state = WriterState.InsideTag;
-          } else {
-            this.writerOptions.state = WriterState.CloseTag;
-            chunk += '>';
-          }
-          chunk += this.writer.endline(node, this.writerOptions, this.currentLevel);
-        }
-        this.onData(chunk, this.currentLevel);
-        return node.isOpen = true;
-      }
-    };
-
-    XMLDocumentCB.prototype.closeNode = function(node) {
-      var chunk;
-      if (!node.isClosed) {
-        chunk = '';
-        this.writerOptions.state = WriterState.CloseTag;
-        if (node.type === NodeType.Element) {
-          chunk = this.writer.indent(node, this.writerOptions, this.currentLevel) + '</' + node.name + '>' + this.writer.endline(node, this.writerOptions, this.currentLevel);
-        } else {
-          chunk = this.writer.indent(node, this.writerOptions, this.currentLevel) + ']>' + this.writer.endline(node, this.writerOptions, this.currentLevel);
-        }
-        this.writerOptions.state = WriterState.None;
-        this.onData(chunk, this.currentLevel);
-        return node.isClosed = true;
-      }
-    };
-
-    XMLDocumentCB.prototype.onData = function(chunk, level) {
-      this.documentStarted = true;
-      return this.onDataCallback(chunk, level + 1);
-    };
-
-    XMLDocumentCB.prototype.onEnd = function() {
-      this.documentCompleted = true;
-      return this.onEndCallback();
-    };
-
-    XMLDocumentCB.prototype.debugInfo = function(name) {
-      if (name == null) {
-        return "";
-      } else {
-        return "node: <" + name + ">";
-      }
-    };
-
-    XMLDocumentCB.prototype.ele = function() {
-      return this.element.apply(this, arguments);
-    };
-
-    XMLDocumentCB.prototype.nod = function(name, attributes, text) {
-      return this.node(name, attributes, text);
-    };
-
-    XMLDocumentCB.prototype.txt = function(value) {
-      return this.text(value);
-    };
-
-    XMLDocumentCB.prototype.dat = function(value) {
-      return this.cdata(value);
-    };
-
-    XMLDocumentCB.prototype.com = function(value) {
-      return this.comment(value);
-    };
-
-    XMLDocumentCB.prototype.ins = function(target, value) {
-      return this.instruction(target, value);
-    };
-
-    XMLDocumentCB.prototype.dec = function(version, encoding, standalone) {
-      return this.declaration(version, encoding, standalone);
-    };
-
-    XMLDocumentCB.prototype.dtd = function(root, pubID, sysID) {
-      return this.doctype(root, pubID, sysID);
-    };
-
-    XMLDocumentCB.prototype.e = function(name, attributes, text) {
-      return this.element(name, attributes, text);
-    };
-
-    XMLDocumentCB.prototype.n = function(name, attributes, text) {
-      return this.node(name, attributes, text);
-    };
-
-    XMLDocumentCB.prototype.t = function(value) {
-      return this.text(value);
-    };
-
-    XMLDocumentCB.prototype.d = function(value) {
-      return this.cdata(value);
-    };
-
-    XMLDocumentCB.prototype.c = function(value) {
-      return this.comment(value);
-    };
-
-    XMLDocumentCB.prototype.r = function(value) {
-      return this.raw(value);
-    };
-
-    XMLDocumentCB.prototype.i = function(target, value) {
-      return this.instruction(target, value);
-    };
-
-    XMLDocumentCB.prototype.att = function() {
-      if (this.currentNode && this.currentNode.type === NodeType.DocType) {
-        return this.attList.apply(this, arguments);
-      } else {
-        return this.attribute.apply(this, arguments);
-      }
-    };
-
-    XMLDocumentCB.prototype.a = function() {
-      if (this.currentNode && this.currentNode.type === NodeType.DocType) {
-        return this.attList.apply(this, arguments);
-      } else {
-        return this.attribute.apply(this, arguments);
-      }
-    };
-
-    XMLDocumentCB.prototype.ent = function(name, value) {
-      return this.entity(name, value);
-    };
-
-    XMLDocumentCB.prototype.pent = function(name, value) {
-      return this.pEntity(name, value);
-    };
-
-    XMLDocumentCB.prototype.not = function(name, value) {
-      return this.notation(name, value);
-    };
-
-    return XMLDocumentCB;
-
-  })();
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./WriterState":345,"./XMLAttribute":346,"./XMLCData":347,"./XMLComment":349,"./XMLDTDAttList":354,"./XMLDTDElement":355,"./XMLDTDEntity":356,"./XMLDTDNotation":357,"./XMLDeclaration":358,"./XMLDocType":359,"./XMLDocument":360,"./XMLElement":363,"./XMLProcessingInstruction":367,"./XMLRaw":368,"./XMLStringWriter":370,"./XMLStringifier":371,"./XMLText":372}],362:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLDummy, XMLNode,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  module.exports = XMLDummy = (function(superClass) {
-    extend(XMLDummy, superClass);
-
-    function XMLDummy(parent) {
-      XMLDummy.__super__.constructor.call(this, parent);
-      this.type = NodeType.Dummy;
-    }
-
-    XMLDummy.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLDummy.prototype.toString = function(options) {
-      return '';
-    };
-
-    return XMLDummy;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLNode":365}],363:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLAttribute, XMLElement, XMLNamedNodeMap, XMLNode, getValue, isFunction, isObject, ref,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  ref = require('./Utility'), isObject = ref.isObject, isFunction = ref.isFunction, getValue = ref.getValue;
-
-  XMLNode = require('./XMLNode');
-
-  NodeType = require('./NodeType');
-
-  XMLAttribute = require('./XMLAttribute');
-
-  XMLNamedNodeMap = require('./XMLNamedNodeMap');
-
-  module.exports = XMLElement = (function(superClass) {
-    extend(XMLElement, superClass);
-
-    function XMLElement(parent, name, attributes) {
-      var child, j, len, ref1;
-      XMLElement.__super__.constructor.call(this, parent);
-      if (name == null) {
-        throw new Error("Missing element name. " + this.debugInfo());
-      }
-      this.name = this.stringify.name(name);
-      this.type = NodeType.Element;
-      this.attribs = {};
-      this.schemaTypeInfo = null;
-      if (attributes != null) {
-        this.attribute(attributes);
-      }
-      if (parent.type === NodeType.Document) {
-        this.isRoot = true;
-        this.documentObject = parent;
-        parent.rootObject = this;
-        if (parent.children) {
-          ref1 = parent.children;
-          for (j = 0, len = ref1.length; j < len; j++) {
-            child = ref1[j];
-            if (child.type === NodeType.DocType) {
-              child.name = this.name;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    Object.defineProperty(XMLElement.prototype, 'tagName', {
-      get: function() {
-        return this.name;
-      }
-    });
-
-    Object.defineProperty(XMLElement.prototype, 'namespaceURI', {
-      get: function() {
-        return '';
-      }
-    });
-
-    Object.defineProperty(XMLElement.prototype, 'prefix', {
-      get: function() {
-        return '';
-      }
-    });
-
-    Object.defineProperty(XMLElement.prototype, 'localName', {
-      get: function() {
-        return this.name;
-      }
-    });
-
-    Object.defineProperty(XMLElement.prototype, 'id', {
-      get: function() {
-        throw new Error("This DOM method is not implemented." + this.debugInfo());
-      }
-    });
-
-    Object.defineProperty(XMLElement.prototype, 'className', {
-      get: function() {
-        throw new Error("This DOM method is not implemented." + this.debugInfo());
-      }
-    });
-
-    Object.defineProperty(XMLElement.prototype, 'classList', {
-      get: function() {
-        throw new Error("This DOM method is not implemented." + this.debugInfo());
-      }
-    });
-
-    Object.defineProperty(XMLElement.prototype, 'attributes', {
-      get: function() {
-        if (!this.attributeMap || !this.attributeMap.nodes) {
-          this.attributeMap = new XMLNamedNodeMap(this.attribs);
-        }
-        return this.attributeMap;
-      }
-    });
-
-    XMLElement.prototype.clone = function() {
-      var att, attName, clonedSelf, ref1;
-      clonedSelf = Object.create(this);
-      if (clonedSelf.isRoot) {
-        clonedSelf.documentObject = null;
-      }
-      clonedSelf.attribs = {};
-      ref1 = this.attribs;
-      for (attName in ref1) {
-        if (!hasProp.call(ref1, attName)) continue;
-        att = ref1[attName];
-        clonedSelf.attribs[attName] = att.clone();
-      }
-      clonedSelf.children = [];
-      this.children.forEach(function(child) {
-        var clonedChild;
-        clonedChild = child.clone();
-        clonedChild.parent = clonedSelf;
-        return clonedSelf.children.push(clonedChild);
-      });
-      return clonedSelf;
-    };
-
-    XMLElement.prototype.attribute = function(name, value) {
-      var attName, attValue;
-      if (name != null) {
-        name = getValue(name);
-      }
-      if (isObject(name)) {
-        for (attName in name) {
-          if (!hasProp.call(name, attName)) continue;
-          attValue = name[attName];
-          this.attribute(attName, attValue);
-        }
-      } else {
-        if (isFunction(value)) {
-          value = value.apply();
-        }
-        if (this.options.keepNullAttributes && (value == null)) {
-          this.attribs[name] = new XMLAttribute(this, name, "");
-        } else if (value != null) {
-          this.attribs[name] = new XMLAttribute(this, name, value);
-        }
-      }
-      return this;
-    };
-
-    XMLElement.prototype.removeAttribute = function(name) {
-      var attName, j, len;
-      if (name == null) {
-        throw new Error("Missing attribute name. " + this.debugInfo());
-      }
-      name = getValue(name);
-      if (Array.isArray(name)) {
-        for (j = 0, len = name.length; j < len; j++) {
-          attName = name[j];
-          delete this.attribs[attName];
-        }
-      } else {
-        delete this.attribs[name];
-      }
-      return this;
-    };
-
-    XMLElement.prototype.toString = function(options) {
-      return this.options.writer.element(this, this.options.writer.filterOptions(options));
-    };
-
-    XMLElement.prototype.att = function(name, value) {
-      return this.attribute(name, value);
-    };
-
-    XMLElement.prototype.a = function(name, value) {
-      return this.attribute(name, value);
-    };
-
-    XMLElement.prototype.getAttribute = function(name) {
-      if (this.attribs.hasOwnProperty(name)) {
-        return this.attribs[name].value;
-      } else {
-        return null;
-      }
-    };
-
-    XMLElement.prototype.setAttribute = function(name, value) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getAttributeNode = function(name) {
-      if (this.attribs.hasOwnProperty(name)) {
-        return this.attribs[name];
-      } else {
-        return null;
-      }
-    };
-
-    XMLElement.prototype.setAttributeNode = function(newAttr) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.removeAttributeNode = function(oldAttr) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getElementsByTagName = function(name) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getAttributeNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.setAttributeNS = function(namespaceURI, qualifiedName, value) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.removeAttributeNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getAttributeNodeNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.setAttributeNodeNS = function(newAttr) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getElementsByTagNameNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.hasAttribute = function(name) {
-      return this.attribs.hasOwnProperty(name);
-    };
-
-    XMLElement.prototype.hasAttributeNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.setIdAttribute = function(name, isId) {
-      if (this.attribs.hasOwnProperty(name)) {
-        return this.attribs[name].isId;
-      } else {
-        return isId;
-      }
-    };
-
-    XMLElement.prototype.setIdAttributeNS = function(namespaceURI, localName, isId) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.setIdAttributeNode = function(idAttr, isId) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getElementsByTagName = function(tagname) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getElementsByTagNameNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.getElementsByClassName = function(classNames) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLElement.prototype.isEqualNode = function(node) {
-      var i, j, ref1;
-      if (!XMLElement.__super__.isEqualNode.apply(this, arguments).isEqualNode(node)) {
-        return false;
-      }
-      if (node.namespaceURI !== this.namespaceURI) {
-        return false;
-      }
-      if (node.prefix !== this.prefix) {
-        return false;
-      }
-      if (node.localName !== this.localName) {
-        return false;
-      }
-      if (node.attribs.length !== this.attribs.length) {
-        return false;
-      }
-      for (i = j = 0, ref1 = this.attribs.length - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; i = 0 <= ref1 ? ++j : --j) {
-        if (!this.attribs[i].isEqualNode(node.attribs[i])) {
-          return false;
-        }
-      }
-      return true;
-    };
-
-    return XMLElement;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./XMLAttribute":346,"./XMLNamedNodeMap":364,"./XMLNode":365}],364:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLNamedNodeMap;
-
-  module.exports = XMLNamedNodeMap = (function() {
-    function XMLNamedNodeMap(nodes) {
-      this.nodes = nodes;
-    }
-
-    Object.defineProperty(XMLNamedNodeMap.prototype, 'length', {
-      get: function() {
-        return Object.keys(this.nodes).length || 0;
-      }
-    });
-
-    XMLNamedNodeMap.prototype.clone = function() {
-      return this.nodes = null;
-    };
-
-    XMLNamedNodeMap.prototype.getNamedItem = function(name) {
-      return this.nodes[name];
-    };
-
-    XMLNamedNodeMap.prototype.setNamedItem = function(node) {
-      var oldNode;
-      oldNode = this.nodes[node.nodeName];
-      this.nodes[node.nodeName] = node;
-      return oldNode || null;
-    };
-
-    XMLNamedNodeMap.prototype.removeNamedItem = function(name) {
-      var oldNode;
-      oldNode = this.nodes[name];
-      delete this.nodes[name];
-      return oldNode || null;
-    };
-
-    XMLNamedNodeMap.prototype.item = function(index) {
-      return this.nodes[Object.keys(this.nodes)[index]] || null;
-    };
-
-    XMLNamedNodeMap.prototype.getNamedItemNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented.");
-    };
-
-    XMLNamedNodeMap.prototype.setNamedItemNS = function(node) {
-      throw new Error("This DOM method is not implemented.");
-    };
-
-    XMLNamedNodeMap.prototype.removeNamedItemNS = function(namespaceURI, localName) {
-      throw new Error("This DOM method is not implemented.");
-    };
-
-    return XMLNamedNodeMap;
-
-  })();
-
-}).call(this);
-
-},{}],365:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var DocumentPosition, NodeType, XMLCData, XMLComment, XMLDeclaration, XMLDocType, XMLDummy, XMLElement, XMLNamedNodeMap, XMLNode, XMLNodeList, XMLProcessingInstruction, XMLRaw, XMLText, getValue, isEmpty, isFunction, isObject, ref1,
-    hasProp = {}.hasOwnProperty;
-
-  ref1 = require('./Utility'), isObject = ref1.isObject, isFunction = ref1.isFunction, isEmpty = ref1.isEmpty, getValue = ref1.getValue;
-
-  XMLElement = null;
-
-  XMLCData = null;
-
-  XMLComment = null;
-
-  XMLDeclaration = null;
-
-  XMLDocType = null;
-
-  XMLRaw = null;
-
-  XMLText = null;
-
-  XMLProcessingInstruction = null;
-
-  XMLDummy = null;
-
-  NodeType = null;
-
-  XMLNodeList = null;
-
-  XMLNamedNodeMap = null;
-
-  DocumentPosition = null;
-
-  module.exports = XMLNode = (function() {
-    function XMLNode(parent1) {
-      this.parent = parent1;
-      if (this.parent) {
-        this.options = this.parent.options;
-        this.stringify = this.parent.stringify;
-      }
-      this.value = null;
-      this.children = [];
-      this.baseURI = null;
-      if (!XMLElement) {
-        XMLElement = require('./XMLElement');
-        XMLCData = require('./XMLCData');
-        XMLComment = require('./XMLComment');
-        XMLDeclaration = require('./XMLDeclaration');
-        XMLDocType = require('./XMLDocType');
-        XMLRaw = require('./XMLRaw');
-        XMLText = require('./XMLText');
-        XMLProcessingInstruction = require('./XMLProcessingInstruction');
-        XMLDummy = require('./XMLDummy');
-        NodeType = require('./NodeType');
-        XMLNodeList = require('./XMLNodeList');
-        XMLNamedNodeMap = require('./XMLNamedNodeMap');
-        DocumentPosition = require('./DocumentPosition');
-      }
-    }
-
-    Object.defineProperty(XMLNode.prototype, 'nodeName', {
-      get: function() {
-        return this.name;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'nodeType', {
-      get: function() {
-        return this.type;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'nodeValue', {
-      get: function() {
-        return this.value;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'parentNode', {
-      get: function() {
-        return this.parent;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'childNodes', {
-      get: function() {
-        if (!this.childNodeList || !this.childNodeList.nodes) {
-          this.childNodeList = new XMLNodeList(this.children);
-        }
-        return this.childNodeList;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'firstChild', {
-      get: function() {
-        return this.children[0] || null;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'lastChild', {
-      get: function() {
-        return this.children[this.children.length - 1] || null;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'previousSibling', {
-      get: function() {
-        var i;
-        i = this.parent.children.indexOf(this);
-        return this.parent.children[i - 1] || null;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'nextSibling', {
-      get: function() {
-        var i;
-        i = this.parent.children.indexOf(this);
-        return this.parent.children[i + 1] || null;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'ownerDocument', {
-      get: function() {
-        return this.document() || null;
-      }
-    });
-
-    Object.defineProperty(XMLNode.prototype, 'textContent', {
-      get: function() {
-        var child, j, len, ref2, str;
-        if (this.nodeType === NodeType.Element || this.nodeType === NodeType.DocumentFragment) {
-          str = '';
-          ref2 = this.children;
-          for (j = 0, len = ref2.length; j < len; j++) {
-            child = ref2[j];
-            if (child.textContent) {
-              str += child.textContent;
-            }
-          }
-          return str;
-        } else {
-          return null;
-        }
-      },
-      set: function(value) {
-        throw new Error("This DOM method is not implemented." + this.debugInfo());
-      }
-    });
-
-    XMLNode.prototype.setParent = function(parent) {
-      var child, j, len, ref2, results;
-      this.parent = parent;
-      if (parent) {
-        this.options = parent.options;
-        this.stringify = parent.stringify;
-      }
-      ref2 = this.children;
-      results = [];
-      for (j = 0, len = ref2.length; j < len; j++) {
-        child = ref2[j];
-        results.push(child.setParent(this));
-      }
-      return results;
-    };
-
-    XMLNode.prototype.element = function(name, attributes, text) {
-      var childNode, item, j, k, key, lastChild, len, len1, ref2, ref3, val;
-      lastChild = null;
-      if (attributes === null && (text == null)) {
-        ref2 = [{}, null], attributes = ref2[0], text = ref2[1];
-      }
-      if (attributes == null) {
-        attributes = {};
-      }
-      attributes = getValue(attributes);
-      if (!isObject(attributes)) {
-        ref3 = [attributes, text], text = ref3[0], attributes = ref3[1];
-      }
-      if (name != null) {
-        name = getValue(name);
-      }
-      if (Array.isArray(name)) {
-        for (j = 0, len = name.length; j < len; j++) {
-          item = name[j];
-          lastChild = this.element(item);
-        }
-      } else if (isFunction(name)) {
-        lastChild = this.element(name.apply());
-      } else if (isObject(name)) {
-        for (key in name) {
-          if (!hasProp.call(name, key)) continue;
-          val = name[key];
-          if (isFunction(val)) {
-            val = val.apply();
-          }
-          if (!this.options.ignoreDecorators && this.stringify.convertAttKey && key.indexOf(this.stringify.convertAttKey) === 0) {
-            lastChild = this.attribute(key.substr(this.stringify.convertAttKey.length), val);
-          } else if (!this.options.separateArrayItems && Array.isArray(val) && isEmpty(val)) {
-            lastChild = this.dummy();
-          } else if (isObject(val) && isEmpty(val)) {
-            lastChild = this.element(key);
-          } else if (!this.options.keepNullNodes && (val == null)) {
-            lastChild = this.dummy();
-          } else if (!this.options.separateArrayItems && Array.isArray(val)) {
-            for (k = 0, len1 = val.length; k < len1; k++) {
-              item = val[k];
-              childNode = {};
-              childNode[key] = item;
-              lastChild = this.element(childNode);
-            }
-          } else if (isObject(val)) {
-            if (!this.options.ignoreDecorators && this.stringify.convertTextKey && key.indexOf(this.stringify.convertTextKey) === 0) {
-              lastChild = this.element(val);
-            } else {
-              lastChild = this.element(key);
-              lastChild.element(val);
-            }
-          } else {
-            lastChild = this.element(key, val);
-          }
-        }
-      } else if (!this.options.keepNullNodes && text === null) {
-        lastChild = this.dummy();
-      } else {
-        if (!this.options.ignoreDecorators && this.stringify.convertTextKey && name.indexOf(this.stringify.convertTextKey) === 0) {
-          lastChild = this.text(text);
-        } else if (!this.options.ignoreDecorators && this.stringify.convertCDataKey && name.indexOf(this.stringify.convertCDataKey) === 0) {
-          lastChild = this.cdata(text);
-        } else if (!this.options.ignoreDecorators && this.stringify.convertCommentKey && name.indexOf(this.stringify.convertCommentKey) === 0) {
-          lastChild = this.comment(text);
-        } else if (!this.options.ignoreDecorators && this.stringify.convertRawKey && name.indexOf(this.stringify.convertRawKey) === 0) {
-          lastChild = this.raw(text);
-        } else if (!this.options.ignoreDecorators && this.stringify.convertPIKey && name.indexOf(this.stringify.convertPIKey) === 0) {
-          lastChild = this.instruction(name.substr(this.stringify.convertPIKey.length), text);
-        } else {
-          lastChild = this.node(name, attributes, text);
-        }
-      }
-      if (lastChild == null) {
-        throw new Error("Could not create any elements with: " + name + ". " + this.debugInfo());
-      }
-      return lastChild;
-    };
-
-    XMLNode.prototype.insertBefore = function(name, attributes, text) {
-      var child, i, newChild, refChild, removed;
-      if (name != null ? name.type : void 0) {
-        newChild = name;
-        refChild = attributes;
-        newChild.setParent(this);
-        if (refChild) {
-          i = children.indexOf(refChild);
-          removed = children.splice(i);
-          children.push(newChild);
-          Array.prototype.push.apply(children, removed);
-        } else {
-          children.push(newChild);
-        }
-        return newChild;
-      } else {
-        if (this.isRoot) {
-          throw new Error("Cannot insert elements at root level. " + this.debugInfo(name));
-        }
-        i = this.parent.children.indexOf(this);
-        removed = this.parent.children.splice(i);
-        child = this.parent.element(name, attributes, text);
-        Array.prototype.push.apply(this.parent.children, removed);
-        return child;
-      }
-    };
-
-    XMLNode.prototype.insertAfter = function(name, attributes, text) {
-      var child, i, removed;
-      if (this.isRoot) {
-        throw new Error("Cannot insert elements at root level. " + this.debugInfo(name));
-      }
-      i = this.parent.children.indexOf(this);
-      removed = this.parent.children.splice(i + 1);
-      child = this.parent.element(name, attributes, text);
-      Array.prototype.push.apply(this.parent.children, removed);
-      return child;
-    };
-
-    XMLNode.prototype.remove = function() {
-      var i, ref2;
-      if (this.isRoot) {
-        throw new Error("Cannot remove the root element. " + this.debugInfo());
-      }
-      i = this.parent.children.indexOf(this);
-      [].splice.apply(this.parent.children, [i, i - i + 1].concat(ref2 = [])), ref2;
-      return this.parent;
-    };
-
-    XMLNode.prototype.node = function(name, attributes, text) {
-      var child, ref2;
-      if (name != null) {
-        name = getValue(name);
-      }
-      attributes || (attributes = {});
-      attributes = getValue(attributes);
-      if (!isObject(attributes)) {
-        ref2 = [attributes, text], text = ref2[0], attributes = ref2[1];
-      }
-      child = new XMLElement(this, name, attributes);
-      if (text != null) {
-        child.text(text);
-      }
-      this.children.push(child);
-      return child;
-    };
-
-    XMLNode.prototype.text = function(value) {
-      var child;
-      if (isObject(value)) {
-        this.element(value);
-      }
-      child = new XMLText(this, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLNode.prototype.cdata = function(value) {
-      var child;
-      child = new XMLCData(this, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLNode.prototype.comment = function(value) {
-      var child;
-      child = new XMLComment(this, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLNode.prototype.commentBefore = function(value) {
-      var child, i, removed;
-      i = this.parent.children.indexOf(this);
-      removed = this.parent.children.splice(i);
-      child = this.parent.comment(value);
-      Array.prototype.push.apply(this.parent.children, removed);
-      return this;
-    };
-
-    XMLNode.prototype.commentAfter = function(value) {
-      var child, i, removed;
-      i = this.parent.children.indexOf(this);
-      removed = this.parent.children.splice(i + 1);
-      child = this.parent.comment(value);
-      Array.prototype.push.apply(this.parent.children, removed);
-      return this;
-    };
-
-    XMLNode.prototype.raw = function(value) {
-      var child;
-      child = new XMLRaw(this, value);
-      this.children.push(child);
-      return this;
-    };
-
-    XMLNode.prototype.dummy = function() {
-      var child;
-      child = new XMLDummy(this);
-      return child;
-    };
-
-    XMLNode.prototype.instruction = function(target, value) {
-      var insTarget, insValue, instruction, j, len;
-      if (target != null) {
-        target = getValue(target);
-      }
-      if (value != null) {
-        value = getValue(value);
-      }
-      if (Array.isArray(target)) {
-        for (j = 0, len = target.length; j < len; j++) {
-          insTarget = target[j];
-          this.instruction(insTarget);
-        }
-      } else if (isObject(target)) {
-        for (insTarget in target) {
-          if (!hasProp.call(target, insTarget)) continue;
-          insValue = target[insTarget];
-          this.instruction(insTarget, insValue);
-        }
-      } else {
-        if (isFunction(value)) {
-          value = value.apply();
-        }
-        instruction = new XMLProcessingInstruction(this, target, value);
-        this.children.push(instruction);
-      }
-      return this;
-    };
-
-    XMLNode.prototype.instructionBefore = function(target, value) {
-      var child, i, removed;
-      i = this.parent.children.indexOf(this);
-      removed = this.parent.children.splice(i);
-      child = this.parent.instruction(target, value);
-      Array.prototype.push.apply(this.parent.children, removed);
-      return this;
-    };
-
-    XMLNode.prototype.instructionAfter = function(target, value) {
-      var child, i, removed;
-      i = this.parent.children.indexOf(this);
-      removed = this.parent.children.splice(i + 1);
-      child = this.parent.instruction(target, value);
-      Array.prototype.push.apply(this.parent.children, removed);
-      return this;
-    };
-
-    XMLNode.prototype.declaration = function(version, encoding, standalone) {
-      var doc, xmldec;
-      doc = this.document();
-      xmldec = new XMLDeclaration(doc, version, encoding, standalone);
-      if (doc.children.length === 0) {
-        doc.children.unshift(xmldec);
-      } else if (doc.children[0].type === NodeType.Declaration) {
-        doc.children[0] = xmldec;
-      } else {
-        doc.children.unshift(xmldec);
-      }
-      return doc.root() || doc;
-    };
-
-    XMLNode.prototype.dtd = function(pubID, sysID) {
-      var child, doc, doctype, i, j, k, len, len1, ref2, ref3;
-      doc = this.document();
-      doctype = new XMLDocType(doc, pubID, sysID);
-      ref2 = doc.children;
-      for (i = j = 0, len = ref2.length; j < len; i = ++j) {
-        child = ref2[i];
-        if (child.type === NodeType.DocType) {
-          doc.children[i] = doctype;
-          return doctype;
-        }
-      }
-      ref3 = doc.children;
-      for (i = k = 0, len1 = ref3.length; k < len1; i = ++k) {
-        child = ref3[i];
-        if (child.isRoot) {
-          doc.children.splice(i, 0, doctype);
-          return doctype;
-        }
-      }
-      doc.children.push(doctype);
-      return doctype;
-    };
-
-    XMLNode.prototype.up = function() {
-      if (this.isRoot) {
-        throw new Error("The root node has no parent. Use doc() if you need to get the document object.");
-      }
-      return this.parent;
-    };
-
-    XMLNode.prototype.root = function() {
-      var node;
-      node = this;
-      while (node) {
-        if (node.type === NodeType.Document) {
-          return node.rootObject;
-        } else if (node.isRoot) {
-          return node;
-        } else {
-          node = node.parent;
-        }
-      }
-    };
-
-    XMLNode.prototype.document = function() {
-      var node;
-      node = this;
-      while (node) {
-        if (node.type === NodeType.Document) {
-          return node;
-        } else {
-          node = node.parent;
-        }
-      }
-    };
-
-    XMLNode.prototype.end = function(options) {
-      return this.document().end(options);
-    };
-
-    XMLNode.prototype.prev = function() {
-      var i;
-      i = this.parent.children.indexOf(this);
-      if (i < 1) {
-        throw new Error("Already at the first node. " + this.debugInfo());
-      }
-      return this.parent.children[i - 1];
-    };
-
-    XMLNode.prototype.next = function() {
-      var i;
-      i = this.parent.children.indexOf(this);
-      if (i === -1 || i === this.parent.children.length - 1) {
-        throw new Error("Already at the last node. " + this.debugInfo());
-      }
-      return this.parent.children[i + 1];
-    };
-
-    XMLNode.prototype.importDocument = function(doc) {
-      var clonedRoot;
-      clonedRoot = doc.root().clone();
-      clonedRoot.parent = this;
-      clonedRoot.isRoot = false;
-      this.children.push(clonedRoot);
-      return this;
-    };
-
-    XMLNode.prototype.debugInfo = function(name) {
-      var ref2, ref3;
-      name = name || this.name;
-      if ((name == null) && !((ref2 = this.parent) != null ? ref2.name : void 0)) {
-        return "";
-      } else if (name == null) {
-        return "parent: <" + this.parent.name + ">";
-      } else if (!((ref3 = this.parent) != null ? ref3.name : void 0)) {
-        return "node: <" + name + ">";
-      } else {
-        return "node: <" + name + ">, parent: <" + this.parent.name + ">";
-      }
-    };
-
-    XMLNode.prototype.ele = function(name, attributes, text) {
-      return this.element(name, attributes, text);
-    };
-
-    XMLNode.prototype.nod = function(name, attributes, text) {
-      return this.node(name, attributes, text);
-    };
-
-    XMLNode.prototype.txt = function(value) {
-      return this.text(value);
-    };
-
-    XMLNode.prototype.dat = function(value) {
-      return this.cdata(value);
-    };
-
-    XMLNode.prototype.com = function(value) {
-      return this.comment(value);
-    };
-
-    XMLNode.prototype.ins = function(target, value) {
-      return this.instruction(target, value);
-    };
-
-    XMLNode.prototype.doc = function() {
-      return this.document();
-    };
-
-    XMLNode.prototype.dec = function(version, encoding, standalone) {
-      return this.declaration(version, encoding, standalone);
-    };
-
-    XMLNode.prototype.e = function(name, attributes, text) {
-      return this.element(name, attributes, text);
-    };
-
-    XMLNode.prototype.n = function(name, attributes, text) {
-      return this.node(name, attributes, text);
-    };
-
-    XMLNode.prototype.t = function(value) {
-      return this.text(value);
-    };
-
-    XMLNode.prototype.d = function(value) {
-      return this.cdata(value);
-    };
-
-    XMLNode.prototype.c = function(value) {
-      return this.comment(value);
-    };
-
-    XMLNode.prototype.r = function(value) {
-      return this.raw(value);
-    };
-
-    XMLNode.prototype.i = function(target, value) {
-      return this.instruction(target, value);
-    };
-
-    XMLNode.prototype.u = function() {
-      return this.up();
-    };
-
-    XMLNode.prototype.importXMLBuilder = function(doc) {
-      return this.importDocument(doc);
-    };
-
-    XMLNode.prototype.replaceChild = function(newChild, oldChild) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.removeChild = function(oldChild) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.appendChild = function(newChild) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.hasChildNodes = function() {
-      return this.children.length !== 0;
-    };
-
-    XMLNode.prototype.cloneNode = function(deep) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.normalize = function() {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.isSupported = function(feature, version) {
-      return true;
-    };
-
-    XMLNode.prototype.hasAttributes = function() {
-      return this.attribs.length !== 0;
-    };
-
-    XMLNode.prototype.compareDocumentPosition = function(other) {
-      var ref, res;
-      ref = this;
-      if (ref === other) {
-        return 0;
-      } else if (this.document() !== other.document()) {
-        res = DocumentPosition.Disconnected | DocumentPosition.ImplementationSpecific;
-        if (Math.random() < 0.5) {
-          res |= DocumentPosition.Preceding;
-        } else {
-          res |= DocumentPosition.Following;
-        }
-        return res;
-      } else if (ref.isAncestor(other)) {
-        return DocumentPosition.Contains | DocumentPosition.Preceding;
-      } else if (ref.isDescendant(other)) {
-        return DocumentPosition.Contains | DocumentPosition.Following;
-      } else if (ref.isPreceding(other)) {
-        return DocumentPosition.Preceding;
-      } else {
-        return DocumentPosition.Following;
-      }
-    };
-
-    XMLNode.prototype.isSameNode = function(other) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.lookupPrefix = function(namespaceURI) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.isDefaultNamespace = function(namespaceURI) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.lookupNamespaceURI = function(prefix) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.isEqualNode = function(node) {
-      var i, j, ref2;
-      if (node.nodeType !== this.nodeType) {
-        return false;
-      }
-      if (node.children.length !== this.children.length) {
-        return false;
-      }
-      for (i = j = 0, ref2 = this.children.length - 1; 0 <= ref2 ? j <= ref2 : j >= ref2; i = 0 <= ref2 ? ++j : --j) {
-        if (!this.children[i].isEqualNode(node.children[i])) {
-          return false;
-        }
-      }
-      return true;
-    };
-
-    XMLNode.prototype.getFeature = function(feature, version) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.setUserData = function(key, data, handler) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.getUserData = function(key) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLNode.prototype.contains = function(other) {
-      if (!other) {
-        return false;
-      }
-      return other === this || this.isDescendant(other);
-    };
-
-    XMLNode.prototype.isDescendant = function(node) {
-      var child, isDescendantChild, j, len, ref2;
-      ref2 = this.children;
-      for (j = 0, len = ref2.length; j < len; j++) {
-        child = ref2[j];
-        if (node === child) {
-          return true;
-        }
-        isDescendantChild = child.isDescendant(node);
-        if (isDescendantChild) {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    XMLNode.prototype.isAncestor = function(node) {
-      return node.isDescendant(this);
-    };
-
-    XMLNode.prototype.isPreceding = function(node) {
-      var nodePos, thisPos;
-      nodePos = this.treePosition(node);
-      thisPos = this.treePosition(this);
-      if (nodePos === -1 || thisPos === -1) {
-        return false;
-      } else {
-        return nodePos < thisPos;
-      }
-    };
-
-    XMLNode.prototype.isFollowing = function(node) {
-      var nodePos, thisPos;
-      nodePos = this.treePosition(node);
-      thisPos = this.treePosition(this);
-      if (nodePos === -1 || thisPos === -1) {
-        return false;
-      } else {
-        return nodePos > thisPos;
-      }
-    };
-
-    XMLNode.prototype.treePosition = function(node) {
-      var found, pos;
-      pos = 0;
-      found = false;
-      this.foreachTreeNode(this.document(), function(childNode) {
-        pos++;
-        if (!found && childNode === node) {
-          return found = true;
-        }
-      });
-      if (found) {
-        return pos;
-      } else {
-        return -1;
-      }
-    };
-
-    XMLNode.prototype.foreachTreeNode = function(node, func) {
-      var child, j, len, ref2, res;
-      node || (node = this.document());
-      ref2 = node.children;
-      for (j = 0, len = ref2.length; j < len; j++) {
-        child = ref2[j];
-        if (res = func(child)) {
-          return res;
-        } else {
-          res = this.foreachTreeNode(child, func);
-          if (res) {
-            return res;
-          }
-        }
-      }
-    };
-
-    return XMLNode;
-
-  })();
-
-}).call(this);
-
-},{"./DocumentPosition":342,"./NodeType":343,"./Utility":344,"./XMLCData":347,"./XMLComment":349,"./XMLDeclaration":358,"./XMLDocType":359,"./XMLDummy":362,"./XMLElement":363,"./XMLNamedNodeMap":364,"./XMLNodeList":366,"./XMLProcessingInstruction":367,"./XMLRaw":368,"./XMLText":372}],366:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLNodeList;
-
-  module.exports = XMLNodeList = (function() {
-    function XMLNodeList(nodes) {
-      this.nodes = nodes;
-    }
-
-    Object.defineProperty(XMLNodeList.prototype, 'length', {
-      get: function() {
-        return this.nodes.length || 0;
-      }
-    });
-
-    XMLNodeList.prototype.clone = function() {
-      return this.nodes = null;
-    };
-
-    XMLNodeList.prototype.item = function(index) {
-      return this.nodes[index] || null;
-    };
-
-    return XMLNodeList;
-
-  })();
-
-}).call(this);
-
-},{}],367:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLCharacterData, XMLProcessingInstruction,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  NodeType = require('./NodeType');
-
-  XMLCharacterData = require('./XMLCharacterData');
-
-  module.exports = XMLProcessingInstruction = (function(superClass) {
-    extend(XMLProcessingInstruction, superClass);
-
-    function XMLProcessingInstruction(parent, target, value) {
-      XMLProcessingInstruction.__super__.constructor.call(this, parent);
-      if (target == null) {
-        throw new Error("Missing instruction target. " + this.debugInfo());
-      }
-      this.type = NodeType.ProcessingInstruction;
-      this.target = this.stringify.insTarget(target);
-      this.name = this.target;
-      if (value) {
-        this.value = this.stringify.insValue(value);
-      }
-    }
-
-    XMLProcessingInstruction.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLProcessingInstruction.prototype.toString = function(options) {
-      return this.options.writer.processingInstruction(this, this.options.writer.filterOptions(options));
-    };
-
-    XMLProcessingInstruction.prototype.isEqualNode = function(node) {
-      if (!XMLProcessingInstruction.__super__.isEqualNode.apply(this, arguments).isEqualNode(node)) {
-        return false;
-      }
-      if (node.target !== this.target) {
-        return false;
-      }
-      return true;
-    };
-
-    return XMLProcessingInstruction;
-
-  })(XMLCharacterData);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLCharacterData":348}],368:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLNode, XMLRaw,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  NodeType = require('./NodeType');
-
-  XMLNode = require('./XMLNode');
-
-  module.exports = XMLRaw = (function(superClass) {
-    extend(XMLRaw, superClass);
-
-    function XMLRaw(parent, text) {
-      XMLRaw.__super__.constructor.call(this, parent);
-      if (text == null) {
-        throw new Error("Missing raw text. " + this.debugInfo());
-      }
-      this.type = NodeType.Raw;
-      this.value = this.stringify.raw(text);
-    }
-
-    XMLRaw.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLRaw.prototype.toString = function(options) {
-      return this.options.writer.raw(this, this.options.writer.filterOptions(options));
-    };
-
-    return XMLRaw;
-
-  })(XMLNode);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLNode":365}],369:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, WriterState, XMLStreamWriter, XMLWriterBase,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  NodeType = require('./NodeType');
-
-  XMLWriterBase = require('./XMLWriterBase');
-
-  WriterState = require('./WriterState');
-
-  module.exports = XMLStreamWriter = (function(superClass) {
-    extend(XMLStreamWriter, superClass);
-
-    function XMLStreamWriter(stream, options) {
-      this.stream = stream;
-      XMLStreamWriter.__super__.constructor.call(this, options);
-    }
-
-    XMLStreamWriter.prototype.endline = function(node, options, level) {
-      if (node.isLastRootNode && options.state === WriterState.CloseTag) {
-        return '';
-      } else {
-        return XMLStreamWriter.__super__.endline.call(this, node, options, level);
-      }
-    };
-
-    XMLStreamWriter.prototype.document = function(doc, options) {
-      var child, i, j, k, len, len1, ref, ref1, results;
-      ref = doc.children;
-      for (i = j = 0, len = ref.length; j < len; i = ++j) {
-        child = ref[i];
-        child.isLastRootNode = i === doc.children.length - 1;
-      }
-      options = this.filterOptions(options);
-      ref1 = doc.children;
-      results = [];
-      for (k = 0, len1 = ref1.length; k < len1; k++) {
-        child = ref1[k];
-        results.push(this.writeChildNode(child, options, 0));
-      }
-      return results;
-    };
-
-    XMLStreamWriter.prototype.attribute = function(att, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.attribute.call(this, att, options, level));
-    };
-
-    XMLStreamWriter.prototype.cdata = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.cdata.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.comment = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.comment.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.declaration = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.declaration.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.docType = function(node, options, level) {
-      var child, j, len, ref;
-      level || (level = 0);
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      this.stream.write(this.indent(node, options, level));
-      this.stream.write('<!DOCTYPE ' + node.root().name);
-      if (node.pubID && node.sysID) {
-        this.stream.write(' PUBLIC "' + node.pubID + '" "' + node.sysID + '"');
-      } else if (node.sysID) {
-        this.stream.write(' SYSTEM "' + node.sysID + '"');
-      }
-      if (node.children.length > 0) {
-        this.stream.write(' [');
-        this.stream.write(this.endline(node, options, level));
-        options.state = WriterState.InsideTag;
-        ref = node.children;
-        for (j = 0, len = ref.length; j < len; j++) {
-          child = ref[j];
-          this.writeChildNode(child, options, level + 1);
-        }
-        options.state = WriterState.CloseTag;
-        this.stream.write(']');
-      }
-      options.state = WriterState.CloseTag;
-      this.stream.write(options.spaceBeforeSlash + '>');
-      this.stream.write(this.endline(node, options, level));
-      options.state = WriterState.None;
-      return this.closeNode(node, options, level);
-    };
-
-    XMLStreamWriter.prototype.element = function(node, options, level) {
-      var att, child, childNodeCount, firstChildNode, j, len, name, prettySuppressed, ref, ref1;
-      level || (level = 0);
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      this.stream.write(this.indent(node, options, level) + '<' + node.name);
-      ref = node.attribs;
-      for (name in ref) {
-        if (!hasProp.call(ref, name)) continue;
-        att = ref[name];
-        this.attribute(att, options, level);
-      }
-      childNodeCount = node.children.length;
-      firstChildNode = childNodeCount === 0 ? null : node.children[0];
-      if (childNodeCount === 0 || node.children.every(function(e) {
-        return (e.type === NodeType.Text || e.type === NodeType.Raw) && e.value === '';
-      })) {
-        if (options.allowEmpty) {
-          this.stream.write('>');
-          options.state = WriterState.CloseTag;
-          this.stream.write('</' + node.name + '>');
-        } else {
-          options.state = WriterState.CloseTag;
-          this.stream.write(options.spaceBeforeSlash + '/>');
-        }
-      } else if (options.pretty && childNodeCount === 1 && (firstChildNode.type === NodeType.Text || firstChildNode.type === NodeType.Raw) && (firstChildNode.value != null)) {
-        this.stream.write('>');
-        options.state = WriterState.InsideTag;
-        options.suppressPrettyCount++;
-        prettySuppressed = true;
-        this.writeChildNode(firstChildNode, options, level + 1);
-        options.suppressPrettyCount--;
-        prettySuppressed = false;
-        options.state = WriterState.CloseTag;
-        this.stream.write('</' + node.name + '>');
-      } else {
-        this.stream.write('>' + this.endline(node, options, level));
-        options.state = WriterState.InsideTag;
-        ref1 = node.children;
-        for (j = 0, len = ref1.length; j < len; j++) {
-          child = ref1[j];
-          this.writeChildNode(child, options, level + 1);
-        }
-        options.state = WriterState.CloseTag;
-        this.stream.write(this.indent(node, options, level) + '</' + node.name + '>');
-      }
-      this.stream.write(this.endline(node, options, level));
-      options.state = WriterState.None;
-      return this.closeNode(node, options, level);
-    };
-
-    XMLStreamWriter.prototype.processingInstruction = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.processingInstruction.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.raw = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.raw.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.text = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.text.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.dtdAttList = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.dtdAttList.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.dtdElement = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.dtdElement.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.dtdEntity = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.dtdEntity.call(this, node, options, level));
-    };
-
-    XMLStreamWriter.prototype.dtdNotation = function(node, options, level) {
-      return this.stream.write(XMLStreamWriter.__super__.dtdNotation.call(this, node, options, level));
-    };
-
-    return XMLStreamWriter;
-
-  })(XMLWriterBase);
-
-}).call(this);
-
-},{"./NodeType":343,"./WriterState":345,"./XMLWriterBase":373}],370:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLStringWriter, XMLWriterBase,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  XMLWriterBase = require('./XMLWriterBase');
-
-  module.exports = XMLStringWriter = (function(superClass) {
-    extend(XMLStringWriter, superClass);
-
-    function XMLStringWriter(options) {
-      XMLStringWriter.__super__.constructor.call(this, options);
-    }
-
-    XMLStringWriter.prototype.document = function(doc, options) {
-      var child, i, len, r, ref;
-      options = this.filterOptions(options);
-      r = '';
-      ref = doc.children;
-      for (i = 0, len = ref.length; i < len; i++) {
-        child = ref[i];
-        r += this.writeChildNode(child, options, 0);
-      }
-      if (options.pretty && r.slice(-options.newline.length) === options.newline) {
-        r = r.slice(0, -options.newline.length);
-      }
-      return r;
-    };
-
-    return XMLStringWriter;
-
-  })(XMLWriterBase);
-
-}).call(this);
-
-},{"./XMLWriterBase":373}],371:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLStringifier,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    hasProp = {}.hasOwnProperty;
-
-  module.exports = XMLStringifier = (function() {
-    function XMLStringifier(options) {
-      this.assertLegalName = bind(this.assertLegalName, this);
-      this.assertLegalChar = bind(this.assertLegalChar, this);
-      var key, ref, value;
-      options || (options = {});
-      this.options = options;
-      if (!this.options.version) {
-        this.options.version = '1.0';
-      }
-      ref = options.stringify || {};
-      for (key in ref) {
-        if (!hasProp.call(ref, key)) continue;
-        value = ref[key];
-        this[key] = value;
-      }
-    }
-
-    XMLStringifier.prototype.name = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalName('' + val || '');
-    };
-
-    XMLStringifier.prototype.text = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar(this.textEscape('' + val || ''));
-    };
-
-    XMLStringifier.prototype.cdata = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      val = '' + val || '';
-      val = val.replace(']]>', ']]]]><![CDATA[>');
-      return this.assertLegalChar(val);
-    };
-
-    XMLStringifier.prototype.comment = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      val = '' + val || '';
-      if (val.match(/--/)) {
-        throw new Error("Comment text cannot contain double-hypen: " + val);
-      }
-      return this.assertLegalChar(val);
-    };
-
-    XMLStringifier.prototype.raw = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return '' + val || '';
-    };
-
-    XMLStringifier.prototype.attValue = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar(this.attEscape(val = '' + val || ''));
-    };
-
-    XMLStringifier.prototype.insTarget = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.insValue = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      val = '' + val || '';
-      if (val.match(/\?>/)) {
-        throw new Error("Invalid processing instruction value: " + val);
-      }
-      return this.assertLegalChar(val);
-    };
-
-    XMLStringifier.prototype.xmlVersion = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      val = '' + val || '';
-      if (!val.match(/1\.[0-9]+/)) {
-        throw new Error("Invalid version number: " + val);
-      }
-      return val;
-    };
-
-    XMLStringifier.prototype.xmlEncoding = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      val = '' + val || '';
-      if (!val.match(/^[A-Za-z](?:[A-Za-z0-9._-])*$/)) {
-        throw new Error("Invalid encoding: " + val);
-      }
-      return this.assertLegalChar(val);
-    };
-
-    XMLStringifier.prototype.xmlStandalone = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      if (val) {
-        return "yes";
-      } else {
-        return "no";
-      }
-    };
-
-    XMLStringifier.prototype.dtdPubID = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.dtdSysID = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.dtdElementValue = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.dtdAttType = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.dtdAttDefault = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.dtdEntityValue = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.dtdNData = function(val) {
-      if (this.options.noValidation) {
-        return val;
-      }
-      return this.assertLegalChar('' + val || '');
-    };
-
-    XMLStringifier.prototype.convertAttKey = '@';
-
-    XMLStringifier.prototype.convertPIKey = '?';
-
-    XMLStringifier.prototype.convertTextKey = '#text';
-
-    XMLStringifier.prototype.convertCDataKey = '#cdata';
-
-    XMLStringifier.prototype.convertCommentKey = '#comment';
-
-    XMLStringifier.prototype.convertRawKey = '#raw';
-
-    XMLStringifier.prototype.assertLegalChar = function(str) {
-      var regex, res;
-      if (this.options.noValidation) {
-        return str;
-      }
-      regex = '';
-      if (this.options.version === '1.0') {
-        regex = /[\0-\x08\x0B\f\x0E-\x1F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
-        if (res = str.match(regex)) {
-          throw new Error("Invalid character in string: " + str + " at index " + res.index);
-        }
-      } else if (this.options.version === '1.1') {
-        regex = /[\0\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
-        if (res = str.match(regex)) {
-          throw new Error("Invalid character in string: " + str + " at index " + res.index);
-        }
-      }
-      return str;
-    };
-
-    XMLStringifier.prototype.assertLegalName = function(str) {
-      var regex;
-      if (this.options.noValidation) {
-        return str;
-      }
-      this.assertLegalChar(str);
-      regex = /^([:A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]|[\uD800-\uDB7F][\uDC00-\uDFFF])([\x2D\.0-:A-Z_a-z\xB7\xC0-\xD6\xD8-\xF6\xF8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]|[\uD800-\uDB7F][\uDC00-\uDFFF])*$/;
-      if (!str.match(regex)) {
-        throw new Error("Invalid character in name");
-      }
-      return str;
-    };
-
-    XMLStringifier.prototype.textEscape = function(str) {
-      var ampregex;
-      if (this.options.noValidation) {
-        return str;
-      }
-      ampregex = this.options.noDoubleEncoding ? /(?!&\S+;)&/g : /&/g;
-      return str.replace(ampregex, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r/g, '&#xD;');
-    };
-
-    XMLStringifier.prototype.attEscape = function(str) {
-      var ampregex;
-      if (this.options.noValidation) {
-        return str;
-      }
-      ampregex = this.options.noDoubleEncoding ? /(?!&\S+;)&/g : /&/g;
-      return str.replace(ampregex, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/\t/g, '&#x9;').replace(/\n/g, '&#xA;').replace(/\r/g, '&#xD;');
-    };
-
-    return XMLStringifier;
-
-  })();
-
-}).call(this);
-
-},{}],372:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, XMLCharacterData, XMLText,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  NodeType = require('./NodeType');
-
-  XMLCharacterData = require('./XMLCharacterData');
-
-  module.exports = XMLText = (function(superClass) {
-    extend(XMLText, superClass);
-
-    function XMLText(parent, text) {
-      XMLText.__super__.constructor.call(this, parent);
-      if (text == null) {
-        throw new Error("Missing element text. " + this.debugInfo());
-      }
-      this.name = "#text";
-      this.type = NodeType.Text;
-      this.value = this.stringify.text(text);
-    }
-
-    Object.defineProperty(XMLText.prototype, 'isElementContentWhitespace', {
-      get: function() {
-        throw new Error("This DOM method is not implemented." + this.debugInfo());
-      }
-    });
-
-    Object.defineProperty(XMLText.prototype, 'wholeText', {
-      get: function() {
-        var next, prev, str;
-        str = '';
-        prev = this.previousSibling;
-        while (prev) {
-          str = prev.data + str;
-          prev = prev.previousSibling;
-        }
-        str += this.data;
-        next = this.nextSibling;
-        while (next) {
-          str = str + next.data;
-          next = next.nextSibling;
-        }
-        return str;
-      }
-    });
-
-    XMLText.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLText.prototype.toString = function(options) {
-      return this.options.writer.text(this, this.options.writer.filterOptions(options));
-    };
-
-    XMLText.prototype.splitText = function(offset) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    XMLText.prototype.replaceWholeText = function(content) {
-      throw new Error("This DOM method is not implemented." + this.debugInfo());
-    };
-
-    return XMLText;
-
-  })(XMLCharacterData);
-
-}).call(this);
-
-},{"./NodeType":343,"./XMLCharacterData":348}],373:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, WriterState, XMLCData, XMLComment, XMLDTDAttList, XMLDTDElement, XMLDTDEntity, XMLDTDNotation, XMLDeclaration, XMLDocType, XMLDummy, XMLElement, XMLProcessingInstruction, XMLRaw, XMLText, XMLWriterBase, assign,
-    hasProp = {}.hasOwnProperty;
-
-  assign = require('./Utility').assign;
-
-  NodeType = require('./NodeType');
-
-  XMLDeclaration = require('./XMLDeclaration');
-
-  XMLDocType = require('./XMLDocType');
-
-  XMLCData = require('./XMLCData');
-
-  XMLComment = require('./XMLComment');
-
-  XMLElement = require('./XMLElement');
-
-  XMLRaw = require('./XMLRaw');
-
-  XMLText = require('./XMLText');
-
-  XMLProcessingInstruction = require('./XMLProcessingInstruction');
-
-  XMLDummy = require('./XMLDummy');
-
-  XMLDTDAttList = require('./XMLDTDAttList');
-
-  XMLDTDElement = require('./XMLDTDElement');
-
-  XMLDTDEntity = require('./XMLDTDEntity');
-
-  XMLDTDNotation = require('./XMLDTDNotation');
-
-  WriterState = require('./WriterState');
-
-  module.exports = XMLWriterBase = (function() {
-    function XMLWriterBase(options) {
-      var key, ref, value;
-      options || (options = {});
-      this.options = options;
-      ref = options.writer || {};
-      for (key in ref) {
-        if (!hasProp.call(ref, key)) continue;
-        value = ref[key];
-        this["_" + key] = this[key];
-        this[key] = value;
-      }
-    }
-
-    XMLWriterBase.prototype.filterOptions = function(options) {
-      var filteredOptions, ref, ref1, ref2, ref3, ref4, ref5, ref6;
-      options || (options = {});
-      options = assign({}, this.options, options);
-      filteredOptions = {
-        writer: this
-      };
-      filteredOptions.pretty = options.pretty || false;
-      filteredOptions.allowEmpty = options.allowEmpty || false;
-      filteredOptions.indent = (ref = options.indent) != null ? ref : '  ';
-      filteredOptions.newline = (ref1 = options.newline) != null ? ref1 : '\n';
-      filteredOptions.offset = (ref2 = options.offset) != null ? ref2 : 0;
-      filteredOptions.dontPrettyTextNodes = (ref3 = (ref4 = options.dontPrettyTextNodes) != null ? ref4 : options.dontprettytextnodes) != null ? ref3 : 0;
-      filteredOptions.spaceBeforeSlash = (ref5 = (ref6 = options.spaceBeforeSlash) != null ? ref6 : options.spacebeforeslash) != null ? ref5 : '';
-      if (filteredOptions.spaceBeforeSlash === true) {
-        filteredOptions.spaceBeforeSlash = ' ';
-      }
-      filteredOptions.suppressPrettyCount = 0;
-      filteredOptions.user = {};
-      filteredOptions.state = WriterState.None;
-      return filteredOptions;
-    };
-
-    XMLWriterBase.prototype.indent = function(node, options, level) {
-      var indentLevel;
-      if (!options.pretty || options.suppressPrettyCount) {
-        return '';
-      } else if (options.pretty) {
-        indentLevel = (level || 0) + options.offset + 1;
-        if (indentLevel > 0) {
-          return new Array(indentLevel).join(options.indent);
-        }
-      }
-      return '';
-    };
-
-    XMLWriterBase.prototype.endline = function(node, options, level) {
-      if (!options.pretty || options.suppressPrettyCount) {
-        return '';
-      } else {
-        return options.newline;
-      }
-    };
-
-    XMLWriterBase.prototype.attribute = function(att, options, level) {
-      var r;
-      this.openAttribute(att, options, level);
-      r = ' ' + att.name + '="' + att.value + '"';
-      this.closeAttribute(att, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.cdata = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<![CDATA[';
-      options.state = WriterState.InsideTag;
-      r += node.value;
-      options.state = WriterState.CloseTag;
-      r += ']]>' + this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.comment = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<!-- ';
-      options.state = WriterState.InsideTag;
-      r += node.value;
-      options.state = WriterState.CloseTag;
-      r += ' -->' + this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.declaration = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<?xml';
-      options.state = WriterState.InsideTag;
-      r += ' version="' + node.version + '"';
-      if (node.encoding != null) {
-        r += ' encoding="' + node.encoding + '"';
-      }
-      if (node.standalone != null) {
-        r += ' standalone="' + node.standalone + '"';
-      }
-      options.state = WriterState.CloseTag;
-      r += options.spaceBeforeSlash + '?>';
-      r += this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.docType = function(node, options, level) {
-      var child, i, len, r, ref;
-      level || (level = 0);
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level);
-      r += '<!DOCTYPE ' + node.root().name;
-      if (node.pubID && node.sysID) {
-        r += ' PUBLIC "' + node.pubID + '" "' + node.sysID + '"';
-      } else if (node.sysID) {
-        r += ' SYSTEM "' + node.sysID + '"';
-      }
-      if (node.children.length > 0) {
-        r += ' [';
-        r += this.endline(node, options, level);
-        options.state = WriterState.InsideTag;
-        ref = node.children;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
-          r += this.writeChildNode(child, options, level + 1);
-        }
-        options.state = WriterState.CloseTag;
-        r += ']';
-      }
-      options.state = WriterState.CloseTag;
-      r += options.spaceBeforeSlash + '>';
-      r += this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.element = function(node, options, level) {
-      var att, child, childNodeCount, firstChildNode, i, j, len, len1, name, prettySuppressed, r, ref, ref1, ref2;
-      level || (level = 0);
-      prettySuppressed = false;
-      r = '';
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r += this.indent(node, options, level) + '<' + node.name;
-      ref = node.attribs;
-      for (name in ref) {
-        if (!hasProp.call(ref, name)) continue;
-        att = ref[name];
-        r += this.attribute(att, options, level);
-      }
-      childNodeCount = node.children.length;
-      firstChildNode = childNodeCount === 0 ? null : node.children[0];
-      if (childNodeCount === 0 || node.children.every(function(e) {
-        return (e.type === NodeType.Text || e.type === NodeType.Raw) && e.value === '';
-      })) {
-        if (options.allowEmpty) {
-          r += '>';
-          options.state = WriterState.CloseTag;
-          r += '</' + node.name + '>' + this.endline(node, options, level);
-        } else {
-          options.state = WriterState.CloseTag;
-          r += options.spaceBeforeSlash + '/>' + this.endline(node, options, level);
-        }
-      } else if (options.pretty && childNodeCount === 1 && (firstChildNode.type === NodeType.Text || firstChildNode.type === NodeType.Raw) && (firstChildNode.value != null)) {
-        r += '>';
-        options.state = WriterState.InsideTag;
-        options.suppressPrettyCount++;
-        prettySuppressed = true;
-        r += this.writeChildNode(firstChildNode, options, level + 1);
-        options.suppressPrettyCount--;
-        prettySuppressed = false;
-        options.state = WriterState.CloseTag;
-        r += '</' + node.name + '>' + this.endline(node, options, level);
-      } else {
-        if (options.dontPrettyTextNodes) {
-          ref1 = node.children;
-          for (i = 0, len = ref1.length; i < len; i++) {
-            child = ref1[i];
-            if ((child.type === NodeType.Text || child.type === NodeType.Raw) && (child.value != null)) {
-              options.suppressPrettyCount++;
-              prettySuppressed = true;
-              break;
-            }
-          }
-        }
-        r += '>' + this.endline(node, options, level);
-        options.state = WriterState.InsideTag;
-        ref2 = node.children;
-        for (j = 0, len1 = ref2.length; j < len1; j++) {
-          child = ref2[j];
-          r += this.writeChildNode(child, options, level + 1);
-        }
-        options.state = WriterState.CloseTag;
-        r += this.indent(node, options, level) + '</' + node.name + '>';
-        if (prettySuppressed) {
-          options.suppressPrettyCount--;
-        }
-        r += this.endline(node, options, level);
-        options.state = WriterState.None;
-      }
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.writeChildNode = function(node, options, level) {
-      switch (node.type) {
-        case NodeType.CData:
-          return this.cdata(node, options, level);
-        case NodeType.Comment:
-          return this.comment(node, options, level);
-        case NodeType.Element:
-          return this.element(node, options, level);
-        case NodeType.Raw:
-          return this.raw(node, options, level);
-        case NodeType.Text:
-          return this.text(node, options, level);
-        case NodeType.ProcessingInstruction:
-          return this.processingInstruction(node, options, level);
-        case NodeType.Dummy:
-          return '';
-        case NodeType.Declaration:
-          return this.declaration(node, options, level);
-        case NodeType.DocType:
-          return this.docType(node, options, level);
-        case NodeType.AttributeDeclaration:
-          return this.dtdAttList(node, options, level);
-        case NodeType.ElementDeclaration:
-          return this.dtdElement(node, options, level);
-        case NodeType.EntityDeclaration:
-          return this.dtdEntity(node, options, level);
-        case NodeType.NotationDeclaration:
-          return this.dtdNotation(node, options, level);
-        default:
-          throw new Error("Unknown XML node type: " + node.constructor.name);
-      }
-    };
-
-    XMLWriterBase.prototype.processingInstruction = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<?';
-      options.state = WriterState.InsideTag;
-      r += node.target;
-      if (node.value) {
-        r += ' ' + node.value;
-      }
-      options.state = WriterState.CloseTag;
-      r += options.spaceBeforeSlash + '?>';
-      r += this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.raw = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level);
-      options.state = WriterState.InsideTag;
-      r += node.value;
-      options.state = WriterState.CloseTag;
-      r += this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.text = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level);
-      options.state = WriterState.InsideTag;
-      r += node.value;
-      options.state = WriterState.CloseTag;
-      r += this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.dtdAttList = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<!ATTLIST';
-      options.state = WriterState.InsideTag;
-      r += ' ' + node.elementName + ' ' + node.attributeName + ' ' + node.attributeType;
-      if (node.defaultValueType !== '#DEFAULT') {
-        r += ' ' + node.defaultValueType;
-      }
-      if (node.defaultValue) {
-        r += ' "' + node.defaultValue + '"';
-      }
-      options.state = WriterState.CloseTag;
-      r += options.spaceBeforeSlash + '>' + this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.dtdElement = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<!ELEMENT';
-      options.state = WriterState.InsideTag;
-      r += ' ' + node.name + ' ' + node.value;
-      options.state = WriterState.CloseTag;
-      r += options.spaceBeforeSlash + '>' + this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.dtdEntity = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<!ENTITY';
-      options.state = WriterState.InsideTag;
-      if (node.pe) {
-        r += ' %';
-      }
-      r += ' ' + node.name;
-      if (node.value) {
-        r += ' "' + node.value + '"';
-      } else {
-        if (node.pubID && node.sysID) {
-          r += ' PUBLIC "' + node.pubID + '" "' + node.sysID + '"';
-        } else if (node.sysID) {
-          r += ' SYSTEM "' + node.sysID + '"';
-        }
-        if (node.nData) {
-          r += ' NDATA ' + node.nData;
-        }
-      }
-      options.state = WriterState.CloseTag;
-      r += options.spaceBeforeSlash + '>' + this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.dtdNotation = function(node, options, level) {
-      var r;
-      this.openNode(node, options, level);
-      options.state = WriterState.OpenTag;
-      r = this.indent(node, options, level) + '<!NOTATION';
-      options.state = WriterState.InsideTag;
-      r += ' ' + node.name;
-      if (node.pubID && node.sysID) {
-        r += ' PUBLIC "' + node.pubID + '" "' + node.sysID + '"';
-      } else if (node.pubID) {
-        r += ' PUBLIC "' + node.pubID + '"';
-      } else if (node.sysID) {
-        r += ' SYSTEM "' + node.sysID + '"';
-      }
-      options.state = WriterState.CloseTag;
-      r += options.spaceBeforeSlash + '>' + this.endline(node, options, level);
-      options.state = WriterState.None;
-      this.closeNode(node, options, level);
-      return r;
-    };
-
-    XMLWriterBase.prototype.openNode = function(node, options, level) {};
-
-    XMLWriterBase.prototype.closeNode = function(node, options, level) {};
-
-    XMLWriterBase.prototype.openAttribute = function(att, options, level) {};
-
-    XMLWriterBase.prototype.closeAttribute = function(att, options, level) {};
-
-    return XMLWriterBase;
-
-  })();
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./WriterState":345,"./XMLCData":347,"./XMLComment":349,"./XMLDTDAttList":354,"./XMLDTDElement":355,"./XMLDTDEntity":356,"./XMLDTDNotation":357,"./XMLDeclaration":358,"./XMLDocType":359,"./XMLDummy":362,"./XMLElement":363,"./XMLProcessingInstruction":367,"./XMLRaw":368,"./XMLText":372}],374:[function(require,module,exports){
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var NodeType, WriterState, XMLDOMImplementation, XMLDocument, XMLDocumentCB, XMLStreamWriter, XMLStringWriter, assign, isFunction, ref;
-
-  ref = require('./Utility'), assign = ref.assign, isFunction = ref.isFunction;
-
-  XMLDOMImplementation = require('./XMLDOMImplementation');
-
-  XMLDocument = require('./XMLDocument');
-
-  XMLDocumentCB = require('./XMLDocumentCB');
-
-  XMLStringWriter = require('./XMLStringWriter');
-
-  XMLStreamWriter = require('./XMLStreamWriter');
-
-  NodeType = require('./NodeType');
-
-  WriterState = require('./WriterState');
-
-  module.exports.create = function(name, xmldec, doctype, options) {
-    var doc, root;
-    if (name == null) {
-      throw new Error("Root element needs a name.");
-    }
-    options = assign({}, xmldec, doctype, options);
-    doc = new XMLDocument(options);
-    root = doc.element(name);
-    if (!options.headless) {
-      doc.declaration(options);
-      if ((options.pubID != null) || (options.sysID != null)) {
-        doc.dtd(options);
-      }
-    }
-    return root;
-  };
-
-  module.exports.begin = function(options, onData, onEnd) {
-    var ref1;
-    if (isFunction(options)) {
-      ref1 = [options, onData], onData = ref1[0], onEnd = ref1[1];
-      options = {};
-    }
-    if (onData) {
-      return new XMLDocumentCB(options, onData, onEnd);
-    } else {
-      return new XMLDocument(options);
-    }
-  };
-
-  module.exports.stringWriter = function(options) {
-    return new XMLStringWriter(options);
-  };
-
-  module.exports.streamWriter = function(stream, options) {
-    return new XMLStreamWriter(stream, options);
-  };
-
-  module.exports.implementation = new XMLDOMImplementation();
-
-  module.exports.nodeType = NodeType;
-
-  module.exports.writerState = WriterState;
-
-}).call(this);
-
-},{"./NodeType":343,"./Utility":344,"./WriterState":345,"./XMLDOMImplementation":352,"./XMLDocument":360,"./XMLDocumentCB":361,"./XMLStreamWriter":369,"./XMLStringWriter":370}],375:[function(require,module,exports){
+},{"./support/isBuffer":441,"_process":451,"inherits":440}],443:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -35528,7 +32948,7 @@ function extend() {
     return target
 }
 
-},{}],376:[function(require,module,exports){
+},{}],444:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
@@ -35650,7 +33070,7 @@ exports.pbkdf2 = function () {
   error('sorry,pbkdf2 is not implemented yet');
 };
 
-},{"./md5":378,"./sha":379,"buffer":98,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.fill":232,"core-js/modules/es.array.join":240,"core-js/modules/es.array.slice":242,"core-js/modules/es.object.to-string":249,"core-js/modules/es.regexp.to-string":252}],377:[function(require,module,exports){
+},{"./md5":446,"./sha":447,"buffer":196,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.fill":333,"core-js/modules/es.array.join":341,"core-js/modules/es.array.slice":344,"core-js/modules/es.object.to-string":352,"core-js/modules/es.regexp.to-string":356}],445:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.array.concat");
@@ -35701,7 +33121,7 @@ module.exports = {
   hash: hash
 };
 
-},{"buffer":98,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.fill":232}],378:[function(require,module,exports){
+},{"buffer":196,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.fill":333}],446:[function(require,module,exports){
 "use strict";
 
 /*
@@ -35860,7 +33280,7 @@ module.exports = function md5(buf) {
   return helpers.hash(buf, core_md5, 16);
 };
 
-},{"./helpers":377}],379:[function(require,module,exports){
+},{"./helpers":445}],447:[function(require,module,exports){
 "use strict";
 
 /*
@@ -35958,14 +33378,14 @@ module.exports = function sha1(buf) {
   return helpers.hash(buf, core_sha1, 20, true);
 };
 
-},{"./helpers":377}],380:[function(require,module,exports){
+},{"./helpers":445}],448:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
   return function () {};
 };
 
-},{}],381:[function(require,module,exports){
+},{}],449:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -35995,7 +33415,994 @@ module.exports.writableStream = function isWritableStream(obj) {
 };
 
 }).call(this,{"isBuffer":require("../node_modules/is-buffer/index.js")})
-},{"../lib/common/utils/isArray":58,"../node_modules/is-buffer/index.js":295,"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/helpers/typeof":69,"stream":327}],382:[function(require,module,exports){
+},{"../lib/common/utils/isArray":142,"../node_modules/is-buffer/index.js":406,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"stream":436}],450:[function(require,module,exports){
+(function (global){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.regexp.constructor");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.regexp.to-string");
+
+require("core-js/modules/es.string.replace");
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+(function () {
+  var objectTypes = {
+    function: true,
+    object: true
+  };
+  var root = objectTypes[typeof window === "undefined" ? "undefined" : (0, _typeof2.default)(window)] && window || this;
+  var freeExports = objectTypes[typeof exports === "undefined" ? "undefined" : (0, _typeof2.default)(exports)] && exports;
+  var freeModule = objectTypes[typeof module === "undefined" ? "undefined" : (0, _typeof2.default)(module)] && module && !module.nodeType && module;
+  var freeGlobal = freeExports && freeModule && (typeof global === "undefined" ? "undefined" : (0, _typeof2.default)(global)) == 'object' && global;
+
+  if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
+    root = freeGlobal;
+  }
+
+  function qualify(string) {
+    return String(string).replace(/([ -])(?!$)/g, '$1?');
+  }
+
+  function reduce(array, callback) {
+    var accumulator = null;
+    each(array, function (value, index) {
+      accumulator = callback(accumulator, value, index, array);
+    });
+    return accumulator;
+  }
+
+  function each(object, callback) {
+    var index = -1;
+    var length = object ? object.length : 0;
+
+    if (typeof length === 'number' && length > -1 && length <= maxSafeInteger) {
+      while (++index < length) {
+        callback(object[index], index, object);
+      }
+    } else {
+      forOwn(object, callback);
+    }
+  }
+
+  function forOwn(object, callback) {
+    for (var key in object) {
+      if (Object.prototype.hasOwnProperty.call(object, key)) {
+        callback(object[key], key, object);
+      }
+    }
+  }
+
+  var maxSafeInteger = Math.pow(2, 53) - 1;
+  var namePatterns = ['Adobe AIR', 'Arora', 'Avant Browser', 'Breach', 'Camino', 'Electron', 'Epiphany', 'Fennec', 'Flock', 'Galeon', 'GreenBrowser', 'iCab', 'Iceweasel', 'K-Meleon', 'Konqueror', 'Lunascape', 'Maxthon', {
+    label: 'Microsoft Edge',
+    pattern: '(?:Edge|Edg|EdgA|EdgiOS)'
+  }, 'Midori', 'Nook Browser', 'PaleMoon', 'PhantomJS', 'Raven', 'Rekonq', 'RockMelt', {
+    label: 'Samsung Internet',
+    pattern: 'SamsungBrowser'
+  }, 'SeaMonkey', {
+    label: 'Silk',
+    pattern: '(?:Cloud9|Silk-Accelerated)'
+  }, 'Sleipnir', 'SlimBrowser', {
+    label: 'SRWare Iron',
+    pattern: 'Iron'
+  }, 'Sunrise', 'Swiftfox', 'Vivaldi', 'Waterfox', 'WebPositive', {
+    label: 'Yandex Browser',
+    pattern: 'YaBrowser'
+  }, {
+    label: 'UC Browser',
+    pattern: 'UCBrowser'
+  }, 'Opera Mini', {
+    label: 'Opera Mini',
+    pattern: 'OPiOS'
+  }, 'Opera', {
+    label: 'Opera',
+    pattern: 'OPR'
+  }, 'Chromium', 'Chrome', {
+    label: 'Chrome',
+    pattern: '(?:HeadlessChrome)'
+  }, {
+    label: 'Chrome Mobile',
+    pattern: '(?:CriOS|CrMo)'
+  }, {
+    label: 'Firefox',
+    pattern: '(?:Firefox|Minefield)'
+  }, {
+    label: 'Firefox for iOS',
+    pattern: 'FxiOS'
+  }, {
+    label: 'IE',
+    pattern: 'IEMobile'
+  }, {
+    label: 'IE',
+    pattern: 'MSIE'
+  }, 'Safari'];
+
+  function getName() {
+    var ua = getUa();
+    var root = objectTypes[typeof window === "undefined" ? "undefined" : (0, _typeof2.default)(window)] && window;
+    if (!ua) return '';
+    if (root && !!root.ActiveXObject) return 'IE';
+    return reduce(namePatterns, function (result, guess) {
+      return result || RegExp("\\b".concat(guess.pattern || qualify(guess), "\\b"), 'i').exec(ua) && (guess.label || guess);
+    });
+  }
+
+  function getUa() {
+    var nav = root.navigator || {};
+    return nav.userAgent || '';
+  }
+
+  function getVersion() {
+    var ua = getUa();
+    var name = getName();
+
+    if (name === 'IE' && !/(MSIE)|(IEMobile)/.test(ua)) {
+      return '11.0';
+    }
+
+    return reduce(['(?:Cloud9|CriOS|CrMo|Edge|Edg|EdgA|EdgiOS|FxiOS|HeadlessChrome|IEMobile|Iron|Opera ?Mini|OPiOS|OPR|Raven|SamsungBrowser|Silk(?!/[\\d.]+$)|UCBrowser|YaBrowser)', 'Version', qualify(name), '(?:Firefox|Minefield|NetFront)'], function (result, pattern) {
+      return result || (RegExp("".concat(pattern, "(?:-[\\d.]+/|(?: for [\\w-]+)?[ /-])([\\d.]+[^ ();/_-]*)"), 'i').exec(ua) || 0)[1] || '';
+    });
+  }
+
+  var platform = {};
+  platform.description = getUa();
+  platform.ua = getUa();
+  platform.name = getName();
+  platform.version = getVersion();
+
+  if (typeof define == 'function' && (0, _typeof2.default)(define.amd) == 'object' && define.amd) {
+    root.platform = platform;
+    define(function () {
+      return platform;
+    });
+  } else if (freeExports && freeModule) {
+    forOwn(platform, function (value, key) {
+      freeExports[key] = value;
+    });
+  } else {
+    root.platform = platform;
+  }
+}).call(void 0);
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"core-js/modules/es.regexp.constructor":354,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.regexp.to-string":356,"core-js/modules/es.string.replace":360}],451:[function(require,module,exports){
+"use strict";
+
+var immediate = require('immediate');
+
+var process = module.exports = {};
+process.nextTick = immediate;
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) {
+  return [];
+};
+
+process.binding = function (name) {
+  throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () {
+  return '/';
+};
+
+process.chdir = function (dir) {
+  throw new Error('process.chdir is not supported');
+};
+
+process.umask = function () {
+  return 0;
+};
+
+},{"immediate":399}],452:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+require("core-js/modules/es.array.concat");
+
+require("core-js/modules/es.array.index-of");
+
+require("core-js/modules/es.array.join");
+
+require("core-js/modules/es.array.last-index-of");
+
+require("core-js/modules/es.array.slice");
+
+require("core-js/modules/es.array.splice");
+
+require("core-js/modules/es.object.keys");
+
+require("core-js/modules/es.regexp.exec");
+
+require("core-js/modules/es.string.match");
+
+require("core-js/modules/es.string.replace");
+
+require("core-js/modules/es.string.search");
+
+require("core-js/modules/es.string.split");
+
+require("core-js/modules/es.string.trim");
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var punycode = require('punycode');
+
+var util = require('./util');
+
+exports.parse = urlParse;
+exports.resolve = urlResolve;
+exports.resolveObject = urlResolveObject;
+exports.format = urlFormat;
+exports.Url = Url;
+
+function Url() {
+  this.protocol = null;
+  this.slashes = null;
+  this.auth = null;
+  this.host = null;
+  this.port = null;
+  this.hostname = null;
+  this.hash = null;
+  this.search = null;
+  this.query = null;
+  this.pathname = null;
+  this.path = null;
+  this.href = null;
+} // Reference: RFC 3986, RFC 1808, RFC 2396
+// define these here so at least they only have to be
+// compiled once on the first module load.
+
+
+var protocolPattern = /^([a-z0-9.+-]+:)/i,
+    portPattern = /:[0-9]*$/,
+    // Special case for a simple path URL
+simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
+    // RFC 2396: characters reserved for delimiting URLs.
+// We actually just auto-escape these.
+delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+    // RFC 2396: characters not allowed for various reasons.
+unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
+autoEscape = ['\''].concat(unwise),
+    // Characters that are never ever allowed in a hostname.
+// Note that any invalid chars are also handled, but these
+// are the ones that are *expected* to be seen, so we fast-path
+// them.
+nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+    hostEndingChars = ['/', '?', '#'],
+    hostnameMaxLen = 255,
+    hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
+    hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
+    // protocols that can allow "unsafe" and "unwise" chars.
+unsafeProtocol = {
+  'javascript': true,
+  'javascript:': true
+},
+    // protocols that never have a hostname.
+hostlessProtocol = {
+  'javascript': true,
+  'javascript:': true
+},
+    // protocols that always contain a // bit.
+slashedProtocol = {
+  'http': true,
+  'https': true,
+  'ftp': true,
+  'gopher': true,
+  'file': true,
+  'http:': true,
+  'https:': true,
+  'ftp:': true,
+  'gopher:': true,
+  'file:': true
+},
+    querystring = require('querystring');
+
+function urlParse(url, parseQueryString, slashesDenoteHost) {
+  if (url && util.isObject(url) && url instanceof Url) return url;
+  var u = new Url();
+  u.parse(url, parseQueryString, slashesDenoteHost);
+  return u;
+}
+
+Url.prototype.parse = function (url, parseQueryString, slashesDenoteHost) {
+  if (!util.isString(url)) {
+    throw new TypeError("Parameter 'url' must be a string, not " + (0, _typeof2.default)(url));
+  } // Copy chrome, IE, opera backslash-handling behavior.
+  // Back slashes before the query string get converted to forward slashes
+  // See: https://code.google.com/p/chromium/issues/detail?id=25916
+
+
+  var queryIndex = url.indexOf('?'),
+      splitter = queryIndex !== -1 && queryIndex < url.indexOf('#') ? '?' : '#',
+      uSplit = url.split(splitter),
+      slashRegex = /\\/g;
+  uSplit[0] = uSplit[0].replace(slashRegex, '/');
+  url = uSplit.join(splitter);
+  var rest = url; // trim before proceeding.
+  // This is to support parse stuff like "  http://foo.com  \n"
+
+  rest = rest.trim();
+
+  if (!slashesDenoteHost && url.split('#').length === 1) {
+    // Try fast path regexp
+    var simplePath = simplePathPattern.exec(rest);
+
+    if (simplePath) {
+      this.path = rest;
+      this.href = rest;
+      this.pathname = simplePath[1];
+
+      if (simplePath[2]) {
+        this.search = simplePath[2];
+
+        if (parseQueryString) {
+          this.query = querystring.parse(this.search.substr(1));
+        } else {
+          this.query = this.search.substr(1);
+        }
+      } else if (parseQueryString) {
+        this.search = '';
+        this.query = {};
+      }
+
+      return this;
+    }
+  }
+
+  var proto = protocolPattern.exec(rest);
+
+  if (proto) {
+    proto = proto[0];
+    var lowerProto = proto.toLowerCase();
+    this.protocol = lowerProto;
+    rest = rest.substr(proto.length);
+  } // figure out if it's got a host
+  // user@server is *always* interpreted as a hostname, and url
+  // resolution will treat //foo/bar as host=foo,path=bar because that's
+  // how the browser resolves relative URLs.
+
+
+  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+    var slashes = rest.substr(0, 2) === '//';
+
+    if (slashes && !(proto && hostlessProtocol[proto])) {
+      rest = rest.substr(2);
+      this.slashes = true;
+    }
+  }
+
+  if (!hostlessProtocol[proto] && (slashes || proto && !slashedProtocol[proto])) {
+    // there's a hostname.
+    // the first instance of /, ?, ;, or # ends the host.
+    //
+    // If there is an @ in the hostname, then non-host chars *are* allowed
+    // to the left of the last @ sign, unless some host-ending character
+    // comes *before* the @-sign.
+    // URLs are obnoxious.
+    //
+    // ex:
+    // http://a@b@c/ => user:a@b host:c
+    // http://a@b?@c => user:a host:c path:/?@c
+    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+    // Review our test case against browsers more comprehensively.
+    // find the first instance of any hostEndingChars
+    var hostEnd = -1;
+
+    for (var i = 0; i < hostEndingChars.length; i++) {
+      var hec = rest.indexOf(hostEndingChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd)) hostEnd = hec;
+    } // at this point, either we have an explicit point where the
+    // auth portion cannot go past, or the last @ char is the decider.
+
+
+    var auth, atSign;
+
+    if (hostEnd === -1) {
+      // atSign can be anywhere.
+      atSign = rest.lastIndexOf('@');
+    } else {
+      // atSign must be in auth portion.
+      // http://a@b/c@d => host:b auth:a path:/c@d
+      atSign = rest.lastIndexOf('@', hostEnd);
+    } // Now we have a portion which is definitely the auth.
+    // Pull that off.
+
+
+    if (atSign !== -1) {
+      auth = rest.slice(0, atSign);
+      rest = rest.slice(atSign + 1);
+      this.auth = decodeURIComponent(auth);
+    } // the host is the remaining to the left of the first non-host char
+
+
+    hostEnd = -1;
+
+    for (var i = 0; i < nonHostChars.length; i++) {
+      var hec = rest.indexOf(nonHostChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd)) hostEnd = hec;
+    } // if we still have not hit it, then the entire thing is a host.
+
+
+    if (hostEnd === -1) hostEnd = rest.length;
+    this.host = rest.slice(0, hostEnd);
+    rest = rest.slice(hostEnd); // pull out port.
+
+    this.parseHost(); // we've indicated that there is a hostname,
+    // so even if it's empty, it has to be present.
+
+    this.hostname = this.hostname || ''; // if hostname begins with [ and ends with ]
+    // assume that it's an IPv6 address.
+
+    var ipv6Hostname = this.hostname[0] === '[' && this.hostname[this.hostname.length - 1] === ']'; // validate a little.
+
+    if (!ipv6Hostname) {
+      var hostparts = this.hostname.split('.');
+
+      for (var i = 0, l = hostparts.length; i < l; i++) {
+        var part = hostparts[i];
+        if (!part) continue;
+
+        if (!part.match(hostnamePartPattern)) {
+          var newpart = '';
+
+          for (var j = 0, k = part.length; j < k; j++) {
+            if (part.charCodeAt(j) > 127) {
+              // we replace non-ASCII char with a temporary placeholder
+              // we need this to make sure size of hostname is not
+              // broken by replacing non-ASCII by nothing
+              newpart += 'x';
+            } else {
+              newpart += part[j];
+            }
+          } // we test again with ASCII char only
+
+
+          if (!newpart.match(hostnamePartPattern)) {
+            var validParts = hostparts.slice(0, i);
+            var notHost = hostparts.slice(i + 1);
+            var bit = part.match(hostnamePartStart);
+
+            if (bit) {
+              validParts.push(bit[1]);
+              notHost.unshift(bit[2]);
+            }
+
+            if (notHost.length) {
+              rest = '/' + notHost.join('.') + rest;
+            }
+
+            this.hostname = validParts.join('.');
+            break;
+          }
+        }
+      }
+    }
+
+    if (this.hostname.length > hostnameMaxLen) {
+      this.hostname = '';
+    } else {
+      // hostnames are always lower case.
+      this.hostname = this.hostname.toLowerCase();
+    }
+
+    if (!ipv6Hostname) {
+      // IDNA Support: Returns a punycoded representation of "domain".
+      // It only converts parts of the domain name that
+      // have non-ASCII characters, i.e. it doesn't matter if
+      // you call it with a domain that already is ASCII-only.
+      this.hostname = punycode.toASCII(this.hostname);
+    }
+
+    var p = this.port ? ':' + this.port : '';
+    var h = this.hostname || '';
+    this.host = h + p;
+    this.href += this.host; // strip [ and ] from the hostname
+    // the host field still retains them, though
+
+    if (ipv6Hostname) {
+      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
+
+      if (rest[0] !== '/') {
+        rest = '/' + rest;
+      }
+    }
+  } // now rest is set to the post-host stuff.
+  // chop off any delim chars.
+
+
+  if (!unsafeProtocol[lowerProto]) {
+    // First, make 100% sure that any "autoEscape" chars get
+    // escaped, even if encodeURIComponent doesn't think they
+    // need to be.
+    for (var i = 0, l = autoEscape.length; i < l; i++) {
+      var ae = autoEscape[i];
+      if (rest.indexOf(ae) === -1) continue;
+      var esc = encodeURIComponent(ae);
+
+      if (esc === ae) {
+        esc = escape(ae);
+      }
+
+      rest = rest.split(ae).join(esc);
+    }
+  } // chop off from the tail first.
+
+
+  var hash = rest.indexOf('#');
+
+  if (hash !== -1) {
+    // got a fragment string.
+    this.hash = rest.substr(hash);
+    rest = rest.slice(0, hash);
+  }
+
+  var qm = rest.indexOf('?');
+
+  if (qm !== -1) {
+    this.search = rest.substr(qm);
+    this.query = rest.substr(qm + 1);
+
+    if (parseQueryString) {
+      this.query = querystring.parse(this.query);
+    }
+
+    rest = rest.slice(0, qm);
+  } else if (parseQueryString) {
+    // no query string, but parseQueryString still requested
+    this.search = '';
+    this.query = {};
+  }
+
+  if (rest) this.pathname = rest;
+
+  if (slashedProtocol[lowerProto] && this.hostname && !this.pathname) {
+    this.pathname = '/';
+  } //to support http.request
+
+
+  if (this.pathname || this.search) {
+    var p = this.pathname || '';
+    var s = this.search || '';
+    this.path = p + s;
+  } // finally, reconstruct the href based on what has been validated.
+
+
+  this.href = this.format();
+  return this;
+}; // format a parsed object into a url string
+
+
+function urlFormat(obj) {
+  // ensure it's an object, and not a string url.
+  // If it's an obj, this is a no-op.
+  // this way, you can call url_format() on strings
+  // to clean up potentially wonky urls.
+  if (util.isString(obj)) obj = urlParse(obj);
+  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
+  return obj.format();
+}
+
+Url.prototype.format = function () {
+  var auth = this.auth || '';
+
+  if (auth) {
+    auth = encodeURIComponent(auth);
+    auth = auth.replace(/%3A/i, ':');
+    auth += '@';
+  }
+
+  var protocol = this.protocol || '',
+      pathname = this.pathname || '',
+      hash = this.hash || '',
+      host = false,
+      query = '';
+
+  if (this.host) {
+    host = auth + this.host;
+  } else if (this.hostname) {
+    host = auth + (this.hostname.indexOf(':') === -1 ? this.hostname : '[' + this.hostname + ']');
+
+    if (this.port) {
+      host += ':' + this.port;
+    }
+  }
+
+  if (this.query && util.isObject(this.query) && Object.keys(this.query).length) {
+    query = querystring.stringify(this.query);
+  }
+
+  var search = this.search || query && '?' + query || '';
+  if (protocol && protocol.substr(-1) !== ':') protocol += ':'; // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+  // unless they had them to begin with.
+
+  if (this.slashes || (!protocol || slashedProtocol[protocol]) && host !== false) {
+    host = '//' + (host || '');
+    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+  } else if (!host) {
+    host = '';
+  }
+
+  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+  if (search && search.charAt(0) !== '?') search = '?' + search;
+  pathname = pathname.replace(/[?#]/g, function (match) {
+    return encodeURIComponent(match);
+  });
+  search = search.replace('#', '%23');
+  return protocol + host + pathname + search + hash;
+};
+
+function urlResolve(source, relative) {
+  return urlParse(source, false, true).resolve(relative);
+}
+
+Url.prototype.resolve = function (relative) {
+  return this.resolveObject(urlParse(relative, false, true)).format();
+};
+
+function urlResolveObject(source, relative) {
+  if (!source) return relative;
+  return urlParse(source, false, true).resolveObject(relative);
+}
+
+Url.prototype.resolveObject = function (relative) {
+  if (util.isString(relative)) {
+    var rel = new Url();
+    rel.parse(relative, false, true);
+    relative = rel;
+  }
+
+  var result = new Url();
+  var tkeys = Object.keys(this);
+
+  for (var tk = 0; tk < tkeys.length; tk++) {
+    var tkey = tkeys[tk];
+    result[tkey] = this[tkey];
+  } // hash is always overridden, no matter what.
+  // even href="" will remove it.
+
+
+  result.hash = relative.hash; // if the relative url is empty, then there's nothing left to do here.
+
+  if (relative.href === '') {
+    result.href = result.format();
+    return result;
+  } // hrefs like //foo/bar always cut to the protocol.
+
+
+  if (relative.slashes && !relative.protocol) {
+    // take everything except the protocol from relative
+    var rkeys = Object.keys(relative);
+
+    for (var rk = 0; rk < rkeys.length; rk++) {
+      var rkey = rkeys[rk];
+      if (rkey !== 'protocol') result[rkey] = relative[rkey];
+    } //urlParse appends trailing / to urls like http://www.example.com
+
+
+    if (slashedProtocol[result.protocol] && result.hostname && !result.pathname) {
+      result.path = result.pathname = '/';
+    }
+
+    result.href = result.format();
+    return result;
+  }
+
+  if (relative.protocol && relative.protocol !== result.protocol) {
+    // if it's a known url protocol, then changing
+    // the protocol does weird things
+    // first, if it's not file:, then we MUST have a host,
+    // and if there was a path
+    // to begin with, then we MUST have a path.
+    // if it is file:, then the host is dropped,
+    // because that's known to be hostless.
+    // anything else is assumed to be absolute.
+    if (!slashedProtocol[relative.protocol]) {
+      var keys = Object.keys(relative);
+
+      for (var v = 0; v < keys.length; v++) {
+        var k = keys[v];
+        result[k] = relative[k];
+      }
+
+      result.href = result.format();
+      return result;
+    }
+
+    result.protocol = relative.protocol;
+
+    if (!relative.host && !hostlessProtocol[relative.protocol]) {
+      var relPath = (relative.pathname || '').split('/');
+
+      while (relPath.length && !(relative.host = relPath.shift())) {
+        ;
+      }
+
+      if (!relative.host) relative.host = '';
+      if (!relative.hostname) relative.hostname = '';
+      if (relPath[0] !== '') relPath.unshift('');
+      if (relPath.length < 2) relPath.unshift('');
+      result.pathname = relPath.join('/');
+    } else {
+      result.pathname = relative.pathname;
+    }
+
+    result.search = relative.search;
+    result.query = relative.query;
+    result.host = relative.host || '';
+    result.auth = relative.auth;
+    result.hostname = relative.hostname || relative.host;
+    result.port = relative.port; // to support http.request
+
+    if (result.pathname || result.search) {
+      var p = result.pathname || '';
+      var s = result.search || '';
+      result.path = p + s;
+    }
+
+    result.slashes = result.slashes || relative.slashes;
+    result.href = result.format();
+    return result;
+  }
+
+  var isSourceAbs = result.pathname && result.pathname.charAt(0) === '/',
+      isRelAbs = relative.host || relative.pathname && relative.pathname.charAt(0) === '/',
+      mustEndAbs = isRelAbs || isSourceAbs || result.host && relative.pathname,
+      removeAllDots = mustEndAbs,
+      srcPath = result.pathname && result.pathname.split('/') || [],
+      relPath = relative.pathname && relative.pathname.split('/') || [],
+      psychotic = result.protocol && !slashedProtocol[result.protocol]; // if the url is a non-slashed url, then relative
+  // links like ../.. should be able
+  // to crawl up to the hostname, as well.  This is strange.
+  // result.protocol has already been set by now.
+  // Later on, put the first path part into the host field.
+
+  if (psychotic) {
+    result.hostname = '';
+    result.port = null;
+
+    if (result.host) {
+      if (srcPath[0] === '') srcPath[0] = result.host;else srcPath.unshift(result.host);
+    }
+
+    result.host = '';
+
+    if (relative.protocol) {
+      relative.hostname = null;
+      relative.port = null;
+
+      if (relative.host) {
+        if (relPath[0] === '') relPath[0] = relative.host;else relPath.unshift(relative.host);
+      }
+
+      relative.host = null;
+    }
+
+    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+  }
+
+  if (isRelAbs) {
+    // it's absolute.
+    result.host = relative.host || relative.host === '' ? relative.host : result.host;
+    result.hostname = relative.hostname || relative.hostname === '' ? relative.hostname : result.hostname;
+    result.search = relative.search;
+    result.query = relative.query;
+    srcPath = relPath; // fall through to the dot-handling below.
+  } else if (relPath.length) {
+    // it's relative
+    // throw away the existing file, and take the new path instead.
+    if (!srcPath) srcPath = [];
+    srcPath.pop();
+    srcPath = srcPath.concat(relPath);
+    result.search = relative.search;
+    result.query = relative.query;
+  } else if (!util.isNullOrUndefined(relative.search)) {
+    // just pull out the search.
+    // like href='?foo'.
+    // Put this after the other two cases because it simplifies the booleans
+    if (psychotic) {
+      result.hostname = result.host = srcPath.shift(); //occationaly the auth can get stuck only in host
+      //this especially happens in cases like
+      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+
+      var authInHost = result.host && result.host.indexOf('@') > 0 ? result.host.split('@') : false;
+
+      if (authInHost) {
+        result.auth = authInHost.shift();
+        result.host = result.hostname = authInHost.shift();
+      }
+    }
+
+    result.search = relative.search;
+    result.query = relative.query; //to support http.request
+
+    if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+      result.path = (result.pathname ? result.pathname : '') + (result.search ? result.search : '');
+    }
+
+    result.href = result.format();
+    return result;
+  }
+
+  if (!srcPath.length) {
+    // no path at all.  easy.
+    // we've already handled the other stuff above.
+    result.pathname = null; //to support http.request
+
+    if (result.search) {
+      result.path = '/' + result.search;
+    } else {
+      result.path = null;
+    }
+
+    result.href = result.format();
+    return result;
+  } // if a url ENDs in . or .., then it must get a trailing slash.
+  // however, if it ends in anything else non-slashy,
+  // then it must NOT get a trailing slash.
+
+
+  var last = srcPath.slice(-1)[0];
+  var hasTrailingSlash = (result.host || relative.host || srcPath.length > 1) && (last === '.' || last === '..') || last === ''; // strip single dots, resolve double dots to parent dir
+  // if the path tries to go above the root, `up` ends up > 0
+
+  var up = 0;
+
+  for (var i = srcPath.length; i >= 0; i--) {
+    last = srcPath[i];
+
+    if (last === '.') {
+      srcPath.splice(i, 1);
+    } else if (last === '..') {
+      srcPath.splice(i, 1);
+      up++;
+    } else if (up) {
+      srcPath.splice(i, 1);
+      up--;
+    }
+  } // if the path is allowed to go above the root, restore leading ..s
+
+
+  if (!mustEndAbs && !removeAllDots) {
+    for (; up--; up) {
+      srcPath.unshift('..');
+    }
+  }
+
+  if (mustEndAbs && srcPath[0] !== '' && (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+    srcPath.unshift('');
+  }
+
+  if (hasTrailingSlash && srcPath.join('/').substr(-1) !== '/') {
+    srcPath.push('');
+  }
+
+  var isAbsolute = srcPath[0] === '' || srcPath[0] && srcPath[0].charAt(0) === '/'; // put the host back
+
+  if (psychotic) {
+    result.hostname = result.host = isAbsolute ? '' : srcPath.length ? srcPath.shift() : ''; //occationaly the auth can get stuck only in host
+    //this especially happens in cases like
+    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+
+    var authInHost = result.host && result.host.indexOf('@') > 0 ? result.host.split('@') : false;
+
+    if (authInHost) {
+      result.auth = authInHost.shift();
+      result.host = result.hostname = authInHost.shift();
+    }
+  }
+
+  mustEndAbs = mustEndAbs || result.host && srcPath.length;
+
+  if (mustEndAbs && !isAbsolute) {
+    srcPath.unshift('');
+  }
+
+  if (!srcPath.length) {
+    result.pathname = null;
+    result.path = null;
+  } else {
+    result.pathname = srcPath.join('/');
+  } //to support request.http
+
+
+  if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+    result.path = (result.pathname ? result.pathname : '') + (result.search ? result.search : '');
+  }
+
+  result.auth = relative.auth || result.auth;
+  result.slashes = result.slashes || relative.slashes;
+  result.href = result.format();
+  return result;
+};
+
+Url.prototype.parseHost = function () {
+  var host = this.host;
+  var port = portPattern.exec(host);
+
+  if (port) {
+    port = port[0];
+
+    if (port !== ':') {
+      this.port = port.substr(1);
+    }
+
+    host = host.substr(0, host.length - port.length);
+  }
+
+  if (host) this.hostname = host;
+};
+
+},{"./util":453,"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.index-of":339,"core-js/modules/es.array.join":341,"core-js/modules/es.array.last-index-of":342,"core-js/modules/es.array.slice":344,"core-js/modules/es.array.splice":346,"core-js/modules/es.object.keys":351,"core-js/modules/es.regexp.exec":355,"core-js/modules/es.string.match":359,"core-js/modules/es.string.replace":360,"core-js/modules/es.string.search":361,"core-js/modules/es.string.split":362,"core-js/modules/es.string.trim":364,"punycode":417,"querystring":420}],453:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+module.exports = {
+  isString: function isString(arg) {
+    return typeof arg === 'string';
+  },
+  isObject: function isObject(arg) {
+    return (0, _typeof2.default)(arg) === 'object' && arg !== null;
+  },
+  isNull: function isNull(arg) {
+    return arg === null;
+  },
+  isNullOrUndefined: function isNullOrUndefined(arg) {
+    return arg == null;
+  }
+};
+
+},{"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170}],454:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es.number.constructor");
@@ -36029,7 +34436,7 @@ exports.timestamp = function timestamp(t) {
   return Math.round(Date.now() / 1000);
 };
 
-},{"core-js/modules/es.number.constructor":245,"escape-html":289}],383:[function(require,module,exports){
+},{"core-js/modules/es.number.constructor":348,"escape-html":394}],455:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -36042,6 +34449,10 @@ require("core-js/modules/es.array.index-of");
 require("core-js/modules/es.array.join");
 
 require("core-js/modules/es.function.name");
+
+require("core-js/modules/es.object.to-string");
+
+require("core-js/modules/es.promise");
 
 var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 
@@ -36056,8 +34467,6 @@ var https = require('https');
 var debug = require('debug')('urllib');
 
 var ms = require('humanize-ms');
-
-var _Promise;
 
 var REQUEST_ID = 0;
 var MAX_VALUE = Math.pow(2, 31) - 10;
@@ -36095,14 +34504,9 @@ exports.request = function request(url, args, callback) {
 
   if (typeof callback === 'function') {
     return exports.requestWithCallback(url, args, callback);
-  } // Promise
-
-
-  if (!_Promise) {
-    _Promise = require('any-promise');
   }
 
-  return new _Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     exports.requestWithCallback(url, args, makeCallback(resolve, reject));
   });
 };
@@ -36837,6 +35241,6 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 };
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"@babel/runtime/helpers/interopRequireDefault":68,"@babel/runtime/helpers/typeof":69,"_process":306,"any-promise":73,"buffer":98,"constants":100,"core-js/modules/es.array.concat":231,"core-js/modules/es.array.index-of":238,"core-js/modules/es.array.join":240,"core-js/modules/es.function.name":244,"debug":380,"http":79,"https":291,"humanize-ms":292,"url":330,"util":335}]},{},[1])(1)
+},{"@babel/runtime/helpers/interopRequireDefault":167,"@babel/runtime/helpers/typeof":170,"_process":451,"buffer":196,"constants":198,"core-js/modules/es.array.concat":332,"core-js/modules/es.array.index-of":339,"core-js/modules/es.array.join":341,"core-js/modules/es.function.name":347,"core-js/modules/es.object.to-string":352,"core-js/modules/es.promise":353,"debug":448,"http":177,"https":396,"humanize-ms":397,"url":452,"util":442}]},{},[3])(3)
 });
 
