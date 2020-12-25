@@ -1512,6 +1512,14 @@ describe('test/object.test.js', () => {
       assert.equal(info.status, 200);
     });
 
+    it('should copy object with special characters such as ;,/?:@&=+$#', async () => {
+      const sourceName = `${prefix}ali-sdk/oss/copy-a;,/?:@&=+$#b.js`;
+      const tempFile = await utils.createTempFile('t', 1024 * 1024);
+      await store.put(sourceName, tempFile);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a.js`, sourceName);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a+b.js`, sourceName);
+    });
+
     it('should use copy to change exists object headers', async () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-3.js`;
       let result = await store.copy(originname, name);
@@ -1997,13 +2005,11 @@ describe('test/object.test.js', () => {
       let keyCount = 0;
       do {
         // eslint-disable-next-line no-await-in-loop
-        const result = await store.listV2(
-          {
-            prefix: listPrefix,
-            'max-keys': 2,
-            'continuation-token': nextContinuationToken,
-          },
-        );
+        const result = await store.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken
+        });
         keyCount += result.keyCount;
         nextContinuationToken = result.nextContinuationToken;
       } while (nextContinuationToken);

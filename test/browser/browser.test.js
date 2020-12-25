@@ -881,6 +881,17 @@ describe('browser', () => {
       info = await store.head(originname);
       assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
     });
+
+    it('should copy object with special characters such as ;,/?:@&=+$#', async () => {
+      const sourceName = `${prefix}ali-sdk/oss/copy-a;,/?:@&=+$#b.js`;
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
+      const file = new File([fileContent], sourceName);
+      await store.put(sourceName, file);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a.js`, sourceName);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a+b.js`, sourceName);
+    });
   });
 
   describe('signatureUrl()', () => {
