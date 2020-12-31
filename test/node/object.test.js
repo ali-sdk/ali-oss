@@ -1261,25 +1261,40 @@ describe('test/object.test.js', () => {
       assert.equal(fs.readFileSync(tmpfile, 'utf8'), fs.readFileSync(__filename, 'utf8'));
     });
 
+    /**
+     * Image processing uses different compression algorithms,
+     * and the performance may be inconsistent
+     * between different regions
+     */
     it('should get image stream with image process', async () => {
       const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
       const processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
+      const processedImagePath2 = path.join(__dirname, 'nodejs-processed-w200-latest.png');
       await store.put(imageName, originImagePath, {
         mime: 'image/png'
       });
 
       let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
+      let result2 = await store.getStream(imageName, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
+      assert.equal(result2.res.status, 200);
       let isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
-      assert(isEqual);
+      let isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
+      assert(isEqual || isEqual2);
       result = await store.getStream(imageName, {
         process: 'image/resize,w_200',
         subres: { 'x-oss-process': 'image/resize,w_100' }
       });
+      result2 = await store.getStream(imageName, {
+        process: 'image/resize,w_200',
+        subres: { 'x-oss-process': 'image/resize,w_100' }
+      });
       assert.equal(result.res.status, 200);
+      assert.equal(result2.res.status, 200);
       isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
-      assert(isEqual);
+      isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
+      assert(isEqual || isEqual2);
     });
 
     it('should throw error when object not exists', async () => {
