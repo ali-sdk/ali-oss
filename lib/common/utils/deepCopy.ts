@@ -27,7 +27,7 @@ export const deepCopyWith = (obj: any, customizer?: (v: any, k: string, o: any) 
     }
 
     if (isBuffer(value)) {
-      return Buffer.from(value);
+      return obj.slice();
     }
 
     const copy = Array.isArray(value) ? [] : {};

@@ -1,7 +1,6 @@
 const assert = require('assert');
 const { Buffer } = require('buffer');
 const { deepCopy, deepCopyWith } = require('../../../lib/common/utils/deepCopy');
-const { isBuffer } = require('../../../lib/common/utils/isBuffer');
 
 describe('utils/deepCopy()', () => {
   it('should copy big Buffers correctly', () => {
@@ -28,9 +27,6 @@ describe('utils/deepCopy()', () => {
     const copy1 = deepCopyWith(obj, (_, key) => {
       if (key === 'buffer') return null;
     });
-    const copy2 = deepCopyWith(obj, _ => {
-      if (isBuffer(_)) return null;
-    });
     assert.deepStrictEqual(copy1, {
       a: 1,
       b: {
@@ -38,6 +34,15 @@ describe('utils/deepCopy()', () => {
       },
       buffer: null
     });
-    assert.deepStrictEqual(copy1, copy2);
+
+    const copy2 = deepCopyWith(obj);
+    assert.deepStrictEqual(obj.a, copy2.a);
+    assert.deepStrictEqual(obj.b, copy2.b);
+    assert(obj.buffer.equals(copy2.buffer));
+
+    const copy3 = deepCopyWith(obj, () => {});
+    assert.deepStrictEqual(obj.a, copy3.a);
+    assert.deepStrictEqual(obj.b, copy3.b);
+    assert(obj.buffer.equals(copy3.buffer));
   });
 });
