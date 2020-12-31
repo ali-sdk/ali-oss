@@ -1925,6 +1925,7 @@ parameters:
   - [timeout] {Number} the operation timeout
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
+  - [responseCacheControl] {String} default `no-cache`, (only support Browser). response-cache-control, will response with HTTP Header `Cache-Control`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Range' get specifying range bytes content, e.g.: `Range: bytes=0-9`
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
