@@ -4,7 +4,7 @@ const { deepCopy, deepCopyWith } = require('../../../lib/common/utils/deepCopy')
 const { isBuffer } = require('../../../lib/common/utils/isBuffer');
 
 describe('utils/deepCopy()', () => {
-  it.only('should copy big Buffers correctly', () => {
+  it('should copy big Buffers correctly', () => {
     // 2^30 - 1 ~ 1GB is max size on 32-bit computer
     // See https://nodejs.org/api/buffer.html#buffer_buffer_constants_max_length
     const numberBytes = Math.pow(2, 30) - 1;
