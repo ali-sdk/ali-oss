@@ -10,6 +10,8 @@ describe('utils/deepCopy()', () => {
     const obj = {
       buffer: Buffer.alloc(numberBytes),
     };
-    assert.deepStrictEqual(deepCopy(obj), obj);
+    const copy = deepCopy(obj);
+    assert.strictEqual(Object.keys(obj).length, Object.keys(copy).length);
+    assert(obj.buffer.equals(copy.buffer));
   });
 });

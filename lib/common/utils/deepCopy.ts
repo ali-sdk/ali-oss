@@ -5,7 +5,7 @@ export const deepCopy = (obj) => {
     return obj;
   }
   if (isBuffer(obj)) {
-    return Buffer.from(obj);
+    return obj.slice();
   }
 
   const copy = Array.isArray(obj) ? [] : {};

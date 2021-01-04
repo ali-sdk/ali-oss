@@ -637,6 +637,25 @@ describe('browser', () => {
     });
   });
 
+  describe('get()', () => {
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    const store = new OSS(ossConfig);
+    before(() => {
+      await store.put('name', Buffer.from('oss.jpg'));
+    });
+    it('should get with disableCache option', async () => {
+      const originRequest = store.urllib.request;
+      let requestUrl;
+      store.urllib.request = (url, params) => {
+        requestUrl = url;
+        return originRequest.call(store.urllib, url, params);
+      };
+      await store.get(name);
+      store.urllib.request = originRequest;
+      assert(requestUrl.includes('response-cache-control=no-cache'));
+    });
+  });
+
   describe('put', () => {
     let store;
     before(() => {
