@@ -2390,7 +2390,7 @@ console.log(result.objects);
 const result = await store.listV2({
   delimiter: '/',
   prefix: 'a/',
-  'start-after': 'a/b
+  'start-after': 'a/b'
 });
 console.log(result.objects);
 ```

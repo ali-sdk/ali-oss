@@ -2283,13 +2283,12 @@ describe('test/object.test.js', () => {
           }
         };
 
-        const postFile = () =>
-          new Promise((resolve, reject) => {
-            request(options, (err, res) => {
-              if (err) reject(err);
-              if (res) resolve(res);
-            });
+        const postFile = () => new Promise((resolve, reject) => {
+          request(options, (err, res) => {
+            if (err) reject(err);
+            if (res) resolve(res);
           });
+        });
 
         const result = await postFile();
         assert(result.statusCode === 204);
