@@ -747,7 +747,6 @@ describe('browser', () => {
         }
       });
     });
-
   });
 
   describe('test-content-type', () => {
