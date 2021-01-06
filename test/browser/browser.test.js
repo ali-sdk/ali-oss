@@ -640,8 +640,8 @@ describe('browser', () => {
   describe('get()', () => {
     const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
     const store = new OSS(ossConfig);
-    before(() => {
-      await store.put('name', Buffer.from('oss.jpg'));
+    before(async () => {
+      await store.put(name, Buffer.from('oss.jpg'));
     });
     it('should get with disableCache option', async () => {
       const originRequest = store.urllib.request;

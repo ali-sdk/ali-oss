@@ -468,6 +468,24 @@ describe('test/object.test.js', () => {
     });
   });
 
+  describe('get()', () => {
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    before(async () => {
+      await store.put(name, Buffer.from('oss.jpg'));
+    });
+    it('should not take effect with disableCache option in Node.js', async () => {
+      const originRequest = store.urllib.request;
+      let requestUrl;
+      store.urllib.request = (url, params) => {
+        requestUrl = url;
+        return originRequest.call(store.urllib, url, params);
+      };
+      await store.get(name);
+      store.urllib.request = originRequest;
+      assert(!requestUrl.includes('response-cache-control=no-cache'));
+    });
+  });
+
   describe('test-content-type', () => {
     it('should put object and content-type not null when upload file and object name has no MIME', async () => {
       const name = `${prefix}ali-sdk/oss/test-content-type`;
