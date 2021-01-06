@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.13.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.12.0...v6.13.0) (2021-01-06)
+
+
+### Features
+
+* prevent caching for the get api ([#916](https://github.com/aliyun/oss-nodejs-sdk/issues/916)) ([f16fc50](https://github.com/aliyun/oss-nodejs-sdk/commit/f16fc50375a2ab54be46d076fe523a2147f1723a))
+
+
+### Bug Fixes
+
+* **node:** deepCopy not working for large Buffers ([#909](https://github.com/aliyun/oss-nodejs-sdk/issues/909)) ([f52cd2e](https://github.com/aliyun/oss-nodejs-sdk/commit/f52cd2e5127730b99e452284f49cf63b04f81d40))
+* do not copy buffer in completeMultipartUpload ([#915](https://github.com/aliyun/oss-nodejs-sdk/issues/915)) ([c18f4ea](https://github.com/aliyun/oss-nodejs-sdk/commit/c18f4ea97bf3edc485d67f82783a737b285fcaeb))
+* merge conflict from master ([860cf32](https://github.com/aliyun/oss-nodejs-sdk/commit/860cf3225296ccdc5feedae031c7309a117fbdad))
+* should use encodeURIComponent insteadof encodeURI in copy api ([#914](https://github.com/aliyun/oss-nodejs-sdk/issues/914)) ([9dceb70](https://github.com/aliyun/oss-nodejs-sdk/commit/9dceb70a63bc47a748e21af97902952b2fe6e5e2))
+* the continuation-token params in listV2 ([#906](https://github.com/aliyun/oss-nodejs-sdk/issues/906)) ([df18401](https://github.com/aliyun/oss-nodejs-sdk/commit/df18401be7a83c8ec09aa86d6b279f486d3b79a7))
+* use lowercase header when calculating signatures ([#910](https://github.com/aliyun/oss-nodejs-sdk/issues/910)) ([8e1adfd](https://github.com/aliyun/oss-nodejs-sdk/commit/8e1adfdbdfb8b2ad40bc41cc15c86ab72e668044))
+
 ## [6.12.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.2...v6.12.0) (2020-12-03)
 
 
