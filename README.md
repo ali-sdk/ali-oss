@@ -323,7 +323,7 @@ options:
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
-- [endpoint] {String} oss region domain. It takes priority over `region`.
+- [endpoint] {String} oss region domain. It takes priority over `region`. Set as extranet domain name, intranet domain name, accelerated domain name, etc. according to different needs. please see [endpoints](https://www.alibabacloud.com/help/doc-detail/31837.htm)
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
   default is `oss-cn-hangzhou`.
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
@@ -341,14 +341,40 @@ options:
 
 example:
 
+1. basic usage
 ```js
-const oss = require('ali-oss');
+const OSS = require('ali-oss');
 
-const store = oss({
+const store = new OSS({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
   region: 'oss-cn-hangzhou'
+});
+```
+2. use accelerate endpoint
+- Global accelerate endpoint: oss-accelerate.aliyuncs.com
+- Accelerate endpoint of regions outside mainland China: oss-accelerate-overseas.aliyuncs.com
+```js
+const OSS = require('ali-oss');
+
+const store = new OSS({
+  accessKeyId: 'your access key',
+  accessKeySecret: 'your access secret',
+  bucket: 'your bucket name',
+  endpoint: 'oss-accelerate.aliyuncs.com',
+});
+```
+
+3. use custom domain
+```js
+const OSS = require('ali-oss');
+
+const store = new OSS({
+  accessKeyId: 'your access key',
+  accessKeySecret: 'your access secret',
+  cname: true,
+  endpoint: 'your custome domain',
 });
 ```
 
@@ -1550,7 +1576,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
 
 Success will return the object information.
@@ -1674,7 +1700,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
 
 Success will return the object information.
 
@@ -1734,7 +1760,7 @@ All parameters are same as put except for options.position
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
 
 object:
 
@@ -1899,6 +1925,7 @@ parameters:
   - [timeout] {Number} the operation timeout
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
+  - [responseCacheControl] {String} default `no-cache`, (only support Browser). response-cache-control, will response with HTTP Header `Cache-Control`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Range' get specifying range bytes content, e.g.: `Range: bytes=0-9`
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
@@ -2298,7 +2325,7 @@ parameters:
 
 - [query] {Object} query parameters, default is `null`
   - [prefix] {String} search object using `prefix` key
-  - [continuationToken] {String} search start from `continuationToken`, including `continuationToken` key
+  - [continuation-token] (continuationToken) {String} search start from `continuationToken`, including `continuationToken` key
   - [delimiter] {String} delimiter search scope
     e.g. `/` only search current dir, not including subdir
   - [max-keys] {String|Number} max objects, default is `100`, limit to `1000`
@@ -2322,6 +2349,7 @@ Success will return objects list on `objects` properties.
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextContinuationToken {String} next continuation-token string
+- keyCount {Number} The number of keys returned for this request. If Delimiter is specified, KeyCount is the sum of the elements in Key and CommonPrefixes.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -2356,13 +2384,13 @@ const result = await store.listV2({
 console.log(result.objects);
 ```
 
-- List `a/` dir objects, after `a/b` and include `a/b`
+- List `a/` dir objects, after `a/b` and not include `a/b`
 
 ```js
 const result = await store.listV2({
   delimiter: '/',
   prefix: 'a/',
-  'start-after': 'b'
+  'start-after': 'a/b'
 });
 console.log(result.objects);
 ```
@@ -2727,7 +2755,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - [x-oss-server-side-encryption]
     Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
     if use in browser you should be set cors expose header x-oss-server-side-encryption
@@ -2998,7 +3026,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
 
@@ -3177,7 +3205,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
     - [x-oss-copy-source-if-match]  only uploadPartCopy api used, default none<br>

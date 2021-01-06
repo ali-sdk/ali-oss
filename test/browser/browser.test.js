@@ -574,7 +574,6 @@ describe('browser', () => {
     });
 
     it('should list with start-afer', async () => {
-      // todo
       let result = await store.listV2({
         'start-after': `${listPrefix}fun`,
         'max-keys': 1
@@ -594,6 +593,66 @@ describe('browser', () => {
       });
       assert(result.objects.length === 1);
       assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}a`,
+        delimiter: '/'
+      });
+      assert.strictEqual(result.keyCount, 3);
+      assert.strictEqual(result.objects.length, 1);
+      assert.strictEqual(result.objects[0].name, `${listPrefix}oss.jpg`);
+      assert.strictEqual(result.prefixes.length, 2);
+      assert.strictEqual(result.prefixes[0], `${listPrefix}fun/`);
+      assert.strictEqual(result.prefixes[1], `${listPrefix}other/`);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}oss.jpg`,
+        delimiter: '/'
+      });
+      assert.strictEqual(result.keyCount, 1);
+      assert.strictEqual(result.objects, undefined);
+      assert.strictEqual(result.prefixes[0], `${listPrefix}other/`);
+    });
+
+    it('should list with continuation-token', async () => {
+      let nextContinuationToken = null;
+      let keyCount = 0;
+      do {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await store.listV2(
+          {
+            prefix: listPrefix,
+            'max-keys': 2,
+            'continuation-token': nextContinuationToken,
+          },
+        );
+        keyCount += result.keyCount;
+        nextContinuationToken = result.nextContinuationToken;
+      } while (nextContinuationToken);
+      assert.strictEqual(keyCount, 6);
+    });
+  });
+
+  describe('get()', () => {
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    const store = new OSS(ossConfig);
+    before(() => {
+      await store.put('name', Buffer.from('oss.jpg'));
+    });
+    it('should get with disableCache option', async () => {
+      const originRequest = store.urllib.request;
+      let requestUrl;
+      store.urllib.request = (url, params) => {
+        requestUrl = url;
+        return originRequest.call(store.urllib, url, params);
+      };
+      await store.get(name);
+      store.urllib.request = originRequest;
+      assert(requestUrl.includes('response-cache-control=no-cache'));
     });
   });
 
@@ -668,6 +727,25 @@ describe('browser', () => {
       } catch (error) {
         assert(error.name === 'ConnectionTimeoutError');
       }
+    });
+
+    it('should set custom Content-MD5 and ignore case', async () => {
+      const name = `${prefix}put/test-md5`;
+      const content = Array(1024 * 1024 * 10)
+        .fill(1)
+        .join('');
+      const body = new Blob([content], { type: 'text/plain' });
+      const MD5Value = crypto1.createHash('md5').update(OSS.Buffer(await body.arrayBuffer())).digest('base64');
+      await store.put(name, body, {
+        headers: {
+          'Content-MD5': MD5Value
+        }
+      });
+      await store.put(name, body, {
+        headers: {
+          'content-Md5': MD5Value
+        }
+      });
     });
   });
 
@@ -840,6 +918,17 @@ describe('browser', () => {
       assert.equal(typeof result.data.lastModified, 'string');
       info = await store.head(originname);
       assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
+    });
+
+    it('should copy object with special characters such as ;,/?:@&=+$#', async () => {
+      const sourceName = `${prefix}ali-sdk/oss/copy-a;,/?:@&=+$#b.js`;
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
+      const file = new File([fileContent], sourceName);
+      await store.put(sourceName, file);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a.js`, sourceName);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a+b.js`, sourceName);
     });
   });
 
@@ -2081,118 +2170,6 @@ describe('browser', () => {
       } catch (e) {
         assert.strictEqual(e.status, -1);
       }
-    });
-  });
-
-  describe('options.headerEncoding', () => {
-    let store;
-    const utf8_content = '阿达的大多';
-    const latin1_content = Buffer.from(utf8_content).toString('latin1');
-    let name;
-    before(async () => {
-      store = oss(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
-      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
-      const result = await store.put(name, Buffer.from('123'), {
-        meta: {
-          a: utf8_content
-        }
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(name);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
-    });
-
-    it('copy() should return 200 when set zh-cn meta', async () => {
-      const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
-      const result = await store.copy(originname, name, {
-        meta: {
-          a: utf8_content
-        }
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(originname);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
-    });
-
-    it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
-      const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
-      const result = await store.copy(originname, name, {
-        meta: {
-          a: utf8_content
-        }
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(originname);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
-    });
-
-    it('putMeta() should return 200', async () => {
-      const result = await store.putMeta(name, {
-        b: utf8_content
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(name);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.b, latin1_content);
-    });
-  });
-
-  describe('options.headerEncoding', () => {
-    let store;
-    const utf8_content = '阿达的大多';
-    const latin1_content = Buffer.from(utf8_content).toString('latin1');
-    let name;
-    before(async () => {
-      store = oss(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
-      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
-      const result = await store.put(name, Buffer.from('123'), {
-        meta: {
-          a: utf8_content
-        }
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(name);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
-    });
-
-    it('copy() should return 200 when set zh-cn meta', async () => {
-      const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
-      const result = await store.copy(originname, name, {
-        meta: {
-          a: utf8_content
-        }
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(originname);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
-    });
-
-    it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
-      const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
-      const result = await store.copy(originname, name, {
-        meta: {
-          a: utf8_content
-        }
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(originname);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
-    });
-
-    it('putMeta() should return 200', async () => {
-      const result = await store.putMeta(name, {
-        b: utf8_content
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(name);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.b, latin1_content);
     });
   });
 });

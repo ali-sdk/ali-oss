@@ -411,6 +411,22 @@ describe('test/object.test.js', () => {
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
     });
 
+    it('should set custom Content-MD5 and ignore case', async () => {
+      const name = `test-md5-${Date.now()}.js`;
+      const fileName = await utils.createTempFile(name, 1024 * 4);
+      const MD5Value = crypto.createHash('md5').update(fs.readFileSync(fileName)).digest('base64');
+      await store.put(name, fileName, {
+        headers: {
+          'Content-MD5': MD5Value
+        }
+      });
+      await store.put(name, fileName, {
+        headers: {
+          'content-Md5': MD5Value
+        }
+      });
+    });
+
     it('should return correct encode when name include + and space', async () => {
       const name = 'ali-sdkhahhhh+oss+mm xxx.js';
       const object = await store.put(name, __filename, {
@@ -1245,25 +1261,40 @@ describe('test/object.test.js', () => {
       assert.equal(fs.readFileSync(tmpfile, 'utf8'), fs.readFileSync(__filename, 'utf8'));
     });
 
+    /**
+     * Image processing uses different compression algorithms,
+     * and the performance may be inconsistent
+     * between different regions
+     */
     it('should get image stream with image process', async () => {
       const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
       const processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
+      const processedImagePath2 = path.join(__dirname, 'nodejs-processed-w200-latest.png');
       await store.put(imageName, originImagePath, {
         mime: 'image/png'
       });
 
       let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
+      let result2 = await store.getStream(imageName, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
+      assert.equal(result2.res.status, 200);
       let isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
-      assert(isEqual);
+      let isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
+      assert(isEqual || isEqual2);
       result = await store.getStream(imageName, {
         process: 'image/resize,w_200',
         subres: { 'x-oss-process': 'image/resize,w_100' }
       });
+      result2 = await store.getStream(imageName, {
+        process: 'image/resize,w_200',
+        subres: { 'x-oss-process': 'image/resize,w_100' }
+      });
       assert.equal(result.res.status, 200);
+      assert.equal(result2.res.status, 200);
       isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
-      assert(isEqual);
+      isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
+      assert(isEqual || isEqual2);
     });
 
     it('should throw error when object not exists', async () => {
@@ -1510,6 +1541,14 @@ describe('test/object.test.js', () => {
       assert(!info.meta.pid);
       assert(!info.meta.slus);
       assert.equal(info.status, 200);
+    });
+
+    it('should copy object with special characters such as ;,/?:@&=+$#', async () => {
+      const sourceName = `${prefix}ali-sdk/oss/copy-a;,/?:@&=+$#b.js`;
+      const tempFile = await utils.createTempFile('t', 1024 * 1024);
+      await store.put(sourceName, tempFile);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a.js`, sourceName);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a+b.js`, sourceName);
     });
 
     it('should use copy to change exists object headers', async () => {
@@ -1948,7 +1987,6 @@ describe('test/object.test.js', () => {
     });
 
     it('should list with start-afer', async () => {
-      // todo
       let result = await store.listV2({
         'start-after': `${listPrefix}fun`,
         'max-keys': 1
@@ -1968,6 +2006,45 @@ describe('test/object.test.js', () => {
       });
       assert(result.objects.length === 1);
       assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}a`,
+        delimiter: '/'
+      });
+      assert.strictEqual(result.keyCount, 3);
+      assert.strictEqual(result.objects.length, 1);
+      assert.strictEqual(result.objects[0].name, `${listPrefix}oss.jpg`);
+      assert.strictEqual(result.prefixes.length, 2);
+      assert.strictEqual(result.prefixes[0], `${listPrefix}fun/`);
+      assert.strictEqual(result.prefixes[1], `${listPrefix}other/`);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}oss.jpg`,
+        delimiter: '/'
+      });
+      assert.strictEqual(result.keyCount, 1);
+      assert.strictEqual(result.objects, undefined);
+      assert.strictEqual(result.prefixes[0], `${listPrefix}other/`);
+    });
+
+    it('should list with continuation-token', async () => {
+      let nextContinuationToken = null;
+      let keyCount = 0;
+      do {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await store.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken
+        });
+        keyCount += result.keyCount;
+        nextContinuationToken = result.nextContinuationToken;
+      } while (nextContinuationToken);
+      assert.strictEqual(keyCount, 6);
     });
   });
 
@@ -2206,13 +2283,12 @@ describe('test/object.test.js', () => {
           }
         };
 
-        const postFile = () =>
-          new Promise((resolve, reject) => {
-            request(options, (err, res) => {
-              if (err) reject(err);
-              if (res) resolve(res);
-            });
+        const postFile = () => new Promise((resolve, reject) => {
+          request(options, (err, res) => {
+            if (err) reject(err);
+            if (res) resolve(res);
           });
+        });
 
         const result = await postFile();
         assert(result.statusCode === 204);
