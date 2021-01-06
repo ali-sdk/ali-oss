@@ -1,6 +1,7 @@
 
 import crypto from 'crypto';
 import is from 'is-type-of';
+import { lowercaseKeyHeader } from './lowercaseKeyHeader'
 
 /**
  *
@@ -48,15 +49,15 @@ export function buildCanonicalizedResource(resourcePath, parameters) {
  */
 export function buildCanonicalString(method, resourcePath, request, expires?) {
   request = request || {};
-  const headers = request.headers || {};
+  const headers = lowercaseKeyHeader(request.headers);
   const OSS_PREFIX = 'x-oss-';
   const ossHeaders: string[] = [];
   const headersToSign = {};
 
   let signContent = [
     method.toUpperCase(),
-    headers['Content-Md5'] || '',
-    headers['Content-Type'] || headers['Content-Type'.toLowerCase()],
+    headers['content-md5'] || '',
+    headers['content-type'],
     expires || headers['x-oss-date']
   ];
 

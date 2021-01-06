@@ -326,7 +326,7 @@ options:
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
-- [endpoint] {String} oss region domain. It takes priority over `region`.
+- [endpoint] {String} oss region domain. It takes priority over `region`. Set as extranet domain name, intranet domain name, accelerated domain name, etc. according to different needs. please see [endpoints](https://www.alibabacloud.com/help/doc-detail/31837.htm)
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
   default is `oss-cn-hangzhou`.
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
@@ -344,14 +344,37 @@ options:
 
 example:
 
+1. basic usage
 ```js
 const OSS = require('ali-oss');
-
 const store = new OSS({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
   region: 'oss-cn-hangzhou'
+});
+```
+2. use accelerate endpoint
+- Global accelerate endpoint: oss-accelerate.aliyuncs.com
+- Accelerate endpoint of regions outside mainland China: oss-accelerate-overseas.aliyuncs.com
+```js
+const OSS = require('ali-oss');
+const store = new OSS({
+  accessKeyId: 'your access key',
+  accessKeySecret: 'your access secret',
+  bucket: 'your bucket name',
+  endpoint: 'oss-accelerate.aliyuncs.com',
+});
+```
+
+3. use custom domain
+```js
+const OSS = require('ali-oss');
+const store = new OSS({
+  accessKeyId: 'your access key',
+  accessKeySecret: 'your access secret',
+  cname: true,
+  endpoint: 'your custome domain',
 });
 ```
 

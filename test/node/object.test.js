@@ -411,6 +411,22 @@ describe('test/object.test.js', () => {
       assert.equal(info.res.headers['content-type'], 'application/javascript; charset=utf8');
     });
 
+    it('should set custom Content-MD5 and ignore case', async () => {
+      const name = `test-md5-${Date.now()}.js`;
+      const fileName = await utils.createTempFile(name, 1024 * 4);
+      const MD5Value = crypto.createHash('md5').update(fs.readFileSync(fileName)).digest('base64');
+      await store.put(name, fileName, {
+        headers: {
+          'Content-MD5': MD5Value
+        }
+      });
+      await store.put(name, fileName, {
+        headers: {
+          'content-Md5': MD5Value
+        }
+      });
+    });
+
     it('should return correct encode when name include + and space', async () => {
       const name = 'ali-sdkhahhhh+oss+mm xxx.js';
       const object = await store.put(name, __filename, {

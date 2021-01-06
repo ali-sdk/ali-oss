@@ -707,6 +707,25 @@ describe('browser', () => {
         assert(error.name === 'ConnectionTimeoutError');
       }
     });
+
+    it('should set custom Content-MD5 and ignore case', async () => {
+      const name = `${prefix}put/test-md5`;
+      const content = Array(1024 * 1024 * 10)
+        .fill(1)
+        .join('');
+      const body = new Blob([content], { type: 'text/plain' });
+      const MD5Value = crypto1.createHash('md5').update(OSS.Buffer(await body.arrayBuffer())).digest('base64');
+      await store.put(name, body, {
+        headers: {
+          'Content-MD5': MD5Value
+        }
+      });
+      await store.put(name, body, {
+        headers: {
+          'content-Md5': MD5Value
+        }
+      });
+    });
   });
 
   describe('test-content-type', () => {
