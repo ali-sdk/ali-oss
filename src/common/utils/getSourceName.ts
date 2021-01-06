@@ -13,7 +13,7 @@ export function getSourceName(sourceName, bucketName, configBucket) {
 
   checkBucketName(bucketName, false);
 
-  sourceName = encodeURI(sourceName);
+  sourceName = encodeURIComponent(sourceName);
 
   sourceName = `/${bucketName}/${sourceName}`;
   return sourceName;
