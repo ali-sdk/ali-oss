@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.13.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.0...v6.13.1) (2021-01-07)
+
+
+### Bug Fixes
+
+* responseCacheControl in Node.js ([#919](https://github.com/aliyun/oss-nodejs-sdk/issues/919)) ([7ca7055](https://github.com/aliyun/oss-nodejs-sdk/commit/7ca7055a667604f3f653621b9f2974e28e9d2190))
+
 ## [6.13.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.12.0...v6.13.0) (2021-01-06)
 
 
