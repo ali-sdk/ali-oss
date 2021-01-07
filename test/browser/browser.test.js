@@ -640,19 +640,20 @@ describe('browser', () => {
   describe('get()', () => {
     const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
     const store = new OSS(ossConfig);
-    before(() => {
-      await store.put('name', Buffer.from('oss.jpg'));
+    before(async () => {
+      await store.put(name, Buffer.from('oss.jpg'));
     });
-    it('should get with disableCache option', async () => {
-      const originRequest = store.urllib.request;
-      let requestUrl;
-      store.urllib.request = (url, params) => {
-        requestUrl = url;
-        return originRequest.call(store.urllib, url, params);
-      };
-      await store.get(name);
-      store.urllib.request = originRequest;
-      assert(requestUrl.includes('response-cache-control=no-cache'));
+    it('should get with default responseCacheControl option', async () => {
+      const {
+        res: { requestUrls }
+      } = await store.get(name);
+      assert(requestUrls[0].includes('response-cache-control=no-cache'));
+      const {
+        res: { requestUrls: requestUrls2 }
+      } = await store.get(name, {
+        responseCacheControl: null
+      });
+      assert(!requestUrls2[0].includes('response-cache-control=no-cache'));
     });
   });
 
