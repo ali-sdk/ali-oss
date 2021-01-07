@@ -37,7 +37,6 @@ const cleanBucket = async store => {
   const uploads = result.uploads || [];
   await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
 };
-
 describe('browser', () => {
   /* eslint require-yield: [0] */
   before(() => {
@@ -48,7 +47,6 @@ describe('browser', () => {
       stsToken: stsConfig.Credentials.SecurityToken,
       bucket: stsConfig.bucket
     };
-
     // this.store = oss({
     //   region: stsConfig.region,
     //   accessKeyId: creds.AccessKeyId,
@@ -639,8 +637,9 @@ describe('browser', () => {
 
   describe('get()', () => {
     const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
-    const store = new OSS(ossConfig);
+    let store;
     before(async () => {
+      store = new OSS(ossConfig);
       await store.put(name, Buffer.from('oss.jpg'));
     });
     it('should get with default responseCacheControl option', async () => {
@@ -676,7 +675,7 @@ describe('browser', () => {
       assert.equal(resultDel.res.status, 204);
     });
     it('GETs and PUTs blob to a bucket', async () => {
-      const name = `${prefix}put/test`;
+      const name = `${prefix}put/test1`;
       const body = new Blob(['blobBody'], { type: 'text/plain' });
       const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
@@ -732,7 +731,7 @@ describe('browser', () => {
 
     it('should set custom Content-MD5 and ignore case', async () => {
       const name = `${prefix}put/test-md5`;
-      const content = Array(1024 * 1024 * 10)
+      const content = Array(1024 * 1024 * 2)
         .fill(1)
         .join('');
       const body = new Blob([content], { type: 'text/plain' });
@@ -906,7 +905,8 @@ describe('browser', () => {
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
       let info = await store.head(originname);
-      assert(!info.res.headers['cache-control']);
+      // It should be 'no-cache' in the real browser environment, but other environments are undefined
+      assert(!info.res.headers['cache-control'] || info.res.headers['cache-control'] === 'no-cache');
 
       // add Cache-Control header to a exists object
       result = await store.copy(originname, originname, {
@@ -2079,12 +2079,12 @@ describe('browser', () => {
 
     it('putMeta() should return 200', async () => {
       const result = await store.putMeta(name, {
-        b: utf8_content
+        a: utf8_content
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
       assert.equal(info.status, 200);
-      assert.equal(info.meta.b, latin1_content);
+      assert.equal(info.meta.a, latin1_content);
     });
   });
 
