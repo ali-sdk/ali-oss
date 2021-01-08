@@ -637,6 +637,27 @@ describe('browser', () => {
     });
   });
 
+  describe('get()', () => {
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    let store;
+    before(async () => {
+      store = new OSS(ossConfig);
+      await store.put(name, Buffer.from('oss.jpg'));
+    });
+    it('should get with default responseCacheControl option', async () => {
+      const {
+        res: { requestUrls }
+      } = await store.get(name);
+      assert(requestUrls[0].includes('response-cache-control=no-cache'));
+      const {
+        res: { requestUrls: requestUrls2 }
+      } = await store.get(name, {
+        responseCacheControl: null
+      });
+      assert(!requestUrls2[0].includes('response-cache-control=no-cache'));
+    });
+  });
+
   describe('put', () => {
     let store;
     before(() => {
@@ -656,7 +677,7 @@ describe('browser', () => {
       assert.equal(resultDel.res.status, 204);
     });
     it('GETs and PUTs blob to a bucket', async () => {
-      const name = `${prefix}put/test`;
+      const name = `${prefix}put/test1`;
       const body = new Blob(['blobBody'], { type: 'text/plain' });
       const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
@@ -2003,12 +2024,12 @@ describe('browser', () => {
 
     it('putMeta() should return 200', async () => {
       const result = await store.putMeta(name, {
-        b: utf8_content
+        a: utf8_content
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
       assert.equal(info.status, 200);
-      assert.equal(info.meta.b, latin1_content);
+      assert.equal(info.meta.a, latin1_content);
     });
   });
 
@@ -2084,7 +2105,7 @@ describe('browser', () => {
       assert.strictEqual(onlineFile.content.toString(), '1234567');
     });
 
-    it.only('should fail when putStream', async () => {
+    it('should fail when putStream', async () => {
       autoRestoreWhenRETRY_LIMIE = false;
       const name = `ali-oss-test-retry-file-${Date.now()}`;
       const file = new File([1, 2, 3, 4, 5, 6, 7], name);

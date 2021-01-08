@@ -53,6 +53,8 @@ export interface MultipartUploadOptions extends RequestOptions {
 }
 export interface GetObjectOptions extends MultiVersionCommonOptions {
     process?: string;
+    /** only support Browser.js */
+    responseCacheControl?: string;
 }
 export interface PutObjectOptions extends RequestOptions {
     mime?: string;

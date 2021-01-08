@@ -24,7 +24,11 @@ export async function get(this: any, name: string, file, options: GetObjectOptio
     options = file;
   }
 
-  options.subres = Object.assign({}, options.subres);
+  const isBrowserEnv = process && (process as any).browser;
+  const responseCacheControl = options.responseCacheControl === null ? '' : 'no-cache';
+  const defaultSubresOptions =
+    isBrowserEnv && responseCacheControl ? { 'response-cache-control': responseCacheControl } : {};
+  options.subres = Object.assign(defaultSubresOptions, options.subres);
 
   if (options.versionId) {
     options.subres.versionId = options.versionId;

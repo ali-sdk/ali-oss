@@ -69,6 +69,8 @@ export interface MultipartUploadOptions extends RequestOptions {
 
 export interface GetObjectOptions extends MultiVersionCommonOptions {
   process?: string; // image process params, will send with x-oss-process e.g.: {process: 'image/resize,w_200'}
+  /** only support Browser.js */
+  responseCacheControl?: string
 }
 
 export interface PutObjectOptions extends RequestOptions {

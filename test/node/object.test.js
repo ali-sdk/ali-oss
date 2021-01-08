@@ -774,6 +774,7 @@ describe('test/object.test.js', () => {
       const savepath = path.join(tmpdir, name.replace(/\//g, '-'));
       const result = await store.get(name, savepath);
       assert.equal(result.res.status, 200);
+      assert(!result.res.requestUrls[0].includes('response-cache-control=no-cache'));
       assert.equal(fs.statSync(savepath).size, fs.statSync(__filename).size);
     });
 
