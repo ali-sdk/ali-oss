@@ -72,8 +72,12 @@ export async function getBucketVersions(this: any, query: getBucketVersionsQuery
     objects,
     deleteMarker,
     prefixes,
+    // attirbute of legacy error
     nextMarker: result.data.NextMarker || null,
+    // attirbute of legacy error
     NextVersionIdMarker: result.data.NextVersionIdMarker || null,
+    nextKeyMarker: result.data.NextKeyMarker || null,
+    nextVersionIdMarker: result.data.NextVersionIdMarker || null,
     isTruncated: result.data.IsTruncated === 'true'
   };
 }

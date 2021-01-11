@@ -1,6 +1,7 @@
-import { deepCopy } from '../utils/deepCopy';
 import { encodeCallback } from '../utils/encodeCallback';
 import { obj2xml } from '../utils/obj2xml';
+import { deepCopyWith } from '../utils/deepCopy';
+import { isBuffer } from '../utils/isBuffer';
 import { CompleteMultipartUploadOptions } from '../../types/params';
 
 /**
@@ -47,7 +48,11 @@ export async function completeMultipartUpload(
     },
   };
 
-  const opt: any = deepCopy(options);
+  const opt: any = deepCopyWith(options, (_) => {
+    if (isBuffer(_)) return null;
+    return undefined;
+  });
+
   if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
   opt.subres = { uploadId };
 

@@ -1,6 +1,7 @@
 
 import crypto from 'crypto';
 import is from 'is-type-of';
+import { lowercaseKeyHeader } from './lowercaseKeyHeader'
 
 /**
  *
@@ -48,15 +49,15 @@ export function buildCanonicalizedResource(resourcePath, parameters) {
  */
 export function buildCanonicalString(method, resourcePath, request, expires?) {
   request = request || {};
-  const headers = request.headers || {};
+  const headers = lowercaseKeyHeader(request.headers);
   const OSS_PREFIX = 'x-oss-';
   const ossHeaders: string[] = [];
   const headersToSign = {};
 
   let signContent = [
     method.toUpperCase(),
-    headers['Content-Md5'] || '',
-    headers['Content-Type'] || headers['Content-Type'.toLowerCase()],
+    headers['content-md5'] || '',
+    headers['content-type'],
     expires || headers['x-oss-date']
   ];
 
@@ -85,15 +86,6 @@ export function buildCanonicalString(method, resourcePath, request, expires?) {
 export function computeSignature(accessKeySecret: string, canonicalString: string, headerEncoding: any = 'utf-8') {
   const signature = crypto.createHmac('sha1', accessKeySecret);
   return signature.update(Buffer.from(canonicalString, headerEncoding)).digest('base64');
-}
-
-/**
- * @param {String} accessKeyId
- * @param {String} accessKeySecret
- * @param {String} canonicalString
- */
-export function authorization(accessKeyId, accessKeySecret, canonicalString) {
-  return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString)}`;
 }
 
 /**
@@ -177,7 +169,6 @@ export default {
   buildCanonicalizedResource,
   buildCanonicalString,
   computeSignature,
-  authorization,
   _signatureForURL
 };
 

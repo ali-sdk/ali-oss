@@ -3,11 +3,13 @@ import copy from 'copy-to';
 import merge from 'merge-descriptors';
 import is from 'is-type-of';
 import { isIP } from '../utils/isIP';
+import { checkValidEndpoint } from '../utils/checkValid';
 import { escapeName } from '../utils/escapeName';
 
 export function _getReqUrl(this: any, params) {
   const _escape = this._escape || escapeName;
   const ep: any = {};
+  checkValidEndpoint(this.options.endpoint);
   copy(this.options.endpoint).to(ep);
   const _isIP = isIP(ep.hostname);
   const isCname = this.options.cname;
@@ -17,7 +19,7 @@ export function _getReqUrl(this: any, params) {
   }
 
   let resourcePath = '/';
-  if (params.bucket && (this.options.sldEnable || _isIP)) {
+  if (params.bucket && this.options.sldEnable) {
     resourcePath += `${params.bucket}/`;
   }
 

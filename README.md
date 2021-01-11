@@ -128,6 +128,7 @@ All operation use es7 async/await to implement. All api is async function.
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
+  - [.listV2(query[, options])](#listV2query-options)
   - [.getBucketVersions(query[, options])](#getBucketVersionsquery-options)
   - [.put(name, file[, options])](#putname-file-options)
   - [.putStream(name, stream[, options])](#putstreamname-stream-options)
@@ -325,7 +326,7 @@ options:
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
-- [endpoint] {String} oss region domain. It takes priority over `region`.
+- [endpoint] {String} oss region domain. It takes priority over `region`. Set as extranet domain name, intranet domain name, accelerated domain name, etc. according to different needs. please see [endpoints](https://www.alibabacloud.com/help/doc-detail/31837.htm)
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
   default is `oss-cn-hangzhou`.
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
@@ -343,14 +344,37 @@ options:
 
 example:
 
+1. basic usage
 ```js
 const OSS = require('ali-oss');
-
 const store = new OSS({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
   region: 'oss-cn-hangzhou'
+});
+```
+2. use accelerate endpoint
+- Global accelerate endpoint: oss-accelerate.aliyuncs.com
+- Accelerate endpoint of regions outside mainland China: oss-accelerate-overseas.aliyuncs.com
+```js
+const OSS = require('ali-oss');
+const store = new OSS({
+  accessKeyId: 'your access key',
+  accessKeySecret: 'your access secret',
+  bucket: 'your bucket name',
+  endpoint: 'oss-accelerate.aliyuncs.com',
+});
+```
+
+3. use custom domain
+```js
+const OSS = require('ali-oss');
+const store = new OSS({
+  accessKeyId: 'your access key',
+  accessKeySecret: 'your access secret',
+  cname: true,
+  endpoint: 'your custome domain',
 });
 ```
 
@@ -408,8 +432,10 @@ parameters:
   If bucket exists and not belong to current account, will throw BucketAlreadyExistsError.
   If bucket not exists, will create a new bucket and set it's ACL.
 - [options] {Object} optional parameters
+  - [acl] {String} include `private`,`public-read`,`public-read-write`
+  - [storageClass] {String} the storage type include (Standard,IA,Archive)
+  - [dataRedundancyType] {String} default `LRS`, include `LRS`,`ZRS`
   - [timeout] {Number} the operation timeout
-  - [StorageClass] {String} the storage type include (Standard,IA,Archive)
 
 Success will return the bucket name on `bucket` properties.
 
@@ -1549,7 +1575,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
 
 Success will return the object information.
@@ -1673,7 +1699,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
 
 Success will return the object information.
 
@@ -1733,7 +1759,7 @@ All parameters are same as put except for options.position
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
 
 object:
 
@@ -1898,6 +1924,7 @@ parameters:
   - [timeout] {Number} the operation timeout
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
+  - [responseCacheControl] {String} default `no-cache`, (only support Browser). response-cache-control, will response with HTTP Header `Cache-Control`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Range' get specifying range bytes content, e.g.: `Range: bytes=0-9`
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
@@ -2289,6 +2316,84 @@ const result = await store.list({
 console.log(result.objects);
 ```
 
+### .listV2(query[, options])
+
+List objects in the bucket.(recommended)
+
+parameters:
+
+- [query] {Object} query parameters, default is `null`
+  - [prefix] {String} search object using `prefix` key
+  - [continuation-token] (continuationToken) {String} search start from `continuationToken`, including `continuationToken` key
+  - [delimiter] {String} delimiter search scope
+    e.g. `/` only search current dir, not including subdir
+  - [max-keys] {String|Number} max objects, default is `100`, limit to `1000`
+  - [start-after] {String} specifies the Start-after value from which to start the list. The names of objects are returned in alphabetical order.
+  - [fetch-owner] {Boolean} specifies whether to include the owner information in the response.
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout
+
+Success will return objects list on `objects` properties.
+
+- objects {Array<ObjectMeta>} object meta info list
+  Each `ObjectMeta` will contains blow properties:
+  - name {String} object name on oss
+  - url {String} resource url
+  - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+  - etag {String} object etag contains `"`, e.g.: `"5B3C1A2E053D763E1B002CC607C5A0FE"`
+  - type {String} object type, e.g.: `Normal`
+  - size {Number} object size, e.g.: `344606`
+  - storageClass {String} storage class type, e.g.: `Standard`
+  - owner {Object|null} object owner, including `id` and `displayName`
+- prefixes {Array<String>} prefix list
+- isTruncated {Boolean} truncate or not
+- nextContinuationToken {String} next continuation-token string
+- keyCount {Number} The number of keys returned for this request. If Delimiter is specified, KeyCount is the sum of the elements in Key and CommonPrefixes.
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+- List top 10 objects
+
+```js
+const result = await store.listV2({
+  'max-keys': 10
+});
+console.log(result.objects);
+```
+
+- List `fun/` dir including subdirs objects
+
+```js
+const result = await store.listV2({
+  prefix: 'fun/'
+});
+console.log(result.objects);
+```
+
+- List `fun/` dir objects, not including subdirs
+
+```js
+const result = await store.listV2({
+  prefix: 'fun/',
+  delimiter: '/'
+});
+console.log(result.objects);
+```
+
+- List `a/` dir objects, after `a/b` and not include `a/b`
+
+```js
+const result = await store.listV2({
+  delimiter: '/',
+  prefix: 'a/',
+  'start-after': 'a/b'
+});
+console.log(result.objects);
+```
+
 ### .getBucketVersions(query[, options])
 
 List the version information of all objects in the bucket, including the delete marker (Delete Marker).
@@ -2325,8 +2430,8 @@ Success will return objects list on `objects` properties.
     - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
     - versionId {String} object versionId
 - isTruncated {Boolean} truncate or not
-- nextMarker {String} next marker string
-- NextVersionIdMarker {String} next version ID marker string
+- nextKeyMarker (nextMarker) {String} next marker string
+- nextVersionIdMarker (NextVersionIdMarker) {String} next version ID marker string
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -2649,7 +2754,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - [x-oss-server-side-encryption]
     Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
     if use in browser you should be set cors expose header x-oss-server-side-encryption
@@ -2886,10 +2991,10 @@ or give tips in your business code;
 parameters:
 
 - name {String} object name
-- file {String|File(only support Browser)|Blob(only support Browser)} file path or HTML5 Web File or web Blob
+- file {String|File(only support Browser)|Blob(only support Browser)|Buffer} file path or HTML5 Web File or web Blob or content buffer
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
-  - [partSize] {Number} the suggested size for each part
+  - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
@@ -2920,7 +3025,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
 
@@ -2942,6 +3047,7 @@ example:
 
 ```js
 const result = await store.multipartUpload('object', '/tmp/file');
+let savedCpt;
 console.log(result);
 
 const result = await store.multipartUpload('object', '/tmp/file', {
@@ -2949,6 +3055,7 @@ const result = await store.multipartUpload('object', '/tmp/file', {
   partSize: 1024 * 1024,
   progress: function (p, cpt, res) {
     console.log(p);
+    savedCpt = cpt;
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
   }
@@ -2990,6 +3097,33 @@ function progress(p, cpt, res) {
 const result2 = await store.multipartUpload('object', '/tmp/file', {
   progress: progress
 });
+
+```
+
+- multipartUpload with abort
+
+>tips: abort multipartUpload support on node and browser
+
+```js
+
+//start upload
+let abortCheckpoint;
+store.multipartUpload('object', '/tmp/file', {
+  progress: function (p, cpt, res) {
+    abortCheckpoint = cpt;
+  }
+}).then(res => {
+  // do something
+}.catch(err => {
+   //if abort will catch abort event
+  if (err.name === 'abort') {
+    // handle abort
+    console.log('error: ', err.message)
+  }
+}))
+
+// abort
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
 
 ```
 
@@ -3058,7 +3192,7 @@ parameters:
 - [options] {Object} optional args
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [parallel] {Number} the number of parts to be uploaded in parallel
-  - [partSize] {Number} the suggested size for each part
+  - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
   - [versionId] {String} the version id of history object 
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
@@ -3070,7 +3204,7 @@ parameters:
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
-    - 'Expires' expires time (milliseconds) for download, e.g.: `Expires: 3600000`
+    - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
     - [x-oss-copy-source-if-match]  only uploadPartCopy api used, default none<br>
@@ -3102,6 +3236,7 @@ const result = await store.multipartUploadCopy('object', {
   sourceKey: 'sourceKey',
   sourceBucketName: 'sourceBucketName'
 });
+let savedCpt;
 console.log(result);
 
 const result = await store.multipartUploadCopy('object', {
@@ -3112,6 +3247,7 @@ const result = await store.multipartUploadCopy('object', {
   partSize: 1024 * 1024,
   progress: function (p, cpt, res) {
     console.log(p);
+    savedCpt = cpt;
     console.log(cpt);
     console.log(res.headers['x-oss-request-id']);
   }
@@ -3134,6 +3270,36 @@ const result = await store.multipartUploadCopy('object', {
 console.log(result);
 
 ```
+
+- multipartUploadCopy with abort
+
+```js
+
+//start upload
+let abortCheckpoint;
+store.multipartUploadCopy('object', {
+    sourceKey: 'sourceKey',
+    sourceBucketName: 'sourceBucketName'
+  }, {
+  progress: function (p, cpt, res) {
+    abortCheckpoint = cpt;
+  }
+}).then(res => {
+  // do something
+}.catch(err => {
+   //if abort will catch abort event
+  if (err.name === 'abort') {
+    // handle abort
+    console.log('error: ', err.message)
+  }
+}))
+
+//the other event to abort, for example: click event
+//to abort upload must use the same client instance
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
+
+```
+
 - multipartUploadCopy with cancel
 
 ```js
@@ -4165,6 +4331,10 @@ Each error return by OSS server will contains these properties:
 - requestId {String} uuid for this request, if you meet some unhandled problem,
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
+
+The following table lists the OSS error codes:
+
+[More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
 name | code | status | message | message in Chinese
 ---  | ---  | --- | ---     | ---

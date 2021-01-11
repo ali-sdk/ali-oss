@@ -53,6 +53,8 @@ export interface MultipartUploadOptions extends RequestOptions {
 }
 export interface GetObjectOptions extends MultiVersionCommonOptions {
     process?: string;
+    /** only support Browser.js */
+    responseCacheControl?: string;
 }
 export interface PutObjectOptions extends RequestOptions {
     mime?: string;
@@ -197,6 +199,15 @@ export interface listQuery {
     delimiter?: string;
     'max-keys'?: string | number;
     'encoding-type'?: 'url';
+}
+export interface listV2Query {
+    prefix?: string;
+    delimiter?: string;
+    'start-after'?: string;
+    'continuation-token'?: string;
+    'max-keys'?: string;
+    'encoding-type'?: 'url';
+    'fetch-owner'?: boolean;
 }
 export interface postAsyncFetchOptions extends RequestOptions {
     host?: string;

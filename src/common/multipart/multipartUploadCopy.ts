@@ -5,6 +5,7 @@ import { _getObjectMeta } from '../utils/_getObjectMeta';
 import { initMultipartUpload } from './initMultipartUpload';
 import { getPartSize } from '../utils/getPartSize';
 import { _makeCancelEvent } from '../utils/_makeCancelEvent';
+import { _makeAbortEvent } from '../utils/_makeAbortEvent';
 import { _parallel } from '../utils/_parallel';
 import { uploadPartCopy } from './uploadPartCopy';
 import { completeMultipartUpload } from './completeMultipartUpload';
@@ -160,6 +161,9 @@ export async function _resumeMultipartCopy(
         resolve();
       } catch (err) {
         err.partNum = partNo;
+        if (err.status === 404) {
+          reject(_makeAbortEvent());
+        }
         reject(err);
       }
     });

@@ -1,6 +1,75 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [6.12.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.2...v6.12.0) (2020-12-03)
+
+
+### Features
+
+* auto set stsConfig when sts expires ([#856](https://github.com/aliyun/oss-nodejs-sdk/issues/856)) ([158d294](https://github.com/aliyun/oss-nodejs-sdk/commit/158d29473ec50eb43a8260f8d1e6039b0f35e4c3))
+* inventory ([#860](https://github.com/aliyun/oss-nodejs-sdk/issues/860)) ([6fa9f3f](https://github.com/aliyun/oss-nodejs-sdk/commit/6fa9f3f5c177ddc56b197997bc2fbbef44a0f57f))
+* listObjectsV2 ([#888](https://github.com/aliyun/oss-nodejs-sdk/issues/888)) ([f75ad23](https://github.com/aliyun/oss-nodejs-sdk/commit/f75ad239af8d60a16d8c00b736ee8b7a517d9152))
+* retry when net err or timeout ([#876](https://github.com/aliyun/oss-nodejs-sdk/issues/876)) ([db4969e](https://github.com/aliyun/oss-nodejs-sdk/commit/db4969ee1b14ac7898ed14b92c95f331e914ae07))
+* support non-english http header ([#842](https://github.com/aliyun/oss-nodejs-sdk/issues/842)) ([4b6f511](https://github.com/aliyun/oss-nodejs-sdk/commit/4b6f511df214d538664edd696071d164077d7101))
+* worm ([#857](https://github.com/aliyun/oss-nodejs-sdk/issues/857)) ([7435c56](https://github.com/aliyun/oss-nodejs-sdk/commit/7435c56503033c8748364b0fa1ba14ad1bed920e))
+
+
+### Bug Fixes
+
+* **browser:** checkpoint.file ([#795](https://github.com/aliyun/oss-nodejs-sdk/issues/795)) ([4e38050](https://github.com/aliyun/oss-nodejs-sdk/commit/4e38050b7ea7f3776ce3e5940a7a8dd897777224))
+* browser test and listV2 docs ([#901](https://github.com/aliyun/oss-nodejs-sdk/issues/901)) ([67f0e5f](https://github.com/aliyun/oss-nodejs-sdk/commit/67f0e5f879cf79c2ed42211949218c41e5c0163e))
+* cannot use ali-oss in webworker ([#823](https://github.com/aliyun/oss-nodejs-sdk/issues/823)) ([afb07f3](https://github.com/aliyun/oss-nodejs-sdk/commit/afb07f353c603ea7813150026811e8904bc6c806))
+* check region and endpoint for ssrf ([#874](https://github.com/aliyun/oss-nodejs-sdk/issues/874)) ([5457ecf](https://github.com/aliyun/oss-nodejs-sdk/commit/5457ecf58fa382606c57c4d18c430e5bbb20413c))
+* getBucketVersions should use NextKeyMarker property ([#896](https://github.com/aliyun/oss-nodejs-sdk/issues/896)) ([b9076d4](https://github.com/aliyun/oss-nodejs-sdk/commit/b9076d4cb0895ca7437fed55070a693a5acd7a5a))
+* host err which old image client request ([#869](https://github.com/aliyun/oss-nodejs-sdk/issues/869)) ([b7b2f1c](https://github.com/aliyun/oss-nodejs-sdk/commit/b7b2f1c89f87e509fa3c9329be9d8e64216bf5b4))
+* merge conflict [#726](https://github.com/aliyun/oss-nodejs-sdk/issues/726) ([#892](https://github.com/aliyun/oss-nodejs-sdk/issues/892)) ([6c77ecc](https://github.com/aliyun/oss-nodejs-sdk/commit/6c77ecc3373e4611553235ebb4af455cdce7b7d4))
+* use put insteadof putStream when calling multipartUpload to process small file in browser ([#890](https://github.com/aliyun/oss-nodejs-sdk/issues/890)) ([cdd9995](https://github.com/aliyun/oss-nodejs-sdk/commit/cdd999526335e278562a7d1bc88d9f107ed80a7d))
+
+### [6.11.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.0...v6.11.2) (2020-10-10)
+
+
+### Bug Fixes
+
+* **browser:** delete set header "User-Agent" ([#873](https://github.com/aliyun/oss-nodejs-sdk/issues/873)) ([b11c162](https://github.com/aliyun/oss-nodejs-sdk/commit/b11c162ed162c4a71788b88b78ba5ebeea70093a))
+
+## [6.11.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.10.0...v6.11.0) (2020-10-09)
+
+
+### Features
+
+* multipartUpload support Node.JS Buffer ([#832](https://github.com/aliyun/oss-nodejs-sdk/issues/832)) ([3287cb9](https://github.com/aliyun/oss-nodejs-sdk/commit/3287cb9c01d3b4562d60d4ad80255d23a0acd701))
+* putBucket support set acl and dataRedundancyType ([#837](https://github.com/aliyun/oss-nodejs-sdk/issues/837)) ([8f8edbb](https://github.com/aliyun/oss-nodejs-sdk/commit/8f8edbb19929c5131334e40f883ba80461e80669))
+* support proxy ([#858](https://github.com/aliyun/oss-nodejs-sdk/issues/858)) ([ca287ba](https://github.com/aliyun/oss-nodejs-sdk/commit/ca287ba9605363cb17af88be800d6eb706b8b969))
+
+
+### Bug Fixes
+
+* _getPartSize ([#846](https://github.com/aliyun/oss-nodejs-sdk/issues/846)) ([70f6329](https://github.com/aliyun/oss-nodejs-sdk/commit/70f6329e7a75bea2c68cb4bbd4bfdd13a09c3400))
+* copyObject set headers bug ([#850](https://github.com/aliyun/oss-nodejs-sdk/issues/850)) ([2624cc3](https://github.com/aliyun/oss-nodejs-sdk/commit/2624cc3e0de5417b42cde872b5ea9db6fc3b05e1))
+* IP does not support third-level domain ([#834](https://github.com/aliyun/oss-nodejs-sdk/issues/834)) ([1c26ec8](https://github.com/aliyun/oss-nodejs-sdk/commit/1c26ec817d16e5f0db6a0c19ddda63d8bd1e9fbc))
+* multipartupload task unhandle abort error ([#849](https://github.com/aliyun/oss-nodejs-sdk/issues/849)) ([8f9c61b](https://github.com/aliyun/oss-nodejs-sdk/commit/8f9c61b599b1b8098fbb6af37c9a17d70540c53d))
+* sts SignatureDoesNotMatch ([#847](https://github.com/aliyun/oss-nodejs-sdk/issues/847)) ([009c0b2](https://github.com/aliyun/oss-nodejs-sdk/commit/009c0b2d18cbca9ee9db6aa4e4436def11d345ba))
+* Support empty prefix in putBucketLifecycle ([#835](https://github.com/aliyun/oss-nodejs-sdk/issues/835)) ([7788394](https://github.com/aliyun/oss-nodejs-sdk/commit/778839471cbd7909d87a0b5cb1eeb4fc4716b4e6))
+* throw error when put path is not file ([#838](https://github.com/aliyun/oss-nodejs-sdk/issues/838)) ([9033453](https://github.com/aliyun/oss-nodejs-sdk/commit/90334538b38a8fda67fce906bd2f63b83d02a393))
+* **browser:** presets dont support ie10 ([#861](https://github.com/aliyun/oss-nodejs-sdk/issues/861)) ([28dd95d](https://github.com/aliyun/oss-nodejs-sdk/commit/28dd95d08f82d9298c4964cf071144c68f3363aa))
+
+## [6.10.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.9.0...v6.10.0) (2020-07-14)
+
+
+### Features
+
+* add async task ([#818](https://github.com/aliyun/oss-nodejs-sdk/issues/818)) ([8d27f24](https://github.com/aliyun/oss-nodejs-sdk/commit/8d27f245f6340291b801613b9c23c3162039c18d)), closes [#810](https://github.com/aliyun/oss-nodejs-sdk/issues/810) [#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814) [#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)
+* add typescript support ([#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814)) ([8ef7528](https://github.com/aliyun/oss-nodejs-sdk/commit/8ef7528d4d39ef641ed2e6998a7dd9ce74a3b57c))
+* asyncFetch ([#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)) ([bbe2ded](https://github.com/aliyun/oss-nodejs-sdk/commit/bbe2dedb3ff92fa2234f567b07bed3da04946515))
+* listBucket support search by tagging ([#819](https://github.com/aliyun/oss-nodejs-sdk/issues/819)) ([4b8edf6](https://github.com/aliyun/oss-nodejs-sdk/commit/4b8edf6b9cdc2e46d438847a3894d4a090e56a55))
+
+
+### Bug Fixes
+
+* **browser:** put unhandle non-RequestTimeTooSkewed error ([#825](https://github.com/aliyun/oss-nodejs-sdk/issues/825)) ([87dd7d6](https://github.com/aliyun/oss-nodejs-sdk/commit/87dd7d6ff964fceae503707ba1bbdb309ac1c033))
+* crypto each exports, close [#473](https://github.com/aliyun/oss-nodejs-sdk/issues/473) ([#830](https://github.com/aliyun/oss-nodejs-sdk/issues/830)) ([1cf7231](https://github.com/aliyun/oss-nodejs-sdk/commit/1cf7231488c21c5fdc9f1c039379d924669df6a8))
+* WebFileReadStream no throw error when filereader onerror ([#824](https://github.com/aliyun/oss-nodejs-sdk/issues/824)) ([d4977bf](https://github.com/aliyun/oss-nodejs-sdk/commit/d4977bf52858b83fac11f65b2c348180b457a5be))
 
 <a name="6.9.0"></a>
 # [6.9.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.8.0...v6.9.0) (2020-06-05)

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 /* eslint no-await-in-loop: [0] */
 const assert = require('assert');
@@ -23,7 +24,7 @@ const timemachine = require('timemachine');
 
 timemachine.reset();
 
-const cleanBucket = async (store) => {
+const cleanBucket = async store => {
   let result = await store.list({
     'max-keys': 1000
   });
@@ -72,10 +73,7 @@ describe('browser', () => {
         region: 'oss-cn-hangzhou'
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://oss-cn-hangzhou.aliyuncs.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://oss-cn-hangzhou.aliyuncs.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -84,10 +82,7 @@ describe('browser', () => {
         internal: true
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://oss-cn-hangzhou-internal.aliyuncs.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://oss-cn-hangzhou-internal.aliyuncs.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -97,10 +92,7 @@ describe('browser', () => {
         secure: true
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'https://oss-cn-hangzhou-internal.aliyuncs.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'https://oss-cn-hangzhou-internal.aliyuncs.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -108,10 +100,7 @@ describe('browser', () => {
         region: 'vpc100-oss-cn-beijing'
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://vpc100-oss-cn-beijing.aliyuncs.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://vpc100-oss-cn-beijing.aliyuncs.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -120,10 +109,7 @@ describe('browser', () => {
         internal: true
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://vpc100-oss-cn-shenzhen.aliyuncs.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://vpc100-oss-cn-shenzhen.aliyuncs.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -133,10 +119,7 @@ describe('browser', () => {
         secure: true
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'https://vpc100-oss-cn-hangzhou.aliyuncs.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'https://vpc100-oss-cn-hangzhou.aliyuncs.com/');
     });
 
     it('should init with cname: foo.bar.com', () => {
@@ -147,10 +130,7 @@ describe('browser', () => {
         cname: true
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://foo.bar.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://foo.bar.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -159,10 +139,7 @@ describe('browser', () => {
         cname: true
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://foo.bar.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://foo.bar.com/');
     });
 
     it('should init with endpoint: http://test.oss.com', () => {
@@ -172,10 +149,7 @@ describe('browser', () => {
         endpoint: 'test.oss.com'
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://test.oss.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://test.oss.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -184,10 +158,7 @@ describe('browser', () => {
         endpoint: 'test.oss.com'
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'https://test.oss.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'https://test.oss.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -195,10 +166,7 @@ describe('browser', () => {
         endpoint: 'http://test.oss.com'
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://test.oss.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://test.oss.com/');
 
       store = new OSS({
         accessKeyId: 'foo',
@@ -206,10 +174,7 @@ describe('browser', () => {
         endpoint: 'https://test.oss.com'
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'https://test.oss.com/'
-      );
+      assert.equal(store.options.endpoint.format(), 'https://test.oss.com/');
     });
 
     it('should init with ip address: http://127.0.0.1', () => {
@@ -219,10 +184,7 @@ describe('browser', () => {
         endpoint: '127.0.0.1'
       });
 
-      assert.equal(
-        store.options.endpoint.format(),
-        'http://127.0.0.1/'
-      );
+      assert.equal(store.options.endpoint.format(), 'http://127.0.0.1/');
     });
 
     it('should create request url with bucket', () => {
@@ -277,7 +239,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:6000/gems/');
+      assert.equal(url, 'http://127.0.0.1:6000/');
     });
 
     it('should create request url with bucket/object/subres', () => {
@@ -345,7 +307,7 @@ describe('browser', () => {
       };
 
       url = store._getReqUrl(params);
-      assert.equal(url, 'http://127.0.0.1:3000/gems/hello');
+      assert.equal(url, 'http://127.0.0.1:3000/hello');
     });
 
     it('should set User-Agent', () => {
@@ -362,7 +324,6 @@ describe('browser', () => {
       const uaAlpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
       assert.equal(uaAlpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
     });
-
 
     it('should trim access id/key', () => {
       const store = new OSS({
@@ -509,6 +470,194 @@ describe('browser', () => {
     });
   });
 
+  describe('listV2()', () => {
+    let listPrefix;
+    let store;
+    before(async () => {
+      listPrefix = `${prefix}ali-sdk/listV2/`;
+      store = new OSS(ossConfig);
+      await store.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
+      await store.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
+      await store.put(`${listPrefix}fun/movie/001.avi`, Buffer.from('fun/movie/001.avi'));
+      await store.put(`${listPrefix}fun/movie/007.avi`, Buffer.from('fun/movie/007.avi'));
+      await store.put(`${listPrefix}other/movie/007.avi`, Buffer.from('other/movie/007.avi'));
+      await store.put(`${listPrefix}other/movie/008.avi`, Buffer.from('other/movie/008.avi'));
+    });
+
+    function checkObjectProperties(obj, options) {
+      assert.equal(typeof obj.name, 'string');
+      assert.equal(typeof obj.lastModified, 'string');
+      assert.equal(typeof obj.etag, 'string');
+      assert(obj.type === 'Normal' || obj.type === 'Multipart');
+      assert.equal(typeof obj.size, 'number');
+      assert.equal(obj.storageClass, 'Standard');
+      if (options.owner) {
+        assert(typeof obj.owner.id === 'string' && typeof obj.owner.displayName === 'string');
+      } else {
+        assert(obj.owner === null);
+      }
+    }
+
+    it('should list top 3 objects', async () => {
+      const result = await store.listV2({
+        'max-keys': 1
+      });
+      assert.equal(result.objects.length, 1);
+      result.objects.forEach(checkObjectProperties);
+      assert.equal(typeof result.nextContinuationToken, 'string');
+      assert(result.isTruncated);
+      assert.equal(result.prefixes, null);
+
+      // next 2
+      const result2 = await store.listV2({
+        'max-keys': 2,
+        continuationTOken: result.nextContinuationToken
+      });
+      assert.equal(result2.objects.length, 2);
+      result.objects.forEach(checkObjectProperties);
+      assert.equal(typeof result2.nextContinuationToken, 'string');
+      assert(result2.isTruncated);
+      assert.equal(result2.prefixes, null);
+    });
+
+    it('should list with prefix', async () => {
+      let result = await store.listV2({
+        prefix: `${listPrefix}fun/movie/`,
+        'fetch-owner': true
+      });
+      assert.equal(result.objects.length, 2);
+      result.objects.forEach(obj => checkObjectProperties(obj, { owner: true }));
+      assert.equal(result.nextContinuationToken, null);
+      assert(!result.isTruncated);
+      assert.equal(result.prefixes, null);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}fun/movie`
+      });
+      assert.equal(result.objects.length, 2);
+      result.objects.forEach(checkObjectProperties);
+      assert.equal(result.nextContinuationToken, null);
+      assert(!result.isTruncated);
+      assert.equal(result.prefixes, null);
+    });
+
+    it('should list current dir files only', async () => {
+      let result = await store.listV2({
+        prefix: listPrefix,
+        delimiter: '/'
+      });
+      assert.equal(result.objects.length, 1);
+      result.objects.forEach(checkObjectProperties);
+      assert.equal(result.nextContinuationToken, null);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, [`${listPrefix}fun/`, `${listPrefix}other/`]);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}fun/`,
+        delimiter: '/'
+      });
+      assert.equal(result.objects.length, 1);
+      result.objects.forEach(checkObjectProperties);
+      assert.equal(result.nextContinuationToken, null);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, [`${listPrefix}fun/movie/`]);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}fun/movie/`,
+        delimiter: '/'
+      });
+      assert.equal(result.objects.length, 2);
+      result.objects.forEach(checkObjectProperties);
+      assert.equal(result.nextContinuationToken, null);
+      assert(!result.isTruncated);
+      assert.equal(result.prefixes, null);
+    });
+
+    it('should list with start-afer', async () => {
+      let result = await store.listV2({
+        'start-after': `${listPrefix}fun`,
+        'max-keys': 1
+      });
+      assert(result.objects[0].name === `${listPrefix}fun/movie/001.avi`);
+
+      result = await store.listV2({
+        'start-after': `${listPrefix}fun/movie/001.avi`,
+        'max-keys': 1
+      });
+      assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
+
+      result = await store.listV2({
+        delimiter: '/',
+        prefix: `${listPrefix}fun/movie/`,
+        'start-after': `${listPrefix}fun/movie/002.avi`
+      });
+      assert(result.objects.length === 1);
+      assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}a`,
+        delimiter: '/'
+      });
+      assert.strictEqual(result.keyCount, 3);
+      assert.strictEqual(result.objects.length, 1);
+      assert.strictEqual(result.objects[0].name, `${listPrefix}oss.jpg`);
+      assert.strictEqual(result.prefixes.length, 2);
+      assert.strictEqual(result.prefixes[0], `${listPrefix}fun/`);
+      assert.strictEqual(result.prefixes[1], `${listPrefix}other/`);
+
+      result = await store.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}oss.jpg`,
+        delimiter: '/'
+      });
+      assert.strictEqual(result.keyCount, 1);
+      assert.strictEqual(result.objects, undefined);
+      assert.strictEqual(result.prefixes[0], `${listPrefix}other/`);
+    });
+
+    it('should list with continuation-token', async () => {
+      let nextContinuationToken = null;
+      let keyCount = 0;
+      do {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await store.listV2(
+          {
+            prefix: listPrefix,
+            'max-keys': 2,
+            'continuation-token': nextContinuationToken,
+          },
+        );
+        keyCount += result.keyCount;
+        nextContinuationToken = result.nextContinuationToken;
+      } while (nextContinuationToken);
+      assert.strictEqual(keyCount, 6);
+    });
+  });
+
+  describe('get()', () => {
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    let store;
+    before(async () => {
+      store = new OSS(ossConfig);
+      await store.put(name, Buffer.from('oss.jpg'));
+    });
+    it('should get with default responseCacheControl option', async () => {
+      const {
+        res: { requestUrls }
+      } = await store.get(name);
+      assert(requestUrls[0].includes('response-cache-control=no-cache'));
+      const {
+        res: { requestUrls: requestUrls2 }
+      } = await store.get(name, {
+        responseCacheControl: null
+      });
+      assert(!requestUrls2[0].includes('response-cache-control=no-cache'));
+    });
+  });
+
   describe('put', () => {
     let store;
     before(() => {
@@ -528,15 +677,14 @@ describe('browser', () => {
       assert.equal(resultDel.res.status, 204);
     });
     it('GETs and PUTs blob to a bucket', async () => {
-      const name = `${prefix}put/test`;
+      const name = `${prefix}put/test1`;
       const body = new Blob(['blobBody'], { type: 'text/plain' });
       const resultPut = await store.put(name, body);
       assert.equal(resultPut.res.status, 200);
       const resultGet = await store.get(name);
       assert.equal(resultGet.res.status, 200);
 
-
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         const fr = new FileReader();
         fr.onload = function () {
           assert.equal(resultGet.content.toString(), fr.result);
@@ -581,6 +729,24 @@ describe('browser', () => {
       }
     });
 
+    it('should set custom Content-MD5 and ignore case', async () => {
+      const name = `${prefix}put/test-md5`;
+      const content = Array(1024 * 1024 * 10)
+        .fill(1)
+        .join('');
+      const body = new Blob([content], { type: 'text/plain' });
+      const MD5Value = crypto1.createHash('md5').update(OSS.Buffer(await body.arrayBuffer())).digest('base64');
+      await store.put(name, body, {
+        headers: {
+          'Content-MD5': MD5Value
+        }
+      });
+      await store.put(name, body, {
+        headers: {
+          'content-Md5': MD5Value
+        }
+      });
+    });
   });
 
   describe('test-content-type', () => {
@@ -591,7 +757,9 @@ describe('browser', () => {
 
     it('should put object and content-type not null when upload file and object name has no MIME', async () => {
       const name = `${prefix}put/test-content-type`;
-      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
       const file = new File([fileContent], 'test-content-type');
       const object = await store.put(name, file);
       assert(object.name, name);
@@ -751,6 +919,17 @@ describe('browser', () => {
       info = await store.head(originname);
       assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
     });
+
+    it('should copy object with special characters such as ;,/?:@&=+$#', async () => {
+      const sourceName = `${prefix}ali-sdk/oss/copy-a;,/?:@&=+$#b.js`;
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
+      const file = new File([fileContent], sourceName);
+      await store.put(sourceName, file);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a.js`, sourceName);
+      await store.copy(`${prefix}ali-sdk/oss/copy-a+b.js`, sourceName);
+    });
   });
 
   describe('signatureUrl()', () => {
@@ -810,10 +989,7 @@ describe('browser', () => {
     //
     it('should signature url for PUT', async () => {
       const putString = 'Hello World';
-      const contentMd5 = crypto1
-        .createHash('md5')
-        .update(Buffer.from(putString, 'utf8'))
-        .digest('base64');
+      const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
       console.log(contentMd5);
       const url = store.signatureUrl(name, {
         method: 'PUT',
@@ -877,9 +1053,13 @@ describe('browser', () => {
       it('should list by key marker', async () => {
         const name = `${prefix}multipart/list-key`;
 
-        const ids = (await Promise.all(Array(5)
-          .fill(1).map((v, i) => store.initMultipartUpload(name + i))))
-          .map(_ => _.uploadId);
+        const ids = (
+          await Promise.all(
+            Array(5)
+              .fill(1)
+              .map((v, i) => store.initMultipartUpload(name + i))
+          )
+        ).map(_ => _.uploadId);
 
         // list all uploads
         let result = await store.listUploads({
@@ -907,10 +1087,14 @@ describe('browser', () => {
 
       it('should list by id marker', async () => {
         const name = `${prefix}multipart/list-id`;
-        const ids = (await Promise.all(Array(5)
-          .fill(1)
-          // eslint-disable-next-line no-unused-vars
-          .map(_ => store.initMultipartUpload(name))))
+        const ids = (
+          await Promise.all(
+            Array(5)
+              .fill(1)
+              // eslint-disable-next-line no-unused-vars
+              .map(_ => store.initMultipartUpload(name))
+          )
+        )
           .map(_ => _.uploadId)
           .sort();
 
@@ -939,18 +1123,26 @@ describe('browser', () => {
       //
       it('should list by id & key marker', async () => {
         const fooName = `${prefix}multipart/list-foo`;
-        const fooIds = (await Promise.all(Array(5)
-          .fill(1)
-          // eslint-disable-next-line no-unused-vars
-          .map(_ => store.initMultipartUpload(fooName))))
+        const fooIds = (
+          await Promise.all(
+            Array(5)
+              .fill(1)
+              // eslint-disable-next-line no-unused-vars
+              .map(_ => store.initMultipartUpload(fooName))
+          )
+        )
           .map(_ => _.uploadId)
           .sort();
 
         const barName = `${prefix}multipart/list-bar`;
-        const barIds = (await Promise.all(Array(5)
-          .fill(5)
-          // eslint-disable-next-line no-unused-vars
-          .map(_ => store.initMultipartUpload(barName))))
+        const barIds = (
+          await Promise.all(
+            Array(5)
+              .fill(5)
+              // eslint-disable-next-line no-unused-vars
+              .map(_ => store.initMultipartUpload(barName))
+          )
+        )
           .map(_ => _.uploadId)
           .sort();
 
@@ -991,7 +1183,9 @@ describe('browser', () => {
 
       it('should multipartUpload with x-oss-server-side-encryption', async () => {
         const name = 'multipart-x-oss-server-side-encryption';
-        const fileContent = Array(1034 * 1024).fill('a').join('');
+        const fileContent = Array(1034 * 1024)
+          .fill('a')
+          .join('');
         const fileName = new File([fileContent], 'multipart-upload-kms');
         const result = await store.multipartUpload(name, fileName, {
           headers: {
@@ -1043,7 +1237,9 @@ describe('browser', () => {
 
       it('should upload file using multipart upload', async () => {
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-fallback');
 
         const name = `${prefix}multipart/upload-file.js`;
@@ -1098,7 +1294,9 @@ describe('browser', () => {
       });
 
       it('should return requestId in init, upload part, complete', async () => {
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-fallback');
         const name = `${prefix}multipart/fallback`;
         const result = await store.multipartUpload(name, file, {
@@ -1112,7 +1310,9 @@ describe('browser', () => {
 
       it('should upload file using multipart upload with exception', async () => {
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-file');
 
         const name = `${prefix}multipart/upload-file-exception`;
@@ -1142,7 +1342,9 @@ describe('browser', () => {
       it('should upload file with cancel', async () => {
         const client = new OSS(ossConfig);
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-file');
 
         const name = `${prefix}multipart/upload-file-cancel`;
@@ -1181,7 +1383,9 @@ describe('browser', () => {
       it('should multipart upload file with abort', async () => {
         const client = store;
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-file');
 
         const name = `${prefix}multipart/upload-file-cancel`;
@@ -1204,8 +1408,40 @@ describe('browser', () => {
         }
       });
 
+      it('should multipart upload file with checkpoint', async () => {
+        const client = store;
+        // create a file with 1M random data
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
+        const file = new File([fileContent], 'multipart-upload-file');
+
+        const name = `${prefix}multipart/upload-file-checkpoint`;
+        let checkpoint;
+        const options = {
+          async progress(p, _checkpoint) {
+            if (p > 0.5 && !checkpoint) {
+              client.resetCancelFlag();
+              checkpoint = _checkpoint;
+            }
+          },
+          partSize: 100 * 1024,
+          checkpoint
+        };
+        try {
+          await client.multipartUpload(name, file, options);
+        } catch (err) {
+          assert.equal(true, client.isCancel());
+        }
+        await client.multipartUpload(name, file, options);
+        const result = await client.get(name);
+        assert.equal(result.content.length, 1024 * 1024);
+      });
+
       it('should upload with uploadPart', async () => {
-        const fileContent = Array(10 * 100 * 1024).fill('a').join('');
+        const fileContent = Array(10 * 100 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-part');
 
         const name = `${prefix}multipart/upload-part-file.js`;
@@ -1213,17 +1449,13 @@ describe('browser', () => {
         const { uploadId } = init;
         const partSize = 100 * 1024;
 
-        const parts = await Promise.all(Array(10)
-          .fill(1)
-          .map((v, i) =>
-            store.uploadPart(
-              name,
-              uploadId,
-              i + 1,
-              file,
-              i * partSize,
-              Math.min((i + 1) * partSize, 10 * 100 * 1024)
-            )));
+        const parts = await Promise.all(
+          Array(10)
+            .fill(1)
+            .map((v, i) =>
+              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
+            )
+        );
         const dones = parts.map((_, i) => ({
           number: i + 1,
           etag: _.etag
@@ -1236,7 +1468,9 @@ describe('browser', () => {
       it('should upload with list part', async () => {
         const client = store;
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-list-part');
 
         const name = `${prefix}multipart/upload-list-part`;
@@ -1256,12 +1490,16 @@ describe('browser', () => {
         /* eslint no-empty: [0] */
         try {
           await client.multipartUpload(name, file, options);
-        } catch (err) {
-        }
+        } catch (err) {}
 
-        const result = await store.listParts(name, uploadIdz, {
-          'max-parts': 1000
-        }, {});
+        const result = await store.listParts(
+          name,
+          uploadIdz,
+          {
+            'max-parts': 1000
+          },
+          {}
+        );
 
         assert.equal(result.res.status, 200);
       });
@@ -1372,22 +1610,94 @@ describe('browser', () => {
       //   assert.equal(result.res.status, 200);
       // });
 
-      it('should upload partSize be number', async () => {
+      it('should upload partSize be int number and greater then minPartSize', async () => {
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024).fill('a').join('');
-        const file = new File([fileContent], 'multipart-fallback');
-
-        const name = `${prefix}multipart/upload-file.js`;
+        const filename = `multipart-upload-file-${Date.now()}`;
+        const file = new File([fileContent], filename);
+        const name = `${prefix}multipart/upload-file`;
+        let progress = 0;
         try {
-          await store.multipartUpload(name, file, {
+          const result = await store.multipartUpload(name, file, {
             partSize: 14.56,
             progress() {
               progress++;
-            }
+            },
           });
         } catch (e) {
           assert.equal('partSize must be int number', e.message);
         }
+
+        try {
+          await store.multipartUpload(name, file, {
+            partSize: 1,
+            progress() {
+              progress++;
+            },
+          });
+        } catch (e) {
+          assert.ok(e.message.startsWith('partSize must not be smaller'));
+        }
+      });
+
+      it('should skip doneParts when re-upload mutilpart files', async () => {
+        const PART_SIZE = 1024 * 100;
+        const FILE_SIZE = 1024 * 500;
+        let partNo = 1;
+        const SUSPENSION_LIMIT = 3;
+        const object = `multipart-${Date.now()}`;
+        const fileContent = Array(FILE_SIZE).fill('a').join('');
+        const file = new File([fileContent], object);
+        const { _createStream } = store;
+        let checkpoint;
+        const createStreamStub = sinon.stub(store, '_createStream', (fileobj, start, end) => {
+          if (partNo === SUSPENSION_LIMIT) {
+            throw new Error('mock upload part fail.');
+          } else {
+            partNo++;
+            return _createStream(fileobj, start, end);
+          }
+        });
+        try {
+          await store.multipartUpload(object, file, {
+            parallel: 1,
+            partSize: PART_SIZE,
+            progress: (percentage, c) => {
+              checkpoint = c;
+            },
+          });
+        } catch (e) {
+          assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
+        }
+        createStreamStub.restore();
+        const createStreamSpy = sinon.spy(store, '_createStream');
+        await store.multipartUpload(object, file, {
+          parallel: 1,
+          partSize: PART_SIZE,
+          checkpoint,
+        });
+        assert.strictEqual(createStreamSpy.callCount, (FILE_SIZE / PART_SIZE) - SUSPENSION_LIMIT + 1);
+        createStreamSpy.restore();
+      });
+
+      it('should request throw abort event', async () => {
+        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const file = new File([fileContent], 'multipart-upload-file');
+        const name = `${prefix}multipart/upload-file`;
+        const createStreamStub = sinon.stub(store, '_createStream', () => {
+          const e = new Error('TEST Not Found');
+          e.status = 404;
+          throw e;
+        });
+        let netErrs;
+        try {
+          await store.multipartUpload(name, file);
+        } catch (err) {
+          netErrs = err;
+        }
+        assert.strictEqual(netErrs.status, 0);
+        assert.strictEqual(netErrs.name, 'abort');
+        createStreamStub.restore();
       });
     });
   });
@@ -1451,21 +1761,30 @@ describe('browser', () => {
     it('should delete 3 exists objs', async () => {
       const store = new OSS(ossConfig);
       const result = await store.deleteMulti(names);
-      assert.deepEqual(result.deleted.map(v => v.Key), names);
+      assert.deepEqual(
+        result.deleted.map(v => v.Key),
+        names
+      );
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 2 exists and 2 not exists objs', async () => {
       const store = new OSS(ossConfig);
       const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
-      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      assert.deepEqual(
+        result.deleted.map(v => v.Key),
+        names.slice(0, 2).concat(['not-exist1', 'not-exist2'])
+      );
       assert.equal(result.res.status, 200);
     });
 
     it('should delete 1 exists objs', async () => {
       const store = new OSS(ossConfig);
       const result = await store.deleteMulti(names.slice(0, 1));
-      assert.deepEqual(result.deleted.map(v => v.Key), names.slice(0, 1));
+      assert.deepEqual(
+        result.deleted.map(v => v.Key),
+        names.slice(0, 1)
+      );
       assert.equal(result.res.status, 200);
     });
 
@@ -1486,7 +1805,9 @@ describe('browser', () => {
     before(async () => {
       const store = new OSS(ossConfig);
       name = `${prefix}ali-sdk/oss/object-meta.js`;
-      const fileContent = Array(10 * 100 * 1024).fill('a').join('');
+      const fileContent = Array(10 * 100 * 1024)
+        .fill('a')
+        .join('');
       const file = new File([fileContent], 'multipart-upload-part');
       const object = await store.put(name, file);
       fileSize = 10 * 100 * 1024;
@@ -1519,7 +1840,7 @@ describe('browser', () => {
       const store = new OSS(ossConfig);
       const name = `${prefix}put/skew_date`;
       const body = Buffer.from('body');
-      const requestSpy = sinon.spy(store, 'request');
+      const requestSpy = sinon.spy(store.urllib, 'request');
       const requestErrorSpy = sinon.spy(store, 'requestError');
 
       timemachine.config({
@@ -1539,17 +1860,19 @@ describe('browser', () => {
 
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
-
+      store.urllib.request.restore();
+      store.requestError.restore();
       timemachine.reset();
     });
-
 
     it('date is skew, put file will retry', async () => {
       const store = new OSS(ossConfig);
       const name = `${prefix}put/skew_date_file`;
-      const requestSpy = sinon.spy(store, 'request');
+      const requestSpy = sinon.spy(store.urllib, 'request');
       const requestErrorSpy = sinon.spy(store, 'requestError');
-      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
       const file = new File([fileContent], 'skew_date_file');
 
       timemachine.config({
@@ -1569,7 +1892,8 @@ describe('browser', () => {
 
       const resultDel = await store.delete(name);
       assert.equal(resultDel.res.status, 204);
-
+      store.urllib.request.restore();
+      store.requestError.restore();
       timemachine.reset();
     });
   });
@@ -1588,7 +1912,9 @@ describe('browser', () => {
       store = new OSS(ossConfigz);
     });
     it('should request timeout exception', async () => {
-      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
       const file = new File([fileContent], 'multipart-upload-file');
 
       const name = `${prefix}multipart/upload-file-timeout`;
@@ -1604,7 +1930,9 @@ describe('browser', () => {
     });
 
     it('should request net exception', async () => {
-      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
       const file = new File([fileContent], 'multipart-upload-file');
 
       const name = `${prefix}multipart/upload-file-timeout`;
@@ -1623,6 +1951,28 @@ describe('browser', () => {
       assert.equal(true, netErrz && Object.keys(netErrz).length !== 0);
       assert.equal(netErrz.status, -1);
 
+      store.urllib.request.restore();
+    });
+
+    it('should request throw ResponseTimeoutError', async () => {
+      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileName = new File([fileContent], 'multipart-upload-file');
+      const name = `${prefix}multipart/upload-file`;
+
+      const stubNetError = sinon.stub(store.urllib, 'request');
+      const netErr = new Error('ResponseTimeoutError');
+      netErr.status = -1;
+      netErr.code = 'ResponseTimeoutError';
+      netErr.name = 'ResponseTimeoutError';
+      stubNetError.throws(netErr);
+
+      let netErrs;
+      try {
+        await store.multipartUpload(name, fileName);
+      } catch (err) {
+        netErrs = err;
+      }
+      assert.strictEqual(netErrs.name, 'ResponseTimeoutError');
       store.urllib.request.restore();
     });
   });
@@ -1674,12 +2024,98 @@ describe('browser', () => {
 
     it('putMeta() should return 200', async () => {
       const result = await store.putMeta(name, {
-        b: utf8_content
+        a: utf8_content
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
       assert.equal(info.status, 200);
-      assert.equal(info.meta.b, latin1_content);
+      assert.equal(info.meta.a, latin1_content);
+    });
+  });
+
+  describe('test/retry.test.js', () => {
+    let store;
+    const RETRY_MAX = 3;
+    let testRetryCount = 0;
+    let autoRestoreWhenRETRY_LIMIE = true;
+
+    let ORIGIN_REQUEST;
+    const mock = () => {
+      store.urllib.request = () => {
+        const e = new Error('NetError');
+        e.status = -1;
+        throw e;
+      };
+    };
+    const restore = () => {
+      store.urllib.request = ORIGIN_REQUEST;
+    };
+
+    before(async () => {
+      const ossConfigz = {
+        region: stsConfig.region,
+        accessKeyId: stsConfig.Credentials.AccessKeyId,
+        accessKeySecret: stsConfig.Credentials.AccessKeySecret,
+        stsToken: stsConfig.Credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+        retryMax: RETRY_MAX,
+        requestErrorRetryHandle: () => {
+          testRetryCount++;
+          if (testRetryCount === RETRY_MAX && autoRestoreWhenRETRY_LIMIE) {
+            restore();
+          }
+          return true;
+        }
+      };
+      store = new OSS(ossConfigz);
+      ORIGIN_REQUEST = store.urllib.request;
+    });
+    beforeEach(() => {
+      testRetryCount = 0;
+      autoRestoreWhenRETRY_LIMIE = true;
+      mock();
+    });
+    afterEach(() => {
+      restore();
+    });
+
+    it('set retryMax to test request auto retry when networkError or timeout', async () => {
+      const res = await store.list();
+      assert.strictEqual(res.res.status, 200);
+      assert.strictEqual(testRetryCount, RETRY_MAX);
+    });
+
+    it('should throw when retry count bigger than options retryMax', async () => {
+      autoRestoreWhenRETRY_LIMIE = false;
+      try {
+        await store.list();
+        assert(false, 'should throw error');
+      } catch (error) {
+        assert(error.status === -1);
+      }
+    });
+
+    it('should succeed when put with filename', async () => {
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const file = new File([1, 2, 3, 4, 5, 6, 7], name);
+      const res = await store.put(name, file);
+      assert.strictEqual(res.res.status, 200);
+      assert.strictEqual(testRetryCount, RETRY_MAX);
+      const onlineFile = await store.get(name);
+      assert.strictEqual(onlineFile.content.toString(), '1234567');
+    });
+
+    it('should fail when putStream', async () => {
+      autoRestoreWhenRETRY_LIMIE = false;
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const file = new File([1, 2, 3, 4, 5, 6, 7], name);
+      const stream = await store._createStream(file, 0, file.size);
+      try {
+        await store.putStream(name, stream);
+        assert(false, 'should not reach here');
+      } catch (e) {
+        assert.strictEqual(e.status, -1);
+      }
     });
   });
 });

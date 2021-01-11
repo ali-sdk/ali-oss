@@ -15,6 +15,7 @@ import { getObjectUrl } from './getObjectUrl';
 import { getSymlink } from './getSymlink';
 import { head } from './head';
 import { list } from './list';
+import { listV2 } from './listV2';
 import { postAsyncFetch } from './postAsyncFetch';
 import { putACL } from './putACL';
 import { putMeta } from './putMeta';
@@ -43,6 +44,7 @@ export default {
   getSymlink,
   head,
   list,
+  listV2,
   postAsyncFetch,
   putACL,
   putMeta,

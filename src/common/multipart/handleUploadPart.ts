@@ -1,5 +1,10 @@
 import copy from 'copy-to';
 import { RequestOptions } from '../../types/params';
+
+const isStreamLike = (stream) => {
+  return stream && stream.pipe;
+};
+
 /**
  * Upload a part in a multipart upload transaction
  * @param {String} name the object name
@@ -9,13 +14,12 @@ import { RequestOptions } from '../../types/params';
  * @param {Object} options
  */
 
-export async function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: any, options: RequestOptions = {}) {
+export async function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: { stream: Buffer | ReadableStream | null, size: number }, options: RequestOptions = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
   opt.headers = opt.headers || {};
   opt.headers['Content-Length'] = data.size;
-
-  if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
+  delete opt.headers['x-oss-server-side-encryption'];
 
   opt.subres = {
     partNumber: partNo,
@@ -23,13 +27,11 @@ export async function handleUploadPart(this: any, name: string, uploadId: string
   };
   const params = this._objectRequestParams('PUT', name, opt);
   params.mime = opt.mime;
-  data.stream = data.stream.stream || data.stream;
-  if (data.stream && data.stream.pipe) {
+  if (isStreamLike(data.stream)) {
     params.stream = data.stream;
   } else {
     params.content = data.stream;
   }
-
   params.successStatuses = [200];
 
   const result = await this.request(params);
@@ -37,7 +39,6 @@ export async function handleUploadPart(this: any, name: string, uploadId: string
   if (!result.res.headers.etag) {
     throw new Error('Please set the etag of expose-headers in OSS \n https://help.aliyun.com/document_detail/32069.html');
   }
-
   data.stream = null;
   params.stream = null;
   return {

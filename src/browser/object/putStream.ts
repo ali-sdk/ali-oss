@@ -27,9 +27,6 @@ export async function putStream(this: any, name: string, stream: any, options: P
   encodeCallback(params, options);
   params.mime = options.mime;
 
-  // _createStream return {stream: buffer or blob, md5: string or false}
-  stream = stream.stream || stream;
-
   if (stream.pipe) {
     params.stream = stream;
   } else {

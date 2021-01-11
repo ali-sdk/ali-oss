@@ -19,12 +19,6 @@ export declare function buildCanonicalString(method: any, resourcePath: any, req
  */
 export declare function computeSignature(accessKeySecret: string, canonicalString: string, headerEncoding?: any): string;
 /**
- * @param {String} accessKeyId
- * @param {String} accessKeySecret
- * @param {String} canonicalString
- */
-export declare function authorization(accessKeyId: any, accessKeySecret: any, canonicalString: any): string;
-/**
  *
  * @param {String} accessKeySecret
  * @param {Object} options
@@ -39,7 +33,6 @@ declare const _default: {
     buildCanonicalizedResource: typeof buildCanonicalizedResource;
     buildCanonicalString: typeof buildCanonicalString;
     computeSignature: typeof computeSignature;
-    authorization: typeof authorization;
     _signatureForURL: typeof _signatureForURL;
 };
 export default _default;
