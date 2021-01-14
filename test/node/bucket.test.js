@@ -32,7 +32,7 @@ describe('test/bucket.test.js', () => {
       .filter(_ => _.name.startsWith('ali-oss'))
       .map(_bucket => utils
         .cleanBucket(
-          new OSS(Object.assign(config, { region: _bucket.region })),
+          new OSS(Object.assign({}, config, { region: _bucket.region, endpoint: '' })),
           _bucket.name
         )));
 
@@ -257,7 +257,6 @@ describe('test/bucket.test.js', () => {
           tagging: Object.entries(tag).map(_ => _.map(inner => `"${inner.toString()}"`).join(':')).join(',')
         }
       });
-
       if (buckets && buckets.length && buckets[0]) {
         assert.deepStrictEqual(buckets[0].tag, tag);
       } else {

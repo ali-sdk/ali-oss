@@ -1,12 +1,13 @@
 import { isArray } from '../utils/isArray';
 import { formatTag } from '../utils/formatTag';
 import { RequestOptions } from '../../types/params';
+import { ListBucketsQueryType, ListBucketsReturnType } from '../../types/bucket';
 
 export async function listBuckets(
   this: any,
-  query: any = {},
+  query: ListBucketsQueryType = {},
   options: RequestOptions = {}
-) {
+): Promise<ListBucketsReturnType> {
   // prefix, marker, max-keys
   const { subres = {} } = query;
   const restParams = {};
@@ -40,6 +41,7 @@ export async function listBuckets(
         name: item.Name,
         region: item.Location,
         creationDate: item.CreationDate,
+        storageClass: item.StorageClass,
         StorageClass: item.StorageClass,
         tag: formatTag(item),
       }));

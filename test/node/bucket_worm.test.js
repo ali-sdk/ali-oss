@@ -20,7 +20,7 @@ describe('test/bucket_worm.test.js', () => {
       .filter(_ => _.name.startsWith('ali-oss'))
       .map(_bucket => utils
         .cleanBucket(
-          new OSS(Object.assign(config, { region: _bucket.region })),
+          new OSS(Object.assign({}, config, { region: _bucket.region, endpoint: '' })),
           _bucket.name
         )));
 

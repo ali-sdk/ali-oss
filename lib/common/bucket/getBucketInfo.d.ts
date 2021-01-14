@@ -1,5 +1,3 @@
 import { RequestOptions } from '../../types/params';
-export declare function getBucketInfo(this: any, name: string, options?: RequestOptions): Promise<{
-    bucket: any;
-    res: any;
-}>;
+import { GetBucketInfoReturnType } from '../../types/bucket';
+export declare function getBucketInfo(this: any, name: string, options?: RequestOptions): Promise<GetBucketInfoReturnType>;

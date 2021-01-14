@@ -1,7 +1,49 @@
+export interface IOptions {
+    /** access key you create on aliyun console website */
+    accessKeyId: string;
+    /** access secret you create */
+    accessKeySecret: string;
+    /** used by temporary authorization */
+    stsToken?: string;
+    /** used by auto set stsToken、accessKeyId、accessKeySecret when sts info expires. */
+    refreshSTSToken?: () => {
+        stsToken: string;
+        accessKeyId: string;
+        accessKeySecret: string;
+    };
+    /** the default bucket you want to access If you don't have any bucket, please use putBucket() create one first. */
+    bucket?: string | null;
+    /** oss region domain. It takes priority over region. */
+    endpoint?: string | null;
+    /** the bucket data region location, please see Data Regions, default is oss-cn-hangzhou. */
+    region?: string;
+    /** access OSS with aliyun internal network or not, default is false. If your servers are running on aliyun too, you can set true to save lot of money. */
+    internal?: boolean;
+    /** instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol. */
+    secure?: boolean;
+    /** instance level timeout for all operations, default is 60s */
+    timeout?: string | number;
+    /** use custom domain name */
+    cname?: boolean;
+    /** default false, whether request payer function of the bucket is open, if true, will send headers 'x-oss-request-payer': 'requester' to oss server. */
+    isRequestPay?: boolean;
+    /** default false, it just work in Browser, if true,it means upload object with fetch mode ,else XMLHttpRequest */
+    useFetch?: boolean;
+    /** Enable proxy request, default is false. */
+    enableProxy?: boolean;
+    /** proxy agent uri or options, default is null. */
+    proxy?: string | {
+        [key: string]: any;
+    };
+    /** used by auto retry send request count when request error is net error or timeout. */
+    retryMax?: number;
+}
 export declare type ACLType = 'public-read-write' | 'public-read' | 'private';
 export declare type SSEAlgorithm = 'KMS' | 'AES256';
 export declare type RuleStatusType = 'Enabled' | 'Disabled';
 export declare type StorageType = 'Standard' | 'IA' | 'Archive';
+export declare type DataRedundancyType = 'LRS' | 'ZRS';
+export declare type Versioning = 'Enabled' | 'Suspended';
 export declare type Protocol = 'http' | 'https';
 export declare type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'HEAD';
 export interface Subres {
@@ -20,6 +62,21 @@ export interface RequestOptions {
     headers?: object;
     subres?: Subres;
     ctx?: string;
+}
+export interface NormalSuccessResponse {
+    /** response info */
+    res: {
+        /** response status */
+        status: number;
+        /** response headers */
+        headers: object;
+        /** response size */
+        size: number;
+        /** request total use time (ms) */
+        rt: number;
+        /** request urls */
+        requestUrls: string[];
+    };
 }
 interface UserMeta {
     [propsName: string]: string;
@@ -62,13 +119,6 @@ export interface PutObjectOptions extends RequestOptions {
     callback?: ObjectCallback;
     contentLength?: number;
     method?: string;
-}
-export interface PutBucketOptions extends RequestOptions {
-    storageClass?: StorageType;
-    StorageClass?: StorageType;
-    DataRedundancyType?: string;
-    dataRedundancyType?: string;
-    acl?: ACLType;
 }
 export interface CORSRuleConfig {
     allowedOrigin: string | string[];

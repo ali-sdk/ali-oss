@@ -1,3 +1,4 @@
+import { IOptions } from './types/params';
 declare class Client {
     options: any;
     urllib: any;
@@ -6,9 +7,11 @@ declare class Client {
     ctx: any;
     userAgent: any;
     _createStream: any;
-    constructor(options: any, ctx: any);
+    constructor(options: IOptions, ctx?: any);
     static use(...fn: any): typeof Client;
-    setConfig(options: any, ctx: any): void;
+    setConfig(options: IOptions & {
+        inited?: true;
+    }, ctx: any): void;
 }
-export declare const initClient: (options: any, ctx: any) => Client;
+export declare const initClient: (options: IOptions, ctx?: any) => Client;
 export { Client };

@@ -5,6 +5,7 @@ import { initOptions } from './common/client/initOptions';
 import base from './common/client';
 import { _unSupportBrowserTip } from './common/utils/_unSupportBrowserTip';
 import { _createStream } from './browser/client/_createStream';
+import { IOptions } from './types/params';
 
 const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
 const globalHttpAgent = new AgentKeepalive();
@@ -25,10 +26,7 @@ class Client {
 
   public _createStream;
 
-  public constructor(options, ctx) {
-    if (!(this instanceof Client)) {
-      return new Client(options, ctx);
-    }
+  public constructor(options: IOptions, ctx?) {
     _unSupportBrowserTip();
 
     if (!Client.prototype._createStream) {
@@ -52,7 +50,7 @@ class Client {
     return this;
   }
 
-  setConfig(options, ctx) {
+  setConfig(options: IOptions & { inited?: true }, ctx) {
     if (options && options.inited) {
       this.options = options;
     } else {
@@ -73,7 +71,7 @@ class Client {
 }
 
 
-export const initClient = (options, ctx) => {
+export const initClient = (options: IOptions, ctx?) => {
   return new Client(options, ctx);
 };
 

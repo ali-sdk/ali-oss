@@ -25,7 +25,7 @@ export async function get(this: any, name: string, file, options: GetObjectOptio
   }
 
   const isBrowserEnv = process && (process as any).browser;
-  const responseCacheControl = options.responseCacheControl === null ? '' : 'no-cache';
+  const responseCacheControl = options.responseCacheControl === undefined ? 'no-cache' : options.responseCacheControl;
   const defaultSubresOptions =
     isBrowserEnv && responseCacheControl ? { 'response-cache-control': responseCacheControl } : {};
   options.subres = Object.assign(defaultSubresOptions, options.subres);
