@@ -189,3 +189,7 @@ export interface GetBucketWebsiteReturnType extends NormalSuccessResponse {
   error: string | null;
 }
 
+export interface GetBucketRefererReturnType extends NormalSuccessResponse {
+  allowEmpty: boolean;
+  referers: string[];
+}

@@ -179,4 +179,8 @@ export interface GetBucketWebsiteReturnType extends NormalSuccessResponse {
     routingRules: RoutingRule[];
     error: string | null;
 }
+export interface GetBucketRefererReturnType extends NormalSuccessResponse {
+    allowEmpty: boolean;
+    referers: string[];
+}
 export {};

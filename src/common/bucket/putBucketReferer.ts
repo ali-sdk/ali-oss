@@ -1,6 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
-import { RequestOptions } from '../../types/params';
+import { NormalSuccessResponse, RequestOptions } from '../../types/params';
 
 export async function putBucketReferer(
   this: any,
@@ -8,7 +8,7 @@ export async function putBucketReferer(
   allowEmpty: boolean,
   referers: string[] | null,
   options: RequestOptions = {}
-) {
+): Promise<NormalSuccessResponse> {
   checkBucketName(name);
   const params = this._bucketRequestParams('PUT', name, 'referer', options);
   const parseXMLObj = {
