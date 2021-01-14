@@ -46,6 +46,7 @@ export interface PutBucketOptionsType extends RequestOptions {
   dataRedundancyType?: DataRedundancyType;
   StorageClass?: StorageType;
   DataRedundancyType?: DataRedundancyType;
+  /** Bucket的ACL权限 */
   acl?: ACLType;
 }
 
@@ -99,4 +100,16 @@ export interface GetBucketInfoReturnType extends NormalSuccessResponse {
 
 export interface GetBucketLocationReturnType extends NormalSuccessResponse {
   location: string;
+}
+
+export interface PutBucketACLReturnType extends NormalSuccessResponse {
+  bucket: string;
+}
+
+export interface GetBucketACLReturnType extends NormalSuccessResponse {
+  acl: ACLType;
+  owner: {
+    id: string;
+    displayName: string;
+  },
 }
