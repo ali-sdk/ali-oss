@@ -113,3 +113,8 @@ export interface GetBucketACLReturnType extends NormalSuccessResponse {
     displayName: string;
   },
 }
+
+export interface GetBucketLoggingReturnType extends NormalSuccessResponse {
+  enable: boolean;
+  prefix: string | null;
+}

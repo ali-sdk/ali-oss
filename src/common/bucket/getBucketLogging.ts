@@ -1,11 +1,12 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
+import { GetBucketLoggingReturnType } from '../../types/bucket';
 
 export async function getBucketLogging(
   this: any,
   name: string,
   options: RequestOptions = {}
-) {
+):Promise<GetBucketLoggingReturnType> {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'logging', options);
   params.successStatuses = [200];

@@ -1,11 +1,11 @@
 import { checkBucketName } from '../utils/checkBucketName';
-import { RequestOptions } from '../../types/params';
+import { NormalSuccessResponse, RequestOptions } from '../../types/params';
 
 export async function deleteBucketLogging(
   this: any,
   name: string,
   options: RequestOptions = {}
-) {
+): Promise<NormalSuccessResponse> {
   checkBucketName(name);
   const params = this._bucketRequestParams('DELETE', name, 'logging', options);
   params.successStatuses = [204, 200];

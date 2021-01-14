@@ -1,6 +1,3 @@
 import { RequestOptions } from '../../types/params';
-export declare function getBucketLogging(this: any, name: string, options?: RequestOptions): Promise<{
-    enable: boolean;
-    prefix: any;
-    res: any;
-}>;
+import { GetBucketLoggingReturnType } from '../../types/bucket';
+export declare function getBucketLogging(this: any, name: string, options?: RequestOptions): Promise<GetBucketLoggingReturnType>;
