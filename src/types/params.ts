@@ -7,7 +7,7 @@ export interface IOptions {
   /** used by temporary authorization */
   stsToken?: string;
   /** used by auto set stsToken、accessKeyId、accessKeySecret when sts info expires. */
-  refreshSTSToken?: () => {stsToken:string, accessKeyId:string, accessKeySecret:string};
+  refreshSTSToken?: () => { stsToken: string, accessKeyId: string, accessKeySecret: string };
   /** the default bucket you want to access If you don't have any bucket, please use putBucket() create one first. */
   bucket?: string | null;
   /** oss region domain. It takes priority over region. */
@@ -73,7 +73,7 @@ export interface RequestOptions {
 
 export interface NormalSuccessResponse {
   /** response info */
-  res : {
+  res: {
     /** response status */
     status: number;
     /** response headers */
@@ -180,49 +180,6 @@ export interface LifecycleRule extends LifecycleDate {
   };
 }
 
-interface RoutingRule {
-  RuleNumber: number;
-  Condition: {
-    KeyPrefixEquals?: string;
-    HttpErrorCodeReturnedEquals?: string | number;
-    IncludeHeader?: {
-      Key: string;
-      Equals: string;
-    };
-    KeySuffixEquals?: string;
-  };
-  Redirect: {
-    RedirectType: 'Mirror' | 'External' | 'Internal' | 'AliCDN';
-    PassQueryString?: number;
-    MirrorURL?: string;
-    MirrorPassQueryString?: boolean;
-    MirrorFollowRedirect?: boolean;
-    MirrorCheckMd5?: boolean;
-    MirrorHeaders?: {
-      PassAll?: string;
-      Remove?: string;
-      Set?: {
-        Key: string;
-        Value: string;
-      };
-    };
-    Protocol?: Protocol; // need when RedirectType is External or AliCDN
-    HostName?: string; // need when RedirectType is External or AliCDN
-    HttpRedirectCode?: 301 | 302 | 307; // need when RedirectType is External or AliCDN
-    ReplaceKeyPrefixWith?: string;
-    ReplaceKeyWith?: string;
-    EnableReplacePrefix: boolean;
-  };
-}
-
-export interface PutBucketWebsiteConfig {
-  index: string; // default page, e.g.: index.html
-  supportSubDir?: boolean; // default false;
-  error?: string; // error page, e.g.: 'error.html'
-  type?: 0 | '0' | 1 | '1' | 2 | '2';
-  routingRules?: RoutingRule;
-}
-
 export interface CompleteMultipartUploadOptions extends RequestOptions {
   callback?: ObjectCallback;
 }
@@ -307,3 +264,5 @@ export interface signatureUrlOptions extends RequestOptions {
   expires?: number;
   method?: HttpMethod;
 }
+
+export type Container<T> = T | T[];

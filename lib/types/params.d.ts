@@ -159,47 +159,6 @@ export interface LifecycleRule extends LifecycleDate {
         noncurrentDays: number | string;
     };
 }
-interface RoutingRule {
-    RuleNumber: number;
-    Condition: {
-        KeyPrefixEquals?: string;
-        HttpErrorCodeReturnedEquals?: string | number;
-        IncludeHeader?: {
-            Key: string;
-            Equals: string;
-        };
-        KeySuffixEquals?: string;
-    };
-    Redirect: {
-        RedirectType: 'Mirror' | 'External' | 'Internal' | 'AliCDN';
-        PassQueryString?: number;
-        MirrorURL?: string;
-        MirrorPassQueryString?: boolean;
-        MirrorFollowRedirect?: boolean;
-        MirrorCheckMd5?: boolean;
-        MirrorHeaders?: {
-            PassAll?: string;
-            Remove?: string;
-            Set?: {
-                Key: string;
-                Value: string;
-            };
-        };
-        Protocol?: Protocol;
-        HostName?: string;
-        HttpRedirectCode?: 301 | 302 | 307;
-        ReplaceKeyPrefixWith?: string;
-        ReplaceKeyWith?: string;
-        EnableReplacePrefix: boolean;
-    };
-}
-export interface PutBucketWebsiteConfig {
-    index: string;
-    supportSubDir?: boolean;
-    error?: string;
-    type?: 0 | '0' | 1 | '1' | 2 | '2';
-    routingRules?: RoutingRule;
-}
 export interface CompleteMultipartUploadOptions extends RequestOptions {
     callback?: ObjectCallback;
 }
@@ -274,4 +233,5 @@ export interface signatureUrlOptions extends RequestOptions {
     expires?: number;
     method?: HttpMethod;
 }
+export declare type Container<T> = T | T[];
 export {};

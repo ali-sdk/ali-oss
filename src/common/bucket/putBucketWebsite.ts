@@ -1,14 +1,15 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { isArray } from '../utils/isArray';
-import { RequestOptions, PutBucketWebsiteConfig } from '../../types/params';
+import { NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { PutBucketWebsiteConfigType } from '../../types/bucket';
 
 export async function putBucketWebsite(
   this: any,
   name: string,
-  config: PutBucketWebsiteConfig = { index: 'index.html' },
+  config: PutBucketWebsiteConfigType = { index: 'index.html' },
   options: RequestOptions = {}
-) {
+): Promise<NormalSuccessResponse> {
   checkBucketName(name);
   const params = this._bucketRequestParams('PUT', name, 'website', options);
   const IndexDocument: any = {

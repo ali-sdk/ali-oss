@@ -1,4 +1,4 @@
-import { StorageType, ACLType, RequestOptions, NormalSuccessResponse, DataRedundancyType, Versioning, SSEAlgorithm } from './params';
+import { StorageType, ACLType, RequestOptions, NormalSuccessResponse, DataRedundancyType, Versioning, SSEAlgorithm, Container, Protocol } from './params';
 
 export interface ListBucketsQueryType {
   /** search buckets using prefix key */
@@ -118,3 +118,74 @@ export interface GetBucketLoggingReturnType extends NormalSuccessResponse {
   enable: boolean;
   prefix: string | null;
 }
+
+interface RoutingRule {
+  /** 匹配和执行RoutingRule的序号，OSS将按照此序号依次匹配规则。如果匹配成功，则执行此规则，后续的规则不再执行。 */
+  RuleNumber: number;
+  /** 如果指定的项都满足，则执行此规则。满足此容器下的各个节点的所有条件才算匹配。 */
+  Condition: {
+    KeyPrefixEquals?: string;
+    HttpErrorCodeReturnedEquals?: string;
+    IncludeHeader?: {
+      Key: string;
+      Equals: string;
+    };
+    KeySuffixEquals?: string;
+  };
+  Redirect: {
+    RedirectType: 'Mirror' | 'External' | 'AliCDN';
+    PassQueryString?: boolean;
+    MirrorURL?: string;
+    MirrorPassQueryString?: boolean;
+    MirrorFollowRedirect?: boolean;
+    MirrorCheckMd5?: boolean;
+    MirrorHeaders?: Container<{
+      PassAll: boolean;
+      Pass: string;
+      Remove: string;
+      Set: Container<{
+        Key: string;
+        Value: string;
+      }>;
+    }>;
+    /** required when RedirectType is External or AliCDN */
+    Protocol?: Protocol;
+    /** required when RedirectType is External or AliCDN */
+    HostName?: string;
+    /** required when RedirectType is External or AliCDN */
+    HttpRedirectCode?: 301 | 302 | 307;
+    ReplaceKeyPrefixWith?: string;
+    EnableReplacePrefix?: boolean;
+    ReplaceKeyWith?: string;
+  };
+}
+export interface PutBucketWebsiteConfigType {
+  /** default page, e.g.: 'index.html' */
+  index: string;
+  /** error page, e.g.: 'error.html' */
+  error?: string;
+  /** 否支持访问子目录时转至子目录下的默认主页, default 'false' */
+  supportSubDir?: boolean;
+  /**
+   * 设置了默认主页后，访问以非正斜线（/）结尾的Object，且该Object不存在时的行为
+   * 只有在SupportSubDir为true时生效\
+   * 假设默认主页设置为index.html，访问的文件路径是bucket.oss-cn-hangzhou.aliyuncs.com/abc，且abc这个Object不存在\
+   * 0 (default): 检查abc/index.html是否存在, 如果存在则返回302，Location头为/abc/的URL编码，如果不存在则返回404，继续检查ErrorFile。\
+   * 1: 直接返回404，报错NoSuchKey，继续检查ErrorFile\
+   * 2: 检查abc/index.html是否存在，如果存在则返回该Object的内容；如果不存在则返回404，继续检查ErrorFile。\
+   */
+  type?: 0 | 1 | 2;
+  /**  */
+  routingRules?: {
+    RoutingRule: Container<RoutingRule>
+  };
+}
+
+export interface GetBucketWebsiteReturnType extends NormalSuccessResponse {
+  index: string;
+  supportSubDir: 'true' | 'false';
+  type: '0' | '1' | '2';
+  routingRules: RoutingRule[];
+  error: string | null;
+}
+
