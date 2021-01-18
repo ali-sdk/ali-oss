@@ -193,9 +193,6 @@ export interface BucketCORSRule {
 export interface GetBucketCORSReturnType extends NormalSuccessResponse {
     rules: BucketCORSRule[];
 }
-export interface PutBucketRequestPaymentReturnType extends NormalSuccessResponse {
-    status: number;
-}
 export interface GetBucketRequestPaymentReturnType extends NormalSuccessResponse {
     status: number;
     payer: BucketRequestPayer;
@@ -210,11 +207,14 @@ declare type BucketEncryptionRule = {
     SSEAlgorithm: 'SM4';
 };
 export declare type PutBucketEncryptionOptions = BucketEncryptionRule & RequestOptions;
-export interface PutBucketEncryptionReturnType extends NormalSuccessResponse {
-    status: number;
-}
 export interface GetBucketEncryptionReturnType extends NormalSuccessResponse {
     status: number;
     encryption: BucketEncryptionRule;
+}
+export interface GetBucketTagsReturnType extends NormalSuccessResponse {
+    status: number;
+    tag: {
+        [props: string]: string;
+    };
 }
 export {};

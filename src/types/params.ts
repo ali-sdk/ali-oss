@@ -89,6 +89,10 @@ export interface NormalSuccessResponse {
   }
 }
 
+export interface NormalSuccessResponseWithStatus extends NormalSuccessResponse {
+  status: number;
+}
+
 interface UserMeta {
   [propsName: string]: string;
 }

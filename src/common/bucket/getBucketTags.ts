@@ -1,6 +1,7 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { formatTag } from '../utils/formatTag';
 import { RequestOptions } from '../../types/params';
+import { GetBucketTagsReturnType } from '../../types/bucket';
 
 /**
  * getBucketTags
@@ -13,7 +14,7 @@ export async function getBucketTags(
   this: any,
   name: string,
   options: RequestOptions = {}
-) {
+): Promise<GetBucketTagsReturnType> {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'tagging', options);
   params.successStatuses = [200];

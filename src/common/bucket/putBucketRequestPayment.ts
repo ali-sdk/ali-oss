@@ -1,7 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
-import { BucketRequestPayer, RequestOptions } from '../../types/params';
-import { PutBucketRequestPaymentReturnType } from '../../types/bucket';
+import { BucketRequestPayer, NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 
 /**
  * putBucketRequestPayment
@@ -11,7 +10,7 @@ import { PutBucketRequestPaymentReturnType } from '../../types/bucket';
  */
 const payerAll = ['BucketOwner', 'Requester'];
 
-export async function putBucketRequestPayment(this: any, bucketName: string, payer: BucketRequestPayer, options: RequestOptions = {}):Promise<PutBucketRequestPaymentReturnType> {
+export async function putBucketRequestPayment(this: any, bucketName: string, payer: BucketRequestPayer, options: RequestOptions = {}):Promise<NormalSuccessResponseWithStatus> {
   if (!payer || payerAll.indexOf(payer) < 0) {
     throw new Error('payer must be BucketOwner or Requester');
   }

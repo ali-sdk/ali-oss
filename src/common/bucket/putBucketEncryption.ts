@@ -1,6 +1,7 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
-import { PutBucketEncryptionOptions, PutBucketEncryptionReturnType } from '../../types/bucket';
+import { PutBucketEncryptionOptions } from '../../types/bucket';
+import { NormalSuccessResponseWithStatus } from '../../types/params';
 /**
  * putBucketEncryption
  * @param {String} bucketName - bucket name
@@ -11,7 +12,7 @@ export async function putBucketEncryption(
   this: any,
   bucketName: string,
   options: PutBucketEncryptionOptions
-): Promise<PutBucketEncryptionReturnType> {
+): Promise<NormalSuccessResponseWithStatus> {
   checkBucketName(bucketName);
   const params = this._bucketRequestParams(
     'PUT',
