@@ -1,5 +1,5 @@
 import { checkBucketName } from '../utils/checkBucketName';
-import { RequestOptions } from '../../types/params';
+import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 
 /**
  * deleteBucketPolicy
@@ -11,7 +11,7 @@ export async function deleteBucketPolicy(
   this: any,
   bucketName: string,
   options: RequestOptions = {}
-) {
+): Promise<NormalSuccessResponseWithStatus> {
   checkBucketName(bucketName);
 
   const params = this._bucketRequestParams(

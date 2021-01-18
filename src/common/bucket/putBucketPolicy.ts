@@ -1,7 +1,8 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { policy2Str } from '../utils/policy2Str';
 import { isObject } from '../utils/isObject';
-import { RequestOptions } from '../../types/params';
+import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
+import { PutBucketPolicyConfig } from "../../types/bucket_policy";
 
 /**
  * putBucketPolicy
@@ -13,9 +14,9 @@ import { RequestOptions } from '../../types/params';
 export async function putBucketPolicy(
   this: any,
   bucketName: string,
-  policy: object,
+  policy: PutBucketPolicyConfig,
   options: RequestOptions = {}
-) {
+): Promise<NormalSuccessResponseWithStatus> {
   checkBucketName(bucketName);
 
   if (!isObject(policy)) {
