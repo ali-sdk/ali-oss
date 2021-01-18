@@ -1,6 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
-import { PutBucketEncryptionOptions } from '../../types/params';
+import { PutBucketEncryptionOptions, PutBucketEncryptionReturnType } from '../../types/bucket';
 /**
  * putBucketEncryption
  * @param {String} bucketName - bucket name
@@ -11,7 +11,7 @@ export async function putBucketEncryption(
   this: any,
   bucketName: string,
   options: PutBucketEncryptionOptions
-) {
+): Promise<PutBucketEncryptionReturnType> {
   checkBucketName(bucketName);
   const params = this._bucketRequestParams(
     'PUT',
@@ -27,9 +27,15 @@ export async function putBucketEncryption(
       },
     },
   };
-  if (options.KMSMasterKeyID !== undefined) {
-    paramXMLObj.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.KMSMasterKeyID =
-      options.KMSMasterKeyID;
+  if (options.SSEAlgorithm === 'KMS') {
+    if (options.KMSDataEncryption !== undefined) {
+      paramXMLObj.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.KMSDataEncryption =
+        options.KMSDataEncryption;
+    }
+    if (options.KMSMasterKeyID !== undefined) {
+      paramXMLObj.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.KMSMasterKeyID =
+        options.KMSMasterKeyID;
+    }
   }
   const paramXML = obj2xml(paramXMLObj, {
     headers: true,

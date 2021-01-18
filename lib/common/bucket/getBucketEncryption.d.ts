@@ -1,10 +1,7 @@
 import { RequestOptions } from '../../types/params';
+import { GetBucketEncryptionReturnType } from '../../types/bucket';
 /**
  * getBucketEncryption
  * @param {String} bucketName - bucket name
  */
-export declare function getBucketEncryption(this: any, bucketName: string, options?: RequestOptions): Promise<{
-    encryption: any;
-    status: any;
-    res: any;
-}>;
+export declare function getBucketEncryption(this: any, bucketName: string, options?: RequestOptions): Promise<GetBucketEncryptionReturnType>;

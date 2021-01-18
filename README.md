@@ -101,7 +101,7 @@ All operation use es7 async/await to implement. All api is async function.
     - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
   - BucketEncryption
     - [.putBucketEncryption(name[, options])](#putbucketencryptionbucketname-options)
-    - [.getBucketEncryption(name)](#getbucketencryptionbucketname-options)
+    - [.getBucketEncryption(name)](#getbucketencryptionbucketname)
     - [.deleteBucketEncryption(name)](#deletebucketencryptionbucketname-options)
   - tagging
     - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)

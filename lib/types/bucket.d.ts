@@ -200,4 +200,21 @@ export interface GetBucketRequestPaymentReturnType extends NormalSuccessResponse
     status: number;
     payer: BucketRequestPayer;
 }
+declare type BucketEncryptionRule = {
+    SSEAlgorithm: 'KMS';
+    KMSDataEncryption?: 'SM4';
+    KMSMasterKeyID?: string;
+} | {
+    SSEAlgorithm: 'AES256';
+} | {
+    SSEAlgorithm: 'SM4';
+};
+export declare type PutBucketEncryptionOptions = BucketEncryptionRule & RequestOptions;
+export interface PutBucketEncryptionReturnType extends NormalSuccessResponse {
+    status: number;
+}
+export interface GetBucketEncryptionReturnType extends NormalSuccessResponse {
+    status: number;
+    encryption: BucketEncryptionRule;
+}
 export {};

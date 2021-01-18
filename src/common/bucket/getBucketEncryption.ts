@@ -1,5 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
+import { GetBucketEncryptionReturnType } from '../../types/bucket';
 
 /**
  * getBucketEncryption
@@ -10,7 +11,7 @@ export async function getBucketEncryption(
   this: any,
   bucketName: string,
   options: RequestOptions = {}
-) {
+):Promise<GetBucketEncryptionReturnType> {
   checkBucketName(bucketName);
   const params = this._bucketRequestParams(
     'GET',

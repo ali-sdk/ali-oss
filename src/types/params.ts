@@ -36,7 +36,7 @@ export interface IOptions {
 
 export type ACLType = 'public-read-write' | 'public-read' | 'private';
 
-export type SSEAlgorithm = 'KMS' | 'AES256';
+export type SSEAlgorithm = 'KMS' | 'AES256' | 'SM4';
 
 export type RuleStatusType = 'Enabled' | 'Disabled';
 
@@ -136,12 +136,6 @@ export interface PutObjectOptions extends RequestOptions {
   contentLength?: number;
   method?: string; // append object need
 }
-
-export interface PutBucketEncryptionOptions extends RequestOptions {
-  SSEAlgorithm: SSEAlgorithm;
-  KMSMasterKeyID?: string;
-}
-
 export interface CompleteMultipartUploadOptions extends RequestOptions {
   callback?: ObjectCallback;
 }

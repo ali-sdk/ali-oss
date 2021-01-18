@@ -206,11 +206,33 @@ export interface GetBucketCORSReturnType extends NormalSuccessResponse {
   rules: BucketCORSRule[];
 }
 
-export interface PutBucketRequestPaymentReturnType extends NormalSuccessResponse{
+export interface PutBucketRequestPaymentReturnType extends NormalSuccessResponse {
   status: number;
 }
 
-export interface GetBucketRequestPaymentReturnType extends NormalSuccessResponse{
+export interface GetBucketRequestPaymentReturnType extends NormalSuccessResponse {
   status: number;
   payer: BucketRequestPayer;
+}
+
+
+type BucketEncryptionRule = {
+  SSEAlgorithm: 'KMS';
+  KMSDataEncryption?: 'SM4';
+  KMSMasterKeyID?: string;
+} | {
+  SSEAlgorithm: 'AES256'
+} | {
+  SSEAlgorithm: 'SM4'
+};
+
+export type PutBucketEncryptionOptions = BucketEncryptionRule & RequestOptions;
+
+export interface PutBucketEncryptionReturnType extends NormalSuccessResponse {
+  status: number;
+}
+
+export interface GetBucketEncryptionReturnType extends NormalSuccessResponse {
+  status: number;
+  encryption: BucketEncryptionRule;
 }

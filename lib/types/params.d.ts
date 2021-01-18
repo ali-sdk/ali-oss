@@ -39,7 +39,7 @@ export interface IOptions {
     retryMax?: number;
 }
 export declare type ACLType = 'public-read-write' | 'public-read' | 'private';
-export declare type SSEAlgorithm = 'KMS' | 'AES256';
+export declare type SSEAlgorithm = 'KMS' | 'AES256' | 'SM4';
 export declare type RuleStatusType = 'Enabled' | 'Disabled';
 export declare type StorageType = 'Standard' | 'IA' | 'Archive';
 export declare type DataRedundancyType = 'LRS' | 'ZRS';
@@ -120,10 +120,6 @@ export interface PutObjectOptions extends RequestOptions {
     callback?: ObjectCallback;
     contentLength?: number;
     method?: string;
-}
-export interface PutBucketEncryptionOptions extends RequestOptions {
-    SSEAlgorithm: SSEAlgorithm;
-    KMSMasterKeyID?: string;
 }
 export interface CompleteMultipartUploadOptions extends RequestOptions {
     callback?: ObjectCallback;
