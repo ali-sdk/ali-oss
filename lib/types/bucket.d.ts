@@ -1,4 +1,4 @@
-import { StorageType, ACLType, RequestOptions, NormalSuccessResponse, DataRedundancyType, Versioning, SSEAlgorithm, Container, Protocol } from './params';
+import { StorageType, ACLType, RequestOptions, NormalSuccessResponse, DataRedundancyType, Versioning, SSEAlgorithm, Container, Protocol, BucketRequestPayer } from './params';
 export interface ListBucketsQueryType {
     /** search buckets using prefix key */
     prefix?: string;
@@ -192,5 +192,12 @@ export interface BucketCORSRule {
 }
 export interface GetBucketCORSReturnType extends NormalSuccessResponse {
     rules: BucketCORSRule[];
+}
+export interface PutBucketRequestPaymentReturnType extends NormalSuccessResponse {
+    status: number;
+}
+export interface GetBucketRequestPaymentReturnType extends NormalSuccessResponse {
+    status: number;
+    payer: BucketRequestPayer;
 }
 export {};

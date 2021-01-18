@@ -46,6 +46,7 @@ export declare type DataRedundancyType = 'LRS' | 'ZRS';
 export declare type Versioning = 'Enabled' | 'Suspended';
 export declare type Protocol = 'http' | 'https';
 export declare type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'HEAD';
+export declare type BucketRequestPayer = 'BucketOwner' | 'Requester';
 export interface Subres {
     [propsName: string]: string | undefined;
     versionId?: string;

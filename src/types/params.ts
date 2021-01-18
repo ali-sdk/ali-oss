@@ -50,6 +50,8 @@ export type Protocol = 'http' | 'https';
 
 export type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'HEAD';
 
+export type BucketRequestPayer = 'BucketOwner' | 'Requester';
+
 export interface Subres {
   [propsName: string]: string | undefined;
   versionId?: string;
