@@ -147,39 +147,6 @@ export interface PutBucketEncryptionOptions extends RequestOptions {
   KMSMasterKeyID?: string;
 }
 
-interface LifecycleDate {
-  days?: number | string; // expire after the days
-  createdBeforeDate?: string; //  expire date, equivalent date. e.g: 2020-02-18T00:00:00.000Z
-}
-
-interface LifecycleTransition extends LifecycleDate {
-  storageClass: 'IA' | 'Archive';
-}
-
-interface LifecycleExpiration extends LifecycleDate {
-  expiredObjectDeleteMarker?: boolean;
-}
-
-interface LifecycleNoncurrentVersionTransition {
-  noncurrentDays: string | number;
-  storageClass: 'IA' | 'Archive';
-}
-
-export interface LifecycleRule extends LifecycleDate {
-  id?: string; // rule id, if not set, OSS will auto create it with random string.
-  prefix: string; // store prefix
-  status: RuleStatusType; // rule status, allow values: Enabled or Disabled
-  date?: string; // expire date, e.g.: 2022-10-11T00:00:00.000Z date and days only set one.
-  tag?: Tag | Tag[]; // filter object
-  abortMultipartUpload?: LifecycleDate;
-  transition?: LifecycleTransition;
-  expiration?: LifecycleExpiration;
-  noncurrentVersionTransition?: LifecycleNoncurrentVersionTransition;
-  noncurrentVersionExpiration?: {
-    noncurrentDays: number | string;
-  };
-}
-
 export interface CompleteMultipartUploadOptions extends RequestOptions {
   callback?: ObjectCallback;
 }

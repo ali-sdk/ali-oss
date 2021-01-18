@@ -2,12 +2,13 @@ import { checkBucketName } from '../utils/checkBucketName';
 import { isArray } from '../utils/isArray';
 import { formatObjKey } from '../utils/formatObjKey';
 import { RequestOptions } from '../../types/params';
+import { GetBucketLifecycleReturnType } from '../../types/bucket_lifecycle';
 
 export async function getBucketLifecycle(
   this: any,
   name: string,
   options: RequestOptions = {}
-) {
+):Promise<GetBucketLifecycleReturnType> {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'lifecycle', options);
   params.successStatuses = [200];

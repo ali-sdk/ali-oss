@@ -131,34 +131,6 @@ export interface PutBucketEncryptionOptions extends RequestOptions {
     SSEAlgorithm: SSEAlgorithm;
     KMSMasterKeyID?: string;
 }
-interface LifecycleDate {
-    days?: number | string;
-    createdBeforeDate?: string;
-}
-interface LifecycleTransition extends LifecycleDate {
-    storageClass: 'IA' | 'Archive';
-}
-interface LifecycleExpiration extends LifecycleDate {
-    expiredObjectDeleteMarker?: boolean;
-}
-interface LifecycleNoncurrentVersionTransition {
-    noncurrentDays: string | number;
-    storageClass: 'IA' | 'Archive';
-}
-export interface LifecycleRule extends LifecycleDate {
-    id?: string;
-    prefix: string;
-    status: RuleStatusType;
-    date?: string;
-    tag?: Tag | Tag[];
-    abortMultipartUpload?: LifecycleDate;
-    transition?: LifecycleTransition;
-    expiration?: LifecycleExpiration;
-    noncurrentVersionTransition?: LifecycleNoncurrentVersionTransition;
-    noncurrentVersionExpiration?: {
-        noncurrentDays: number | string;
-    };
-}
 export interface CompleteMultipartUploadOptions extends RequestOptions {
     callback?: ObjectCallback;
 }

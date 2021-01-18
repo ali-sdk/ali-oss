@@ -5,9 +5,10 @@ import { isObject } from '../utils/isObject';
 import { obj2xml } from '../utils/obj2xml';
 import { checkObjectTag } from '../utils/checkObjectTag';
 import { getStrBytesCount } from '../utils/getStrBytesCount';
-import { RequestOptions, LifecycleRule } from '../../types/params';
+import { NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { LifecycleRule } from '../../types/bucket_lifecycle';
 
-export async function putBucketLifecycle(this: any, name: string, rules: LifecycleRule[], options: RequestOptions = {}) {
+export async function putBucketLifecycle(this: any, name: string, rules: LifecycleRule[], options: RequestOptions = {}):Promise<NormalSuccessResponse> {
   checkBucketName(name);
 
   if (!isArray(rules)) {
