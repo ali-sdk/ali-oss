@@ -134,13 +134,6 @@ export interface PutObjectOptions extends RequestOptions {
   contentLength?: number;
   method?: string; // append object need
 }
-export interface CORSRuleConfig {
-  allowedOrigin: string | string[]; // configure for Access-Control-Allow-Origin header
-  allowedMethod: string | string[]; // configure for Access-Control-Allow-Methods header
-  allowedHeader?: string | string[]; // configure for Access-Control-Allow-Headers header
-  exposeHeader?: string | string[]; // configure for Access-Control-Expose-Headers header
-  maxAgeSeconds?: string | string[]; // configure for Access-Control-Max-Age header
-}
 
 export interface PutBucketEncryptionOptions extends RequestOptions {
   SSEAlgorithm: SSEAlgorithm;

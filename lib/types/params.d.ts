@@ -120,13 +120,6 @@ export interface PutObjectOptions extends RequestOptions {
     contentLength?: number;
     method?: string;
 }
-export interface CORSRuleConfig {
-    allowedOrigin: string | string[];
-    allowedMethod: string | string[];
-    allowedHeader?: string | string[];
-    exposeHeader?: string | string[];
-    maxAgeSeconds?: string | string[];
-}
 export interface PutBucketEncryptionOptions extends RequestOptions {
     SSEAlgorithm: SSEAlgorithm;
     KMSMasterKeyID?: string;

@@ -183,4 +183,14 @@ export interface GetBucketRefererReturnType extends NormalSuccessResponse {
     allowEmpty: boolean;
     referers: string[];
 }
+export interface BucketCORSRule {
+    allowedOrigin: string | string[];
+    allowedMethod: string | string[];
+    allowedHeader?: string | string[];
+    exposeHeader?: string | string[];
+    maxAgeSeconds?: string | string[];
+}
+export interface GetBucketCORSReturnType extends NormalSuccessResponse {
+    rules: BucketCORSRule[];
+}
 export {};

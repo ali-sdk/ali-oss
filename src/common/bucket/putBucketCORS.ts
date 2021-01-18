@@ -1,13 +1,14 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
-import { RequestOptions, CORSRuleConfig } from '../../types/params';
+import { RequestOptions, NormalSuccessResponse } from '../../types/params';
+import { BucketCORSRule } from '../../types/bucket';
 
 export async function putBucketCORS(
   this: any,
   name: string,
-  rules: CORSRuleConfig[] = [],
+  rules: BucketCORSRule[] = [],
   options: RequestOptions = {}
-) {
+):Promise<NormalSuccessResponse> {
   checkBucketName(name);
   if (!rules.length) {
     throw new Error('rules is required');
