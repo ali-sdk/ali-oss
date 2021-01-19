@@ -234,3 +234,8 @@ export interface GetBucketTagsReturnType extends NormalSuccessResponse {
     [props: string]: string;
   }
 }
+
+export interface GetBucketVersioningReturnType extends NormalSuccessResponse {
+  status: number;
+  versionStatus: Versioning | undefined;
+}
