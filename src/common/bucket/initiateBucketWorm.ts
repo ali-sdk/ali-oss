@@ -1,13 +1,14 @@
 import { obj2xml } from '../utils/obj2xml';
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
+import { InitiateBucketWormReturnType } from '../../types/bucket';
 
 export async function initiateBucketWorm(
   this: any,
   name: string,
-  days: string,
+  days: string | number,
   options: RequestOptions = {}
-) {
+): Promise<InitiateBucketWormReturnType> {
   checkBucketName(name);
   const params = this._bucketRequestParams('POST', name, 'worm', options);
   const paramlXMLObJ = {

@@ -1,6 +1,3 @@
 import { RequestOptions } from '../../types/params';
-export declare function initiateBucketWorm(this: any, name: string, days: string, options?: RequestOptions): Promise<{
-    res: any;
-    wormId: any;
-    status: any;
-}>;
+import { InitiateBucketWormReturnType } from '../../types/bucket';
+export declare function initiateBucketWorm(this: any, name: string, days: string | number, options?: RequestOptions): Promise<InitiateBucketWormReturnType>;

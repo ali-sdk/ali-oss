@@ -1,12 +1,13 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { dataFix } from '../utils/dataFix';
 import { RequestOptions } from '../../types/params';
+import { GetBucketWormReturnType } from '../../types/bucket';
 
 export async function getBucketWorm(
   this: any,
   name: string,
   options: RequestOptions = {}
-) {
+): Promise<GetBucketWormReturnType> {
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'worm', options);
   params.successStatuses = [200];

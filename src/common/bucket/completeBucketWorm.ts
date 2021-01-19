@@ -1,7 +1,7 @@
 import { checkBucketName } from '../utils/checkBucketName';
-import { RequestOptions } from '../../types/params';
+import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 
-export async function completeBucketWorm(this: any, name: string, wormId: string, options: RequestOptions = {}) {
+export async function completeBucketWorm(this: any, name: string, wormId: string, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   checkBucketName(name);
   const params = this._bucketRequestParams('POST', name, { wormId }, options);
 

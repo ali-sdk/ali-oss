@@ -263,4 +263,15 @@ export interface GetBucketInventoryReturnType extends NormalSuccessResponse {
     inventory: BucketInventory;
 }
 export declare type PutBucketInventoryConfig = PartialKeys<Omit<BucketInventory, 'schedule'>, 'prefix' | 'optionalFields'>;
+export interface InitiateBucketWormReturnType extends NormalSuccessResponse {
+    status: number;
+    wormId: string;
+}
+export interface GetBucketWormReturnType extends NormalSuccessResponse {
+    status: number;
+    wormId: string;
+    state: 'Locked' | 'InProgress';
+    days: string;
+    creationDate: string;
+}
 export {};

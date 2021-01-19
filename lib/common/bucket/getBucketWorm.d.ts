@@ -1,2 +1,3 @@
 import { RequestOptions } from '../../types/params';
-export declare function getBucketWorm(this: any, name: string, options?: RequestOptions): Promise<any>;
+import { GetBucketWormReturnType } from '../../types/bucket';
+export declare function getBucketWorm(this: any, name: string, options?: RequestOptions): Promise<GetBucketWormReturnType>;
