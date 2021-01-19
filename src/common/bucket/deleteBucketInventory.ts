@@ -1,12 +1,13 @@
+import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 import { checkBucketName } from '../utils/checkBucketName';
+
 /**
  * deleteBucketInventory
  * @param {String} bucketName - bucket name
  * @param {String} inventoryId
  * @param {Object} options
  */
-
-export async function deleteBucketInventory(this: any, bucketName: string, inventoryId: string, options: any = {}) {
+export async function deleteBucketInventory(this: any, bucketName: string, inventoryId: string, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   const subres: any = Object.assign({ inventory: '', inventoryId }, options.subres);
   checkBucketName(bucketName);
 

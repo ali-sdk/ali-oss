@@ -1,41 +1,12 @@
+import { PutBucketInventoryConfig } from '../../types/bucket';
+import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 
-type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
-
-interface Inventory {
-  id: string;
-  isEnabled: true | false;
-  prefix?: string;
-  OSSBucketDestination: {
-    format: 'CSV';
-    accountId: string;
-    rolename: string;
-    bucket: string;
-    prefix?: string;
-    encryption?:
-    | {'SSE-OSS': ''}
-    | {
-      'SSE-KMS': {
-        keyId: string;
-      };
-    };
-  };
-  frequency: 'Daily' | 'Weekly';
-  includedObjectVersions: 'Current' | 'All';
-  optionalFields?: {
-    field?: Field[];
-  };
-}
-
 /**
  * putBucketInventory
- * @param {String} bucketName - bucket name
- * @param {Inventory} inventory
- * @param {Object} options
  */
-
-export async function putBucketInventory(this: any, bucketName: string, inventory: Inventory, options: any = {}) {
+export async function putBucketInventory(this: any, bucketName: string, inventory: PutBucketInventoryConfig, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   const subres: any = Object.assign({ inventory: '', inventoryId: inventory.id }, options.subres);
   checkBucketName(bucketName);
   const { OSSBucketDestination, optionalFields, includedObjectVersions } = inventory;

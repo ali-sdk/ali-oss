@@ -226,3 +226,7 @@ export interface signatureUrlOptions extends RequestOptions {
 }
 
 export type Container<T> = T | T[];
+
+export type PartialKeys<T, K extends keyof T> = Omit<T, K> & {
+  [k in K]?: T[k]
+};

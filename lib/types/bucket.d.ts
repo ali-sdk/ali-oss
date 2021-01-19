@@ -1,4 +1,4 @@
-import { StorageType, ACLType, RequestOptions, NormalSuccessResponse, DataRedundancyType, Versioning, SSEAlgorithm, Container, Protocol, BucketRequestPayer } from './params';
+import { StorageType, ACLType, RequestOptions, NormalSuccessResponse, DataRedundancyType, Versioning, SSEAlgorithm, Container, Protocol, BucketRequestPayer, PartialKeys } from './params';
 export interface ListBucketsQueryType {
     /** search buckets using prefix key */
     prefix?: string;
@@ -221,4 +221,46 @@ export interface GetBucketVersioningReturnType extends NormalSuccessResponse {
     status: number;
     versionStatus: Versioning | undefined;
 }
+export interface ListBucketInventoryOptions extends RequestOptions {
+    continuationToken?: string;
+}
+declare type InventoryIncludedObjectVersions = 'All' | 'Current';
+declare type InventoryOptionalFields = 'Size' | 'LastModifiedDate' | 'ETag' | 'StorageClass' | 'IsMultipartUploaded' | 'EncryptionStatus';
+declare type InventoryFrequency = 'Daily' | 'Weekly';
+interface BucketInventory {
+    id: string;
+    isEnabled: boolean;
+    schedule: object;
+    includedObjectVersions: InventoryIncludedObjectVersions;
+    optionalFields: {
+        field: InventoryOptionalFields[];
+    };
+    prefix: string;
+    OSSBucketDestination: {
+        format: 'CSV';
+        accountId: string;
+        prefix: string;
+        encryption?: {
+            'SSE-KMS': {
+                keyId: string;
+            };
+        } | {
+            'SSE-OSS': '';
+        };
+        rolename: string;
+        bucket: string;
+    };
+    frequency: InventoryFrequency;
+}
+export interface ListBucketInventoryReturnType extends NormalSuccessResponse {
+    status: number;
+    isTruncated: boolean;
+    nextContinuationToken: string | undefined;
+    inventoryList: BucketInventory[];
+}
+export interface GetBucketInventoryReturnType extends NormalSuccessResponse {
+    status: number;
+    inventory: BucketInventory;
+}
+export declare type PutBucketInventoryConfig = PartialKeys<Omit<BucketInventory, 'schedule'>, 'prefix' | 'optionalFields'>;
 export {};

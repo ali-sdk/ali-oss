@@ -1433,7 +1433,7 @@ Success will return:
 - res {Object} response info
 
 ```ts
-type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
+type Field = 'Size' | 'LastModifiedDate' | 'ETag' | 'StorageClass' | 'IsMultipartUploaded' | 'EncryptionStatus';
 interface Inventory {
   id: string;
   isEnabled: true | false;

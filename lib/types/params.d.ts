@@ -199,4 +199,7 @@ export interface signatureUrlOptions extends RequestOptions {
     method?: HttpMethod;
 }
 export declare type Container<T> = T | T[];
+export declare type PartialKeys<T, K extends keyof T> = Omit<T, K> & {
+    [k in K]?: T[k];
+};
 export {};

@@ -1,13 +1,13 @@
+import { ListBucketInventoryReturnType } from '../../types/bucket';
 import { checkBucketName } from '../utils/checkBucketName';
 import { formatInventoryConfig } from '../utils/formatInventoryConfig';
 /**
  * listBucketInventory
  * @param {String} bucketName - bucket name
- * @param {String} inventoryId
  * @param {Object} options
  */
 
-export async function listBucketInventory(this: any, bucketName: string, options: any = {}) {
+export async function listBucketInventory(this: any, bucketName: string, options: any = {}): Promise<ListBucketInventoryReturnType> {
   const { continuationToken } = options;
   const subres: any = Object.assign({ inventory: '' }, continuationToken && { 'continuation-token': continuationToken }, options.subres);
   checkBucketName(bucketName);

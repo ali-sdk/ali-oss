@@ -1,3 +1,4 @@
+import { GetBucketInventoryReturnType } from '../../types/bucket';
 import { checkBucketName } from '../utils/checkBucketName';
 import { formatInventoryConfig } from '../utils/formatInventoryConfig';
 /**
@@ -7,7 +8,7 @@ import { formatInventoryConfig } from '../utils/formatInventoryConfig';
  * @param {Object} options
  */
 
-export async function getBucketInventory(this: any, bucketName: string, inventoryId: string, options: any = {}) {
+export async function getBucketInventory(this: any, bucketName: string, inventoryId: string, options: any = {}): Promise<GetBucketInventoryReturnType> {
   const subres: any = Object.assign({ inventory: '', inventoryId }, options.subres);
   checkBucketName(bucketName);
 
