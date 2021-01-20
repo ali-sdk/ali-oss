@@ -189,24 +189,6 @@ export interface getBucketVersionsQuery {
   maxKeys?: string;
 }
 
-export interface listQuery {
-  prefix?: string; // search object using prefix key
-  marker?: string; // search start from marker, including marker key
-  delimiter?: string; // delimiter search scope e.g. / only search current dir, not including subdir
-  'max-keys'?: string | number; // max objects, default is 100, limit to 1000
-  'encoding-type'?: 'url';
-}
-
-export interface listV2Query {
-  prefix?: string,
-  delimiter?: string,
-  'start-after'?: string,
-  'continuation-token'?: string,
-  'max-keys'?: string,
-  'encoding-type'?: 'url',
-  'fetch-owner'?: boolean,
-}
-
 export interface postAsyncFetchOptions extends RequestOptions {
   host?: string;
   contentMD5?: string;

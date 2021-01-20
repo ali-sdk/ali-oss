@@ -1,7 +1,11 @@
 import { objectUrl } from '../utils/objectUrl';
-import { listV2Query } from '../../types/params';
+import { ObjectListV2QueryParams, ObjectListV2ReturnType } from '../../types/object';
 
-export async function listV2(this: any, query: listV2Query, options: { subres?: any } = {}) {
+export async function listV2(
+  this: any,
+  query: ObjectListV2QueryParams,
+  options: { subres?: any } = {}
+): Promise<ObjectListV2ReturnType> {
   const continuation_token = query['continuation-token'];
   delete query['continuation-token'];
   if (continuation_token) {

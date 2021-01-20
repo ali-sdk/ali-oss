@@ -1,11 +1,11 @@
 import { objectUrl } from '../utils/objectUrl';
-import { listQuery } from '../../types/params';
+import { ObjectListQueryParams, ObjectListReturnType } from '../../types/object';
 
 export async function list(
   this: any,
-  query: listQuery = {},
+  query: ObjectListQueryParams = {},
   options: any = {}
-) {
+): Promise<ObjectListReturnType> {
   // prefix, marker, max-keys, delimiter
 
   const params = this._objectRequestParams('GET', '', options);

@@ -167,22 +167,6 @@ export interface getBucketVersionsQuery {
     delimiter?: string;
     maxKeys?: string;
 }
-export interface listQuery {
-    prefix?: string;
-    marker?: string;
-    delimiter?: string;
-    'max-keys'?: string | number;
-    'encoding-type'?: 'url';
-}
-export interface listV2Query {
-    prefix?: string;
-    delimiter?: string;
-    'start-after'?: string;
-    'continuation-token'?: string;
-    'max-keys'?: string;
-    'encoding-type'?: 'url';
-    'fetch-owner'?: boolean;
-}
 export interface postAsyncFetchOptions extends RequestOptions {
     host?: string;
     contentMD5?: string;
