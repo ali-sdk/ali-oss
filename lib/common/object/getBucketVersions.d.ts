@@ -1,12 +1,3 @@
-import { getBucketVersionsQuery, MultiVersionCommonOptions } from '../../types/params';
-export declare function getBucketVersions(this: any, query?: getBucketVersionsQuery, options?: MultiVersionCommonOptions): Promise<{
-    res: any;
-    objects: any;
-    deleteMarker: any;
-    prefixes: any;
-    nextMarker: any;
-    NextVersionIdMarker: any;
-    nextKeyMarker: any;
-    nextVersionIdMarker: any;
-    isTruncated: boolean;
-}>;
+import { RequestOptions } from '../../types/params';
+import { GetBucketVersionsQueryParams, getBucketVersionsReturnType } from '../../types/object';
+export declare function getBucketVersions(this: any, query?: GetBucketVersionsQueryParams, options?: RequestOptions): Promise<getBucketVersionsReturnType>;

@@ -42,6 +42,8 @@ export type RuleStatusType = 'Enabled' | 'Disabled';
 
 export type StorageType = 'Standard' | 'IA' | 'Archive';
 
+export type ObjectType = 'Normal' | 'Symlink';
+
 export type DataRedundancyType = 'LRS' | 'ZRS';
 
 export type Versioning = 'Enabled' | 'Suspended';
@@ -179,15 +181,6 @@ export interface MultiVersionCommonOptions extends RequestOptions {
 
 export type DeleteMultiNameObj = { key: string; versionId?: string };
 export type DeleteMultiName = string | DeleteMultiNameObj;
-
-export interface getBucketVersionsQuery {
-  // Prefix、Key-marker、Version-id-marker、Delimiter和Max-keys
-  prefix?: string;
-  keyMarker?: string;
-  versionIdMarker?: string;
-  delimiter?: string;
-  maxKeys?: string;
-}
 
 export interface postAsyncFetchOptions extends RequestOptions {
   host?: string;

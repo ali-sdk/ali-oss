@@ -42,6 +42,7 @@ export declare type ACLType = 'public-read-write' | 'public-read' | 'private';
 export declare type SSEAlgorithm = 'KMS' | 'AES256' | 'SM4';
 export declare type RuleStatusType = 'Enabled' | 'Disabled';
 export declare type StorageType = 'Standard' | 'IA' | 'Archive';
+export declare type ObjectType = 'Normal' | 'Symlink';
 export declare type DataRedundancyType = 'LRS' | 'ZRS';
 export declare type Versioning = 'Enabled' | 'Suspended';
 export declare type Protocol = 'http' | 'https';
@@ -160,13 +161,6 @@ export declare type DeleteMultiNameObj = {
     versionId?: string;
 };
 export declare type DeleteMultiName = string | DeleteMultiNameObj;
-export interface getBucketVersionsQuery {
-    prefix?: string;
-    keyMarker?: string;
-    versionIdMarker?: string;
-    delimiter?: string;
-    maxKeys?: string;
-}
 export interface postAsyncFetchOptions extends RequestOptions {
     host?: string;
     contentMD5?: string;

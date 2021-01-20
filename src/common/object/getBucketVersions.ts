@@ -1,22 +1,24 @@
 import { formatQuery } from '../utils/formatQuery';
 import { isArray } from '../utils/isArray';
 import { objectUrl } from '../utils/objectUrl';
-import { getBucketVersionsQuery, MultiVersionCommonOptions } from '../../types/params';
+import { RequestOptions } from '../../types/params';
+import { GetBucketVersionsQueryParams, getBucketVersionsReturnType } from '../../types/object';
 
 
 // proto.getBucketVersions = getBucketVersions;
 // proto.listObjectVersions = getBucketVersions;
 
-export async function getBucketVersions(this: any, query: getBucketVersionsQuery = {}, options: MultiVersionCommonOptions = {}) {
+export async function getBucketVersions(
+  this: any,
+  query: GetBucketVersionsQueryParams = {},
+  options: RequestOptions = {}
+): Promise<getBucketVersionsReturnType> {
   // prefix, key-marker, max-keys, delimiter, encoding-type, version-id-marker
   if (query.versionIdMarker && query.keyMarker === undefined) {
     throw new Error('A version-id marker cannot be specified without a key marker');
   }
 
   options.subres = Object.assign({ versions: '' }, options.subres);
-  if (options.versionId) {
-    options.subres.versionId = options.versionId;
-  }
   const params = this._objectRequestParams('GET', '', options);
   params.xmlResponse = true;
   params.successStatuses = [200];

@@ -1,5 +1,18 @@
-import { NormalSuccessResponse, StorageType } from './params';
+import { NormalSuccessResponse, ObjectType, StorageType } from './params';
 
+interface IObjectInfo {
+  name: string,
+  url: string,
+  lastModified: string,
+  etag: string,
+  type: ObjectType,
+  size: number,
+  storageClass: StorageType,
+  owner: {
+    id: string,
+    displayName: string,
+  },
+}
 export interface ObjectListQueryParams {
   /** search object using prefix key */
   prefix?: string;
@@ -11,21 +24,8 @@ export interface ObjectListQueryParams {
   'max-keys'?: string | number;
   'encoding-type'?: 'url';
 }
-
 export interface ObjectListReturnType extends NormalSuccessResponse {
-  objects: Array<{
-    name: string,
-    url: string,
-    lastModified: string,
-    etag: string,
-    type: 'Normal' | 'Symlink',
-    size: number,
-    storageClass: StorageType,
-    owner: {
-      id: string,
-      displayName: string,
-    },
-  }> | undefined,
+  objects: IObjectInfo[] | undefined,
   /** If the delimiter parameter is specified in the request, the response contains the prefixes element.  */
   prefixes: string[] | null,
   nextMarker: string | null,
@@ -50,14 +50,8 @@ export interface ObjectListV2QueryParams {
 }
 
 export interface ObjectListV2ReturnType extends NormalSuccessResponse {
-  objects: Array<{
-    name: string,
-    url: string,
-    lastModified: string,
-    etag: string,
-    type: 'Normal' | 'Symlink',
-    size: number,
-    storageClass: StorageType,
+  objects: Array<
+  Omit<IObjectInfo, 'owner'> & {
     owner: {
       id: string,
       displayName: string,
@@ -68,4 +62,31 @@ export interface ObjectListV2ReturnType extends NormalSuccessResponse {
   keyCount: number;
   continuationToken: string | null;
   nextContinuationToken: string | null;
+}
+
+export interface GetBucketVersionsQueryParams {
+  prefix?: string;
+  keyMarker?: string;
+  versionIdMarker?: string;
+  delimiter?: string;
+  maxKeys?: string;
+  encodingType?: 'url'
+}
+
+export interface getBucketVersionsReturnType extends NormalSuccessResponse {
+  objects: Array<IObjectInfo & {
+    isLatest: boolean;
+    versionId: string;
+  }> | undefined;
+  deleteMarker: Array<Pick<IObjectInfo, 'name' | 'lastModified' | 'owner'> & {
+    versionId: string;
+  }> | undefined;
+  prefixes: string[] | undefined;
+  nextKeyMarker: string | null;
+  nextVersionIdMarker: string | null;
+  /** depreated; use `nextKeyMarker` */
+  nextMarker?: string | null;
+  /** depreated; use `nextVersionIdMarker` */
+  NextVersionIdMarker?: string | null;
+  isTruncated: boolean;
 }
