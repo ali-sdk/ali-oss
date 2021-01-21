@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.13.0
+// Aliyun OSS SDK for JavaScript v6.13.2
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -1372,8 +1372,6 @@ var path = require('path');
 
 var mime = require('mime');
 
-var is = require('is-type-of');
-
 var callback = require('../common/callback');
 
 var merge = require('merge-descriptors');
@@ -1986,115 +1984,11 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
     });
   });
 };
-/**
- * get
- * @param {String} name - object name
- * @param {String | Stream} file
- * @param {Object} options
- * @param {{res}}
- */
 
-
-proto.get = /*#__PURE__*/function () {
-  var _get = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee8(name, file) {
-    var options,
-        writeStream,
-        needDestroy,
-        responseCacheControl,
-        result,
-        params,
-        _args8 = arguments;
-    return _regenerator.default.wrap(function _callee8$(_context8) {
-      while (1) {
-        switch (_context8.prev = _context8.next) {
-          case 0:
-            options = _args8.length > 2 && _args8[2] !== undefined ? _args8[2] : {};
-            writeStream = null;
-            needDestroy = false;
-
-            if (is.writableStream(file)) {
-              writeStream = file;
-            } else if (is.string(file)) {
-              writeStream = fs.createWriteStream(file);
-              needDestroy = true;
-            } else {
-              // get(name, options)
-              options = file;
-            }
-
-            options = options || {};
-            responseCacheControl = options.responseCacheControl === null ? '' : 'no-cache';
-            options.subres = Object.assign(responseCacheControl ? {
-              'response-cache-control': responseCacheControl
-            } : {}, options.subres);
-
-            if (options.versionId) {
-              options.subres.versionId = options.versionId;
-            }
-
-            if (options.process) {
-              options.subres['x-oss-process'] = options.process;
-            }
-
-            _context8.prev = 9;
-            params = this._objectRequestParams('GET', name, options);
-            params.writeStream = writeStream;
-            params.successStatuses = [200, 206, 304];
-            _context8.next = 15;
-            return this.request(params);
-
-          case 15:
-            result = _context8.sent;
-
-            if (needDestroy) {
-              writeStream.destroy();
-            }
-
-            _context8.next = 26;
-            break;
-
-          case 19:
-            _context8.prev = 19;
-            _context8.t0 = _context8["catch"](9);
-
-            if (!needDestroy) {
-              _context8.next = 25;
-              break;
-            }
-
-            writeStream.destroy(); // should delete the exists file before throw error
-
-            _context8.next = 25;
-            return this._deleteFileSafe(file);
-
-          case 25:
-            throw _context8.t0;
-
-          case 26:
-            return _context8.abrupt("return", {
-              res: result.res,
-              content: result.data
-            });
-
-          case 27:
-          case "end":
-            return _context8.stop();
-        }
-      }
-    }, _callee8, this, [[9, 19]]);
-  }));
-
-  function get(_x18, _x19) {
-    return _get.apply(this, arguments);
-  }
-
-  return get;
-}();
-
-},{"../common/callback":23,"../common/image":26,"../common/object/copyObject":29,"../common/object/delete":30,"../common/object/deleteMulti":31,"../common/object/deleteObjectTagging":32,"../common/object/generateObjectUrl":33,"../common/object/get":34,"../common/object/getACL":35,"../common/object/getBucketVersions":36,"../common/object/getObjectMeta":37,"../common/object/getObjectTagging":38,"../common/object/getObjectUrl":39,"../common/object/getSymlink":40,"../common/object/head":41,"../common/object/putACL":42,"../common/object/putObjectTagging":43,"../common/object/putSymlink":44,"../common/object/signatureUrl":45,"../common/utils/isBlob":60,"../common/utils/isBuffer":61,"../common/utils/isFile":62,"@babel/runtime/helpers/asyncToGenerator":70,"@babel/runtime/helpers/interopRequireDefault":71,"@babel/runtime/regenerator":74,"copy-to":101,"core-js/modules/es.array.for-each":238,"core-js/modules/es.array.map":245,"core-js/modules/es.function.name":249,"core-js/modules/es.number.constructor":250,"core-js/modules/es.object.assign":251,"core-js/modules/es.object.keys":253,"core-js/modules/es.object.to-string":254,"core-js/modules/es.promise":255,"core-js/modules/es.regexp.exec":256,"core-js/modules/es.regexp.to-string":257,"core-js/modules/es.string.replace":261,"core-js/modules/web.dom-collections.for-each":292,"fs":78,"is-type-of":392,"merge-descriptors":311,"mime":313,"path":316,"regenerator-runtime/runtime":337}],5:[function(require,module,exports){
+},{"../common/callback":23,"../common/image":26,"../common/object/copyObject":29,"../common/object/delete":30,"../common/object/deleteMulti":31,"../common/object/deleteObjectTagging":32,"../common/object/generateObjectUrl":33,"../common/object/get":34,"../common/object/getACL":35,"../common/object/getBucketVersions":36,"../common/object/getObjectMeta":37,"../common/object/getObjectTagging":38,"../common/object/getObjectUrl":39,"../common/object/getSymlink":40,"../common/object/head":41,"../common/object/putACL":42,"../common/object/putObjectTagging":43,"../common/object/putSymlink":44,"../common/object/signatureUrl":45,"../common/utils/isBlob":60,"../common/utils/isBuffer":61,"../common/utils/isFile":62,"@babel/runtime/helpers/asyncToGenerator":70,"@babel/runtime/helpers/interopRequireDefault":71,"@babel/runtime/regenerator":74,"copy-to":101,"core-js/modules/es.array.for-each":238,"core-js/modules/es.array.map":245,"core-js/modules/es.function.name":249,"core-js/modules/es.number.constructor":250,"core-js/modules/es.object.assign":251,"core-js/modules/es.object.keys":253,"core-js/modules/es.object.to-string":254,"core-js/modules/es.promise":255,"core-js/modules/es.regexp.exec":256,"core-js/modules/es.regexp.to-string":257,"core-js/modules/es.string.replace":261,"core-js/modules/web.dom-collections.for-each":292,"fs":78,"merge-descriptors":311,"mime":313,"path":316,"regenerator-runtime/runtime":337}],5:[function(require,module,exports){
 "use strict";
 
-exports.version = "6.13.0";
+exports.version = "6.13.2";
 
 },{}],6:[function(require,module,exports){
 "use strict";
@@ -4631,6 +4525,7 @@ proto.generateObjectUrl = function generateObjectUrl(name, baseUrl) {
 };
 
 },{"../utils/isIP":63,"core-js/modules/es.array.concat":234,"url":394}],34:[function(require,module,exports){
+(function (process){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4661,6 +4556,9 @@ proto.get = /*#__PURE__*/function () {
     var options,
         writeStream,
         needDestroy,
+        isBrowserEnv,
+        responseCacheControl,
+        defaultSubresOptions,
         result,
         params,
         _args = arguments;
@@ -4683,9 +4581,12 @@ proto.get = /*#__PURE__*/function () {
             }
 
             options = options || {};
-            options.subres = Object.assign({
-              'response-cache-control': 'no-cache'
-            }, options.subres);
+            isBrowserEnv = process && process.browser;
+            responseCacheControl = options.responseCacheControl === null ? '' : 'no-cache';
+            defaultSubresOptions = isBrowserEnv && responseCacheControl ? {
+              'response-cache-control': responseCacheControl
+            } : {};
+            options.subres = Object.assign(defaultSubresOptions, options.subres);
 
             if (options.versionId) {
               options.subres.versionId = options.versionId;
@@ -4695,52 +4596,52 @@ proto.get = /*#__PURE__*/function () {
               options.subres['x-oss-process'] = options.process;
             }
 
-            _context.prev = 8;
+            _context.prev = 11;
             params = this._objectRequestParams('GET', name, options);
             params.writeStream = writeStream;
             params.successStatuses = [200, 206, 304];
-            _context.next = 14;
+            _context.next = 17;
             return this.request(params);
 
-          case 14:
+          case 17:
             result = _context.sent;
 
             if (needDestroy) {
               writeStream.destroy();
             }
 
-            _context.next = 25;
+            _context.next = 28;
             break;
 
-          case 18:
-            _context.prev = 18;
-            _context.t0 = _context["catch"](8);
+          case 21:
+            _context.prev = 21;
+            _context.t0 = _context["catch"](11);
 
             if (!needDestroy) {
-              _context.next = 24;
+              _context.next = 27;
               break;
             }
 
             writeStream.destroy(); // should delete the exists file before throw error
 
-            _context.next = 24;
+            _context.next = 27;
             return this._deleteFileSafe(file);
 
-          case 24:
+          case 27:
             throw _context.t0;
 
-          case 25:
+          case 28:
             return _context.abrupt("return", {
               res: result.res,
               content: result.data
             });
 
-          case 26:
+          case 29:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, this, [[8, 18]]);
+    }, _callee, this, [[11, 21]]);
   }));
 
   function get(_x, _x2) {
@@ -4750,7 +4651,8 @@ proto.get = /*#__PURE__*/function () {
   return get;
 }();
 
-},{"@babel/runtime/helpers/asyncToGenerator":70,"@babel/runtime/helpers/interopRequireDefault":71,"@babel/runtime/regenerator":74,"core-js/modules/es.object.assign":251,"fs":78,"is-type-of":392,"regenerator-runtime/runtime":337}],35:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"@babel/runtime/helpers/asyncToGenerator":70,"@babel/runtime/helpers/interopRequireDefault":71,"@babel/runtime/regenerator":74,"_process":393,"core-js/modules/es.object.assign":251,"fs":78,"is-type-of":392,"regenerator-runtime/runtime":337}],35:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6567,7 +6469,7 @@ exports.deepCopyWith = function (obj, customizer) {
     }
 
     if (isBuffer_1.isBuffer(value)) {
-      return obj.slice();
+      return value.slice();
     }
 
     var copy = Array.isArray(value) ? [] : {};
