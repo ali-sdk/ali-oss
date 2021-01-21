@@ -1,1 +1,1 @@
-export declare const isFile: (obj: any) => boolean;
+export declare const isFile: (obj: any) => obj is File;

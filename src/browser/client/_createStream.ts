@@ -3,7 +3,7 @@ import { isFile } from '../../common/utils/isFile';
 import { isBuffer } from '../../common/utils/isBuffer';
 
 export async function _createStream(
-  file: any,
+  file: Blob | File | Buffer,
   start: number,
   end: number,
 ): Promise<Buffer> {

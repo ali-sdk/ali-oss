@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import mime from 'mime';
 import is from 'is-type-of';
+import { Readable } from 'stream';
 import { putStream } from './putStream';
 import { getFileSize } from '../utils/getFileSize';
 import { objectName } from '../../common/utils/objectName';
@@ -10,6 +11,9 @@ import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { isBuffer } from '../../common/utils/isBuffer';
 import { PutObjectOptions } from '../../types/params';
+import { ObjectPutReturnType } from '../../types/object';
+// eslint-disable-next-line import/first
+
 
 /**
  * put an object from String(file path)/Buffer/ReadableStream
@@ -28,13 +32,18 @@ import { PutObjectOptions } from '../../types/params';
  *                  }
  * @return {Object}
  */
-export async function put(this: any, name: string, file: any, options: PutObjectOptions = {}) {
+export async function put(
+  this: any,
+  name: string,
+  file: string | Buffer | Readable,
+  options: PutObjectOptions = {}
+): Promise<ObjectPutReturnType> {
   let content;
   name = objectName(name);
 
   if (isBuffer(file)) {
     content = file;
-  } else if ((is as any).string(file)) {
+  } else if (is.string(file)) {
     const stats = fs.statSync(file);
     if (!stats.isFile()) {
       throw new Error(`${file} is not file`);

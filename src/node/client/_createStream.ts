@@ -5,7 +5,7 @@ import { isFile } from '../../common/utils/isFile';
 import { WebFileReadStream } from '../../common/utils/webFileReadStream';
 import { isBuffer } from '../../common/utils/isBuffer';
 
-export async function _createStream(file: any, start: number, end: number) {
+export async function _createStream(file: Readable | File | Buffer | string, start: number, end: number): Promise<Readable> {
   if (is.readableStream(file)) {
     return file;
   } else if (isFile(file)) {
@@ -19,7 +19,7 @@ export async function _createStream(file: any, start: number, end: number) {
         this.push(null);
       },
     });
-  } else if ((is as any).string(file)) {
+  } else if (is.string(file)) {
     return fs.createReadStream(file, {
       start,
       end: end - 1

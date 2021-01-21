@@ -48,7 +48,7 @@ declare const _default: {
     getStrBytesCount: typeof getStrBytesCount;
     isArray: (obj: any) => boolean;
     isBlob: typeof isBlob;
-    isFile: (obj: any) => boolean;
+    isFile: (obj: any) => obj is File;
     isIP: (host: any) => boolean;
     isObject: (obj: any) => boolean;
     mergeDefault: typeof mergeDefault;

@@ -81,7 +81,18 @@ export interface NormalSuccessResponse {
     /** response status */
     status: number;
     /** response headers */
-    headers: object;
+    headers: {
+      server: string;
+      date: string;
+      'content-length': string;
+      connection: string;
+      'x-oss-request-id': string;
+      vary: string;
+      etag?: string;
+      'x-oss-hash-crc64ecma'?: string;
+      'content-md5'?: string;
+      'x-oss-server-time': string;
+    };
     /** response size */
     size: number;
     /** request total use time (ms) */

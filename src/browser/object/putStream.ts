@@ -1,8 +1,10 @@
+import { Readable } from 'stream';
 import { objectName } from '../../common/utils/objectName';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { PutObjectOptions } from '../../types/params';
+import { ObjectPutReturnType } from '../../types/object';
 
 /**
  * put an object from ReadableStream. If `options.contentLength` is
@@ -12,7 +14,12 @@ import { PutObjectOptions } from '../../types/params';
  * @param {Object} options
  * @return {Object}
  */
-export async function putStream(this: any, name: string, stream: any, options: PutObjectOptions = {}) {
+export async function putStream(
+  this: any,
+  name: string,
+  stream: Readable | Buffer | string,
+  options: PutObjectOptions = {}
+): Promise<ObjectPutReturnType> {
   options.headers = options.headers || {};
   name = objectName(name);
   if (options.contentLength) {
@@ -27,7 +34,7 @@ export async function putStream(this: any, name: string, stream: any, options: P
   encodeCallback(params, options);
   params.mime = options.mime;
 
-  if (stream.pipe) {
+  if ((stream as any).pipe) {
     params.stream = stream;
   } else {
     params.content = stream;
@@ -49,4 +56,3 @@ export async function putStream(this: any, name: string, stream: any, options: P
 
   return ret;
 }
-

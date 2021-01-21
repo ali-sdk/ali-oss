@@ -90,3 +90,12 @@ export interface getBucketVersionsReturnType extends NormalSuccessResponse {
   NextVersionIdMarker?: string | null;
   isTruncated: boolean;
 }
+
+export interface ObjectPutReturnType extends NormalSuccessResponse {
+  /** object name */
+  name: string;
+  /** request url */
+  url: string;
+  /** callback server response data If the callback parameter was set */
+  data?: object;
+}
