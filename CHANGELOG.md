@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.1...v6.13.2) (2021-01-21)
+
+
+### Bug Fixes
+
+* not use `object spread operator` because of the low version of Node.js ([#921](https://github.com/aliyun/oss-nodejs-sdk/issues/921)) ([cd50f88](https://github.com/aliyun/oss-nodejs-sdk/commit/cd50f8857fdbbf78e5f7702514cdbe0806e332be))
+
 ### [6.13.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.0...v6.13.1) (2021-01-07)
 
 
