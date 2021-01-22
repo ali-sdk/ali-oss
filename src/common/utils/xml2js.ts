@@ -45,7 +45,7 @@ function unique(arr) {
   return uniqueArr;
 }
 
-function formatObj(obj) {
+function formatObj(obj: { [props: string]: any; children?: any[]; tag: string } | null) {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
@@ -83,7 +83,7 @@ function formatObj(obj) {
           o.push(formatObj(_));
         }
       } else {
-        const children = Object.entries(_).filter(item => item[0].startsWith('children')).map(item => item[1]);
+        const children: any[] = Object.entries(_).filter(item => item[0].startsWith('children')).map(item => item[1]);
         if (children.length > 1) {
           o[_.tag] = children.map(item => formatObj(item));
         } else {

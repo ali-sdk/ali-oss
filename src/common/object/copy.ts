@@ -1,5 +1,6 @@
 import { getSourceName } from '../utils/getSourceName';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
+import { ObjectCopyOptions, ObjectCopyReturnType } from '../../types/object';
 
 const REPLACE_HEDERS = [
   'content-type',
@@ -14,9 +15,9 @@ export async function copy(
   this: any,
   name: string,
   sourceName: string,
-  bucketName?: string | object,
-  options?: any
-) {
+  bucketName?: string | ObjectCopyOptions,
+  options?: ObjectCopyOptions
+):Promise<ObjectCopyReturnType> {
   if (typeof bucketName === 'object') {
     options = bucketName; // 兼容旧版本，旧版本第三个参数为options
   }
@@ -24,8 +25,8 @@ export async function copy(
   options.headers = options.headers || {};
 
   Object.keys(options.headers).forEach(key => {
-    options.headers[`x-oss-copy-source-${key.toLowerCase()}`] =
-      options.headers[key];
+    options!.headers![`x-oss-copy-source-${key.toLowerCase()}`] =
+      options!.headers![key];
   });
   if (options.meta || Object.keys(options.headers).find(_ => REPLACE_HEDERS.includes(_.toLowerCase()))) {
     options.headers['x-oss-metadata-directive'] = 'REPLACE';

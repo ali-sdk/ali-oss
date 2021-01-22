@@ -106,7 +106,7 @@ export interface NormalSuccessResponseWithStatus extends NormalSuccessResponse {
   status: number;
 }
 
-interface UserMeta {
+export interface UserMeta {
   [propsName: string]: string;
 }
 
@@ -119,7 +119,7 @@ export interface Checkpoint {
   doneParts: DoneParts[];
 }
 
-interface ObjectCallback {
+export interface ObjectCallback {
   url: string; // After a file is uploaded successfully, the OSS sends a callback request to this URL.
   host?: string; // The host header value for initiating callback requests.
   body: string; // The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
@@ -140,19 +140,6 @@ export interface MultipartUploadOptions extends RequestOptions {
   contentLength?: number;
 }
 
-export interface GetObjectOptions extends MultiVersionCommonOptions {
-  process?: string; // image process params, will send with x-oss-process e.g.: {process: 'image/resize,w_200'}
-  /** only support Browser.js */
-  responseCacheControl?: string
-}
-
-export interface PutObjectOptions extends RequestOptions {
-  mime?: string; // custom mime, will send with Content-Type entity header
-  meta?: UserMeta; // user meta, will send with x-oss-meta- prefix string e.g.: { uid: 123, pid: 110 }
-  callback?: ObjectCallback;
-  contentLength?: number;
-  method?: string; // append object need
-}
 export interface CompleteMultipartUploadOptions extends RequestOptions {
   callback?: ObjectCallback;
 }
@@ -176,14 +163,6 @@ export interface MultipartUploadCopySourceData {
   sourceBucketName: string;
   startOffset?: number;
   endOffset?: number;
-}
-
-export interface AppendObjectOptions extends RequestOptions {
-  position?: string; // specify the position which is the content length of the latest object
-  mime?: string; // custom mime, will send with Content-Type entity header
-  meta?: UserMeta;
-  method?: 'POST' | 'PUT';
-  put?: Function;
 }
 
 export interface MultiVersionCommonOptions extends RequestOptions {

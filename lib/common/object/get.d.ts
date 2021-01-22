@@ -1,4 +1,6 @@
-import { GetObjectOptions } from '../../types/params';
+/// <reference types="node" />
+import { Writable } from 'stream';
+import { ObjectGetOptions, ObjectGetReturnType } from '../../types/object';
 /**
  * get
  * @param {String} name - object name
@@ -6,7 +8,4 @@ import { GetObjectOptions } from '../../types/params';
  * @param {Object} options
  * @param {{res}}
  */
-export declare function get(this: any, name: string, file: any, options?: GetObjectOptions): Promise<{
-    res: any;
-    content: any;
-}>;
+export declare function get(this: any, name: string, file: string | Writable, options?: ObjectGetOptions): Promise<ObjectGetReturnType>;

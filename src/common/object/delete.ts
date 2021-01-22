@@ -1,4 +1,4 @@
-import { MultiVersionCommonOptions } from '../../types/params';
+import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
 
 /**
  * delete
@@ -11,7 +11,7 @@ export async function deleteObject(
   this: any,
   name: string,
   options: MultiVersionCommonOptions = {}
-) {
+): Promise<NormalSuccessResponse> {
   options.subres = Object.assign({}, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;

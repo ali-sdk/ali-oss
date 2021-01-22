@@ -1,5 +1,5 @@
 import { objectName } from '../utils/objectName';
-import { MultiVersionCommonOptions } from '../../types/params';
+import { MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../../types/params';
 
 /**
  * getObjectMeta
@@ -8,7 +8,11 @@ import { MultiVersionCommonOptions } from '../../types/params';
  * @param {{res}}
  */
 
-export async function getObjectMeta(this: any, name: string, options: MultiVersionCommonOptions = {}) {
+export async function getObjectMeta(
+  this: any,
+  name: string,
+  options: MultiVersionCommonOptions = {}
+): Promise<NormalSuccessResponseWithStatus> {
   name = objectName(name);
   options.subres = Object.assign({ objectMeta: '' }, options.subres);
   if (options.versionId) {

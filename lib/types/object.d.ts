@@ -1,4 +1,6 @@
-import { NormalSuccessResponse, ObjectType, StorageType } from './params';
+/// <reference types="node" />
+import { Writable } from 'stream';
+import { NormalSuccessResponse, ObjectType, RequestOptions, StorageType, UserMeta, MultiVersionCommonOptions, ObjectCallback } from './params';
 interface IObjectInfo {
     name: string;
     url: string;
@@ -84,6 +86,13 @@ export interface getBucketVersionsReturnType extends NormalSuccessResponse {
     NextVersionIdMarker?: string | null;
     isTruncated: boolean;
 }
+export interface ObjectPutOptions extends RequestOptions {
+    mime?: string;
+    meta?: UserMeta;
+    callback?: ObjectCallback;
+    contentLength?: number;
+    method?: string;
+}
 export interface ObjectPutReturnType extends NormalSuccessResponse {
     /** object name */
     name: string;
@@ -91,5 +100,51 @@ export interface ObjectPutReturnType extends NormalSuccessResponse {
     url: string;
     /** callback server response data If the callback parameter was set */
     data?: object;
+}
+export interface ObjectAppendOptions extends RequestOptions {
+    /** specify the position which is the content length of the latest object */
+    position?: string;
+    /** custom mime, will send with Content-Type entity header */
+    mime?: string;
+    meta?: UserMeta;
+}
+export interface ObjectAppendReturnType extends ObjectPutReturnType {
+    nextAppendPosition: string;
+}
+export interface ObjectHeadReturnType extends NormalSuccessResponse {
+    status: 200 | 304;
+    /** if not set or status is 304, meta will be null */
+    meta: {
+        [props: string]: string;
+    } | null;
+}
+export interface ObjectGetOptions extends MultiVersionCommonOptions {
+    /** image process params, will send with x-oss-process e.g.: {process: 'image/resize,w_200'} */
+    process?: string;
+    /** only support Browser.js */
+    responseCacheControl?: string;
+}
+export interface ObjectGetReturnType extends NormalSuccessResponse {
+    content: Buffer | null;
+}
+export interface ObjectGetStreamReturnType {
+    stream: Writable;
+    res: Pick<NormalSuccessResponse['res'], 'status' | 'headers'>;
+}
+export interface ObjectCopyOptions extends MultiVersionCommonOptions {
+    meta?: {
+        [props: string]: string;
+    };
+}
+export interface ObjectCopyReturnType extends NormalSuccessResponse {
+    /**
+     * It will be null,
+     * if x-oss-copy-source-if-none-match request header is specified, and the ETag value of the source object is the same as the ETag value in the request.
+     * or x-oss-copy-source-if-modified-since request header is specified, and the source object has not been modified since the time specified in the request.
+     */
+    data: {
+        etag: string;
+        lastModified: string;
+    } | null;
 }
 export {};

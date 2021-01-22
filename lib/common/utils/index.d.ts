@@ -50,7 +50,7 @@ declare const _default: {
     isBlob: typeof isBlob;
     isFile: (obj: any) => obj is File;
     isIP: (host: any) => boolean;
-    isObject: (obj: any) => boolean;
+    isObject: (obj: any) => obj is object;
     mergeDefault: typeof mergeDefault;
     obj2xml: typeof obj2xml;
     objectName: typeof objectName;

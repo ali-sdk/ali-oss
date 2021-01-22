@@ -94,7 +94,7 @@ export interface NormalSuccessResponse {
 export interface NormalSuccessResponseWithStatus extends NormalSuccessResponse {
     status: number;
 }
-interface UserMeta {
+export interface UserMeta {
     [propsName: string]: string;
 }
 export interface Checkpoint {
@@ -105,7 +105,7 @@ export interface Checkpoint {
     uploadId: string;
     doneParts: DoneParts[];
 }
-interface ObjectCallback {
+export interface ObjectCallback {
     url: string;
     host?: string;
     body: string;
@@ -123,18 +123,6 @@ export interface MultipartUploadOptions extends RequestOptions {
     callback?: ObjectCallback;
     copyheaders?: object;
     contentLength?: number;
-}
-export interface GetObjectOptions extends MultiVersionCommonOptions {
-    process?: string;
-    /** only support Browser.js */
-    responseCacheControl?: string;
-}
-export interface PutObjectOptions extends RequestOptions {
-    mime?: string;
-    meta?: UserMeta;
-    callback?: ObjectCallback;
-    contentLength?: number;
-    method?: string;
 }
 export interface CompleteMultipartUploadOptions extends RequestOptions {
     callback?: ObjectCallback;
@@ -156,13 +144,6 @@ export interface MultipartUploadCopySourceData {
     sourceBucketName: string;
     startOffset?: number;
     endOffset?: number;
-}
-export interface AppendObjectOptions extends RequestOptions {
-    position?: string;
-    mime?: string;
-    meta?: UserMeta;
-    method?: 'POST' | 'PUT';
-    put?: Function;
 }
 export interface MultiVersionCommonOptions extends RequestOptions {
     versionId?: string;
@@ -191,4 +172,3 @@ export declare type Container<T> = T | T[];
 export declare type PartialKeys<T, K extends keyof T> = Omit<T, K> & {
     [k in K]?: T[k];
 };
-export {};

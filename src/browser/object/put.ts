@@ -9,8 +9,7 @@ import { objectUrl } from '../../common/utils/objectUrl';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
-import { PutObjectOptions } from '../../types/params';
-import { ObjectPutReturnType } from '../../types/object';
+import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
 /**
  * put an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -33,7 +32,7 @@ export async function put(
   this: any,
   name: string,
   file: Buffer | Blob | File,
-  options: PutObjectOptions = {}
+  options: ObjectPutOptions = {}
 ): Promise<ObjectPutReturnType> {
   let content;
   name = objectName(name);

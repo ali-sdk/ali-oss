@@ -41,7 +41,7 @@ export async function multipartUploadCopy(
     sourceData.sourceKey,
     metaOpt
   );
-  const fileSize: number = objectMeta.res.headers['content-length'];
+  const fileSize = +objectMeta.res.headers['content-length'];
   sourceData.startOffset = sourceData.startOffset || 0;
   sourceData.endOffset = sourceData.endOffset || fileSize;
 

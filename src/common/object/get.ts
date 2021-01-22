@@ -1,8 +1,9 @@
 import fs from 'fs';
 import is from 'is-type-of';
+import { Writable } from 'stream';
 import { deleteFileSafe } from '../utils/deleteFileSafe';
 import { isObject } from '../utils/isObject';
-import { GetObjectOptions } from '../../types/params';
+import { ObjectGetOptions, ObjectGetReturnType } from '../../types/object';
 
 /**
  * get
@@ -11,13 +12,18 @@ import { GetObjectOptions } from '../../types/params';
  * @param {Object} options
  * @param {{res}}
  */
-export async function get(this: any, name: string, file, options: GetObjectOptions = {}) {
+export async function get(
+  this: any,
+  name: string,
+  file: string | Writable,
+  options: ObjectGetOptions = {}
+): Promise<ObjectGetReturnType> {
   let writeStream: any = null;
   let needDestroy = false;
 
   if (is.writableStream(file)) {
     writeStream = file;
-  } else if ((is as any).string(file)) {
+  } else if (is.string(file)) {
     writeStream = fs.createWriteStream(file);
     needDestroy = true;
   } else if (isObject(file)) {

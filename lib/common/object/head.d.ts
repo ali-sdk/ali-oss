@@ -1,3 +1,4 @@
+import { ObjectHeadReturnType } from '../../types/object';
 import { MultiVersionCommonOptions } from '../../types/params';
 /**
  * head
@@ -5,4 +6,4 @@ import { MultiVersionCommonOptions } from '../../types/params';
  * @param {Object} options
  * @param {{res}}
  */
-export declare function head(this: any, name: string, options?: MultiVersionCommonOptions): Promise<any>;
+export declare function head(this: any, name: string, options?: MultiVersionCommonOptions): Promise<ObjectHeadReturnType>;

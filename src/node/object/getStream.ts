@@ -1,10 +1,10 @@
-import { GetObjectOptions } from '../../types/params';
+import { ObjectGetOptions, ObjectGetStreamReturnType } from '../../types/object';
 
 export async function getStream(
   this: any,
   name: string,
-  options: GetObjectOptions = {}
-) {
+  options: ObjectGetOptions = {}
+): Promise<ObjectGetStreamReturnType> {
   options.subres = Object.assign({}, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;

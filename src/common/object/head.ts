@@ -1,3 +1,4 @@
+import { ObjectHeadReturnType } from '../../types/object';
 import { MultiVersionCommonOptions } from '../../types/params';
 
 /**
@@ -11,7 +12,7 @@ export async function head(
   this: any,
   name: string,
   options: MultiVersionCommonOptions = {}
-) {
+):Promise<ObjectHeadReturnType> {
   options.subres = Object.assign({}, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;

@@ -1,4 +1,5 @@
-import { AppendObjectOptions } from '../../types/params';
+import { Readable } from 'stream';
+import { ObjectAppendOptions, ObjectAppendReturnType } from '../../types/object';
 
 /**
  * append an object from String(file path)/Buffer/ReadableStream
@@ -11,10 +12,10 @@ import { AppendObjectOptions } from '../../types/params';
 export async function append(
   this: any,
   name: string,
-  file,
-  options: AppendObjectOptions = {}
-) {
-  const { put = this.put } = options;
+  file: string | Buffer | Readable,
+  options: ObjectAppendOptions = {}
+): Promise<ObjectAppendReturnType> {
+  const { put } = this;
   if (typeof put !== 'function') {
     throw 'please set put in options, put path is browser/object/put';
   }
@@ -23,9 +24,7 @@ export async function append(
     append: '',
     position: options.position,
   };
-  options.method = 'POST';
-
-  const result = await put.call(this, name, file, options);
+  const result = await put.call(this, name, file, Object.assign({ method: 'POST' }, options));
   result.nextAppendPosition = result.res.headers['x-oss-next-append-position'];
   return result;
 }

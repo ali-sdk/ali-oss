@@ -1,8 +1,2 @@
-import { GetObjectOptions } from '../../types/params';
-export declare function getStream(this: any, name: string, options?: GetObjectOptions): Promise<{
-    stream: any;
-    res: {
-        status: any;
-        headers: any;
-    };
-}>;
+import { ObjectGetOptions, ObjectGetStreamReturnType } from '../../types/object';
+export declare function getStream(this: any, name: string, options?: ObjectGetOptions): Promise<ObjectGetStreamReturnType>;

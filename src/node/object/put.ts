@@ -10,8 +10,7 @@ import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { isBuffer } from '../../common/utils/isBuffer';
-import { PutObjectOptions } from '../../types/params';
-import { ObjectPutReturnType } from '../../types/object';
+import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
 // eslint-disable-next-line import/first
 
 
@@ -36,7 +35,7 @@ export async function put(
   this: any,
   name: string,
   file: string | Buffer | Readable,
-  options: PutObjectOptions = {}
+  options: ObjectPutOptions = {}
 ): Promise<ObjectPutReturnType> {
   let content;
   name = objectName(name);
