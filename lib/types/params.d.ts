@@ -148,21 +148,12 @@ export interface MultipartUploadCopySourceData {
 export interface MultiVersionCommonOptions extends RequestOptions {
     versionId?: string;
 }
-export declare type DeleteMultiNameObj = {
-    key: string;
-    versionId?: string;
-};
-export declare type DeleteMultiName = string | DeleteMultiNameObj;
 export interface postAsyncFetchOptions extends RequestOptions {
     host?: string;
     contentMD5?: string;
     callback?: string;
     storageClass?: StorageType;
     ignoreSameKey?: boolean;
-}
-export interface putSymlinkOptions extends MultiVersionCommonOptions {
-    meta?: UserMeta;
-    storageClass?: StorageType;
 }
 export interface signatureUrlOptions extends RequestOptions {
     expires?: number;

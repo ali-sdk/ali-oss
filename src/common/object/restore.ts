@@ -1,4 +1,4 @@
-import { MultiVersionCommonOptions } from '../../types/params';
+import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
 
 /**
  * Restore Object
@@ -23,5 +23,5 @@ export async function restore(
 
   return {
     res: result.res,
-  };
+  } as NormalSuccessResponse;
 }

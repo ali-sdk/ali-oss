@@ -1,4 +1,5 @@
-import { putSymlinkOptions } from '../../types/params';
+import { NormalSuccessResponse } from '../../types/params';
+import { ObjectPutSymlinkOptions } from '../../types/object';
 /**
  * putSymlink
  * @param {String} name - object name
@@ -6,6 +7,4 @@ import { putSymlinkOptions } from '../../types/params';
  * @param {Object} options
  * @param {{res}}
  */
-export declare function putSymlink(this: any, name: string, targetName: string, options?: putSymlinkOptions): Promise<{
-    res: any;
-}>;
+export declare function putSymlink(this: any, name: string, targetName: string, options?: ObjectPutSymlinkOptions): Promise<NormalSuccessResponse>;

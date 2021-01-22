@@ -147,4 +147,25 @@ export interface ObjectCopyReturnType extends NormalSuccessResponse {
         lastModified: string;
     } | null;
 }
+export declare type ObjectDeleteMultiNames = string[] | Array<{
+    key: string;
+    versionId?: string;
+}>;
+export interface ObjectDeleteMultiOptions extends RequestOptions {
+    /**
+     * true: includes only objects that fail to be deleted.
+     * false: includes the results of all deleted objects.
+     */
+    quiet?: boolean;
+}
+export interface ObjectDeleteMultiReturnType extends NormalSuccessResponse {
+    deleted: Array<{
+        Key: string;
+        DeleteMarkerVersionId?: string;
+    }>;
+}
+export interface ObjectPutSymlinkOptions extends MultiVersionCommonOptions {
+    meta?: UserMeta;
+    storageClass?: StorageType;
+}
 export {};

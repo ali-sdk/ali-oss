@@ -33,5 +33,5 @@ export function signatureUrl(this: any, name: string, options: signatureUrlOptio
 
   copy(signRes.subResource).to(url.query);
 
-  return url.format();
+  return url.format() as string;
 }

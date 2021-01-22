@@ -1,5 +1,5 @@
 import { objectName } from '../utils/objectName';
-import { MultiVersionCommonOptions } from '../../types/params';
+import { ACLType, MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
 
 /*
  * Get object's ACL
@@ -22,11 +22,11 @@ export async function getACL(this: any, name: string, options: MultiVersionCommo
   const result = await this.request(params);
 
   return {
-    acl: result.data.AccessControlList.Grant,
+    acl: result.data.AccessControlList.Grant as ACLType,
     owner: {
-      id: result.data.Owner.ID,
-      displayName: result.data.Owner.DisplayName,
+      id: result.data.Owner.ID as string,
+      displayName: result.data.Owner.DisplayName as string,
     },
-    res: result.res,
+    res: result.res as NormalSuccessResponse['res'],
   };
 }

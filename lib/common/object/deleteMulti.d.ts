@@ -1,5 +1,2 @@
-import { DeleteMultiName } from '../../types/params';
-export declare function deleteMulti(this: any, names: DeleteMultiName[], options?: any): Promise<{
-    res: any;
-    deleted: any;
-}>;
+import { ObjectDeleteMultiNames, ObjectDeleteMultiOptions, ObjectDeleteMultiReturnType } from '../../types/object';
+export declare function deleteMulti(this: any, names: ObjectDeleteMultiNames, options?: ObjectDeleteMultiOptions): Promise<ObjectDeleteMultiReturnType>;

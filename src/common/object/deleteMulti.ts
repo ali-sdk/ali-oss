@@ -2,23 +2,24 @@
 import utility from 'utility';
 import { obj2xml } from '../utils/obj2xml';
 import { objectName } from '../utils/objectName';
-import { DeleteMultiName, DeleteMultiNameObj } from '../../types/params';
+import { ObjectDeleteMultiNames, ObjectDeleteMultiOptions, ObjectDeleteMultiReturnType } from '../../types/object';
 
 export async function deleteMulti(
   this: any,
-  names: DeleteMultiName[],
-  options: any = {}
-) {
+  names: ObjectDeleteMultiNames,
+  options: ObjectDeleteMultiOptions = {}
+): Promise<ObjectDeleteMultiReturnType> {
   const objects: any[] = [];
   if (!names || !names.length) {
     throw new Error('names is required');
   }
   for (let i = 0; i < names.length; i++) {
     const object: any = {};
-    if (typeof names[i] === 'string') {
-      object.Key = utility.escape(objectName(names[i] as string));
+    const data = names[i];
+    if (typeof (data) === 'string') {
+      object.Key = utility.escape(objectName(data));
     } else {
-      const { key, versionId } = names[i] as DeleteMultiNameObj;
+      const { key, versionId } = data;
       object.Key = utility.escape(objectName(key));
       object.VersionId = versionId;
     }
@@ -37,9 +38,6 @@ export async function deleteMulti(
   });
 
   options.subres = Object.assign({ delete: '' }, options.subres);
-  if (options.versionId) {
-    options.subres.versionId = options.versionId;
-  }
   const params = this._objectRequestParams('POST', '', options);
   params.mime = 'xml';
   params.content = paramXML;

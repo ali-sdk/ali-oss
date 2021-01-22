@@ -1,5 +1,5 @@
 import { objectName } from '../utils/objectName';
-import { MultiVersionCommonOptions } from '../../types/params';
+import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
 /**
  * getSymlink
  * @param {String} name - object name
@@ -21,7 +21,7 @@ export async function getSymlink(this: any, name: string, options: MultiVersionC
 
   return {
     targetName: decodeURIComponent(target),
-    res: result.res
+    res: result.res as NormalSuccessResponse['res']
   };
 }
 

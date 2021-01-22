@@ -1,6 +1,6 @@
 import { objectName } from '../utils/objectName';
 
-import { ACLType, MultiVersionCommonOptions } from '../../types/params';
+import { ACLType, MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
 /*
  * Set object's ACL
  * @param {String} name the object key
@@ -23,5 +23,5 @@ export async function putACL(this: any, name: string, acl: ACLType, options: Mul
 
   return {
     res: result.res
-  };
+  } as NormalSuccessResponse;
 }
