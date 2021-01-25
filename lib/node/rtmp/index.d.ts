@@ -1,3 +1,9 @@
+import { RequestOptions } from '../../types/params';
+import { RTMPGetLiveChannelStatReturnType, RTMPListLiveChannelReturnType } from '../../types/rtmp';
+interface IOptions {
+    timeout?: number;
+    subres?: any;
+}
 interface PutChannelConf {
     Description?: string;
     Status?: string;
@@ -15,10 +21,27 @@ interface PutChannelConf {
  * @param {Object} options
  * @return {Object}
  */
-export declare function putChannel(this: any, id: string, conf: PutChannelConf, options?: any): Promise<{
-    publishUrls: any;
-    playUrls: any;
-    res: any;
+export declare function putChannel(this: any, id: string, conf: PutChannelConf, options?: IOptions): Promise<{
+    publishUrls: string[];
+    playUrls: string[];
+    res: {
+        status: number;
+        headers: {
+            server: string;
+            date: string;
+            'content-length': string;
+            connection: string;
+            'x-oss-request-id': string;
+            vary: string;
+            etag?: string | undefined;
+            'x-oss-hash-crc64ecma'?: string | undefined;
+            'content-md5'?: string | undefined;
+            'x-oss-server-time': string;
+        };
+        size: number;
+        rt: number;
+        requestUrls: string[];
+    };
 }>;
 /**
  * Get the channel info
@@ -26,9 +49,26 @@ export declare function putChannel(this: any, id: string, conf: PutChannelConf, 
  * @param {Object} options
  * @return {Object}
  */
-export declare function getChannel(this: any, id: string, options?: any): Promise<{
-    data: any;
-    res: any;
+export declare function getChannel(this: any, id: string, options?: IOptions): Promise<{
+    data: Required<PutChannelConf>;
+    res: {
+        status: number;
+        headers: {
+            server: string;
+            date: string;
+            'content-length': string;
+            connection: string;
+            'x-oss-request-id': string;
+            vary: string;
+            etag?: string | undefined;
+            'x-oss-hash-crc64ecma'?: string | undefined;
+            'content-md5'?: string | undefined;
+            'x-oss-server-time': string;
+        };
+        size: number;
+        rt: number;
+        requestUrls: string[];
+    };
 }>;
 /**
  * Delete the channel
@@ -36,8 +76,25 @@ export declare function getChannel(this: any, id: string, options?: any): Promis
  * @param {Object} options
  * @return {Object}
  */
-export declare function deleteChannel(this: any, id: string, options?: any): Promise<{
-    res: any;
+export declare function deleteChannel(this: any, id: string, options?: IOptions): Promise<{
+    res: {
+        status: number;
+        headers: {
+            server: string;
+            date: string;
+            'content-length': string;
+            connection: string;
+            'x-oss-request-id': string;
+            vary: string;
+            etag?: string | undefined;
+            'x-oss-hash-crc64ecma'?: string | undefined;
+            'content-md5'?: string | undefined;
+            'x-oss-server-time': string;
+        };
+        size: number;
+        rt: number;
+        requestUrls: string[];
+    };
 }>;
 /**
  * Set the channel status
@@ -46,8 +103,25 @@ export declare function deleteChannel(this: any, id: string, options?: any): Pro
  * @param {Object} options
  * @return {Object}
  */
-export declare function putChannelStatus(this: any, id: string, status?: string, options?: any): Promise<{
-    res: any;
+export declare function putChannelStatus(this: any, id: string, status?: 'enabled' | 'disabled', options?: IOptions): Promise<{
+    res: {
+        status: number;
+        headers: {
+            server: string;
+            date: string;
+            'content-length': string;
+            connection: string;
+            'x-oss-request-id': string;
+            vary: string;
+            etag?: string | undefined;
+            'x-oss-hash-crc64ecma'?: string | undefined;
+            'content-md5'?: string | undefined;
+            'x-oss-server-time': string;
+        };
+        size: number;
+        rt: number;
+        requestUrls: string[];
+    };
 }>;
 /**
  * Get the channel status
@@ -55,10 +129,7 @@ export declare function putChannelStatus(this: any, id: string, status?: string,
  * @param {Object} options
  * @return {Object}
  */
-export declare function getChannelStatus(this: any, id: string, options?: any): Promise<{
-    data: any;
-    res: any;
-}>;
+export declare function getChannelStatus(this: any, id: string, options?: IOptions): Promise<RTMPGetLiveChannelStatReturnType>;
 /**
  * List the channels
  * @param {Object} query the query parameters
@@ -69,21 +140,41 @@ export declare function getChannelStatus(this: any, id: string, options?: any): 
  * @param {Object} options
  * @return {Object}
  */
-export declare function listChannels(this: any, query: any, options?: any): Promise<{
-    channels: any;
-    nextMarker: any;
-    isTruncated: boolean;
-    res: any;
-}>;
+export declare function listChannels(this: any, query: {
+    prefix?: string;
+    marker?: string;
+    'max-keys'?: number;
+}, options?: IOptions): Promise<RTMPListLiveChannelReturnType>;
 /**
  * Get the channel history
  * @param {String} id the channel id
  * @param {Object} options
  * @return {Object}
  */
-export declare function getChannelHistory(this: any, id: string, options?: any): Promise<{
-    records: any;
-    res: any;
+export declare function getChannelHistory(this: any, id: string, options?: IOptions): Promise<{
+    records: {
+        StartTime: string;
+        EndTime: string;
+        RemoteAddr: string;
+    }[];
+    res: {
+        status: number;
+        headers: {
+            server: string;
+            date: string;
+            'content-length': string;
+            connection: string;
+            'x-oss-request-id': string;
+            vary: string;
+            etag?: string | undefined;
+            'x-oss-hash-crc64ecma'?: string | undefined;
+            'content-md5'?: string | undefined;
+            'x-oss-server-time': string;
+        };
+        size: number;
+        rt: number;
+        requestUrls: string[];
+    };
 }>;
 /**
  * Create vod playlist
@@ -99,8 +190,25 @@ export declare function getChannelHistory(this: any, id: string, options?: any):
 export declare function createVod(this: any, id: string, name: string, time: {
     startTime: number;
     endTime: number;
-}, options?: any): Promise<{
-    res: any;
+}, options?: IOptions): Promise<{
+    res: {
+        status: number;
+        headers: {
+            server: string;
+            date: string;
+            'content-length': string;
+            connection: string;
+            'x-oss-request-id': string;
+            vary: string;
+            etag?: string | undefined;
+            'x-oss-hash-crc64ecma'?: string | undefined;
+            'content-md5'?: string | undefined;
+            'x-oss-server-time': string;
+        };
+        size: number;
+        rt: number;
+        requestUrls: string[];
+    };
 }>;
 /**
  * Get RTMP Url
@@ -111,7 +219,10 @@ export declare function createVod(this: any, id: string, name: string, time: {
  *   - params {Object}: the parameters such as 'playlistName'
  * @return {String} the RTMP url
  */
-export declare function getRtmpUrl(this: any, channelId: string, options?: any): any;
+export declare function getRtmpUrl(this: any, channelId: string, options?: RequestOptions & {
+    expires?: number;
+    params?: object;
+}): string;
 declare const _default: {
     putChannel: typeof putChannel;
     getChannel: typeof getChannel;
