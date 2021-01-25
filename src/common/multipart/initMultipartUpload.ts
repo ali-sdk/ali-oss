@@ -1,6 +1,6 @@
 import copy from 'copy-to';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
-import { InitMultipartUploadOptions } from '../../types/params';
+import { InitMultipartUploadOptions, NormalSuccessResponse } from '../../types/params';
 
 export async function initMultipartUpload(this: any, name: string, options: InitMultipartUploadOptions = {}) {
   const opt: any = {};
@@ -17,9 +17,9 @@ export async function initMultipartUpload(this: any, name: string, options: Init
   const result = await this.request(params);
 
   return {
-    res: result.res,
-    bucket: result.data.Bucket,
-    name: result.data.Key,
-    uploadId: result.data.UploadId
+    res: result.res as NormalSuccessResponse['res'],
+    bucket: result.data.Bucket as string,
+    name: result.data.Key as string,
+    uploadId: result.data.UploadId as string
   };
 }

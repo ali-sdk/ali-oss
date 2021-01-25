@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { MultipartUploadOptions } from '../../types/params';
 /**
  * Upload a file to OSS using multipart uploads
@@ -15,4 +16,4 @@ import { MultipartUploadOptions } from '../../types/params';
  *                    key2: 'value2'
  *                  }
  */
-export declare function multipartUpload(this: any, name: string, file: any, options?: MultipartUploadOptions): Promise<any>;
+export declare function multipartUpload(this: any, name: string, file: File | Buffer | string, options?: MultipartUploadOptions): Promise<any>;

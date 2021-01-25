@@ -1,10 +1,11 @@
 import copy from 'copy-to';
+import { ObjectListPartsReturnType } from '../../types/object';
 import { RequestOptions } from '../../types/params';
 
 interface ListPartsQuery {
   'max-parts'?: number;
   'part-number-marker'?: number;
-  'encoding-type'?: string;
+  'encoding-type'?: 'url';
 }
 
 /**
@@ -26,7 +27,7 @@ export async function listParts(
   uploadId: string,
   query: ListPartsQuery = {},
   options: RequestOptions = {}
-) {
+): Promise<ObjectListPartsReturnType> {
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = {

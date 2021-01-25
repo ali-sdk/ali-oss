@@ -3,6 +3,7 @@ import { obj2xml } from '../utils/obj2xml';
 import { deepCopyWith } from '../utils/deepCopy';
 import { isBuffer } from '../utils/isBuffer';
 import { CompleteMultipartUploadOptions } from '../../types/params';
+import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
 
 /**
  * Complete a multipart upload transaction
@@ -67,7 +68,7 @@ export async function completeMultipartUpload(
   params.successStatuses = [200];
   const result = await this.request(params);
 
-  const ret: any = {
+  const ret: ObjectCompleteMultipartUploadReturnType = {
     res: result.res,
     bucket: params.bucket,
     name,

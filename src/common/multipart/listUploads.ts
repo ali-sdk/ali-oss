@@ -1,5 +1,6 @@
 import copy from 'copy-to';
-import { ListUploadsQuery } from '../../types/params';
+import { ObjectListUploadsReturnType } from '../../types/object';
+import { ListUploadsQuery, RequestOptions } from '../../types/params';
 
 /**
  * List the on-going multipart uploads
@@ -8,7 +9,11 @@ import { ListUploadsQuery } from '../../types/params';
  * @return {Array} the multipart uploads
  */
 
-export async function listUploads(this: any, query: ListUploadsQuery = {}, options: any = {}) {
+export async function listUploads(
+  this: any,
+  query: ListUploadsQuery = {},
+  options: RequestOptions = {}
+): Promise<ObjectListUploadsReturnType> {
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = 'uploads';

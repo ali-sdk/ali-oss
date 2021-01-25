@@ -183,3 +183,39 @@ export interface ObjectPutSymlinkOptions extends MultiVersionCommonOptions {
   meta?: UserMeta;
   storageClass?: StorageType;
 }
+
+export interface ObjectCompleteMultipartUploadReturnType extends NormalSuccessResponse {
+  etag: string;
+  name: string;
+  data?: object;
+  bucket: string;
+}
+
+export interface ObjectListPartsReturnType extends NormalSuccessResponse {
+  uploadId: string;
+  bucket: string;
+  name: string;
+  partNumberMarker: string;
+  nextPartNumberMarker: string;
+  maxParts: string;
+  isTruncated: 'true' | 'false';
+  parts: Array<{
+    PartNumber: string;
+    LastModified: string;
+    ETag: string;
+    HashCrc64ecma: string;
+    Size: string;
+  }>,
+}
+
+export interface ObjectListUploadsReturnType extends NormalSuccessResponse {
+  uploads: Array<{
+    name: string;
+    uploadId: string;
+    initiated: string;
+  }>;
+  bucket: string;
+  nextKeyMarker: string;
+  nextUploadIdMarker: string;
+  isTruncated: boolean;
+}

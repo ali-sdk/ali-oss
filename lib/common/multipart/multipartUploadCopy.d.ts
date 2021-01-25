@@ -1,4 +1,4 @@
-import { MultipartUploadCopySourceData } from '../../types/params';
+import { MultipartUploadCopySourceData, MultipartUploadOptions, MultiVersionCommonOptions } from '../../types/params';
 /**
  * @param {String} name copy object name
  * @param {Object} sourceData
@@ -9,6 +9,6 @@ import { MultipartUploadCopySourceData } from '../../types/params';
  * @param {Object} options
  *        {Number} options.partSize
  */
-export declare function multipartUploadCopy(this: any, name: string, sourceData: MultipartUploadCopySourceData, options?: any): Promise<any>;
-export declare function _resumeMultipartCopy(this: any, checkpoint: any, sourceData: any, options: any): Promise<any>;
+export declare function multipartUploadCopy(this: any, name: string, sourceData: MultipartUploadCopySourceData, options?: MultipartUploadOptions & MultiVersionCommonOptions): Promise<import("../../types/object").ObjectCompleteMultipartUploadReturnType>;
+export declare function _resumeMultipartCopy(this: any, checkpoint: any, sourceData: any, options: any): Promise<import("../../types/object").ObjectCompleteMultipartUploadReturnType>;
 export declare function _divideMultipartCopyParts(fileSize: any, partSize: any, startOffset: any): any;

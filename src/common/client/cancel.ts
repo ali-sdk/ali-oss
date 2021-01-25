@@ -1,3 +1,4 @@
+import { RequestOptions } from '../../types/params';
 import { abortMultipartUpload } from '../multipart/abortMultipartUpload';
 import { isArray } from '../utils/isArray';
 
@@ -10,7 +11,7 @@ import { isArray } from '../utils/isArray';
  */
 export function cancel(
   this: any,
-  abort: { name: string; uploadId: string; options: string }
+  abort: { name: string; uploadId: string; options: RequestOptions }
 ) {
   this.options.cancelFlag = true;
 

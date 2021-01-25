@@ -1,8 +1,9 @@
+import { ObjectListPartsReturnType } from '../../types/object';
 import { RequestOptions } from '../../types/params';
 interface ListPartsQuery {
     'max-parts'?: number;
     'part-number-marker'?: number;
-    'encoding-type'?: string;
+    'encoding-type'?: 'url';
 }
 /**
  * List the done uploadPart parts
@@ -15,15 +16,5 @@ interface ListPartsQuery {
  * @param {Object} options
  * @return {Object} result
  */
-export declare function listParts(this: any, name: string, uploadId: string, query?: ListPartsQuery, options?: RequestOptions): Promise<{
-    res: any;
-    uploadId: any;
-    bucket: any;
-    name: any;
-    partNumberMarker: any;
-    nextPartNumberMarker: any;
-    maxParts: any;
-    isTruncated: any;
-    parts: any;
-}>;
+export declare function listParts(this: any, name: string, uploadId: string, query?: ListPartsQuery, options?: RequestOptions): Promise<ObjectListPartsReturnType>;
 export {};

@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { Readable } from 'stream';
 import { RequestOptions } from '../../types/params';
 /**
  * Upload a part in a multipart upload transaction
@@ -9,10 +10,27 @@ import { RequestOptions } from '../../types/params';
  * @param {Object} options
  */
 export declare function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: {
-    stream: Buffer | ReadableStream | null;
+    stream: Buffer | Readable | null;
     size: number;
 }, options?: RequestOptions): Promise<{
     name: string;
-    etag: any;
-    res: any;
+    etag: string;
+    res: {
+        status: number;
+        headers: {
+            server: string;
+            date: string;
+            'content-length': string;
+            connection: string;
+            'x-oss-request-id': string;
+            vary: string;
+            etag?: string | undefined;
+            'x-oss-hash-crc64ecma'?: string | undefined;
+            'content-md5'?: string | undefined;
+            'x-oss-server-time': string;
+        };
+        size: number;
+        rt: number;
+        requestUrls: string[];
+    };
 }>;

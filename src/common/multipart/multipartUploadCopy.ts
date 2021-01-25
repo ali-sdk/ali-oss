@@ -9,7 +9,7 @@ import { _makeAbortEvent } from '../utils/_makeAbortEvent';
 import { _parallel } from '../utils/_parallel';
 import { uploadPartCopy } from './uploadPartCopy';
 import { completeMultipartUpload } from './completeMultipartUpload';
-import { MultipartUploadCopySourceData } from '../../types/params';
+import { MultipartUploadCopySourceData, MultipartUploadOptions, MultiVersionCommonOptions } from '../../types/params';
 
 const debug = _debug('ali-oss:multipart-copy');
 
@@ -28,7 +28,7 @@ export async function multipartUploadCopy(
   this: any,
   name: string,
   sourceData: MultipartUploadCopySourceData,
-  options: any = {}
+  options: MultipartUploadOptions & MultiVersionCommonOptions = {}
 ) {
   this.resetCancelFlag();
   const { versionId = null } = options;
@@ -202,9 +202,8 @@ export async function _resumeMultipartCopy(
     // check errors after all jobs are completed
     if (errors && errors.length > 0) {
       const err = errors[0];
-      err.message = `Failed to copy some parts with error: ${err.toString()} part_num: ${
-        err.partNum
-      }`;
+      err.message = `Failed to copy some parts with error: ${err.toString()} part_num: ${err.partNum
+        }`;
       throw err;
     }
   }

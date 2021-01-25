@@ -1,3 +1,4 @@
+import { RequestOptions } from '../../types/params';
 /**
  * cancel operation, now can use with multipartUpload
  * @param {Object} abort
@@ -8,5 +9,5 @@
 export declare function cancel(this: any, abort: {
     name: string;
     uploadId: string;
-    options: string;
+    options: RequestOptions;
 }): void;

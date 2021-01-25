@@ -1,15 +1,9 @@
-import { ListUploadsQuery } from '../../types/params';
+import { ObjectListUploadsReturnType } from '../../types/object';
+import { ListUploadsQuery, RequestOptions } from '../../types/params';
 /**
  * List the on-going multipart uploads
  * https://help.aliyun.com/document_detail/31997.html
  * @param {Object} options
  * @return {Array} the multipart uploads
  */
-export declare function listUploads(this: any, query?: ListUploadsQuery, options?: any): Promise<{
-    res: any;
-    uploads: any;
-    bucket: any;
-    nextKeyMarker: any;
-    nextUploadIdMarker: any;
-    isTruncated: boolean;
-}>;
+export declare function listUploads(this: any, query?: ListUploadsQuery, options?: RequestOptions): Promise<ObjectListUploadsReturnType>;

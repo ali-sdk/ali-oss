@@ -1,4 +1,5 @@
 import copy from 'copy-to';
+import { NormalSuccessResponse, RequestOptions } from '../../types/params';
 import { _stop } from '../client/_stop';
 
 /**
@@ -7,7 +8,7 @@ import { _stop } from '../client/_stop';
  * @param {String} uploadId the upload id
  * @param {Object} options
  */
-export async function abortMultipartUpload(this: any, name: string, uploadId: string, options: any = {}) {
+export async function abortMultipartUpload(this: any, name: string, uploadId: string, options: RequestOptions = {}) {
   _stop.call(this);
   const opt: any = {};
   copy(options).to(opt);
@@ -15,7 +16,7 @@ export async function abortMultipartUpload(this: any, name: string, uploadId: st
   const params = this._objectRequestParams('DELETE', name, opt);
   params.successStatuses = [204];
 
-  const result = await this.request(params);
+  const result: NormalSuccessResponse = await this.request(params);
   return {
     res: result.res
   };

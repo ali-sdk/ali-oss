@@ -26,7 +26,12 @@ import { MultipartUploadOptions } from '../../types/params';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: any, name: string, file: any, options: MultipartUploadOptions = {}) {
+export async function multipartUpload(
+  this: any,
+  name: string,
+  file: File | Buffer | string,
+  options: MultipartUploadOptions = {}
+) {
   this.resetCancelFlag();
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);

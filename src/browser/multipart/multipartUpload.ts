@@ -10,6 +10,7 @@ import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
 import { MultipartUploadOptions } from '../../types/params';
+import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
@@ -26,7 +27,7 @@ import { MultipartUploadOptions } from '../../types/params';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: any, name: string, file: any, options: MultipartUploadOptions = {}) {
+export async function multipartUpload(this: any, name: string, file: Blob | File | Buffer, options: MultipartUploadOptions = {}) {
   this.resetCancelFlag();
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
@@ -57,11 +58,11 @@ export async function multipartUpload(this: any, name: string, file: any, option
       await options.progress(1);
     }
 
-    const ret: any = {
+    const ret: ObjectCompleteMultipartUploadReturnType = {
       res: result.res,
       bucket: this.options.bucket,
       name,
-      etag: result.res.headers.etag
+      etag: result.res.headers.etag as string
     };
 
     if ((options.headers && options.headers['x-oss-callback']) || options.callback) {
@@ -94,7 +95,6 @@ export async function multipartUpload(this: any, name: string, file: any, option
   if (options && options.progress) {
     await options.progress(0, checkpoint, initResult.res);
   }
-
 
   return await resumeMultipart.call(this, checkpoint, options);
 }

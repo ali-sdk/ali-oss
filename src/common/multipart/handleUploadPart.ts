@@ -1,7 +1,8 @@
 import copy from 'copy-to';
-import { RequestOptions } from '../../types/params';
+import { Readable } from 'stream';
+import { NormalSuccessResponse, RequestOptions } from '../../types/params';
 
-const isStreamLike = (stream) => {
+const isReadableStreamLike = (stream): stream is Readable => {
   return stream && stream.pipe;
 };
 
@@ -13,8 +14,7 @@ const isStreamLike = (stream) => {
  * @param {Object} data the body data
  * @param {Object} options
  */
-
-export async function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: { stream: Buffer | ReadableStream | null, size: number }, options: RequestOptions = {}) {
+export async function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: { stream: Buffer | Readable | null, size: number }, options: RequestOptions = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
   opt.headers = opt.headers || {};
@@ -27,14 +27,14 @@ export async function handleUploadPart(this: any, name: string, uploadId: string
   };
   const params = this._objectRequestParams('PUT', name, opt);
   params.mime = opt.mime;
-  if (isStreamLike(data.stream)) {
+  if (isReadableStreamLike(data.stream)) {
     params.stream = data.stream;
   } else {
     params.content = data.stream;
   }
   params.successStatuses = [200];
 
-  const result = await this.request(params);
+  const result: NormalSuccessResponse = await this.request(params);
 
   if (!result.res.headers.etag) {
     throw new Error('Please set the etag of expose-headers in OSS \n https://help.aliyun.com/document_detail/32069.html');
