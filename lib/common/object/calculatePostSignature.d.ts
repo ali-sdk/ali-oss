@@ -6,7 +6,7 @@
  *         {String} params.policy JSON text encoded with UTF-8 and Base64.
  */
 export declare function calculatePostSignature(this: any, policy: object | string): {
-    OSSAccessKeyId: any;
+    OSSAccessKeyId: string;
     Signature: string;
     policy: string;
 };

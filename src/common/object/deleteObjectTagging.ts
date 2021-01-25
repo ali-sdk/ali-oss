@@ -1,5 +1,5 @@
 import { objectName } from '../utils/objectName';
-import { MultiVersionCommonOptions } from '../../types/params';
+import { MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../../types/params';
 
 /**
  * deleteObjectTagging
@@ -19,7 +19,7 @@ export async function deleteObjectTagging(
   name = objectName(name);
   const params = this._objectRequestParams('DELETE', name, options);
   params.successStatuses = [204];
-  const result = await this.request(params);
+  const result: NormalSuccessResponseWithStatus = await this.request(params);
 
   return {
     status: result.status,

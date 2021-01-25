@@ -26,7 +26,7 @@ export function calculatePostSignature(this: any, policy: object | string) {
   const Signature = computeSignature(this.options.accessKeySecret, policy);
 
   const query = {
-    OSSAccessKeyId: this.options.accessKeyId,
+    OSSAccessKeyId: this.options.accessKeyId as string,
     Signature,
     policy,
   };

@@ -1,7 +1,7 @@
 import { objectName } from '../utils/objectName';
 import { formatTag } from '../utils/formatTag';
 import { parseXML } from '../utils/parseXML';
-import { MultiVersionCommonOptions } from '../../types/params';
+import { MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../../types/params';
 /**
  * getObjectTagging
  * @param {String} name - object name
@@ -17,7 +17,7 @@ export async function getObjectTagging(this: any, name: string, options: MultiVe
   name = objectName(name);
   const params = this._objectRequestParams('GET', name, options);
   params.successStatuses = [200];
-  const result = await this.request(params);
+  const result: NormalSuccessResponseWithStatus & { data: any } = await this.request(params);
   const Tagging = await parseXML(result.data);
 
   return {

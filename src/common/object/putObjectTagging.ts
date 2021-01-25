@@ -1,7 +1,7 @@
 import { obj2xml } from '../utils/obj2xml';
 import { checkObjectTag } from '../utils/checkObjectTag';
 import { objectName } from '../utils/objectName';
-import { Tag, MultiVersionCommonOptions } from '../../types/params';
+import { Tag, MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../../types/params';
 
 /**
  * putObjectTagging
@@ -36,7 +36,7 @@ export async function putObjectTagging(this: any, name: string, tag: Tag, option
   params.mime = 'xml';
   params.content = obj2xml(paramXMLObj);
 
-  const result = await this.request(params);
+  const result: NormalSuccessResponseWithStatus = await this.request(params);
   return {
     res: result.res,
     status: result.status
