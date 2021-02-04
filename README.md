@@ -378,6 +378,24 @@ const store = new OSS({
 });
 ```
 
+4. use STS and refreshSTSToken
+```js
+const OSS = require('ali-oss');
+
+const store = new OSS({
+  accessKeyId: 'your STS key',
+  accessKeySecret: 'your STS secret',
+  stsToken: 'your STS token',
+  refreshSTSToken: async () => {
+    return {
+      accessKeyId: 'your refreshed STS key',
+      accessKeySecret: 'your refreshed STS secret',
+      stsToken: 'your refreshed STS stoken'
+    }
+  }
+});
+```
+
 ## Bucket Operations
 
 ### .listBuckets(query[, options])
