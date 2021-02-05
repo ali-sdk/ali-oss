@@ -3,6 +3,8 @@ import { policy2Str } from '../utils/policy2Str';
 import { isObject } from '../utils/isObject';
 import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 import { PutBucketPolicyConfig } from "../../types/bucket_policy";
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * putBucketPolicy
@@ -12,7 +14,7 @@ import { PutBucketPolicyConfig } from "../../types/bucket_policy";
  */
 
 export async function putBucketPolicy(
-  this: any,
+  this: Client,
   bucketName: string,
   policy: PutBucketPolicyConfig,
   options: RequestOptions = {}
@@ -22,7 +24,7 @@ export async function putBucketPolicy(
   if (!isObject(policy)) {
     throw new Error('policy is not Object');
   }
-  const params = this._bucketRequestParams(
+  const params = _bucketRequestParams(
     'PUT',
     bucketName,
     'policy',

@@ -2,9 +2,11 @@ import { isArray } from '../utils/isArray';
 import { formatTag } from '../utils/formatTag';
 import { RequestOptions } from '../../types/params';
 import { ListBucketsQueryType, ListBucketsReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function listBuckets(
-  this: any,
+  this: Client,
   query: ListBucketsQueryType = {},
   options: RequestOptions = {}
 ): Promise<ListBucketsReturnType> {
@@ -16,7 +18,7 @@ export async function listBuckets(
       restParams[key] = query[key];
     }
   }
-  const params: any = this._bucketRequestParams(
+  const params: any = _bucketRequestParams(
     'GET',
     '',
     Object.assign(subres, options.subres),

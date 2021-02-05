@@ -1,1 +1,2 @@
-export declare function setSLDEnabled(this: any, enable: boolean): any;
+import { Client } from "../../setConfig";
+export declare function setSLDEnabled(this: Client, enable: boolean): Client;

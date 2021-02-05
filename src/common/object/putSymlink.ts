@@ -4,6 +4,8 @@ import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
 import { escapeName } from '../utils/escapeName';
 import { NormalSuccessResponse } from '../../types/params';
 import { ObjectPutSymlinkOptions } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * putSymlink
@@ -13,7 +15,7 @@ import { ObjectPutSymlinkOptions } from '../../types/object';
  * @param {{res}}
  */
 
-export async function putSymlink(this: any, name: string, targetName: string, options: ObjectPutSymlinkOptions = {}) {
+export async function putSymlink(this: Client, name: string, targetName: string, options: ObjectPutSymlinkOptions = {}) {
   options.headers = options.headers || {};
   targetName = escapeName(objectName(targetName));
   convertMetaToHeaders(options.meta, options.headers);
@@ -29,7 +31,7 @@ export async function putSymlink(this: any, name: string, targetName: string, op
   }
   name = objectName(name);
 
-  const params = this._objectRequestParams('PUT', name, options);
+  const params = _objectRequestParams.call(this, 'PUT', name, options);
   params.successStatuses = [200];
   const result = await this.request(params);
 

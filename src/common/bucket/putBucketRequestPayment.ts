@@ -1,6 +1,8 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { BucketRequestPayer, NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * putBucketRequestPayment
@@ -10,13 +12,13 @@ import { BucketRequestPayer, NormalSuccessResponseWithStatus, RequestOptions } f
  */
 const payerAll = ['BucketOwner', 'Requester'];
 
-export async function putBucketRequestPayment(this: any, bucketName: string, payer: BucketRequestPayer, options: RequestOptions = {}):Promise<NormalSuccessResponseWithStatus> {
+export async function putBucketRequestPayment(this: Client, bucketName: string, payer: BucketRequestPayer, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   if (!payer || payerAll.indexOf(payer) < 0) {
     throw new Error('payer must be BucketOwner or Requester');
   }
 
   checkBucketName(bucketName);
-  const params = this._bucketRequestParams(
+  const params = _bucketRequestParams(
     'PUT',
     bucketName,
     'requestPayment',

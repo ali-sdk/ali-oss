@@ -1,11 +1,12 @@
 import { Tag, MultiVersionCommonOptions } from '../../types/params';
+import { Client } from '../../setConfig';
 /**
  * putObjectTagging
  * @param {String} name - object name
  * @param {Object} tag -  object tag, eg: `{a: "1", b: "2"}`
  * @param {Object} options
  */
-export declare function putObjectTagging(this: any, name: string, tag: Tag, options?: MultiVersionCommonOptions): Promise<{
+export declare function putObjectTagging(this: Client, name: string, tag: Tag, options?: MultiVersionCommonOptions): Promise<{
     res: {
         status: number;
         headers: {
@@ -23,6 +24,7 @@ export declare function putObjectTagging(this: any, name: string, tag: Tag, opti
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
     status: number;
 }>;

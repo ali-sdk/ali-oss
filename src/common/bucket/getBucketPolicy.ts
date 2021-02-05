@@ -1,6 +1,8 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
 import { GetBucketPolicyReturnType } from '../../types/bucket_policy';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * getBucketPolicy
@@ -9,13 +11,13 @@ import { GetBucketPolicyReturnType } from '../../types/bucket_policy';
  */
 
 export async function getBucketPolicy(
-  this: any,
+  this: Client,
   bucketName: string,
   options: RequestOptions = {}
 ): Promise<GetBucketPolicyReturnType> {
   checkBucketName(bucketName);
 
-  const params = this._bucketRequestParams(
+  const params = _bucketRequestParams(
     'GET',
     bucketName,
     'policy',

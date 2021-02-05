@@ -4,6 +4,9 @@ import copy from 'copy-to';
 import urlutil from 'url';
 import { NormalSuccessResponse, NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 import { RTMPGetLiveChannelStatReturnType, RTMPListLiveChannelReturnType } from '../../types/rtmp';
+import { _objectRequestParams } from '../../common/client/_objectRequestParams';
+import { _getReqUrl } from '../../common/client/_getReqUrl';
+import { objectName } from '../../common/utils/objectName';
 
 interface IOptions {
   timeout?: number;
@@ -35,7 +38,7 @@ export async function putChannel(
 ) {
   options.subres = 'live';
 
-  const params = this._objectRequestParams('PUT', id, options);
+  const params = _objectRequestParams.call(this, 'PUT', id, options);
   params.xmlResponse = true;
   params.content = jstoxml.toXML({
     LiveChannelConfiguration: conf,
@@ -69,7 +72,7 @@ export async function putChannel(
 export async function getChannel(this: any, id: string, options: IOptions = {}) {
   options.subres = 'live';
 
-  const params = this._objectRequestParams('GET', id, options);
+  const params = _objectRequestParams.call(this, 'GET', id, options);
   params.xmlResponse = true;
   params.successStatuses = [200];
 
@@ -90,7 +93,7 @@ export async function getChannel(this: any, id: string, options: IOptions = {}) 
 export async function deleteChannel(this: any, id: string, options: IOptions = {}) {
   options.subres = 'live';
 
-  const params = this._objectRequestParams('DELETE', id, options);
+  const params = _objectRequestParams.call(this, 'DELETE', id, options);
   params.successStatuses = [204];
 
   const result: NormalSuccessResponse = await this.request(params);
@@ -118,7 +121,7 @@ export async function putChannelStatus(
     status,
   };
 
-  const params = this._objectRequestParams('PUT', id, options);
+  const params = _objectRequestParams.call(this, 'PUT', id, options);
   params.successStatuses = [200];
 
   const result: NormalSuccessResponse = await this.request(params);
@@ -144,7 +147,7 @@ export async function getChannelStatus(
     comp: 'stat',
   };
 
-  const params = this._objectRequestParams('GET', id, options);
+  const params = _objectRequestParams.call(this, 'GET', id, options);
   params.xmlResponse = true;
   params.successStatuses = [200];
 
@@ -174,7 +177,7 @@ export async function listChannels(
   // prefix, marker, max-keys
   options.subres = 'live';
 
-  const params = this._objectRequestParams('GET', '', options);
+  const params = _objectRequestParams.call(this, 'GET', '', options);
   params.query = query;
   params.xmlResponse = true;
   params.successStatuses = [200];
@@ -219,7 +222,7 @@ export async function getChannelHistory(this: any, id: string, options: IOptions
     comp: 'history',
   };
 
-  const params = this._objectRequestParams('GET', id, options);
+  const params = _objectRequestParams.call(this, 'GET', id, options);
   params.xmlResponse = true;
   params.successStatuses = [200];
 
@@ -256,7 +259,7 @@ export async function createVod(this: any, id: string, name: string, time: { sta
   };
   copy(time, false).to(options.subres);
 
-  const params = this._objectRequestParams('POST', `${id}/${name}`, options);
+  const params = _objectRequestParams.call(this, 'POST', `${id}/${name}`, options);
   params.query = time;
   params.successStatuses = [200];
 
@@ -287,7 +290,7 @@ export function getRtmpUrl(
   const expires = utility.timestamp() as number + (options.expires || 1800);
   const res = {
     bucket: this.options.bucket,
-    object: this._objectName(`live/${channelId}`),
+    object: objectName.call(this, `live/${channelId}`),
   };
   const resource = `/${res.bucket}/${channelId}`;
 
@@ -300,7 +303,7 @@ export function getRtmpUrl(
   const stringToSign = `${expires}\n${query}${resource}`;
   const signature = this.signature(stringToSign);
 
-  const url: any = urlutil.parse(this._getReqUrl(res));
+  const url: any = urlutil.parse(_getReqUrl.call(this, res));
   url.protocol = 'rtmp:';
   url.query = {
     OSSAccessKeyId: this.options.accessKeyId,

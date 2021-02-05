@@ -1,5 +1,7 @@
 import { deepCopy } from '../utils/deepCopy';
 import { MultipartUploadCopySourceData, NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * Upload a part copy in a multipart from the source bucket/object
@@ -15,7 +17,7 @@ import { MultipartUploadCopySourceData, NormalSuccessResponse, RequestOptions } 
  */
 
 export async function uploadPartCopy(
-  this: any,
+  this: Client,
   name: string,
   uploadId: string,
   partNo: number,
@@ -48,7 +50,7 @@ export async function uploadPartCopy(
     partNumber: partNo,
     uploadId,
   };
-  const params = this._objectRequestParams('PUT', name, opt);
+  const params = _objectRequestParams.call(this, 'PUT', name, opt);
   params.mime = opt.mime;
   params.successStatuses = [200];
 

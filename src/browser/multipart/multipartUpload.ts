@@ -1,8 +1,7 @@
 import path from 'path';
 import mime from 'mime';
 import { initMultipartUpload } from '../../common/multipart/initMultipartUpload';
-import { resumeMultipart } from '../../common/multipart/resumeMultipart';
-import { put } from '../object/put';
+import { resumeMultipart } from './resumeMultipart';
 import { isFile } from '../../common/utils/isFile';
 import { isBlob } from '../../common/utils/isBlob';
 import { getPartSize } from '../../common/utils/getPartSize';
@@ -11,6 +10,9 @@ import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
 import { MultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
+import { resetCancelFlag } from '../../common/client';
+import { injectDependency } from '../utils/injectDependency';
+import { OSS } from '../core';
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
@@ -27,8 +29,10 @@ import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: any, name: string, file: Blob | File | Buffer, options: MultipartUploadOptions = {}) {
-  this.resetCancelFlag();
+export async function multipartUpload(this: OSS, name: string, file: Blob | File | Buffer, options: MultipartUploadOptions = {}) {
+  injectDependency(this, 'multipartUpload');
+
+  resetCancelFlag.call(this);
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
   }
@@ -53,7 +57,7 @@ export async function multipartUpload(this: any, name: string, file: Blob | File
   const fileSize = await getFileSize(file);
   if (fileSize < minPartSize) {
     options.contentLength = fileSize;
-    const result = await put.call(this, name, file, options);
+    const result = await this.put(name, file, options);
     if (options && options.progress) {
       await options.progress(1);
     }

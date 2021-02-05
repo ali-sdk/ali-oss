@@ -1,4 +1,6 @@
+import { Client } from '../../setConfig';
 import { GetBucketInventoryReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
 import { checkBucketName } from '../utils/checkBucketName';
 import { formatInventoryConfig } from '../utils/formatInventoryConfig';
 /**
@@ -8,11 +10,11 @@ import { formatInventoryConfig } from '../utils/formatInventoryConfig';
  * @param {Object} options
  */
 
-export async function getBucketInventory(this: any, bucketName: string, inventoryId: string, options: any = {}): Promise<GetBucketInventoryReturnType> {
-  const subres: any = Object.assign({ inventory: '', inventoryId }, options.subres);
+export async function getBucketInventory(this: Client, bucketName: string, inventoryId: string, options: any = {}): Promise<GetBucketInventoryReturnType> {
+  const subres = Object.assign({ inventory: '', inventoryId }, options.subres);
   checkBucketName(bucketName);
 
-  const params = this._bucketRequestParams('GET', bucketName, subres, options);
+  const params = _bucketRequestParams('GET', bucketName, subres, options);
   params.successStatuses = [200];
 
   params.xmlResponse = true;

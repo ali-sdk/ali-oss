@@ -1,8 +1,9 @@
+import { Client } from '../../setConfig';
 import { RequestOptions } from '../../types/params';
 import { copy } from './copy';
 
 export async function putMeta(
-  this: any,
+  this: Client,
   name: string,
   meta?: { [props: string]: string },
   options: RequestOptions = {}

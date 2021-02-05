@@ -3,6 +3,7 @@ const utils = require('./utils');
 const OSS = require('../..');
 const config = require('../config').oss;
 const fs = require('fs');
+const { _getObjectMeta } = require('../../lib/common/utils/_getObjectMeta');
 
 describe('test/multiversion.test.js', () => {
   const { prefix } = utils;
@@ -92,7 +93,12 @@ describe('test/multiversion.test.js', () => {
       }
     });
     it('should getBucketVersions with delimiter', async () => {
-      const names = ['getBucketVersions/delimiter1.js', 'getBucketVersions/delimiter2.js', 'getBucketVersions/delimiter3.js', 'others.js'];
+      const names = [
+        'getBucketVersions/delimiter1.js',
+        'getBucketVersions/delimiter2.js',
+        'getBucketVersions/delimiter3.js',
+        'others.js'
+      ];
       await Promise.all(names.map(_name => store.put(_name, __filename)));
       try {
         const result = await store.getBucketVersions({
@@ -107,33 +113,37 @@ describe('test/multiversion.test.js', () => {
 
   describe('putBucketLifecycle() getBucketLifecycle()', () => {
     it('should putBucketLifecycle with NoncurrentVersionExpiration', async () => {
-      const putresult1 = await store.putBucketLifecycle(bucket, [{
-        id: 'expiration1',
-        prefix: 'logs/',
-        status: 'Enabled',
-        expiration: {
-          days: 1
-        },
-        noncurrentVersionExpiration: {
-          noncurrentDays: 1
+      const putresult1 = await store.putBucketLifecycle(bucket, [
+        {
+          id: 'expiration1',
+          prefix: 'logs/',
+          status: 'Enabled',
+          expiration: {
+            days: 1
+          },
+          noncurrentVersionExpiration: {
+            noncurrentDays: 1
+          }
         }
-      }]);
+      ]);
       assert.strictEqual(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
     });
     it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
-      const putresult1 = await store.putBucketLifecycle(bucket, [{
-        id: 'expiration1',
-        prefix: 'logs/',
-        status: 'Enabled',
-        expiration: {
-          expiredObjectDeleteMarker: 'true'
-        },
-        NoncurrentVersionExpiration: {
-          noncurrentDays: 1
+      const putresult1 = await store.putBucketLifecycle(bucket, [
+        {
+          id: 'expiration1',
+          prefix: 'logs/',
+          status: 'Enabled',
+          expiration: {
+            expiredObjectDeleteMarker: 'true'
+          },
+          NoncurrentVersionExpiration: {
+            noncurrentDays: 1
+          }
         }
-      }]);
+      ]);
       assert.equal(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].expiration.expiredObjectDeleteMarker, 'true');
@@ -251,12 +261,16 @@ describe('test/multiversion.test.js', () => {
       store.delete(objectKey);
       const copyName = `${prefix}multipart-copy-target.js`;
       try {
-        const result = await store.multipartUploadCopy(copyName, {
-          sourceKey: objectKey,
-          sourceBucketName: bucket
-        }, {
-          versionId
-        });
+        const result = await store.multipartUploadCopy(
+          copyName,
+          {
+            sourceKey: objectKey,
+            sourceBucketName: bucket
+          },
+          {
+            versionId
+          }
+        );
         assert.strictEqual(result.res.status, 200);
       } catch (error) {
         assert(false);
@@ -270,7 +284,7 @@ describe('test/multiversion.test.js', () => {
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
       let result;
-      const _createHistoryObject = async (i) => {
+      const _createHistoryObject = async i => {
         name = name.replace('file', `file${i}`);
         result = await store.put(name, __filename);
         await store.delete(name);
@@ -279,7 +293,11 @@ describe('test/multiversion.test.js', () => {
           versionId: result.res.headers['x-oss-version-id']
         });
       };
-      await Promise.all(Array(3).fill(1).map((_, i) => _createHistoryObject(i)));
+      await Promise.all(
+        Array(3)
+          .fill(1)
+          .map((_, i) => _createHistoryObject(i))
+      );
     });
 
     it('should deleteMulti', async () => {
@@ -687,7 +705,13 @@ describe('test/multiversion.test.js', () => {
         result = await store.deleteMulti(names);
         const markerVersionId = result.deleted.map(v => v.DeleteMarkerVersionId);
         assert.strictEqual(result.res.status, 200);
-        assert.strictEqual(result.deleted.map(v => v.Key).sort().toString(), names.sort().toString());
+        assert.strictEqual(
+          result.deleted
+            .map(v => v.Key)
+            .sort()
+            .toString(),
+          names.sort().toString()
+        );
         assert.strictEqual(result.deleted.filter(v => v.DeleteMarker).length, result.deleted.length);
 
         // 指定版本 批量删除历史版本文件，永久删除
@@ -697,7 +721,13 @@ describe('test/multiversion.test.js', () => {
         }));
         result = await store.deleteMulti(delNameObjArr);
         assert.strictEqual(result.res.status, 200);
-        assert.strictEqual(result.deleted.map(v => v.Key).sort().toString(), names.sort().toString());
+        assert.strictEqual(
+          result.deleted
+            .map(v => v.Key)
+            .sort()
+            .toString(),
+          names.sort().toString()
+        );
 
         // 指定版本 批量删除标记
         const delNameMarkerArr = names.map((_, index) => ({
@@ -706,7 +736,13 @@ describe('test/multiversion.test.js', () => {
         }));
         result = await store.deleteMulti(delNameMarkerArr);
         assert.strictEqual(result.res.status, 200);
-        assert.strictEqual(result.deleted.map(v => v.Key).sort().toString(), names.sort().toString());
+        assert.strictEqual(
+          result.deleted
+            .map(v => v.Key)
+            .sort()
+            .toString(),
+          names.sort().toString()
+        );
         assert.strictEqual(result.deleted.filter(v => v.DeleteMarker).length, result.deleted.length);
       } catch (error) {
         assert(false, error.message);
@@ -720,10 +756,7 @@ describe('test/multiversion.test.js', () => {
     let versionId;
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
-      fileName = await utils.createTempFile(
-        'multipart-upload-file-copy',
-        2 * 1024 * 1024
-      );
+      fileName = await utils.createTempFile('multipart-upload-file-copy', 2 * 1024 * 1024);
       sourceName = `${prefix}multipart/upload-file-with-copy`;
       const res = await store.multipartUpload(sourceName, fileName);
       // versionId
@@ -738,13 +771,9 @@ describe('test/multiversion.test.js', () => {
         sourceKey: sourceName,
         sourceBucketName: bucket
       };
-      const objectMeta = await store._getObjectMeta(
-        sourceData.sourceBucketName,
-        sourceData.sourceKey,
-        {
-          versionId
-        }
-      );
+      const objectMeta = await _getObjectMeta.call(store, sourceData.sourceBucketName, sourceData.sourceKey, {
+        versionId
+      });
       const fileSize = objectMeta.res.headers['content-length'];
 
       const result = await store.initMultipartUpload(copyName);
@@ -752,30 +781,23 @@ describe('test/multiversion.test.js', () => {
       const partSize = 100 * 1024; // 100kb
       const dones = [];
 
-      const uploadFn = async (i) => {
+      const uploadFn = async i => {
         const start = partSize * (i - 1);
         const end = Math.min(start + partSize, fileSize);
         const range = `${start}-${end - 1}`;
-        const part = await store.uploadPartCopy(
-          copyName,
-          result.uploadId,
-          i,
-          range,
-          sourceData,
-          { versionId }
-        );
+        const part = await store.uploadPartCopy(copyName, result.uploadId, i, range, sourceData, { versionId });
         dones.push({
           number: i,
           etag: part.res.headers.etag
         });
       };
-      await Promise.all(Array(10).fill(1).map((v, i) => uploadFn(i + 1)));
-
-      const complete = await store.completeMultipartUpload(
-        copyName,
-        result.uploadId,
-        dones
+      await Promise.all(
+        Array(10)
+          .fill(1)
+          .map((v, i) => uploadFn(i + 1))
       );
+
+      const complete = await store.completeMultipartUpload(copyName, result.uploadId, dones);
 
       assert.equal(complete.res.status, 200);
     });

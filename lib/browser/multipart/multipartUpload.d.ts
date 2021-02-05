@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { MultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
+import { OSS } from '../core';
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
@@ -17,4 +18,4 @@ import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
  *                    key2: 'value2'
  *                  }
  */
-export declare function multipartUpload(this: any, name: string, file: Blob | File | Buffer, options?: MultipartUploadOptions): Promise<ObjectCompleteMultipartUploadReturnType>;
+export declare function multipartUpload(this: OSS, name: string, file: Blob | File | Buffer, options?: MultipartUploadOptions): Promise<ObjectCompleteMultipartUploadReturnType>;

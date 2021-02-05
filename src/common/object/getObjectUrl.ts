@@ -1,5 +1,6 @@
 import { objectName } from '../utils/objectName';
 import { escapeName } from '../utils/escapeName';
+import { Client } from '../../setConfig';
 
 /**
  * Get Object url by name
@@ -8,7 +9,7 @@ import { escapeName } from '../utils/escapeName';
  * @return {String} object url
  */
 
-export function getObjectUrl(this: any, name: string, baseUrl?: string) {
+export function getObjectUrl(this: Client, name: string, baseUrl?: string) {
   if (!baseUrl) {
     baseUrl = this.options.endpoint.format();
   } else if (baseUrl[baseUrl.length - 1] !== '/') {

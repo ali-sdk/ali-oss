@@ -1,3 +1,6 @@
+import { Client } from '../../setConfig';
+import { MultiVersionCommonOptions } from '../../types/params';
+import { setBucket } from '../client';
 import { head } from '../object/head';
 
 /**
@@ -7,19 +10,19 @@ import { head } from '../object/head';
  * @param {Object} options
  */
 export async function _getObjectMeta(
-  this: any,
+  this: Client,
   bucket: string,
   name: string,
-  options: any = {}
+  options: MultiVersionCommonOptions = {}
 ) {
   const currentBucket = this.options.bucket;
-  this.setBucket(bucket);
+  setBucket.call(this, bucket);
   try {
     const data = await head.call(this, name, options);
-    this.setBucket(currentBucket);
+    setBucket.call(this, currentBucket);
     return data;
   } catch (error) {
-    this.setBucket(currentBucket);
+    setBucket.call(this, currentBucket);
     throw error;
   }
 }

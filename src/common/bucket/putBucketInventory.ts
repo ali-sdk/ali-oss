@@ -1,12 +1,14 @@
+import { Client } from '../../setConfig';
 import { PutBucketInventoryConfig } from '../../types/bucket';
 import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 
 /**
  * putBucketInventory
  */
-export async function putBucketInventory(this: any, bucketName: string, inventory: PutBucketInventoryConfig, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
+export async function putBucketInventory(this: Client, bucketName: string, inventory: PutBucketInventoryConfig, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   const subres: any = Object.assign({ inventory: '', inventoryId: inventory.id }, options.subres);
   checkBucketName(bucketName);
   const { OSSBucketDestination, optionalFields, includedObjectVersions } = inventory;
@@ -43,7 +45,7 @@ export async function putBucketInventory(this: any, bucketName: string, inventor
     firstUpperCase: true,
   });
 
-  const params = this._bucketRequestParams('PUT', bucketName, subres, options);
+  const params = _bucketRequestParams('PUT', bucketName, subres, options);
   params.successStatuses = [200];
   params.mime = 'xml';
   params.content = paramXML;

@@ -1,14 +1,16 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { isObject } from '../utils/isObject';
 import { RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function getBucketWebsite(
-  this: any,
+  this: Client,
   name: string,
   options: RequestOptions = {}
 ) {
   checkBucketName(name);
-  const params = this._bucketRequestParams('GET', name, 'website', options);
+  const params = _bucketRequestParams('GET', name, 'website', options);
   params.successStatuses = [200];
   params.xmlResponse = true;
   const result = await this.request(params);

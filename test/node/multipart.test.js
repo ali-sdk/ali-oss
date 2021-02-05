@@ -8,6 +8,10 @@ const config = require('../config').oss;
 const { md5 } = require('utility');
 const mm = require('mm');
 const sinon = require('sinon');
+const { getPartSize } = require('../../lib/common/utils/getPartSize');
+const { _getObjectMeta } = require('../../lib/common/utils/_getObjectMeta');
+const checkBrowserAndVersionContainer = require('../../lib/common/utils/checkBrowserAndVersion');
+const createStreamContainer = require('../../lib/node/client/_createStream')
 
 describe('test/multipart.test.js', () => {
   const { prefix } = utils;
@@ -181,7 +185,7 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/fallback`;
       let progress = 0;
 
-      const _createStream = sinon.spy(store, '_createStream');
+      const _createStream = sinon.spy(createStreamContainer, '_createStream');
       const putStreamModule = require('../../lib/node/object/putStream');
       const putStreamSpy = sinon.spy(putStreamModule, 'putStream');
 
@@ -198,20 +202,20 @@ describe('test/multipart.test.js', () => {
       assert.equal(typeof result.bucket, 'string');
       assert.equal(typeof result.etag, 'string');
 
-      store._createStream.restore();
+      _createStream.restore();
       putStreamModule.putStream.restore();
     });
 
     /* eslint require-yield: [0] */
     it('should use default partSize when not specified', () => {
-      let partSize = store.getPartSize(1024 * 1024, null);
+      let partSize = getPartSize(1024 * 1024, null);
       assert.equal(partSize, 1 * 1024 * 1024);
-      partSize = store.getPartSize(1024 * 1024);
+      partSize = getPartSize(1024 * 1024);
       assert.equal(partSize, 1 * 1024 * 1024);
     });
 
     it('should use user specified partSize', () => {
-      const partSize = store.getPartSize(1024 * 1024, 200 * 1024);
+      const partSize = getPartSize(1024 * 1024, 200 * 1024);
       assert.equal(partSize, 200 * 1024);
     });
 
@@ -219,7 +223,7 @@ describe('test/multipart.test.js', () => {
       const fileSize = 10 * 1024 * 1024 * 1024;
       const maxNumParts = 10 * 1000;
 
-      const partSize = store.getPartSize(fileSize, 100 * 1024);
+      const partSize = getPartSize(fileSize, 100 * 1024);
       assert.equal(partSize, Math.ceil(fileSize / maxNumParts));
     });
 
@@ -446,8 +450,8 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-webfile-ie10`;
       const clientTmp = new OSS(config);
       clientTmp.useBucket(bucket, bucketRegion);
-      sinon.stub(
-        clientTmp,
+      const checkBrowserAndVersion = sinon.stub(
+        checkBrowserAndVersionContainer,
         'checkBrowserAndVersion',
         (browser, version) => browser === 'Internet Explorer' && version === '10'
       );
@@ -464,6 +468,7 @@ describe('test/multipart.test.js', () => {
       assert.deepEqual(md5(object.content), md5(fileBuf));
 
       mm.restore();
+      checkBrowserAndVersion.restore();
     });
 
     it('should resume upload using checkpoint', async () => {
@@ -773,7 +778,7 @@ describe('test/multipart.test.js', () => {
         sourceKey: name,
         sourceBucketName: bucket
       };
-      const objectMeta = await client._getObjectMeta(sourceData.sourceBucketName, sourceData.sourceKey, {});
+      const objectMeta = await _getObjectMeta.call(client, sourceData.sourceBucketName, sourceData.sourceKey, {});
       const fileSize = objectMeta.res.headers['content-length'];
 
       const result = await client.initMultipartUpload(copyName);
@@ -824,7 +829,7 @@ describe('test/multipart.test.js', () => {
       const clientTmp = new OSS(config);
       clientTmp.useBucket(bucket, bucketRegion);
       const checkBrowserAndVersion = sinon.stub(
-        clientTmp,
+        checkBrowserAndVersionContainer,
         'checkBrowserAndVersion',
         (browser, version) => browser === 'Internet Explorer' && version === '10'
       );

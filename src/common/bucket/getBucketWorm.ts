@@ -2,14 +2,16 @@ import { checkBucketName } from '../utils/checkBucketName';
 import { dataFix } from '../utils/dataFix';
 import { RequestOptions } from '../../types/params';
 import { GetBucketWormReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function getBucketWorm(
-  this: any,
+  this: Client,
   name: string,
   options: RequestOptions = {}
 ): Promise<GetBucketWormReturnType> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('GET', name, 'worm', options);
+  const params = _bucketRequestParams('GET', name, 'worm', options);
   params.successStatuses = [200];
   params.xmlResponse = true;
 

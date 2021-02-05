@@ -1,7 +1,9 @@
 
 import crypto from 'crypto';
-import is from 'is-type-of';
+import { Buffer } from 'buffer';
 import { lowercaseKeyHeader } from './lowercaseKeyHeader'
+import { isString } from './isString';
+import { isArray } from './isArray';
 
 /**
  *
@@ -13,9 +15,9 @@ export function buildCanonicalizedResource(resourcePath, parameters) {
   let canonicalizedResource = `${resourcePath}`;
   let separatorString = '?';
 
-  if (is.string(parameters) && parameters.trim() !== '') {
+  if (isString(parameters) && parameters.trim() !== '') {
     canonicalizedResource += separatorString + parameters;
-  } else if (is.array(parameters)) {
+  } else if (isArray(parameters)) {
     parameters.sort();
     canonicalizedResource += separatorString + parameters.join('&');
   } else if (parameters) {

@@ -1,5 +1,6 @@
 import { ACLType, MultiVersionCommonOptions } from '../../types/params';
-export declare function getACL(this: any, name: string, options?: MultiVersionCommonOptions): Promise<{
+import { Client } from '../../setConfig';
+export declare function getACL(this: Client, name: string, options?: MultiVersionCommonOptions): Promise<{
     acl: ACLType;
     owner: {
         id: string;
@@ -22,5 +23,6 @@ export declare function getACL(this: any, name: string, options?: MultiVersionCo
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;

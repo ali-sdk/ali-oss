@@ -1,5 +1,7 @@
 import { objectName } from '../utils/objectName';
 import { MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * deleteObjectTagging
@@ -8,7 +10,7 @@ import { MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../.
  */
 
 export async function deleteObjectTagging(
-  this: any,
+  this: Client,
   name: string,
   options: MultiVersionCommonOptions = {}
 ) {
@@ -17,7 +19,7 @@ export async function deleteObjectTagging(
     options.subres.versionId = options.versionId;
   }
   name = objectName(name);
-  const params = this._objectRequestParams('DELETE', name, options);
+  const params = _objectRequestParams.call(this, 'DELETE', name, options);
   params.successStatuses = [204];
   const result: NormalSuccessResponseWithStatus = await this.request(params);
 

@@ -1,7 +1,8 @@
 import copy from 'copy-to';
+import { Client } from '../../setConfig';
 import { objectName } from '../utils/objectName';
 
-export function _objectRequestParams(this: any, method, name, options: any = {}) {
+export function _objectRequestParams(this: Client, method, name, options: any = {}) {
   const { bucket } = this.options;
   if (!bucket && !this.options.cname) {
     throw new Error('Please create a bucket first');

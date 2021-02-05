@@ -1,7 +1,7 @@
 import path from 'path';
 import mime from 'mime';
 import { initMultipartUpload } from '../../common/multipart/initMultipartUpload';
-import { resumeMultipart } from '../../common/multipart/resumeMultipart';
+import { resumeMultipart } from './resumeMultipart';
 import { putStream } from '../object/putStream';
 import { isFile } from '../../common/utils/isFile';
 import { getPartSize } from '../../common/utils/getPartSize';
@@ -9,6 +9,10 @@ import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
 import { MultipartUploadOptions } from '../../types/params';
+import { _createStream } from '../client/_createStream';
+import { resetCancelFlag } from '../../common/client';
+import OSS from '..';
+import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
 
 /**
  * Upload a file to OSS using multipart uploads
@@ -27,12 +31,12 @@ import { MultipartUploadOptions } from '../../types/params';
  *                  }
  */
 export async function multipartUpload(
-  this: any,
+  this: OSS,
   name: string,
   file: File | Buffer | string,
   options: MultipartUploadOptions = {}
-) {
-  this.resetCancelFlag();
+):Promise<ObjectCompleteMultipartUploadReturnType> {
+  resetCancelFlag.call(this);
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
   }
@@ -52,7 +56,7 @@ export async function multipartUpload(
 
   const fileSize = await getFileSize(file);
   if (fileSize < minPartSize) {
-    const stream = await this._createStream(file, 0, fileSize);
+    const stream = await _createStream(file, 0, fileSize);
     options.contentLength = fileSize;
 
     const result = await putStream.call(this, name, stream, options);

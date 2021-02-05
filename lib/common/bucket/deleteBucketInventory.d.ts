@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
 /**
  * deleteBucketInventory
@@ -5,4 +6,4 @@ import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/par
  * @param {String} inventoryId
  * @param {Object} options
  */
-export declare function deleteBucketInventory(this: any, bucketName: string, inventoryId: string, options?: RequestOptions): Promise<NormalSuccessResponseWithStatus>;
+export declare function deleteBucketInventory(this: Client, bucketName: string, inventoryId: string, options?: RequestOptions): Promise<NormalSuccessResponseWithStatus>;

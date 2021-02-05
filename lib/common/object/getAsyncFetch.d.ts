@@ -1,2 +1,3 @@
 import { RequestOptions } from '../../types/params';
-export declare function getAsyncFetch(this: any, taskId: string, options?: RequestOptions): Promise<object>;
+import { Client } from '../../setConfig';
+export declare function getAsyncFetch(this: Client, taskId: string, options?: RequestOptions): Promise<object>;

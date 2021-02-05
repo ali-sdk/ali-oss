@@ -2,16 +2,26 @@ import urllib from 'urllib';
 import AgentKeepalive from 'agentkeepalive';
 import { _getUserAgent } from './common/client/_getUserAgent';
 import { initOptions } from './common/client/initOptions';
-import base from './common/client';
+import { request } from './common/client/request';
+import { requestError } from './common/client/requestError';
 import { _unSupportBrowserTip } from './common/utils/_unSupportBrowserTip';
-import { _createStream } from './browser/client/_createStream';
 import { IOptions } from './types/params';
+
+import * as commonObject from './common/object';
+import * as commonMultipart from './common/multipart';
+import * as commonImage from './common/image';
+import * as commonBucket from './common/bucket';
+import * as commonClient from './common/client';
 
 const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
 const globalHttpAgent = new AgentKeepalive();
 const globalHttpsAgent = new HttpsAgentKeepalive();
-
 class Client {
+
+  protected _setOptions = 0;
+
+  protected sendToWormhole?: Function;
+
   public options;
 
   public urllib;
@@ -24,28 +34,28 @@ class Client {
 
   public userAgent;
 
-  public _createStream;
+  public request = request;
+
+  public requestError = requestError;
 
   public constructor(options: IOptions, ctx?) {
-    _unSupportBrowserTip();
-
-    if (!Client.prototype._createStream) {
-      Client.prototype._createStream = _createStream;
-    }
-
-    Object.keys(base).forEach(prop => {
-      Client.prototype[prop] = base[prop];
-    });
-
     this.setConfig(options, ctx);
   }
 
   static use(...fn: any) {
     if (Array.isArray(fn)) {
       fn.filter(_ => typeof _ === 'function').forEach(f => {
-        this[f.name] = f.bind(this);
         Client.prototype[f.name] = f;
       });
+    }
+    return this;
+  }
+
+  static register(name: string, fn: Function) {
+    if (!this.prototype[name]) {
+      this.prototype[name] = fn;
+    } else {
+      console.warn(`ali-oss: ${name} has been registed`);
     }
     return this;
   }
@@ -70,6 +80,13 @@ class Client {
   }
 }
 
+type ICommonObject = typeof commonObject;
+type ICommonMultipart = typeof commonMultipart;
+type ICommonImage = typeof commonImage;
+type ICommonBucket = typeof commonBucket;
+type ICommonClient = typeof commonClient;
+interface Client extends ICommonBucket, ICommonMultipart, ICommonObject, ICommonImage, ICommonClient {
+}
 
 export const initClient = (options: IOptions, ctx?) => {
   return new Client(options, ctx);

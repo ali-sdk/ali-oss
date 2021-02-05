@@ -15,6 +15,8 @@ const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
 const request = require('request');
+const { statFile } = require('../../lib/node/utils/statFile');
+const { objectName } = require('../../lib/common/utils/objectName');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -318,7 +320,7 @@ describe('test/object.test.js', () => {
 
     it('should add object with readstream', async () => {
       const name = `${prefix}ali-sdk/oss/put-readstream`;
-      const stat = await store.statFile(__filename);
+      const stat = await statFile(__filename);
       const object = await store.put(name, fs.createReadStream(__filename), {
         headers: {
           'Content-Length': stat.size
@@ -2037,13 +2039,11 @@ describe('test/object.test.js', () => {
       let keyCount = 0;
       do {
         // eslint-disable-next-line no-await-in-loop
-        const result = await store.listV2(
-          {
-            prefix: listPrefix,
-            'max-keys': 2,
-            'continuation-token': nextContinuationToken,
-          },
-        );
+        const result = await store.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken
+        });
         keyCount += result.keyCount;
         nextContinuationToken = result.nextContinuationToken;
       } while (nextContinuationToken);
@@ -2239,7 +2239,7 @@ describe('test/object.test.js', () => {
 
       result = await store.getSymlink(name);
       assert.equal(result.res.status, 200);
-      assert.equal(result.targetName, store._objectName(targetName));
+      assert.equal(result.targetName, objectName(targetName));
 
       result = await store.head(name);
 

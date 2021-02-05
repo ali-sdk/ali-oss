@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
+import { Client } from '../../setConfig';
 import { ObjectAppendOptions, ObjectAppendReturnType } from '../../types/object';
 /**
  * append an object from String(file path)/Buffer/ReadableStream
@@ -8,4 +9,6 @@ import { ObjectAppendOptions, ObjectAppendReturnType } from '../../types/object'
  * @param {Object} options
  * @return {Object}
  */
-export declare function append(this: any, name: string, file: string | Buffer | Readable, options?: ObjectAppendOptions): Promise<ObjectAppendReturnType>;
+export declare function append(this: Client & {
+    put?: Function;
+}, name: string, file: string | Buffer | Readable, options?: ObjectAppendOptions): Promise<ObjectAppendReturnType>;

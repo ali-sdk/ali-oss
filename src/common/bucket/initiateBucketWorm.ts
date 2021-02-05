@@ -2,15 +2,17 @@ import { obj2xml } from '../utils/obj2xml';
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
 import { InitiateBucketWormReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function initiateBucketWorm(
-  this: any,
+  this: Client,
   name: string,
   days: string | number,
   options: RequestOptions = {}
 ): Promise<InitiateBucketWormReturnType> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('POST', name, 'worm', options);
+  const params = _bucketRequestParams('POST', name, 'worm', options);
   const paramlXMLObJ = {
     InitiateWormConfiguration: {
       RetentionPeriodInDays: days,

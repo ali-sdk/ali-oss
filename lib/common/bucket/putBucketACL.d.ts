@@ -1,3 +1,4 @@
 import { ACLType, RequestOptions } from '../../types/params';
 import { PutBucketACLReturnType } from '../../types/bucket';
-export declare function putBucketACL(this: any, name: string, acl: ACLType, options?: RequestOptions): Promise<PutBucketACLReturnType>;
+import { Client } from '../../setConfig';
+export declare function putBucketACL(this: Client, name: string, acl: ACLType, options?: RequestOptions): Promise<PutBucketACLReturnType>;

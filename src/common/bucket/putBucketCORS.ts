@@ -2,13 +2,15 @@ import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { RequestOptions, NormalSuccessResponse } from '../../types/params';
 import { BucketCORSRule } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function putBucketCORS(
-  this: any,
+  this: Client,
   name: string,
   rules: BucketCORSRule[] = [],
   options: RequestOptions = {}
-):Promise<NormalSuccessResponse> {
+): Promise<NormalSuccessResponse> {
   checkBucketName(name);
   if (!rules.length) {
     throw new Error('rules is required');
@@ -23,7 +25,7 @@ export async function putBucketCORS(
     }
   });
 
-  const params = this._bucketRequestParams('PUT', name, 'cors', options);
+  const params = _bucketRequestParams('PUT', name, 'cors', options);
   const CORSRule = rules.map(_ => {
     const rule: any = {
       AllowedOrigin: _.allowedOrigin,

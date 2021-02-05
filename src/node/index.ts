@@ -1,16 +1,15 @@
+import { Readable } from 'stream';
 import { Client } from '../setConfig';
 
-import commonObject from '../common/object';
-import commonMultipart from '../common/multipart';
-import commonUtils from '../common/utils';
-import commonImage from '../common/image';
-import commonBucket from '../common/bucket';
-import commonClient from '../common/client';
+import * as commonObject from '../common/object';
+import * as commonMultipart from '../common/multipart';
+import * as commonImage from '../common/image';
+import * as commonBucket from '../common/bucket';
+import * as commonClient from '../common/client';
 
 import object from './object';
 import client from './client';
 import multipart from './multipart';
-import utils from './utils';
 
 import rtmp from './rtmp';
 import sts from './sts';
@@ -18,15 +17,22 @@ import cluster from './cluster';
 
 function initClientProto(protos) {
   Object.keys(protos).forEach(prop => {
-    Client.prototype[prop] = protos[prop];
+    OSS.prototype[prop] = protos[prop];
   });
 }
+class OSS extends Client {
+  static STS = sts;
 
-const OSS: any = Client;
+  static ClusterClient = cluster(OSS);
+
+  public multipartUploadStreams: Readable[] = [];
+
+  // @ts-ignore
+  protected sendToWormhole = client.sendToWormhole;
+}
 
 initClientProto(commonObject);
 initClientProto(commonMultipart);
-initClientProto(commonUtils);
 initClientProto(commonImage);
 initClientProto(commonBucket);
 initClientProto(commonClient);
@@ -34,9 +40,12 @@ initClientProto(commonClient);
 initClientProto(object);
 initClientProto(client);
 initClientProto(multipart);
-initClientProto(utils);
 initClientProto(rtmp);
 
+type IObject = typeof object;
+type IMultipart = typeof multipart;
+type IRtmp = typeof rtmp;
+interface OSS extends IObject, IMultipart, IRtmp { }
+
+export default OSS;
 module.exports = OSS;
-OSS.STS = sts;
-OSS.ClusterClient = cluster(OSS);

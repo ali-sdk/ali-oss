@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
 import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
+import OSS from '..';
 /**
  * put an object from ReadableStream. If `options.contentLength` is
  * not provided, chunked encoding is used.
@@ -9,4 +10,4 @@ import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
  * @param {Object} options
  * @return {Object}
  */
-export declare function putStream(this: any, name: string, stream: Readable, options?: ObjectPutOptions): Promise<ObjectPutReturnType>;
+export declare function putStream(this: OSS, name: string, stream: Readable, options?: ObjectPutOptions): Promise<ObjectPutReturnType>;

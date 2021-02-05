@@ -52,7 +52,6 @@ exports.request = function request(url, args, callback) {
   });
 };
 
-
 exports.requestWithCallback = function requestWithCallback(url, args, callback) {
   // requestWithCallback(url, callback)
   if (!url || (typeof url !== 'string' && typeof url !== 'object')) {
@@ -98,7 +97,6 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   } else {
     parsedUrl = url;
   }
-
   var method = (args.type || args.method || parsedUrl.method || 'GET').toUpperCase();
   var port = parsedUrl.port || 80;
   var httplib = http;

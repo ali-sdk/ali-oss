@@ -1,13 +1,14 @@
 import urlutil from 'url';
 import copy from 'copy-to';
 import merge from 'merge-descriptors';
-import is from 'is-type-of';
 import { isIP } from '../utils/isIP';
 import { checkValidEndpoint } from '../utils/checkValid';
 import { escapeName } from '../utils/escapeName';
+import { Client } from '../../setConfig';
+import { isString } from '../utils/isString';
+import { isArray } from '../utils/isArray';
 
-export function _getReqUrl(this: any, params) {
-  const _escape = this._escape || escapeName;
+export function _getReqUrl(this: Client, params) {
   const ep: any = {};
   checkValidEndpoint(this.options.endpoint);
   copy(this.options.endpoint).to(ep);
@@ -25,7 +26,7 @@ export function _getReqUrl(this: any, params) {
 
   if (params.object) {
     // Preserve '/' in result url
-    resourcePath += _escape(params.object).replace(/\+/g, '%2B');
+    resourcePath += escapeName(params.object).replace(/\+/g, '%2B');
   }
   ep.pathname = resourcePath;
 
@@ -36,9 +37,9 @@ export function _getReqUrl(this: any, params) {
 
   if (params.subres) {
     let subresAsQuery = {};
-    if (is.string(params.subres)) {
+    if (isString(params.subres)) {
       subresAsQuery[params.subres] = '';
-    } else if (is.array(params.subres)) {
+    } else if (isArray(params.subres)) {
       params.subres.forEach(k => {
         subresAsQuery[k] = '';
       });

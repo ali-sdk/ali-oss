@@ -1,11 +1,13 @@
+import { Client } from '../../setConfig';
 import { PutBucketOptionsType, PutBucketReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 
-export async function putBucket(this: any, name: string, options: PutBucketOptionsType = {}): Promise<PutBucketReturnType> {
+export async function putBucket(this: Client, name: string, options: PutBucketOptionsType = {}): Promise<PutBucketReturnType> {
   checkBucketName(name, true);
   options = options || {};
-  const params = this._bucketRequestParams('PUT', name, '', options);
+  const params = _bucketRequestParams('PUT', name, '', options);
 
   const CreateBucketConfiguration: any = {};
   const paramlXMLObJ = {

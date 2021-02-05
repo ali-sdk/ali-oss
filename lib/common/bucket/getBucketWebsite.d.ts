@@ -1,5 +1,6 @@
 import { RequestOptions } from '../../types/params';
-export declare function getBucketWebsite(this: any, name: string, options?: RequestOptions): Promise<{
+import { Client } from '../../setConfig';
+export declare function getBucketWebsite(this: Client, name: string, options?: RequestOptions): Promise<{
     index: any;
     supportSubDir: any;
     type: any;

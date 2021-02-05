@@ -5,6 +5,8 @@ import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
+import { _objectRequestParams } from '../../common/client/_objectRequestParams';
+import OSS from '..';
 
 /**
  * put an object from ReadableStream. If `options.contentLength` is
@@ -15,7 +17,7 @@ import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
  * @return {Object}
  */
 export async function putStream(
-  this: any,
+  this: OSS,
   name: string,
   stream: Readable,
   options: ObjectPutOptions = {}
@@ -30,7 +32,7 @@ export async function putStream(
   convertMetaToHeaders(options.meta, options.headers);
 
   const method = options.method || 'PUT';
-  const params = this._objectRequestParams(method, name, options);
+  const params = _objectRequestParams.call(this, method, name, options);
   encodeCallback(params, options);
   params.mime = options.mime;
 

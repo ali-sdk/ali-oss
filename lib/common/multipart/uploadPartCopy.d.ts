@@ -1,4 +1,5 @@
 import { MultipartUploadCopySourceData, RequestOptions } from '../../types/params';
+import { Client } from '../../setConfig';
 /**
  * Upload a part copy in a multipart from the source bucket/object
  * used with initMultipartUpload and completeMultipartUpload.
@@ -11,7 +12,7 @@ import { MultipartUploadCopySourceData, RequestOptions } from '../../types/param
  *        {String} sourceData.sourceBucketName  the source bucket name
  * @param {Object} options
  */
-export declare function uploadPartCopy(this: any, name: string, uploadId: string, partNo: number, range: string, sourceData: MultipartUploadCopySourceData, options?: RequestOptions): Promise<{
+export declare function uploadPartCopy(this: Client, name: string, uploadId: string, partNo: number, range: string, sourceData: MultipartUploadCopySourceData, options?: RequestOptions): Promise<{
     name: string;
     etag: string | undefined;
     res: {
@@ -31,5 +32,6 @@ export declare function uploadPartCopy(this: any, name: string, uploadId: string
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;

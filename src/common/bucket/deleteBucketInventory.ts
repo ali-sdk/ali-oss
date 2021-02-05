@@ -1,4 +1,6 @@
+import { Client } from '../../setConfig';
 import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
 import { checkBucketName } from '../utils/checkBucketName';
 
 /**
@@ -7,11 +9,11 @@ import { checkBucketName } from '../utils/checkBucketName';
  * @param {String} inventoryId
  * @param {Object} options
  */
-export async function deleteBucketInventory(this: any, bucketName: string, inventoryId: string, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
+export async function deleteBucketInventory(this: Client, bucketName: string, inventoryId: string, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   const subres: any = Object.assign({ inventory: '', inventoryId }, options.subres);
   checkBucketName(bucketName);
 
-  const params = this._bucketRequestParams('DELETE', bucketName, subres, options);
+  const params = _bucketRequestParams('DELETE', bucketName, subres, options);
   params.successStatuses = [204];
 
   const result = await this.request(params);

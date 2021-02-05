@@ -1,16 +1,18 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function putBucketReferer(
-  this: any,
+  this: Client,
   name: string,
   allowEmpty: boolean,
   referers: string[] | null,
   options: RequestOptions = {}
 ): Promise<NormalSuccessResponse> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('PUT', name, 'referer', options);
+  const params = _bucketRequestParams('PUT', name, 'referer', options);
   const parseXMLObj = {
     RefererConfiguration: {
       AllowEmptyReferer: allowEmpty ? 'true' : 'false',

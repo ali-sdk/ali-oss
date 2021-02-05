@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 /**
  * request oss server
  * @param {Object} params
@@ -16,5 +17,5 @@
  *
  * @api private
  */
-export declare function _request(this: any, params: any): Promise<any>;
-export declare function request(this: any, params: any): Promise<any>;
+export declare function _request(this: Client, params: any): any;
+export declare function request(this: Client, params: any): any;

@@ -1,6 +1,7 @@
+import { Client } from '../../setConfig';
 import { formatObjKey } from './formatObjKey';
 
-export async function setSTSToken(this: any) {
+export async function setSTSToken(this: Client) {
   if (!this.options) this.options = {};
   let credentials = await this.options.refreshSTSToken();
   credentials = formatObjKey(credentials, 'firstLowerCase');

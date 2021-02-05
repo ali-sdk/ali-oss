@@ -3,15 +3,17 @@ import { obj2xml } from '../utils/obj2xml';
 import { isArray } from '../utils/isArray';
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
 import { PutBucketWebsiteConfigType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function putBucketWebsite(
-  this: any,
+  this: Client,
   name: string,
   config: PutBucketWebsiteConfigType = { index: 'index.html' },
   options: RequestOptions = {}
 ): Promise<NormalSuccessResponse> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('PUT', name, 'website', options);
+  const params = _bucketRequestParams('PUT', name, 'website', options);
   const IndexDocument: any = {
     Suffix: config.index || 'index.html',
   };

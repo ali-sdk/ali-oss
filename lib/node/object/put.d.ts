@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
 import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
+import OSS from '..';
 /**
  * put an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -18,4 +19,4 @@ import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
  *                  }
  * @return {Object}
  */
-export declare function put(this: any, name: string, file: string | Buffer | Readable, options?: ObjectPutOptions): Promise<ObjectPutReturnType>;
+export declare function put(this: OSS, name: string, file: string | Buffer | Readable, options?: ObjectPutOptions): Promise<ObjectPutReturnType>;

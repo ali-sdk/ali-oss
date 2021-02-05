@@ -1,3 +1,4 @@
 import { RequestOptions } from '../../types/params';
 import { DeleteBucketReturnType } from '../../types/bucket';
-export declare function deleteBucket(this: any, name: string, options?: RequestOptions): Promise<DeleteBucketReturnType>;
+import { Client } from '../../setConfig';
+export declare function deleteBucket(this: Client, name: string, options?: RequestOptions): Promise<DeleteBucketReturnType>;

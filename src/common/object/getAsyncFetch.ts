@@ -1,16 +1,18 @@
 import { formatObjKey } from '../utils/formatObjKey';
 import { RequestOptions } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 /*
  * getAsyncFetch
  * @param {String} asyncFetch taskId
  * @param {Object} options
  */
-export async function getAsyncFetch(this: any, taskId: string, options: RequestOptions = {}): Promise<object> {
+export async function getAsyncFetch(this: Client, taskId: string, options: RequestOptions = {}): Promise<object> {
   options.subres = Object.assign({ asyncFetch: '' }, options.subres);
   options.headers = options.headers || {};
 
-  const params = this._objectRequestParams('GET', '', options);
+  const params = _objectRequestParams.call(this, 'GET', '', options);
   params.headers['x-oss-task-id'] = taskId;
   params.successStatuses = [200];
   params.xmlResponse = true;

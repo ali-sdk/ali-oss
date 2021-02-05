@@ -1,5 +1,1 @@
-import { processObjectSave } from './processObjectSave';
-
-export default {
-  processObjectSave,
-};
+export { processObjectSave } from './processObjectSave';

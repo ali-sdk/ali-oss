@@ -3,9 +3,11 @@ import utility from 'utility';
 import { obj2xml } from '../utils/obj2xml';
 import { objectName } from '../utils/objectName';
 import { ObjectDeleteMultiNames, ObjectDeleteMultiOptions, ObjectDeleteMultiReturnType } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 export async function deleteMulti(
-  this: any,
+  this: Client,
   names: ObjectDeleteMultiNames,
   options: ObjectDeleteMultiOptions = {}
 ): Promise<ObjectDeleteMultiReturnType> {
@@ -38,7 +40,7 @@ export async function deleteMulti(
   });
 
   options.subres = Object.assign({ delete: '' }, options.subres);
-  const params = this._objectRequestParams('POST', '', options);
+  const params = _objectRequestParams.call(this, 'POST', '', options);
   params.mime = 'xml';
   params.content = paramXML;
   params.xmlResponse = true;

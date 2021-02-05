@@ -1,4 +1,5 @@
 import { RequestOptions } from '../../types/params';
+import OSS from '..';
 /**
  * Upload a part in a multipart upload transaction
  * @param {String} name the object name
@@ -9,7 +10,7 @@ import { RequestOptions } from '../../types/params';
  * @param {Integer} end  part end bytes  e.g: 204800
  * @param {Object} options
  */
-export declare function uploadPart(this: any, name: string, uploadId: string, partNo: number, file: File | string, start: number, end: number, options?: RequestOptions): Promise<{
+export declare function uploadPart(this: OSS, name: string, uploadId: string, partNo: number, file: File, start: number, end: number, options?: RequestOptions): Promise<{
     name: string;
     etag: string;
     res: {
@@ -29,5 +30,6 @@ export declare function uploadPart(this: any, name: string, uploadId: string, pa
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;

@@ -7,15 +7,17 @@ import { checkObjectTag } from '../utils/checkObjectTag';
 import { getStrBytesCount } from '../utils/getStrBytesCount';
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
 import { LifecycleRule } from '../../types/bucket_lifecycle';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
-export async function putBucketLifecycle(this: any, name: string, rules: LifecycleRule[], options: RequestOptions = {}):Promise<NormalSuccessResponse> {
+export async function putBucketLifecycle(this: Client, name: string, rules: LifecycleRule[], options: RequestOptions = {}): Promise<NormalSuccessResponse> {
   checkBucketName(name);
 
   if (!isArray(rules)) {
     throw new Error('rules must be Array');
   }
 
-  const params = this._bucketRequestParams('PUT', name, 'lifecycle', options);
+  const params = _bucketRequestParams('PUT', name, 'lifecycle', options);
   const Rule: any[] = [];
   const paramXMLObj = {
     LifecycleConfiguration: {

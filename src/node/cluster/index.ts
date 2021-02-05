@@ -2,6 +2,7 @@ import Base from 'sdk-base';
 import util from 'util';
 import ready from 'get-ready';
 import copy from 'copy-to';
+import { objectUrl } from '../../common/utils/objectUrl';
 
 const currentIP = require('address').ip();
 
@@ -153,7 +154,7 @@ export default function (OssClient) {
         /* eslint no-await-in-loop: [0] */
         available = await this._checkStatus(client, name);
         if (!available) {
-          downStatusFiles.push(client._objectUrl(name));
+          downStatusFiles.push(objectUrl.call(client, name));
         }
       }
       this.availables[i] = available;
@@ -162,8 +163,7 @@ export default function (OssClient) {
 
     if (downStatusFiles.length > 0) {
       const err = new Error(
-        `${
-          downStatusFiles.length
+        `${downStatusFiles.length
         } data node down, please check status file: ${downStatusFiles.join(
           ', '
         )}`

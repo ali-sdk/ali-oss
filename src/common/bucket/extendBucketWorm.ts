@@ -1,10 +1,12 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
-export async function extendBucketWorm(this: any, name: string, wormId: string, days: string | number, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
+export async function extendBucketWorm(this: Client, name: string, wormId: string, days: string | number, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('POST', name, { wormExtend: '', wormId }, options);
+  const params = _bucketRequestParams('POST', name, { wormExtend: '', wormId }, options);
   const paramlXMLObJ = {
     ExtendWormConfiguration: {
       RetentionPeriodInDays: days

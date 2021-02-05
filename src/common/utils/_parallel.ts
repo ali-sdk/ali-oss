@@ -1,5 +1,7 @@
+import { Client } from '../../setConfig';
+
 export function _parallel(
-  this: any,
+  this: Client,
   todo,
   num: number,
   fn: Function,

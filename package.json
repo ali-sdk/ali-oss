@@ -2,15 +2,15 @@
   "name": "ali-oss",
   "version": "7.0.0-beta.1",
   "description": "aliyun oss(object storage service) node client",
-  "main": "lib/node/index.js",
   "files": [
     "lib",
     "es",
     "shims",
     "dist"
   ],
+  "main": "lib/node/index.js",
   "browser": {
-    "lib/node/index.js": "./dist/aliyun-oss-sdk.js",
+    "lib/node/index.js": "lib/browser/",
     "mime": "mime/lite",
     "urllib": "./shims/xhr.js",
     "utility": "./shims/utility.js",
@@ -19,7 +19,16 @@
     "platform": "./shims/platform",
     "fs": false,
     "child_process": false,
-    "is-type-of": "./shims/is-type-of.js"
+    "is-type-of": "./shims/is-type-of.js",
+    "constants": "constants-browserify",
+    "https1": "https-browserify",
+    "http": "stream-http",
+    "https": "stream-http",
+    "stream": "stream-browserify",
+    "path": "path-browserify",
+    "process": "./shims/process.js",
+    "url": "./shims/url/index.js",
+    "buffer": "buffer"
   },
   "scripts": {
     "build-change-log": "standard-version",
@@ -37,7 +46,7 @@
     "lint-staged": "lint-staged",
     "detect-secrets": "node task/detect-secrets",
     "tsc": "npm run tsc:clean && npm run tsc:build",
-    "tsc:build": "tsc -b tsconfig-es.json tsconfig-cjs.json && node task/handle-es-export.js",
+    "tsc:build": "tsc -b tsconfig-es.json tsconfig-cjs.json",
     "tsc:watch": "tsc -b tsconfig-es.json tsconfig-cjs.json --watch",
     "tsc:clean": "tsc -b tsconfig-es.json tsconfig-cjs.json --clean "
   },
@@ -84,8 +93,10 @@
     "benchmark": "^2.1.1",
     "bluebird": "^3.1.5",
     "browserify": "^16.5.2",
+    "buffer": "^6.0.3",
     "co-fs": "^1.2.0",
     "co-mocha": "^1.2.1",
+    "constants-browserify": "^1.0.0",
     "core-js": "^3.6.5",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^8.2.0",
@@ -97,6 +108,7 @@
     "eslint-plugin-react": "^7.7.0",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
+    "https-browserify": "^1.0.0",
     "immediate": "^3.3.0",
     "karma": "^1.7.1",
     "karma-browserify": "^5.1.1",
@@ -109,12 +121,14 @@
     "mm": "^2.0.0",
     "mocha": "^3.5.3",
     "nyc": "^13.3.0",
+    "path-browserify": "^1.0.1",
     "promise-polyfill": "^6.0.2",
     "request": "^2.88.0",
     "should": "^11.0.0",
     "sinon": "^1.17.7",
     "snyk": "^1.231.0",
     "standard-version": "^8.0.1",
+    "stream-browserify": "^3.0.0",
     "stream-equal": "^1.1.0",
     "thunk-mocha": "^1.0.3",
     "timemachine": "^0.3.0",
@@ -143,7 +157,8 @@
     "platform": "^1.3.1",
     "pump": "^3.0.0",
     "sdk-base": "^2.0.1",
-    "stream-http": "2.8.2",
+    "stream-http": "^3.1.1",
+    "stream-http1": "^2.8.2",
     "stream-wormhole": "^1.0.4",
     "urllib": "^2.33.1",
     "utility": "^1.8.0"
@@ -153,5 +168,6 @@
     "**/!(dist)/*": [
       "npm run detect-secrets --"
     ]
-  }
+  },
+  "sideEffects": false
 }

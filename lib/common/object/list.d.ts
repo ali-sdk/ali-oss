@@ -1,2 +1,3 @@
 import { ObjectListQueryParams, ObjectListReturnType } from '../../types/object';
-export declare function list(this: any, query?: ObjectListQueryParams, options?: any): Promise<ObjectListReturnType>;
+import { Client } from '../../setConfig';
+export declare function list(this: Client, query?: ObjectListQueryParams, options?: any): Promise<ObjectListReturnType>;

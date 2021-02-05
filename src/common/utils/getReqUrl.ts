@@ -1,10 +1,11 @@
-import is from 'is-type-of';
 import copy from 'copy-to';
 import urlutil from 'url';
 import merge from 'merge-descriptors';
 import { isIP } from './isIP';
 import { escapeName } from './escapeName';
-import { checkValidEndpoint } from "./checkValid";
+import { checkValidEndpoint } from './checkValid';
+import { isString } from './isString';
+import { isArray } from './isArray';
 
 export function getReqUrl(params, options) {
   const ep: any = {};
@@ -34,9 +35,9 @@ export function getReqUrl(params, options) {
 
   if (params.subres) {
     let subresAsQuery = {};
-    if (is.string(params.subres)) {
+    if (isString(params.subres)) {
       subresAsQuery[params.subres] = '';
-    } else if (is.array(params.subres)) {
+    } else if (isArray(params.subres)) {
       params.subres.forEach((k) => {
         subresAsQuery[k] = '';
       });

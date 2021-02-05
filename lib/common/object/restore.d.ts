@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
 /**
  * Restore Object
@@ -5,4 +6,4 @@ import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/pa
  * @param {Object} options
  * @returns {{res}}
  */
-export declare function restore(this: any, name: string, options?: MultiVersionCommonOptions): Promise<NormalSuccessResponse>;
+export declare function restore(this: Client, name: string, options?: MultiVersionCommonOptions): Promise<NormalSuccessResponse>;

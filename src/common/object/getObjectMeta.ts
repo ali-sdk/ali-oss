@@ -1,5 +1,7 @@
 import { objectName } from '../utils/objectName';
 import { MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * getObjectMeta
@@ -9,7 +11,7 @@ import { MultiVersionCommonOptions, NormalSuccessResponseWithStatus } from '../.
  */
 
 export async function getObjectMeta(
-  this: any,
+  this: Client,
   name: string,
   options: MultiVersionCommonOptions = {}
 ): Promise<NormalSuccessResponseWithStatus> {
@@ -18,7 +20,7 @@ export async function getObjectMeta(
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = this._objectRequestParams('HEAD', name, options);
+  const params = _objectRequestParams.call(this, 'HEAD', name, options);
   params.successStatuses = [200];
   const result = await this.request(params);
   return {

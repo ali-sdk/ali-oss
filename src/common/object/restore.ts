@@ -1,4 +1,6 @@
+import { Client } from '../../setConfig';
 import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
 
 /**
  * Restore Object
@@ -8,7 +10,7 @@ import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/pa
  */
 
 export async function restore(
-  this: any,
+  this: Client,
   name: string,
   options: MultiVersionCommonOptions = {}
 ) {
@@ -16,7 +18,7 @@ export async function restore(
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = this._objectRequestParams('POST', name, options);
+  const params = _objectRequestParams.call(this, 'POST', name, options);
   params.successStatuses = [202];
 
   const result = await this.request(params);

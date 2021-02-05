@@ -1,5 +1,6 @@
 import { InitMultipartUploadOptions } from '../../types/params';
-export declare function initMultipartUpload(this: any, name: string, options?: InitMultipartUploadOptions): Promise<{
+import { Client } from '../../setConfig';
+export declare function initMultipartUpload(this: Client, name: string, options?: InitMultipartUploadOptions): Promise<{
     res: {
         status: number;
         headers: {
@@ -17,6 +18,7 @@ export declare function initMultipartUpload(this: any, name: string, options?: I
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
     bucket: string;
     name: string;

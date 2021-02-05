@@ -1,10 +1,11 @@
 import { MultiVersionCommonOptions } from '../../types/params';
+import { Client } from '../../setConfig';
 /**
  * deleteObjectTagging
  * @param {String} name - object name
  * @param {Object} options
  */
-export declare function deleteObjectTagging(this: any, name: string, options?: MultiVersionCommonOptions): Promise<{
+export declare function deleteObjectTagging(this: Client, name: string, options?: MultiVersionCommonOptions): Promise<{
     status: number;
     res: {
         status: number;
@@ -23,5 +24,6 @@ export declare function deleteObjectTagging(this: any, name: string, options?: M
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;

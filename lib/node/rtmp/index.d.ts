@@ -41,6 +41,7 @@ export declare function putChannel(this: any, id: string, conf: PutChannelConf, 
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;
 /**
@@ -68,6 +69,7 @@ export declare function getChannel(this: any, id: string, options?: IOptions): P
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;
 /**
@@ -94,6 +96,7 @@ export declare function deleteChannel(this: any, id: string, options?: IOptions)
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;
 /**
@@ -121,6 +124,7 @@ export declare function putChannelStatus(this: any, id: string, status?: 'enable
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;
 /**
@@ -174,6 +178,7 @@ export declare function getChannelHistory(this: any, id: string, options?: IOpti
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;
 /**
@@ -208,6 +213,7 @@ export declare function createVod(this: any, id: string, name: string, time: {
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;
 /**

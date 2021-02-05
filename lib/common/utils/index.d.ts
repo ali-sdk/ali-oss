@@ -46,7 +46,7 @@ declare const _default: {
     getResource: typeof getResource;
     getSourceName: typeof getSourceName;
     getStrBytesCount: typeof getStrBytesCount;
-    isArray: (obj: any) => boolean;
+    isArray: (obj: any) => obj is any[];
     isBlob: typeof isBlob;
     isFile: (obj: any) => obj is File;
     isIP: (host: any) => boolean;

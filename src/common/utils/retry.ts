@@ -1,4 +1,4 @@
-export function retry(this: any, func: Function, retryMax: number, config: any = {}) {
+export function retry(func: Function, retryMax: number, config: any = {}) {
   let retryNum = 0;
   const { retryDelay = 500, errorHandler = () => true } = config;
   const funcR = (...arg) => {

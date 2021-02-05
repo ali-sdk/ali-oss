@@ -1,6 +1,7 @@
 import { RequestOptions } from '../../types/params';
-import { abortMultipartUpload } from '../multipart/abortMultipartUpload';
-import { isArray } from '../utils/isArray';
+import { abortMultipartUpload } from '../../common/multipart/abortMultipartUpload';
+import { isArray } from '../../common/utils/isArray';
+import OSS from '../';
 
 /**
  * cancel operation, now can use with multipartUpload
@@ -10,7 +11,7 @@ import { isArray } from '../utils/isArray';
  *        {String} anort.options timeout
  */
 export function cancel(
-  this: any,
+  this: OSS,
   abort: { name: string; uploadId: string; options: RequestOptions }
 ) {
   this.options.cancelFlag = true;

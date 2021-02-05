@@ -1,1 +1,2 @@
-export declare function _stop(this: any): void;
+import { Client } from '../../setConfig';
+export declare function _stop(this: Client): void;

@@ -89,6 +89,7 @@ export interface NormalSuccessResponse {
         rt: number;
         /** request urls */
         requestUrls: string[];
+        data?: any;
     };
 }
 export interface NormalSuccessResponseWithStatus extends NormalSuccessResponse {

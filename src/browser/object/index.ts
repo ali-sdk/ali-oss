@@ -1,8 +1,2 @@
-import { putStream } from './putStream';
-import { put } from './put';
-
-export default {
-  putStream,
-  put
-};
-
+export { putStream } from './putStream';
+export { put } from './put';

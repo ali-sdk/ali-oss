@@ -1,1 +1,2 @@
-export declare function requestError(this: any, result: any): Promise<any>;
+import { Client } from '../../setConfig';
+export declare function requestError(this: Client, result: any): Promise<any>;

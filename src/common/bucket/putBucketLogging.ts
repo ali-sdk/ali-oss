@@ -1,15 +1,17 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function putBucketLogging(
-  this: any,
+  this: Client,
   name: string,
   prefix = '',
   options: RequestOptions = {}
-):Promise<NormalSuccessResponse> {
+): Promise<NormalSuccessResponse> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('PUT', name, 'logging', options);
+  const params = _bucketRequestParams('PUT', name, 'logging', options);
   const parseXMLObj = {
     BucketLoggingStatus: {
       LoggingEnabled: {

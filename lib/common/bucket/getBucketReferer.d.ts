@@ -1,5 +1,6 @@
 import { RequestOptions } from '../../types/params';
-export declare function getBucketReferer(this: any, name: string, options?: RequestOptions): Promise<{
+import { Client } from '../../setConfig';
+export declare function getBucketReferer(this: Client, name: string, options?: RequestOptions): Promise<{
     allowEmpty: boolean;
     referers: any;
     res: any;

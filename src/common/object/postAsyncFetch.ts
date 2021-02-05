@@ -1,6 +1,8 @@
 import { obj2xml } from '../utils/obj2xml';
 import { objectName } from '../utils/objectName';
 import { postAsyncFetchOptions } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 /*
  * postAsyncFetch
@@ -13,7 +15,7 @@ import { postAsyncFetchOptions } from '../../types/params';
  *        {String} options.storageClass Standard/IA/Archive
  *        {Boolean} options.ignoreSameKey  default value true
  */
-export async function postAsyncFetch(this: any, object: string, url: string, options: postAsyncFetchOptions = {}): Promise<object> {
+export async function postAsyncFetch(this: Client, object: string, url: string, options: postAsyncFetchOptions = {}): Promise<object> {
   options.subres = Object.assign({ asyncFetch: '' }, options.subres);
   options.headers = options.headers || {};
   object = objectName(object);
@@ -38,7 +40,7 @@ export async function postAsyncFetch(this: any, object: string, url: string, opt
     }
   };
 
-  const params = this._objectRequestParams('POST', '', options);
+  const params = _objectRequestParams.call(this, 'POST', '', options);
   params.mime = 'xml';
   params.xmlResponse = true;
   params.successStatuses = [200];

@@ -1,6 +1,8 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
 import { GetBucketRequestPaymentReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * getBucketRequestPayment
@@ -9,12 +11,12 @@ import { GetBucketRequestPaymentReturnType } from '../../types/bucket';
  */
 
 export async function getBucketRequestPayment(
-  this: any,
+  this: Client,
   bucketName: string,
   options: RequestOptions = {}
 ):Promise<GetBucketRequestPaymentReturnType> {
   checkBucketName(bucketName);
-  const params = this._bucketRequestParams(
+  const params = _bucketRequestParams(
     'GET',
     bucketName,
     'requestPayment',

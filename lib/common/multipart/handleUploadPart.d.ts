@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
+import { Client } from '../../setConfig';
 import { RequestOptions } from '../../types/params';
 /**
  * Upload a part in a multipart upload transaction
@@ -9,7 +10,7 @@ import { RequestOptions } from '../../types/params';
  * @param {Object} data the body data
  * @param {Object} options
  */
-export declare function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: {
+export declare function handleUploadPart(this: Client, name: string, uploadId: string, partNo: number, data: {
     stream: Buffer | Readable | null;
     size: number;
 }, options?: RequestOptions): Promise<{
@@ -32,5 +33,6 @@ export declare function handleUploadPart(this: any, name: string, uploadId: stri
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;

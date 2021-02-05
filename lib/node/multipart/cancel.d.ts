@@ -1,4 +1,5 @@
 import { RequestOptions } from '../../types/params';
+import OSS from '../';
 /**
  * cancel operation, now can use with multipartUpload
  * @param {Object} abort
@@ -6,7 +7,7 @@ import { RequestOptions } from '../../types/params';
  *        {String} anort.uploadId upload id
  *        {String} anort.options timeout
  */
-export declare function cancel(this: any, abort: {
+export declare function cancel(this: OSS, abort: {
     name: string;
     uploadId: string;
     options: RequestOptions;

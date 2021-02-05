@@ -2,6 +2,8 @@ import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { PutBucketEncryptionOptions } from '../../types/bucket';
 import { NormalSuccessResponseWithStatus } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 /**
  * putBucketEncryption
  * @param {String} bucketName - bucket name
@@ -9,12 +11,12 @@ import { NormalSuccessResponseWithStatus } from '../../types/params';
  */
 
 export async function putBucketEncryption(
-  this: any,
+  this: Client,
   bucketName: string,
   options: PutBucketEncryptionOptions
 ): Promise<NormalSuccessResponseWithStatus> {
   checkBucketName(bucketName);
-  const params = this._bucketRequestParams(
+  const params = _bucketRequestParams(
     'PUT',
     bucketName,
     'encryption',

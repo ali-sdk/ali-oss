@@ -1,13 +1,15 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function deleteBucketLifecycle(
-  this: any,
+  this: Client,
   name: string,
   options: RequestOptions = {}
 ): Promise<NormalSuccessResponse> {
   checkBucketName(name);
-  const params = this._bucketRequestParams(
+  const params = _bucketRequestParams(
     'DELETE',
     name,
     'lifecycle',

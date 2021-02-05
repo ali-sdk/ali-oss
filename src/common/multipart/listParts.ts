@@ -1,6 +1,8 @@
 import copy from 'copy-to';
+import { Client } from '../../setConfig';
 import { ObjectListPartsReturnType } from '../../types/object';
 import { RequestOptions } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
 
 interface ListPartsQuery {
   'max-parts'?: number;
@@ -22,7 +24,7 @@ interface ListPartsQuery {
 
 
 export async function listParts(
-  this: any,
+  this: Client,
   name: string,
   uploadId: string,
   query: ListPartsQuery = {},
@@ -33,7 +35,7 @@ export async function listParts(
   opt.subres = {
     uploadId,
   };
-  const params = this._objectRequestParams('GET', name, opt);
+  const params = _objectRequestParams.call(this, 'GET', name, opt);
   params.query = query;
   params.xmlResponse = true;
   params.successStatuses = [200];

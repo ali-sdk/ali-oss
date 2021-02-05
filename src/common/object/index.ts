@@ -1,55 +1,27 @@
-import { append } from './append';
-import { calculatePostSignature } from './calculatePostSignature';
-import { copy } from './copy';
-import { deleteObject } from './delete';
-import { deleteMulti } from './deleteMulti';
-import { deleteObjectTagging } from './deleteObjectTagging';
-import { generateObjectUrl } from './generateObjectUrl';
-import { get } from './get';
-import { getACL } from './getACL';
-import { getAsyncFetch } from './getAsyncFetch';
-import { getBucketVersions } from './getBucketVersions';
-import { getObjectMeta } from './getObjectMeta';
-import { getObjectTagging } from './getObjectTagging';
-import { getObjectUrl } from './getObjectUrl';
-import { getSymlink } from './getSymlink';
-import { head } from './head';
-import { list } from './list';
-import { listV2 } from './listV2';
-import { postAsyncFetch } from './postAsyncFetch';
-import { putACL } from './putACL';
-import { putMeta } from './putMeta';
-import { putObjectTagging } from './putObjectTagging';
-import { putSymlink } from './putSymlink';
-import { restore } from './restore';
-import { signatureUrl } from './signatureUrl';
-
-export default {
-  append,
-  calculatePostSignature,
-  copy,
-  delete: deleteObject, // 兼容旧版本
-  deleteObject,
-  deleteMulti,
-  deleteObjectTagging,
-  generateObjectUrl,
-  get,
-  getACL,
-  getAsyncFetch,
-  getBucketVersions,
-  listObjectVersions: getBucketVersions, // 兼容旧版本
-  getObjectMeta,
-  getObjectTagging,
-  getObjectUrl,
-  getSymlink,
-  head,
-  list,
-  listV2,
-  postAsyncFetch,
-  putACL,
-  putMeta,
-  putObjectTagging,
-  putSymlink,
-  restore,
-  signatureUrl,
-};
+export { append } from './append';
+export { calculatePostSignature } from './calculatePostSignature';
+export { copy } from './copy';
+// 兼容旧版本 delete
+export { deleteObject, deleteObject as delete } from './delete';
+export { deleteMulti } from './deleteMulti';
+export { deleteObjectTagging } from './deleteObjectTagging';
+export { generateObjectUrl } from './generateObjectUrl';
+export { get } from './get';
+export { getACL } from './getACL';
+export { getAsyncFetch } from './getAsyncFetch';
+// 兼容旧版本 listObjectVersions
+export { getBucketVersions, getBucketVersions as listObjectVersions } from './getBucketVersions';
+export { getObjectMeta } from './getObjectMeta';
+export { getObjectTagging } from './getObjectTagging';
+export { getObjectUrl } from './getObjectUrl';
+export { getSymlink } from './getSymlink';
+export { head } from './head';
+export { list } from './list';
+export { listV2 } from './listV2';
+export { postAsyncFetch } from './postAsyncFetch';
+export { putACL } from './putACL';
+export { putMeta } from './putMeta';
+export { putObjectTagging } from './putObjectTagging';
+export { putSymlink } from './putSymlink';
+export { restore } from './restore';
+export { signatureUrl } from './signatureUrl';

@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 import { ObjectListUploadsReturnType } from '../../types/object';
 import { ListUploadsQuery, RequestOptions } from '../../types/params';
 /**
@@ -6,4 +7,4 @@ import { ListUploadsQuery, RequestOptions } from '../../types/params';
  * @param {Object} options
  * @return {Array} the multipart uploads
  */
-export declare function listUploads(this: any, query?: ListUploadsQuery, options?: RequestOptions): Promise<ObjectListUploadsReturnType>;
+export declare function listUploads(this: Client, query?: ListUploadsQuery, options?: RequestOptions): Promise<ObjectListUploadsReturnType>;

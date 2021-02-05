@@ -1,6 +1,8 @@
 import copy from 'copy-to';
 import { Readable } from 'stream';
+import { Client } from '../../setConfig';
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
 
 const isReadableStreamLike = (stream): stream is Readable => {
   return stream && stream.pipe;
@@ -14,7 +16,7 @@ const isReadableStreamLike = (stream): stream is Readable => {
  * @param {Object} data the body data
  * @param {Object} options
  */
-export async function handleUploadPart(this: any, name: string, uploadId: string, partNo: number, data: { stream: Buffer | Readable | null, size: number }, options: RequestOptions = {}) {
+export async function handleUploadPart(this: Client, name: string, uploadId: string, partNo: number, data: { stream: Buffer | Readable | null, size: number }, options: RequestOptions = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
   opt.headers = opt.headers || {};
@@ -25,7 +27,7 @@ export async function handleUploadPart(this: any, name: string, uploadId: string
     partNumber: partNo,
     uploadId
   };
-  const params = this._objectRequestParams('PUT', name, opt);
+  const params = _objectRequestParams.call(this, 'PUT', name, opt);
   params.mime = opt.mime;
   if (isReadableStreamLike(data.stream)) {
     params.stream = data.stream;

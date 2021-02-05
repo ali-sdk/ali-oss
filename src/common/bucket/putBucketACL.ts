@@ -1,15 +1,17 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { ACLType, RequestOptions } from '../../types/params';
 import { PutBucketACLReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function putBucketACL(
-  this: any,
+  this: Client,
   name: string,
   acl: ACLType,
   options: RequestOptions = {}
 ): Promise<PutBucketACLReturnType> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('PUT', name, 'acl', options);
+  const params = _bucketRequestParams('PUT', name, 'acl', options);
   params.headers = {
     'x-oss-acl': acl,
   };

@@ -1,2 +1,3 @@
 import { ObjectDeleteMultiNames, ObjectDeleteMultiOptions, ObjectDeleteMultiReturnType } from '../../types/object';
-export declare function deleteMulti(this: any, names: ObjectDeleteMultiNames, options?: ObjectDeleteMultiOptions): Promise<ObjectDeleteMultiReturnType>;
+import { Client } from '../../setConfig';
+export declare function deleteMulti(this: Client, names: ObjectDeleteMultiNames, options?: ObjectDeleteMultiOptions): Promise<ObjectDeleteMultiReturnType>;

@@ -1,14 +1,16 @@
 import { objectUrl } from '../utils/objectUrl';
 import { ObjectListQueryParams, ObjectListReturnType } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 export async function list(
-  this: any,
+  this: Client,
   query: ObjectListQueryParams = {},
   options: any = {}
 ): Promise<ObjectListReturnType> {
   // prefix, marker, max-keys, delimiter
 
-  const params = this._objectRequestParams('GET', '', options);
+  const params = _objectRequestParams.call(this, 'GET', '', options);
   params.query = query;
   params.xmlResponse = true;
   params.successStatuses = [200];

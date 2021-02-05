@@ -1,5 +1,7 @@
+import { Client } from '../../setConfig';
 import { ObjectHeadReturnType } from '../../types/object';
 import { MultiVersionCommonOptions } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
 
 /**
  * head
@@ -9,15 +11,15 @@ import { MultiVersionCommonOptions } from '../../types/params';
  */
 
 export async function head(
-  this: any,
+  this: Client,
   name: string,
   options: MultiVersionCommonOptions = {}
-):Promise<ObjectHeadReturnType> {
+): Promise<ObjectHeadReturnType> {
   options.subres = Object.assign({}, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = this._objectRequestParams('HEAD', name, options);
+  const params = _objectRequestParams.call(this, 'HEAD', name, options);
   params.successStatuses = [200, 304];
 
   const result = await this.request(params);

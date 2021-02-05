@@ -2,6 +2,8 @@ import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 import { checkBucketTag } from '../utils/checkBucketTag';
 import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * putBucketTags
@@ -10,10 +12,10 @@ import { NormalSuccessResponseWithStatus, RequestOptions } from '../../types/par
  * @param {Object} options
  */
 
-export async function putBucketTags(this: any, name: string, tag: object, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
+export async function putBucketTags(this: Client, name: string, tag: object, options: RequestOptions = {}): Promise<NormalSuccessResponseWithStatus> {
   checkBucketName(name);
   checkBucketTag(tag);
-  const params = this._bucketRequestParams('PUT', name, 'tagging', options);
+  const params = _bucketRequestParams('PUT', name, 'tagging', options);
   params.successStatuses = [200];
   tag = Object.keys(tag).map(key => ({
     Key: key,

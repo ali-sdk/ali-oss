@@ -1,13 +1,15 @@
 import { objectName } from '../utils/objectName';
 
 import { ACLType, MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 /*
  * Set object's ACL
  * @param {String} name the object key
  * @param {String} acl the object ACL
  * @param {Object} options
  */
-export async function putACL(this: any, name: string, acl: ACLType, options: MultiVersionCommonOptions = {}) {
+export async function putACL(this: Client, name: string, acl: ACLType, options: MultiVersionCommonOptions = {}) {
   options.subres = Object.assign({ acl: '' }, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;
@@ -16,7 +18,7 @@ export async function putACL(this: any, name: string, acl: ACLType, options: Mul
   options.headers['x-oss-object-acl'] = acl;
   name = objectName(name);
 
-  const params = this._objectRequestParams('PUT', name, options);
+  const params = _objectRequestParams.call(this, 'PUT', name, options);
   params.successStatuses = [200];
 
   const result = await this.request(params);

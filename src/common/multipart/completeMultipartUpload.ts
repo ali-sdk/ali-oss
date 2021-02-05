@@ -4,6 +4,8 @@ import { deepCopyWith } from '../utils/deepCopy';
 import { isBuffer } from '../utils/isBuffer';
 import { CompleteMultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * Complete a multipart upload transaction
@@ -26,7 +28,7 @@ import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
  */
 
 export async function completeMultipartUpload(
-  this: any,
+  this: Client,
   name: string,
   uploadId: string,
   parts: Array<{ number: number; etag: string }>,
@@ -57,7 +59,7 @@ export async function completeMultipartUpload(
   if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
   opt.subres = { uploadId };
 
-  const params = this._objectRequestParams('POST', name, opt);
+  const params = _objectRequestParams.call(this, 'POST', name, opt);
   encodeCallback(params, opt);
   params.mime = 'xml';
   params.content = obj2xml(xmlParamObj, { headers: true });

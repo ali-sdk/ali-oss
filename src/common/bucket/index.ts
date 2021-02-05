@@ -1,91 +1,44 @@
-import { abortBucketWorm } from './abortBucketWorm';
-import { completeBucketWorm } from './completeBucketWorm';
-import { deleteBucket } from './deleteBucket';
-import { deleteBucketCORS } from './deleteBucketCORS';
-import { deleteBucketEncryption } from './deleteBucketEncryption';
-import { deleteBucketInventory } from './deleteBucketInventory';
-import { deleteBucketLifecycle } from './deleteBucketLifecycle';
-import { deleteBucketLogging } from './deleteBucketLogging';
-import { deleteBucketPolicy } from './deleteBucketPolicy';
-import { deleteBucketReferer } from './deleteBucketReferer';
-import { deleteBucketTags } from './deleteBucketTags';
-import { deleteBucketWebsite } from './deleteBucketWebsite';
-import { extendBucketWorm } from './extendBucketWorm';
-import { getBucketACL } from './getBucketACL';
-import { getBucketCORS } from './getBucketCORS';
-import { getBucketEncryption } from './getBucketEncryption';
-import { getBucketInfo } from './getBucketInfo';
-import { getBucketInventory } from './getBucketInventory';
-import { getBucketLifecycle } from './getBucketLifecycle';
-import { getBucketLocation } from './getBucketLocation';
-import { getBucketLogging } from './getBucketLogging';
-import { getBucketPolicy } from './getBucketPolicy';
-import { getBucketReferer } from './getBucketReferer';
-import { getBucketRequestPayment } from './getBucketRequestPayment';
-import { getBucketTags } from './getBucketTags';
-import { getBucketVersioning } from './getBucketVersioning';
-import { getBucketWebsite } from './getBucketWebsite';
-import { getBucketWorm } from './getBucketWorm';
-import { initiateBucketWorm } from './initiateBucketWorm';
-import { listBucketInventory } from './listBucketInventory';
-import { listBuckets } from './listBuckets';
-import { putBucket } from './putBucket';
-import { putBucketACL } from './putBucketACL';
-import { putBucketCORS } from './putBucketCORS';
-import { putBucketEncryption } from './putBucketEncryption';
-import { putBucketInventory } from './putBucketInventory';
-import { putBucketLifecycle } from './putBucketLifecycle';
-import { putBucketLogging } from './putBucketLogging';
-import { putBucketPolicy } from './putBucketPolicy';
-import { putBucketReferer } from './putBucketReferer';
-import { putBucketRequestPayment } from './putBucketRequestPayment';
-import { putBucketTags } from './putBucketTags';
-import { putBucketVersioning } from './putBucketVersioning';
-import { putBucketWebsite } from './putBucketWebsite';
-
-export default {
-  abortBucketWorm,
-  completeBucketWorm,
-  deleteBucket,
-  deleteBucketCORS,
-  deleteBucketEncryption,
-  deleteBucketInventory,
-  deleteBucketLifecycle,
-  deleteBucketLogging,
-  deleteBucketPolicy,
-  deleteBucketReferer,
-  deleteBucketTags,
-  deleteBucketWebsite,
-  extendBucketWorm,
-  getBucketACL,
-  getBucketCORS,
-  getBucketEncryption,
-  getBucketInfo,
-  getBucketInventory,
-  getBucketLifecycle,
-  getBucketLocation,
-  getBucketLogging,
-  getBucketPolicy,
-  getBucketReferer,
-  getBucketRequestPayment,
-  getBucketTags,
-  getBucketVersioning,
-  getBucketWebsite,
-  getBucketWorm,
-  initiateBucketWorm,
-  listBucketInventory,
-  listBuckets,
-  putBucket,
-  putBucketACL,
-  putBucketCORS,
-  putBucketEncryption,
-  putBucketInventory,
-  putBucketLifecycle,
-  putBucketLogging,
-  putBucketPolicy,
-  putBucketReferer,
-  putBucketRequestPayment,
-  putBucketTags,
-  putBucketVersioning,
-  putBucketWebsite,
-};
+export { abortBucketWorm } from './abortBucketWorm';
+export { completeBucketWorm } from './completeBucketWorm';
+export { deleteBucket } from './deleteBucket';
+export { deleteBucketCORS } from './deleteBucketCORS';
+export { deleteBucketEncryption } from './deleteBucketEncryption';
+export { deleteBucketInventory } from './deleteBucketInventory';
+export { deleteBucketLifecycle } from './deleteBucketLifecycle';
+export { deleteBucketLogging } from './deleteBucketLogging';
+export { deleteBucketPolicy } from './deleteBucketPolicy';
+export { deleteBucketReferer } from './deleteBucketReferer';
+export { deleteBucketTags } from './deleteBucketTags';
+export { deleteBucketWebsite } from './deleteBucketWebsite';
+export { extendBucketWorm } from './extendBucketWorm';
+export { getBucketACL } from './getBucketACL';
+export { getBucketCORS } from './getBucketCORS';
+export { getBucketEncryption } from './getBucketEncryption';
+export { getBucketInfo } from './getBucketInfo';
+export { getBucketInventory } from './getBucketInventory';
+export { getBucketLifecycle } from './getBucketLifecycle';
+export { getBucketLocation } from './getBucketLocation';
+export { getBucketLogging } from './getBucketLogging';
+export { getBucketPolicy } from './getBucketPolicy';
+export { getBucketReferer } from './getBucketReferer';
+export { getBucketRequestPayment } from './getBucketRequestPayment';
+export { getBucketTags } from './getBucketTags';
+export { getBucketVersioning } from './getBucketVersioning';
+export { getBucketWebsite } from './getBucketWebsite';
+export { getBucketWorm } from './getBucketWorm';
+export { initiateBucketWorm } from './initiateBucketWorm';
+export { listBucketInventory } from './listBucketInventory';
+export { listBuckets } from './listBuckets';
+export { putBucket } from './putBucket';
+export { putBucketACL } from './putBucketACL';
+export { putBucketCORS } from './putBucketCORS';
+export { putBucketEncryption } from './putBucketEncryption';
+export { putBucketInventory } from './putBucketInventory';
+export { putBucketLifecycle } from './putBucketLifecycle';
+export { putBucketLogging } from './putBucketLogging';
+export { putBucketPolicy } from './putBucketPolicy';
+export { putBucketReferer } from './putBucketReferer';
+export { putBucketRequestPayment } from './putBucketRequestPayment';
+export { putBucketTags } from './putBucketTags';
+export { putBucketVersioning } from './putBucketVersioning';
+export { putBucketWebsite } from './putBucketWebsite';

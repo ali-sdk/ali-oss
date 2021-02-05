@@ -1,11 +1,12 @@
 import { MultiVersionCommonOptions } from '../../types/params';
+import { Client } from '../../setConfig';
 /**
  * getSymlink
  * @param {String} name - object name
  * @param {Object} options
  * @param {{res}}
  */
-export declare function getSymlink(this: any, name: string, options?: MultiVersionCommonOptions): Promise<{
+export declare function getSymlink(this: Client, name: string, options?: MultiVersionCommonOptions): Promise<{
     targetName: string;
     res: {
         status: number;
@@ -24,5 +25,6 @@ export declare function getSymlink(this: any, name: string, options?: MultiVersi
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;

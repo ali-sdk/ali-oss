@@ -2,9 +2,9 @@ import crypto from 'crypto';
 import querystring from 'querystring';
 import copy from 'copy-to';
 import AgentKeepalive from 'agentkeepalive';
-import is from 'is-type-of';
 import ms from 'humanize-ms';
 import urllib, { HttpMethod } from 'urllib';
+import { isString } from '../../common/utils/isString';
 
 const debug = require('debug')('ali-oss:sts');
 
@@ -60,7 +60,7 @@ class STS {
 
     if (policy) {
       let policyStr;
-      if ((is as any).string(policy)) {
+      if (isString(policy)) {
         try {
           policyStr = JSON.stringify(JSON.parse(policy as string));
         } catch (err) {

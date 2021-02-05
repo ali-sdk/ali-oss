@@ -1,7 +1,9 @@
+import OSS from '..';
+import { _objectRequestParams } from '../../common/client/_objectRequestParams';
 import { ObjectGetOptions, ObjectGetStreamReturnType } from '../../types/object';
 
 export async function getStream(
-  this: any,
+  this: OSS,
   name: string,
   options: ObjectGetOptions = {}
 ): Promise<ObjectGetStreamReturnType> {
@@ -14,7 +16,7 @@ export async function getStream(
     options.subres['x-oss-process'] = options.process;
   }
 
-  const params = this._objectRequestParams('GET', name, options);
+  const params = _objectRequestParams.call(this, 'GET', name, options);
   params.customResponse = true;
   params.successStatuses = [200, 206, 304];
 

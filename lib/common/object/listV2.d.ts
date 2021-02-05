@@ -1,4 +1,4 @@
 import { ObjectListV2QueryParams, ObjectListV2ReturnType } from '../../types/object';
-export declare function listV2(this: any, query: ObjectListV2QueryParams, options?: {
-    subres?: any;
-}): Promise<ObjectListV2ReturnType>;
+import { Client } from '../../setConfig';
+import { RequestOptions } from '../../types/params';
+export declare function listV2(this: Client, query: ObjectListV2QueryParams, options?: RequestOptions): Promise<ObjectListV2ReturnType>;

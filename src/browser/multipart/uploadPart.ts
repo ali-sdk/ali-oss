@@ -1,5 +1,7 @@
 import { RequestOptions } from '../../types/params';
-import { handleUploadPart } from './handleUploadPart';
+import { _createStream } from '../client/_createStream';
+import { handleUploadPart } from '../../common/multipart/handleUploadPart';
+import { OSS } from '../core';
 
 /**
  * Upload a part in a multipart upload transaction
@@ -12,17 +14,17 @@ import { handleUploadPart } from './handleUploadPart';
  * @param {Object} options
  */
 export async function uploadPart(
-  this: any,
+  this: OSS,
   name: string,
   uploadId: string,
   partNo: number,
-  file: File | string,
+  file: File,
   start: number,
   end: number,
   options: RequestOptions = {}
 ) {
   const data = {
-    stream: await this._createStream(file, start, end, true),
+    stream: await _createStream(file, start, end),
     size: end - start
   };
   return await handleUploadPart.call(this, name, uploadId, partNo, data, options);

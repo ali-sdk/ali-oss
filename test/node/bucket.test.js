@@ -22,7 +22,6 @@ describe('test/bucket.test.js', () => {
   const defaultRegion = config.region;
   before(async () => {
     store = new OSS(config);
-
     const bucketResult = await store.listBuckets({
       // prefix: '',
       'max-keys': 20

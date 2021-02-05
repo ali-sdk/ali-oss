@@ -1,1 +1,2 @@
-export declare function isCancel(this: any): any;
+import { Client } from "../../setConfig";
+export declare function isCancel(this: Client): any;

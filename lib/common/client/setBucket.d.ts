@@ -1,1 +1,2 @@
-export declare function setBucket(this: any, name: string): any;
+import { Client } from '../../setConfig';
+export declare function setBucket(this: Client, name: string): Client;

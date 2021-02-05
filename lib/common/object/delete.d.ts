@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
 /**
  * delete
@@ -5,4 +6,4 @@ import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/pa
  * @param {Object} options
  * @param {{res}}
  */
-export declare function deleteObject(this: any, name: string, options?: MultiVersionCommonOptions): Promise<NormalSuccessResponse>;
+export declare function deleteObject(this: Client, name: string, options?: MultiVersionCommonOptions): Promise<NormalSuccessResponse>;

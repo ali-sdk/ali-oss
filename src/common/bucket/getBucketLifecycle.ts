@@ -3,14 +3,16 @@ import { isArray } from '../utils/isArray';
 import { formatObjKey } from '../utils/formatObjKey';
 import { RequestOptions } from '../../types/params';
 import { GetBucketLifecycleReturnType } from '../../types/bucket_lifecycle';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function getBucketLifecycle(
-  this: any,
+  this: Client,
   name: string,
   options: RequestOptions = {}
-):Promise<GetBucketLifecycleReturnType> {
+): Promise<GetBucketLifecycleReturnType> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('GET', name, 'lifecycle', options);
+  const params = _bucketRequestParams('GET', name, 'lifecycle', options);
   params.successStatuses = [200];
   params.xmlResponse = true;
   const result = await this.request(params);

@@ -1,6 +1,8 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
 import { GetBucketVersioningReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 /**
  * getBucketVersioning
@@ -8,12 +10,12 @@ import { GetBucketVersioningReturnType } from '../../types/bucket';
  */
 
 export async function getBucketVersioning(
-  this: any,
+  this: Client,
   bucketName: string,
   options: RequestOptions = {}
 ): Promise<GetBucketVersioningReturnType> {
   checkBucketName(bucketName);
-  const params = this._bucketRequestParams(
+  const params = _bucketRequestParams(
     'GET',
     bucketName,
     'versioning',

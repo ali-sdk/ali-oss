@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 import { RequestOptions } from '../../types/params';
 /**
  * Abort a multipart upload transaction
@@ -5,7 +6,7 @@ import { RequestOptions } from '../../types/params';
  * @param {String} uploadId the upload id
  * @param {Object} options
  */
-export declare function abortMultipartUpload(this: any, name: string, uploadId: string, options?: RequestOptions): Promise<{
+export declare function abortMultipartUpload(this: Client, name: string, uploadId: string, options?: RequestOptions): Promise<{
     res: {
         status: number;
         headers: {
@@ -23,5 +24,6 @@ export declare function abortMultipartUpload(this: any, name: string, uploadId: 
         size: number;
         rt: number;
         requestUrls: string[];
+        data?: any;
     };
 }>;

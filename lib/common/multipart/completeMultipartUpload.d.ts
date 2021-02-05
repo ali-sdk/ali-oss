@@ -1,5 +1,6 @@
 import { CompleteMultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
+import { Client } from '../../setConfig';
 /**
  * Complete a multipart upload transaction
  * @param {String} name the object name
@@ -19,7 +20,7 @@ import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
  *                     key2: 'value2'
  *                   }
  */
-export declare function completeMultipartUpload(this: any, name: string, uploadId: string, parts: Array<{
+export declare function completeMultipartUpload(this: Client, name: string, uploadId: string, parts: Array<{
     number: number;
     etag: string;
 }>, options?: CompleteMultipartUploadOptions): Promise<ObjectCompleteMultipartUploadReturnType>;

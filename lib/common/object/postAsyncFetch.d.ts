@@ -1,2 +1,3 @@
 import { postAsyncFetchOptions } from '../../types/params';
-export declare function postAsyncFetch(this: any, object: string, url: string, options?: postAsyncFetchOptions): Promise<object>;
+import { Client } from '../../setConfig';
+export declare function postAsyncFetch(this: Client, object: string, url: string, options?: postAsyncFetchOptions): Promise<object>;

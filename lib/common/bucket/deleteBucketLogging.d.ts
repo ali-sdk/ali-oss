@@ -1,2 +1,3 @@
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
-export declare function deleteBucketLogging(this: any, name: string, options?: RequestOptions): Promise<NormalSuccessResponse>;
+import { Client } from '../../setConfig';
+export declare function deleteBucketLogging(this: Client, name: string, options?: RequestOptions): Promise<NormalSuccessResponse>;

@@ -3,13 +3,15 @@ import { isArray } from '../utils/isArray';
 import { objectUrl } from '../utils/objectUrl';
 import { RequestOptions } from '../../types/params';
 import { GetBucketVersionsQueryParams, getBucketVersionsReturnType } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 
 // proto.getBucketVersions = getBucketVersions;
 // proto.listObjectVersions = getBucketVersions;
 
 export async function getBucketVersions(
-  this: any,
+  this: Client,
   query: GetBucketVersionsQueryParams = {},
   options: RequestOptions = {}
 ): Promise<getBucketVersionsReturnType> {
@@ -19,7 +21,7 @@ export async function getBucketVersions(
   }
 
   options.subres = Object.assign({ versions: '' }, options.subres);
-  const params = this._objectRequestParams('GET', '', options);
+  const params = _objectRequestParams.call(this, 'GET', '', options);
   params.xmlResponse = true;
   params.successStatuses = [200];
 

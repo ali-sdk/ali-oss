@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { isBlob } from '../../common/utils/isBlob';
 import { isFile } from '../../common/utils/isFile';
 import { isBuffer } from '../../common/utils/isBuffer';

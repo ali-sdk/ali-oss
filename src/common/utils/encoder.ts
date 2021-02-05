@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { THeaderEncoding } from '../../types/experimental';
 
 export function encoder(str: string, encoding: THeaderEncoding = 'utf-8') {

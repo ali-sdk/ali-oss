@@ -1,4 +1,4 @@
-
+import { Buffer } from 'buffer';
 
 export function encodeCallback(reqParams, options) {
   reqParams.headers = reqParams.headers || {};

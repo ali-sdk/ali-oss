@@ -1,1 +1,2 @@
-export declare function setSTSToken(this: any): Promise<void>;
+import { Client } from '../../setConfig';
+export declare function setSTSToken(this: Client): Promise<void>;

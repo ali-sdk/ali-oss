@@ -1,6 +1,7 @@
 import urlutil from 'url';
 import { objectName } from '../utils/objectName';
 import { escapeName } from '../utils/escapeName';
+import { Client } from '../../setConfig';
 
 /**
  * Get Object url by name
@@ -9,7 +10,7 @@ import { escapeName } from '../utils/escapeName';
  * @return {String} object url include bucket
  */
 
-export function generateObjectUrl(this: any, name: string, baseUrl?: string) {
+export function generateObjectUrl(this: Client, name: string, baseUrl?: string) {
   if (!baseUrl) {
     baseUrl = this.options.endpoint.format();
     const copyUrl: any = urlutil.parse((baseUrl as string));

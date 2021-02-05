@@ -1,15 +1,17 @@
 import copy from 'copy-to';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
 import { InitMultipartUploadOptions, NormalSuccessResponse } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
-export async function initMultipartUpload(this: any, name: string, options: InitMultipartUploadOptions = {}) {
+export async function initMultipartUpload(this: Client, name: string, options: InitMultipartUploadOptions = {}) {
   const opt: any = {};
   copy(options).to(opt);
   opt.headers = opt.headers || {};
   convertMetaToHeaders(options.meta, opt.headers);
 
   opt.subres = 'uploads';
-  const params = this._objectRequestParams('POST', name, opt);
+  const params = _objectRequestParams.call(this, 'POST', name, opt);
   params.mime = options.mime;
   params.xmlResponse = true;
   params.successStatuses = [200];

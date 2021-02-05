@@ -1,11 +1,15 @@
 /* eslint-disable no-async-promise-executor */
 import { divideParts } from '../../common/utils/divideParts';
-import { completeMultipartUpload } from './completeMultipartUpload';
-import { handleUploadPart } from './handleUploadPart';
-import { _makeCancelEvent } from '../utils/_makeCancelEvent';
-import { _makeAbortEvent } from '../utils/_makeAbortEvent';
-import { _parallel } from '../utils/_parallel';
-import { Checkpoint } from '../../types/params';
+import { completeMultipartUpload } from '../../common/multipart/completeMultipartUpload';
+import { handleUploadPart } from '../../common/multipart/handleUploadPart';
+import { _makeCancelEvent } from '../../common/utils/_makeCancelEvent';
+import { _makeAbortEvent } from '../../common/utils/_makeAbortEvent';
+import { _parallel } from '../../common/utils/_parallel';
+import { Checkpoint, MultipartUploadOptions } from '../../types/params';
+import { _createStream } from '../client/_createStream';
+import { checkBrowserAndVersion } from '../../common/utils/checkBrowserAndVersion';
+import { isCancel } from '../../common/client';
+import OSS from '..';
 
 /*
  * Resume multipart upload from checkpoint. The checkpoint will be
@@ -14,11 +18,11 @@ import { Checkpoint } from '../../types/params';
  * @param {Object} options
  */
 export async function resumeMultipart(
-  this: any,
+  this: OSS,
   checkpoint: Checkpoint,
-  options: any = {}
+  options: MultipartUploadOptions = {}
 ) {
-  if (this.isCancel()) {
+  if (isCancel.call(this)) {
     throw _makeCancelEvent();
   }
   const { file, fileSize, partSize, uploadId, doneParts, name } = checkpoint;
@@ -34,33 +38,31 @@ export async function resumeMultipart(
         return;
       }
       try {
-        if (!this.isCancel()) {
+        if (!isCancel.call(this)) {
           const pi = partOffs[partNo - 1];
-          const stream = await this._createStream(file, pi.start, pi.end);
+          const stream = await _createStream(file, pi.start, pi.end);
           const data = {
             stream,
             size: pi.end - pi.start,
           };
 
-          if (stream && stream.pipe) {
-            if (Array.isArray(this.multipartUploadStreams)) {
-              this.multipartUploadStreams.push(data.stream);
-            } else {
-              this.multipartUploadStreams = [data.stream];
-            }
-            const removeStreamFromMultipartUploadStreams = () => {
-              if (!stream.destroyed) {
-                stream.destroy();
-              }
-              if (!Array.isArray(this.multipartUploadStreams)) return;
-              const index = this.multipartUploadStreams.indexOf(stream);
-              if (index !== -1) {
-                this.multipartUploadStreams.splice(index, 1);
-              }
-            };
-            stream.on('close', removeStreamFromMultipartUploadStreams);
-            stream.on('error', removeStreamFromMultipartUploadStreams);
+          if (Array.isArray(this.multipartUploadStreams)) {
+            this.multipartUploadStreams.push(data.stream);
+          } else {
+            this.multipartUploadStreams = [data.stream];
           }
+          const removeStreamFromMultipartUploadStreams = () => {
+            if (!stream.destroyed) {
+              stream.destroy();
+            }
+            if (!Array.isArray(this.multipartUploadStreams)) return;
+            const index = this.multipartUploadStreams.indexOf(stream);
+            if (index !== -1) {
+              this.multipartUploadStreams.splice(index, 1);
+            }
+          };
+          stream.on('close', removeStreamFromMultipartUploadStreams);
+          stream.on('error', removeStreamFromMultipartUploadStreams);
 
           let result;
           try {
@@ -73,9 +75,7 @@ export async function resumeMultipart(
               options
             );
           } catch (error) {
-            if (typeof stream.destroy === 'function') {
-              stream.destroy();
-            }
+            stream.destroy();
             throw error;
           }
 
@@ -84,7 +84,7 @@ export async function resumeMultipart(
             resolve(hasUploadPart);
             return;
           }
-          if (!this.isCancel()) {
+          if (!isCancel.call(this)) {
             doneParts.push({
               number: partNo,
               etag: result.res.headers.etag,
@@ -105,7 +105,7 @@ export async function resumeMultipart(
             });
           }
         }
-        resolve();
+        resolve(undefined);
       } catch (err) {
         err.partNum = partNo;
         if (err.status === 404) {
@@ -124,11 +124,11 @@ export async function resumeMultipart(
   const parallel = options.parallel || defaultParallel;
 
   if (
-    this.checkBrowserAndVersion('Internet Explorer', '10') ||
+    checkBrowserAndVersion('Internet Explorer', '10') ||
     parallel === 1
   ) {
     for (let i = 0; i < todo.length; i++) {
-      if (this.isCancel()) {
+      if (isCancel.call(this)) {
         throw _makeCancelEvent();
       }
       /* eslint no-await-in-loop: [0] */
@@ -138,7 +138,7 @@ export async function resumeMultipart(
     // upload in parallel
     const jobErr = await _parallel.call(this, todo, parallel, uploadPartJob);
 
-    if (this.isCancel()) {
+    if (isCancel.call(this)) {
       uploadPartJob = null;
       throw _makeCancelEvent();
     }

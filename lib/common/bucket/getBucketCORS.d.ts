@@ -1,3 +1,4 @@
 import { RequestOptions } from '../../types/params';
 import { GetBucketCORSReturnType } from '../../types/bucket';
-export declare function getBucketCORS(this: any, name: string, options?: RequestOptions): Promise<GetBucketCORSReturnType>;
+import { Client } from '../../setConfig';
+export declare function getBucketCORS(this: Client, name: string, options?: RequestOptions): Promise<GetBucketCORSReturnType>;

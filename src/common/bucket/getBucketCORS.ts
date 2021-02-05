@@ -2,14 +2,16 @@ import { checkBucketName } from '../utils/checkBucketName';
 import { isArray } from '../utils/isArray';
 import { RequestOptions } from '../../types/params';
 import { GetBucketCORSReturnType } from '../../types/bucket';
+import { _bucketRequestParams } from '../client/_bucketRequestParams';
+import { Client } from '../../setConfig';
 
 export async function getBucketCORS(
-  this: any,
+  this: Client,
   name: string,
   options: RequestOptions = {}
 ):Promise<GetBucketCORSReturnType> {
   checkBucketName(name);
-  const params = this._bucketRequestParams('GET', name, 'cors', options);
+  const params = _bucketRequestParams('GET', name, 'cors', options);
   params.successStatuses = [200];
   params.xmlResponse = true;
   const result = await this.request(params);

@@ -1,6 +1,8 @@
+import { Buffer } from 'buffer';
 import { policy2Str } from '../utils/policy2Str';
 import { computeSignature } from '../utils/signUtils';
 import { isObject } from '../utils/isObject';
+import { Client } from '../../setConfig';
 
 /**
  * @param {Object or JSON} policy specifies the validity of the fields in the request.
@@ -10,7 +12,7 @@ import { isObject } from '../utils/isObject';
  *         {String} params.policy JSON text encoded with UTF-8 and Base64.
  */
 
-export function calculatePostSignature(this: any, policy: object | string) {
+export function calculatePostSignature(this: Client, policy: object | string) {
   if (!isObject(policy) && typeof policy !== 'string') {
     throw new Error('policy must be JSON string or Object');
   }

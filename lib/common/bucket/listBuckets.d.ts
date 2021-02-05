@@ -1,3 +1,4 @@
 import { RequestOptions } from '../../types/params';
 import { ListBucketsQueryType, ListBucketsReturnType } from '../../types/bucket';
-export declare function listBuckets(this: any, query?: ListBucketsQueryType, options?: RequestOptions): Promise<ListBucketsReturnType>;
+import { Client } from '../../setConfig';
+export declare function listBuckets(this: Client, query?: ListBucketsQueryType, options?: RequestOptions): Promise<ListBucketsReturnType>;

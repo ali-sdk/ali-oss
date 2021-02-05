@@ -10,6 +10,9 @@ import { _parallel } from '../utils/_parallel';
 import { uploadPartCopy } from './uploadPartCopy';
 import { completeMultipartUpload } from './completeMultipartUpload';
 import { MultipartUploadCopySourceData, MultipartUploadOptions, MultiVersionCommonOptions } from '../../types/params';
+import { checkBrowserAndVersion } from '../utils/checkBrowserAndVersion';
+import { isCancel, resetCancelFlag } from '../client';
+import { Client } from '../../setConfig';
 
 const debug = _debug('ali-oss:multipart-copy');
 
@@ -25,13 +28,13 @@ const debug = _debug('ali-oss:multipart-copy');
  */
 
 export async function multipartUploadCopy(
-  this: any,
+  this: Client,
   name: string,
   sourceData: MultipartUploadCopySourceData,
   options: MultipartUploadOptions & MultiVersionCommonOptions = {}
 ) {
-  this.resetCancelFlag();
-  const { versionId = null } = options;
+  resetCancelFlag.call(this);
+  const { versionId } = options;
   const metaOpt = {
     versionId,
   };
@@ -91,12 +94,12 @@ export async function multipartUploadCopy(
  * @param {Object} options
  */
 export async function _resumeMultipartCopy(
-  this: any,
+  this: Client,
   checkpoint,
   sourceData,
   options
 ) {
-  if (this.isCancel()) {
+  if (isCancel.call(this)) {
     throw _makeCancelEvent();
   }
   const { versionId = null } = options;
@@ -127,7 +130,7 @@ export async function _resumeMultipartCopy(
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
-        if (!this.isCancel()) {
+        if (!isCancel.call(this)) {
           const pi = partOffs[partNo - 1];
           const range = `${pi.start}-${pi.end - 1}`;
 
@@ -141,7 +144,7 @@ export async function _resumeMultipartCopy(
             uploadPartCopyOptions
           );
 
-          if (!this.isCancel()) {
+          if (!isCancel.call(this)) {
             debug(`content-range ${result.res.headers['content-range']}`);
             doneParts.push({
               number: partNo,
@@ -176,11 +179,11 @@ export async function _resumeMultipartCopy(
   const parallel = options.parallel || defaultParallel;
 
   if (
-    this.checkBrowserAndVersion('Internet Explorer', '10') ||
+    checkBrowserAndVersion('Internet Explorer', '10') ||
     parallel === 1
   ) {
     for (let i = 0; i < todo.length; i++) {
-      if (this.isCancel()) {
+      if (isCancel.call(this)) {
         throw _makeCancelEvent();
       }
       await uploadPartJob(todo[i], sourceData);
@@ -195,7 +198,7 @@ export async function _resumeMultipartCopy(
       sourceData
     );
 
-    if (this.isCancel()) {
+    if (isCancel.call(this)) {
       throw _makeCancelEvent();
     }
 

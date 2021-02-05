@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 import { GetBucketInventoryReturnType } from '../../types/bucket';
 /**
  * getBucketInventory
@@ -5,4 +6,4 @@ import { GetBucketInventoryReturnType } from '../../types/bucket';
  * @param {String} inventoryId
  * @param {Object} options
  */
-export declare function getBucketInventory(this: any, bucketName: string, inventoryId: string, options?: any): Promise<GetBucketInventoryReturnType>;
+export declare function getBucketInventory(this: Client, bucketName: string, inventoryId: string, options?: any): Promise<GetBucketInventoryReturnType>;

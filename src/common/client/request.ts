@@ -1,7 +1,10 @@
 import _debug from 'debug';
+import { Client } from '../../setConfig';
 import { parseXML } from '../utils/parseXML';
 import { retry } from '../utils/retry';
 import { setSTSToken } from '../utils/setSTSToken';
+import { _createRequest } from './_createRequest';
+import { _getUserAgent } from './_getUserAgent';
 
 const debug = _debug('ali-oss');
 
@@ -24,9 +27,9 @@ const debug = _debug('ali-oss');
  * @api private
  */
 
-export async function _request(this: any, params) {
-  const reqParams = this._createRequest(params);
-  const isNode = this._getUserAgent().includes('nodejs');
+export async function _request(this: Client, params) {
+  const reqParams = _createRequest.call(this, params);
+  const isNode = _getUserAgent().includes('nodejs');
 
   if (!isNode && !this.options.useFetch) {
     reqParams.params.mode = 'disable-fetch';
@@ -60,8 +63,8 @@ export async function _request(this: any, params) {
     }
 
     if (err.status === 403 && err.code === 'InvalidAccessKeyId' &&
-     this.options.accessKeyId.startsWith('STS.') &&
-     typeof this.options.refreshSTSToken === 'function') {
+      this.options.accessKeyId.startsWith('STS.') &&
+      typeof this.options.refreshSTSToken === 'function') {
       // prevent infinite loop, only trigger once within 10 seconds
       if (!this._setOptions || Date.now() - this._setOptions > 10000) {
         this._setOptions = Date.now();
@@ -83,7 +86,7 @@ export async function _request(this: any, params) {
 }
 
 
-export async function request(this: any, params) {
+export async function request(this: Client, params) {
   const isAvailableStream = params.stream ? params.stream.readable : true;
   if (this.options.retryMax && isAvailableStream) {
     const requestfn = retry(_request.bind(this), this.options.retryMax, {

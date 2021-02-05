@@ -1,9 +1,10 @@
 import _debug from 'debug';
+import { Client } from '../../setConfig';
 import { parseXML } from '../utils/parseXML';
 
 const debug = _debug('ali-oss');
 
-export async function requestError(this: any, result) {
+export async function requestError(this: Client, result) {
   let err: any = null;
   if (result.name === 'ResponseTimeoutError') {
     err = new Error(result.message);

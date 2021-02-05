@@ -1,4 +1,5 @@
 import { Readable } from 'stream';
+import { Client } from '../../setConfig';
 import { ObjectAppendOptions, ObjectAppendReturnType } from '../../types/object';
 
 /**
@@ -10,7 +11,7 @@ import { ObjectAppendOptions, ObjectAppendReturnType } from '../../types/object'
  */
 
 export async function append(
-  this: any,
+  this: Client & { put?: Function },
   name: string,
   file: string | Buffer | Readable,
   options: ObjectAppendOptions = {}
@@ -25,6 +26,5 @@ export async function append(
     position: options.position,
   };
   const result = await put.call(this, name, file, Object.assign({ method: 'POST' }, options));
-  result.nextAppendPosition = result.res.headers['x-oss-next-append-position'];
-  return result;
+  return Object.assign(result, { nextAppendPosition: result.res.headers['x-oss-next-append-position'] });
 }

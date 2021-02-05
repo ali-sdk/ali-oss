@@ -1,2 +1,3 @@
 import { BucketRequestPayer, NormalSuccessResponseWithStatus, RequestOptions } from '../../types/params';
-export declare function putBucketRequestPayment(this: any, bucketName: string, payer: BucketRequestPayer, options?: RequestOptions): Promise<NormalSuccessResponseWithStatus>;
+import { Client } from '../../setConfig';
+export declare function putBucketRequestPayment(this: Client, bucketName: string, payer: BucketRequestPayer, options?: RequestOptions): Promise<NormalSuccessResponseWithStatus>;

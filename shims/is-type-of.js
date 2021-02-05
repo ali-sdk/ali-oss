@@ -1,4 +1,5 @@
 const { Stream } = require('stream');
+const { Buffer } = require('buffer'); 
 const { isArray } = require('../lib/common/utils/isArray');
 
 module.exports.string = function isString(obj) {

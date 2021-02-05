@@ -1,3 +1,4 @@
+import { Client } from '../../setConfig';
 import { ObjectListPartsReturnType } from '../../types/object';
 import { RequestOptions } from '../../types/params';
 interface ListPartsQuery {
@@ -16,5 +17,5 @@ interface ListPartsQuery {
  * @param {Object} options
  * @return {Object} result
  */
-export declare function listParts(this: any, name: string, uploadId: string, query?: ListPartsQuery, options?: RequestOptions): Promise<ObjectListPartsReturnType>;
+export declare function listParts(this: Client, name: string, uploadId: string, query?: ListPartsQuery, options?: RequestOptions): Promise<ObjectListPartsReturnType>;
 export {};

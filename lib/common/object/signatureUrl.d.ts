@@ -1,2 +1,3 @@
 import { signatureUrlOptions } from '../../types/params';
-export declare function signatureUrl(this: any, name: string, options?: signatureUrlOptions): string;
+import { Client } from '../../setConfig';
+export declare function signatureUrl(this: Client, name: string, options?: signatureUrlOptions): string;

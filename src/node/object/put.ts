@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import mime from 'mime';
-import is from 'is-type-of';
 import { Readable } from 'stream';
 import { putStream } from './putStream';
 import { getFileSize } from '../utils/getFileSize';
@@ -11,8 +10,10 @@ import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { isBuffer } from '../../common/utils/isBuffer';
 import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
-// eslint-disable-next-line import/first
-
+import { _objectRequestParams } from '../../common/client/_objectRequestParams';
+import OSS from '..';
+import { isString } from '../../common/utils/isString';
+import { isReadable } from '../../common/utils/isStream';
 
 /**
  * put an object from String(file path)/Buffer/ReadableStream
@@ -32,7 +33,7 @@ import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
  * @return {Object}
  */
 export async function put(
-  this: any,
+  this: OSS,
   name: string,
   file: string | Buffer | Readable,
   options: ObjectPutOptions = {}
@@ -42,7 +43,7 @@ export async function put(
 
   if (isBuffer(file)) {
     content = file;
-  } else if (is.string(file)) {
+  } else if (isString(file)) {
     const stats = fs.statSync(file);
     if (!stats.isFile()) {
       throw new Error(`${file} is not file`);
@@ -51,7 +52,7 @@ export async function put(
     const stream = fs.createReadStream(file);
     options.contentLength = await getFileSize(file);
     return await putStream.call(this, name, stream, options);
-  } else if (is.readableStream(file)) {
+  } else if (isReadable(file)) {
     return await putStream.call(this, name, file, options);
   } else {
     throw new TypeError('Must provide String/Buffer/ReadableStream for put.');
@@ -61,7 +62,7 @@ export async function put(
   convertMetaToHeaders(options.meta, options.headers);
 
   const method = options.method || 'PUT';
-  const params = this._objectRequestParams(method, name, options);
+  const params = _objectRequestParams.call(this, method, name, options);
 
   encodeCallback(params, options);
 

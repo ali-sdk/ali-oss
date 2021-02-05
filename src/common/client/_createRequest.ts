@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { Buffer } from 'buffer';
 import mime from 'mime';
 import dateFormat from 'dateformat';
 import copy from 'copy-to';
@@ -10,6 +11,7 @@ import { getReqUrl } from '../utils/getReqUrl';
 import { encoder } from '../utils/encoder';
 import { isIP } from '../utils/isIP';
 import { setRegion } from './initOptions';
+import { Client } from '../../setConfig';
 
 const _debug = debug('ali-oss');
 
@@ -32,7 +34,7 @@ function delHeader(headers: Headers, name: string) {
   delete headers[name.toLowerCase()];
 }
 
-export function _createRequest(this: any, params) {
+export function _createRequest(this: Client, params) {
   let date = new Date();
   if (this.options.amendTimeSkewed) {
     date = +new Date() + this.options.amendTimeSkewed;

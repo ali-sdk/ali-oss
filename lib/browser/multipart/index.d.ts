@@ -1,5 +1,3 @@
-import { multipartUpload } from './multipartUpload';
-declare const _default: {
-    multipartUpload: typeof multipartUpload;
-};
-export default _default;
+export { multipartUpload } from './multipartUpload';
+export { uploadPart } from './uploadPart';
+export { cancel } from './cancel';

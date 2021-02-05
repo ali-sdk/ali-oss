@@ -2,9 +2,11 @@ import querystring from 'querystring';
 import { Base64 } from 'js-base64';
 import { checkBucketName as _checkBucketName } from '../utils/checkBucketName';
 import { objectName } from '../utils/objectName';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 export async function processObjectSave(
-  this: any,
+  this: Client,
   sourceObject: string,
   targetObject: string,
   process: string,
@@ -18,7 +20,7 @@ export async function processObjectSave(
     _checkBucketName(targetBucket);
   }
 
-  const params = this._objectRequestParams('POST', sourceObject, {
+  const params = _objectRequestParams.call(this, 'POST', sourceObject, {
     subres: 'x-oss-process',
   });
 

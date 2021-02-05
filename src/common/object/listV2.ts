@@ -1,10 +1,13 @@
 import { objectUrl } from '../utils/objectUrl';
 import { ObjectListV2QueryParams, ObjectListV2ReturnType } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
+import { RequestOptions } from '../../types/params';
 
 export async function listV2(
-  this: any,
+  this: Client,
   query: ObjectListV2QueryParams,
-  options: { subres?: any } = {}
+  options: RequestOptions = {}
 ): Promise<ObjectListV2ReturnType> {
   const continuation_token = query['continuation-token'];
   delete query['continuation-token'];
@@ -16,7 +19,7 @@ export async function listV2(
       options.subres
     );
   }
-  const params = this._objectRequestParams('GET', '', options);
+  const params = _objectRequestParams.call(this, 'GET', '', options);
   params.query = Object.assign({ 'list-type': 2 }, query);
   params.xmlResponse = true;
   params.successStatuses = [200];

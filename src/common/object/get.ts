@@ -1,9 +1,12 @@
 import fs from 'fs';
-import is from 'is-type-of';
 import { Writable } from 'stream';
 import { deleteFileSafe } from '../utils/deleteFileSafe';
 import { isObject } from '../utils/isObject';
 import { ObjectGetOptions, ObjectGetReturnType } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
+import { isWritable } from '../utils/isStream';
+import { isString } from '../utils/isString';
 
 /**
  * get
@@ -13,7 +16,7 @@ import { ObjectGetOptions, ObjectGetReturnType } from '../../types/object';
  * @param {{res}}
  */
 export async function get(
-  this: any,
+  this: Client,
   name: string,
   file: string | Writable,
   options: ObjectGetOptions = {}
@@ -21,9 +24,9 @@ export async function get(
   let writeStream: any = null;
   let needDestroy = false;
 
-  if (is.writableStream(file)) {
+  if (isWritable(file)) {
     writeStream = file;
-  } else if (is.string(file)) {
+  } else if (isString(file)) {
     writeStream = fs.createWriteStream(file);
     needDestroy = true;
   } else if (isObject(file)) {
@@ -46,7 +49,7 @@ export async function get(
 
   let result: any;
   try {
-    const params = this._objectRequestParams('GET', name, options);
+    const params = _objectRequestParams.call(this, 'GET', name, options);
     params.writeStream = writeStream;
     params.successStatuses = [200, 206, 304];
 

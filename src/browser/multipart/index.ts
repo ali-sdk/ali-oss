@@ -1,6 +1,3 @@
-import { multipartUpload } from './multipartUpload';
-
-export default {
-  multipartUpload
-};
-
+export { multipartUpload } from './multipartUpload';
+export { uploadPart } from './uploadPart';
+export { cancel } from './cancel';

@@ -1,4 +1,6 @@
+import { Client } from '../../setConfig';
 import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
 
 /**
  * delete
@@ -8,7 +10,7 @@ import { MultiVersionCommonOptions, NormalSuccessResponse } from '../../types/pa
  */
 
 export async function deleteObject(
-  this: any,
+  this: Client,
   name: string,
   options: MultiVersionCommonOptions = {}
 ): Promise<NormalSuccessResponse> {
@@ -16,7 +18,7 @@ export async function deleteObject(
   if (options.versionId) {
     options.subres.versionId = options.versionId;
   }
-  const params = this._objectRequestParams('DELETE', name, options);
+  const params = _objectRequestParams.call(this, 'DELETE', name, options);
   params.successStatuses = [204];
 
   const result = await this.request(params);

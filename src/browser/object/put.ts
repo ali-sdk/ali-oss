@@ -10,6 +10,9 @@ import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
 import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
+import { _objectRequestParams } from '../../common/client/_objectRequestParams';
+import { _createStream } from '../client/_createStream';
+import { OSS } from '../core';
 /**
  * put an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -29,7 +32,7 @@ import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
  */
 
 export async function put(
-  this: any,
+  this: OSS,
   name: string,
   file: Buffer | Blob | File,
   options: ObjectPutOptions = {}
@@ -47,7 +50,7 @@ export async function put(
       }
     }
 
-    const stream = await this._createStream(file, 0, file.size);
+    const stream = await _createStream(file, 0, file.size);
     options.contentLength = await getFileSize(file);
     try {
       const result = await putStream.call(this, name, stream, options);
@@ -68,7 +71,7 @@ export async function put(
   convertMetaToHeaders(options.meta, options.headers);
 
   const method = options.method || 'PUT';
-  const params = this._objectRequestParams(method, name, options);
+  const params = _objectRequestParams.call(this, method, name, options);
   encodeCallback(params, options);
   params.mime = options.mime;
   params.content = content;

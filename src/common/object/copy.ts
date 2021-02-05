@@ -1,6 +1,8 @@
 import { getSourceName } from '../utils/getSourceName';
 import { convertMetaToHeaders } from '../utils/convertMetaToHeaders';
 import { ObjectCopyOptions, ObjectCopyReturnType } from '../../types/object';
+import { _objectRequestParams } from '../client/_objectRequestParams';
+import { Client } from '../../setConfig';
 
 const REPLACE_HEDERS = [
   'content-type',
@@ -12,12 +14,12 @@ const REPLACE_HEDERS = [
 ];
 
 export async function copy(
-  this: any,
+  this: Client,
   name: string,
   sourceName: string,
   bucketName?: string | ObjectCopyOptions,
   options?: ObjectCopyOptions
-):Promise<ObjectCopyReturnType> {
+): Promise<ObjectCopyReturnType> {
   if (typeof bucketName === 'object') {
     options = bucketName; // 兼容旧版本，旧版本第三个参数为options
   }
@@ -41,7 +43,7 @@ export async function copy(
 
   options.headers['x-oss-copy-source'] = sourceName;
 
-  const params = this._objectRequestParams('PUT', name, options);
+  const params = _objectRequestParams.call(this, 'PUT', name, options);
   params.xmlResponse = true;
   params.successStatuses = [200, 304];
 

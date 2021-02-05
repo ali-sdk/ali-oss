@@ -1,6 +1,8 @@
 import copy from 'copy-to';
+import { Client } from '../../setConfig';
 import { ObjectListUploadsReturnType } from '../../types/object';
 import { ListUploadsQuery, RequestOptions } from '../../types/params';
+import { _objectRequestParams } from '../client/_objectRequestParams';
 
 /**
  * List the on-going multipart uploads
@@ -10,14 +12,14 @@ import { ListUploadsQuery, RequestOptions } from '../../types/params';
  */
 
 export async function listUploads(
-  this: any,
+  this: Client,
   query: ListUploadsQuery = {},
   options: RequestOptions = {}
 ): Promise<ObjectListUploadsReturnType> {
   const opt: any = {};
   copy(options).to(opt);
   opt.subres = 'uploads';
-  const params = this._objectRequestParams('GET', '', opt);
+  const params = _objectRequestParams.call(this, 'GET', '', opt);
   params.query = query;
   params.xmlResponse = true;
   params.successStatuses = [200];

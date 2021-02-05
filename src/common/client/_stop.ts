@@ -1,3 +1,5 @@
-export function _stop(this: any) {
+import { Client } from '../../setConfig';
+
+export function _stop(this: Client) {
   this.options.cancelFlag = true;
 }

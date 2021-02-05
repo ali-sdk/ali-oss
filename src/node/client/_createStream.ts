@@ -1,12 +1,13 @@
 import fs from 'fs';
-import is from 'is-type-of';
 import { Readable } from 'stream';
 import { isFile } from '../../common/utils/isFile';
 import { WebFileReadStream } from '../../common/utils/webFileReadStream';
 import { isBuffer } from '../../common/utils/isBuffer';
+import { isReadable } from '../../common/utils/isStream';
+import { isString } from '../../common/utils/isString';
 
 export async function _createStream(file: Readable | File | Buffer | string, start: number, end: number): Promise<Readable> {
-  if (is.readableStream(file)) {
+  if (isReadable(file)) {
     return file;
   } else if (isFile(file)) {
     return new WebFileReadStream(file.slice(start, end));
@@ -19,7 +20,7 @@ export async function _createStream(file: Readable | File | Buffer | string, sta
         this.push(null);
       },
     });
-  } else if (is.string(file)) {
+  } else if (isString(file)) {
     return fs.createReadStream(file, {
       start,
       end: end - 1
