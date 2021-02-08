@@ -9,4 +9,4 @@ import { Client } from '../../setConfig';
  * @param {Object} options
  * @param {{res}}
  */
-export declare function get(this: Client, name: string, file: string | Writable, options?: ObjectGetOptions): Promise<ObjectGetReturnType>;
+export declare function get(this: Client, name: string, file?: string | Writable | undefined, options?: ObjectGetOptions): Promise<ObjectGetReturnType>;

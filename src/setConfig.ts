@@ -42,16 +42,7 @@ class Client {
     this.setConfig(options, ctx);
   }
 
-  static use(...fn: any) {
-    if (Array.isArray(fn)) {
-      fn.filter(_ => typeof _ === 'function').forEach(f => {
-        Client.prototype[f.name] = f;
-      });
-    }
-    return this;
-  }
-
-  static register(name: string, fn: Function) {
+  static use(name: string, fn: Function) {
     if (!this.prototype[name]) {
       this.prototype[name] = fn;
     } else {

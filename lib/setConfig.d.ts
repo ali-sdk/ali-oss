@@ -18,8 +18,7 @@ declare class Client {
     request: typeof request;
     requestError: typeof requestError;
     constructor(options: IOptions, ctx?: any);
-    static use(...fn: any): typeof Client;
-    static register(name: string, fn: Function): typeof Client;
+    static use(name: string, fn: Function): typeof Client;
     setConfig(options: IOptions & {
         inited?: true;
     }, ctx: any): void;

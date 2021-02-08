@@ -18,7 +18,7 @@ import { isString } from '../utils/isString';
 export async function get(
   this: Client,
   name: string,
-  file: string | Writable,
+  file: string | Writable | undefined = undefined,
   options: ObjectGetOptions = {}
 ): Promise<ObjectGetReturnType> {
   let writeStream: any = null;
