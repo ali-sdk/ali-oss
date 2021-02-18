@@ -125,7 +125,7 @@
     "request": "^2.88.0",
     "should": "^11.0.0",
     "sinon": "^1.17.7",
-    "snyk": "^1.231.0",
+    "snyk": "1.454.0",
     "standard-version": "^8.0.1",
     "stream-browserify": "^3.0.0",
     "stream-equal": "^1.1.0",

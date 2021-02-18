@@ -5,7 +5,6 @@ const assert = require('assert');
 // var oss = require('../');
 // var oss = OSS.Wrapper;
 /* eslint no-undef: [0] */
-OSS = OSS.default;
 // var sts = oss.STS;
 const urllib = require('urllib');
 const sinon = require('sinon');
@@ -741,7 +740,7 @@ describe('browser', () => {
       const body = new Blob([content], { type: 'text/plain' });
       const MD5Value = crypto1
         .createHash('md5')
-        .update(OSS.Buffer(await body.arrayBuffer()))
+        .update(Buffer.from(await body.arrayBuffer()))
         .digest('base64');
       await store.put(name, body, {
         headers: {
