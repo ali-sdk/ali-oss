@@ -1325,11 +1325,20 @@ describe('browser', () => {
 
         const name = `${prefix}multipart/upload-file-exception`;
 
-        const stubUploadPart = sinon.stub(store, 'uploadPart');
-        const testUploadPartException = new Error();
-        testUploadPartException.name = 'TestUploadPartException';
-        testUploadPartException.status = 403;
-        stubUploadPart.throws(testUploadPartException);
+        let count = 0;
+        const PAUSE_IN_THE_FIRST_PART = 1;
+        const { request } = store;
+        const uploadPartStub = sinon.stub(store, 'request', (...args) => {
+          if (count === PAUSE_IN_THE_FIRST_PART) {
+            const e = new Error();
+            e.name = 'TestUploadPartException';
+            e.status = 403;
+            throw e;
+          } else {
+            count++;
+            return request.call(store, ...args);
+          }
+        });
 
         let errorMsg = '';
         let errStatus;
@@ -1341,7 +1350,7 @@ describe('browser', () => {
           errorMsg = err.message;
           errStatus = err.status;
         }
-        stubUploadPart.restore();
+        uploadPartStub.restore();
         assert(errorMsg.includes('Failed to upload some parts with error: TestUploadPartException part_num:'));
         assert.equal(errStatus, 403);
       });
@@ -1653,19 +1662,19 @@ describe('browser', () => {
       it('should skip doneParts when re-upload mutilpart files', async () => {
         const PART_SIZE = 1024 * 100;
         const FILE_SIZE = 1024 * 500;
-        let partNo = 1;
-        const SUSPENSION_LIMIT = 3;
+        let count = 0;
+        const PAUSE_IN_THE_SECOND_PART = 2;
         const object = `multipart-${Date.now()}`;
         const fileContent = Array(FILE_SIZE).fill('a').join('');
         const file = new File([fileContent], object);
-        const { uploadPart } = store;
+        const { request } = store;
         let checkpoint;
-        const uploadPartStub = sinon.stub(store, 'uploadPart', (...args) => {
-          if (partNo === SUSPENSION_LIMIT) {
+        const requestStub = sinon.stub(store, 'request', (...args) => {
+          if (count === PAUSE_IN_THE_SECOND_PART) {
             throw new Error('mock upload part fail.');
           } else {
-            partNo++;
-            return uploadPart.call(store, ...args);
+            count++;
+            return request.call(store, ...args);
           }
         });
         try {
@@ -1677,17 +1686,17 @@ describe('browser', () => {
             }
           });
         } catch (e) {
-          assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
+          assert.strictEqual(checkpoint.doneParts.length, PAUSE_IN_THE_SECOND_PART - 1);
         }
-        uploadPartStub.restore();
-        const uploadPartSpy = sinon.spy(store, 'uploadPart');
+        requestStub.restore();
+        const requestSpy = sinon.spy(store, 'request');
         await store.multipartUpload(object, file, {
           parallel: 1,
           partSize: PART_SIZE,
           checkpoint
         });
-        assert.strictEqual(uploadPartSpy.callCount, FILE_SIZE / PART_SIZE - SUSPENSION_LIMIT + 1);
-        uploadPartSpy.restore();
+        assert.strictEqual(requestSpy.callCount, FILE_SIZE / PART_SIZE - PAUSE_IN_THE_SECOND_PART + 2);
+        requestSpy.restore();
       });
 
       it('should request throw abort event', async () => {
@@ -1696,10 +1705,18 @@ describe('browser', () => {
           .join('');
         const file = new File([fileContent], 'multipart-upload-file');
         const name = `${prefix}multipart/upload-file`;
-        const uploadPartStub = sinon.stub(store, 'uploadPart', () => {
-          const e = new Error('TEST Not Found');
-          e.status = 404;
-          throw e;
+        const { request } = store;
+        let count = 0;
+        const PAUSE_IN_THE_FIRST_PART = 1;
+        const uploadPartStub = sinon.stub(store, 'request', (...args) => {
+          if (count === PAUSE_IN_THE_FIRST_PART) {
+            const e = new Error('TEST Not Found');
+            e.status = 404;
+            throw e;
+          } else {
+            count++;
+            return request.call(store, ...args);
+          }
         });
         let netErrs;
         try {

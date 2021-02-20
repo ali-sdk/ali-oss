@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { MultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
-import { OSS } from '../core';
+import OSS from '../';
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name

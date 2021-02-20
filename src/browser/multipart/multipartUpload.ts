@@ -11,8 +11,8 @@ import { isBuffer } from '../../common/utils/isBuffer';
 import { MultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
 import { resetCancelFlag } from '../../common/client';
-import { injectDependency } from '../utils/injectDependency';
-import { OSS } from '../core';
+import { put } from '../object';
+import OSS from '../';
 /**
  * Upload a file to OSS using multipart uploads
  * @param {String} name
@@ -30,8 +30,6 @@ import { OSS } from '../core';
  *                  }
  */
 export async function multipartUpload(this: OSS, name: string, file: Blob | File | Buffer, options: MultipartUploadOptions = {}) {
-  injectDependency(this, 'multipartUpload');
-
   resetCancelFlag.call(this);
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
@@ -57,7 +55,7 @@ export async function multipartUpload(this: OSS, name: string, file: Blob | File
   const fileSize = await getFileSize(file);
   if (fileSize < minPartSize) {
     options.contentLength = fileSize;
-    const result = await this.put(name, file, options);
+    const result = await put.call(this, name, file, options);
     if (options && options.progress) {
       await options.progress(1);
     }

@@ -6,8 +6,10 @@ import { _parallel } from '../../common/utils/_parallel';
 import { Checkpoint, DoneParts, MultipartUploadOptions } from '../../types/params';
 import { _createStream } from '../client/_createStream';
 import { checkBrowserAndVersion } from '../../common/utils/checkBrowserAndVersion';
-import { injectDependency } from '../utils/injectDependency';
 import { OSS } from '../core';
+import { uploadPart } from './uploadPart';
+import { isCancel } from '../../common/client';
+import { completeMultipartUpload } from '../../common/multipart';
 
 /*
  * Resume multipart upload from checkpoint. The checkpoint will be
@@ -20,8 +22,7 @@ export async function resumeMultipart(
   checkpoint: Checkpoint,
   options: MultipartUploadOptions = {}
 ) {
-  injectDependency(this, 'resumeMultipart');
-  if (this.isCancel()) {
+  if (isCancel.call(this)) {
     throw _makeCancelEvent();
   }
   const { file, fileSize, partSize, uploadId, doneParts, name } = checkpoint;
@@ -37,16 +38,16 @@ export async function resumeMultipart(
         return;
       }
       try {
-        if (!this.isCancel()) {
+        if (!isCancel.call(this)) {
           const pi = partOffs[partNo - 1];
-          const result = await this.uploadPart(name, uploadId, partNo, file, pi.start, pi.end, options)
+          const result = await uploadPart.call(this, name, uploadId, partNo, file, pi.start, pi.end, options);
 
           hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
           if (hasUploadPart) {
             resolve(hasUploadPart);
             return;
           }
-          if (!this.isCancel()) {
+          if (!isCancel.call(this)) {
             doneParts.push({
               number: partNo,
               etag: result.res.headers.etag as string,
@@ -90,7 +91,7 @@ export async function resumeMultipart(
     parallel === 1
   ) {
     for (let i = 0; i < todo.length; i++) {
-      if (this.isCancel()) {
+      if (isCancel.call(this)) {
         throw _makeCancelEvent();
       }
       /* eslint no-await-in-loop: [0] */
@@ -100,7 +101,7 @@ export async function resumeMultipart(
     // upload in parallel
     const jobErr = await _parallel.call(this, todo, parallel, uploadPartJob);
 
-    if (this.isCancel()) {
+    if (isCancel.call(this)) {
       uploadPartJob = null;
       throw _makeCancelEvent();
     }
@@ -115,7 +116,8 @@ export async function resumeMultipart(
     }
   }
 
-  return await this.completeMultipartUpload(
+  return await completeMultipartUpload.call(
+    this,
     name,
     uploadId,
     doneParts,
