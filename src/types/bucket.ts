@@ -23,7 +23,7 @@ export interface ListBucketsReturnType extends NormalSuccessResponse {
     creationDate: string;
     /** bucket storage type */
     storageClass: StorageType;
-    /** @deprecated It's always equal to `storageClass`  */
+    /** @deprecated use `storageClass` instead  */
     StorageClass: StorageType;
     tag: {};
   }> | null,
@@ -43,7 +43,9 @@ export interface PutBucketOptionsType extends RequestOptions {
   storageClass?: StorageType;
   /** default LRS */
   dataRedundancyType?: DataRedundancyType;
+  /** @deprecated use `storageClass` instead */
   StorageClass?: StorageType;
+  /** @deprecated use `dataRedundancyType` instead */
   DataRedundancyType?: DataRedundancyType;
   /** Bucket的ACL权限 */
   acl?: ACLType;

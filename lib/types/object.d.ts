@@ -80,9 +80,9 @@ export interface getBucketVersionsReturnType extends NormalSuccessResponse {
     prefixes: string[] | undefined;
     nextKeyMarker: string | null;
     nextVersionIdMarker: string | null;
-    /** depreated; use `nextKeyMarker` */
+    /** @deprecated use `nextKeyMarker` instead */
     nextMarker?: string | null;
-    /** depreated; use `nextVersionIdMarker` */
+    /** @deprecated use `nextVersionIdMarker` instead */
     NextVersionIdMarker?: string | null;
     isTruncated: boolean;
 }
