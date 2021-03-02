@@ -164,3 +164,27 @@ export declare type Container<T> = T | T[];
 export declare type PartialKeys<T, K extends keyof T> = Omit<T, K> & {
     [k in K]?: T[k];
 };
+export interface MultipartDownload {
+    parallel?: number;
+    partSize?: number;
+    versionId?: string;
+    enableCRC64?: boolean;
+    progress?: (doneParts: number, totalParts: number, info: {
+        status: number;
+        headers: object;
+        size: number;
+        rt: number;
+    }) => any;
+    checkpoint?: true | string;
+    meta?: UserMeta;
+    callback?: ObjectCallback;
+    headers?: object;
+    ref?: (ref: {
+        cancel: (needDestoryed: boolean) => void;
+    }) => void;
+}
+export interface MultipartDownloadRuntime extends MultipartDownload {
+    parallel: number;
+    partSize: number;
+    enableCRC64: boolean;
+}

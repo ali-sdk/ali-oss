@@ -142,6 +142,7 @@
     "bowser": "^1.6.0",
     "co-defer": "^1.0.0",
     "copy-to": "^2.0.1",
+    "crc64-ecma182": "^1.0.0",
     "dateformat": "^2.0.0",
     "debug": "^2.2.0",
     "destroy": "^1.0.4",

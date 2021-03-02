@@ -3450,6 +3450,72 @@ const result = await store.abortMultipartUpload('object', 'upload-id');
 console.log(result);
 ```
 
+### .multipartDownload(name, file[, options]) [disabled in browser]
+
+Download an object by using resumable download.
+During the download, the download progress is recorded in a checkpoint file. If the download of a part fails, the next download starts from the position recorded in the checkpoint file. The checkpoint file is deleted after resumable download is complete.
+
+parameters:
+
+- name {String} The name of the object to be downloaded.
+- file {String} The local file path to which to download the object.
+- [options] {Object} optional args
+  - [parallel] {Number} the number of parts to be uploaded in parallel, default `5`
+  - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB)
+  - [progress] {Function} the progress callback called after each successful upload of one part, it will be given three parameters:
+    (Number of downloaded parts {Number}, Number of total parts {Number}, response info of part {{status: number, headers: object, size: number, rt: number}})
+  - [versionId] {String} the version id of history object
+  - [enableCRC64] {Boolean} whether to enable CRC64 check. If `BigInt` is supported(above Node.js v10.4), the default is `true`.
+  - [ref] {(ref: {
+    cancel: (needDestoryed: boolean) => void
+  }) => void} Execute the method after obtaining the file information. This method passes an object parameter with a cancel method. Cancel a function that takes a bool value of the parameter, when bool is true, cancel the download and temporary files created during the destruction of downloading is false, only pause the download, do not delete temporary files.
+
+example:
+- Download using multipart
+
+```js
+
+await store.multipartDownload('object', '/tmp/file');
+
+```
+
+- multipartDownload progress example
+
+```js
+
+await store.multipartDownload('object', '/tmp/file', {
+  progress: (doneParts, totalParts, res) => {
+    console.log(doneParts);
+    console.log(totalParts);
+    console.log(res.headers['x-oss-request-id']);
+  }
+});
+
+```
+
+- multipartDownload with cancel
+
+```js
+
+let cancel;
+const upload = () => {
+  return store.multipartDownload('object', '/tmp/file', {
+    ref: actions => {
+      cancel = actions.cancel;
+    }
+  });
+};
+
+upload()
+  .catch(e => {
+    assert.strictEqual(e.name, 'cancel');
+    return upload();
+  })
+
+setTimeout(cancel, 1000)
+
+```
+
 ### .calculatePostSignature(policy)
 
 get postObject params 

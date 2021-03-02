@@ -23,7 +23,7 @@ export interface ListBucketsReturnType extends NormalSuccessResponse {
     creationDate: string;
     /** bucket storage type */
     storageClass: StorageType;
-    /** compatibility, It's always equal to `storageClass`  */
+    /** @deprecated It's always equal to `storageClass`  */
     StorageClass: StorageType;
     tag: {};
   }> | null,
