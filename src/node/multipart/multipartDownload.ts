@@ -204,6 +204,9 @@ class DownloadCheckPoint {
   }
 
   validateDownloadCRC64() {
+    if (!this.enableCRC64) {
+      return;
+    }
     if (!this.parts.every(p => p.status === EDownloadStatus.OK)) {
       throw new Error('Currently downloading');
     }

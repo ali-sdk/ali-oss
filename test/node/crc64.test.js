@@ -15,7 +15,11 @@ describe.only('test/crc64.test.js', () => {
     assert.strictEqual(CRC64_1, CRC64_2);
   });
 
-  it('should be able to calculate the correct crc64 with CRC64Combine', () => {
+  it('should be able to calculate the correct crc64 with CRC64Combine when support `BigInt`', () => {
+    if (typeof BigInt !== 'function') {
+      console.warn('The Current enviroment doest not support `BigInt`, skip it!');
+      return;
+    }
     const parts = [];
     const size = 64;
     const buf = Buffer.from(content);
