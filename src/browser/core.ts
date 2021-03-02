@@ -124,3 +124,5 @@ export class OSS extends Client {
     super(props, ctx);
   }
 }
+
+export * from '../types';

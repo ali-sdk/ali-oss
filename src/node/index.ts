@@ -49,3 +49,4 @@ interface OSS extends IObject, IMultipart, IRtmp { }
 
 export default OSS;
 module.exports = OSS;
+export * from '../types';

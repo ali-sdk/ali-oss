@@ -12,3 +12,4 @@ export declare class OSS extends Client {
     static version: string;
     constructor(props: IOptions, ctx?: any);
 }
+export * from '../types';

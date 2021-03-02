@@ -17,3 +17,4 @@ declare type IRtmp = typeof rtmp;
 interface OSS extends IObject, IMultipart, IRtmp {
 }
 export default OSS;
+export * from '../types';

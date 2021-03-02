@@ -9,6 +9,7 @@
     "dist"
   ],
   "main": "lib/node/index.js",
+  "typings": "lib/node/index.d.ts",
   "browser": {
     "lib/node/index.js": "lib/browser/",
     "mime": "mime/lite",

@@ -6,4 +6,4 @@ import { MultiVersionCommonOptions } from '../../types/params';
  * @param {String} name   object name
  * @param {Object} options
  */
-export declare function _getObjectMeta(this: Client, bucket: string, name: string, options?: MultiVersionCommonOptions): Promise<import("../../types/object").ObjectHeadReturnType>;
+export declare function _getObjectMeta(this: Client, bucket: string, name: string, options?: MultiVersionCommonOptions): Promise<import("../../types").ObjectHeadReturnType>;
