@@ -2,7 +2,7 @@ const assert = require('assert');
 const { crc64, toUInt64String } = require('crc64-ecma182');
 const { CRC64Combine } = require('../../lib/common/utils/crc64');
 
-describe.only('test/crc64.test.js', () => {
+describe('test/crc64.test.js', () => {
   const content = 'This is a test content34567890#$%^&*GHJK{:><KL:P(O)P:}中文lllk12312312413some 中文碎片441451451234';
   const correctCRC64 = '5414076692182420664';
   it('should calculate the correct crc64 with crc64(buff, prev)', () => {

@@ -10,7 +10,7 @@ import { authorization } from '../utils/authorization';
 import { getReqUrl } from '../utils/getReqUrl';
 import { encoder } from '../utils/encoder';
 import { isIP } from '../utils/isIP';
-import { setRegion } from './initOptions';
+import { getActualEndpointByRegion } from './initOptions';
 import { Client } from '../../setConfig';
 
 const _debug = debug('ali-oss');
@@ -95,7 +95,7 @@ export function _createRequest(this: Client, params) {
   const url = getReqUrl(params, this.options);
   if (isIP(this.options.endpoint.hostname)) {
     const { region, internal, secure } = this.options;
-    const hostInfo = setRegion(region, internal, secure);
+    const hostInfo = getActualEndpointByRegion(region, internal, secure);
     headers.host = `${params.bucket}.${hostInfo.host}`;
   }
   _debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);

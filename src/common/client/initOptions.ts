@@ -3,7 +3,7 @@ import urlutil from 'url';
 import { checkBucketName } from '../utils/checkBucketName';
 import { checkValidEndpoint, checkValidRegion } from '../utils/checkValid';
 
-function setEndpoint(endpoint, secure) {
+function getActualEndpoint(endpoint, secure) {
   checkValidEndpoint(endpoint);
   let url = urlutil.parse(endpoint);
 
@@ -18,8 +18,7 @@ function setEndpoint(endpoint, secure) {
   return url;
 }
 
-export function setRegion(region, internal, secure) {
-  checkValidRegion(region);
+export function getActualEndpointByRegion(region, internal, secure) {
   const protocol = secure ? 'https://' : 'http://';
   let suffix = internal ? '-internal.aliyuncs.com' : '.aliyuncs.com';
   const prefix = 'vpc100-oss-cn-';
@@ -36,8 +35,8 @@ function isHttpsWebProtocol() {
   let secure = false;
   try {
     secure = location && location.protocol === 'https:';
-  // eslint-disable-next-line no-empty
-  } catch (error) {}
+    // eslint-disable-next-line no-empty
+  } catch (error) { }
   return secure;
 }
 
@@ -77,9 +76,10 @@ export function initOptions(options) {
   }
 
   if (opts.endpoint) {
-    opts.endpoint = setEndpoint(opts.endpoint, opts.secure);
+    opts.endpoint = getActualEndpoint(opts.endpoint, opts.secure);
   } else if (opts.region) {
-    opts.endpoint = setRegion(opts.region, opts.internal, opts.secure);
+    checkValidRegion(options.region);
+    opts.endpoint = getActualEndpointByRegion(opts.region, opts.internal, opts.secure);
   } else {
     throw new Error('require options.endpoint or options.region');
   }

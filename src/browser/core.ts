@@ -97,6 +97,7 @@ export {
 export {
   isCancel,
   resetCancelFlag,
+  setRegion,
   setBucket,
   useBucket,
   setSLDEnabled,

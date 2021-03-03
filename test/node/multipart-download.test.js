@@ -5,7 +5,7 @@ const OSS = require('../..');
 const config = require('../config').oss;
 const { md5 } = require('utility');
 
-describe.only('multipart-download.test.js', () => {
+describe('multipart-download.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;

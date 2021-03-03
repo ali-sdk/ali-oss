@@ -43,7 +43,7 @@ export interface ObjectListV2QueryParams {
   /** The token from which the List operation must start. */
   'continuation-token'?: string,
   /** The maximum number of objects to return. Default value: 100, max value: 1000. */
-  'max-keys'?: string,
+  'max-keys'?: string | number,
   /** The encoding type of the object name in the response. */
   'encoding-type'?: 'url',
   /** Specifies whether to include the owner information in the response. */

@@ -50,6 +50,29 @@ describe('test/bucket.test.js', () => {
     await utils.cleanBucket(store, bucket);
   });
 
+  describe('setRegion()', () => {
+    it('should check region name', () => {
+      try {
+        const region = 'cn-hangzhou';
+        store.setRegion(region);
+      } catch (err) {
+        assert(err.message === 'The region must be conform to the specifications');
+      }
+    });
+    it('should set region and endpoint together', () => {
+      const store$1 = new OSS({
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        region: 'oss-cn-hangzhou'
+      });
+      assert.strictEqual(store$1.options.region, 'oss-cn-hangzhou');
+      assert.strictEqual(store$1.options.endpoint.hostname, 'oss-cn-hangzhou.aliyuncs.com');
+      store$1.setRegion('oss-cn-hongkong');
+      assert.strictEqual(store$1.options.region, 'oss-cn-hongkong');
+      assert.strictEqual(store$1.options.endpoint.hostname, 'oss-cn-hongkong.aliyuncs.com');
+    });
+  });
+
   describe('setBucket()', () => {
     it('should check bucket name', async () => {
       try {

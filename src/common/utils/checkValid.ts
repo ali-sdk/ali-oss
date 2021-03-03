@@ -28,5 +28,9 @@ export function checkValidRegion(value) {
   return checkValid(value, [{
     pattern: /^[a-zA-Z0-9\-_]+$/,
     msg: 'The region must be conform to the specifications'
-  }]);
+  }, {
+    pattern: /oss-/,
+    msg: 'The region must be conform to the specifications'
+  }
+  ]);
 }
