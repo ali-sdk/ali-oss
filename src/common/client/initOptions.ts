@@ -78,7 +78,7 @@ export function initOptions(options) {
   if (opts.endpoint) {
     opts.endpoint = getActualEndpoint(opts.endpoint, opts.secure);
   } else if (opts.region) {
-    checkValidRegion(options.region);
+    checkValidRegion(opts.region);
     opts.endpoint = getActualEndpointByRegion(opts.region, opts.internal, opts.secure);
   } else {
     throw new Error('require options.endpoint or options.region');
