@@ -11,7 +11,6 @@ describe('test/retry.test.js', () => {
   let store;
   const RETRY_MAX = 3;
   let testRetryCount = 0;
-  let autoRestoreWhenRETRY_LIMIE = true;
   const bucket = `ali-oss-test-bucket-${utils.prefix.replace(/[/.]/g, '-').replace(/-$/, '')}`;
   before(async () => {
     store = new OSS({
@@ -19,9 +18,6 @@ describe('test/retry.test.js', () => {
       retryMax: RETRY_MAX,
       requestErrorRetryHandle: () => {
         testRetryCount++;
-        if (testRetryCount === RETRY_MAX && autoRestoreWhenRETRY_LIMIE) {
-          mm.restore();
-        }
         return true;
       }
     });
@@ -32,10 +28,19 @@ describe('test/retry.test.js', () => {
   });
   beforeEach(() => {
     testRetryCount = 0;
-    autoRestoreWhenRETRY_LIMIE = true;
-    mm.error(store.urllib, 'request', {
-      status: -1, // timeout
-      headers: {},
+    const originRequest = store.urllib.request;
+    mm(store.urllib, 'request', async (url, params) => {
+      if (testRetryCount < RETRY_MAX) {
+        if (params.stream) {
+          params.stream.destroy();
+        }
+        const e = new Error('net error');
+        e.status = -1;
+        e.headers = {};
+        throw e;
+      } else {
+        return await originRequest(url, params);
+      }
     });
   });
   afterEach(() => {
@@ -52,7 +57,10 @@ describe('test/retry.test.js', () => {
   });
 
   it('should throw when retry count bigger than options retryMax', async () => {
-    autoRestoreWhenRETRY_LIMIE = false;
+    mm.error(store.urllib, 'request', {
+      status: -1, // timeout
+      headers: {}
+    });
     try {
       await store.listBuckets();
       assert(false, 'should throw error');
@@ -71,16 +79,47 @@ describe('test/retry.test.js', () => {
     assert.strictEqual(md5(fs.readFileSync(fileName)), md5(onlineFile.content));
   });
 
-  it('should fail when putStream', async () => {
-    autoRestoreWhenRETRY_LIMIE = false;
+  it('should succeed when multipartUpload with filename', async () => {
+    const originRequest = store.urllib.request;
+    const UPLOAD_PART_SEQ = 1;
+    let CurrentRequsetTimer = 0;
+    mm(store.urllib, 'request', async (url, params) => {
+      // skip mock when initMultipartUpload
+      if (CurrentRequsetTimer < UPLOAD_PART_SEQ) {
+        CurrentRequsetTimer++;
+        return await originRequest(url, params);
+      }
+      // mock net error when upload part
+      if (testRetryCount < RETRY_MAX) {
+        if (params.stream) {
+          params.stream.destroy();
+        }
+        const e = new Error('net error');
+        e.status = -1;
+        e.headers = {};
+        throw e;
+      } else {
+        return await originRequest(url, params);
+      }
+    });
+    const name = `ali-oss-test-retry-file-${Date.now()}`;
+    const fileName = await utils.createTempFile(name, 101 * 1024);
+    const res = await store.multipartUpload(name, fileName);
+    assert.strictEqual(res.res.status, 200);
+    assert.strictEqual(testRetryCount, RETRY_MAX);
+    const onlineFile = await store.get(name);
+    assert.strictEqual(onlineFile.content.length, 101 * 1024);
+    assert.strictEqual(md5(fs.readFileSync(fileName)), md5(onlineFile.content));
+  });
+
+  it('should fail when put with stream', async () => {
     const name = `ali-oss-test-retry-file-${Date.now()}`;
     const fileName = await utils.createTempFile(name, 1 * 1024);
     try {
-      await store.putStream(name, fs.createReadStream(fileName));
+      await store.put(name, fs.createReadStream(fileName));
       assert(false, 'should not reach here');
     } catch (e) {
       assert.strictEqual(e.status, -1);
     }
   });
-
 });
