@@ -31,9 +31,6 @@ describe('test/retry.test.js', () => {
     const originRequest = store.urllib.request;
     mm(store.urllib, 'request', async (url, params) => {
       if (testRetryCount < RETRY_MAX) {
-        if (params.stream) {
-          params.stream.destroy();
-        }
         const e = new Error('net error');
         e.status = -1;
         e.headers = {};
