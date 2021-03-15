@@ -337,7 +337,7 @@ options:
 `fetch` mode ,else `XMLHttpRequest`
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
-- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.
+- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.  **_NOTE:_**  Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 
 example:
 
@@ -394,6 +394,19 @@ const store = new OSS({
     }
   }
 });
+```
+
+5. retry request with stream
+```js
+for (let i = 0; i <= store.options.retryMax; i++) {
+  try {
+    const result = await store.putStream("<example-object>", fs.createReadStream("<example-path>"));
+    console.log(result);
+    break; // break if success
+  } catch (e) {
+    console.log(e);
+  }
+}
 ```
 
 ## Bucket Operations
