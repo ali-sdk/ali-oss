@@ -1,7 +1,7 @@
 import { Writable } from 'stream';
 import { NormalSuccessResponse, ObjectType, RequestOptions, StorageType, UserMeta, MultiVersionCommonOptions, ObjectCallback } from './params';
 
-interface IObjectInfo {
+export interface IObjectInfo {
   name: string,
   url: string,
   lastModified: string,

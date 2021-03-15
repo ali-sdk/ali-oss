@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Writable } from 'stream';
 import { NormalSuccessResponse, ObjectType, RequestOptions, StorageType, UserMeta, MultiVersionCommonOptions, ObjectCallback } from './params';
-interface IObjectInfo {
+export interface IObjectInfo {
     name: string;
     url: string;
     lastModified: string;
@@ -201,4 +201,3 @@ export interface ObjectListUploadsReturnType extends NormalSuccessResponse {
     nextUploadIdMarker: string;
     isTruncated: boolean;
 }
-export {};
