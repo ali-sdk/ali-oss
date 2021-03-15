@@ -6,6 +6,8 @@ const { md5 } = require('utility');
 const mm = require('mm');
 const fs = require('fs');
 const { after } = require('mocha');
+const pump = require('pump');
+const { Transform } = require('stream');
 
 describe('test/retry.test.js', () => {
   let store;
@@ -31,6 +33,14 @@ describe('test/retry.test.js', () => {
     const originRequest = store.urllib.request;
     mm(store.urllib, 'request', async (url, params) => {
       if (testRetryCount < RETRY_MAX) {
+        if (params.stream) {
+          const transform = new Transform();
+          transform._transform = function _transform(chunk, encoding, done) {
+            this.push(chunk);
+            done();
+          };
+          pump(params.stream, transform);
+        }
         const e = new Error('net error');
         e.status = -1;
         e.headers = {};
