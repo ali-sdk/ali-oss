@@ -6,8 +6,6 @@ const { md5 } = require('utility');
 const mm = require('mm');
 const fs = require('fs');
 const { after } = require('mocha');
-const pump = require('pump');
-const { Transform } = require('stream');
 
 describe('test/retry.test.js', () => {
   let store;
@@ -18,10 +16,6 @@ describe('test/retry.test.js', () => {
     store = new OSS({
       ...config,
       retryMax: RETRY_MAX,
-      requestErrorRetryHandle: () => {
-        testRetryCount++;
-        return true;
-      }
     });
     const result = await store.putBucket(bucket);
     assert.strictEqual(result.bucket, bucket);
@@ -33,14 +27,7 @@ describe('test/retry.test.js', () => {
     const originRequest = store.urllib.request;
     mm(store.urllib, 'request', async (url, params) => {
       if (testRetryCount < RETRY_MAX) {
-        if (params.stream) {
-          const transform = new Transform();
-          transform._transform = function _transform(chunk, encoding, done) {
-            this.push(chunk);
-            done();
-          };
-          pump(params.stream, transform);
-        }
+        testRetryCount++;
         const e = new Error('net error');
         e.status = -1;
         e.headers = {};
@@ -110,19 +97,17 @@ describe('test/retry.test.js', () => {
       // skip mock when initMultipartUpload
       if (CurrentRequsetTimer < UPLOAD_PART_SEQ) {
         CurrentRequsetTimer++;
-        return await originRequest(url, params);
+        return originRequest(url, params);
       }
       // mock net error when upload part
       if (testRetryCount < RETRY_MAX) {
-        if (params.stream) {
-          params.stream.destroy();
-        }
+        testRetryCount++;
         const e = new Error('net error');
         e.status = -1;
         e.headers = {};
         throw e;
       } else {
-        return await originRequest(url, params);
+        return originRequest(url, params);
       }
     });
     const name = `ali-oss-test-retry-file-${Date.now()}`;
