@@ -76,6 +76,21 @@ describe('test/retry.test.js', () => {
     }
   });
 
+  it('should not retry when err.status is not -1 or -2', async () => {
+    mm.error(store.urllib, 'request', {
+      status: -3,
+      headers: {}
+    });
+    try {
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const fileName = await utils.createTempFile(name, 1 * 1024);
+      await store.put(name, fileName);
+      assert(false, 'should throw error');
+    } catch (error) {
+      assert.strictEqual(error.status, -3);
+    }
+  });
+
   it('should succeed when put with filename', async () => {
     const name = `ali-oss-test-retry-file-${Date.now()}`;
     const fileName = await utils.createTempFile(name, 1 * 1024);
@@ -87,6 +102,7 @@ describe('test/retry.test.js', () => {
   });
 
   it('should succeed when multipartUpload with filename', async () => {
+    mm.restore();
     const originRequest = store.urllib.request;
     const UPLOAD_PART_SEQ = 1;
     let CurrentRequsetTimer = 0;
@@ -110,12 +126,12 @@ describe('test/retry.test.js', () => {
       }
     });
     const name = `ali-oss-test-retry-file-${Date.now()}`;
-    const fileName = await utils.createTempFile(name, 101 * 1024);
+    const fileName = await utils.createTempFile(name, 1.5 * 1024 * 1024);
     const res = await store.multipartUpload(name, fileName);
     assert.strictEqual(res.res.status, 200);
     assert.strictEqual(testRetryCount, RETRY_MAX);
     const onlineFile = await store.get(name);
-    assert.strictEqual(onlineFile.content.length, 101 * 1024);
+    assert.strictEqual(onlineFile.content.length, 1.5 * 1024 * 1024);
     assert.strictEqual(md5(fs.readFileSync(fileName)), md5(onlineFile.content));
   });
 
