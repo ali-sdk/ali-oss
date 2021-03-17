@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.1...v6.13.2) (2021-01-21)
+
+
+### Bug Fixes
+
+* not use `object spread operator` because of the low version of Node.js ([#921](https://github.com/aliyun/oss-nodejs-sdk/issues/921)) ([cd50f88](https://github.com/aliyun/oss-nodejs-sdk/commit/cd50f8857fdbbf78e5f7702514cdbe0806e332be))
+
+### [6.13.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.0...v6.13.1) (2021-01-07)
+
+
+### Bug Fixes
+
+* responseCacheControl in Node.js ([#919](https://github.com/aliyun/oss-nodejs-sdk/issues/919)) ([7ca7055](https://github.com/aliyun/oss-nodejs-sdk/commit/7ca7055a667604f3f653621b9f2974e28e9d2190))
+
+## [6.13.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.12.0...v6.13.0) (2021-01-06)
+
+
+### Features
+
+* prevent caching for the get api ([#916](https://github.com/aliyun/oss-nodejs-sdk/issues/916)) ([f16fc50](https://github.com/aliyun/oss-nodejs-sdk/commit/f16fc50375a2ab54be46d076fe523a2147f1723a))
+
+
+### Bug Fixes
+
+* **node:** deepCopy not working for large Buffers ([#909](https://github.com/aliyun/oss-nodejs-sdk/issues/909)) ([f52cd2e](https://github.com/aliyun/oss-nodejs-sdk/commit/f52cd2e5127730b99e452284f49cf63b04f81d40))
+* do not copy buffer in completeMultipartUpload ([#915](https://github.com/aliyun/oss-nodejs-sdk/issues/915)) ([c18f4ea](https://github.com/aliyun/oss-nodejs-sdk/commit/c18f4ea97bf3edc485d67f82783a737b285fcaeb))
+* merge conflict from master ([860cf32](https://github.com/aliyun/oss-nodejs-sdk/commit/860cf3225296ccdc5feedae031c7309a117fbdad))
+* should use encodeURIComponent insteadof encodeURI in copy api ([#914](https://github.com/aliyun/oss-nodejs-sdk/issues/914)) ([9dceb70](https://github.com/aliyun/oss-nodejs-sdk/commit/9dceb70a63bc47a748e21af97902952b2fe6e5e2))
+* the continuation-token params in listV2 ([#906](https://github.com/aliyun/oss-nodejs-sdk/issues/906)) ([df18401](https://github.com/aliyun/oss-nodejs-sdk/commit/df18401be7a83c8ec09aa86d6b279f486d3b79a7))
+* use lowercase header when calculating signatures ([#910](https://github.com/aliyun/oss-nodejs-sdk/issues/910)) ([8e1adfd](https://github.com/aliyun/oss-nodejs-sdk/commit/8e1adfdbdfb8b2ad40bc41cc15c86ab72e668044))
+
+## [6.12.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.2...v6.12.0) (2020-12-03)
+
+
+### Features
+
+* auto set stsConfig when sts expires ([#856](https://github.com/aliyun/oss-nodejs-sdk/issues/856)) ([158d294](https://github.com/aliyun/oss-nodejs-sdk/commit/158d29473ec50eb43a8260f8d1e6039b0f35e4c3))
+* inventory ([#860](https://github.com/aliyun/oss-nodejs-sdk/issues/860)) ([6fa9f3f](https://github.com/aliyun/oss-nodejs-sdk/commit/6fa9f3f5c177ddc56b197997bc2fbbef44a0f57f))
+* listObjectsV2 ([#888](https://github.com/aliyun/oss-nodejs-sdk/issues/888)) ([f75ad23](https://github.com/aliyun/oss-nodejs-sdk/commit/f75ad239af8d60a16d8c00b736ee8b7a517d9152))
+* retry when net err or timeout ([#876](https://github.com/aliyun/oss-nodejs-sdk/issues/876)) ([db4969e](https://github.com/aliyun/oss-nodejs-sdk/commit/db4969ee1b14ac7898ed14b92c95f331e914ae07))
+* support non-english http header ([#842](https://github.com/aliyun/oss-nodejs-sdk/issues/842)) ([4b6f511](https://github.com/aliyun/oss-nodejs-sdk/commit/4b6f511df214d538664edd696071d164077d7101))
+* worm ([#857](https://github.com/aliyun/oss-nodejs-sdk/issues/857)) ([7435c56](https://github.com/aliyun/oss-nodejs-sdk/commit/7435c56503033c8748364b0fa1ba14ad1bed920e))
+
+
+### Bug Fixes
+
+* **browser:** checkpoint.file ([#795](https://github.com/aliyun/oss-nodejs-sdk/issues/795)) ([4e38050](https://github.com/aliyun/oss-nodejs-sdk/commit/4e38050b7ea7f3776ce3e5940a7a8dd897777224))
+* browser test and listV2 docs ([#901](https://github.com/aliyun/oss-nodejs-sdk/issues/901)) ([67f0e5f](https://github.com/aliyun/oss-nodejs-sdk/commit/67f0e5f879cf79c2ed42211949218c41e5c0163e))
+* cannot use ali-oss in webworker ([#823](https://github.com/aliyun/oss-nodejs-sdk/issues/823)) ([afb07f3](https://github.com/aliyun/oss-nodejs-sdk/commit/afb07f353c603ea7813150026811e8904bc6c806))
+* check region and endpoint for ssrf ([#874](https://github.com/aliyun/oss-nodejs-sdk/issues/874)) ([5457ecf](https://github.com/aliyun/oss-nodejs-sdk/commit/5457ecf58fa382606c57c4d18c430e5bbb20413c))
+* getBucketVersions should use NextKeyMarker property ([#896](https://github.com/aliyun/oss-nodejs-sdk/issues/896)) ([b9076d4](https://github.com/aliyun/oss-nodejs-sdk/commit/b9076d4cb0895ca7437fed55070a693a5acd7a5a))
+* host err which old image client request ([#869](https://github.com/aliyun/oss-nodejs-sdk/issues/869)) ([b7b2f1c](https://github.com/aliyun/oss-nodejs-sdk/commit/b7b2f1c89f87e509fa3c9329be9d8e64216bf5b4))
+* merge conflict [#726](https://github.com/aliyun/oss-nodejs-sdk/issues/726) ([#892](https://github.com/aliyun/oss-nodejs-sdk/issues/892)) ([6c77ecc](https://github.com/aliyun/oss-nodejs-sdk/commit/6c77ecc3373e4611553235ebb4af455cdce7b7d4))
+* use put insteadof putStream when calling multipartUpload to process small file in browser ([#890](https://github.com/aliyun/oss-nodejs-sdk/issues/890)) ([cdd9995](https://github.com/aliyun/oss-nodejs-sdk/commit/cdd999526335e278562a7d1bc88d9f107ed80a7d))
+
 ### [6.11.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.0...v6.11.2) (2020-10-10)
 
 

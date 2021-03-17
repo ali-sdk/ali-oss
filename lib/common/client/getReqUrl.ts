@@ -4,11 +4,13 @@ import urlutil from 'url';
 import merge from 'merge-descriptors';
 import is from 'is-type-of';
 import { isIP } from '../utils/isIP';
+import { checkConfigValid } from '../utils/checkConfigValid';
 
 export function getReqUrl(this: any, params) {
   const ep: any = {};
   const isCname = this.options.cname;
-  copy(this.options.endpoint).to(ep);
+  checkConfigValid(this.options.endpoint, 'endpoint');
+  copy(this.options.endpoint, false).to(ep);
 
   if (params.bucket && !isCname && !isIP(ep.hostname) && !this.options.sldEnable) {
     ep.host = `${params.bucket}.${ep.host}`;
@@ -32,7 +34,7 @@ export function getReqUrl(this: any, params) {
 
   if (params.subres) {
     let subresAsQuery = {};
-    if (is.string(params.subres)) {
+    if ((is as any).string(params.subres)) {
       subresAsQuery[params.subres] = '';
     } else if (is.array(params.subres)) {
       params.subres.forEach((k) => {

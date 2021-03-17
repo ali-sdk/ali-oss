@@ -65,7 +65,7 @@ export function createRequest(this: any, params) {
   }
 
   if (params.content) {
-    headers['Content-Md5'] = crypto
+    headers['Content-MD5'] = crypto
       .createHash('md5')
       .update(Buffer.from(params.content, 'utf8'))
       .digest('base64');

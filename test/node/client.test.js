@@ -333,4 +333,84 @@ describe('test/client.test.js', () => {
     assert.equal(store.options.accessKeyId, 'foo');
     assert.equal(store.options.accessKeySecret, 'bar');
   });
+
+  describe('checkConfigValid', () => {
+    it('should success when endpoint is invalid', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        endpoint: 'vpc100-oss-cn-hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        oss(checkConfig);
+      } catch (error) {
+        assert(false);
+      }
+    });
+    it('should throw when endpoint includes invalid character', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        endpoint: 'vpc100-oss-cn-hang<tag />zhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        oss(checkConfig);
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('endpoint'));
+      }
+    });
+    it('should throw when endpoint change to invalid character', async () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        endpoint: 'vpc100-oss-cn-hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        const store = oss(checkConfig);
+        const invalidHost = 'vpc100-oss-cn-hangzhou.《》.com';
+        store.options.endpoint.host = invalidHost;
+        store.options.endpoint.hostname = invalidHost;
+        await store.listBuckets();
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('endpoint'));
+      }
+    });
+    it('should success when region is valid', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        region: 'oss-cn-hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        oss(checkConfig);
+      } catch (error) {
+        assert(false);
+      }
+    });
+    it('should throw when region includes invalid character', () => {
+      const checkConfig = {
+        accessKeyId: 'foo',
+        accessKeySecret: 'bar',
+        region: 'oss-cn-?hangzhou',
+        internal: true,
+        secure: true
+      };
+      try {
+        oss(checkConfig);
+        assert(false);
+      } catch (error) {
+        assert(error.message.includes('region'));
+      }
+    });
+  });
 });
