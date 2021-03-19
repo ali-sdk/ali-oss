@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.14.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.2...v6.14.0) (2021-03-19)
+
+
+### Features
+
+* add refreshSTSToken example ([#924](https://github.com/aliyun/oss-nodejs-sdk/issues/924)) ([f69d8ed](https://github.com/aliyun/oss-nodejs-sdk/commit/f69d8ed8dcebdefaee5acf540d1baef9866ffb26))
+
+
+### Bug Fixes
+
+* link in README.md ([#934](https://github.com/aliyun/oss-nodejs-sdk/issues/934)) ([1c676da](https://github.com/aliyun/oss-nodejs-sdk/commit/1c676da5a101dba16b5f355854c4fe38e818a87e))
+
 ### [6.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.1...v6.13.2) (2021-01-21)
 
 
