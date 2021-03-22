@@ -64,6 +64,7 @@ export function initOptions(options) {
       refreshSTSToken: null, // auto set sts config
       enableProxy: false,
       proxy: null,
+      retryMax: 0,
     },
     options
   );

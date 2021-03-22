@@ -19,4 +19,4 @@ import OSS from '..';
  *                  }
  * @return {Object}
  */
-export declare function put(this: OSS, name: string, file: string | Buffer | Readable, options?: ObjectPutOptions): Promise<ObjectPutReturnType>;
+export declare function put(this: OSS, name: string, file: string | Buffer | Readable | File, options?: ObjectPutOptions): Promise<ObjectPutReturnType>;

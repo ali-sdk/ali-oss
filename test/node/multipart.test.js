@@ -185,9 +185,10 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/fallback`;
       let progress = 0;
 
-      const _createStream = sinon.spy(createStreamContainer, '_createStream');
       const putStreamModule = require('../../lib/node/object/putStream');
+      const uploadPartModule = require('../../lib/node/multipart/uploadPart');
       const putStreamSpy = sinon.spy(putStreamModule, 'putStream');
+      const uploadPartSpy = sinon.spy(uploadPartModule, 'uploadPart');
 
       const result = await store.multipartUpload(name, fileName, {
         progress() {
@@ -195,15 +196,15 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(_createStream.callCount, 1);
       assert.equal(putStreamSpy.callCount, 1);
+      assert.equal(uploadPartSpy.callCount, 0);
       assert.equal(progress, 1);
 
       assert.equal(typeof result.bucket, 'string');
       assert.equal(typeof result.etag, 'string');
 
-      _createStream.restore();
       putStreamModule.putStream.restore();
+      uploadPartModule.uploadPart.restore();
     });
 
     /* eslint require-yield: [0] */

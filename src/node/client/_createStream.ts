@@ -6,7 +6,7 @@ import { isBuffer } from '../../common/utils/isBuffer';
 import { isReadable } from '../../common/utils/isStream';
 import { isString } from '../../common/utils/isString';
 
-export async function _createStream(file: Readable | File | Buffer | string, start: number, end: number): Promise<Readable> {
+export function _createStream(file: Readable | File | Buffer | string, start: number, end: number): Readable {
   if (isReadable(file)) {
     return file;
   } else if (isFile(file)) {

@@ -14,6 +14,9 @@ import { _objectRequestParams } from '../../common/client/_objectRequestParams';
 import OSS from '..';
 import { isString } from '../../common/utils/isString';
 import { isReadable } from '../../common/utils/isStream';
+import { isFile } from '../../common/utils/isFile';
+import { _createStream } from '../client/_createStream';
+import { retry } from '../../common/utils/retry';
 
 /**
  * put an object from String(file path)/Buffer/ReadableStream
@@ -35,10 +38,10 @@ import { isReadable } from '../../common/utils/isStream';
 export async function put(
   this: OSS,
   name: string,
-  file: string | Buffer | Readable,
+  file: string | Buffer | Readable | File,
   options: ObjectPutOptions = {}
 ): Promise<ObjectPutReturnType> {
-  let content;
+  let content: Buffer;
   name = objectName(name);
 
   if (isBuffer(file)) {
@@ -49,11 +52,40 @@ export async function put(
       throw new Error(`${file} is not file`);
     }
     options.mime = options.mime || mime.getType(path.extname(file));
-    const stream = fs.createReadStream(file);
     options.contentLength = await getFileSize(file);
-    return await putStream.call(this, name, stream, options);
+    const getStream = () => fs.createReadStream(file);
+    const putStreamStb = (o_name: string, makeStream: () => Readable, configOption: ObjectPutOptions | undefined) => {
+      return putStream.call(this, o_name, makeStream(), configOption);
+    };
+    return await retry(putStreamStb, this.options.retryMax, {
+      errorHandler: (err: any) => {
+        const _errHandle = (_err: { status: number; }) => {
+          const statusErr = [-1, -2].includes(_err.status);
+          const requestErrorRetryHandle = this.options.requestErrorRetryHandle || (() => true);
+          return statusErr && requestErrorRetryHandle(_err);
+        };
+        if (_errHandle(err)) return true;
+        return false;
+      }
+    })(name, getStream, options) as ObjectPutReturnType;
   } else if (isReadable(file)) {
     return await putStream.call(this, name, file, options);
+  } else if (isFile(file)) {
+    const getStream = () => _createStream(file, 0, options.contentLength!);
+    const putStreamStb = (o_name: string, makeStream: () => Readable, configOption: ObjectPutOptions | undefined) => {
+      return putStream.call(this, o_name, makeStream(), configOption);
+    };
+    return await retry(putStreamStb, this.options.retryMax, {
+      errorHandler: (err: any) => {
+        const _errHandle = (_err: { status: number; }) => {
+          const statusErr = [-1, -2].includes(_err.status);
+          const requestErrorRetryHandle = this.options.requestErrorRetryHandle || (() => true);
+          return statusErr && requestErrorRetryHandle(_err);
+        };
+        if (_errHandle(err)) return true;
+        return false;
+      }
+    })(name, getStream, options) as ObjectPutReturnType;
   } else {
     throw new TypeError('Must provide String/Buffer/ReadableStream for put.');
   }

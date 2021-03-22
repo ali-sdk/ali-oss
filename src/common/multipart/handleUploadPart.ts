@@ -4,10 +4,6 @@ import { Client } from '../../setConfig';
 import { NormalSuccessResponse, RequestOptions } from '../../types/params';
 import { _objectRequestParams } from '../client/_objectRequestParams';
 
-const isReadableStreamLike = (stream): stream is Readable => {
-  return stream && stream.pipe;
-};
-
 /**
  * Upload a part in a multipart upload transaction
  * @param {String} name the object name
@@ -16,7 +12,7 @@ const isReadableStreamLike = (stream): stream is Readable => {
  * @param {Object} data the body data
  * @param {Object} options
  */
-export async function handleUploadPart(this: Client, name: string, uploadId: string, partNo: number, data: { stream: Buffer | Readable | null, size: number }, options: RequestOptions = {}) {
+export async function handleUploadPart(this: Client, name: string, uploadId: string, partNo: number, data: { stream: Readable | null, size: number } | {content: Buffer, size: number }, options: RequestOptions = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
   opt.headers = opt.headers || {};
@@ -29,11 +25,10 @@ export async function handleUploadPart(this: Client, name: string, uploadId: str
   };
   const params = _objectRequestParams.call(this, 'PUT', name, opt);
   params.mime = opt.mime;
-  if (isReadableStreamLike(data.stream)) {
-    params.stream = data.stream;
-  } else {
-    params.content = data.stream;
-  }
+
+  const { size, ...body } = data;
+  Object.assign(params, body);
+
   params.successStatuses = [200];
 
   const result: NormalSuccessResponse = await this.request(params);
@@ -41,8 +36,10 @@ export async function handleUploadPart(this: Client, name: string, uploadId: str
   if (!result.res.headers.etag) {
     throw new Error('Please set the etag of expose-headers in OSS \n https://help.aliyun.com/document_detail/32069.html');
   }
-  data.stream = null;
-  params.stream = null;
+  if ('stream' in data) {
+    data.stream = null;
+    params.stream = null;
+  }
   return {
     name,
     etag: result.res.headers.etag,

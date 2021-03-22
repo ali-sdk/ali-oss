@@ -10,6 +10,7 @@ import { _createStream } from '../client/_createStream';
 import { checkBrowserAndVersion } from '../../common/utils/checkBrowserAndVersion';
 import { isCancel } from '../../common/client';
 import OSS from '..';
+import { retry } from '../../common/utils/retry';
 
 /*
  * Resume multipart upload from checkpoint. The checkpoint will be
@@ -30,91 +31,104 @@ export async function resumeMultipart(
   const partOffs = divideParts(fileSize, partSize);
   const numParts = partOffs.length;
 
-  let uploadPartJob: any = partNo => {
-    return new Promise(async (resolve, reject) => {
-      let hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
-      if (hasUploadPart) {
-        resolve(hasUploadPart);
-        return;
-      }
-      try {
-        if (!isCancel.call(this)) {
-          const pi = partOffs[partNo - 1];
-          const stream = await _createStream(file, pi.start, pi.end);
-          const data = {
-            stream,
-            size: pi.end - pi.start,
-          };
-
-          if (Array.isArray(this.multipartUploadStreams)) {
-            this.multipartUploadStreams.push(data.stream);
-          } else {
-            this.multipartUploadStreams = [data.stream];
-          }
-          const removeStreamFromMultipartUploadStreams = () => {
-            if (!stream.destroyed) {
-              stream.destroy();
-            }
-            if (!Array.isArray(this.multipartUploadStreams)) return;
-            const index = this.multipartUploadStreams.indexOf(stream);
-            if (index !== -1) {
-              this.multipartUploadStreams.splice(index, 1);
-            }
-          };
-          stream.on('close', removeStreamFromMultipartUploadStreams);
-          stream.on('error', removeStreamFromMultipartUploadStreams);
-
-          let result;
-          try {
-            result = await handleUploadPart.call(
-              this,
-              name,
-              uploadId,
-              partNo,
-              data,
-              options
-            );
-          } catch (error) {
-            stream.destroy();
-            throw error;
-          }
-
-          hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
-          if (hasUploadPart) {
-            resolve(hasUploadPart);
-            return;
-          }
+  let uploadPartJob: any = retry(
+    partNo => {
+      return new Promise(async (resolve, reject) => {
+        let hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
+        if (hasUploadPart) {
+          resolve(hasUploadPart);
+          return;
+        }
+        try {
           if (!isCancel.call(this)) {
-            doneParts.push({
-              number: partNo,
-              etag: result.res.headers.etag,
-            });
-            checkpoint.doneParts = doneParts;
+            const pi = partOffs[partNo - 1];
+            const stream = await _createStream(file, pi.start, pi.end);
+            const data = {
+              stream,
+              size: pi.end - pi.start,
+            };
 
-            if (options.progress) {
-              await options.progress(
-                doneParts.length / numParts,
-                checkpoint,
-                result.res
+            if (Array.isArray(this.multipartUploadStreams)) {
+              this.multipartUploadStreams.push(data.stream);
+            } else {
+              this.multipartUploadStreams = [data.stream];
+            }
+            const removeStreamFromMultipartUploadStreams = () => {
+              if (!stream.destroyed) {
+                stream.destroy();
+              }
+              if (!Array.isArray(this.multipartUploadStreams)) return;
+              const index = this.multipartUploadStreams.indexOf(stream);
+              if (index !== -1) {
+                this.multipartUploadStreams.splice(index, 1);
+              }
+            };
+            stream.on('close', removeStreamFromMultipartUploadStreams);
+            stream.on('error', removeStreamFromMultipartUploadStreams);
+
+            let result;
+            try {
+              result = await handleUploadPart.call(
+                this,
+                name,
+                uploadId,
+                partNo,
+                data,
+                options
               );
+            } catch (error) {
+              stream.destroy();
+              throw error;
             }
 
-            resolve({
-              number: partNo,
-              etag: result.res.headers.etag,
-            });
+            hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
+            if (hasUploadPart) {
+              resolve(hasUploadPart);
+              return;
+            }
+            if (!isCancel.call(this)) {
+              doneParts.push({
+                number: partNo,
+                etag: result.res.headers.etag,
+              });
+              checkpoint.doneParts = doneParts;
+
+              if (options.progress) {
+                await options.progress(
+                  doneParts.length / numParts,
+                  checkpoint,
+                  result.res
+                );
+              }
+
+              resolve({
+                number: partNo,
+                etag: result.res.headers.etag,
+              });
+            }
           }
+          resolve(undefined);
+        } catch (err) {
+          err.partNum = partNo;
+          if (err.status === 404) {
+            reject(_makeAbortEvent());
+          }
+          reject(err);
         }
-        resolve(undefined);
-      } catch (err) {
-        err.partNum = partNo;
-        if (err.status === 404) {
-          reject(_makeAbortEvent());
-        }
-        reject(err);
+      });
+    },
+    this.options.retryMax,
+    {
+      errorHandler: err => {
+        const _errHandle = _err => {
+          const statusErr = [-1, -2].includes(_err.status);
+          const requestErrorRetryHandle = this.options.requestErrorRetryHandle || (() => true);
+          return statusErr && requestErrorRetryHandle(_err);
+        };
+        return !!_errHandle(err);
       }
-    });
-  };
+    }
+  );
 
   const all = Array.from(new Array(numParts), (_x, i) => i + 1);
   const done = doneParts.map(p => p.number);

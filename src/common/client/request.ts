@@ -69,7 +69,9 @@ export async function _request(this: Client, params) {
       if (!this._setOptions || Date.now() - this._setOptions > 10000) {
         this._setOptions = Date.now();
         await setSTSToken.call(this);
-        return this.request(params);
+        if (!params.stream) {
+          return this.request(params);
+        }
       }
     }
 
@@ -87,11 +89,11 @@ export async function _request(this: Client, params) {
 
 
 export async function request(this: Client, params) {
-  const isAvailableStream = params.stream ? params.stream.readable : true;
-  if (this.options.retryMax && isAvailableStream) {
+  if (this.options.retryMax) {
     const requestfn = retry(_request.bind(this), this.options.retryMax, {
       errorHandler: (err) => {
         const _errHandle = (_err) => {
+          if (params.stream) return false;
           const statusErr = [-1, -2].includes(_err.status);
           const requestErrorRetryHandle = this.options.requestErrorRetryHandle || (() => true);
           return statusErr && requestErrorRetryHandle(_err);

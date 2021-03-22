@@ -11,7 +11,10 @@ import { RequestOptions } from '../../types/params';
  * @param {Object} options
  */
 export declare function handleUploadPart(this: Client, name: string, uploadId: string, partNo: number, data: {
-    stream: Buffer | Readable | null;
+    stream: Readable | null;
+    size: number;
+} | {
+    content: Buffer;
     size: number;
 }, options?: RequestOptions): Promise<{
     name: string;

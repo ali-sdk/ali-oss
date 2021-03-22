@@ -2,7 +2,6 @@ import path from 'path';
 import mime from 'mime';
 import { initMultipartUpload } from '../../common/multipart/initMultipartUpload';
 import { resumeMultipart } from './resumeMultipart';
-import { putStream } from '../object/putStream';
 import { isFile } from '../../common/utils/isFile';
 import { getPartSize } from '../../common/utils/getPartSize';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
@@ -13,6 +12,7 @@ import { _createStream } from '../client/_createStream';
 import { resetCancelFlag } from '../../common/client';
 import OSS from '..';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
+import { put } from '../object/put';
 
 /**
  * Upload a file to OSS using multipart uploads
@@ -56,10 +56,8 @@ export async function multipartUpload(
 
   const fileSize = await getFileSize(file);
   if (fileSize < minPartSize) {
-    const stream = await _createStream(file, 0, fileSize);
     options.contentLength = fileSize;
-
-    const result = await putStream.call(this, name, stream, options);
+    const result = await put.call(this, name, file, options);
     if (options && options.progress) {
       await options.progress(1);
     }

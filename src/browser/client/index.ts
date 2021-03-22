@@ -1,6 +1,6 @@
-import { _createStream } from './_createStream';
+import { _createBuffer } from './_createBuffer';
 
 export default {
-  _createStream
+  _createBuffer
 };
 

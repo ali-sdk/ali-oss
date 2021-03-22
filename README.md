@@ -62,7 +62,7 @@ All operation use es7 async/await to implement. All api is async function.
 - [Node Usage](#node-usage)
 - [Browser Usage](#browser-usage)
 - [Data Regions](#data-regions)
-- [Create Account](#create-acount)
+- [Create Account](#create-account)
 - [Create A Bucket Instance](#create-a-bucket-instance)
   - [oss(options)](#ossoptions)
 - [Bucket Operations](#bucket-operations)
@@ -100,9 +100,9 @@ All operation use es7 async/await to implement. All api is async function.
     - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
     - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
   - BucketEncryption
-    - [.putBucketEncryption(name[, options])](#putbucketencryptionbucketname-options)
-    - [.getBucketEncryption(name)](#getbucketencryptionbucketname)
-    - [.deleteBucketEncryption(name)](#deletebucketencryptionbucketname-options)
+    - [.putBucketEncryption(name[, rules])](#putbucketencryptionname-rules)
+    - [.getBucketEncryption(name)](#getbucketencryptionname)
+    - [.deleteBucketEncryption(name)](#deletebucketencryptionname)
   - tagging
     - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
     - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
@@ -155,7 +155,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
   - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-  - [.listParts(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
+  - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
   - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
@@ -340,7 +340,7 @@ options:
 `fetch` mode ,else `XMLHttpRequest`
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
-- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.
+- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.**_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 
 example:
 
@@ -378,6 +378,36 @@ const store = new OSS({
 });
 ```
 
+4. use STS and refreshSTSToken
+```js
+const OSS = require('ali-oss');
+const store = new OSS({
+  accessKeyId: 'your STS key',
+  accessKeySecret: 'your STS secret',
+  stsToken: 'your STS token',
+  refreshSTSToken: async () => {
+    return {
+      accessKeyId: 'your refreshed STS key',
+      accessKeySecret: 'your refreshed STS secret',
+      stsToken: 'your refreshed STS stoken'
+    }
+  }
+});
+```
+
+5. retry request with stream
+```js
+for (let i = 0; i <= store.options.retryMax; i++) {
+  try {
+    const result = await store.putStream("<example-object>", fs.createReadStream("<example-path>"));
+    console.log(result);
+    break; // break if success
+  } catch (e) {
+    console.log(e);
+  }
+}
+```
+
 ## Bucket Operations
 
 ### .listBuckets(query[, options])
@@ -400,6 +430,7 @@ Success will return buckets list on `buckets` properties.
     - name {String} bucket name
     - region {String} bucket store data region, e.g.: `oss-cn-hangzhou-a`
     - creationDate {String} bucket create GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+    - storageClass {String} e.g.: `Standard`, `IA`, `Archive`
 - owner {Object} object owner, including `id` and `displayName`
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string

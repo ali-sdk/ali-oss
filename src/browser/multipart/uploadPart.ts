@@ -1,5 +1,5 @@
 import { RequestOptions } from '../../types/params';
-import { _createStream } from '../client/_createStream';
+import { _createBuffer } from '../client/_createBuffer';
 import { handleUploadPart } from '../../common/multipart/handleUploadPart';
 import { OSS } from '../core';
 
@@ -24,7 +24,7 @@ export async function uploadPart(
   options: RequestOptions = {}
 ) {
   const data = {
-    stream: await _createStream(file, start, end),
+    content: await _createBuffer(file, start, end),
     size: end - start
   };
   return await handleUploadPart.call(this, name, uploadId, partNo, data, options);

@@ -8,7 +8,7 @@ export async function getFileSize(file: any) {
     return file.length;
   } else if (isFile(file)) {
     return file.size;
-  } if (isString(file)) {
+  } else if (isString(file)) {
     const stat = await statFile(file);
     return stat.size;
   }

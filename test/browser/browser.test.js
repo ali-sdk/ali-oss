@@ -19,9 +19,8 @@ const crypto1 = require('crypto');
 const { prefix } = require('./browser-utils');
 const { _getReqUrl } = require('../../lib/common/client/_getReqUrl');
 const { _checkUserAgent } = require('../../lib/common/client/_checkUserAgent');
-const createStreamModule = require('../../lib/browser/client/_createStream');
 const { getPartSize } = require('../../lib/common/utils/getPartSize');
-
+const { Readable } = require('stream');
 let ossConfig;
 const timemachine = require('timemachine');
 
@@ -734,7 +733,7 @@ describe('browser', () => {
 
     it('should set custom Content-MD5 and ignore case', async () => {
       const name = `${prefix}put/test-md5`;
-      const content = Array(1024 * 1024 * 10)
+      const content = Array(1024 * 1024)
         .fill(1)
         .join('');
       const body = new Blob([content], { type: 'text/plain' });
@@ -1203,24 +1202,20 @@ describe('browser', () => {
         assert.equal(result.res.headers['x-oss-server-side-encryption'], 'KMS');
       });
 
-      it('should fallback to putStream when file size is smaller than 100KB', async () => {
+      it('should fallback to put when file size is smaller than 100KB', async () => {
         const file = new File(['multipart-fallback-test'], 'multipart-fallback');
         const name = `${prefix}multipart/fallback`;
         let progress = 0;
-        const uploadPartSpy = sinon.spy(store, 'uploadPart');
         const result = await store.multipartUpload(name, file, {
           progress() {
             progress++;
           }
         });
-        // assert.equal(putStreamSpy.callCount, 1);
-        assert.equal(uploadPartSpy.callCount, 0);
         assert.equal(typeof result.name, 'string');
         assert.equal(typeof result.bucket, 'string');
         assert.equal(typeof result.etag, 'string');
 
         assert.equal(progress, 1);
-        uploadPartSpy.restore();
       });
 
       it('should use default partSize when not specified', () => {
@@ -2068,7 +2063,6 @@ describe('browser', () => {
     let store;
     const RETRY_MAX = 3;
     let testRetryCount = 0;
-    let autoRestoreWhenRETRY_LIMIE = true;
 
     let ORIGIN_REQUEST;
     const mock = () => {
@@ -2092,7 +2086,7 @@ describe('browser', () => {
         retryMax: RETRY_MAX,
         requestErrorRetryHandle: () => {
           testRetryCount++;
-          if (testRetryCount === RETRY_MAX && autoRestoreWhenRETRY_LIMIE) {
+          if (testRetryCount === RETRY_MAX) {
             restore();
           }
           return true;
@@ -2103,7 +2097,6 @@ describe('browser', () => {
     });
     beforeEach(() => {
       testRetryCount = 0;
-      autoRestoreWhenRETRY_LIMIE = true;
       mock();
     });
     afterEach(() => {
@@ -2117,7 +2110,7 @@ describe('browser', () => {
     });
 
     it('should throw when retry count bigger than options retryMax', async () => {
-      autoRestoreWhenRETRY_LIMIE = false;
+      testRetryCount = RETRY_MAX + 1;
       try {
         await store.list();
         assert(false, 'should throw error');
@@ -2126,7 +2119,7 @@ describe('browser', () => {
       }
     });
 
-    it('should succeed when put with filename', async () => {
+    it('should succeed when put with file', async () => {
       const name = `ali-oss-test-retry-file-${Date.now()}`;
       const file = new File([1, 2, 3, 4, 5, 6, 7], name);
       const res = await store.put(name, file);
@@ -2136,11 +2129,48 @@ describe('browser', () => {
       assert.strictEqual(onlineFile.content.toString(), '1234567');
     });
 
-    it('should fail when putStream', async () => {
-      autoRestoreWhenRETRY_LIMIE = false;
+    it('should succeed when multipartUpload with file', async () => {
+      const originRequest = store.urllib.request;
+      const UPLOAD_PART_SEQ = 1;
+      let CurrentRequsetTimer = 0;
+      store.urllib.request = async (url, params) => {
+        // skip mock when initMultipartUpload
+        if (CurrentRequsetTimer < UPLOAD_PART_SEQ) {
+          CurrentRequsetTimer++;
+          return await originRequest(url, params);
+        }
+        // mock net error when upload part
+        if (testRetryCount < RETRY_MAX) {
+          if (params.stream) {
+            params.stream.destroy();
+          }
+          const e = new Error('net error');
+          e.status = -1;
+          e.headers = {};
+          throw e;
+        } else {
+          return await originRequest(url, params);
+        }
+      };
       const name = `ali-oss-test-retry-file-${Date.now()}`;
-      const file = new File([1, 2, 3, 4, 5, 6, 7], name);
-      const stream = await createStreamModule._createStream(file, 0, file.size);
+      const file = new File(new Array(101 * 1024).fill('1'), name);
+      const res = await store.multipartUpload(name, file);
+      assert.strictEqual(res.res.status, 200);
+      assert.strictEqual(testRetryCount, RETRY_MAX);
+      const onlineFile = await store.get(name);
+      assert.strictEqual(onlineFile.content.length, 101 * 1024);
+      assert.strictEqual(onlineFile.content.toString(), new Array(101 * 1024).fill('1').join(''));
+      store.urllib.request = originRequest;
+    });
+
+    it('should fail when put with stream', async () => {
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const stream = new Readable({
+        read() {
+          this.push([1, 2]);
+          this.push(null);
+        }
+      });
       try {
         await store.putStream(name, stream);
         assert(false, 'should not reach here');

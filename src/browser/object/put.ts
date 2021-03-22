@@ -1,18 +1,17 @@
-import path from 'path';
 import mime from 'mime';
-import { putStream } from './putStream';
+import path from 'path';
+import { _objectRequestParams } from '../../common/client/_objectRequestParams';
+import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
+import { encodeCallback } from '../../common/utils/encodeCallback';
 import { isBlob } from '../../common/utils/isBlob';
+import { isBuffer } from '../../common/utils/isBuffer';
 import { isFile } from '../../common/utils/isFile';
 import { objectName } from '../../common/utils/objectName';
-import { encodeCallback } from '../../common/utils/encodeCallback';
 import { objectUrl } from '../../common/utils/objectUrl';
-import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
-import { getFileSize } from '../utils/getFileSize';
-import { isBuffer } from '../../common/utils/isBuffer';
 import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
-import { _objectRequestParams } from '../../common/client/_objectRequestParams';
-import { _createStream } from '../client/_createStream';
+import { _createBuffer } from '../client/_createBuffer';
 import { OSS } from '../core';
+import { getFileSize } from '../utils/getFileSize';
 /**
  * put an object from String(file path)/Buffer/ReadableStream
  * @param {String} name the object key
@@ -37,7 +36,7 @@ export async function put(
   file: Buffer | Blob | File,
   options: ObjectPutOptions = {}
 ): Promise<ObjectPutReturnType> {
-  let content;
+  let content: Buffer;
   name = objectName(name);
   if (isBuffer(file)) {
     content = file;
@@ -49,24 +48,11 @@ export async function put(
         options.mime = file.type;
       }
     }
-
-    const stream = await _createStream(file, 0, file.size);
+    content = await _createBuffer(file, 0, file.size);
     options.contentLength = await getFileSize(file);
-    try {
-      const result = await putStream.call(this, name, stream, options);
-      return result;
-    } catch (err) {
-      if (err.code === 'RequestTimeTooSkewed') {
-        this.options.amendTimeSkewed = +new Date(err.serverTime) - new Date().valueOf();
-        return await put.call(this, name, file, options);
-      } else {
-        throw err;
-      }
-    }
   } else {
     throw new TypeError('Must provide Buffer/Blob/File for put.');
   }
-
   options.headers = options.headers || {};
   convertMetaToHeaders(options.meta, options.headers);
 
@@ -76,9 +62,7 @@ export async function put(
   params.mime = options.mime;
   params.content = content;
   params.successStatuses = [200];
-
   const result = await this.request(params);
-
   const ret: any = {
     name,
     url: objectUrl(name, this.options),

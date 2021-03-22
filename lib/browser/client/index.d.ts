@@ -1,5 +1,5 @@
-import { _createStream } from './_createStream';
+import { _createBuffer } from './_createBuffer';
 declare const _default: {
-    _createStream: typeof _createStream;
+    _createBuffer: typeof _createBuffer;
 };
 export default _default;

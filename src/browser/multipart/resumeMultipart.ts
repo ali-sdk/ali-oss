@@ -4,7 +4,6 @@ import { _makeCancelEvent } from '../../common/utils/_makeCancelEvent';
 import { _makeAbortEvent } from '../../common/utils/_makeAbortEvent';
 import { _parallel } from '../../common/utils/_parallel';
 import { Checkpoint, DoneParts, MultipartUploadOptions } from '../../types/params';
-import { _createStream } from '../client/_createStream';
 import { checkBrowserAndVersion } from '../../common/utils/checkBrowserAndVersion';
 import { OSS } from '../core';
 import { uploadPart } from './uploadPart';
@@ -110,8 +109,7 @@ export async function resumeMultipart(
       const abortEvent = jobErr.find(err => err.name === 'abort');
       if (abortEvent) throw abortEvent;
 
-      jobErr[0].message = `Failed to upload some parts with error: ${jobErr[0].toString()} part_num: ${jobErr[0].partNum
-        }`;
+      jobErr[0].message = `Failed to upload some parts with error: ${jobErr[0].toString()} part_num: ${jobErr[0].partNum}`;
       throw jobErr[0];
     }
   }
