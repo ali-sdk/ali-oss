@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.14.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.14.0...v6.14.1) (2021-03-23)
+
+
+### Bug Fixes
+
+* use arrayBuffer first, fall back to FileReader if it does not work ([#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943)) ([7c5fd52](https://github.com/aliyun/oss-nodejs-sdk/commit/7c5fd5234244cc81a7c18ce6dca0bafd5f429b1a))
+
 ## [6.14.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.2...v6.14.0) (2021-03-19)
 
 
