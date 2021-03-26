@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.15.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.14.1...v6.15.0) (2021-03-26)
+
+
+### Features
+
+* provide a switch to generate upload file md5 ([#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)) ([2d65189](https://github.com/aliyun/oss-nodejs-sdk/commit/2d651896a93d4c2a67404479dce90ef01d79bb5a))
+
 ### [6.14.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.14.0...v6.14.1) (2021-03-23)
 
 
