@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.14.1
+// Aliyun OSS SDK for JavaScript v6.15.0
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -789,20 +789,21 @@ proto.multipartUpload = /*#__PURE__*/function () {
           case 0:
             options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
             this.resetCancelFlag();
+            options.disabledMD5 = options.disabledMD5 === undefined ? true : !!options.disabledMD5;
 
             if (!(options.checkpoint && options.checkpoint.uploadId)) {
-              _context.next = 7;
+              _context.next = 8;
               break;
             }
 
             if (file && isFile(file)) options.checkpoint.file = file;
-            _context.next = 6;
+            _context.next = 7;
             return this._resumeMultipart(options.checkpoint, options);
 
-          case 6:
+          case 7:
             return _context.abrupt("return", _context.sent);
 
-          case 7:
+          case 8:
             minPartSize = 100 * 1024;
 
             if (!options.mime) {
@@ -821,33 +822,33 @@ proto.multipartUpload = /*#__PURE__*/function () {
 
             this._convertMetaToHeaders(options.meta, options.headers);
 
-            _context.next = 13;
+            _context.next = 14;
             return this._getFileSize(file);
 
-          case 13:
+          case 14:
             fileSize = _context.sent;
 
             if (!(fileSize < minPartSize)) {
-              _context.next = 25;
+              _context.next = 26;
               break;
             }
 
             options.contentLength = fileSize;
-            _context.next = 18;
+            _context.next = 19;
             return this.put(name, file, options);
 
-          case 18:
+          case 19:
             result = _context.sent;
 
             if (!(options && options.progress)) {
-              _context.next = 22;
+              _context.next = 23;
               break;
             }
 
-            _context.next = 22;
+            _context.next = 23;
             return options.progress(1);
 
-          case 22:
+          case 23:
             ret = {
               res: result.res,
               bucket: this.options.bucket,
@@ -861,27 +862,27 @@ proto.multipartUpload = /*#__PURE__*/function () {
 
             return _context.abrupt("return", ret);
 
-          case 25:
+          case 26:
             if (!(options.partSize && !(parseInt(options.partSize, 10) === options.partSize))) {
-              _context.next = 27;
+              _context.next = 28;
               break;
             }
 
             throw new Error('partSize must be int number');
 
-          case 27:
+          case 28:
             if (!(options.partSize && options.partSize < minPartSize)) {
-              _context.next = 29;
+              _context.next = 30;
               break;
             }
 
             throw new Error("partSize must not be smaller than ".concat(minPartSize));
 
-          case 29:
-            _context.next = 31;
+          case 30:
+            _context.next = 32;
             return this.initMultipartUpload(name, options);
 
-          case 31:
+          case 32:
             initResult = _context.sent;
             uploadId = initResult.uploadId;
             partSize = this._getPartSize(fileSize, options.partSize);
@@ -895,21 +896,21 @@ proto.multipartUpload = /*#__PURE__*/function () {
             };
 
             if (!(options && options.progress)) {
-              _context.next = 38;
+              _context.next = 39;
               break;
             }
 
-            _context.next = 38;
+            _context.next = 39;
             return options.progress(0, checkpoint, initResult.res);
 
-          case 38:
-            _context.next = 40;
+          case 39:
+            _context.next = 41;
             return this._resumeMultipart(checkpoint, options);
 
-          case 40:
+          case 41:
             return _context.abrupt("return", _context.sent);
 
-          case 41:
+          case 42:
           case "end":
             return _context.stop();
         }
@@ -988,7 +989,8 @@ proto._resumeMultipart = /*#__PURE__*/function () {
                           _context2.prev = 7;
                           _context2.next = 10;
                           return self._uploadPart(name, uploadId, partNo, data, {
-                            timeout: options.timeout
+                            timeout: options.timeout,
+                            disabledMD5: options.disabledMD5
                           });
 
                         case 10:
@@ -1494,21 +1496,22 @@ proto.put = /*#__PURE__*/function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             options = options || {};
+            options.disabledMD5 = options.disabledMD5 === undefined ? true : !!options.disabledMD5;
             options.headers = options.headers || {};
             name = this._objectName(name);
 
             if (!isBuffer(file)) {
-              _context2.next = 7;
+              _context2.next = 8;
               break;
             }
 
             content = file;
-            _context2.next = 18;
+            _context2.next = 19;
             break;
 
-          case 7:
+          case 8:
             if (!(isBlob(file) || isFile(file))) {
-              _context2.next = 17;
+              _context2.next = 18;
               break;
             }
 
@@ -1520,35 +1523,36 @@ proto.put = /*#__PURE__*/function () {
               }
             }
 
-            _context2.next = 11;
+            _context2.next = 12;
             return this._createBuffer(file, 0, file.size);
 
-          case 11:
+          case 12:
             content = _context2.sent;
-            _context2.next = 14;
+            _context2.next = 15;
             return this._getFileSize(file);
 
-          case 14:
+          case 15:
             options.contentLength = _context2.sent;
-            _context2.next = 18;
+            _context2.next = 19;
             break;
 
-          case 17:
+          case 18:
             throw new TypeError('Must provide Buffer/Blob/File for put.');
 
-          case 18:
+          case 19:
             this._convertMetaToHeaders(options.meta, options.headers);
 
             method = options.method || 'PUT';
             params = this._objectRequestParams(method, name, options);
             callback.encodeCallback(params, options);
             params.mime = options.mime;
+            params.disabledMD5 = options.disabledMD5;
             params.content = content;
             params.successStatuses = [200];
-            _context2.next = 27;
+            _context2.next = 29;
             return this.request(params);
 
-          case 27:
+          case 29:
             result = _context2.sent;
             ret = {
               name: name,
@@ -1562,7 +1566,7 @@ proto.put = /*#__PURE__*/function () {
 
             return _context2.abrupt("return", ret);
 
-          case 31:
+          case 33:
           case "end":
             return _context2.stop();
         }
@@ -1994,7 +1998,7 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
 },{"../common/callback":23,"../common/image":26,"../common/object/copyObject":29,"../common/object/delete":30,"../common/object/deleteMulti":31,"../common/object/deleteObjectTagging":32,"../common/object/generateObjectUrl":33,"../common/object/get":34,"../common/object/getACL":35,"../common/object/getBucketVersions":36,"../common/object/getObjectMeta":37,"../common/object/getObjectTagging":38,"../common/object/getObjectUrl":39,"../common/object/getSymlink":40,"../common/object/head":41,"../common/object/putACL":42,"../common/object/putObjectTagging":43,"../common/object/putSymlink":44,"../common/object/signatureUrl":45,"../common/utils/isBlob":60,"../common/utils/isBuffer":61,"../common/utils/isFile":62,"@babel/runtime/helpers/asyncToGenerator":70,"@babel/runtime/helpers/interopRequireDefault":71,"@babel/runtime/regenerator":74,"copy-to":101,"core-js/modules/es.array.for-each":238,"core-js/modules/es.array.map":245,"core-js/modules/es.function.name":249,"core-js/modules/es.number.constructor":250,"core-js/modules/es.object.assign":251,"core-js/modules/es.object.keys":253,"core-js/modules/es.object.to-string":254,"core-js/modules/es.promise":255,"core-js/modules/es.regexp.exec":256,"core-js/modules/es.regexp.to-string":257,"core-js/modules/es.string.replace":261,"core-js/modules/web.dom-collections.for-each":292,"fs":78,"merge-descriptors":311,"mime":313,"path":316,"regenerator-runtime/runtime":337}],5:[function(require,module,exports){
 "use strict";
 
-exports.version = "6.14.1";
+exports.version = "6.15.0";
 
 },{}],6:[function(require,module,exports){
 "use strict";
@@ -4109,20 +4113,21 @@ proto._uploadPart = /*#__PURE__*/function () {
             isBrowserEnv = process && process.browser;
             isBrowserEnv ? params.content = data.content : params.stream = data.stream;
             params.successStatuses = [200];
-            _context7.next = 12;
+            params.disabledMD5 = options.disabledMD5;
+            _context7.next = 13;
             return this.request(params);
 
-          case 12:
+          case 13:
             result = _context7.sent;
 
             if (result.res.headers.etag) {
-              _context7.next = 15;
+              _context7.next = 16;
               break;
             }
 
             throw new Error('Please set the etag of expose-headers in OSS \n https://help.aliyun.com/document_detail/32069.html');
 
-          case 15:
+          case 16:
             if (data.stream) {
               data.stream = null;
               params.stream = null;
@@ -4134,7 +4139,7 @@ proto._uploadPart = /*#__PURE__*/function () {
               res: result.res
             });
 
-          case 17:
+          case 18:
           case "end":
             return _context7.stop();
         }
@@ -6300,7 +6305,9 @@ function createRequest(params) {
   }
 
   if (params.content) {
-    headers['Content-MD5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
+    if (!params.disabledMD5) {
+      headers['Content-MD5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
+    }
 
     if (!headers['Content-Length']) {
       headers['Content-Length'] = params.content.length;
