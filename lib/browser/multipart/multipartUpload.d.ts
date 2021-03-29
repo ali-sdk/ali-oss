@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { MultipartUploadOptions } from '../../types/params';
+import { BrowserMultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
 import OSS from '../';
 /**
@@ -18,4 +18,4 @@ import OSS from '../';
  *                    key2: 'value2'
  *                  }
  */
-export declare function multipartUpload(this: OSS, name: string, file: Blob | File | Buffer, options?: MultipartUploadOptions): Promise<ObjectCompleteMultipartUploadReturnType>;
+export declare function multipartUpload(this: OSS, name: string, file: Blob | File | Buffer, options?: BrowserMultipartUploadOptions): Promise<ObjectCompleteMultipartUploadReturnType>;

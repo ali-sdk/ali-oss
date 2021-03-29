@@ -241,14 +241,17 @@ export async function multipartDownload(
   filePath: string,
   options: MultipartDownload = {}
 ) {
-  if (options.enableCRC64 && !SUPPORT_BIGINT) {
-    console.warn('The current environment does not support BigInt, options.enableCRC64 has been automatically set to false!');
-  }
+  const originEnableCRC64 = options.enableCRC64;
   options = Object.assign({
     parallel: 5,
     partSize: 1024 * 1024,
-    enableCRC64: SUPPORT_BIGINT
+    enableCRC64: options.enableCRC64 && SUPPORT_BIGINT,
+    disabledWarning: true
   }, options);
+  if (originEnableCRC64 && !SUPPORT_BIGINT && !options.disabledWarning) {
+    console.warn('The current environment does not support BigInt, options.enableCRC64 has been automatically set to false!');
+  }
+
   const downloadCheckpoint = await DownloadCheckPoint.load(this, objectKey, filePath, options as MultipartDownloadRuntime);
   const tempFileFd = fs.openSync(downloadCheckpoint.tempDownloadFilePath, 'w+');
 

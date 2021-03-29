@@ -14,7 +14,7 @@ const stsConfig = require('./.tmp/stsConfig.json');
 const pkg = require('../../package.json');
 const platform = require('platform');
 // const { callbackServer } = require('../../test/const');
-
+const { Buffer } = require('buffer');
 const crypto1 = require('crypto');
 const { prefix } = require('./browser-utils');
 const { _getReqUrl } = require('../../lib/common/client/_getReqUrl');
@@ -2056,6 +2056,48 @@ describe('browser', () => {
       const info = await store.head(name);
       assert.equal(info.status, 200);
       assert.equal(info.meta.a, latin1_content);
+    });
+  });
+
+  describe('options.disabledMD5', () => {
+    const content = Array(100).fill(1).join('');
+    const body = new Blob([content], { type: 'text/plain' });
+    const MD5_VALUE = crypto1.createHash('md5').update(Buffer.from(content)).digest('base64');
+
+    it('should not calculate MD5 default when use put', async () => {
+      const store = new OSS(ossConfig);
+      const name = `${prefix}put/test-md5-0`;
+      const request = store.urllib.request;
+      let reqParams;
+      store.urllib.request = (url, params) => {
+        reqParams = params;
+        return request(url, params);
+      };
+      await store.put(name, body);
+      assert.strictEqual(reqParams.headers['Content-MD5'], undefined);
+      await store.put(name, body, { disabledMD5: false });
+      assert.strictEqual(reqParams.headers['Content-MD5'], MD5_VALUE);
+      store.urllib.request = request;
+    });
+
+    it('should not calculate MD5 default when use multipartUpload', async () => {
+      const store = new OSS(ossConfig);
+      const name = `${prefix}put/test-md5-2`;
+      const partSize = 100 * 1024;
+      const body2 = new File(Array(2 * partSize).fill(1), { type: 'text/plain' });
+      const request = store.urllib.request;
+      let headerWithMD5Count = 0;
+      store.urllib.request = (url, params) => {
+        if (params.headers['Content-MD5'] && /partNumber=\d/.test(url)) {
+          headerWithMD5Count++;
+        }
+        return request(url, params);
+      };
+      await store.multipartUpload(name, body2, { partSize });
+      assert.strictEqual(headerWithMD5Count, 0);
+      await store.multipartUpload(name, body2, { disabledMD5: false, partSize });
+      assert.strictEqual(headerWithMD5Count, 2);
+      store.urllib.request = request;
     });
   });
 

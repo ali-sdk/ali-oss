@@ -1,7 +1,7 @@
 import copy from 'copy-to';
 import { Readable } from 'stream';
 import { Client } from '../../setConfig';
-import { NormalSuccessResponse, RequestOptions } from '../../types/params';
+import { NormalSuccessResponse, UploadPartOptions } from '../../types/params';
 import { _objectRequestParams } from '../client/_objectRequestParams';
 
 /**
@@ -12,7 +12,7 @@ import { _objectRequestParams } from '../client/_objectRequestParams';
  * @param {Object} data the body data
  * @param {Object} options
  */
-export async function handleUploadPart(this: Client, name: string, uploadId: string, partNo: number, data: { stream: Readable | null, size: number } | {content: Buffer, size: number }, options: RequestOptions = {}) {
+export async function handleUploadPart(this: Client, name: string, uploadId: string, partNo: number, data: { stream: Readable | null, size: number } | { content: Buffer, size: number }, options: UploadPartOptions = {}) {
   const opt: any = {};
   copy(options, false).to(opt);
   opt.headers = opt.headers || {};
@@ -30,6 +30,7 @@ export async function handleUploadPart(this: Client, name: string, uploadId: str
   Object.assign(params, body);
 
   params.successStatuses = [200];
+  params.disabledMD5 = options.disabledMD5;
 
   const result: NormalSuccessResponse = await this.request(params);
 

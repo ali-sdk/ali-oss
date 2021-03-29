@@ -8,7 +8,7 @@ import { isBuffer } from '../../common/utils/isBuffer';
 import { isFile } from '../../common/utils/isFile';
 import { objectName } from '../../common/utils/objectName';
 import { objectUrl } from '../../common/utils/objectUrl';
-import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
+import { BrowserObjectPutOptions, ObjectPutReturnType } from '../../types/object';
 import { _createBuffer } from '../client/_createBuffer';
 import { OSS } from '../core';
 import { getFileSize } from '../utils/getFileSize';
@@ -34,9 +34,10 @@ export async function put(
   this: OSS,
   name: string,
   file: Buffer | Blob | File,
-  options: ObjectPutOptions = {}
+  options: BrowserObjectPutOptions = {}
 ): Promise<ObjectPutReturnType> {
   let content: Buffer;
+  options.disabledMD5 = options.disabledMD5 === undefined ? true : !!options.disabledMD5;
   name = objectName(name);
   if (isBuffer(file)) {
     content = file;
@@ -62,6 +63,7 @@ export async function put(
   params.mime = options.mime;
   params.content = content;
   params.successStatuses = [200];
+  params.disabledMD5 = options.disabledMD5;
   const result = await this.request(params);
   const ret: any = {
     name,

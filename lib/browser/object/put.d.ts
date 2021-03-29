@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { ObjectPutOptions, ObjectPutReturnType } from '../../types/object';
+import { BrowserObjectPutOptions, ObjectPutReturnType } from '../../types/object';
 import { OSS } from '../core';
 /**
  * put an object from String(file path)/Buffer/ReadableStream
@@ -18,4 +18,4 @@ import { OSS } from '../core';
  *                  }
  * @return {Object}
  */
-export declare function put(this: OSS, name: string, file: Buffer | Blob | File, options?: ObjectPutOptions): Promise<ObjectPutReturnType>;
+export declare function put(this: OSS, name: string, file: Buffer | Blob | File, options?: BrowserObjectPutOptions): Promise<ObjectPutReturnType>;

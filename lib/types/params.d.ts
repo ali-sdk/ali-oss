@@ -125,6 +125,13 @@ export interface MultipartUploadOptions extends RequestOptions {
     copyheaders?: object;
     contentLength?: number;
 }
+export interface BrowserMultipartUploadOptions extends MultipartUploadOptions {
+    /** default true. if false,it means that MD5 is automatically calculated for uploaded files. */
+    disabledMD5?: boolean;
+}
+export interface UploadPartOptions extends RequestOptions {
+    disabledMD5?: boolean;
+}
 export interface CompleteMultipartUploadOptions extends RequestOptions {
     callback?: ObjectCallback;
 }
@@ -182,6 +189,8 @@ export interface MultipartDownload {
     ref?: (ref: {
         cancel: (needDestoryed: boolean) => void;
     }) => void;
+    /** Disable warning. A warning will be printed when the environment does not support BigInt */
+    disabledWarning?: boolean;
 }
 export interface MultipartDownloadRuntime extends MultipartDownload {
     parallel: number;

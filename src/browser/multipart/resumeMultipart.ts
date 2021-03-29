@@ -3,7 +3,7 @@ import { divideParts } from '../../common/utils/divideParts';
 import { _makeCancelEvent } from '../../common/utils/_makeCancelEvent';
 import { _makeAbortEvent } from '../../common/utils/_makeAbortEvent';
 import { _parallel } from '../../common/utils/_parallel';
-import { Checkpoint, DoneParts, MultipartUploadOptions } from '../../types/params';
+import { BrowserMultipartUploadOptions, Checkpoint, DoneParts } from '../../types/params';
 import { checkBrowserAndVersion } from '../../common/utils/checkBrowserAndVersion';
 import { OSS } from '../core';
 import { uploadPart } from './uploadPart';
@@ -19,7 +19,7 @@ import { completeMultipartUpload } from '../../common/multipart';
 export async function resumeMultipart(
   this: OSS,
   checkpoint: Checkpoint,
-  options: MultipartUploadOptions = {}
+  options: BrowserMultipartUploadOptions = {}
 ) {
   if (isCancel.call(this)) {
     throw _makeCancelEvent();
@@ -39,7 +39,10 @@ export async function resumeMultipart(
       try {
         if (!isCancel.call(this)) {
           const pi = partOffs[partNo - 1];
-          const result = await uploadPart.call(this, name, uploadId, partNo, file, pi.start, pi.end, options);
+          const result = await uploadPart.call(this, name, uploadId, partNo, file, pi.start, pi.end, {
+            timeout: options.timeout,
+            disabledMD5: options.disabledMD5
+          });
 
           hasUploadPart = checkpoint.doneParts.find(_ => _.number === partNo);
           if (hasUploadPart) {

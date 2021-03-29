@@ -93,6 +93,9 @@ export interface ObjectPutOptions extends RequestOptions {
     contentLength?: number;
     method?: string;
 }
+export interface BrowserObjectPutOptions extends ObjectPutOptions {
+    disabledMD5?: boolean;
+}
 export interface ObjectPutReturnType extends NormalSuccessResponse {
     /** object name */
     name: string;

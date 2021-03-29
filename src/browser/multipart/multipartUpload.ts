@@ -8,7 +8,7 @@ import { getPartSize } from '../../common/utils/getPartSize';
 import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { getFileSize } from '../utils/getFileSize';
 import { isBuffer } from '../../common/utils/isBuffer';
-import { MultipartUploadOptions } from '../../types/params';
+import { BrowserMultipartUploadOptions } from '../../types/params';
 import { ObjectCompleteMultipartUploadReturnType } from '../../types/object';
 import { resetCancelFlag } from '../../common/client';
 import { put } from '../object';
@@ -29,8 +29,9 @@ import OSS from '../';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: OSS, name: string, file: Blob | File | Buffer, options: MultipartUploadOptions = {}) {
+export async function multipartUpload(this: OSS, name: string, file: Blob | File | Buffer, options: BrowserMultipartUploadOptions = {}) {
   resetCancelFlag.call(this);
+  options.disabledMD5 = options.disabledMD5 === undefined ? true : !!options.disabledMD5;
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
   }

@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
 import { Client } from '../../setConfig';
-import { RequestOptions } from '../../types/params';
+import { UploadPartOptions } from '../../types/params';
 /**
  * Upload a part in a multipart upload transaction
  * @param {String} name the object name
@@ -16,7 +16,7 @@ export declare function handleUploadPart(this: Client, name: string, uploadId: s
 } | {
     content: Buffer;
     size: number;
-}, options?: RequestOptions): Promise<{
+}, options?: UploadPartOptions): Promise<{
     name: string;
     etag: string;
     res: {

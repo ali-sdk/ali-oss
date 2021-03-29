@@ -1,4 +1,4 @@
-import { RequestOptions } from '../../types/params';
+import { UploadPartOptions } from '../../types/params';
 import { OSS } from '../core';
 /**
  * Upload a part in a multipart upload transaction
@@ -10,7 +10,7 @@ import { OSS } from '../core';
  * @param {Integer} end  part end bytes  e.g: 204800
  * @param {Object} options
  */
-export declare function uploadPart(this: OSS, name: string, uploadId: string, partNo: number, file: File, start: number, end: number, options?: RequestOptions): Promise<{
+export declare function uploadPart(this: OSS, name: string, uploadId: string, partNo: number, file: File, start: number, end: number, options?: UploadPartOptions): Promise<{
     name: string;
     etag: string;
     res: {

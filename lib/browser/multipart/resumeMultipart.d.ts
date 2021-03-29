@@ -1,3 +1,3 @@
-import { Checkpoint, MultipartUploadOptions } from '../../types/params';
+import { BrowserMultipartUploadOptions, Checkpoint } from '../../types/params';
 import { OSS } from '../core';
-export declare function resumeMultipart(this: OSS, checkpoint: Checkpoint, options?: MultipartUploadOptions): Promise<import("../core").ObjectCompleteMultipartUploadReturnType>;
+export declare function resumeMultipart(this: OSS, checkpoint: Checkpoint, options?: BrowserMultipartUploadOptions): Promise<import("../core").ObjectCompleteMultipartUploadReturnType>;

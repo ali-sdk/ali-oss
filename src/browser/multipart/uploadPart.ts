@@ -1,4 +1,4 @@
-import { RequestOptions } from '../../types/params';
+import { UploadPartOptions } from '../../types/params';
 import { _createBuffer } from '../client/_createBuffer';
 import { handleUploadPart } from '../../common/multipart/handleUploadPart';
 import { OSS } from '../core';
@@ -21,7 +21,7 @@ export async function uploadPart(
   file: File,
   start: number,
   end: number,
-  options: RequestOptions = {}
+  options: UploadPartOptions = {}
 ) {
   const data = {
     content: await _createBuffer(file, start, end),
