@@ -29,7 +29,9 @@ describe('multipart-download.test.js', () => {
     const localFileName = '/tmp/.oss/local-multipart-download';
     const name = 'multipart-download-test';
     await store.multipartUpload(name, fileName);
-    await store.multipartDownload(name, localFileName);
+    await store.multipartDownload(name, localFileName, {
+      enableCRC64: true
+    });
     assert.strictEqual(md5(fs.readFileSync(fileName)), md5(fs.readFileSync(localFileName)));
   });
 
@@ -40,7 +42,7 @@ describe('multipart-download.test.js', () => {
     await store.multipartUpload(name, fileName);
     let cancel;
     let hasCanceled = false;
-    const upload = () => {
+    const download = () => {
       return store.multipartDownload(name, localFileName, {
         ref: actions => {
           cancel = actions.cancel;
@@ -53,10 +55,10 @@ describe('multipart-download.test.js', () => {
         }
       });
     };
-    await upload()
+    await download()
       .catch(e => {
         assert.strictEqual(e.name, 'cancel');
-        return upload();
+        return download();
       })
       .then(() => {
         assert.strictEqual(md5(fs.readFileSync(fileName)), md5(fs.readFileSync(localFileName)));

@@ -258,96 +258,104 @@ export async function multipartDownload(
   let pendingSourceStreams: Readable[] = [];
 
   let paused = false;
-  const download = async () => {
-    return new Promise((resolve, reject) => {
-      let pendWorkerCount = 0;
-      const shouldPause = () => {
-        if (paused) {
-          throw _makeCancelEvent();
-        }
-        return false;
-      };
-      function performNextWorkPart() {
-        return !shouldPause() && downloadCheckpoint.parts.find(p => p.status === EDownloadStatus.READY);
+  const download = () => {
+    let pendWorkerCount = 0;
+    const shouldPause = () => {
+      if (paused) {
+        throw _makeCancelEvent();
       }
-      const downloadNextPart = async () => {
-        const part = performNextWorkPart();
-        if (!part) return;
-        part.status = EDownloadStatus.PENDING;
-        const writeStream = fs.createWriteStream(downloadCheckpoint.tempDownloadFilePath, {
-          start: part.offset,
-          fd: tempFileFd,
-          autoClose: false,
-        });
-
-        const { stream: readStream, res: partResp } = await this.getStream(objectKey, {
-          versionId: options.versionId,
-          headers: {
-            Range: `bytes=${part.start}-${part.end}`,
-            'x-oss-range-behavior': 'standard',
-            'response-cache-control': 'no-store'
+      return false;
+    };
+    function performNextWorkPart() {
+      return !shouldPause() && downloadCheckpoint.parts.find(p => p.status === EDownloadStatus.READY);
+    }
+    const downloadNextPart = async () => {
+      const part = performNextWorkPart();
+      if (!part) {
+        return;
+      }
+      part.status = EDownloadStatus.PENDING;
+      const writeStream = fs.createWriteStream(downloadCheckpoint.tempDownloadFilePath, {
+        start: part.offset,
+        fd: tempFileFd,
+        autoClose: false,
+      });
+      const { stream: readStream, res: partResp } = await this.getStream(objectKey, {
+        versionId: options.versionId,
+        headers: {
+          Range: `bytes=${part.start}-${part.end}`,
+          'x-oss-range-behavior': 'standard',
+          'response-cache-control': 'no-store'
+        }
+      });
+      if (shouldPause()) {
+        throw (_makeCancelEvent());
+      }
+      return new Promise((resolve, reject) => {
+        function removeSelf() {
+          const index = pendingSourceStreams.indexOf(readStream);
+          if (index !== -1) {
+            pendingSourceStreams.splice(index, 1);
           }
-        });
-
-        if (shouldPause()) return;
-        await new Promise((resolve_1) => {
-          pendingSourceStreams.push(readStream);
-          function removeSelf() {
-            const index = pendingSourceStreams.indexOf(readStream);
-            if (index !== -1) {
-              pendingSourceStreams.splice(index, 1);
-            }
-          }
-          const ret = Buffer.alloc(8);
-          if (downloadCheckpoint.enableCRC64) {
-            readStream.on('data', (chunk) => {
-              crc64(chunk, ret);
-            });
-          }
-          readStream.on('end', () => {
-            removeSelf();
-            part.status = EDownloadStatus.OK;
-            if (downloadCheckpoint.enableCRC64) {
-              part.crc64 = toUInt64String(ret);
-            }
-            downloadCheckpoint.dump();
-            resolve_1(partResp);
+        }
+        const ret = Buffer.alloc(8);
+        readStream.pause();
+        if (downloadCheckpoint.enableCRC64) {
+          readStream.on('data', (chunk) => {
+            crc64(chunk, ret);
           });
-          readStream.on('error', (e) => {
+        }
+        readStream.on('end', () => {
+          removeSelf();
+          part.status = EDownloadStatus.OK;
+          if (downloadCheckpoint.enableCRC64) {
+            part.crc64 = toUInt64String(ret);
+          }
+          downloadCheckpoint.dump();
+          resolve(partResp);
+        });
+        readStream.on('error', (e) => {
+          removeSelf();
+          part.status = EDownloadStatus.READY;
+          downloadCheckpoint.dump();
+          reject(e);
+        });
+        readStream.on('close', () => {
+          if (paused) {
             removeSelf();
             part.status = EDownloadStatus.READY;
             downloadCheckpoint.dump();
-            reject(e);
-          });
-          readStream.on('close', () => {
-            if (paused) {
-              removeSelf();
-              part.status = EDownloadStatus.READY;
-              downloadCheckpoint.dump();
-              reject(_makeCancelEvent());
-            }
-          });
-          readStream.pipe(writeStream);
+            reject(_makeCancelEvent());
+          }
         });
-      };
-      function scheduler() {
-        for (; pendWorkerCount < (options as MultipartDownloadRuntime).parallel && performNextWorkPart(); pendWorkerCount++) {
-          // eslint-disable-next-line no-loop-func
-          downloadNextPart().then((partResp: any) => {
-            pendWorkerCount -= 1;
-            const doneParts = downloadCheckpoint.getFinishedTasks();
-            if (typeof options.progress === 'function') {
-              options.progress(doneParts.length, downloadCheckpoint.parts.length, partResp);
-            }
-            if (doneParts.length === downloadCheckpoint.parts.length) {
-              resolve(undefined);
-            } else {
-              scheduler();
-            }
-          });
-        }
+        pendingSourceStreams.push(readStream);
+        readStream.pipe(writeStream);
+      });
+    };
+    function scheduler(resolve, reject) {
+      for (; pendWorkerCount < (options as MultipartDownloadRuntime).parallel && performNextWorkPart(); pendWorkerCount++) {
+        // eslint-disable-next-line no-loop-func
+        downloadNextPart().then((partResp: any) => {
+          if (!partResp) return;
+          pendWorkerCount -= 1;
+          const doneParts = downloadCheckpoint.getFinishedTasks();
+          if (typeof options.progress === 'function') {
+            options.progress(doneParts.length, downloadCheckpoint.parts.length, partResp);
+          }
+          if (doneParts.length === downloadCheckpoint.parts.length) {
+            resolve(null);
+          } else {
+            scheduler(resolve, reject);
+          }
+        }).catch((e) => {
+          if (e) {
+            reject(e);
+          }
+        });
       }
-      scheduler();
+    }
+    return new Promise((resolve, reject) => {
+      scheduler(resolve, reject);
     });
   };
 
