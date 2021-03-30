@@ -245,9 +245,10 @@ export async function multipartDownload(
   options = Object.assign({
     parallel: 5,
     partSize: 1024 * 1024,
-    enableCRC64: options.enableCRC64 && SUPPORT_BIGINT,
     disabledWarning: true
-  }, options);
+  }, options, {
+    enableCRC64: options.enableCRC64 && SUPPORT_BIGINT
+  });
   if (originEnableCRC64 && !SUPPORT_BIGINT && !options.disabledWarning) {
     console.warn('The current environment does not support BigInt, options.enableCRC64 has been automatically set to false!');
   }
