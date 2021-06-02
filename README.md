@@ -321,6 +321,9 @@ options:
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
+- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be 
+  less than sts info expire interval, default is 300000ms(5min)
+  when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`. Set as extranet domain name, intranet domain name, accelerated domain name, etc. according to different needs. please see [endpoints](https://www.alibabacloud.com/help/doc-detail/31837.htm)
@@ -387,12 +390,14 @@ const store = new OSS({
   accessKeySecret: 'your STS secret',
   stsToken: 'your STS token',
   refreshSTSToken: async () => {
+    const info = await fetch('you sts server');
     return {
-      accessKeyId: 'your refreshed STS key',
-      accessKeySecret: 'your refreshed STS secret',
-      stsToken: 'your refreshed STS stoken'
+      accessKeyId: info.accessKeyId,
+      accessKeySecret: info.accessKeySecret,
+      stsToken: info.stsToken
     }
-  }
+  },
+  refreshSTSTokenInterval: 300000
 });
 ```
 

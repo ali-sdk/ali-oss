@@ -198,7 +198,8 @@ describe('test/sts.test.js', () => {
       };
       store = new OSS(testRefreshSTSTokenConf);
     });
-    it('should refresh sts token when token is expired', async () => {
+    // TODO refreshSTSToken 使用过期时间的方式，不在根据错误码进行处理
+    it.skip('should refresh sts token when token is expired', async () => {
       try {
         store.options.refreshSTSToken = async () => {
           mm.restore();
