@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-/* eslint no-await-in-loop: [0] */
 const assert = require('assert');
 // var oss = require('../');
 // var oss = OSS.Wrapper;
