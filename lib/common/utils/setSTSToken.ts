@@ -2,13 +2,23 @@ import { formatObjKey } from './formatObjKey';
 
 export async function setSTSToken(this: any) {
   if (!this.options) this.options = {};
-  let credentials = await this.options.refreshSTSToken();
-  credentials = formatObjKey(credentials, 'firstLowerCase');
-  if (credentials.securityToken) {
-    credentials.stsToken = credentials.securityToken;
+
+  const now = new Date();
+  if (this.stsTokenFreshTime) {
+    if (+now - this.stsTokenFreshTime >= this.options.refreshSTSTokenInterval) {
+      this.stsTokenFreshTime = now;
+      let credentials = await this.options.refreshSTSToken();
+      credentials = formatObjKey(credentials, 'firstLowerCase');
+      if (credentials.securityToken) {
+        credentials.stsToken = credentials.securityToken;
+      }
+      checkCredentials(credentials);
+      Object.assign(this.options, credentials);
+    }
+  } else {
+    this.stsTokenFreshTime = now;
   }
-  checkCredentials(credentials);
-  Object.assign(this.options, credentials);
+  return null;
 }
 
 function checkCredentials(obj) {
