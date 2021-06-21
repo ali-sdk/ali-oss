@@ -767,6 +767,23 @@ describe('browser', () => {
       assert.equal(r.res.status, 200);
       assert.equal(r.res.headers['content-type'], 'application/octet-stream');
     });
+
+    it('should put object with json data', async () => {
+      const putString = {
+        test: '1'
+      };
+      const url = store.signatureUrl(name, {
+        method: 'PUT',
+        'Content-Type': 'application/json; charset=UTF-8',
+      });
+      const headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+      };
+      const res = await oss.urllib.request(url, { method: 'PUT', data: putString, headers });
+      assert.equal(res.status, 200);
+      const headRes = await store.head(name);
+      assert.equal(headRes.status, 200);
+    });
   });
 
   describe('copy()', () => {
