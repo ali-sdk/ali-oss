@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.16.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.16.0) (2021-07-12)
+
+
+### Features
+
+* add disabled md5 ([#946](https://github.com/aliyun/oss-nodejs-sdk/issues/946)) ([9213e42](https://github.com/aliyun/oss-nodejs-sdk/commit/9213e42e4bcd0662dabdfb71125983ed736eba63)), closes [#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943) [#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)
+* refactor refresh token ([#955](https://github.com/aliyun/oss-nodejs-sdk/issues/955)) ([b0c6771](https://github.com/aliyun/oss-nodejs-sdk/commit/b0c6771c3c5f9455d0319480b6b4c651f9c6ea39))
+
+
+### Bug Fixes
+
+* node parallel ([#968](https://github.com/aliyun/oss-nodejs-sdk/issues/968)) ([6279ed0](https://github.com/aliyun/oss-nodejs-sdk/commit/6279ed0c9d10adcb9b83a4f3dec5a092b80979db))
+* put json data ([#959](https://github.com/aliyun/oss-nodejs-sdk/issues/959)) ([a0fc989](https://github.com/aliyun/oss-nodejs-sdk/commit/a0fc989f7c7c2b6bb177c41d3f29422bf0ab5211))
+
 ## [6.15.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.14.1...v6.15.0) (2021-03-26)
 
 
