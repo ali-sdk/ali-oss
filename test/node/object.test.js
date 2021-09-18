@@ -50,8 +50,7 @@ describe('test/object.test.js', () => {
   });
 
   after(async () => {
-    await utils.cleanBucket(store, bucket);
-    await utils.cleanBucket(store, archvieBucket);
+    await utils.cleanAllBucket(store);
   });
 
   describe('putStream()', () => {
@@ -146,7 +145,8 @@ describe('test/object.test.js', () => {
     it('should add very big file: 4mb with streaming way', async () => {
       const name = `${prefix}ali-sdk/oss/bigfile-4mb.bin`;
       const bigfile = path.join(__dirname, '.tmp', 'bigfile-4mb.bin');
-      fs.writeFileSync(bigfile, Buffer.alloc(4 * 1024 * 1024).fill('a\n'));
+      fs.writeFileSync(bigfile, Buffer.alloc(4 * 1024 * 1024)
+        .fill('a\n'));
       const object = await store.putStream(name, fs.createReadStream(bigfile));
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
@@ -414,7 +414,9 @@ describe('test/object.test.js', () => {
     it('should set custom Content-MD5 and ignore case', async () => {
       const name = `test-md5-${Date.now()}.js`;
       const fileName = await utils.createTempFile(name, 1024 * 4);
-      const MD5Value = crypto.createHash('md5').update(fs.readFileSync(fileName)).digest('base64');
+      const MD5Value = crypto.createHash('md5')
+        .update(fs.readFileSync(fileName))
+        .digest('base64');
       await store.put(name, fileName, {
         headers: {
           'Content-MD5': MD5Value
@@ -472,7 +474,8 @@ describe('test/object.test.js', () => {
     it('should put object and content-type not null when upload file and object name has no MIME', async () => {
       const name = `${prefix}ali-sdk/oss/test-content-type`;
       const bigfile = path.join(__dirname, '.tmp', 'test-content-type');
-      fs.writeFileSync(bigfile, Buffer.alloc(4 * 1024).fill('a\n'));
+      fs.writeFileSync(bigfile, Buffer.alloc(4 * 1024)
+        .fill('a\n'));
       const object = await store.put(name, bigfile);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
@@ -823,11 +826,13 @@ describe('test/object.test.js', () => {
     it('should get object content buffer', async () => {
       let result = await store.get(name);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-      assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
+      assert(result.content.toString()
+        .indexOf('ali-sdk/oss/get-meta.js') > 0);
 
       result = await store.get(name, null);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-      assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
+      assert(result.content.toString()
+        .indexOf('ali-sdk/oss/get-meta.js') > 0);
     });
 
     it('should get object content buffer with image process', async () => {
@@ -879,7 +884,8 @@ describe('test/object.test.js', () => {
           }
         });
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-        assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
+        assert(result.content.toString()
+          .indexOf('ali-sdk/oss/get-meta.js') > 0);
         assert.equal(result.res.status, 200);
       });
 
@@ -943,7 +949,8 @@ describe('test/object.test.js', () => {
         });
         assert.equal(result.res.status, 200);
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-        assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
+        assert(result.content.toString()
+          .indexOf('ali-sdk/oss/get-meta.js') > 0);
       });
 
       it('should 200 when If-Unmodified-Since > object modified time', async () => {
@@ -957,7 +964,8 @@ describe('test/object.test.js', () => {
         });
         assert.equal(result.res.status, 200);
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
-        assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
+        assert(result.content.toString()
+          .indexOf('ali-sdk/oss/get-meta.js') > 0);
       });
     });
 
@@ -1112,7 +1120,10 @@ describe('test/object.test.js', () => {
           mime: 'image/png'
         });
 
-        const signUrl = store.signatureUrl(imageName, { expires: 3600, process: 'image/resize,w_200' });
+        const signUrl = store.signatureUrl(imageName, {
+          expires: 3600,
+          process: 'image/resize,w_200'
+        });
         const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
         assert.equal(signUrl.match(processedKeyword), processedKeyword);
         const urlRes = await urllib.request(signUrl);
@@ -1125,7 +1136,9 @@ describe('test/object.test.js', () => {
     it('should signature url for PUT', async () => {
       try {
         const putString = 'Hello World';
-        const contentMd5 = crypto.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
+        const contentMd5 = crypto.createHash('md5')
+          .update(Buffer.from(putString, 'utf8'))
+          .digest('base64');
         const url = store.signatureUrl(name, {
           method: 'PUT',
           'Content-Type': 'text/plain; charset=UTF-8',
@@ -1135,7 +1148,11 @@ describe('test/object.test.js', () => {
           'Content-Type': 'text/plain; charset=UTF-8',
           'Content-MD5': contentMd5
         };
-        const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
+        const res = await urllib.request(url, {
+          method: 'PUT',
+          data: putString,
+          headers
+        });
         assert.equal(res.status, 200);
         const headRes = await store.head(name);
         assert.equal(headRes.status, 200);
@@ -1181,7 +1198,8 @@ describe('test/object.test.js', () => {
 
     it('should signature url with custom host ok', () => {
       const conf = {};
-      copy(config).to(conf);
+      copy(config)
+        .to(conf);
       conf.endpoint = 'www.aliyun.com';
       conf.cname = true;
       const tempStore = oss(conf);
@@ -1197,7 +1215,8 @@ describe('test/object.test.js', () => {
       let url;
       let result;
       const file_1mb = path.join(__dirname, '.tmp', 'bigfile-1mb.bin');
-      fs.writeFileSync(file_1mb, Buffer.alloc(1 * 1024 * 1024).fill('a\n'));
+      fs.writeFileSync(file_1mb, Buffer.alloc(1 * 1024 * 1024)
+        .fill('a\n'));
 
       try {
         url = store.signatureUrl(limit_name, {
@@ -1369,10 +1388,12 @@ describe('test/object.test.js', () => {
     });
 
     it('should delete 2 exists and 2 not exists objs', async () => {
-      const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      const result = await store.deleteMulti(names.slice(0, 2)
+        .concat(['not-exist1', 'not-exist2']));
       assert.deepEqual(
         result.deleted.map(v => v.Key),
-        names.slice(0, 2).concat(['not-exist1', 'not-exist2'])
+        names.slice(0, 2)
+          .concat(['not-exist1', 'not-exist2'])
       );
       assert.equal(result.res.status, 200);
     });
@@ -2074,7 +2095,8 @@ describe('test/object.test.js', () => {
         assert.equal(result.res.status, 200);
         names.push(kv);
       };
-      await Promise.all(Object.values(keys).map(kv => keyEncodingPut(kv)));
+      await Promise.all(Object.values(keys)
+        .map(kv => keyEncodingPut(kv)));
 
       const result = await store.deleteMulti(names);
       assert.equal(result.res.status, 200);
@@ -2187,6 +2209,18 @@ describe('test/object.test.js', () => {
   });
 
   describe('restore()', () => {
+    before(async () => {
+      await store.put('/oss/coldRestore.js', __filename, {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      });
+      await store.put('/oss/daysRestore.js', __filename, {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      });
+    });
     after(async () => {
       await store.useBucket(bucket);
     });
@@ -2216,6 +2250,33 @@ describe('test/object.test.js', () => {
       } catch (err) {
         assert.equal(err.name, 'RestoreAlreadyInProgressError');
       }
+    });
+
+    it('Category should be Archive', async () => {
+      const name = '/oss/restore.js';
+      try {
+        await store.restore(name, { type: 'ColdArchive' });
+      } catch (err) {
+        assert.equal(err.code, 'MalformedXML');
+      }
+      await store.useBucket(bucket, bucketRegion);
+    });
+
+    it('ColdArchive choice Days', async () => {
+      const name = '/oss/daysRestore.js';
+      const result = await store.restore(name, {
+        type: 'ColdArchive',
+        Days: 2
+      });
+      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
+    });
+
+    it('ColdArchive is Accepted', async () => {
+      const name = '/oss/coldRestore.js';
+      const result = await store.restore(name, {
+        type: 'ColdArchive'
+      });
+      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
     });
   });
 
@@ -2258,7 +2319,8 @@ describe('test/object.test.js', () => {
     it('should get signature for postObject', async () => {
       try {
         const name = 'calculatePostSignature.js';
-        const url = store.generateObjectUrl(name).replace(name, '');
+        const url = store.generateObjectUrl(name)
+          .replace(name, '');
         const date = new Date();
         date.setDate(date.getDate() + 1);
         const policy = {
@@ -2339,7 +2401,10 @@ describe('test/object.test.js', () => {
     it('should configures or updates the tags of object', async () => {
       let result;
       try {
-        const tag = { a: '1', b: '2' };
+        const tag = {
+          a: '1',
+          b: '2'
+        };
         result = await store.putObjectTagging(name, tag);
         assert.strictEqual(result.status, 200);
 
@@ -2395,7 +2460,8 @@ describe('test/object.test.js', () => {
 
     it('tag key can be a maximum of 128 bytes in length', async () => {
       try {
-        const key = new Array(129).fill('1').join('');
+        const key = new Array(129).fill('1')
+          .join('');
         const tag = { [key]: '1' };
 
         await store.putObjectTagging(name, tag);
@@ -2406,7 +2472,8 @@ describe('test/object.test.js', () => {
 
     it('tag value can be a maximum of 256 bytes in length', async () => {
       try {
-        const value = new Array(257).fill('1').join('');
+        const value = new Array(257).fill('1')
+          .join('');
         const tag = { a: value };
 
         await store.putObjectTagging(name, tag);
@@ -2454,7 +2521,10 @@ describe('test/object.test.js', () => {
     it('should delete the tags of object', async () => {
       let result;
       try {
-        const tag = { a: '1', b: '2' };
+        const tag = {
+          a: '1',
+          b: '2'
+        };
         await store.putObjectTagging(name, tag);
 
         result = await store.deleteObjectTagging(name);
@@ -2471,7 +2541,8 @@ describe('test/object.test.js', () => {
 
   describe('options.headerEncoding', () => {
     const utf8_content = '阿达的大多';
-    const latin1_content = Buffer.from(utf8_content).toString('latin1');
+    const latin1_content = Buffer.from(utf8_content)
+      .toString('latin1');
     let name;
     before(async () => {
       store.options.headerEncoding = 'latin1';

@@ -2672,6 +2672,7 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [versionId] {String} the version id of history object 
+  - [type] {String} the default type is Archive 
 
 Success will return:
 
@@ -2683,10 +2684,25 @@ Success will return:
 
 example:
 
-- Restore an object
+- Restore an object with Archive type
 
 ```js
 const result = await store.restore('ossdemo.txt');
+console.log(result.status);
+```
+
+- Restore an object with ColdArchive type
+
+```js
+const result = await store.restore('ossdemo.txt',{type:'ColdArchive'});
+console.log(result.status);
+```
+
+
+- Days for unfreezing Specifies the days for unfreezing
+
+```js
+const result = await store.restore('ossdemo.txt',{type:'ColdArchive',Days:2});
 console.log(result.status);
 ```
 
