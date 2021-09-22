@@ -17,6 +17,7 @@ const urlutil = require('url');
 const platform = require('platform');
 const { isObject } = require('../../lib/common/utils/isObject');
 const { isArray } = require('../../lib/common/utils/isArray');
+const OSS = require('../..');
 
 exports.throws = async function (block, checkError) {
   try {
@@ -45,6 +46,28 @@ exports.sleep = function (ms) {
     }, ms);
   });
 };
+
+exports.cleanAllBucket = async function (store) {
+  const res = await store.listBuckets();
+  const bucketList = [];
+  for (let i = 0; i < res.buckets.length; i++) {
+    if (!res.buckets[i].name.indexOf('ali-oss')) {
+      bucketList.push({
+        bucket: res.buckets[i].name,
+        region: res.buckets[i].region
+      });
+    }
+  }
+  for (const bucketListItem of bucketList) {
+    const client = new OSS({
+      ...store.options,
+      bucket: bucketListItem.bucket,
+      region: bucketListItem.region
+    });
+    await this.cleanBucket(client, bucketListItem.bucket);
+  }
+};
+
 
 exports.cleanBucket = async function (store, bucket, multiversion) {
   store.useBucket(bucket);
