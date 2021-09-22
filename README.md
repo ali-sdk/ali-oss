@@ -288,7 +288,7 @@ And see the build artifacts under `dist/`.
 
 ## Data Regions
 
-[OSS current data regions](https://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html).
+[OSS current data regions](https://help.aliyun.com/document_detail/31837.html).
 
 region | country | city | endpoint | internal endpoint
 ---  | ---     | ---  | --- | ---
@@ -321,7 +321,7 @@ options:
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
-- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be 
+- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be
   less than sts info expire interval, default is 300000ms(5min)
   when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
@@ -336,7 +336,7 @@ options:
 - [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
 - [isRequestPay] {Boolean}, default false, whether request payer function of the bucket is open, if true, will send headers `'x-oss-request-payer': 'requester'` to oss server.
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
-- [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with 
+- [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with
 `fetch` mode ,else `XMLHttpRequest`
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
@@ -1424,7 +1424,7 @@ const inventory = {
       encryption: {
       'SSE-KMS': {
         keyId: 'test-kms-id';
-      };, 
+      };,
     */
   },
   frequency: 'Daily', // `WEEKLY` | `Daily`
@@ -1476,7 +1476,7 @@ Success will return:
 - status {Number} response status
 - res {Object} response info
 
-example: 
+example:
 
 ```js
 async function listBucketInventory() {
@@ -2130,7 +2130,7 @@ parameters:
 
 - name {String} object name store on OSS
 - sourceName {String} source object name
-- [sourceBucket] {String} source Bucket. if doesn't exist，`sourceBucket` is same bucket. 
+- [sourceBucket] {String} source Bucket. if doesn't exist，`sourceBucket` is same bucket.
 - [options] {Object} optional parameters
   - [versionId] {String} the version id of history object
   - [timeout] {Number} the operation timeout
@@ -2255,7 +2255,7 @@ Success will return delete success objects in `deleted` property.
   - [Key] {String} object name
   - [VersionId] {String} object versionId
   - [DeleteMarker] {String} generate or delete marker
-  - [DeleteMarkerVersionId] {String} marker versionId 
+  - [DeleteMarkerVersionId] {String} marker versionId
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -2526,7 +2526,7 @@ parameters:
     - [content-type] {String} set the response content type
     - [content-disposition] {String} set the response content disposition
     - [cache-control] {String} set the response cache control
-    - See more: https://help.aliyun.com/document_detail/oss/api-reference/object/GetObject.html
+    - See more: <https://help.aliyun.com/document_detail/31980.html>
   - [callback] {Object} set the callback for the operation
     - url {String} set the url for callback
     - [host] {String} set the host for callback
@@ -2598,7 +2598,7 @@ parameters:
 - acl {String} acl (private/public-read/public-read-write)
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [versionId] {String} the version id of history object 
+  - [versionId] {String} the version id of history object
 
 Success will return:
 
@@ -2671,7 +2671,7 @@ parameters:
 - name {String} object name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [versionId] {String} the version id of history object 
+  - [versionId] {String} the version id of history object
 
 Success will return:
 
@@ -2724,20 +2724,20 @@ const options = {
   storageClass: 'IA',
   meta: {
     uid: '1',
-    slus: 'test.html' 
+    slus: 'test.html'
   }
 }
 const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
 console.log(result.res)
 ```
 
-putSymlink multiversion 
+putSymlink multiversion
 ```js
 const options = {
   storageClass: 'IA',
   meta: {
     uid: '1',
-    slus: 'test.html' 
+    slus: 'test.html'
   },
 }
 const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
@@ -3233,7 +3233,7 @@ parameters:
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
-  - [versionId] {String} the version id of history object 
+  - [versionId] {String} the version id of history object
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
@@ -3492,7 +3492,7 @@ console.log(result);
 
 ### .calculatePostSignature(policy)
 
-get postObject params 
+get postObject params
 
 parameters:
 
@@ -4428,5 +4428,5 @@ SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expi
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
 [browser-sample]: https://github.com/rockuw/oss-in-browser
-[oss-multipart]: https://help.aliyun.com/document_detail/oss/api-reference/multipart-upload/InitiateMultipartUpload.html
+[oss-multipart]: https://help.aliyun.com/document_detail/31992.html
 [disabled-browser-headers]: https://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
