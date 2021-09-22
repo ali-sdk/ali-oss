@@ -2249,4 +2249,80 @@ describe('browser', () => {
       }
     });
   });
+
+  describe('restore()', () => {
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+
+    it('Should return OperationNotSupportedError when the type of bucket is not archive', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'));
+
+      try {
+        await store.restore(name);
+      } catch (e) {
+        console.log(e);
+      }
+    });
+    it('Should return 202 when restore is called first', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'), {
+        headers: {
+          'x-oss-storage-class': 'Archive'
+        }
+      });
+
+      const info = await store.restore(name);
+      assert.equal(info.res.status, 202);
+
+      // in 1 minute verify RestoreAlreadyInProgressError
+      try {
+        await store.restore(name);
+      } catch (err) {
+        assert.equal(err.name, 'RestoreAlreadyInProgressError');
+      }
+    });
+    //
+
+    it('Category should be Archive', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'));
+      try {
+        await store.restore(name, { type: 'ColdArchive' });
+      } catch (err) {
+        assert.equal(err.code, 'OperationNotSupported');
+      }
+    });
+
+    it('ColdArchive choice Days', async () => {
+      const name = '/oss/daysRestore.js';
+      const options = {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      };
+      await store.put(name, Buffer.from('abc'), options);
+      const result = await store.restore(name, {
+        type: 'ColdArchive',
+        Days: 2
+      });
+      assert.equal(result.res.status, 202);
+    });
+
+    it('ColdArchive is Accepted', async () => {
+      const name = '/oss/coldRestore.js';
+      const options = {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      };
+      await store.put(name, Buffer.from(__filename), options);
+      const result = await store.restore(name, {
+        type: 'ColdArchive'
+      });
+      assert.equal(result.res.status, 202);
+    });
+  });
 });
