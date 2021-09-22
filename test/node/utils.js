@@ -102,7 +102,6 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
         Object.assign({}, options, { versionId: _.versionId }) :
         options)));
   }
-
   await handleDelete('objects');
   if (multiversion) {
     await handleDelete('deleteMarker');
@@ -171,8 +170,7 @@ exports.encodeCallback = function (cb) {
     callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded'
   };
 
-  return Buffer.from(JSON.stringify(json))
-    .toString('base64');
+  return Buffer.from(JSON.stringify(json)).toString('base64');
 };
 
 // 如果配置属性值是数组 则判断配置的数组是不是数据的子数组。

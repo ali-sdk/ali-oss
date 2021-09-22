@@ -256,10 +256,7 @@ describe('browser', () => {
       params = {
         bucket: 'gems',
         object: 'hello',
-        subres: {
-          acl: '',
-          mime: ''
-        }
+        subres: { acl: '', mime: '' }
       };
 
       url = store._getReqUrl(params);
@@ -362,9 +359,7 @@ describe('browser', () => {
     // fun/movie/007.avi
     before(async () => {
       client = oss(ossConfig);
-      console.log(client);
       listPrefix = `${prefix}ali-sdk/list/`;
-      console.log(listPrefix);
       await client.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
       await client.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
       await client.put(`${listPrefix}fun/movie/001.avi`, Buffer.from('fun/movie/001.avi'));
@@ -779,16 +774,12 @@ describe('browser', () => {
       };
       const url = store.signatureUrl(name, {
         method: 'PUT',
-        'Content-Type': 'application/json; charset=UTF-8'
+        'Content-Type': 'application/json; charset=UTF-8',
       });
       const headers = {
-        'Content-Type': 'application/json; charset=UTF-8'
+        'Content-Type': 'application/json; charset=UTF-8',
       };
-      const res = await oss.urllib.request(url, {
-        method: 'PUT',
-        data: putString,
-        headers
-      });
+      const res = await oss.urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
       const headRes = await store.head(name);
       assert.equal(headRes.status, 200);
@@ -1015,9 +1006,7 @@ describe('browser', () => {
     //
     it('should signature url for PUT', async () => {
       const putString = 'Hello World';
-      const contentMd5 = crypto1.createHash('md5')
-        .update(Buffer.from(putString, 'utf8'))
-        .digest('base64');
+      const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
       const url = store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
@@ -1027,11 +1016,7 @@ describe('browser', () => {
         'Content-Type': 'text/plain; charset=UTF-8',
         'Content-MD5': contentMd5
       };
-      const res = await urllib.request(url, {
-        method: 'PUT',
-        data: putString,
-        headers
-      });
+      const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
       const headRes = await store.head(name);
       assert.equal(headRes.status, 200);
@@ -1187,9 +1172,7 @@ describe('browser', () => {
         });
         const after1 = result.uploads.map(up => up.uploadId);
         after1.sort();
-        const should = barIds.slice(1)
-          .concat(fooIds)
-          .sort();
+        const should = barIds.slice(1).concat(fooIds).sort();
         assert.deepEqual(after1, should);
 
         // after 5
@@ -1365,8 +1348,7 @@ describe('browser', () => {
         let errStatus = 0;
         try {
           await store.multipartUpload(name, file, {
-            progress() {
-            },
+            progress() {},
             partSize: 100 * 1024
           });
         } catch (err) {
@@ -1532,8 +1514,7 @@ describe('browser', () => {
         /* eslint no-empty: [0] */
         try {
           await client.multipartUpload(name, file, options);
-        } catch (err) {
-        }
+        } catch (err) {}
 
         const result = await store.listParts(
           name,
@@ -1563,8 +1544,7 @@ describe('browser', () => {
         const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
         try {
           await Promise.all([store.multipartUpload(name, file), store.multipartUpload(name1, file)]);
-        } catch (e) {
-        }
+        } catch (e) {}
         store._uploadPart.restore();
         await Promise.all([store.multipartUpload(name, file), store.multipartUpload(name1, file)]);
         assert.strictEqual(store.multipartUploadStreams.length, 0);
@@ -1713,9 +1693,7 @@ describe('browser', () => {
         const FILE_SIZE = 1024 * 500;
         const SUSPENSION_LIMIT = 3;
         const object = `multipart-${Date.now()}`;
-        const fileContent = Array(FILE_SIZE)
-          .fill('a')
-          .join('');
+        const fileContent = Array(FILE_SIZE).fill('a').join('');
         const file = new File([fileContent], object);
         const uploadPart = store._uploadPart;
         let checkpoint;
@@ -1841,12 +1819,10 @@ describe('browser', () => {
 
     it('should delete 2 exists and 2 not exists objs', async () => {
       const store = oss(ossConfig);
-      const result = await store.deleteMulti(names.slice(0, 2)
-        .concat(['not-exist1', 'not-exist2']));
+      const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
       assert.deepEqual(
         result.deleted.map(v => v.Key),
-        names.slice(0, 2)
-          .concat(['not-exist1', 'not-exist2'])
+        names.slice(0, 2).concat(['not-exist1', 'not-exist2'])
       );
       assert.equal(result.res.status, 200);
     });
@@ -1909,7 +1885,7 @@ describe('browser', () => {
   });
 
   describe('request time is skew', () => {
-    it('When the client\'s date is skew, the request will calibration time and retry', async () => {
+    it("When the client's date is skew, the request will calibration time and retry", async () => {
       const store = oss(ossConfig);
       const name = `${prefix}put/skew_date`;
       const body = Buffer.from('body');
@@ -2055,8 +2031,7 @@ describe('browser', () => {
   describe('options.headerEncoding', () => {
     let store;
     const utf8_content = '阿达的大多';
-    const latin1_content = Buffer.from(utf8_content)
-      .toString('latin1');
+    const latin1_content = Buffer.from(utf8_content).toString('latin1');
     let name;
     before(async () => {
       store = oss(Object.assign({}, ossConfig, { headerEncoding: 'latin1' }));
@@ -2110,13 +2085,9 @@ describe('browser', () => {
   });
 
   describe('options.disabledMD5', () => {
-    const content = Array(100)
-      .fill(1)
-      .join('');
+    const content = Array(100).fill(1).join('');
     const body = new Blob([content], { type: 'text/plain' });
-    const MD5_VALUE = crypto1.createHash('md5')
-      .update(OSS.Buffer(content))
-      .digest('base64');
+    const MD5_VALUE = crypto1.createHash('md5').update(OSS.Buffer(content)).digest('base64');
 
     it('should not calculate MD5 default when use put', async () => {
       const store = oss(ossConfig);
@@ -2138,8 +2109,7 @@ describe('browser', () => {
       const store = oss(ossConfig);
       const name = `${prefix}put/test-md5-2`;
       const partSize = 100 * 1024;
-      const body2 = new File(Array(2 * partSize)
-        .fill(1), { type: 'text/plain' });
+      const body2 = new File(Array(2 * partSize).fill(1), { type: 'text/plain' });
       const request = store.urllib.request;
       let headerWithMD5Count = 0;
       store.urllib.request = (url, params) => {
@@ -2150,10 +2120,7 @@ describe('browser', () => {
       };
       await store.multipartUpload(name, body2, { partSize });
       assert.strictEqual(headerWithMD5Count, 0);
-      await store.multipartUpload(name, body2, {
-        disabledMD5: false,
-        partSize
-      });
+      await store.multipartUpload(name, body2, { disabledMD5: false, partSize });
       assert.strictEqual(headerWithMD5Count, 2);
       store.urllib.request = request;
     });
@@ -2262,8 +2229,7 @@ describe('browser', () => {
       assert.strictEqual(testRetryCount, RETRY_MAX);
       const onlineFile = await store.get(name);
       assert.strictEqual(onlineFile.content.length, 101 * 1024);
-      assert.strictEqual(onlineFile.content.toString(), new Array(101 * 1024).fill('1')
-        .join(''));
+      assert.strictEqual(onlineFile.content.toString(), new Array(101 * 1024).fill('1').join(''));
       store.urllib.request = originRequest;
     });
 
