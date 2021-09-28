@@ -28,13 +28,11 @@ describe('test/bucket.test.js', () => {
       'max-keys': 20
     });
 
-    await Promise.all((bucketResult.buckets || [])
-      .filter(_ => _.name.startsWith('ali-oss'))
-      .map(_bucket => utils
-        .cleanBucket(
-          oss(Object.assign(config, { region: _bucket.region })),
-          _bucket.name
-        )));
+    await Promise.all(
+      (bucketResult.buckets || [])
+        .filter(_ => _.name.startsWith('ali-oss'))
+        .map(_bucket => utils.cleanBucket(oss(Object.assign(config, { region: _bucket.region })), _bucket.name))
+    );
 
     config.region = defaultRegion;
     store = oss(config);
@@ -185,11 +183,8 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketACL()', () => {
     it('should set bucket acl to public-read-write', async () => {
-      const bucketacl = 'bucketACL';
-      const result = await store.putBucket(bucketacl, { acl: 'public-read', StorageClass: 'Archive', timeout: 8000 });
-      assert.equal(result.res.status, 200);
-
-      const resultAcl = await store.putBucketACL(bucketacl, 'public-read-write');
+      const resultAcl = await store.putBucketACL(bucket, 'public-read-write');
+      console.log(resultAcl)
       assert.equal(resultAcl.res.status, 200);
       assert.equal(resultAcl.bucket, bucket);
 
@@ -198,7 +193,6 @@ describe('test/bucket.test.js', () => {
 
       const r = await store.getBucketACL(bucket);
       assert.equal(r.res.status, 200);
-      store.delete(bucketacl);
       // skip it, data will be delay
       // assert.equal(r.acl, 'public-read-write');
     });
