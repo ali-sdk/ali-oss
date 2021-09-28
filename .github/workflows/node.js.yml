@@ -9,18 +9,9 @@ on:
   pull_request:
     branches: [ master ]
 
-jobs:
- 
-  
-  build:
-    env:
-      ALI_SDK_OSS_ID: ${{ secrets.ALI_SDK_OSS_ID }}
-      ALI_SDK_OSS_SECRET: ${{ secrets.ALI_SDK_OSS_SECRET }}
-      ALI_SDK_STS_ID: ${{ secrets.ALI_SDK_STS_ID }}
-      ALI_SDK_STS_SECRET: ${{ secrets.ALI_SDK_STS_SECRET }}
-      ALI_SDK_STS_ROLE: ${{ secrets.ALI_SDK_STS_ROLE }}
-      ALI_SDK_STS_BUCKET: ${{ secrets.ALI_SDK_STS_BUCKET }}
-      ALI_SDK_STS_REGION: ${{ secrets.ALI_SDK_STS_REGION }}
+jobs: 
+  test:  
+    environment: ali_oss_AK
     runs-on: ubuntu-latest
 
     strategy:
