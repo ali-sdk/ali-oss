@@ -12,7 +12,7 @@ on:
 jobs: 
   test:  
     environment: ali_oss_AK
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     env:
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
