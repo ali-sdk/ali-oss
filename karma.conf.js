@@ -1,6 +1,6 @@
 module.exports = function (config) {
   config.set({
-    frameworks: ['mocha', 'browserify'],
+    frameworks: ['mocha','browserify'],
     plugins: [
       require('karma-mocha'),
       require('karma-browserify'),
