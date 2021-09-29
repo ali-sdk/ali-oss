@@ -26,5 +26,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: echo "${{secrets.ALI_SDK_OSS_ID}}"
-    - run: npm install 
+    - run: npm install --force
     - run: npm run test
