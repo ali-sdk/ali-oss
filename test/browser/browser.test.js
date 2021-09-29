@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-/* eslint no-await-in-loop: [0] */
 const assert = require('assert');
 // var oss = require('../');
 // var oss = OSS.Wrapper;
@@ -17,6 +14,7 @@ const platform = require('platform');
 // const { callbackServer } = require('../../test/const');
 
 const crypto1 = require('crypto');
+const { Readable } = require('stream');
 const { prefix } = require('./browser-utils');
 
 let ossConfig;
@@ -621,13 +619,11 @@ describe('browser', () => {
       let keyCount = 0;
       do {
         // eslint-disable-next-line no-await-in-loop
-        const result = await store.listV2(
-          {
-            prefix: listPrefix,
-            'max-keys': 2,
-            'continuation-token': nextContinuationToken,
-          },
-        );
+        const result = await store.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken
+        });
         keyCount += result.keyCount;
         nextContinuationToken = result.nextContinuationToken;
       } while (nextContinuationToken);
@@ -636,7 +632,7 @@ describe('browser', () => {
   });
 
   describe('get()', () => {
-    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`;
     let store;
     before(async () => {
       store = new OSS(ossConfig);
@@ -735,7 +731,10 @@ describe('browser', () => {
         .fill(1)
         .join('');
       const body = new Blob([content], { type: 'text/plain' });
-      const MD5Value = crypto1.createHash('md5').update(OSS.Buffer(await body.arrayBuffer())).digest('base64');
+      const MD5Value = crypto1
+        .createHash('md5')
+        .update(OSS.Buffer(await body.arrayBuffer()))
+        .digest('base64');
       await store.put(name, body, {
         headers: {
           'Content-MD5': MD5Value
@@ -767,6 +766,24 @@ describe('browser', () => {
       const r = await store.get(name);
       assert.equal(r.res.status, 200);
       assert.equal(r.res.headers['content-type'], 'application/octet-stream');
+    });
+
+    it('should put object with json data', async () => {
+      const putString = {
+        test: '1'
+      };
+      const newName = 'newName';
+      const url = store.signatureUrl(newName, {
+        method: 'PUT',
+        'Content-Type': 'application/json; charset=UTF-8',
+      });
+      const headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+      };
+      const res = await oss.urllib.request(url, { method: 'PUT', data: putString, headers });
+      assert.equal(res.status, 200);
+      const headRes = await store.head(newName);
+      assert.equal(headRes.status, 200);
     });
   });
 
@@ -991,7 +1008,6 @@ describe('browser', () => {
     it('should signature url for PUT', async () => {
       const putString = 'Hello World';
       const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
-      console.log(contentMd5);
       const url = store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
@@ -1198,25 +1214,25 @@ describe('browser', () => {
         assert.equal(result.res.headers['x-oss-server-side-encryption'], 'KMS');
       });
 
-      it('should fallback to putStream when file size is smaller than 100KB', async () => {
+      it('should fallback to put when file size is smaller than 100KB', async () => {
         const file = new File(['multipart-fallback-test'], 'multipart-fallback');
         const name = `${prefix}multipart/fallback`;
         let progress = 0;
-        const putStreamSpy = sinon.spy(store, 'putStream');
+        const putSpy = sinon.spy(store, 'put');
         const uploadPartSpy = sinon.spy(store, '_uploadPart');
         const result = await store.multipartUpload(name, file, {
           progress() {
             progress++;
           }
         });
-        assert.equal(putStreamSpy.callCount, 1);
+        assert.equal(putSpy.callCount, 1);
         assert.equal(uploadPartSpy.callCount, 0);
         assert.equal(typeof result.name, 'string');
         assert.equal(typeof result.bucket, 'string');
         assert.equal(typeof result.etag, 'string');
 
         assert.equal(progress, 1);
-        store.putStream.restore();
+        store.put.restore();
         store._uploadPart.restore();
       });
 
@@ -1461,9 +1477,7 @@ describe('browser', () => {
         const parts = await Promise.all(
           Array(10)
             .fill(1)
-            .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
-            )
+            .map((v, i) => store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
@@ -1520,45 +1534,21 @@ describe('browser', () => {
         netErr.code = 'RequestError';
         netErr.name = 'RequestError';
         stubNetError.throws(netErr);
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const filename = `multipart-upload-file-${Date.now()}`;
         const file = new File([fileContent], filename);
         const name = `${prefix}multipart/upload-file-${Date.now()}`;
         const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
         try {
-          await Promise.all([
-            store.multipartUpload(name, file),
-            store.multipartUpload(name1, file),
-          ]);
-        } catch (e) {
-        }
+          await Promise.all([store.multipartUpload(name, file), store.multipartUpload(name1, file)]);
+        } catch (e) {}
         store._uploadPart.restore();
-        await Promise.all([
-          store.multipartUpload(name, file),
-          store.multipartUpload(name1, file),
-        ]);
+        await Promise.all([store.multipartUpload(name, file), store.multipartUpload(name1, file)]);
         assert.strictEqual(store.multipartUploadStreams.length, 0);
       });
 
-      it('destroy the stream when multipartUploaded and the cancel method is called', async () => {
-        const fileContent = Array(1024 * 1024).fill('a').join('');
-        const filename = `multipart-upload-file-${Date.now()}`;
-        const file = new File([fileContent], filename);
-        let stream;
-        const uploadPart = store._uploadPart;
-        store._uploadPart = (_name, _uploadId, _partNo, data) => {
-          stream = data.stream;
-          throw new Error('mock upload part fail.');
-        };
-        const name = `${prefix}multipart/upload-file-${Date.now()}`;
-        try {
-          await store.multipartUpload(name, file);
-        } catch (e) {
-          store.cancel();
-        }
-        store._uploadPart = uploadPart;
-        assert.strictEqual(stream.destroyed, true);
-      });
       // TODO fix callback server
       // it('should upload no more 100k file with callback server', async () => {
       //   const fileContent = Array(50 * 1024).fill('a').join('');
@@ -1667,7 +1657,9 @@ describe('browser', () => {
 
       it('should upload partSize be int number and greater then minPartSize', async () => {
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const filename = `multipart-upload-file-${Date.now()}`;
         const file = new File([fileContent], filename);
         const name = `${prefix}multipart/upload-file`;
@@ -1677,7 +1669,7 @@ describe('browser', () => {
             partSize: 14.56,
             progress() {
               progress++;
-            },
+            }
           });
         } catch (e) {
           assert.equal('partSize must be int number', e.message);
@@ -1688,7 +1680,7 @@ describe('browser', () => {
             partSize: 1,
             progress() {
               progress++;
-            },
+            }
           });
         } catch (e) {
           assert.ok(e.message.startsWith('partSize must not be smaller'));
@@ -1717,7 +1709,7 @@ describe('browser', () => {
             partSize: PART_SIZE,
             progress: (percentage, c) => {
               checkpoint = c;
-            },
+            }
           });
         } catch (e) {
           assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
@@ -1727,14 +1719,16 @@ describe('browser', () => {
         await store.multipartUpload(object, file, {
           parallel: 1,
           partSize: PART_SIZE,
-          checkpoint,
+          checkpoint
         });
-        assert.strictEqual(uploadPartSpy.callCount, (FILE_SIZE / PART_SIZE) - SUSPENSION_LIMIT + 1);
+        assert.strictEqual(uploadPartSpy.callCount, FILE_SIZE / PART_SIZE - SUSPENSION_LIMIT + 1);
         store._uploadPart.restore();
       });
 
       it('should request throw abort event', async () => {
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-file');
         const name = `${prefix}multipart/upload-file`;
         const uploadPart = store._uploadPart;
@@ -1749,11 +1743,10 @@ describe('browser', () => {
         } catch (err) {
           netErrs = err;
         }
-        console.log(netErrs)
         assert.strictEqual(netErrs.status, 0);
         assert.strictEqual(netErrs.name, 'abort');
         store._uploadPart = uploadPart;
-      });  
+      });
     });
   });
 
@@ -2010,7 +2003,9 @@ describe('browser', () => {
     });
 
     it('should request throw ResponseTimeoutError', async () => {
-      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
       const fileName = new File([fileContent], 'multipart-upload-file');
       const name = `${prefix}multipart/upload-file`;
 
@@ -2088,15 +2083,59 @@ describe('browser', () => {
     });
   });
 
+  describe('options.disabledMD5', () => {
+    const content = Array(100).fill(1).join('');
+    const body = new Blob([content], { type: 'text/plain' });
+    const MD5_VALUE = crypto1.createHash('md5').update(OSS.Buffer(content)).digest('base64');
+
+    it('should not calculate MD5 default when use put', async () => {
+      const store = oss(ossConfig);
+      const name = `${prefix}put/test-md5-0`;
+      const { request } = store.urllib;
+      let reqParams;
+      store.urllib.request = (url, params) => {
+        reqParams = params;
+        return request(url, params);
+      };
+      await store.put(name, body);
+      assert.strictEqual(reqParams.headers['Content-MD5'], undefined);
+      await store.put(name, body, { disabledMD5: false });
+      assert.strictEqual(reqParams.headers['Content-MD5'], MD5_VALUE);
+      store.urllib.request = request;
+    });
+
+    it('should not calculate MD5 default when use multipartUpload', async () => {
+      const store = oss(ossConfig);
+      const name = `${prefix}put/test-md5-2`;
+      const partSize = 100 * 1024;
+      const body2 = new File(Array(2 * partSize).fill(1), { type: 'text/plain' });
+      const { request } = store.urllib;
+      let headerWithMD5Count = 0;
+      store.urllib.request = (url, params) => {
+        if (params.headers['Content-MD5'] && /partNumber=\d/.test(url)) {
+          headerWithMD5Count++;
+        }
+        return request(url, params);
+      };
+      await store.multipartUpload(name, body2, { partSize });
+      assert.strictEqual(headerWithMD5Count, 0);
+      await store.multipartUpload(name, body2, { disabledMD5: false, partSize });
+      assert.strictEqual(headerWithMD5Count, 2);
+      store.urllib.request = request;
+    });
+  });
+
   describe('test/retry.test.js', () => {
     let store;
     const RETRY_MAX = 3;
     let testRetryCount = 0;
-    let autoRestoreWhenRETRY_LIMIE = true;
 
     let ORIGIN_REQUEST;
     const mock = () => {
-      store.urllib.request = () => {
+      store.urllib.request = params => {
+        if (params.stream) {
+          params.stream.destroy();
+        }
         const e = new Error('NetError');
         e.status = -1;
         throw e;
@@ -2116,7 +2155,7 @@ describe('browser', () => {
         retryMax: RETRY_MAX,
         requestErrorRetryHandle: () => {
           testRetryCount++;
-          if (testRetryCount === RETRY_MAX && autoRestoreWhenRETRY_LIMIE) {
+          if (testRetryCount === RETRY_MAX) {
             restore();
           }
           return true;
@@ -2127,7 +2166,6 @@ describe('browser', () => {
     });
     beforeEach(() => {
       testRetryCount = 0;
-      autoRestoreWhenRETRY_LIMIE = true;
       mock();
     });
     afterEach(() => {
@@ -2141,8 +2179,8 @@ describe('browser', () => {
     });
 
     it('should throw when retry count bigger than options retryMax', async () => {
-      autoRestoreWhenRETRY_LIMIE = false;
       try {
+        testRetryCount = RETRY_MAX + 1;
         await store.list();
         assert(false, 'should throw error');
       } catch (error) {
@@ -2150,7 +2188,7 @@ describe('browser', () => {
       }
     });
 
-    it('should succeed when put with filename', async () => {
+    it('should succeed when put with file', async () => {
       const name = `ali-oss-test-retry-file-${Date.now()}`;
       const file = new File([1, 2, 3, 4, 5, 6, 7], name);
       const res = await store.put(name, file);
@@ -2160,17 +2198,130 @@ describe('browser', () => {
       assert.strictEqual(onlineFile.content.toString(), '1234567');
     });
 
-    it('should fail when putStream', async () => {
-      autoRestoreWhenRETRY_LIMIE = false;
+    it('should succeed when multipartUpload with file', async () => {
+      const originRequest = store.urllib.request;
+      const UPLOAD_PART_SEQ = 1;
+      let CurrentRequsetTimer = 0;
+      store.urllib.request = async (url, params) => {
+        // skip mock when initMultipartUpload
+        if (CurrentRequsetTimer < UPLOAD_PART_SEQ) {
+          CurrentRequsetTimer++;
+          return await originRequest(url, params);
+        }
+        // mock net error when upload part
+        if (testRetryCount < RETRY_MAX) {
+          if (params.stream) {
+            params.stream.destroy();
+          }
+          const e = new Error('net error');
+          e.status = -1;
+          e.headers = {};
+          throw e;
+        } else {
+          return await originRequest(url, params);
+        }
+      };
       const name = `ali-oss-test-retry-file-${Date.now()}`;
-      const file = new File([1, 2, 3, 4, 5, 6, 7], name);
-      const stream = store._createStream(file, 0, file.size);
+      const file = new File(new Array(101 * 1024).fill('1'), name);
+      const res = await store.multipartUpload(name, file);
+      assert.strictEqual(res.res.status, 200);
+      assert.strictEqual(testRetryCount, RETRY_MAX);
+      const onlineFile = await store.get(name);
+      assert.strictEqual(onlineFile.content.length, 101 * 1024);
+      assert.strictEqual(onlineFile.content.toString(), new Array(101 * 1024).fill('1').join(''));
+      store.urllib.request = originRequest;
+    });
+
+    it('should fail when put with stream', async () => {
+      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const stream = new Readable({
+        read() {
+          this.push([1, 2]);
+          this.push(null);
+        }
+      });
       try {
         await store.putStream(name, stream);
         assert(false, 'should not reach here');
       } catch (e) {
         assert.strictEqual(e.status, -1);
       }
+    });
+  });
+
+  describe('restore()', () => {
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+
+    it('Should return OperationNotSupportedError when the type of bucket is not archive', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'));
+
+      try {
+        await store.restore(name);
+      } catch (e) {
+        console.log(e);
+      }
+    });
+    it('Should return 202 when restore is called first', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'), {
+        headers: {
+          'x-oss-storage-class': 'Archive'
+        }
+      });
+
+      const info = await store.restore(name);
+      assert.equal(info.res.status, 202);
+
+      // in 1 minute verify RestoreAlreadyInProgressError
+      try {
+        await store.restore(name);
+      } catch (err) {
+        assert.equal(err.name, 'RestoreAlreadyInProgressError');
+      }
+    });
+    //
+
+    it('Category should be Archive', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'));
+      try {
+        await store.restore(name, { type: 'ColdArchive' });
+      } catch (err) {
+        assert.equal(err.code, 'OperationNotSupported');
+      }
+    });
+
+    it('ColdArchive choice Days', async () => {
+      const name = '/oss/daysRestore.js';
+      const options = {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      };
+      await store.put(name, Buffer.from('abc'), options);
+      const result = await store.restore(name, {
+        type: 'ColdArchive',
+        Days: 2
+      });
+      assert.equal(result.res.status, 202);
+    });
+
+    it('ColdArchive is Accepted', async () => {
+      const name = '/oss/coldRestore.js';
+      const options = {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      };
+      await store.put(name, Buffer.from(__filename), options);
+      const result = await store.restore(name, {
+        type: 'ColdArchive'
+      });
+      assert.equal(result.res.status, 202);
     });
   });
 });

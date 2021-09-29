@@ -12,7 +12,7 @@ const { getReqUrl } = require('../client/getReqUrl');
 interface Headers {
   [propName: string]: any
   'x-oss-date': string,
-  'x-oss-user-agent': string,
+  'x-oss-user-agent'?: string,
 }
 
 interface ReqParams {
@@ -35,8 +35,11 @@ export function createRequest(this: any, params) {
   }
   const headers: Headers = {
     'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
-    'x-oss-user-agent': this.userAgent
   };
+
+  if (typeof window !== 'undefined') {
+    headers['x-oss-user-agent'] = this.userAgent;
+  }
 
   if (this.userAgent.includes('nodejs')) {
     headers['User-Agent'] = this.userAgent;
@@ -65,10 +68,12 @@ export function createRequest(this: any, params) {
   }
 
   if (params.content) {
-    headers['Content-MD5'] = crypto
-      .createHash('md5')
-      .update(Buffer.from(params.content, 'utf8'))
-      .digest('base64');
+    if (!params.disabledMD5) {
+      headers['Content-MD5'] = crypto
+        .createHash('md5')
+        .update(Buffer.from(params.content, 'utf8'))
+        .digest('base64');
+    }
     if (!headers['Content-Length']) {
       headers['Content-Length'] = params.content.length;
     }

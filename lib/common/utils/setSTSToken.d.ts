@@ -1,1 +1,1 @@
-export declare function setSTSToken(this: any): Promise<void>;
+export declare function setSTSToken(this: any): Promise<null>;
