@@ -13,6 +13,36 @@ on:
       - completed
 
 jobs: 
+  browser_test:  
+    environment: ali_oss_AK
+    runs-on: macos-latest
+
+    env:
+      ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
+      ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
+      ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
+      ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
+      ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
+      ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
+      ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
+      ONCI: true
+
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: browser build and test
+      run: |
+        npm install
+        mkdir test/browser/build
+        node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js 
+        node task/browser-test-build.js > test/browser/build/tests.js
+        npx karma start
+
   node_10:  
     environment: ali_oss_AK
     runs-on: macos-latest
