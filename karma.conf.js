@@ -1,3 +1,6 @@
+process.env.CHROME_BIN = require('puppeteer').executablePath()
+const isCiEnv = process.env.ONCI
+
 module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'browserify'],
@@ -8,7 +11,7 @@ module.exports = function (config) {
       require('karma-safari-launcher'),
       require('karma-firefox-launcher')
     ],
-    browsers: ['Chrome', 'Safari', 'Firefox'],
+    browsers: isCiEnv ? ['ChromeHeadless'] : ['ChromeHeadless', 'Chrome', 'Safari', 'Firefox'],
     files: ['test/browser/build/aliyun-oss-sdk.min.js', 'test/browser/build/tests.js'],
     // preprocessors: {
     // 'dist/aliyun-oss-sdk.js': ['coverage']
