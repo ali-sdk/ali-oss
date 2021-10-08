@@ -13,7 +13,8 @@ jobs:
     environment: ali_oss_AK
     runs-on: ubuntu-latest
     steps:
-    - name: codeCov
+    - uses: actions/checkout@v2
+    - name: test and report upload
       run: |
         npm install
         npm run test-cov
