@@ -1,9 +1,10 @@
 name: CodeCov
-on: 
-  push: 
-    branches: [ master ]
+
+on:
+  push:
+    branches: [master]
   workflow_run:
-    workflows: ["Receive PR"]
+    workflows: ['Receive PR']
     types:
       - completed
 
@@ -12,7 +13,7 @@ jobs:
     environment: ali_oss_AK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-        run: |
-          npm run test-cov
-          npx codecov -t ${{secrets.CODECOV_KEY}} # not required for public repos
+    - name: codeCov
+      run: |
+        npm run test-cov
+        npx codecov -t ${{secrets.CODECOV_KEY}} # not required for public repos
