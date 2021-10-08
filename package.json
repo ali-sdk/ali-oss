@@ -22,7 +22,7 @@
   "scripts": {
     "build-change-log": "standard-version",
     "test": "npm run tsc && mocha -t 60000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
-    "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 60000 -r thunk-mocha -r should test/node/*.test.js test/node/**/*.test.js",
+    "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 60000 -r should test/node/*.test.js test/node/**/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
     "build-test": "MINIFY=1 node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js && node -r dotenv/config task/browser-test-build.js > test/browser/build/tests.js",

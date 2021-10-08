@@ -18,14 +18,15 @@ jobs:
     runs-on: macos-latest
 
     env:
+      ONCI: true
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
+      ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}
       ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
       ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
       ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
-      ONCI: true
 
 
     strategy:
@@ -37,6 +38,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: browser build and test
       run: |
+        curl cip.cc
         npm install
         mkdir test/browser/build
         node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js 
@@ -50,11 +52,13 @@ jobs:
     env:
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
       ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
+      ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}
       ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
       ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
+      ONCI: true
 
 
     strategy:
@@ -77,12 +81,14 @@ jobs:
 
     env:
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
+      ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}
       ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
       ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
       ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
+      ONCI: true
 
 
     strategy:
@@ -105,13 +111,14 @@ jobs:
 
     env:
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
+      ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}
       ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
       ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
       ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
-
+      ONCI: true
 
     strategy:
       matrix:
