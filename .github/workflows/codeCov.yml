@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v2
-        with:
-          token: ${{secrets.CODECOV_KEY}} # not required for public repos
-          name: codecov-umbrella # optional
-          files: ./coverage
+        run: |
+          npm run test-cov
+          npx codecov -t ${{secrets.CODECOV_KEY}} # not required for public repos
