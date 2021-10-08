@@ -15,5 +15,6 @@ jobs:
     steps:
     - name: codeCov
       run: |
+        npm install
         npm run test-cov
         npx codecov -t ${{secrets.CODECOV_KEY}} # not required for public repos
