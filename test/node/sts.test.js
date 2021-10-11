@@ -20,9 +20,7 @@ describe('test/sts.test.js', () => {
       const policy = {
         Statement: [
           {
-            Action: [
-              'oss:*'
-            ],
+            Action: ['oss:*'],
             Effect: 'Allow',
             Resource: ['acs:oss:*:*:*']
           }
@@ -106,9 +104,7 @@ describe('test/sts.test.js', () => {
       let policy = {
         Statement: [
           {
-            Action: [
-              'oss:PutObject'
-            ],
+            Action: ['oss:PutObject'],
             Effect: 'Allow',
             Resource: ['acs:oss:*:*:*']
           }
@@ -145,9 +141,7 @@ describe('test/sts.test.js', () => {
       policy = {
         Statement: [
           {
-            Action: [
-              'oss:DeleteObject'
-            ],
+            Action: ['oss:DeleteObject'],
             Effect: 'Allow',
             Resource: ['acs:oss:*:*:*']
           }
@@ -205,5 +199,4 @@ describe('test/sts.test.js', () => {
       }
     });
   });
-
 });
