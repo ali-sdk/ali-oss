@@ -20,8 +20,8 @@ jobs:
     env:
       ONCI: true
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
-      ALI_SDK_OSS_REGION: oss-us-west-1
       ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
+      ALI_SDK_OSS_REGION: oss-us-west-1
       ALI_SDK_STS_BUCKET: test-github-ci
       ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
       ALI_SDK_STS_REGION: oss-us-west-1
