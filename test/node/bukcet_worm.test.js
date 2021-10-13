@@ -11,31 +11,18 @@ describe('test/bucket.test.js', () => {
   const defaultRegion = config.region;
   before(async () => {
     store = oss(config);
-
-    const bucketResult = await store.listBuckets({
-      'max-keys': 20
-    });
-
-    await Promise.all((bucketResult.buckets || [])
-      .filter(_ => _.name.startsWith('ali-oss'))
-      .map(_bucket => utils
-        .cleanBucket(
-          oss(Object.assign(config, { region: _bucket.region })),
-          _bucket.name
-        )));
-
     config.region = defaultRegion;
     store = oss(config);
-    bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `ali-oss-test-worm2-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
-    const result = await store.putBucket(bucket);
+    const result = await store.putBucket(bucket, { timeout: process.env.ONCI ? 60000 : 10000 });
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
 
   after(async () => {
-    await utils.cleanBucket(store, bucket);
+    await utils.cleanAllBucket(store);
   });
   describe('worm()', () => {
     describe('initiateBucketWorm()', () => {

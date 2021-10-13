@@ -46,11 +46,6 @@ describe('test/cluster.test.js', () => {
     this.store.ready(done);
   });
 
-  after(async function () {
-    await utils.cleanBucket(this.store.clients[0], this.bucket1);
-    await utils.cleanBucket(this.store.clients[1], this.bucket2);
-    this.store.close();
-  });
 
   describe('init', () => {
     it('require options.cluster to be an array', () => {
@@ -77,7 +72,9 @@ describe('test/cluster.test.js', () => {
   describe('put()', () => {
     it('should add object with local file path', async function () {
       const name = `${prefix}ali-sdk/oss/put-localfile.js`;
-      const object = await this.store.put(name, __filename);
+      const object = await this.store.put(name, __filename, {
+        timeout: 120000
+      });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.res.size, 0);
