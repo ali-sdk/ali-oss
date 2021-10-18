@@ -50,8 +50,7 @@ describe('test/object.test.js', () => {
   });
 
   after(async () => {
-    await utils.cleanBucket(store, bucket);
-    await utils.cleanBucket(store, archvieBucket);
+    await utils.cleanAllBucket(store);
   });
 
   describe('putStream()', () => {
@@ -2187,6 +2186,18 @@ describe('test/object.test.js', () => {
   });
 
   describe('restore()', () => {
+    before(async () => {
+      await store.put('/oss/coldRestore.js', __filename, {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      });
+      await store.put('/oss/daysRestore.js', __filename, {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      });
+    });
     after(async () => {
       await store.useBucket(bucket);
     });
@@ -2216,6 +2227,33 @@ describe('test/object.test.js', () => {
       } catch (err) {
         assert.equal(err.name, 'RestoreAlreadyInProgressError');
       }
+    });
+
+    it('Category should be Archive', async () => {
+      const name = '/oss/restore.js';
+      try {
+        await store.restore(name, { type: 'ColdArchive' });
+      } catch (err) {
+        assert.equal(err.code, 'MalformedXML');
+      }
+      await store.useBucket(bucket, bucketRegion);
+    });
+
+    it('ColdArchive choice Days', async () => {
+      const name = '/oss/daysRestore.js';
+      const result = await store.restore(name, {
+        type: 'ColdArchive',
+        Days: 2
+      });
+      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
+    });
+
+    it('ColdArchive is Accepted', async () => {
+      const name = '/oss/coldRestore.js';
+      const result = await store.restore(name, {
+        type: 'ColdArchive'
+      });
+      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
     });
   });
 

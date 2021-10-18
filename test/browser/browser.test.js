@@ -772,7 +772,8 @@ describe('browser', () => {
       const putString = {
         test: '1'
       };
-      const url = store.signatureUrl(name, {
+      const newName = 'newName';
+      const url = store.signatureUrl(newName, {
         method: 'PUT',
         'Content-Type': 'application/json; charset=UTF-8',
       });
@@ -781,7 +782,7 @@ describe('browser', () => {
       };
       const res = await oss.urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
-      const headRes = await store.head(name);
+      const headRes = await store.head(newName);
       assert.equal(headRes.status, 200);
     });
   });
@@ -1476,9 +1477,7 @@ describe('browser', () => {
         const parts = await Promise.all(
           Array(10)
             .fill(1)
-            .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
-            )
+            .map((v, i) => store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
@@ -2092,7 +2091,7 @@ describe('browser', () => {
     it('should not calculate MD5 default when use put', async () => {
       const store = oss(ossConfig);
       const name = `${prefix}put/test-md5-0`;
-      const request = store.urllib.request;
+      const { request } = store.urllib;
       let reqParams;
       store.urllib.request = (url, params) => {
         reqParams = params;
@@ -2110,7 +2109,7 @@ describe('browser', () => {
       const name = `${prefix}put/test-md5-2`;
       const partSize = 100 * 1024;
       const body2 = new File(Array(2 * partSize).fill(1), { type: 'text/plain' });
-      const request = store.urllib.request;
+      const { request } = store.urllib;
       let headerWithMD5Count = 0;
       store.urllib.request = (url, params) => {
         if (params.headers['Content-MD5'] && /partNumber=\d/.test(url)) {
@@ -2247,6 +2246,82 @@ describe('browser', () => {
       } catch (e) {
         assert.strictEqual(e.status, -1);
       }
+    });
+  });
+
+  describe('restore()', () => {
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+
+    it('Should return OperationNotSupportedError when the type of bucket is not archive', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'));
+
+      try {
+        await store.restore(name);
+      } catch (e) {
+        console.log(e);
+      }
+    });
+    it('Should return 202 when restore is called first', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'), {
+        headers: {
+          'x-oss-storage-class': 'Archive'
+        }
+      });
+
+      const info = await store.restore(name);
+      assert.equal(info.res.status, 202);
+
+      // in 1 minute verify RestoreAlreadyInProgressError
+      try {
+        await store.restore(name);
+      } catch (err) {
+        assert.equal(err.name, 'RestoreAlreadyInProgressError');
+      }
+    });
+    //
+
+    it('Category should be Archive', async () => {
+      const name = '/oss/restore.js';
+      await store.put(name, Buffer.from('abc'));
+      try {
+        await store.restore(name, { type: 'ColdArchive' });
+      } catch (err) {
+        assert.equal(err.code, 'OperationNotSupported');
+      }
+    });
+
+    it('ColdArchive choice Days', async () => {
+      const name = '/oss/daysRestore.js';
+      const options = {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      };
+      await store.put(name, Buffer.from('abc'), options);
+      const result = await store.restore(name, {
+        type: 'ColdArchive',
+        Days: 2
+      });
+      assert.equal(result.res.status, 202);
+    });
+
+    it('ColdArchive is Accepted', async () => {
+      const name = '/oss/coldRestore.js';
+      const options = {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      };
+      await store.put(name, Buffer.from(__filename), options);
+      const result = await store.restore(name, {
+        type: 'ColdArchive'
+      });
+      assert.equal(result.res.status, 202);
     });
   });
 });

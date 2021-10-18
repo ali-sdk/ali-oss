@@ -304,8 +304,9 @@ describe('test/client.test.js', () => {
     assert.equal(result.res.status, 200);
     assert(header['User-Agent']);
     assert(header['User-Agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
-    assert(header['x-oss-user-agent']);
-    assert(header['x-oss-user-agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
+    // node 环境移除了x-oss-user-agent
+    // assert(header['x-oss-user-agent']);
+    // assert(header['x-oss-user-agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
   });
 
   it('should check beta or alpha User-Agent', () => {

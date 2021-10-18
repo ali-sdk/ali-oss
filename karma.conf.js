@@ -1,17 +1,24 @@
+process.env.CHROME_BIN = require('puppeteer').executablePath();
+const isCiEnv = process.env.ONCI;
+
 module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'browserify'],
-    browsers: ['Chrome', 'Safari', 'Firefox'],
-    files: [
-      'test/browser/build/aliyun-oss-sdk.min.js',
-      'test/browser/build/tests.js'
+    plugins: [
+      require('karma-mocha'),
+      require('karma-browserify'),
+      require('karma-chrome-launcher'),
+      require('karma-firefox-launcher'),
+      require('karma-safari-launcher')
     ],
-    preprocessors: {
-      // 'dist/aliyun-oss-sdk.js': ['coverage']
-    },
+    browsers: isCiEnv ? ['ChromeHeadless'] : ['Chrome', 'Safari', 'Firefox'],
+    files: ['test/browser/build/aliyun-oss-sdk.min.js', 'test/browser/build/tests.js'],
+    // preprocessors: {
+    // 'dist/aliyun-oss-sdk.js': ['coverage']
+    // },
     // coverageReporter: {
-    //   type : 'html',
-    //   dir : 'coverage-browser/'
+    // type: 'html',
+    // dir: 'coverage-browser/'
     // },
     // reporters: ['progress', 'coverage'],
     reporters: ['progress'],

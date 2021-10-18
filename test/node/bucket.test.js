@@ -28,13 +28,11 @@ describe('test/bucket.test.js', () => {
       'max-keys': 20
     });
 
-    await Promise.all((bucketResult.buckets || [])
-      .filter(_ => _.name.startsWith('ali-oss'))
-      .map(_bucket => utils
-        .cleanBucket(
-          oss(Object.assign(config, { region: _bucket.region })),
-          _bucket.name
-        )));
+    await Promise.all(
+      (bucketResult.buckets || [])
+        .filter(_ => _.name.startsWith('ali-oss'))
+        .map(_bucket => utils.cleanBucket(oss(Object.assign(config, { region: _bucket.region })), _bucket.name))
+    );
 
     config.region = defaultRegion;
     store = oss(config);
@@ -185,9 +183,6 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketACL()', () => {
     it('should set bucket acl to public-read-write', async () => {
-      const result = await store.putBucket(bucket);
-      assert.equal(result.res.status, 200);
-
       const resultAcl = await store.putBucketACL(bucket, 'public-read-write');
       assert.equal(resultAcl.res.status, 200);
       assert.equal(resultAcl.bucket, bucket);
@@ -809,7 +804,7 @@ describe('test/bucket.test.js', () => {
           storageClass: 'Archive'
         },
         expiration: {
-          createdBeforeDate: '2020-02-19T00:00:00.000Z'
+          createdBeforeDate: '2020-02-17T00:00:00.000Z'
         },
         tag: {
           key: 'test',
@@ -1384,5 +1379,4 @@ describe('test/bucket.test.js', () => {
       });
     });
   });
-
 });
