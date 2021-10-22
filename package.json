@@ -116,7 +116,7 @@
     "stream-equal": "^1.1.0",
     "timemachine": "^0.3.0",
     "typescript": "^3.9.5",
-    "uglify-js": "^2.8.29",
+    "uglify-js": "^3.14.2",
     "watchify": "^3.11.1"
   },
   "dependencies": {
