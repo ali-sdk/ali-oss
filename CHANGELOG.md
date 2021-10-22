@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.17.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.17.0) (2021-10-22)
+
+
+### Features
+
+* add disabled md5 ([#946](https://github.com/aliyun/oss-nodejs-sdk/issues/946)) ([9213e42](https://github.com/aliyun/oss-nodejs-sdk/commit/9213e42e4bcd0662dabdfb71125983ed736eba63)), closes [#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943) [#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)
+* add git action config ([#991](https://github.com/aliyun/oss-nodejs-sdk/issues/991)) ([5b8ef2d](https://github.com/aliyun/oss-nodejs-sdk/commit/5b8ef2d858de5b013f0af79c71bc274187f37e88))
+* refactor refresh token ([#955](https://github.com/aliyun/oss-nodejs-sdk/issues/955)) ([b0c6771](https://github.com/aliyun/oss-nodejs-sdk/commit/b0c6771c3c5f9455d0319480b6b4c651f9c6ea39))
+* to add restore api ([#985](https://github.com/aliyun/oss-nodejs-sdk/issues/985)) ([6f3b456](https://github.com/aliyun/oss-nodejs-sdk/commit/6f3b4561fa9a2909874e2a1462ff8815a16e5925))
+* update git action ([#997](https://github.com/aliyun/oss-nodejs-sdk/issues/997)) ([ebd73d3](https://github.com/aliyun/oss-nodejs-sdk/commit/ebd73d38c90d1949c99c876cb9ae995e06264df5))
+
+
+### Bug Fixes
+
+* node parallel ([#968](https://github.com/aliyun/oss-nodejs-sdk/issues/968)) ([6279ed0](https://github.com/aliyun/oss-nodejs-sdk/commit/6279ed0c9d10adcb9b83a4f3dec5a092b80979db))
+* put json data ([#959](https://github.com/aliyun/oss-nodejs-sdk/issues/959)) ([a0fc989](https://github.com/aliyun/oss-nodejs-sdk/commit/a0fc989f7c7c2b6bb177c41d3f29422bf0ab5211))
+* remove node enviroment x-oss-user-agent ([#987](https://github.com/aliyun/oss-nodejs-sdk/issues/987)) ([fe39041](https://github.com/aliyun/oss-nodejs-sdk/commit/fe39041168a455ad9dbc49bad5292af9f8ae2dad))
+
 ## [6.16.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.16.0) (2021-07-12)
 
 
