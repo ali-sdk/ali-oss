@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
+const ms = require('humanize-ms');
+const { metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const sleep = require('mz-modules/sleep');
@@ -47,10 +49,6 @@ describe('test/object.test.js', () => {
 
     await store.putBucket(archvieBucket, { StorageClass: 'Archive' });
     // store.useBucket(archvieBucket, bucketRegion);
-  });
-
-  after(async () => {
-    await utils.cleanAllBucket(store);
   });
 
   describe('putStream()', () => {
@@ -1242,6 +1240,7 @@ describe('test/object.test.js', () => {
     });
 
     it('should get exists object stream', async () => {
+      await utils.sleep(ms(metaSyncTime));
       const result = await store.getStream(name);
       assert.equal(result.res.status, 200);
       assert(result.stream instanceof Readable);
@@ -1306,21 +1305,24 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should throw error and consume the response stream', async () => {
-      store.agent = new AgentKeepalive({
-        keepAlive: true
+    if(!process.env.ONCI) {
+      it('should throw error and consume the response stream', async () => {
+        store.agent = new AgentKeepalive({
+          keepAlive: true
+        });
+        store.httpsAgent = new HttpsAgentKeepalive();
+        try {
+          await store.getStream(`${name}not-exists`);
+          throw new Error('should not run this');
+        } catch (err) {
+          console.log('error is', err)
+          assert.equal(err.name, 'NoSuchKeyError');
+          assert(Object.keys(store.agent.freeSockets).length === 0);
+          await utils.sleep(ms(metaSyncTime));
+          assert(Object.keys(store.agent.freeSockets).length === 1);
+        }
       });
-      store.httpsAgent = new HttpsAgentKeepalive();
-      try {
-        await store.getStream(`${name}not-exists`);
-        throw new Error('should not run this');
-      } catch (err) {
-        assert.equal(err.name, 'NoSuchKeyError');
-        assert(Object.keys(store.agent.freeSockets).length === 0);
-        await sleep(1);
-        assert(Object.keys(store.agent.freeSockets).length === 1);
-      }
-    });
+    }
   });
 
   describe('delete()', () => {
@@ -2245,7 +2247,10 @@ describe('test/object.test.js', () => {
         type: 'ColdArchive',
         Days: 2
       });
-      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
+      assert.equal(
+        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        true
+      );
     });
 
     it('ColdArchive is Accepted', async () => {
@@ -2253,7 +2258,10 @@ describe('test/object.test.js', () => {
       const result = await store.restore(name, {
         type: 'ColdArchive'
       });
-      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
+      assert.equal(
+        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        true
+      );
     });
   });
 
@@ -2322,12 +2330,13 @@ describe('test/object.test.js', () => {
           }
         };
 
-        const postFile = () => new Promise((resolve, reject) => {
-          request(options, (err, res) => {
-            if (err) reject(err);
-            if (res) resolve(res);
+        const postFile = () =>
+          new Promise((resolve, reject) => {
+            request(options, (err, res) => {
+              if (err) reject(err);
+              if (res) resolve(res);
+            });
           });
-        });
 
         const result = await postFile();
         assert(result.statusCode === 204);

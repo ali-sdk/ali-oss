@@ -491,7 +491,7 @@ describe('test/multipart.test.js', () => {
     it('should upload partSize be int number and greater then minPartSize', async () => {
       // create a file with 1M random data
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);
-    
+
       const name = `${prefix}multipart/upload-file`;
       let progress = 0;
       try {
@@ -504,7 +504,7 @@ describe('test/multipart.test.js', () => {
       } catch (e) {
         assert.equal('partSize must be int number', e.message);
       }
-    
+
       try {
         await store.multipartUpload(name, fileName, {
           partSize: 1,
