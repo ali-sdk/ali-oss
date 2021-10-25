@@ -1305,22 +1305,24 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should throw error and consume the response stream', async () => {
-      store.agent = new AgentKeepalive({
-        keepAlive: true
+    if(!process.env.ONCI) {
+      it('should throw error and consume the response stream', async () => {
+        store.agent = new AgentKeepalive({
+          keepAlive: true
+        });
+        store.httpsAgent = new HttpsAgentKeepalive();
+        try {
+          await store.getStream(`${name}not-exists`);
+          throw new Error('should not run this');
+        } catch (err) {
+          console.log('error is', err)
+          assert.equal(err.name, 'NoSuchKeyError');
+          assert(Object.keys(store.agent.freeSockets).length === 0);
+          await utils.sleep(ms(metaSyncTime));
+          assert(Object.keys(store.agent.freeSockets).length === 1);
+        }
       });
-      store.httpsAgent = new HttpsAgentKeepalive();
-      try {
-        await store.getStream(`${name}not-exists`);
-        throw new Error('should not run this');
-      } catch (err) {
-        console.log('error is', err)
-        assert.equal(err.name, 'NoSuchKeyError');
-        assert(Object.keys(store.agent.freeSockets).length === 0);
-        await sleep(1);
-        assert(Object.keys(store.agent.freeSockets).length === 1);
-      }
-    });
+    }
   });
 
   describe('delete()', () => {
