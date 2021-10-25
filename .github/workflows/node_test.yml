@@ -19,6 +19,7 @@ jobs:
 
     env:
       ONCI: true
+      MINIFY: 1
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
       ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
       ALI_SDK_OSS_REGION: oss-us-west-1
