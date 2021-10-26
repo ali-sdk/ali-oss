@@ -68,11 +68,14 @@ function build(options, callback) {
       if (options.minify) {
         var uglify = require('uglify-js');
         var minified = uglify.minify(code, {
-          fromString: true,
           output: {
             'ascii_only': true
           }
         });
+        if (minified.error) {
+          console.error(minified.error);
+          process.exit(1)
+        }
         code = minified.code;
       }
       code = license + code;
