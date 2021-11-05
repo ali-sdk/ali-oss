@@ -2,7 +2,9 @@ const assert = require('assert');
 const utils = require('./utils');
 const OSS = require('../..');
 const config = require('../config').oss;
+const { metaSyncTime }  = require('../config');
 const fs = require('fs');
+const ms = require('humanize-ms')
 
 describe('test/multiversion.test.js', () => {
   const { prefix } = utils;
@@ -118,6 +120,7 @@ describe('test/multiversion.test.js', () => {
           noncurrentDays: 1
         }
       }]);
+      await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
@@ -204,6 +207,7 @@ describe('test/multiversion.test.js', () => {
     it('should copy latest object with versionId `null` when the bucket is suspended', async () => {
       const target = `${name.replace('file.js', 'file-target-suspended.js')}`;
       const suspendedRes = await store.putBucketVersioning(bucket, suspended);
+      await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(suspendedRes.res.status, 200);
       try {
         const result = await store.copy(target, name, {
@@ -535,6 +539,7 @@ describe('test/multiversion.test.js', () => {
     // 暂停多版本后，当前版本为DELETE标记，指定version删除该DELETE标记（包括null version），则恢复上一个版本
     it('should delete marker and restore lastest version when suspended ', async () => {
       await store.putBucketVersioning(bucket, enabled);
+      await utils.sleep(ms(metaSyncTime))
       try {
         const currentName = 'delete-marker-test';
         const result = await store.put(currentName, Buffer.from(currentName));
@@ -560,6 +565,7 @@ describe('test/multiversion.test.js', () => {
     it('should return bucket Versioning', async () => {
       try {
         await store.putBucketVersioning(bucket, enabled);
+        await utils.sleep(ms(metaSyncTime))
         const result = await store.getBucketInfo(bucket);
         assert.equal(result.res.status, 200);
         assert.equal(result.bucket.Versioning, enabled);

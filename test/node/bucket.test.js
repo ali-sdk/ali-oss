@@ -184,9 +184,6 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketACL()', () => {
     it('should set bucket acl to public-read-write', async () => {
-      const result = await store.putBucket(bucket);
-      assert.equal(result.res.status, 200);
-
       const resultAcl = await store.putBucketACL(bucket, 'public-read-write');
       assert.equal(resultAcl.res.status, 200);
       assert.equal(resultAcl.bucket, bucket);
@@ -803,11 +800,11 @@ describe('test/bucket.test.js', () => {
         prefix: 'logs/',
         status: 'Enabled',
         transition: {
-          createdBeforeDate: '2020-02-18T00:00:00.000Z',
+          createdBeforeDate: '2022-12-12T00:00:00.000Z',
           storageClass: 'Archive'
         },
         expiration: {
-          createdBeforeDate: '2020-02-19T00:00:00.000Z'
+          createdBeforeDate: '2022-12-11T00:00:00.000Z'
         },
         tag: {
           key: 'test',

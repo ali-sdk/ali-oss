@@ -11,10 +11,12 @@ const config = require('../config').oss;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
+const ms = require("humanize-ms");
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
 const request = require('request');
+const { metaSyncTime } = require('../config');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -1276,6 +1278,7 @@ describe('test/object.test.js', () => {
         mime: 'image/png'
       });
 
+      await utils.sleep(ms(metaSyncTime))
       let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
       let result2 = await store.getStream(imageName, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
