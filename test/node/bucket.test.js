@@ -22,33 +22,18 @@ describe('test/bucket.test.js', () => {
   const defaultRegion = config.region;
   before(async () => {
     store = new OSS(config);
-
-    const bucketResult = await store.listBuckets({
-      // prefix: '',
-      'max-keys': 20
-    });
-
-    await Promise.all((bucketResult.buckets || [])
-      .filter(_ => _.name.startsWith('ali-oss'))
-      .map(_bucket => utils
-        .cleanBucket(
-          new OSS(Object.assign(config, { region: _bucket.region })),
-          _bucket.name
-        )));
-
     config.region = defaultRegion;
     store = new OSS(config);
     bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = defaultRegion;
 
-    const result = await store.putBucket(bucket);
+    const result = await store.putBucket(bucket, { timeout: process.env.ONCI ? 60000 : 10000 });
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
-
   after(async () => {
-    await utils.cleanBucket(store, bucket);
+    await utils.cleanAllBucket(store);
   });
 
   describe('setBucket()', () => {
@@ -81,18 +66,20 @@ describe('test/bucket.test.js', () => {
       // just for archive bucket test
       archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
       archvieBucket = archvieBucket.substring(0, archvieBucket.length - 1);
-      await store.putBucket(archvieBucket, { StorageClass: 'Archive' });
+      await store.putBucket(archvieBucket, { StorageClass: 'Archive', timeout: 120000 });
     });
 
     it('should create a new bucket', async () => {
-      const result1 = await store.putBucket(name);
+      const result1 = await store.putBucket(name, { timeout: 120000 });
       assert.equal(result1.bucket, name);
       assert.equal(result1.res.status, 200);
     });
 
     it('should create an archive bucket', async () => {
       await utils.sleep(ms(metaSyncTime));
-      const result2 = await store.listBuckets();
+      const result2 = await store.listBuckets({}, {
+        timeout: 120000,
+      });
       const { buckets } = result2;
       const m = buckets.some(item => item.name === archvieBucket);
       assert(m === true);
@@ -104,16 +91,17 @@ describe('test/bucket.test.js', () => {
       });
     });
 
-    it.skip('should create an ZRS bucket', async () => {
-      const ZRS_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
-      const ZRS_put_res = await store.putBucket(ZRS_name, {
-        dataRedundancyType: 'ZRS'
-      });
-      assert.strictEqual(ZRS_put_res.res.status, 200);
-      const ZRS_get_res = await store.getBucketInfo(ZRS_name);
-      assert.strictEqual(ZRS_get_res.bucket.DataRedundancyType, 'ZRS');
-      await store.deleteBucket(ZRS_name);
-    });
+    // todo resume
+    // it('should create an ZRS bucket', async () => {
+    //   const ZRS_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
+    //   const ZRS_put_res = await store.putBucket(ZRS_name, {
+    //     dataRedundancyType: 'ZRS'
+    //   });
+    //   assert.strictEqual(ZRS_put_res.res.status, 200);
+    //   const ZRS_get_res = await store.getBucketInfo(ZRS_name);
+    //   assert.strictEqual(ZRS_get_res.bucket.DataRedundancyType, 'ZRS');
+    //   await store.deleteBucket(ZRS_name);
+    // });
 
     it('should create an public-read bucket', async () => {
       const public_read_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
@@ -175,6 +163,7 @@ describe('test/bucket.test.js', () => {
     it('should delete not empty bucket throw BucketNotEmptyError', async () => {
       store.useBucket(bucket);
       await store.put('ali-oss-test-bucket.txt', __filename);
+      utils.sleep(ms(metaSyncTime));
       await utils.throws(async () => {
         await store.deleteBucket(bucket);
       }, 'BucketNotEmptyError');
@@ -189,7 +178,7 @@ describe('test/bucket.test.js', () => {
       assert.equal(resultAcl.bucket, bucket);
 
       // Need wait some time for bucket meta sync
-      await utils.sleep(1000);
+      await utils.sleep(ms(metaSyncTime));
 
       const r = await store.getBucketACL(bucket);
       assert.equal(r.res.status, 200);
@@ -224,7 +213,9 @@ describe('test/bucket.test.js', () => {
     it('should list buckets by prefix', async () => {
       const result = await store.listBuckets({
         prefix: listBucketsPrefix,
-        'max-keys': 20
+        'max-keys': 20,
+      }, {
+        timeout: 120000
       });
 
       assert(Array.isArray(result.buckets));
@@ -261,6 +252,7 @@ describe('test/bucket.test.js', () => {
         assert(false);
       }
     });
+
     after(async () => {
       await Promise.all(Array(2).fill(1).map((v, i) => store.deleteBucket(listBucketsPrefix + i)));
     });
@@ -413,7 +405,7 @@ describe('test/bucket.test.js', () => {
     it('should create, get and delete the referer', async () => {
       const putresult = await store.putBucketReferer(bucket, true, [
         'http://npm.taobao.org'
-      ]);
+      ], { timeout: 120000 });
       assert.equal(putresult.res.status, 200);
 
       // put again will be fine
@@ -422,7 +414,7 @@ describe('test/bucket.test.js', () => {
         'https://npm.taobao.org',
         'http://cnpmjs.org'
       ];
-      const putReferer = await store.putBucketReferer(bucket, false, referers);
+      const putReferer = await store.putBucketReferer(bucket, false, referers, { timeout: 120000 });
       assert.equal(putReferer.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
@@ -442,7 +434,7 @@ describe('test/bucket.test.js', () => {
   describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', () => {
     afterEach(async () => {
       // delete it
-      const result = await store.deleteBucketCORS(bucket);
+      const result = await store.deleteBucketCORS(bucket, { timeout: 120000 });
       assert.equal(result.res.status, 204);
     });
 
@@ -457,7 +449,7 @@ describe('test/bucket.test.js', () => {
       const putResult = await store.putBucketCORS(bucket, rules);
       assert.equal(putResult.res.status, 200);
 
-      const getResult = await store.getBucketCORS(bucket);
+      const getResult = await store.getBucketCORS(bucket, { timeout: 120000 });
       assert.equal(getResult.res.status, 200);
       assert.deepEqual(getResult.rules, [{
         allowedOrigin: '*',
@@ -471,14 +463,15 @@ describe('test/bucket.test.js', () => {
     it('should overwrite cors', async () => {
       const rules1 = [{
         allowedOrigin: '*',
-        allowedMethod: 'GET'
+        allowedMethod: 'GET',
+        timeout: 120000
       }];
       const putCorsResult1 = await store.putBucketCORS(bucket, rules1);
       assert.equal(putCorsResult1.res.status, 200);
 
-      await utils.sleep(ms('1000ms'));
+      await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult1 = await store.getBucketCORS(bucket);
+      const getCorsResult1 = await store.getBucketCORS(bucket, { timeout: 120000 });
       assert.equal(getCorsResult1.res.status, 200);
       assert.deepEqual(getCorsResult1.rules, [{
         allowedOrigin: '*',
@@ -492,9 +485,9 @@ describe('test/bucket.test.js', () => {
       const putCorsResult2 = await store.putBucketCORS(bucket, rules2);
       assert.equal(putCorsResult2.res.status, 200);
 
-      await utils.sleep(ms('1000ms'));
+      await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult2 = await store.getBucketCORS(bucket);
+      const getCorsResult2 = await store.getBucketCORS(bucket, { timeout: 120000 });
       assert.equal(getCorsResult2.res.status, 200);
       assert.deepEqual(getCorsResult2.rules, [{
         allowedOrigin: 'localhost',
@@ -800,11 +793,11 @@ describe('test/bucket.test.js', () => {
         prefix: 'logs/',
         status: 'Enabled',
         transition: {
-          createdBeforeDate: '2022-12-12T00:00:00.000Z',
+          createdBeforeDate: '2020-02-18T00:00:00.000Z',
           storageClass: 'Archive'
         },
         expiration: {
-          createdBeforeDate: '2022-12-11T00:00:00.000Z'
+          createdBeforeDate: '2020-02-17T00:00:00.000Z'
         },
         tag: {
           key: 'test',
@@ -1224,64 +1217,6 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
-
-  describe('worm()', () => {
-    describe('initiateBucketWorm()', () => {
-      it('should init bucket worm', async () => {
-        try {
-          await store.initiateBucketWorm(bucket, '1');
-          assert(true);
-        } catch (error) {
-          assert(false, error);
-        }
-      });
-    });
-    describe('abortBucketWorm()', () => {
-      it('should abort bucket worm', async () => {
-        try {
-          await store.abortBucketWorm(bucket);
-          assert(true);
-        } catch (error) {
-          assert(false, error);
-        }
-      });
-    });
-    describe('completeBucketWorm(), getBucketWorm()', () => {
-      it('should complete bucket worm', async () => {
-        const { wormId } = await store.initiateBucketWorm(bucket, '1');
-        try {
-          await store.completeBucketWorm(bucket, wormId);
-          assert(true);
-        } catch (error) {
-          assert(false, error);
-        }
-
-        try {
-          const result = await store.getBucketWorm(bucket);
-          assert(result.wormId);
-        } catch (error) {
-          assert(false, error);
-        }
-      });
-    });
-    describe('extendBucketWorm()', () => {
-      it('should extend bucket worm', async () => {
-        try {
-          const { wormId, days } = await store.getBucketWorm(bucket);
-          await store.extendBucketWorm(
-            bucket,
-            wormId,
-            (days * 1 + 1).toString()
-          );
-          const result = await store.getBucketWorm(bucket);
-          assert(result.days - days === 1);
-        } catch (error) {
-          assert(false, error);
-        }
-      });
-    });
-  });
-
   describe('inventory()', () => {
     const inventory = {
       id: 'default',
@@ -1437,5 +1372,4 @@ describe('test/bucket.test.js', () => {
       });
     });
   });
-
 });

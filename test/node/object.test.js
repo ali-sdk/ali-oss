@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
+const ms = require('humanize-ms');
+const { metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const sleep = require('mz-modules/sleep');
@@ -11,12 +13,10 @@ const config = require('../config').oss;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
-const ms = require("humanize-ms");
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
 const request = require('request');
-const { metaSyncTime } = require('../config');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -49,11 +49,6 @@ describe('test/object.test.js', () => {
 
     await store.putBucket(archvieBucket, { StorageClass: 'Archive' });
     // store.useBucket(archvieBucket, bucketRegion);
-  });
-
-  after(async () => {
-    await utils.cleanBucket(store, bucket);
-    await utils.cleanBucket(store, archvieBucket);
   });
 
   describe('putStream()', () => {
@@ -1245,6 +1240,7 @@ describe('test/object.test.js', () => {
     });
 
     it('should get exists object stream', async () => {
+      await utils.sleep(ms(metaSyncTime));
       const result = await store.getStream(name);
       assert.equal(result.res.status, 200);
       assert(result.stream instanceof Readable);
@@ -1278,7 +1274,6 @@ describe('test/object.test.js', () => {
         mime: 'image/png'
       });
 
-      await utils.sleep(ms(metaSyncTime))
       let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
       let result2 = await store.getStream(imageName, { process: 'image/resize,w_200' });
       assert.equal(result.res.status, 200);
@@ -1310,21 +1305,24 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should throw error and consume the response stream', async () => {
-      store.agent = new AgentKeepalive({
-        keepAlive: true
+    if(!process.env.ONCI) {
+      it('should throw error and consume the response stream', async () => {
+        store.agent = new AgentKeepalive({
+          keepAlive: true
+        });
+        store.httpsAgent = new HttpsAgentKeepalive();
+        try {
+          await store.getStream(`${name}not-exists`);
+          throw new Error('should not run this');
+        } catch (err) {
+          console.log('error is', err)
+          assert.equal(err.name, 'NoSuchKeyError');
+          assert(Object.keys(store.agent.freeSockets).length === 0);
+          await utils.sleep(ms(metaSyncTime));
+          assert(Object.keys(store.agent.freeSockets).length === 1);
+        }
       });
-      store.httpsAgent = new HttpsAgentKeepalive();
-      try {
-        await store.getStream(`${name}not-exists`);
-        throw new Error('should not run this');
-      } catch (err) {
-        assert.equal(err.name, 'NoSuchKeyError');
-        assert(Object.keys(store.agent.freeSockets).length === 0);
-        await sleep(1);
-        assert(Object.keys(store.agent.freeSockets).length === 1);
-      }
-    });
+    }
   });
 
   describe('delete()', () => {
@@ -2040,13 +2038,11 @@ describe('test/object.test.js', () => {
       let keyCount = 0;
       do {
         // eslint-disable-next-line no-await-in-loop
-        const result = await store.listV2(
-          {
-            prefix: listPrefix,
-            'max-keys': 2,
-            'continuation-token': nextContinuationToken,
-          },
-        );
+        const result = await store.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken
+        });
         keyCount += result.keyCount;
         nextContinuationToken = result.nextContinuationToken;
       } while (nextContinuationToken);
@@ -2192,6 +2188,18 @@ describe('test/object.test.js', () => {
   });
 
   describe('restore()', () => {
+    before(async () => {
+      await store.put('/oss/coldRestore.js', __filename, {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      });
+      await store.put('/oss/daysRestore.js', __filename, {
+        headers: {
+          'x-oss-storage-class': 'ColdArchive'
+        }
+      });
+    });
     after(async () => {
       await store.useBucket(bucket);
     });
@@ -2221,6 +2229,39 @@ describe('test/object.test.js', () => {
       } catch (err) {
         assert.equal(err.name, 'RestoreAlreadyInProgressError');
       }
+    });
+
+    it('Category should be Archive', async () => {
+      const name = '/oss/restore.js';
+      try {
+        await store.restore(name, { type: 'ColdArchive' });
+      } catch (err) {
+        assert.equal(err.code, 'MalformedXML');
+      }
+      await store.useBucket(bucket, bucketRegion);
+    });
+
+    it('ColdArchive choice Days', async () => {
+      const name = '/oss/daysRestore.js';
+      const result = await store.restore(name, {
+        type: 'ColdArchive',
+        Days: 2
+      });
+      assert.equal(
+        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        true
+      );
+    });
+
+    it('ColdArchive is Accepted', async () => {
+      const name = '/oss/coldRestore.js';
+      const result = await store.restore(name, {
+        type: 'ColdArchive'
+      });
+      assert.equal(
+        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        true
+      );
     });
   });
 

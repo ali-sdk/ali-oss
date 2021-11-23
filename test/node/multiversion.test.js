@@ -2,9 +2,9 @@ const assert = require('assert');
 const utils = require('./utils');
 const OSS = require('../..');
 const config = require('../config').oss;
-const { metaSyncTime }  = require('../config');
 const fs = require('fs');
-const ms = require('humanize-ms')
+const ms = require('humanize-ms');
+const { metaSyncTime } = require('../config');
 
 describe('test/multiversion.test.js', () => {
   const { prefix } = utils;
@@ -12,9 +12,8 @@ describe('test/multiversion.test.js', () => {
   const suspended = 'Suspended';
   let store;
   let bucket;
-  const originRegion = config.region;
   before(async () => {
-    config.region = 'oss-cn-chengdu';
+    // config.region = 'oss-cn-chengdu';
     store = new OSS(config);
 
     bucket = `ali-oss-test-bucket-multiversion-${prefix.replace(/[/.]/g, '-')}`;
@@ -30,7 +29,6 @@ describe('test/multiversion.test.js', () => {
   });
 
   after(async () => {
-    config.region = originRegion;
     await utils.cleanBucket(store, bucket, true);
   });
 
@@ -94,7 +92,12 @@ describe('test/multiversion.test.js', () => {
       }
     });
     it('should getBucketVersions with delimiter', async () => {
-      const names = ['getBucketVersions/delimiter1.js', 'getBucketVersions/delimiter2.js', 'getBucketVersions/delimiter3.js', 'others.js'];
+      const names = [
+        'getBucketVersions/delimiter1.js',
+        'getBucketVersions/delimiter2.js',
+        'getBucketVersions/delimiter3.js',
+        'others.js'
+      ];
       await Promise.all(names.map(_name => store.put(_name, __filename)));
       try {
         const result = await store.getBucketVersions({
@@ -107,36 +110,46 @@ describe('test/multiversion.test.js', () => {
     });
   });
 
-  describe('putBucketLifecycle() getBucketLifecycle()', () => {
+  describe('putBucketLifecycle() getBucketLifecycle()', async () => {
     it('should putBucketLifecycle with NoncurrentVersionExpiration', async () => {
-      const putresult1 = await store.putBucketLifecycle(bucket, [{
-        id: 'expiration1',
-        prefix: 'logs/',
-        status: 'Enabled',
-        expiration: {
-          days: 1
-        },
-        noncurrentVersionExpiration: {
-          noncurrentDays: 1
+      const putresult1 = await store.putBucketLifecycle(
+        bucket,
+        [
+          {
+            id: 'expiration1',
+            prefix: 'logs/',
+            status: 'Enabled',
+            expiration: {
+              days: 1
+            },
+            noncurrentVersionExpiration: {
+              noncurrentDays: 1
+            }
+          }
+        ],
+        {
+          timeout: 120000
         }
-      }]);
+      );
       await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
     });
     it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
-      const putresult1 = await store.putBucketLifecycle(bucket, [{
-        id: 'expiration1',
-        prefix: 'logs/',
-        status: 'Enabled',
-        expiration: {
-          expiredObjectDeleteMarker: 'true'
-        },
-        NoncurrentVersionExpiration: {
-          noncurrentDays: 1
+      const putresult1 = await store.putBucketLifecycle(bucket, [
+        {
+          id: 'expiration1',
+          prefix: 'logs/',
+          status: 'Enabled',
+          expiration: {
+            expiredObjectDeleteMarker: 'true'
+          },
+          NoncurrentVersionExpiration: {
+            noncurrentDays: 1
+          }
         }
-      }]);
+      ]);
       assert.equal(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].expiration.expiredObjectDeleteMarker, 'true');
@@ -171,6 +184,7 @@ describe('test/multiversion.test.js', () => {
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
       const result = await store.put(name, __filename);
+      await utils.sleep(ms(metaSyncTime));
       await store.delete(name);
       versionId = result.res.headers['x-oss-version-id'];
     });
@@ -207,7 +221,6 @@ describe('test/multiversion.test.js', () => {
     it('should copy latest object with versionId `null` when the bucket is suspended', async () => {
       const target = `${name.replace('file.js', 'file-target-suspended.js')}`;
       const suspendedRes = await store.putBucketVersioning(bucket, suspended);
-      await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(suspendedRes.res.status, 200);
       try {
         const result = await store.copy(target, name, {
@@ -255,12 +268,16 @@ describe('test/multiversion.test.js', () => {
       store.delete(objectKey);
       const copyName = `${prefix}multipart-copy-target.js`;
       try {
-        const result = await store.multipartUploadCopy(copyName, {
-          sourceKey: objectKey,
-          sourceBucketName: bucket
-        }, {
-          versionId
-        });
+        const result = await store.multipartUploadCopy(
+          copyName,
+          {
+            sourceKey: objectKey,
+            sourceBucketName: bucket
+          },
+          {
+            versionId
+          }
+        );
         assert.strictEqual(result.res.status, 200);
       } catch (error) {
         assert(false);
@@ -274,7 +291,7 @@ describe('test/multiversion.test.js', () => {
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
       let result;
-      const _createHistoryObject = async (i) => {
+      const _createHistoryObject = async i => {
         name = name.replace('file', `file${i}`);
         result = await store.put(name, __filename);
         await store.delete(name);
@@ -283,7 +300,11 @@ describe('test/multiversion.test.js', () => {
           versionId: result.res.headers['x-oss-version-id']
         });
       };
-      await Promise.all(Array(3).fill(1).map((_, i) => _createHistoryObject(i)));
+      await Promise.all(
+        Array(3)
+          .fill(1)
+          .map((_, i) => _createHistoryObject(i))
+      );
     });
 
     it('should deleteMulti', async () => {
@@ -474,6 +495,7 @@ describe('test/multiversion.test.js', () => {
 
     // 不指定version id，删除当前版本，生成DELETE标记
     it('should delete object without versionId', async () => {
+      await utils.sleep(ms(metaSyncTime));
       const res = await store.delete(name);
       assert.strictEqual(res.res.headers['x-oss-delete-marker'], 'true');
       assert(res.res.headers['x-oss-version-id']);
@@ -539,7 +561,6 @@ describe('test/multiversion.test.js', () => {
     // 暂停多版本后，当前版本为DELETE标记，指定version删除该DELETE标记（包括null version），则恢复上一个版本
     it('should delete marker and restore lastest version when suspended ', async () => {
       await store.putBucketVersioning(bucket, enabled);
-      await utils.sleep(ms(metaSyncTime))
       try {
         const currentName = 'delete-marker-test';
         const result = await store.put(currentName, Buffer.from(currentName));
@@ -565,7 +586,6 @@ describe('test/multiversion.test.js', () => {
     it('should return bucket Versioning', async () => {
       try {
         await store.putBucketVersioning(bucket, enabled);
-        await utils.sleep(ms(metaSyncTime))
         const result = await store.getBucketInfo(bucket);
         assert.equal(result.res.status, 200);
         assert.equal(result.bucket.Versioning, enabled);
@@ -693,7 +713,13 @@ describe('test/multiversion.test.js', () => {
         result = await store.deleteMulti(names);
         const markerVersionId = result.deleted.map(v => v.DeleteMarkerVersionId);
         assert.strictEqual(result.res.status, 200);
-        assert.strictEqual(result.deleted.map(v => v.Key).sort().toString(), names.sort().toString());
+        assert.strictEqual(
+          result.deleted
+            .map(v => v.Key)
+            .sort()
+            .toString(),
+          names.sort().toString()
+        );
         assert.strictEqual(result.deleted.filter(v => v.DeleteMarker).length, result.deleted.length);
 
         // 指定版本 批量删除历史版本文件，永久删除
@@ -703,7 +729,13 @@ describe('test/multiversion.test.js', () => {
         }));
         result = await store.deleteMulti(delNameObjArr);
         assert.strictEqual(result.res.status, 200);
-        assert.strictEqual(result.deleted.map(v => v.Key).sort().toString(), names.sort().toString());
+        assert.strictEqual(
+          result.deleted
+            .map(v => v.Key)
+            .sort()
+            .toString(),
+          names.sort().toString()
+        );
 
         // 指定版本 批量删除标记
         const delNameMarkerArr = names.map((_, index) => ({
@@ -712,7 +744,13 @@ describe('test/multiversion.test.js', () => {
         }));
         result = await store.deleteMulti(delNameMarkerArr);
         assert.strictEqual(result.res.status, 200);
-        assert.strictEqual(result.deleted.map(v => v.Key).sort().toString(), names.sort().toString());
+        assert.strictEqual(
+          result.deleted
+            .map(v => v.Key)
+            .sort()
+            .toString(),
+          names.sort().toString()
+        );
         assert.strictEqual(result.deleted.filter(v => v.DeleteMarker).length, result.deleted.length);
       } catch (error) {
         assert(false, error.message);
@@ -726,10 +764,7 @@ describe('test/multiversion.test.js', () => {
     let versionId;
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
-      fileName = await utils.createTempFile(
-        'multipart-upload-file-copy',
-        2 * 1024 * 1024
-      );
+      fileName = await utils.createTempFile('multipart-upload-file-copy', 2 * 1024 * 1024);
       sourceName = `${prefix}multipart/upload-file-with-copy`;
       const res = await store.multipartUpload(sourceName, fileName);
       // versionId
@@ -744,13 +779,9 @@ describe('test/multiversion.test.js', () => {
         sourceKey: sourceName,
         sourceBucketName: bucket
       };
-      const objectMeta = await store._getObjectMeta(
-        sourceData.sourceBucketName,
-        sourceData.sourceKey,
-        {
-          versionId
-        }
-      );
+      const objectMeta = await store._getObjectMeta(sourceData.sourceBucketName, sourceData.sourceKey, {
+        versionId
+      });
       const fileSize = objectMeta.res.headers['content-length'];
 
       const result = await store.initMultipartUpload(copyName);
@@ -758,30 +789,23 @@ describe('test/multiversion.test.js', () => {
       const partSize = 100 * 1024; // 100kb
       const dones = [];
 
-      const uploadFn = async (i) => {
+      const uploadFn = async i => {
         const start = partSize * (i - 1);
         const end = Math.min(start + partSize, fileSize);
         const range = `${start}-${end - 1}`;
-        const part = await store.uploadPartCopy(
-          copyName,
-          result.uploadId,
-          i,
-          range,
-          sourceData,
-          { versionId }
-        );
+        const part = await store.uploadPartCopy(copyName, result.uploadId, i, range, sourceData, { versionId });
         dones.push({
           number: i,
           etag: part.res.headers.etag
         });
       };
-      await Promise.all(Array(10).fill(1).map((v, i) => uploadFn(i + 1)));
-
-      const complete = await store.completeMultipartUpload(
-        copyName,
-        result.uploadId,
-        dones
+      await Promise.all(
+        Array(10)
+          .fill(1)
+          .map((v, i) => uploadFn(i + 1))
       );
+
+      const complete = await store.completeMultipartUpload(copyName, result.uploadId, dones);
 
       assert.equal(complete.res.status, 200);
     });

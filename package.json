@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build-change-log": "standard-version",
-    "test": "npm run tsc && mocha -t 120000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
+    "test": "npm run tsc && mocha -t 120000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js && node test/node/cleanAllBucket.js",
     "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",

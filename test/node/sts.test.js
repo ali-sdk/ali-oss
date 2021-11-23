@@ -1,21 +1,7 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   rockuw <rockuw@gmail.com> (https://github.com/rockuw)
- */
-
-
-/**
- * Module dependencies.
- */
-
 const assert = require('assert');
 const utils = require('./utils');
-const { STS } = require('../..');
+const STS = require('../..').STS;
 const OSS = require('../..');
-const { formatObjKey } = require('../../lib/common/utils/formatObjKey');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
 const mm = require('mm');
@@ -27,7 +13,7 @@ describe('test/sts.test.js', () => {
     it('should assume role', async () => {
       const stsClient = new STS(stsConfig);
       const result = await stsClient.assumeRole(stsConfig.roleArn);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
     });
 
     it('should assume role with policy', async () => {
@@ -35,9 +21,7 @@ describe('test/sts.test.js', () => {
       const policy = {
         Statement: [
           {
-            Action: [
-              'oss:*'
-            ],
+            Action: ['oss:*'],
             Effect: 'Allow',
             Resource: ['acs:oss:*:*:*']
           }
@@ -45,7 +29,7 @@ describe('test/sts.test.js', () => {
         Version: '1'
       };
       const result = await stsClient.assumeRole(stsConfig.roleArn, policy);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
     });
 
     it('should assume role with policy string', async () => {
@@ -64,7 +48,7 @@ describe('test/sts.test.js', () => {
         "Version": "1"
       }`;
       const result = await stsClient.assumeRole(stsConfig.roleArn, policy);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
     });
 
     it('should handle error in assume role', async () => {
@@ -94,7 +78,7 @@ describe('test/sts.test.js', () => {
     it('should list objects using STS', async () => {
       const stsClient = new STS(stsConfig);
       let result = await stsClient.assumeRole(stsConfig.roleArn);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
 
       const ossClient = new OSS({
         region: config.region,
@@ -106,13 +90,13 @@ describe('test/sts.test.js', () => {
 
       const name = `${prefix}ali-sdk/oss/sts-put1.js`;
       result = await ossClient.put(name, __filename);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
 
       result = await ossClient.list({
         'max-keys': 10
       });
 
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
     });
 
     it('should delete multi objects using STS', async () => {
@@ -121,9 +105,7 @@ describe('test/sts.test.js', () => {
       let policy = {
         Statement: [
           {
-            Action: [
-              'oss:PutObject'
-            ],
+            Action: ['oss:PutObject'],
             Effect: 'Allow',
             Resource: ['acs:oss:*:*:*']
           }
@@ -132,7 +114,7 @@ describe('test/sts.test.js', () => {
       };
 
       let result = await stsClient.assumeRole(stsConfig.roleArn, policy);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
 
       let ossClient = new OSS({
         region: config.region,
@@ -145,10 +127,10 @@ describe('test/sts.test.js', () => {
       const name1 = `${prefix}ali-sdk/oss/sts-put1.js`;
       const name2 = `${prefix}ali-sdk/oss/sts-put2.js`;
       result = await ossClient.put(name1, __filename);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
 
       result = await ossClient.put(name2, __filename);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
 
       try {
         await ossClient.deleteMulti([name1, name2]);
@@ -160,9 +142,7 @@ describe('test/sts.test.js', () => {
       policy = {
         Statement: [
           {
-            Action: [
-              'oss:DeleteObject'
-            ],
+            Action: ['oss:DeleteObject'],
             Effect: 'Allow',
             Resource: ['acs:oss:*:*:*']
           }
@@ -171,7 +151,7 @@ describe('test/sts.test.js', () => {
       };
 
       result = await stsClient.assumeRole(stsConfig.roleArn, policy);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
 
       ossClient = new OSS({
         region: config.region,
@@ -182,7 +162,7 @@ describe('test/sts.test.js', () => {
       });
 
       result = await ossClient.deleteMulti([name1, name2]);
-      assert.equal(result.res.status, 200);
+      assert.strictEqual(result.res.status, 200);
     });
   });
 
@@ -191,10 +171,14 @@ describe('test/sts.test.js', () => {
 
     let store;
     before(async () => {
-      let { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
-      credentials = formatObjKey(credentials, 'firstLowerCase');
+      const { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
       const testRefreshSTSTokenConf = {
-        ...credentials,
+        region: config.region,
+        accessKeyId: credentials.AccessKeyId,
+        accessKeySecret: credentials.AccessKeySecret,
+        stsToken: credentials.SecurityToken,
+        bucket: stsConfig.bucket,
+        refreshSTSTokenInterval: 1000
       };
       store = new OSS(testRefreshSTSTokenConf);
     });
@@ -224,5 +208,4 @@ describe('test/sts.test.js', () => {
       }
     });
   });
-
 });

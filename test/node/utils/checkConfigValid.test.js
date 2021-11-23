@@ -1,12 +1,12 @@
 const assert = require('assert');
-const { checkValidEndpoint, checkValidRegion } = require('../../../lib/common/utils/checkValid');
+const { checkConfigValid } = require('../../../lib/common/utils/checkConfigValid');
 
 describe('checkConfigValid()', () => {
   describe('endpoint', () => {
     it('should success when endpoint is valid', () => {
       try {
         const endpoint = 'testa_-.com';
-        checkValidEndpoint(endpoint);
+        checkConfigValid(endpoint, 'endpoint');
         assert(true);
       } catch (error) {
         assert(false);
@@ -17,7 +17,7 @@ describe('checkConfigValid()', () => {
       errorStr.split('').map(_ => `test-a_b.${_}.com`).forEach(
         str => {
           try {
-            checkValidEndpoint(str);
+            checkConfigValid(str, 'endpoint');
             assert(false);
           } catch (error) {
             assert(error.message.includes('endpoint'));
@@ -31,7 +31,7 @@ describe('checkConfigValid()', () => {
     it('should success when region is valid', () => {
       try {
         const region = 'oss-cn-hangzhou';
-        checkValidRegion(region);
+        checkConfigValid(region, 'region');
         assert(true);
       } catch (error) {
         assert(false);
@@ -42,7 +42,7 @@ describe('checkConfigValid()', () => {
       errorStr.split('').map(_ => `oss-${_}hangzhou`).forEach(
         str => {
           try {
-            checkValidRegion(str);
+            checkConfigValid(str, 'region');
             assert(false);
           } catch (error) {
             assert(error.message.includes('region'));

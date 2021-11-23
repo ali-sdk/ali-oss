@@ -1,12 +1,12 @@
 
 const OSS = require('../..');
-const Cluster = require('../..').ClusterClient;
+const cluster = require('../..').ClusterClient;
 const config = require('../config').oss;
 const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
 
-describe('test/Cluster.test.js', () => {
+describe('test/cluster.test.js', () => {
   const { prefix } = utils;
   afterEach(mm.restore);
 
@@ -36,7 +36,7 @@ describe('test/Cluster.test.js', () => {
         }
       ]
     };
-    this.store = new Cluster(options);
+    this.store = cluster(options);
     this.store.on('error', (err) => {
       if (err.name === 'MockError' || err.name === 'CheckAvailableError') {
         return;
@@ -55,8 +55,7 @@ describe('test/Cluster.test.js', () => {
   describe('init', () => {
     it('require options.cluster to be an array', () => {
       (function () {
-        // eslint-disable-next-line no-new
-        new Cluster({});
+        cluster({});
       }).should.throw('require options.cluster to be an array');
     });
 
