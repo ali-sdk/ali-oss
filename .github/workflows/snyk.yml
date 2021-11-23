@@ -1,0 +1,20 @@
+name: SNYK_SCAN
+on: 
+  push: 
+    branches: [ 7.x ]
+  workflow_run:
+    workflows: ["Receive PR"]
+    types:
+      - completed
+
+jobs:
+  security:
+    environment: ali_oss_AK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - run: npm install
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_KEY }}

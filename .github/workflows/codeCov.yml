@@ -1,0 +1,33 @@
+name: CodeCov
+
+on:
+  push:
+    branches: [ 7.x ]
+  workflow_run:
+    workflows: ['TEST']
+    types:
+      - completed
+
+jobs:
+  CodeCov:
+    environment: ali_oss_AK
+    runs-on: ubuntu-latest
+    env:
+      ONCI: true
+      ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
+      ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
+      ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}
+      ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
+      ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
+      ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
+      ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
+      ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: test and report upload
+        run: |
+          npm install
+          npm run tsc
+          npx nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js
+          npx codecov -t ${{secrets.CODECOV_KEY}}
+          node test/node/cleanAllBucket.js

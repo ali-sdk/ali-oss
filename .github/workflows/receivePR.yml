@@ -1,0 +1,15 @@
+name: Receive PR
+
+# read-only repo token
+# no access to secrets
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:        
+
+      - name: Recevie PR 
+        run: echo "🤖 Revice PR !"
