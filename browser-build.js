@@ -27,7 +27,7 @@ function build(options, callback) {
     })
     fs.writeFileSync(location, content);
   }
-  
+
   writeVersion(path.resolve(__dirname, './lib/browser/version.js'), pkg.version)
   writeVersion(path.resolve(__dirname, './src/browser/version.ts'), pkg.version)
   var browserify = require('browserify');
@@ -78,16 +78,19 @@ function build(options, callback) {
       if (options.minify) {
         var uglify = require('uglify-js');
         var minified = uglify.minify(code, {
-          fromString: true,
           output: {
             'ascii_only': true
           }
         });
+        if (minified.error) {
+          console.error(minified.error);
+          process.exit(1);
+        }
         code = minified.code;
       }
       code = license + code;
       callback(null, code);
-  });
+    });
 }
 
 // run if we called this tool directly

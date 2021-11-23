@@ -35,7 +35,7 @@ describe('test/retry.test.js', () => {
     autoRestoreWhenRETRY_LIMIE = true;
     mm.error(store.urllib, 'request', {
       status: -1, // timeout
-      headers: {},
+      headers: {}
     });
   });
   afterEach(() => {
@@ -82,5 +82,4 @@ describe('test/retry.test.js', () => {
       assert.strictEqual(e.status, -1);
     }
   });
-
 });

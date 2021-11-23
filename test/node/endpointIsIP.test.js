@@ -1,7 +1,7 @@
 const dns = require('dns');
 const assert = require('assert');
 const utils = require('./utils');
-const OSS = require('../../lib/node/');
+const OSS = require('../..');
 const config = require('../config').oss;
 
 async function getIP(hostname) {
