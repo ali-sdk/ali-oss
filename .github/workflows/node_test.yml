@@ -36,6 +36,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: 7.x
     - name: browser build and test
       run: |
         curl cip.cc
@@ -67,6 +69,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: 7.x
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
@@ -100,6 +104,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: 7.x
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
@@ -132,6 +138,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: 7.x
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
@@ -162,6 +170,8 @@ jobs:
         node-version: [14.x]
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: 7.x
     - name: clean all bucket
       uses: actions/setup-node@v2
       with:
