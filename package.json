@@ -2,14 +2,14 @@
   "name": "ali-oss",
   "version": "6.17.0",
   "description": "aliyun oss(object storage service) node client",
-  "main": "lib/client.js",
+  "main": "./lib/client.js",
   "files": [
     "lib",
     "shims",
     "dist"
   ],
   "browser": {
-    "lib/client.js": "./dist/aliyun-oss-sdk.js",
+    "./lib/client.js": "./dist/aliyun-oss-sdk.js",
     "mime": "mime/lite",
     "urllib": "./shims/xhr.js",
     "utility": "./shims/utility.js",
