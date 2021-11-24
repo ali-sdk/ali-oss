@@ -1,7 +1,7 @@
 name: SNYK_SCAN
 on: 
   push: 
-    branches: [ master ]
+    branches: [ develop ]
   workflow_run:
     workflows: ["Receive PR"]
     types:
@@ -12,7 +12,9 @@ jobs:
     environment: ali_oss_AK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
       - run: npm install
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
