@@ -2,9 +2,10 @@ name: CodeCov
 
 on:
   push:
-    branches: [master]
+    branches: [ develop ]
   workflow_run:
-    workflows: ['Receive PR']
+
+    workflows: ['TEST']
     types:
       - completed
 
@@ -28,5 +29,6 @@ jobs:
         run: |
           npm install
           npm run tsc
-          npx nyc --reporter=lcov node_modules/.bin/_mocha -t 60000 -r should test/node/*.test.js test/node/**/*.test.js
+          npx nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js
           npx codecov -t ${{secrets.CODECOV_KEY}}
+          node test/node/cleanAllBucket.js
