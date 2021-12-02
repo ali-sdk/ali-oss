@@ -58,6 +58,17 @@ describe('browser', () => {
     await cleanBucket(store);
   });
 
+  describe('stsTokenFreshTime', () => {
+    it('init stsTokenFreshTime', () => {
+      const store = oss(ossConfig);
+      const now = new Date();
+      if (!store.stsTokenFreshTime) {
+        throw new Error('not init stsTokenFreshTime');
+      }
+      assert(true, +now <= +store.stsTokenFreshTime);
+    });
+  });
+
   describe('endpoint', () => {
     it('should init with region', () => {
       console.log('xxx');
@@ -775,10 +786,10 @@ describe('browser', () => {
       const newName = 'newName';
       const url = store.signatureUrl(newName, {
         method: 'PUT',
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       });
       const headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       };
       const res = await oss.urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
