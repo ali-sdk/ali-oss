@@ -9,7 +9,9 @@ const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
 const oss = require('../..');
+const sts = require('../..').STS;
 const config = require('../config').oss;
+const stsConfig = require('../config').sts;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
@@ -1045,6 +1047,48 @@ describe('test/object.test.js', () => {
         }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+    });
+
+    it.only('should signature use setSTSToken', async () => {
+      const stsClient = sts(stsConfig);
+      const policy = {
+        Statement: [
+          {
+            Action: ['oss:*'],
+            Effect: 'Allow',
+            Resource: ['acs:oss:*:*:*']
+          }
+        ],
+        Version: '1'
+      };
+      const response = await stsClient.assumeRole(stsConfig.roleArn, policy);
+
+      const tempStore = oss({
+        bucket: stsConfig.bucket,
+        accessKeyId: response.credentials.AccessKeyId,
+        accessKeySecret: response.credentials.AccessKeySecret,
+        stsToken: response.credentials.SecurityToken,
+        refreshSTSToken: async () => {
+          const r = await stsClient.assumeRole(stsConfig.roleArn, policy);
+          return {
+            accessKeyId: r.credentials.AccessKeyId,
+            accessKeySecret: r.credentials.AccessKeySecret,
+            stsToken: r.credentials.SecurityToken
+          };
+        },
+        refreshSTSTokenInterval: 2000
+      });
+      const content = 'setSTSToken test';
+      await tempStore.put(name, Buffer.from(content));
+      const beforeUrl = await tempStore.signatureUrl(name);
+      const urlRes = await urllib.request(beforeUrl);
+      assert.equal(urlRes.data.toString(), content);
+      const beforeTime = tempStore.stsTokenFreshTime;
+      await utils.sleep(ms(5000));
+      const afterUrl = await tempStore.signatureUrl(name);
+      const afeterRes = await urllib.request(afterUrl);
+      assert.equal(afeterRes.data.toString(), content);
+      assert.notEqual(beforeTime, tempStore.stsTokenFreshTime);
     });
 
     it('should signature url get object ok', async () => {
