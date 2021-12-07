@@ -1049,7 +1049,7 @@ describe('test/object.test.js', () => {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
     });
 
-    it.only('should signature use setSTSToken', async () => {
+    it('should signature use setSTSToken', async () => {
       const stsClient = sts(stsConfig);
       const policy = {
         Statement: [
