@@ -6,7 +6,6 @@ const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
-const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
 const oss = require('../..');
 const sts = require('../..').STS;
@@ -1067,6 +1066,7 @@ describe('test/object.test.js', () => {
         bucket: stsConfig.bucket,
         accessKeyId: response.credentials.AccessKeyId,
         accessKeySecret: response.credentials.AccessKeySecret,
+        region: config.region,
         stsToken: response.credentials.SecurityToken,
         refreshSTSToken: async () => {
           const r = await stsClient.assumeRole(stsConfig.roleArn, policy);
