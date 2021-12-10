@@ -40,6 +40,7 @@ export async function listBuckets(
         name: item.Name,
         region: item.Location,
         creationDate: item.CreationDate,
+        storageClass: item.StorageClass,
         StorageClass: item.StorageClass,
         tag: formatTag(item),
       }));

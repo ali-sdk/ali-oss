@@ -62,7 +62,7 @@ All operation use es7 async/await to implement. All api is async function.
 - [Node Usage](#node-usage)
 - [Browser Usage](#browser-usage)
 - [Data Regions](#data-regions)
-- [Create Account](#create-acount)
+- [Create Account](#create-account)
 - [Create A Bucket Instance](#create-a-bucket-instance)
   - [oss(options)](#ossoptions)
 - [Bucket Operations](#bucket-operations)
@@ -100,9 +100,9 @@ All operation use es7 async/await to implement. All api is async function.
     - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
     - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
   - BucketEncryption
-    - [.putBucketEncryption(name[, options])](#putbucketencryptionbucketname-options)
-    - [.getBucketEncryption(name)](#getbucketencryptionbucketname-options)
-    - [.deleteBucketEncryption(name)](#deletebucketencryptionbucketname-options)
+    - [.putBucketEncryption(name[, rules])](#putbucketencryptionname-rules)
+    - [.getBucketEncryption(name)](#getbucketencryptionname)
+    - [.deleteBucketEncryption(name)](#deletebucketencryptionname)
   - tagging
     - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
     - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
@@ -155,7 +155,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
   - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-  - [.listParts(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
+  - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
   - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
@@ -429,6 +429,7 @@ Success will return buckets list on `buckets` properties.
     - name {String} bucket name
     - region {String} bucket store data region, e.g.: `oss-cn-hangzhou-a`
     - creationDate {String} bucket create GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+    - storageClass {String} e.g.: `Standard`, `IA`, `Archive`
 - owner {Object} object owner, including `id` and `displayName`
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
