@@ -377,6 +377,35 @@ const store = new OSS({
   endpoint: 'your custome domain',
 });
 ```
+4. use STS and refreshSTSToken
+```js
+const OSS = require('ali-oss');
+const store = new OSS({
+  accessKeyId: 'your STS key',
+  accessKeySecret: 'your STS secret',
+  stsToken: 'your STS token',
+  refreshSTSToken: async () => {
+    return {
+      accessKeyId: 'your refreshed STS key',
+      accessKeySecret: 'your refreshed STS secret',
+      stsToken: 'your refreshed STS stoken'
+    }
+  }
+});
+```
+
+5. retry request with stream
+```js
+for (let i = 0; i <= store.options.retryMax; i++) {
+  try {
+    const result = await store.putStream("<example-object>", fs.createReadStream("<example-path>"));
+    console.log(result);
+    break; // break if success
+  } catch (e) {
+    console.log(e);
+  }
+}
+```
 
 ## Bucket Operations
 

@@ -731,7 +731,7 @@ describe('browser', () => {
 
     it('should set custom Content-MD5 and ignore case', async () => {
       const name = `${prefix}put/test-md5`;
-      const content = Array(1024 * 1024 * 10)
+      const content = Array(1024 * 1024 * 2)
         .fill(1)
         .join('');
       const body = new Blob([content], { type: 'text/plain' });
@@ -905,7 +905,7 @@ describe('browser', () => {
       assert.equal(typeof result.data.etag, 'string');
       assert.equal(typeof result.data.lastModified, 'string');
       let info = await store.head(originname);
-      assert(!info.res.headers['cache-control']);
+      assert(!info.res.headers['cache-control'] || info.res.headers['cache-control'] === 'no-cache');
 
       // add Cache-Control header to a exists object
       result = await store.copy(originname, originname, {

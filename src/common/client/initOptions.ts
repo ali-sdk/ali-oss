@@ -45,6 +45,13 @@ export function initOptions(options) {
   if (!options || !options.accessKeyId || !options.accessKeySecret) {
     throw new Error('require accessKeyId, accessKeySecret');
   }
+
+  if (options.stsToken && !options.refreshSTSToken) {
+    console.warn(
+      "It's recommended to set `refreshSTSToken` to refresh stsToken、accessKeyId、accessKeySecret automatically when sts info expires"
+    );
+  }
+
   if (options.bucket) {
     checkBucketName(options.bucket);
   }
