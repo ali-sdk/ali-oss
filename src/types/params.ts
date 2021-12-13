@@ -216,6 +216,9 @@ export interface AppendObjectOptions extends RequestOptions {
 
 export interface MultiVersionCommonOptions extends RequestOptions {
   versionId?: string;
+  type?: string;
+  Days?: number;
+  JobParameters?: string;
 }
 
 export type DeleteMultiNameObj = { key: string; versionId?: string };
