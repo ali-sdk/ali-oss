@@ -291,7 +291,7 @@ And see the build artifacts under `dist/`.
 
 ## Data Regions
 
-[OSS current data regions](https://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html).
+[OSS current data regions](https://help.aliyun.com/document_detail/31837.html).
 
 region | country | city | endpoint | internal endpoint
 ---  | ---     | ---  | --- | ---
@@ -324,7 +324,7 @@ options:
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
-- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be 
+[refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be
   less than sts info expire interval, default is 300000ms(5min)
   when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
@@ -2523,7 +2523,7 @@ parameters:
     - [content-type] {String} set the response content type
     - [content-disposition] {String} set the response content disposition
     - [cache-control] {String} set the response cache control
-    - See more: https://help.aliyun.com/document_detail/oss/api-reference/object/GetObject.html
+    - See more: <https://help.aliyun.com/document_detail/31980.html>
   - [callback] {Object} set the callback for the operation
     - url {String} set the url for callback
     - [host] {String} set the host for callback
@@ -4425,5 +4425,5 @@ SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expi
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
 [browser-sample]: https://github.com/rockuw/oss-in-browser
-[oss-multipart]: https://help.aliyun.com/document_detail/oss/api-reference/multipart-upload/InitiateMultipartUpload.html
+[oss-multipart]: https://help.aliyun.com/document_detail/31992.html
 [disabled-browser-headers]: https://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
