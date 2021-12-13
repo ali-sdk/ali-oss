@@ -26,6 +26,7 @@ export async function putStream(this: any, name: string, stream: any, options: P
   const params = this._objectRequestParams(method, name, options);
   encodeCallback(params, options);
   params.mime = options.mime;
+  params.disabledMD5 = options.disabledMD5;
 
   if (stream.pipe) {
     params.stream = stream;

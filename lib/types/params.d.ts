@@ -20,6 +20,7 @@ export interface RequestOptions {
     headers?: object;
     subres?: Subres;
     ctx?: string;
+    disabledMD5?: boolean;
 }
 interface UserMeta {
     [propsName: string]: string;
@@ -62,6 +63,7 @@ export interface PutObjectOptions extends RequestOptions {
     callback?: ObjectCallback;
     contentLength?: number;
     method?: string;
+    disabledMD5?: boolean;
 }
 export interface PutBucketOptions extends RequestOptions {
     storageClass?: StorageType;

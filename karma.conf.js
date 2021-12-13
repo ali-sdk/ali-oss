@@ -10,8 +10,7 @@ module.exports = function(config) {
             require('karma-safari-launcher')
         ],
         frameworks: ['mocha', 'browserify'],
-        //browsers: isCiEnv ? ['ChromeHeadless'] : ['Chrome', 'Safari', 'Firefox'],
-        browsers: ['ChromeHeadless'],
+        browsers: isCiEnv ? ['ChromeHeadless'] : ['Chrome', 'Safari', 'Firefox'],
         files: [
             'test/browser/build/aliyun-oss-sdk.min.js',
             'test/browser/build/tests.js'

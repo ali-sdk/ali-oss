@@ -69,7 +69,7 @@ export function _createRequest(this: any, params) {
   }
 
   if (params.content) {
-    if (!headers['Content-MD5']) {
+    if (!params.disabledMD5) {
       headers['Content-MD5'] = crypto
         .createHash('md5')
         .update(Buffer.from(params.content, 'utf8'))
