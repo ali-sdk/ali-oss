@@ -825,6 +825,23 @@ describe('browser', () => {
       assert.equal(info.status, 200);
     });
 
+    it('should put object with json data', async () => {
+      const putString = {
+        test: '1'
+      };
+      const url = store.signatureUrl(name, {
+        method: 'PUT',
+        'Content-Type': 'application/json; charset=UTF-8',
+      });
+      const headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+      };
+      const res = await OSS.urllib.request(url, { method: 'PUT', data: putString, headers });
+      assert.equal(res.status, 200);
+      const headRes = await store.head(name);
+      assert.equal(headRes.status, 200);
+    });
+
     it('should copy object with non-english name', async () => {
       const sourceName = `${prefix}ali-sdk/oss/copy-meta_测试.js`;
       let result = await store.put(sourceName, Buffer.from('abc'), {
