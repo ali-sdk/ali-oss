@@ -2,6 +2,7 @@ import _debug from 'debug';
 import { parseXML } from '../utils/parseXML';
 import { retry } from '../utils/retry';
 import { setSTSToken } from '../utils/setSTSToken';
+import { isFunction } from '../utils/isFunction';
 
 const debug = _debug('ali-oss');
 
@@ -25,6 +26,9 @@ const debug = _debug('ali-oss');
  */
 
 export async function _request(this: any, params) {
+  if (this.options.stsToken && isFunction(this.options.refreshSTSToken)) {
+    await setSTSToken.call(this);
+  }
   const reqParams = this._createRequest(params);
   const isNode = this._getUserAgent().includes('nodejs');
 
