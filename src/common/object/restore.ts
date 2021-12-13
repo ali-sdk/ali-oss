@@ -13,6 +13,8 @@ export async function restore(
   name: string,
   options: MultiVersionCommonOptions
 ) {
+  options = options || {};
+
   if (!options.type) {
     options.type = 'Archive';
   }
