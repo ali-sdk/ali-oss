@@ -136,7 +136,12 @@ export async function resumeMultipart(
     }
   } else {
     // upload in parallel
-    const jobErr = await _parallel.call(this, todo, parallel, uploadPartJob);
+    const jobErr = await _parallel.call(this, todo, parallel,
+      value => new Promise((resolve, reject) => {
+        uploadPartJob(value).then(() => {
+          resolve();
+        }).catch(reject);
+      }));
 
     if (this.isCancel()) {
       uploadPartJob = null;

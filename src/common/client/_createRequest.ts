@@ -16,7 +16,7 @@ const _debug = debug('ali-oss');
 interface Headers {
   [propName: string]: any
   'x-oss-date': string,
-  'x-oss-user-agent': string,
+  'x-oss-user-agent'?: string,
 }
 
 interface ReqParams {
@@ -38,9 +38,12 @@ export function _createRequest(this: any, params) {
     date = +new Date() + this.options.amendTimeSkewed;
   }
   const headers: Headers = {
-    'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
-    'x-oss-user-agent': this.userAgent
+    'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\'')
   };
+
+  if (typeof window !== 'undefined') {
+    headers['x-oss-user-agent'] = this.userAgent;
+  }
 
   if (this.userAgent.includes('nodejs')) {
     headers['User-Agent'] = this.userAgent;
@@ -69,7 +72,7 @@ export function _createRequest(this: any, params) {
   }
 
   if (params.content) {
-    if (!headers['Content-MD5']) {
+    if (!params.disabledMD5) {
       headers['Content-MD5'] = crypto
         .createHash('md5')
         .update(Buffer.from(params.content, 'utf8'))

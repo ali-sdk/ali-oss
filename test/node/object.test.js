@@ -2212,6 +2212,7 @@ describe('test/object.test.js', () => {
         await store.restore(name);
         throw new Error('should not run this');
       } catch (err) {
+        console.log(err);
         assert.equal(err.name, 'OperationNotSupportedError');
       }
     });

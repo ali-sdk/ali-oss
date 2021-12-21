@@ -45,6 +45,13 @@ export function initOptions(options) {
   if (!options || !options.accessKeyId || !options.accessKeySecret) {
     throw new Error('require accessKeyId, accessKeySecret');
   }
+
+  if (options.stsToken && !options.refreshSTSToken && !options.refreshSTSTokenInterval) {
+    console.warn(
+      "It's recommended to set 'refreshSTSToken' and 'refreshSTSTokenInterval' to refresh stsToken、accessKeyId、accessKeySecret automatically when sts info expires"
+    );
+  }
+
   if (options.bucket) {
     checkBucketName(options.bucket);
   }
@@ -62,6 +69,7 @@ export function initOptions(options) {
       useFetch: false,
       headerEncoding: 'utf-8',
       amendTimeSkewed: 0, // record the time difference between client and server
+      refreshSTSTokenInterval: 60000 * 5,
       refreshSTSToken: null, // auto set sts config
       enableProxy: false,
       proxy: null,

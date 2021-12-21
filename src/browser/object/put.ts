@@ -29,6 +29,7 @@ import { PutObjectOptions } from '../../types/params';
  */
 
 export async function put(this: any, name: string, file: any, options: PutObjectOptions = {}) {
+  options.disabledMD5 = options.disabledMD5 === undefined ? true : !!options.disabledMD5;
   let content;
   name = objectName(name);
   if (isBuffer(file)) {

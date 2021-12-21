@@ -100,7 +100,7 @@ async function checkExport(filePath, filename) {
       }
       res(true);
     });
-  });
+  }).catch(e=>console.log('error:=======',error))
 }
 
 handleESExport();

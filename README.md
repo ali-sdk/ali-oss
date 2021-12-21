@@ -62,7 +62,7 @@ All operation use es7 async/await to implement. All api is async function.
 - [Node Usage](#node-usage)
 - [Browser Usage](#browser-usage)
 - [Data Regions](#data-regions)
-- [Create Account](#create-acount)
+- [Create Account](#create-account)
 - [Create A Bucket Instance](#create-a-bucket-instance)
   - [oss(options)](#ossoptions)
 - [Bucket Operations](#bucket-operations)
@@ -100,9 +100,9 @@ All operation use es7 async/await to implement. All api is async function.
     - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
     - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
   - BucketEncryption
-    - [.putBucketEncryption(name[, options])](#putbucketencryptionbucketname-options)
-    - [.getBucketEncryption(name)](#getbucketencryptionbucketname-options)
-    - [.deleteBucketEncryption(name)](#deletebucketencryptionbucketname-options)
+    - [.putBucketEncryption(name[, rules])](#putbucketencryptionname-rules)
+    - [.getBucketEncryption(name)](#getbucketencryptionname)
+    - [.deleteBucketEncryption(name)](#deletebucketencryptionname)
   - tagging
     - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
     - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
@@ -155,7 +155,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
   - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-  - [.listParts(name, uploadId[, query, options])](#listparts-name-uploadid-query-options)
+  - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
   - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
@@ -291,7 +291,7 @@ And see the build artifacts under `dist/`.
 
 ## Data Regions
 
-[OSS current data regions](https://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html).
+[OSS current data regions](https://help.aliyun.com/document_detail/31837.html).
 
 region | country | city | endpoint | internal endpoint
 ---  | ---     | ---  | --- | ---
@@ -324,6 +324,9 @@ options:
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
+[refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be
+  less than sts info expire interval, default is 300000ms(5min)
+  when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`. Set as extranet domain name, intranet domain name, accelerated domain name, etc. according to different needs. please see [endpoints](https://www.alibabacloud.com/help/doc-detail/31837.htm)
@@ -340,7 +343,7 @@ options:
 `fetch` mode ,else `XMLHttpRequest`
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
-- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.
+- [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 
 example:
 
@@ -377,6 +380,37 @@ const store = new OSS({
   endpoint: 'your custome domain',
 });
 ```
+4. use STS and refreshSTSToken
+```js
+const OSS = require('ali-oss');
+const store = new OSS({
+  accessKeyId: 'your STS key',
+  accessKeySecret: 'your STS secret',
+  stsToken: 'your STS token',
+  refreshSTSToken: async () => {
+    const info = await fetch('you sts server');
+    return {
+      accessKeyId: info.accessKeyId,
+      accessKeySecret: info.accessKeySecret,
+      stsToken: info.stsToken
+    }
+  },
+  refreshSTSTokenInterval: 300000
+});
+```
+
+5. retry request with stream
+```js
+for (let i = 0; i <= store.options.retryMax; i++) {
+  try {
+    const result = await store.putStream("<example-object>", fs.createReadStream("<example-path>"));
+    console.log(result);
+    break; // break if success
+  } catch (e) {
+    console.log(e);
+  }
+}
+```
 
 ## Bucket Operations
 
@@ -400,6 +434,7 @@ Success will return buckets list on `buckets` properties.
     - name {String} bucket name
     - region {String} bucket store data region, e.g.: `oss-cn-hangzhou-a`
     - creationDate {String} bucket create GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+    - storageClass {String} e.g.: `Standard`, `IA`, `Archive`
 - owner {Object} object owner, including `id` and `displayName`
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
@@ -1577,6 +1612,7 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
+  - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
 
 Success will return the object information.
 
@@ -2487,7 +2523,7 @@ parameters:
     - [content-type] {String} set the response content type
     - [content-disposition] {String} set the response content disposition
     - [cache-control] {String} set the response cache control
-    - See more: https://help.aliyun.com/document_detail/oss/api-reference/object/GetObject.html
+    - See more: <https://help.aliyun.com/document_detail/31980.html>
   - [callback] {Object} set the callback for the operation
     - url {String} set the url for callback
     - [host] {String} set the host for callback
@@ -2633,6 +2669,7 @@ parameters:
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [versionId] {String} the version id of history object 
+  - [type] {String} the default type is Archive
 
 Success will return:
 
@@ -2644,10 +2681,24 @@ Success will return:
 
 example:
 
-- Restore an object
+- Restore an object with Archive type
 
 ```js
 const result = await store.restore('ossdemo.txt');
+console.log(result.status);
+```
+- Restore an object with ColdArchive type
+
+```js
+const result = await store.restore('ossdemo.txt',{type:'ColdArchive'});
+console.log(result.status);
+```
+
+
+- Days for unfreezing Specifies the days for unfreezing
+
+```js
+const result = await store.restore('ossdemo.txt',{type:'ColdArchive',Days:2});
 console.log(result.status);
 ```
 
@@ -3028,6 +3079,7 @@ parameters:
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
+  - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
 
 Success will return:
 
@@ -4388,5 +4440,5 @@ SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expi
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
 [browser-sample]: https://github.com/rockuw/oss-in-browser
-[oss-multipart]: https://help.aliyun.com/document_detail/oss/api-reference/multipart-upload/InitiateMultipartUpload.html
+[oss-multipart]: https://help.aliyun.com/document_detail/31992.html
 [disabled-browser-headers]: https://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method

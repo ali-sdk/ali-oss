@@ -189,20 +189,12 @@ describe('test/sts.test.js', () => {
           const { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
           return credentials;
         };
-        // 模拟sts过期错误
-        const errData = {
-          Test: {
-            Code: 'InvalidAccessKeyId'
-          }
-        };
-        mm.error(store.urllib, 'request', {
-          status: 403,
-          headers: {},
-          data: obj2xml(errData)
-        });
-        const res = await store.listBuckets();
-        assert.strictEqual(res.res.status, 200);
-        assert(res.buckets && Array.isArray(res.buckets));
+        const ak = store.options.accessKeyId;
+        await store.listBuckets();
+        assert.strictEqual(ak, store.options.accessKeyId);
+        await utils.sleep(2000);
+        await store.listBuckets();
+        assert.notStrictEqual(ak, store.options.accessKeyId);
       } catch (error) {
         assert(false, error);
       }

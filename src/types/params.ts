@@ -14,6 +14,7 @@ export type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'HEAD';
 
 export interface Subres {
   [propsName: string]: string | undefined;
+
   versionId?: string;
 }
 
@@ -31,6 +32,7 @@ export interface RequestOptions {
   headers?: object;
   subres?: Subres;
   ctx?: string;
+  disabledMD5?: boolean;
 }
 
 interface UserMeta {
@@ -79,6 +81,7 @@ export interface PutObjectOptions extends RequestOptions {
   callback?: ObjectCallback;
   contentLength?: number;
   method?: string; // append object need
+  disabledMD5?: boolean;
 }
 
 export interface PutBucketOptions extends RequestOptions {
@@ -213,6 +216,9 @@ export interface AppendObjectOptions extends RequestOptions {
 
 export interface MultiVersionCommonOptions extends RequestOptions {
   versionId?: string;
+  type?: string;
+  Days?: number;
+  JobParameters?: string;
 }
 
 export type DeleteMultiNameObj = { key: string; versionId?: string };

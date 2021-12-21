@@ -221,6 +221,7 @@ describe('test/multiversion.test.js', () => {
     it('should copy latest object with versionId `null` when the bucket is suspended', async () => {
       const target = `${name.replace('file.js', 'file-target-suspended.js')}`;
       const suspendedRes = await store.putBucketVersioning(bucket, suspended);
+      await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(suspendedRes.res.status, 200);
       try {
         const result = await store.copy(target, name, {
@@ -334,9 +335,9 @@ describe('test/multiversion.test.js', () => {
     it('should restore', async () => {
       const head = await store.head(name);
       assert.strictEqual(head.res.headers['x-oss-storage-class'], 'Archive');
-      // 删除版本使成为历史版本
-      await store.delete(name);
       try {
+        // 删除版本使成为历史版本
+        await store.delete(name);
         const result = await store.restore(name, {
           versionId
         });
