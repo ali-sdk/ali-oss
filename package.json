@@ -123,6 +123,7 @@
     "address": "^1.0.0",
     "agentkeepalive": "^3.4.1",
     "bowser": "^1.6.0",
+    "co": "^4.6.0",
     "co-defer": "^1.0.0",
     "copy-to": "^2.0.1",
     "dateformat": "^2.0.0",
