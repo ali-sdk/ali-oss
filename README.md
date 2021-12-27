@@ -32,7 +32,7 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 
 ### Browser
 
-- IE >= 10 & Edge
+- IE >= 11 & Edge
 - Major versions of Chrome/Firefox/Safari
 - Major versions of Android/iOS/WP
 
