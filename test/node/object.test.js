@@ -1080,12 +1080,12 @@ describe('test/object.test.js', () => {
       });
       const content = 'setSTSToken test';
       await tempStore.put(name, Buffer.from(content));
-      const beforeUrl = await tempStore.signatureUrl(name);
+      const beforeUrl = tempStore.signatureUrl(name);
       const urlRes = await urllib.request(beforeUrl);
       assert.equal(urlRes.data.toString(), content);
       const beforeTime = tempStore.stsTokenFreshTime;
       await utils.sleep(ms(5000));
-      const afterUrl = await tempStore.signatureUrl(name);
+      const afterUrl = tempStore.signatureUrl(name);
       const afeterRes = await urllib.request(afterUrl);
       assert.equal(afeterRes.data.toString(), content);
       assert.notEqual(beforeTime, tempStore.stsTokenFreshTime);
@@ -1094,7 +1094,7 @@ describe('test/object.test.js', () => {
     it('should signature url get object ok', async () => {
       try {
         const result = await store.get(name);
-        const url = await store.signatureUrl(name);
+        const url = store.signatureUrl(name);
         const urlRes = await urllib.request(url);
         assert.equal(urlRes.data.toString(), result.content.toString());
       } catch (error) {
@@ -1102,13 +1102,13 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should signature url with response limitation', async () => {
+    it('should signature url with response limitation', () => {
       try {
         const response = {
           'content-type': 'xml',
           'content-language': 'zh-cn'
         };
-        const url = await store.signatureUrl(name, { response });
+        const url = store.signatureUrl(name, { response });
         assert(url.indexOf('response-content-type=xml') !== -1);
         assert(url.indexOf('response-content-language=zh-cn') !== -1);
       } catch (error) {
@@ -1134,7 +1134,7 @@ describe('test/object.test.js', () => {
           mime: 'image/png'
         });
 
-        const signUrl = await store.signatureUrl(imageName, options);
+        const signUrl = store.signatureUrl(imageName, options);
         const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
         assert.equal(signUrl.match(processedKeyword), processedKeyword);
         const urlRes = await urllib.request(signUrl);
@@ -1153,7 +1153,7 @@ describe('test/object.test.js', () => {
           mime: 'image/png'
         });
 
-        const signUrl = await store.signatureUrl(imageName, { expires: 3600, process: 'image/resize,w_200' });
+        const signUrl = store.signatureUrl(imageName, { expires: 3600, process: 'image/resize,w_200' });
         const processedKeyword = 'x-oss-process=image%2Fresize%2Cw_200';
         assert.equal(signUrl.match(processedKeyword), processedKeyword);
         const urlRes = await urllib.request(signUrl);
@@ -1167,7 +1167,7 @@ describe('test/object.test.js', () => {
       try {
         const putString = 'Hello World';
         const contentMd5 = crypto.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
-        const url = await store.signatureUrl(name, {
+        const url = store.signatureUrl(name, {
           method: 'PUT',
           'Content-Type': 'text/plain; charset=UTF-8',
           'Content-Md5': contentMd5
@@ -1212,7 +1212,7 @@ describe('test/object.test.js', () => {
     it('should signature url get need escape object ok', async () => {
       try {
         const result = await store.get(needEscapeName);
-        const url = await store.signatureUrl(needEscapeName);
+        const url = store.signatureUrl(needEscapeName);
         const urlRes = await urllib.request(url);
         assert.equal(urlRes.data.toString(), result.content.toString());
       } catch (error) {
@@ -1227,7 +1227,12 @@ describe('test/object.test.js', () => {
       conf.cname = true;
       const tempStore = oss(conf);
 
-      const url = await tempStore.signatureUrl(name);
+      const url = await tempStore.
+      
+      
+      
+      
+      nn(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
@@ -1241,7 +1246,7 @@ describe('test/object.test.js', () => {
       fs.writeFileSync(file_1mb, Buffer.alloc(1 * 1024 * 1024).fill('a\n'));
 
       try {
-        url = await store.signatureUrl(limit_name, {
+        url = store.signatureUrl(limit_name, {
           trafficLimit: 8 * 1024 * 100 * 4,
           method: 'PUT'
         });
@@ -1257,7 +1262,7 @@ describe('test/object.test.js', () => {
       }
 
       try {
-        url = await store.signatureUrl(name, {
+        url = store.signatureUrl(name, {
           trafficLimit: 8 * 1024 * 100 * 4
         });
         result = await store.urllib.request(url, {
