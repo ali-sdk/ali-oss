@@ -52,7 +52,7 @@ function build(options, callback) {
         ],
       ],
       "plugins": ["@babel/plugin-transform-runtime", "@babel/plugin-transform-regenerator"],
-      "only": ['lib/*', 'shims/*', 'shims/crypto/*'],
+      "only": ['lib/*', 'shims/*', 'shims/crypto/*','node_modules/mime/*','node_modules/mime-db/*','node_modules/mimic-fn/*','node_modules/mime-types/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {
