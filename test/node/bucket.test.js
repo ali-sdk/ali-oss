@@ -1472,14 +1472,14 @@ describe('test/bucket.test.js', () => {
         const result = await store.getBucketInfo(bucket);
         assert.equal(result.res.status, 200);
       });
-      it.only('no equivalent bucket ,status code should be 404', async () => {
+      it('no equivalent bucket ,status code should be 404', async () => {
         try {
           await store.getBucketInfo('adasdasdxcvmxvnxvmdfsdfsdf');
         } catch (err) {
           assert.equal(err.status, 404);
         }
       });
-      it.only('bucket name already exists,status code should be 409', async () => {
+      it('bucket name already exists,status code should be 409', async () => {
         try {
           await store.putBucket(bucket);
         } catch (err) {
