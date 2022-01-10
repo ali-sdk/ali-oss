@@ -6,7 +6,7 @@ const utils = require('./utils');
 const oss = require('../..');
 const config = require('../config').oss;
 const ms = require('humanize-ms');
-const { metaSyncTime } = require('../config');
+const { metaSyncTime, timeout } = require('../config');
 
 // only run on travis ci
 
@@ -27,10 +27,12 @@ describe('test/bucket.test.js', () => {
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = defaultRegion;
 
-    const result = await store.putBucket(bucket, { timeout: process.env.ONCI ? 60000 : 10000 });
+    const result = await store.putBucket(bucket, { timeout });
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
+
+  // github CI will remove buckets
   after(async () => {
     await utils.cleanBucket(store, bucket);
   });
@@ -65,11 +67,11 @@ describe('test/bucket.test.js', () => {
       // just for archive bucket test
       archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
       archvieBucket = archvieBucket.substring(0, archvieBucket.length - 1);
-      await store.putBucket(archvieBucket, { StorageClass: 'Archive', timeout: 120000 });
+      await store.putBucket(archvieBucket, { StorageClass: 'Archive', timeout });
     });
 
     it('should create a new bucket', async () => {
-      const result1 = await store.putBucket(name, { timeout: 120000 });
+      const result1 = await store.putBucket(name, { timeout });
       assert.equal(result1.bucket, name);
       assert.equal(result1.res.status, 200);
     });
@@ -79,7 +81,7 @@ describe('test/bucket.test.js', () => {
       const result2 = await store.listBuckets(
         {},
         {
-          timeout: 120000
+          timeout
         }
       );
       const { buckets } = result2;
@@ -223,7 +225,7 @@ describe('test/bucket.test.js', () => {
           'max-keys': 20
         },
         {
-          timeout: 120000
+          timeout
         }
       );
 
@@ -419,12 +421,12 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketReferer(), getBucketReferer(), deleteBucketReferer()', () => {
     it('should create, get and delete the referer', async () => {
-      const putresult = await store.putBucketReferer(bucket, true, ['http://npm.taobao.org'], { timeout: 120000 });
+      const putresult = await store.putBucketReferer(bucket, true, ['http://npm.taobao.org'], { timeout });
       assert.equal(putresult.res.status, 200);
 
       // put again will be fine
       const referers = ['http://npm.taobao.org', 'https://npm.taobao.org', 'http://cnpmjs.org'];
-      const putReferer = await store.putBucketReferer(bucket, false, referers, { timeout: 120000 });
+      const putReferer = await store.putBucketReferer(bucket, false, referers, { timeout });
       assert.equal(putReferer.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
@@ -444,7 +446,7 @@ describe('test/bucket.test.js', () => {
   describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', () => {
     afterEach(async () => {
       // delete it
-      const result = await store.deleteBucketCORS(bucket, { timeout: 120000 });
+      const result = await store.deleteBucketCORS(bucket, { timeout });
       assert.equal(result.res.status, 204);
     });
 
@@ -461,7 +463,7 @@ describe('test/bucket.test.js', () => {
       const putResult = await store.putBucketCORS(bucket, rules);
       assert.equal(putResult.res.status, 200);
 
-      const getResult = await store.getBucketCORS(bucket, { timeout: 120000 });
+      const getResult = await store.getBucketCORS(bucket, { timeout });
       assert.equal(getResult.res.status, 200);
       assert.deepEqual(getResult.rules, [
         {
@@ -479,7 +481,7 @@ describe('test/bucket.test.js', () => {
         {
           allowedOrigin: '*',
           allowedMethod: 'GET',
-          timeout: 120000
+          timeout
         }
       ];
       const putCorsResult1 = await store.putBucketCORS(bucket, rules1);
@@ -487,7 +489,7 @@ describe('test/bucket.test.js', () => {
 
       await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult1 = await store.getBucketCORS(bucket, { timeout: 120000 });
+      const getCorsResult1 = await store.getBucketCORS(bucket, { timeout });
       assert.equal(getCorsResult1.res.status, 200);
       assert.deepEqual(getCorsResult1.rules, [
         {
@@ -507,7 +509,7 @@ describe('test/bucket.test.js', () => {
 
       await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult2 = await store.getBucketCORS(bucket, { timeout: 120000 });
+      const getCorsResult2 = await store.getBucketCORS(bucket, { timeout });
       assert.equal(getCorsResult2.res.status, 200);
       assert.deepEqual(getCorsResult2.rules, [
         {

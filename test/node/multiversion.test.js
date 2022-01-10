@@ -208,6 +208,7 @@ describe('test/multiversion.test.js', () => {
     it('should copy latest object with versionId `null` when the bucket is suspended', async () => {
       const target = `${name.replace('file.js', 'file-target-suspended.js')}`;
       const suspendedRes = await store.putBucketVersioning(bucket, suspended);
+      await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(suspendedRes.res.status, 200);
       try {
         const result = await store.copy(target, name, {

@@ -46,6 +46,7 @@ describe('test/rtmp.test.js', () => {
     };
   });
 
+  // github CI will remove buckets
   after(async () => {
     await utils.cleanBucket(store, bucket);
   });
