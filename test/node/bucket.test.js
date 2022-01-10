@@ -31,8 +31,6 @@ describe('test/bucket.test.js', () => {
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
-
-  // github CI will remove buckets
   after(async () => {
     await utils.cleanBucket(store, bucket);
   });
