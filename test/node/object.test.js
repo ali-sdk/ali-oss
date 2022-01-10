@@ -1227,12 +1227,7 @@ describe('test/object.test.js', () => {
       conf.cname = true;
       const tempStore = oss(conf);
 
-      const url = await tempStore.
-      
-      
-      
-      
-      nn(name);
+      const url = tempStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
