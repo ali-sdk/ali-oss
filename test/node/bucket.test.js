@@ -31,9 +31,10 @@ describe('test/bucket.test.js', () => {
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
-  after(async () => {
-    await utils.cleanBucket(store, bucket);
-  });
+  // restore object will have cache
+  // after(async () => {
+  //   await utils.cleanBucket(store, bucket);
+  // });
 
   describe('setBucket()', () => {
     it('should check bucket name', async () => {
