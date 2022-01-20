@@ -14,7 +14,7 @@ jobs:
     environment: ali_oss_AK
     runs-on: ubuntu-latest
     env:
-      ONCI: true
+      ONCI: true 
       ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
       ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
       ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}

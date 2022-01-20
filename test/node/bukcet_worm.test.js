@@ -1,8 +1,8 @@
-
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
 const config = require('../config').oss;
+const { timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix } = utils;
@@ -11,32 +11,22 @@ describe('test/bucket.test.js', () => {
   const defaultRegion = config.region;
   before(async () => {
     store = oss(config);
-
-    const bucketResult = await store.listBuckets({
-      'max-keys': 20
-    });
-
-    await Promise.all((bucketResult.buckets || [])
-      .filter(_ => _.name.startsWith('ali-oss'))
-      .map(_bucket => utils
-        .cleanBucket(
-          oss(Object.assign(config, { region: _bucket.region })),
-          _bucket.name
-        )));
-
     config.region = defaultRegion;
     store = oss(config);
-    bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `ali-oss-test-worm2-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
-    const result = await store.putBucket(bucket);
+    const result = await store.putBucket(bucket, { timeout });
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
 
-  after(async () => {
-    await utils.cleanBucket(store, bucket);
-  });
+  // github CI will remove buckets
+  // restore object will have cache
+  // after(async () => {
+  //   await utils.cleanBucket(store, bucket);
+  // });
+
   describe('worm()', () => {
     describe('initiateBucketWorm()', () => {
       it('should init bucket worm', async () => {
