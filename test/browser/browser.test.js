@@ -58,6 +58,17 @@ describe('browser', () => {
     await cleanBucket(store);
   });
 
+  describe('stsTokenFreshTime', () => {
+    it('init stsTokenFreshTime', () => {
+      const store = oss(ossConfig);
+      const now = new Date();
+      if (!store.stsTokenFreshTime) {
+        throw new Error('not init stsTokenFreshTime');
+      }
+      assert(true, +now <= +store.stsTokenFreshTime);
+    });
+  });
+
   describe('endpoint', () => {
     it('should init with region', () => {
       console.log('xxx');
@@ -775,10 +786,10 @@ describe('browser', () => {
       const newName = 'newName';
       const url = store.signatureUrl(newName, {
         method: 'PUT',
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       });
       const headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       };
       const res = await oss.urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
@@ -2322,6 +2333,45 @@ describe('browser', () => {
         type: 'ColdArchive'
       });
       assert.equal(result.res.status, 202);
+    });
+  });
+
+  describe('multipartCopy()', () => {
+    it('should copy', async () => {
+      const client = oss(ossConfig);
+      const key = 'old.txt';
+      // create a file with 10M data
+      const fileContent = Array(1024 * 1024 * 10)
+        .fill('a')
+        .join('');
+      const file = new Blob([fileContent]);
+      await client.put(key, file);
+
+
+      const copyName = 'new.txt';
+      const result = await client.multipartUploadCopy(copyName, {
+        sourceKey: key,
+        sourceBucketName: stsConfig.bucket
+      });
+
+      assert.equal(result.res.statusCode, 200);
+    });
+
+    it('should copy with multipart copy', async () => {
+      const client = oss(ossConfig);
+      const copyName = 'multipart copy';
+      const key = 'old.txt';
+      const result = await client.multipartUploadCopy(copyName, {
+        sourceKey: key,
+        sourceBucketName: stsConfig.bucket
+      }, {
+        parallel: 4,
+        partSize: 1024 * 1024,
+        progress: (p) => {
+          console.log(p);
+        }
+      });
+      assert.equal(result.res.statusCode, 200);
     });
   });
 });

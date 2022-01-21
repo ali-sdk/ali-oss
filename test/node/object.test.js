@@ -2,12 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
+const ms = require('humanize-ms');
+const { metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
-const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
 const oss = require('../..');
+const sts = require('../..').STS;
 const config = require('../config').oss;
+const stsConfig = require('../config').sts;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
@@ -47,10 +50,6 @@ describe('test/object.test.js', () => {
 
     await store.putBucket(archvieBucket, { StorageClass: 'Archive' });
     // store.useBucket(archvieBucket, bucketRegion);
-  });
-
-  after(async () => {
-    await utils.cleanAllBucket(store);
   });
 
   describe('putStream()', () => {
@@ -130,7 +129,7 @@ describe('test/object.test.js', () => {
         const nameCpy = `${prefix}ali-sdk/oss/nodejs-1024x768`;
         const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
         await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
-        const signUrl = store.signatureUrl(name, { expires: 3600 });
+        const signUrl = await store.signatureUrl(name, { expires: 3600 });
         const httpStream = request(signUrl);
         let result = await store.putStream(nameCpy, httpStream);
         assert.equal(result.res.status, 200);
@@ -1049,6 +1048,49 @@ describe('test/object.test.js', () => {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
     });
 
+    it('should signature use setSTSToken', async () => {
+      const stsClient = sts(stsConfig);
+      const policy = {
+        Statement: [
+          {
+            Action: ['oss:*'],
+            Effect: 'Allow',
+            Resource: ['acs:oss:*:*:*']
+          }
+        ],
+        Version: '1'
+      };
+      const response = await stsClient.assumeRole(stsConfig.roleArn, policy);
+
+      const tempStore = oss({
+        bucket: stsConfig.bucket,
+        accessKeyId: response.credentials.AccessKeyId,
+        accessKeySecret: response.credentials.AccessKeySecret,
+        region: config.region,
+        stsToken: response.credentials.SecurityToken,
+        refreshSTSToken: async () => {
+          const r = await stsClient.assumeRole(stsConfig.roleArn, policy);
+          return {
+            accessKeyId: r.credentials.AccessKeyId,
+            accessKeySecret: r.credentials.AccessKeySecret,
+            stsToken: r.credentials.SecurityToken
+          };
+        },
+        refreshSTSTokenInterval: 2000
+      });
+      const content = 'setSTSToken test';
+      await tempStore.put(name, Buffer.from(content));
+      const beforeUrl = tempStore.signatureUrl(name);
+      const urlRes = await urllib.request(beforeUrl);
+      assert.equal(urlRes.data.toString(), content);
+      const beforeTime = tempStore.stsTokenFreshTime;
+      await utils.sleep(ms(5000));
+      const afterUrl = tempStore.signatureUrl(name);
+      const afeterRes = await urllib.request(afterUrl);
+      assert.equal(afeterRes.data.toString(), content);
+      assert.notEqual(beforeTime, tempStore.stsTokenFreshTime);
+    });
+
     it('should signature url get object ok', async () => {
       try {
         const result = await store.get(name);
@@ -1060,7 +1102,7 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should signature url with response limitation', async () => {
+    it('should signature url with response limitation', () => {
       try {
         const response = {
           'content-type': 'xml',
@@ -1178,7 +1220,7 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should signature url with custom host ok', () => {
+    it('should signature url with custom host ok', async () => {
       const conf = {};
       copy(config).to(conf);
       conf.endpoint = 'www.aliyun.com';
@@ -1242,6 +1284,7 @@ describe('test/object.test.js', () => {
     });
 
     it('should get exists object stream', async () => {
+      await utils.sleep(ms(metaSyncTime));
       const result = await store.getStream(name);
       assert.equal(result.res.status, 200);
       assert(result.stream instanceof Readable);
@@ -1306,21 +1349,24 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should throw error and consume the response stream', async () => {
-      store.agent = new AgentKeepalive({
-        keepAlive: true
+    if (!process.env.ONCI) {
+      it('should throw error and consume the response stream', async () => {
+        store.agent = new AgentKeepalive({
+          keepAlive: true
+        });
+        store.httpsAgent = new HttpsAgentKeepalive();
+        try {
+          await store.getStream(`${name}not-exists`);
+          throw new Error('should not run this');
+        } catch (err) {
+          console.log('error is', err);
+          assert.equal(err.name, 'NoSuchKeyError');
+          assert(Object.keys(store.agent.freeSockets).length === 0);
+          await utils.sleep(ms(metaSyncTime));
+          assert(Object.keys(store.agent.freeSockets).length === 1);
+        }
       });
-      store.httpsAgent = new HttpsAgentKeepalive();
-      try {
-        await store.getStream(`${name}not-exists`);
-        throw new Error('should not run this');
-      } catch (err) {
-        assert.equal(err.name, 'NoSuchKeyError');
-        assert(Object.keys(store.agent.freeSockets).length === 0);
-        await sleep(1);
-        assert(Object.keys(store.agent.freeSockets).length === 1);
-      }
-    });
+    }
   });
 
   describe('delete()', () => {
@@ -2245,7 +2291,10 @@ describe('test/object.test.js', () => {
         type: 'ColdArchive',
         Days: 2
       });
-      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
+      assert.equal(
+        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        true
+      );
     });
 
     it('ColdArchive is Accepted', async () => {
@@ -2253,7 +2302,10 @@ describe('test/object.test.js', () => {
       const result = await store.restore(name, {
         type: 'ColdArchive'
       });
-      assert.equal(['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']), true);
+      assert.equal(
+        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        true
+      );
     });
   });
 
@@ -2322,12 +2374,13 @@ describe('test/object.test.js', () => {
           }
         };
 
-        const postFile = () => new Promise((resolve, reject) => {
-          request(options, (err, res) => {
-            if (err) reject(err);
-            if (res) resolve(res);
+        const postFile = () =>
+          new Promise((resolve, reject) => {
+            request(options, (err, res) => {
+              if (err) reject(err);
+              if (res) resolve(res);
+            });
           });
-        });
 
         const result = await postFile();
         assert(result.statusCode === 204);

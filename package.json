@@ -1,15 +1,15 @@
 {
   "name": "ali-oss",
-  "version": "6.16.0",
+  "version": "6.17.0",
   "description": "aliyun oss(object storage service) node client",
-  "main": "lib/client.js",
+  "main": "./lib/client.js",
   "files": [
     "lib",
     "shims",
     "dist"
   ],
   "browser": {
-    "lib/client.js": "./dist/aliyun-oss-sdk.js",
+    "./lib/client.js": "./dist/aliyun-oss-sdk.js",
     "mime": "mime/lite",
     "urllib": "./shims/xhr.js",
     "utility": "./shims/utility.js",
@@ -21,8 +21,8 @@
   },
   "scripts": {
     "build-change-log": "standard-version",
-    "test": "npm run tsc && mocha -t 60000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
-    "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 60000 -r should test/node/*.test.js test/node/**/*.test.js",
+    "test": "npm run tsc && mocha -t 120000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
+    "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js",
     "jshint": "jshint .",
     "autod": "autod",
     "build-test": "MINIFY=1 node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js && node -r dotenv/config task/browser-test-build.js > test/browser/build/tests.js",
@@ -81,8 +81,7 @@
     "beautify-benchmark": "^0.2.4",
     "benchmark": "^2.1.1",
     "bluebird": "^3.1.5",
-    "browserify": "^16.5.2",
-    "co-fs": "^1.2.0",
+    "browserify": "13.3.0",
     "core-js": "^3.6.5",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^8.2.0",
@@ -116,14 +115,13 @@
     "stream-equal": "^1.1.0",
     "timemachine": "^0.3.0",
     "typescript": "^3.9.5",
-    "uglify-js": "^2.8.29",
+    "uglify-js": "^3.14.2",
     "watchify": "^3.11.1"
   },
   "dependencies": {
     "address": "^1.0.0",
     "agentkeepalive": "^3.4.1",
     "bowser": "^1.6.0",
-    "co-defer": "^1.0.0",
     "copy-to": "^2.0.1",
     "dateformat": "^2.0.0",
     "debug": "^2.2.0",

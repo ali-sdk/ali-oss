@@ -21,7 +21,7 @@ export async function setSTSToken(this: any) {
   return null;
 }
 
-function checkCredentials(obj) {
+export function checkCredentials(obj) {
   const stsTokenKey = ['accessKeySecret', 'accessKeyId', 'stsToken'];
   const objKeys = Object.keys(obj);
   stsTokenKey.forEach(_ => {

@@ -3,6 +3,8 @@ const utils = require('./utils');
 const oss = require('../..');
 const config = require('../config').oss;
 const fs = require('fs');
+const ms = require('humanize-ms');
+const { metaSyncTime } = require('../config');
 
 describe('test/multiversion.test.js', () => {
   const { prefix } = utils;
@@ -103,7 +105,7 @@ describe('test/multiversion.test.js', () => {
     });
   });
 
-  describe('putBucketLifecycle() getBucketLifecycle()', () => {
+  describe('putBucketLifecycle() getBucketLifecycle()', async () => {
     it('should putBucketLifecycle with NoncurrentVersionExpiration', async () => {
       const putresult1 = await store.putBucketLifecycle(bucket, [{
         id: 'expiration1',
@@ -115,7 +117,10 @@ describe('test/multiversion.test.js', () => {
         noncurrentVersionExpiration: {
           noncurrentDays: 1
         }
-      }]);
+      }], {
+        timeout: 120000
+      });
+      await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(putresult1.res.status, 200);
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
@@ -166,6 +171,7 @@ describe('test/multiversion.test.js', () => {
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
       const result = await store.put(name, __filename);
+      await utils.sleep(ms(metaSyncTime));
       await store.delete(name);
       versionId = result.res.headers['x-oss-version-id'];
     });
@@ -202,6 +208,7 @@ describe('test/multiversion.test.js', () => {
     it('should copy latest object with versionId `null` when the bucket is suspended', async () => {
       const target = `${name.replace('file.js', 'file-target-suspended.js')}`;
       const suspendedRes = await store.putBucketVersioning(bucket, suspended);
+      await utils.sleep(ms(metaSyncTime));
       assert.strictEqual(suspendedRes.res.status, 200);
       try {
         const result = await store.copy(target, name, {
@@ -468,6 +475,7 @@ describe('test/multiversion.test.js', () => {
 
     // 不指定version id，删除当前版本，生成DELETE标记
     it('should delete object without versionId', async () => {
+      await utils.sleep(ms(metaSyncTime));
       const res = await store.delete(name);
       assert.strictEqual(res.res.headers['x-oss-delete-marker'], 'true');
       assert(res.res.headers['x-oss-version-id']);
@@ -557,7 +565,7 @@ describe('test/multiversion.test.js', () => {
   describe('getBucketInfo()', () => {
     it('should return bucket Versioning', async () => {
       try {
-        await store.putBucketVersioning(bucket, enabled);
+        await store.putBucketVersioning(bucket, enabled,);
         const result = await store.getBucketInfo(bucket);
         assert.equal(result.res.status, 200);
         assert.equal(result.bucket.Versioning, enabled);

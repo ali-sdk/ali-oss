@@ -52,7 +52,7 @@ function build(options, callback) {
         ],
       ],
       "plugins": ["@babel/plugin-transform-runtime", "@babel/plugin-transform-regenerator"],
-      "only": ['lib/*', 'shims/*', 'shims/crypto/*'],
+      "only": ['lib/*', 'shims/*', 'shims/crypto/*','node_modules/mime/*','node_modules/mime-db/*','node_modules/mimic-fn/*','node_modules/mime-types/*'],
     }).transform(aliasify, {
       global: true,
       aliases: {
@@ -68,11 +68,14 @@ function build(options, callback) {
       if (options.minify) {
         var uglify = require('uglify-js');
         var minified = uglify.minify(code, {
-          fromString: true,
           output: {
             'ascii_only': true
           }
         });
+        if (minified.error) {
+          console.error(minified.error);
+          process.exit(1)
+        }
         code = minified.code;
       }
       code = license + code;
