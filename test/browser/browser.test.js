@@ -2273,7 +2273,7 @@ describe('browser', () => {
       try {
         await store.restore(name);
       } catch (e) {
-        assert.equal(e, 'OperationNotSupportedError: The operation is not supported for this resource');
+        assert.equal(e.status, 400);
       }
     });
     it('Should return 202 when restore is called first', async () => {
