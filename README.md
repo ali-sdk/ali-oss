@@ -3602,6 +3602,24 @@ const process = 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00'
 await this.store.processObjectSave(sourceObject, targetObject, process);
 ```
 
+### .anonymousAccessObject(target[,options])
+
+Anonymous access object
+
+parameters:
+
+- target {Object} 
+  - object {String} the object name
+  - bucketName {String} the default bucket is your initialization bucket
+  - acl {String} the default ACL is 'public-read'
+- [options] {Object} optional parameters
+  - [versionId] {String} the version id of history object
+
+```js
+await this.store.anonymousAccessObject({object:'object.txt', acl:'public-read', bucketName:'test-sdk-bucket'},{versionId:'CAEQSRiBgMCNg7OX8xciIDk3MWFiMzVmOWFhNzRmNTliYjA4M2ViOGMwZGY2NWU3'});'})
+```
+
+
 ## RTMP Operations
 
 All operations function is [async], except `getRtmpUrl`.
