@@ -1,16 +1,13 @@
-
 # This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: TEST
+name: Develop branch
 
 on:
   push:
-    branches: [ master ]
-  workflow_run:
-    workflows: ["Receive PR"]
-    types:
-      - completed
+    branches: [develop]
+  pull_request:
+    branches: [develop]
 
 jobs:
   browser_test:
@@ -29,21 +26,22 @@ jobs:
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
 
-
     strategy:
       matrix:
         node-version: [14.x]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: browser build and test
-      run: |
-        curl cip.cc
-        npm install
-        mkdir test/browser/build
-        node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js
-        node task/browser-test-build.js > test/browser/build/tests.js
-        npx karma start
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+      - name: browser build and test
+        run: |
+          curl cip.cc
+          npm install
+          mkdir test/browser/build
+          node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js
+          node task/browser-test-build.js > test/browser/build/tests.js
+          npx karma start
   node_10:
     environment: ali_oss_AK
     runs-on: macos-latest
@@ -59,21 +57,22 @@ jobs:
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
 
-
     strategy:
       matrix:
         node-version: [10.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm run test
-    - run: node test/node/cleanAllBucket.js
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm run test
+      - run: node test/node/cleanAllBucket.js
 
   node_12:
     if: always()
@@ -92,25 +91,26 @@ jobs:
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
 
-
     strategy:
       matrix:
         node-version: [12.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm run test
-    - run: node test/node/cleanAllBucket.js
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm run test
+      - run: node test/node/cleanAllBucket.js
 
   node_14:
     if: always()
-    needs: [node_10,node_12]
+    needs: [node_10, node_12]
     environment: ali_oss_AK
     runs-on: macos-latest
 
@@ -131,18 +131,20 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm run test
-    - run: node test/node/cleanAllBucket.js
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm run test
+      - run: node test/node/cleanAllBucket.js
 
   cleanAllBucket:
     if: always()
-    needs: [node_10,node_12,node_14]
+    needs: [node_10, node_12, node_14]
     environment: ali_oss_AK
     runs-on: ubuntu-latest
 
@@ -161,10 +163,12 @@ jobs:
       matrix:
         node-version: [14.x]
     steps:
-    - uses: actions/checkout@v2
-    - name: clean all bucket
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: node test/node/cleanAllBucket.js
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+      - name: clean all bucket
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: node test/node/cleanAllBucket.js

@@ -11,7 +11,7 @@ describe('test/retry.test.js', () => {
   let store;
   const RETRY_MAX = 3;
   let testRetryCount = 0;
-  const bucket = `ali-oss-test-bucket-${utils.prefix.replace(/[/.]/g, '-').replace(/-$/, '')}`;
+  const bucket = `ali-oss-test-retry-bucket-${utils.prefix.replace(/[/.]/g, '-').replace(/-$/, '')}`;
   before(async () => {
     store = new OSS({
       ...config,
