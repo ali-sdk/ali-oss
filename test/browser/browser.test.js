@@ -529,7 +529,7 @@ describe('browser', () => {
         prefix: `${listPrefix}fun/movie/`,
         'fetch-owner': true
       });
-      assert(result.objects.length, 2);
+      assert.equal(result.objects.length, 2);
       result.objects.forEach(obj => checkObjectProperties(obj, { owner: true }));
       assert.equal(result.nextContinuationToken, null);
       assert(!result.isTruncated);
