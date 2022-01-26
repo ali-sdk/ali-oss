@@ -1376,7 +1376,7 @@ describe('browser', () => {
         let errStatus = 0;
         try {
           await store.multipartUpload(name, file, {
-            progress() {},
+            parallel: 1,
             partSize: 100 * 1024
           });
         } catch (err) {
