@@ -2381,9 +2381,6 @@ describe('browser', () => {
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: key,
         sourceBucketName: stsConfig.bucket
-      }, {
-        parallel: 4,
-        partSize: 1024 * 1024,
       });
       assert.equal(result.res.statusCode, 200);
     });
