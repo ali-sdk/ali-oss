@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.17.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.17.0) (2022-01-27)
+
+
+### Features
+
+* add browser useBucket api ([345b218](https://github.com/aliyun/oss-nodejs-sdk/commit/345b218c2fc4ec51cdb3a6a00faf6632970becf5))
+* add develop gitaction ([#1017](https://github.com/aliyun/oss-nodejs-sdk/issues/1017)) ([a303df9](https://github.com/aliyun/oss-nodejs-sdk/commit/a303df98eb9c8100fd9b6ae76d804c94773b6549))
+* add disabled md5 ([#946](https://github.com/aliyun/oss-nodejs-sdk/issues/946)) ([9213e42](https://github.com/aliyun/oss-nodejs-sdk/commit/9213e42e4bcd0662dabdfb71125983ed736eba63)), closes [#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943) [#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)
+* add git action config ([#991](https://github.com/aliyun/oss-nodejs-sdk/issues/991)) ([5b8ef2d](https://github.com/aliyun/oss-nodejs-sdk/commit/5b8ef2d858de5b013f0af79c71bc274187f37e88))
+* add new init params maxSockets ([e85e54f](https://github.com/aliyun/oss-nodejs-sdk/commit/e85e54f5526160976c5433c863b634e63a921568))
+* add setSTSToken test module ([e08d6ac](https://github.com/aliyun/oss-nodejs-sdk/commit/e08d6acb1f69edf6495a6f92bfa579dd35b048a0))
+* add signatureUrl refreshSTSToken and init refreshSTSToken ([df0384e](https://github.com/aliyun/oss-nodejs-sdk/commit/df0384e5e53fc35acf0ea4eac461def480f08900))
+* add signatureUrl refreshSTSToken and init refreshSTSToken ([fb89dfe](https://github.com/aliyun/oss-nodejs-sdk/commit/fb89dfe329664b43566dc9087e31ed26d57c8d36))
+* add signatureUrl refreshSTSToken and init refreshSTSToken ([f48af53](https://github.com/aliyun/oss-nodejs-sdk/commit/f48af5394e69d98fb5f1878825f1a900d38b31c9))
+* add signatureUrl refreshSTSToken and init refreshSTSToken ([c26004a](https://github.com/aliyun/oss-nodejs-sdk/commit/c26004a329850b333f40796f80f36ee968d1241e))
+* refactor refresh token ([#955](https://github.com/aliyun/oss-nodejs-sdk/issues/955)) ([b0c6771](https://github.com/aliyun/oss-nodejs-sdk/commit/b0c6771c3c5f9455d0319480b6b4c651f9c6ea39))
+* to add restore api ([#985](https://github.com/aliyun/oss-nodejs-sdk/issues/985)) ([6f3b456](https://github.com/aliyun/oss-nodejs-sdk/commit/6f3b4561fa9a2909874e2a1462ff8815a16e5925))
+* to add reveal ([fa08132](https://github.com/aliyun/oss-nodejs-sdk/commit/fa08132b9753cbddbbb76b24adf71814d5f8f796))
+* to add reveal ([3e44685](https://github.com/aliyun/oss-nodejs-sdk/commit/3e446855b5ea97911e48e68d20a21caa997f55da))
+* to fix network error ([2833e70](https://github.com/aliyun/oss-nodejs-sdk/commit/2833e701b735f150ced70f83ef497a5969b47641))
+* to fix network error ([465bf66](https://github.com/aliyun/oss-nodejs-sdk/commit/465bf6691e3cb9afb54f8865f236d64f6796e6d7))
+* to fix network error ([b0835a4](https://github.com/aliyun/oss-nodejs-sdk/commit/b0835a485619b10dbb99418eb03d12c0331118b1))
+* to remove secrets ([8afaf8d](https://github.com/aliyun/oss-nodejs-sdk/commit/8afaf8d768548299e647b3c9da233095ca3a5e21))
+* to remove secrets ([630a8be](https://github.com/aliyun/oss-nodejs-sdk/commit/630a8be4dbf7f6505b18177aa26fe51ae934eebd))
+* update git action ([#997](https://github.com/aliyun/oss-nodejs-sdk/issues/997)) ([ebd73d3](https://github.com/aliyun/oss-nodejs-sdk/commit/ebd73d38c90d1949c99c876cb9ae995e06264df5))
+
+
+### Bug Fixes
+
+*  some bugs ([92c70fa](https://github.com/aliyun/oss-nodejs-sdk/commit/92c70fa39bd33c9021b24070fac98923a86b4ff9)), closes [#1019](https://github.com/aliyun/oss-nodejs-sdk/issues/1019) [#1028](https://github.com/aliyun/oss-nodejs-sdk/issues/1028) [#1026](https://github.com/aliyun/oss-nodejs-sdk/issues/1026)
+* fix list() and listV2() params and test case ([#1043](https://github.com/aliyun/oss-nodejs-sdk/issues/1043)) ([4fc3bd4](https://github.com/aliyun/oss-nodejs-sdk/commit/4fc3bd4f0a9777f2a80ba16aad72d11fa7e0de9a))
+* fix some test error and variable ([#1030](https://github.com/aliyun/oss-nodejs-sdk/issues/1030)) ([78ffb5d](https://github.com/aliyun/oss-nodejs-sdk/commit/78ffb5d999ff6c5b3e11406ec3954842ce39cfef))
+* node parallel ([#968](https://github.com/aliyun/oss-nodejs-sdk/issues/968)) ([6279ed0](https://github.com/aliyun/oss-nodejs-sdk/commit/6279ed0c9d10adcb9b83a4f3dec5a092b80979db))
+* put json data ([#959](https://github.com/aliyun/oss-nodejs-sdk/issues/959)) ([a0fc989](https://github.com/aliyun/oss-nodejs-sdk/commit/a0fc989f7c7c2b6bb177c41d3f29422bf0ab5211))
+* remove node enviroment x-oss-user-agent ([#987](https://github.com/aliyun/oss-nodejs-sdk/issues/987)) ([fe39041](https://github.com/aliyun/oss-nodejs-sdk/commit/fe39041168a455ad9dbc49bad5292af9f8ae2dad))
+* remove setSTSToken async function ([73f3330](https://github.com/aliyun/oss-nodejs-sdk/commit/73f33308287470420fd56ca4e165fffe3f5ee237))
+* spec compatible "browser" mapping ([#1018](https://github.com/aliyun/oss-nodejs-sdk/issues/1018)) ([c2f9b0e](https://github.com/aliyun/oss-nodejs-sdk/commit/c2f9b0eb89258f4bd76cc6b4308dd28a8b4bac6a))
+* **test:** test case optimized ([#1044](https://github.com/aliyun/oss-nodejs-sdk/issues/1044)) ([e8eed0a](https://github.com/aliyun/oss-nodejs-sdk/commit/e8eed0a19faa27fb54a2de6591b3ef582dcc9e07))
+* **test:** test case optimized ([#1045](https://github.com/aliyun/oss-nodejs-sdk/issues/1045)) ([4f19fe6](https://github.com/aliyun/oss-nodejs-sdk/commit/4f19fe6fe417d8e107cb84d43b53f34f47feb427))
+* to add minify3 git action and some test erro ([#1005](https://github.com/aliyun/oss-nodejs-sdk/issues/1005)) ([bec8845](https://github.com/aliyun/oss-nodejs-sdk/commit/bec88457daa011a19ff53da9e8f193f8a87e0616)), closes [#976](https://github.com/aliyun/oss-nodejs-sdk/issues/976) [#1002](https://github.com/aliyun/oss-nodejs-sdk/issues/1002) [#1006](https://github.com/aliyun/oss-nodejs-sdk/issues/1006)
+* to append method signatureNotMath ([#1033](https://github.com/aliyun/oss-nodejs-sdk/issues/1033)) ([2678db8](https://github.com/aliyun/oss-nodejs-sdk/commit/2678db8d15facdfe39dd0c660e1b5707d4db1097))
+* to fix install error ([85d0403](https://github.com/aliyun/oss-nodejs-sdk/commit/85d040382ef33410646464d381906d91d7f7f481))
+* to fix network error ([602276b](https://github.com/aliyun/oss-nodejs-sdk/commit/602276b7d283eddec61068b5484356ce980cfe81))
+* to fix network error ([1ac59d9](https://github.com/aliyun/oss-nodejs-sdk/commit/1ac59d9788482224d32d6a080cd559155cd88b67))
+* to install error ([a9ea3c8](https://github.com/aliyun/oss-nodejs-sdk/commit/a9ea3c854d3ecf741aca999924e0d6485d256b25))
+* to remove travis ([8c40b22](https://github.com/aliyun/oss-nodejs-sdk/commit/8c40b22170df069ec2f239b43509c316a7a04a32))
+* use uglify3 ([#1004](https://github.com/aliyun/oss-nodejs-sdk/issues/1004)) ([36a9ef3](https://github.com/aliyun/oss-nodejs-sdk/commit/36a9ef301b8f3e9fac7b191ba2f967f64e7dbcaa))
 
 ## [6.16.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.16.0) (2021-07-12)
 
