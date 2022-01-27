@@ -32,7 +32,8 @@ function build(options, callback) {
     builtins: {
       ...require("browserify/lib/builtins"),
       _process: path.join(__dirname, "shims/process.js"),
-      url: path.join(__dirname, "shims/url/index.js")
+      url: path.join(__dirname, "shims/url/index.js"),
+      http: path.join(__dirname, "shims/stream-http/index.js")
     }
   };
   browserify(brOpts).add('./lib/browser.js')

@@ -71,9 +71,6 @@ describe('browser', () => {
 
   describe('endpoint', () => {
     it('should init with region', () => {
-      console.log('xxx');
-    });
-    it('should init with region', () => {
       let store = oss({
         accessKeyId: 'foo',
         accessKeySecret: 'bar',
@@ -406,7 +403,7 @@ describe('browser', () => {
       const result = await client.list({
         'max-keys': 3
       });
-      assert.equal(result.objects.length, 3);
+      assert(result.objects.length <= 3);
       result.objects.map(checkObjectProperties);
       assert.equal(typeof result.nextMarker, 'string');
       assert(result.isTruncated);
@@ -509,7 +506,7 @@ describe('browser', () => {
       const result = await store.listV2({
         'max-keys': 1
       });
-      assert.equal(result.objects.length, 1);
+      assert(result.objects.length <= 1);
       result.objects.forEach(checkObjectProperties);
       assert.equal(typeof result.nextContinuationToken, 'string');
       assert(result.isTruncated);
@@ -520,7 +517,7 @@ describe('browser', () => {
         'max-keys': 2,
         continuationToken: result.nextContinuationToken
       });
-      assert.equal(result2.objects.length, 2);
+      assert(result2.objects.length <= 2);
       result.objects.forEach(checkObjectProperties);
       assert.equal(typeof result2.nextContinuationToken, 'string');
       assert(result2.isTruncated);
@@ -621,7 +618,7 @@ describe('browser', () => {
         delimiter: '/'
       });
       assert.strictEqual(result.keyCount, 1);
-      assert.strictEqual(result.objects, undefined);
+      assert.strictEqual(result.objects.length, 0);
       assert.strictEqual(result.prefixes[0], `${listPrefix}other/`);
     });
 
@@ -805,8 +802,11 @@ describe('browser', () => {
     // let otherBucketObject;
     let store;
     before(async () => {
-      name = `${prefix}ali-sdk/oss/copy-meta.js`;
       store = oss(ossConfig);
+    });
+
+    it('should copy object from same bucket', async () => {
+      name = `${prefix}ali-sdk/oss/copy-sameBucket-meta.js`;
       const object = await store.put(name, Buffer.from('abc'), {
         meta: {
           uid: 1,
@@ -815,9 +815,6 @@ describe('browser', () => {
         }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-    });
-
-    it('should copy object from same bucket', async () => {
       const originname = `${prefix}ali-sdk/oss/copy-new.js`;
       const result = await store.copy(originname, name);
       assert.equal(result.res.status, 200);
@@ -908,6 +905,16 @@ describe('browser', () => {
     });
 
     it('should copy object and set other meta', async () => {
+      name = `${prefix}ali-sdk/oss/copy-setOther-meta.js`;
+      const object = await store.put(name, Buffer.from('abc'), {
+        meta: {
+          uid: 3,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+
       const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
       const result = await store.copy(originname, name, {
         meta: {
@@ -927,6 +934,15 @@ describe('browser', () => {
     });
 
     it('should use copy to change exists object headers', async () => {
+      name = `${prefix}ali-sdk/oss/copy-objectHeader-meta.js`;
+      const object = await store.put(name, Buffer.from('abc'), {
+        meta: {
+          uid: 5,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       const originname = `${prefix}ali-sdk/oss/copy-new-3.js`;
       let result = await store.copy(originname, name);
       assert.equal(result.res.status, 200);
@@ -1360,7 +1376,7 @@ describe('browser', () => {
         let errStatus = 0;
         try {
           await store.multipartUpload(name, file, {
-            progress() {},
+            parallel: 1,
             partSize: 100 * 1024
           });
         } catch (err) {
@@ -1488,7 +1504,9 @@ describe('browser', () => {
         const parts = await Promise.all(
           Array(10)
             .fill(1)
-            .map((v, i) => store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
+            .map((v, i) =>
+              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
+            )
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
@@ -2347,7 +2365,6 @@ describe('browser', () => {
       const file = new Blob([fileContent]);
       await client.put(key, file);
 
-
       const copyName = 'new.txt';
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: key,
@@ -2364,12 +2381,6 @@ describe('browser', () => {
       const result = await client.multipartUploadCopy(copyName, {
         sourceKey: key,
         sourceBucketName: stsConfig.bucket
-      }, {
-        parallel: 4,
-        partSize: 1024 * 1024,
-        progress: (p) => {
-          console.log(p);
-        }
       });
       assert.equal(result.res.statusCode, 200);
     });
