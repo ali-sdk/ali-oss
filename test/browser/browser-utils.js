@@ -2,7 +2,7 @@
 const platform = require('platform');
 
 if (process && process.browser) {
-  exports.prefix = `${platform.name}-${platform.version}/`;
+  exports.prefix = `${platform.name}-${platform.version}-${new Date().valueOf()}/`;
 } else {
   exports.prefix = `${process.platform}-${process.version}/`;
   if (process && process.execPath.indexOf('iojs') >= 0) {

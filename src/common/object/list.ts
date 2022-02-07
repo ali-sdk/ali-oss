@@ -14,7 +14,7 @@ export async function list(
   params.successStatuses = [200];
 
   const result = await this.request(params);
-  let objects = result.data.Contents;
+  let objects = result.data.Contents || [];
   if (objects) {
     if (!Array.isArray(objects)) {
       objects = [objects];

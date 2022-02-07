@@ -6,17 +6,23 @@ import { getResource } from '../../common/utils/getResource';
 import { _signatureForURL } from '../../common/utils/signUtils';
 import { getReqUrl } from '../../common/utils/getReqUrl';
 import { signatureUrlOptions } from '../../types/params';
+import { setSTSToken } from '../../common/utils/setSTSToken';
+import { isFunction } from '../../common/utils/isFunction';
 
-export function signatureUrl(this: any, name: string, options: signatureUrlOptions = {}) {
+export async function signatureUrl(this: any, name: string, options: signatureUrlOptions = {}) {
   name = objectName(name);
   options.method = options.method || 'GET';
-  const expires = utility.timestamp() as number + (options.expires || 1800);
+  const expires = (utility.timestamp() as number) + (options.expires || 1800);
   const params = {
     bucket: this.options.bucket,
     object: name
   };
 
   const resource = getResource(params, this.options.headerEncoding);
+
+  if (this.options.stsToken && isFunction(this.options.refreshSTSToken)) {
+    await setSTSToken.call(this);
+  }
 
   if (this.options.stsToken) {
     options['security-token'] = this.options.stsToken;

@@ -5,6 +5,16 @@ const mm = require('mm');
 const pkg = require('../../package.json');
 
 describe('test/client.test.js', () => {
+
+  it('init stsTokenFreshTime', () => {
+    const store = new OSS(config);
+    const now = new Date();
+    if (!store.stsTokenFreshTime) {
+      throw new Error('not init stsTokenFreshTime');
+    }
+    assert(true, +now <= +store.stsTokenFreshTime);
+  });
+
   it('should init with region', () => {
     let store = new OSS({
       accessKeyId: 'foo',

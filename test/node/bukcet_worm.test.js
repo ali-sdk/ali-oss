@@ -21,9 +21,12 @@ describe('test/bucket.test.js', () => {
     assert.equal(result.res.status, 200);
   });
 
-  after(async () => {
-    await utils.cleanAllBucket(store);
-  });
+  // github CI will remove buckets
+  // restore object will have cache
+  // after(async () => {
+  //   await utils.cleanAllBucket(store);
+  // });
+
   describe('worm()', () => {
     describe('initiateBucketWorm()', () => {
       it('should init bucket worm', async () => {
