@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.17.0
+// Aliyun OSS SDK for JavaScript v6.17.1
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -2634,7 +2634,7 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
 },{"../common/callback":24,"../common/image":27,"../common/object/copyObject":31,"../common/object/delete":32,"../common/object/deleteMulti":33,"../common/object/deleteObjectTagging":34,"../common/object/generateObjectUrl":35,"../common/object/get":36,"../common/object/getACL":37,"../common/object/getBucketVersions":38,"../common/object/getObjectMeta":39,"../common/object/getObjectTagging":40,"../common/object/getObjectUrl":41,"../common/object/getSymlink":42,"../common/object/head":43,"../common/object/putACL":44,"../common/object/putObjectTagging":45,"../common/object/putSymlink":46,"../common/object/signatureUrl":47,"../common/utils/isBlob":62,"../common/utils/isBuffer":63,"../common/utils/isFile":64,"../common/utils/obj2xml":69,"@babel/runtime/helpers/asyncToGenerator":73,"@babel/runtime/helpers/interopRequireDefault":74,"@babel/runtime/regenerator":76,"copy-to":88,"core-js/modules/es.array.map.js":249,"core-js/modules/es.function.name.js":253,"core-js/modules/es.number.constructor.js":254,"core-js/modules/es.object.assign.js":255,"core-js/modules/es.object.keys.js":257,"core-js/modules/es.object.to-string.js":258,"core-js/modules/es.promise.js":259,"core-js/modules/es.regexp.exec.js":261,"core-js/modules/es.regexp.to-string.js":262,"core-js/modules/es.string.replace.js":266,"core-js/modules/web.dom-collections.for-each.js":296,"fs":84,"merge-descriptors":315,"mime":317,"path":321}],6:[function(require,module,exports){
 "use strict";
 
-exports.version = "6.17.0";
+exports.version = "6.17.1";
 
 },{}],7:[function(require,module,exports){
 "use strict";
@@ -6626,10 +6626,12 @@ var _require = require('../utils/isIP'),
 var _require2 = require('../../common/utils/isFunction'),
     isFunction = _require2.isFunction;
 
-var _utilsSetSTSToken = '../utils/setSTSToken',
-    checkCredentials = _utilsSetSTSToken.checkCredentials;
-var _utilsFormatObjKe = '../utils/formatObjKey',
-    formatObjKey = _utilsFormatObjKe.formatObjKey;
+var _require3 = require('../utils/setSTSToken'),
+    checkCredentials = _require3.checkCredentials;
+
+var _require4 = require('../utils/formatObjKey'),
+    formatObjKey = _require4.formatObjKey;
+
 var proto = exports;
 
 proto.signatureUrl = function signatureUrl(name, options) {
@@ -6686,7 +6688,7 @@ proto.signatureUrl = function signatureUrl(name, options) {
   return url.format();
 };
 
-},{"../../common/signUtils":49,"../../common/utils/isFunction":65,"../utils/isIP":66,"copy-to":88,"core-js/modules/es.object.assign.js":255,"url":404,"utility":406}],48:[function(require,module,exports){
+},{"../../common/signUtils":49,"../../common/utils/isFunction":65,"../utils/formatObjKey":59,"../utils/isIP":66,"../utils/setSTSToken":72,"copy-to":88,"core-js/modules/es.object.assign.js":255,"url":404,"utility":406}],48:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
