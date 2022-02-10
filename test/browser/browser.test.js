@@ -906,6 +906,17 @@ describe('browser', () => {
     });
 
     it('should copy object and set other meta', async () => {
+      name = `${prefix}ali-sdk/oss/copy-setOther-meta.js`;
+      const object = await store.put(name, Buffer.from('abc'), {
+        meta: {
+          uid: 3,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+
+
       const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
       const result = await store.copy(originname, name, {
         meta: {
@@ -925,6 +936,15 @@ describe('browser', () => {
     });
 
     it('should use copy to change exists object headers', async () => {
+      name = `${prefix}ali-sdk/oss/copy-objectHeader-meta.js`;
+      const object = await store.put(name, Buffer.from('abc'), {
+        meta: {
+          uid: 5,
+          pid: '123',
+          slus: 'test.html'
+        }
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       const originname = `${prefix}ali-sdk/oss/copy-new-3.js`;
       let result = await store.copy(originname, name);
       assert.equal(result.res.status, 200);
