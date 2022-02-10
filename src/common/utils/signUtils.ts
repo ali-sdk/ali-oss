@@ -29,7 +29,7 @@ export function buildCanonicalizedResource(resourcePath, parameters) {
     };
     const processFunc = (key) => {
       canonicalizedResource += separatorString + key;
-      if (parameters[key]) {
+      if (parameters[key] || parameters[key] === 0) {
         canonicalizedResource += `=${parameters[key]}`;
       }
       separatorString = '&';
