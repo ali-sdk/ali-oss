@@ -8,6 +8,7 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ develop ]
+    types: [ opened ]
 
 jobs:
   browser_test:
