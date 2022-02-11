@@ -141,6 +141,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name[, options])](#signatureurlname-options)
+  - [.asyncSignatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
@@ -2583,6 +2584,87 @@ const url = store.signatureUrl('ossdemo.png', {
 console.log(url);
 // --------------------------------------------------
 const url = store.signatureUrl('ossdemo.png', {
+  expires: 3600,
+  process: 'image/resize,w_200'
+});
+console.log(url);
+```
+
+### .asyncSignatureUrl(name[, options])
+
+Basically the same as signatureUrl, if refreshSTSToken is configured asyncSignatureUrl will refresh stsToken
+
+parameters:
+
+- name {String} object name store on OSS
+- [options] {Object} optional parameters
+  - [expires] {Number} after expires seconds, the url will become invalid, default is `1800`
+  - [method] {String} the HTTP method, default is 'GET'
+  - [Content-Type] {String} set the request content type
+  - [process] {String} image process params, will send with `x-oss-process`
+    e.g.: `{process: 'image/resize,w_200'}`
+  - [trafficLimit] {Number} traffic limit, range: `819200`~`838860800`.
+  - [subResource] {Object} additional signature parameters in url.
+  - [response] {Object} set the response headers for download
+    - [content-type] {String} set the response content type
+    - [content-disposition] {String} set the response content disposition
+    - [cache-control] {String} set the response cache control
+    - See more: <https://help.aliyun.com/document_detail/31980.html>
+  - [callback] {Object} set the callback for the operation
+    - url {String} set the url for callback
+    - [host] {String} set the host for callback
+    - body {String} set the body for callback
+    - [contentType] {String} set the type for body
+    - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+
+Success will return signature url.
+
+example:
+
+- Get signature url for object
+
+```js
+const url = await store.signatureUrl('ossdemo.txt');
+console.log(url);
+// --------------------------------------------------
+const url = await store.signatureUrl('ossdemo.txt', {
+  expires: 3600,
+  method: 'PUT'
+});
+console.log(url);
+
+//  put object with signatureUrl
+// -------------------------------------------------
+
+const url = await store.signatureUrl('ossdemo.txt', {
+  expires: 3600,
+  method: 'PUT',
+  'Content-Type': 'text/plain; charset=UTF-8',
+});
+console.log(url);
+
+// --------------------------------------------------
+const url = await store.signatureUrl('ossdemo.txt', {
+  expires: 3600,
+  response: {
+    'content-type': 'text/custom',
+    'content-disposition': 'attachment'
+  }
+});
+console.log(url);
+
+// put operation
+```
+
+- Get a signature url for a processed image
+
+```js
+const url = await store.signatureUrl('ossdemo.png', {
+  process: 'image/resize,w_200'
+});
+console.log(url);
+// --------------------------------------------------
+const url = await store.signatureUrl('ossdemo.png', {
   expires: 3600,
   process: 'image/resize,w_200'
 });
