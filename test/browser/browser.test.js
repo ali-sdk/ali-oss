@@ -25,6 +25,10 @@ const { options } = require('benchmark');
 
 timemachine.reset();
 
+const sleep = (time) => {
+  return new Promise(resolve => setTimeout(resolve, time));
+};
+
 const cleanBucket = async store => {
   let result = await store.list({
     'max-keys': 1000
@@ -1078,6 +1082,48 @@ describe('browser', () => {
       const url = await signatureStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
+    });
+
+    it.only('signatureUrl will should use refreshSTSToken', async () => {
+      const stsService = () => {
+        return new Promise((resolve, reject) => {
+          resolve({
+            accessKeyId: 'b',
+            accessKeySecret: 'b',
+            stsToken: 'b'
+          });
+          if (1 === 2) reject();
+        });
+      };
+
+      store = new OSS({
+        region: ossConfig.region,
+        accessKeyId: ossConfig.accessKeyId,
+        accessKeySecret: ossConfig.accessKeySecret,
+        stsToken: ossConfig.stsToken,
+        refreshSTSToken: async () => {
+          const info = await stsService();
+          return {
+            accessKeyId: info.accessKeyId,
+            accessKeySecret: info.accessKeySecret,
+            stsToken: info.stsToken
+          };
+        },
+        bucket: ossConfig.bucket,
+        refreshSTSTokenInterval: 1000
+      });
+
+      await sleep(2000);
+      const a = await store.signatureUrl('test.txt');
+      store = new OSS({
+        region: ossConfig.region,
+        accessKeyId: 'b',
+        accessKeySecret: 'b',
+        stsToken: 'b',
+        bucket: ossConfig.bucket
+      });
+      const b = await store.signatureUrl('test.txt');
+      assert.equal(a, b);
     });
   });
 
