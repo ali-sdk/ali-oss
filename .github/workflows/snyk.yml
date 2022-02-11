@@ -1,9 +1,9 @@
 name: SNYK_SCAN
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
 
 jobs:
   security:
