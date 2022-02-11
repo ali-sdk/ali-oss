@@ -1079,49 +1079,6 @@ describe('browser', () => {
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
-
-    it('asyncSignatureUrl will should use refreshSTSToken', async () => {
-      const stsService = () => {
-        return new Promise((resolve, reject) => {
-          resolve({
-            accessKeyId: 'b',
-            accessKeySecret: 'b',
-            stsToken: 'b'
-          });
-          if (1 === 2) reject();
-        });
-      };
-
-      store = oss({
-        region: ossConfig.region,
-        accessKeyId: ossConfig.accessKeyId,
-        accessKeySecret: ossConfig.accessKeySecret,
-        stsToken: ossConfig.aecurityToken,
-        refreshSTSToken: async () => {
-          const info = await stsService();
-          return {
-            accessKeyId: info.accessKeyId,
-            accessKeySecret: info.accessKeySecret,
-            stsToken: info.stsToken
-          };
-        },
-        bucket: ossConfig.bucket,
-        refreshSTSTokenInterval: 1000
-      });
-
-      setTimeout(async () => {
-        const a = await store.asyncSignatureUrl('test.txt');
-        store = oss({
-          region: ossConfig.region,
-          accessKeyId: 'b',
-          accessKeySecret: 'b',
-          stsToken: 'b',
-          bucket: ossConfig.bucket
-        });
-        const b = store.signatureUrl('test.txt');
-        assert.equal(a, b);
-      }, 2000);
-    });
   });
 
   describe('multipart', () => {
