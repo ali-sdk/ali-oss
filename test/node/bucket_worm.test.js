@@ -3,6 +3,7 @@ const assert = require('assert');
 const utils = require('./utils');
 const OSS = require('../..');
 const config = require('../config').oss;
+const timeout = require('../config').timeout;
 
 describe('test/bucket_worm.test.js', () => {
   const { prefix } = utils;
@@ -16,15 +17,17 @@ describe('test/bucket_worm.test.js', () => {
     bucket = `ali-oss-test-worm-bucket-worm-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
-    const result = await store.putBucket(bucket, {
-      timeout: process.env.ONCI ? 60000 : 10000 });
+    const result = await store.putBucket(bucket, { timeout });
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
 
-  after(async () => {
-    await utils.cleanAllBucket(store);
-  });
+  // github CI will remove buckets
+  // restore object will have cache
+  // after(async () => {
+  //   await utils.cleanAllBucket(store);
+  // });
+
   describe('worm()', () => {
     describe('initiateBucketWorm()', () => {
       it('should init bucket worm', async () => {

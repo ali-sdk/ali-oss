@@ -24,6 +24,7 @@ class Client {
   public userAgent;
 
   public _createStream;
+  public stsTokenFreshTime;
 
   public constructor(options, ctx) {
     if (!(this instanceof Client)) {
@@ -69,6 +70,7 @@ class Client {
     }
     this.ctx = ctx;
     this.userAgent = _getUserAgent();
+    this.stsTokenFreshTime = new Date();
   }
 }
 

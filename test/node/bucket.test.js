@@ -6,7 +6,7 @@ const utils = require('./utils');
 const OSS = require('../..');
 const config = require('../config').oss;
 const ms = require('humanize-ms');
-const { metaSyncTime } = require('../config');
+const { metaSyncTime, timeout } = require('../config');
 
 // only run on travis ci
 
@@ -28,13 +28,15 @@ describe('test/bucket.test.js', () => {
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = defaultRegion;
 
-    const result = await store.putBucket(bucket, { timeout: process.env.ONCI ? 60000 : 10000 });
+    const result = await store.putBucket(bucket, { timeout });
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
-  after(async () => {
-    await utils.cleanAllBucket(store);
-  });
+
+  // restore object will have cache
+  // after(async () => {
+  //   await utils.cleanAllBucket(store);
+  // });
 
   describe('setBucket()', () => {
     it('should check bucket name', async () => {
@@ -66,20 +68,18 @@ describe('test/bucket.test.js', () => {
       // just for archive bucket test
       archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
       archvieBucket = archvieBucket.substring(0, archvieBucket.length - 1);
-      await store.putBucket(archvieBucket, { StorageClass: 'Archive', timeout: 120000 });
+      await store.putBucket(archvieBucket, { StorageClass: 'Archive', timeout });
     });
 
     it('should create a new bucket', async () => {
-      const result1 = await store.putBucket(name, { timeout: 120000 });
+      const result1 = await store.putBucket(name, { timeout });
       assert.equal(result1.bucket, name);
       assert.equal(result1.res.status, 200);
     });
 
     it('should create an archive bucket', async () => {
       await utils.sleep(ms(metaSyncTime));
-      const result2 = await store.listBuckets({}, {
-        timeout: 120000,
-      });
+      const result2 = await store.listBuckets({}, { timeout });
       const { buckets } = result2;
       const m = buckets.some(item => item.name === archvieBucket);
       assert(m === true);
@@ -214,9 +214,7 @@ describe('test/bucket.test.js', () => {
       const result = await store.listBuckets({
         prefix: listBucketsPrefix,
         'max-keys': 20,
-      }, {
-        timeout: 120000
-      });
+      }, { timeout });
 
       assert(Array.isArray(result.buckets));
       assert.equal(result.buckets.length, 2);
@@ -405,7 +403,7 @@ describe('test/bucket.test.js', () => {
     it('should create, get and delete the referer', async () => {
       const putresult = await store.putBucketReferer(bucket, true, [
         'http://npm.taobao.org'
-      ], { timeout: 120000 });
+      ], { timeout });
       assert.equal(putresult.res.status, 200);
 
       // put again will be fine
@@ -414,7 +412,7 @@ describe('test/bucket.test.js', () => {
         'https://npm.taobao.org',
         'http://cnpmjs.org'
       ];
-      const putReferer = await store.putBucketReferer(bucket, false, referers, { timeout: 120000 });
+      const putReferer = await store.putBucketReferer(bucket, false, referers, { timeout });
       assert.equal(putReferer.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
@@ -434,7 +432,7 @@ describe('test/bucket.test.js', () => {
   describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', () => {
     afterEach(async () => {
       // delete it
-      const result = await store.deleteBucketCORS(bucket, { timeout: 120000 });
+      const result = await store.deleteBucketCORS(bucket, { timeout });
       assert.equal(result.res.status, 204);
     });
 
@@ -449,7 +447,7 @@ describe('test/bucket.test.js', () => {
       const putResult = await store.putBucketCORS(bucket, rules);
       assert.equal(putResult.res.status, 200);
 
-      const getResult = await store.getBucketCORS(bucket, { timeout: 120000 });
+      const getResult = await store.getBucketCORS(bucket, { timeout });
       assert.equal(getResult.res.status, 200);
       assert.deepEqual(getResult.rules, [{
         allowedOrigin: '*',
@@ -464,14 +462,14 @@ describe('test/bucket.test.js', () => {
       const rules1 = [{
         allowedOrigin: '*',
         allowedMethod: 'GET',
-        timeout: 120000
+        timeout,
       }];
       const putCorsResult1 = await store.putBucketCORS(bucket, rules1);
       assert.equal(putCorsResult1.res.status, 200);
 
       await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult1 = await store.getBucketCORS(bucket, { timeout: 120000 });
+      const getCorsResult1 = await store.getBucketCORS(bucket, { timeout });
       assert.equal(getCorsResult1.res.status, 200);
       assert.deepEqual(getCorsResult1.rules, [{
         allowedOrigin: '*',
@@ -487,7 +485,7 @@ describe('test/bucket.test.js', () => {
 
       await utils.sleep(ms(metaSyncTime));
 
-      const getCorsResult2 = await store.getBucketCORS(bucket, { timeout: 120000 });
+      const getCorsResult2 = await store.getBucketCORS(bucket, { timeout });
       assert.equal(getCorsResult2.res.status, 200);
       assert.deepEqual(getCorsResult2.rules, [{
         allowedOrigin: 'localhost',

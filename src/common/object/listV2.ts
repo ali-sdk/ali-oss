@@ -18,7 +18,7 @@ export async function listV2(this: any, query: listV2Query, options: { subres?: 
   params.successStatuses = [200];
 
   const result = await this.request(params);
-  let objects = result.data.Contents;
+  let objects = result.data.Contents || [];
   if (objects) {
     if (!Array.isArray(objects)) {
       objects = [objects];
