@@ -30,6 +30,10 @@ var ClientRequest = module.exports = function (opts) {
 	self._opts = opts
 	self._body = []
 	self._headers = {}
+  self._oloaded = 0;
+  self._ot = 0;
+  self._speed = 0;
+  if(opts.customListener && typeof opts.customListener ==='object') self.customListener = opts.customListener;
 	if (opts.auth)
 		self.setHeader('Authorization', 'Basic ' + new Buffer(opts.auth).toString('base64'))
 	Object.keys(opts.headers).forEach(function (name) {
@@ -164,6 +168,12 @@ ClientRequest.prototype._onFinish = function () {
 		})
 	} else {
 		var xhr = self._xhr = new global.XMLHttpRequest()
+    if(self.customListener){
+      xhr.upload.onprogress = self.customListener.speed ? countSpeed : progress;
+      xhr.upload.onload = onload;
+      xhr.upload.onloadstart = onloadstart;
+      xhr.upload.onloadend = onloadend;
+    }
 		try {
 			xhr.open(self._opts.method, self._opts.url, true)
 		} catch (err) {
@@ -172,6 +182,66 @@ ClientRequest.prototype._onFinish = function () {
 			})
 			return
 		}
+
+    function countSpeed(p) {
+      if(self.timer){
+        return
+      }
+      self.timer = setTimeout( function () {
+        self._oloaded = p.loaded - self._oloaded;
+        self._ot = p.timeStamp - self._ot;
+        self._speed =  (self._oloaded / self._ot).toFixed(2);
+        if(self.customListener.partNo){
+          self.customListener.speed(self._speed, self.customListener.partNo);
+        }else{
+          self.customListener.speed(self._speed);
+        }
+        self.timer = null;
+      }, 1000)
+    }
+    function progress(r){
+      if (self.customListener.progress) {
+        if (self.customListener.partNo) {
+          self.customListener.progress(r, self.customListener.partNo);
+        }else{
+          self.customListener.progress(r);
+        }
+      }
+      return
+    }
+
+    function onload(r){
+      if(self.customListener.onload) {
+        if (self.customListener.partNo) {
+          self.customListener.onload(r, self.customListener.partNo);
+        }else{
+          self.customListener.onload(r);
+        }
+      }
+      return
+    }
+    function onloadstart(r){
+      if(self.customListener.onloadstart){
+        if (self.customListener.partNo) {
+          self.customListener.onloadstart(r, self.customListener.partNo);
+        }else{
+          self.customListener.onloadstart(r);
+        }
+      }
+      return
+    }
+    function onloadend(r){
+      if(self.customListener.onloadend){
+        if (self.customListener.partNo) {
+          self.customListener.onloadend(r, self.customListener.partNo);
+        }else{
+          self.customListener.onloadend(r);
+        }
+      }
+      return
+    }
+
+
 
 		// Can't set responseType on really old browsers
 		if ('responseType' in xhr)
@@ -296,6 +366,7 @@ ClientRequest.prototype.end = function (data, encoding, cb) {
 
 	stream.Writable.prototype.end.call(self, data, encoding, cb)
 }
+
 
 ClientRequest.prototype.flushHeaders = function () {}
 ClientRequest.prototype.setTimeout = function () {}

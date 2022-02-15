@@ -138,6 +138,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     // custom dnslookup require node >= 4.0.0
     // https://github.com/nodejs/node/blob/archived-io.js-v0.12/lib/net.js#L952
     lookup: args.lookup,
+    customListener: args.customListener ? args.customListener : "",
   };
 
   if (Array.isArray(args.timeout)) {
