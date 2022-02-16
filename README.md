@@ -4383,13 +4383,23 @@ Will put to all clients.
 
 Each error return by OSS server will contains these properties:
 
+
 - name {String} error name
 - message {String} error message
 - requestId {String} uuid for this request, if you meet some unhandled problem,
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
-The following table lists the OSS error codes:
+### ResponseTimeoutError
+The request to get the object file cannot be returned within the default time, please set a longer timeout. Or change to use multipart to download
+
+```javascript
+  client.get('example.txt', {timeout:60000 * 2})
+
+  client.get('example.txt', {headers:{ Range:`bytes=0-${ 1024 * 1024 * 100 }` } }) // Download the first 100MB
+```
+
+### The following table lists the OSS error codes:
 
 [More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
