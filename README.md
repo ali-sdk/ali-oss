@@ -4394,9 +4394,19 @@ Each error return by OSS server will contains these properties:
 The request to get the object file cannot be returned within the default time, please set a longer timeout. Or change to use multipart to download
 
 ```javascript
-  client.get('example.txt', {timeout:60000 * 2})
+  client.get('example.txt', { timeout:60000 * 2})
 
-  client.get('example.txt', {headers:{ Range:`bytes=0-${ 1024 * 1024 * 100 }` } }) // Download the first 100MB
+  client.get('example.txt', { headers:{ Range:`bytes=0-${ 1024 * 1024 * 100 }` } }) // Download the first 100MB
+```
+
+### ConnectionTimeoutError
+The request link has timed out. Please check the network link status. If there is no problem with the network, please reduce the partSize or increase the timeout to retry.
+```javascript
+  const client = new OSS({ ak, sk, retryMax:10 })
+
+  client.multipartUpload('example.txt', { timeout:60000 * 2 })
+
+  client.multipartUpload('example.txt', { partSize: 1024 * 512 }) // partSize 512KB
 ```
 
 ### The following table lists the OSS error codes:
