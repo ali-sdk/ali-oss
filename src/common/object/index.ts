@@ -23,6 +23,8 @@ import { putObjectTagging } from './putObjectTagging';
 import { putSymlink } from './putSymlink';
 import { restore } from './restore';
 import { signatureUrl } from './signatureUrl';
+import { multipleObjectGet } from './multipleObjectGet';
+
 
 export default {
   append,
@@ -52,4 +54,5 @@ export default {
   putSymlink,
   restore,
   signatureUrl,
+  multipleObjectGet
 };

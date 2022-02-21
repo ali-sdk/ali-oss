@@ -2,8 +2,9 @@
 const assert = require('assert');
 const utils = require('./utils');
 const OSS = require('../..');
+const ms = require('humanize-ms');
 const config = require('../config').oss;
-const timeout = require('../config').timeout;
+const { timeout, metaSyncTime } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix } = utils;
@@ -51,6 +52,7 @@ describe('test/bucket.test.js', () => {
     });
     describe('completeBucketWorm(), getBucketWorm()', () => {
       it('should complete bucket worm', async () => {
+        utils.sleep(ms(metaSyncTime));
         const { wormId } = await store.initiateBucketWorm(bucket, '1');
         try {
           await store.completeBucketWorm(bucket, wormId);
@@ -76,6 +78,7 @@ describe('test/bucket.test.js', () => {
             wormId,
             (days * 1 + 1).toString()
           );
+          utils.sleep(ms(metaSyncTime));
           const result = await store.getBucketWorm(bucket);
           assert(result.days - days === 1);
         } catch (error) {

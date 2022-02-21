@@ -23,6 +23,7 @@ import { putObjectTagging } from './putObjectTagging';
 import { putSymlink } from './putSymlink';
 import { restore } from './restore';
 import { signatureUrl } from './signatureUrl';
+import { multipleObjectGet } from './multipleObjectGet';
 declare const _default: {
     append: typeof append;
     calculatePostSignature: typeof calculatePostSignature;
@@ -51,5 +52,6 @@ declare const _default: {
     putSymlink: typeof putSymlink;
     restore: typeof restore;
     signatureUrl: typeof signatureUrl;
+    multipleObjectGet: typeof multipleObjectGet;
 };
 export default _default;
