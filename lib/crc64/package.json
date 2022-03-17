@@ -1,0 +1,28 @@
+{
+  "name": "node_cpp_addon_crc64",
+  "version": "1.0.0",
+  "description": "add cpp_addon_crc64",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node-gyp configure -- -f compile_commands_json",
+    "test": "mocha test/crc.test.js",
+    "build": "zx complie_task.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taotao7/node_cpp_addon_crc64.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/taotao7/node_cpp_addon_crc64/issues"
+  },
+  "homepage": "https://github.com/taotao7/node_cpp_addon_crc64#readme",
+  "devDependencies": {
+    "mocha": "^9.2.2",
+    "should": "^13.2.3",
+    "zx": "^6.0.1"
+  }
+}
