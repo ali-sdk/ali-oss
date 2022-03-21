@@ -159,8 +159,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
   - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
   - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
-  - [.checkCrc64(content, target)]((#checkcrc64content-target))
-  - [.checkCrc64Stream(streamPath, callback)](#checkCrc64Streamstreampath-callback)
+  - [.checkCrc64(content[, target])](#checkcrc64content-target)
+  - [.checkCrc64Stream(streamPath[, callback])](#checkcrc64streamstreampath-callback)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -3582,7 +3582,7 @@ object:
 - status {Number} response status
 - res {Object} response info
 
-### .checkCrc64(content, target)
+### .checkCrc64(content[, target])
 
 crc64 check according to ECMA-182 standard
 
@@ -3608,7 +3608,7 @@ boolean
   )
 ```
 
-### .checkCrc64Stream(streamPath, callback)
+### .checkCrc64Stream(streamPath[, callback])
 
 read the file by stream according to the file path and check the crc64 code
 
