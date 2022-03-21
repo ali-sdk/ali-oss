@@ -159,6 +159,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
   - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
   - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
+  - [.checkCrc64(content, target)]((#checkcrc64content-target))
+  - [.checkCrc64Stream(streamPath, callback)](#checkCrc64Streamstreampath-callback)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -1596,6 +1598,7 @@ parameters:
 - name {String} object name store on OSS
 - file {String|Buffer|ReadStream|File(only support Browser)|Blob(only support Browser)} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
 - [options] {Object} optional parameters
+  - [crc64] crc64 check default value false
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
@@ -1721,6 +1724,7 @@ parameters:
 - stream {ReadStream} object ReadStream content instance
 - [options] {Object} optional parameters
   - [contentLength] {Number} the stream length, `chunked encoding` will be used if absent
+  - [crc64] crc64 check default value false
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
@@ -1960,6 +1964,7 @@ parameters:
 - [file] {String|WriteStream} file path or WriteStream instance to store the content
   If `file` is null or ignore this parameter, function will return info contains `content` property.
 - [options] {Object} optional parameters
+  - [crc64] crc64 check default value false
   - [versionId] {String} the version id of history object
   - [timeout] {Number} the operation timeout
   - [process] {String} image process params, will send with `x-oss-process`
@@ -3049,6 +3054,7 @@ parameters:
 - name {String} object name
 - file {String|File(only support Browser)|Blob(only support Browser)|Buffer} file path or HTML5 Web File or web Blob or content buffer
 - [options] {Object} optional args
+  - [crc64] crc64 check default value false
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
   - [progress] {Function} function | async | Promise, the progress callback called after each
@@ -3575,6 +3581,46 @@ object:
 
 - status {Number} response status
 - res {Object} response info
+
+### .checkCrc64(content, target)
+
+crc64 check according to ECMA-182 standard
+
+parameters:
+
+- content {Buffer} What to check
+- target {String} Check code returned by the server
+
+Success will return the status.
+
+boolean
+
+- status {boolean} check status
+
+```javascript
+  client.checkCrc64(
+    Buffer.from([
+      Array.from(1024 * 1024 * 10)
+        .fill('a')
+        .join('')
+    ]),
+    '2282658103124508505'
+  )
+```
+
+### .checkCrc64Stream(streamPath, callback)
+
+read the file by stream according to the file path and check the crc64 code
+
+parameters:
+- streamPath {String} file path
+- callback {Function(err, data)} get stream crc64 check code  
+
+```javascript
+client.checkCrc64Stream('example', (err, data) => {
+  if (!err) console.log(data);
+});
+```
 
 ### .processObjectSave(sourceObject, targetObject, process[, targetBucket])
 
@@ -4378,6 +4424,12 @@ Will put to all clients.
 - `client.putMeta()`
 - `client.putACL()`
 - `client.restore()`
+
+### crc64 Check
+crc64 standard is ECMA-182. HEX code is 0xc96c5795d7870f42
+
+- `client.checkCrc64()`
+- `client.checkCrc64Stream()`
 
 ## Known Errors
 
