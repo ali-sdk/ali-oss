@@ -3599,12 +3599,10 @@ boolean
 
 ```javascript
   client.checkCrc64(
-    Buffer.from([
-      Array.from(1024 * 1024 * 10)
-        .fill('a')
-        .join('')
-    ]),
-    '2282658103124508505'
+    Buffer.from( Array(1024 * 1024 * 10)
+    .fill('a')
+    .join('')),
+    '455889540452056977'
   )
 ```
 

@@ -1,12 +1,46 @@
 const CRC64 = require('../../../lib/crc64/crc64');
+const assert = require('assert');
 const path = require('path');
+const oss = require('../../..');
 const fs = require('fs');
+const config = require('../../config').oss;
+const utils = require('../utils');
+
 require('should');
 
 const result1 = '11051210869376104954';
 const result2 = '5178350320981835788';
 
 describe('crc64', () => {
+  const { prefix } = utils;
+  let uploadContent;
+  let checkNumber;
+  let store;
+  let bucket;
+  let bucketRegion;
+  let filePath = path.join(__dirname, 'buffer.txt');
+
+  before(async () => {
+    uploadContent = Buffer.from(
+      Array(1024 * 1024 * 10)
+        .fill('a')
+        .join('')
+    );
+    // fs.writeFile(filePath, uploadContent);
+    checkNumber = '455889540452056977';
+    store = oss(config);
+    bucket = `ali-oss-test-crc-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = bucket.substring(0, bucket.length - 1);
+    await store.putBucket(bucket);
+    bucketRegion = config.region;
+    store.useBucket(bucket, bucketRegion);
+  });
+
+  after(() => {
+    utils.cleanBucket(store, bucket);
+    utils.cleanBucket(store, bucket);
+  });
+
   describe('test1', () => {
     it('check', () => {
       const r1 = CRC64.check('123456789');
@@ -91,6 +125,37 @@ describe('crc64', () => {
           }
         });
       }
+    });
+
+    it('put crc64 check', async () => {
+      await store.put('test1', uploadContent, { crc64: true });
+    });
+
+    it('putStream crc64 check', async () => {
+      await store.putStream('test2', fs.createReadStream(filePath), { crc64: true });
+    });
+
+    it('multipartUpload crc64 check', async () => {
+      await store.multipartUpload('test3', uploadContent, { crc64: true });
+    });
+
+    it('get object crc64 check stream', async () => {
+      await store.get('test1', { crc64: true });
+    });
+
+    it('get object crc64 check buffer', async () => {
+      await store.get('test1', 'temp.txt', { crc64: true });
+    });
+
+    it('checkCrc64 method', async () => {
+      assert(store.checkCrc64(uploadContent, checkNumber) === true);
+    });
+
+    it('checkCrc64Stream method', async () => {
+      store.checkCrc64Stream(filePath, (err, data) => {
+        if (err) throw new Error('check stream fail');
+        assert(checkNumber === data);
+      });
     });
   });
 });
