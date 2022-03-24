@@ -1,3 +1,5 @@
+import { isAsync } from './isAsync';
+
 type queueOptionsType = {
   retry: number;
   limit: number;
@@ -9,7 +11,12 @@ type queueOptionsType = {
  * @param {Object} options - retry default 3 limit default5
  *
  */
-export function queueTask(argList: any[], customFunc: Function, options: queueOptionsType = { retry: 3, limit: 5 }) {
+export async function queueTask(
+  this: any,
+  argList: any[],
+  customFunc: Function,
+  options: queueOptionsType = { retry: 3, limit: 5 }
+) {
   const opts = Object.assign({}, options);
   const { limit, retry } = opts;
   if (limit > 10) {
@@ -17,51 +24,60 @@ export function queueTask(argList: any[], customFunc: Function, options: queueOp
   }
 
   let retryCount = 0;
-
+  const errorList: any[] = [];
+  const sucessList: any[] = [];
+  const doing: any[] = [];
   const queueList: any[] = argList.map(i => () => {
-    return new Promise<any>((resolve, reject) => {
-      customFunc(i)
-        .then(r => resolve(r))
-        .catch(err => reject(err));
+    return new Promise<any>(resolve => {
+      if (isAsync(customFunc)) {
+        resolve(customFunc.apply(this, i));
+      } else {
+        resolve(customFunc(...i));
+      }
     });
   });
 
-  const errorList: any[] = [];
-  const sucessList: any[] = [];
+  function task() {
+    return new Promise(resolve => {
+      const queueRun = () => {
+        if (!queueList || !queueList.length) {
+          return;
+        }
+        if (queueList.length > 0) {
+          const job = queueList.pop();
+          doing.push(job);
+          job()
+            .then(r => {
+              sucessList.push(r);
+              queueRun();
+            })
+            .catch(e => {
+              if (retryCount < retry) {
+                retryCount += 1;
+                queueList.unshift(job);
+              } else {
+                errorList.push(e);
+              }
+            })
+            .then(() => {
+              doing.pop();
+              if (!doing.length) {
+                resolve({
+                  sucessList,
+                  errorList
+                });
+              }
+            });
+        }
+      };
 
-  const queueRun = () => {
-    let status = true;
-    if (queueList.length > 0) {
-      const task = queueList.pop();
-      while (status) {
-        task()
-          .then(r => {
-            sucessList.push(r);
-          })
-          // eslint-disable-next-line no-loop-func
-          .catch(err => {
-            if (retryCount < retry) {
-              retryCount += 1;
-              queueList.unshift(task);
-            } else {
-              errorList.push(err);
-              status = false;
-            }
-          });
+      // limit customFun
+      for (let i = 0; i < limit; i++) {
+        queueRun();
       }
-      queueRun();
-    }
-  };
-
-  // limit customFun
-  for (let i = 0; i < limit; i++) {
-    // queueRun();
+    });
   }
 
-  queueList[0]();
-
-  return {
-    sucessList,
-    errorList
-  };
+  const result = await task();
+  return result;
 }

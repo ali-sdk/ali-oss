@@ -8,8 +8,5 @@ declare type queueOptionsType = {
  * @param {Object} options - retry default 3 limit default5
  *
  */
-export declare function queueTask(argList: any[], customFunc: Function, options?: queueOptionsType): {
-    sucessList: any[];
-    errorList: any[];
-};
+export declare function queueTask(this: any, argList: any[], customFunc: Function, options?: queueOptionsType): Promise<unknown>;
 export {};

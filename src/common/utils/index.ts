@@ -32,6 +32,8 @@ import { parseXML } from './parseXML';
 import { policy2Str } from './policy2Str';
 import signUtils from './signUtils';
 import { WebFileReadStream } from './webFileReadStream';
+import { queueTask } from './queueTask';
+import { isAsync } from './isAsync';
 
 export default {
   _getObjectMeta,
@@ -69,5 +71,7 @@ export default {
   parseXML,
   policy2Str,
   signUtils,
-  WebFileReadStream
+  WebFileReadStream,
+  queueTask,
+  isAsync
 };
