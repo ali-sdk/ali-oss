@@ -1,38 +1,41 @@
 import { isAsync } from './isAsync';
+import { isFunction } from './isFunction';
 
 type queueOptionsType = {
-  retry: number;
   limit: number;
 };
 
 /**
  * @param {any[]} argList - the arugments list for customFunc
  * @param {Function} customFunc - customFunc
- * @param {Object} options - retry default 3 limit default5
- *
+ * @param {Object} options -  limit default5
  */
-export async function queueTask(
-  this: any,
-  argList: any[],
-  customFunc: Function,
-  options: queueOptionsType = { retry: 3, limit: 5 }
-) {
+export function queueTask(this: any, argList: any[], customFunc: Function, options: queueOptionsType = { limit: 5 }) {
   const opts = Object.assign({}, options);
-  const { limit, retry } = opts;
+  const { limit } = opts;
   if (limit > 10) {
     throw new Error('no more than 10 threads');
   }
 
-  let retryCount = 0;
+  const isBrowserEnv = process && (process as any).browser;
   const errorList: any[] = [];
   const sucessList: any[] = [];
   const doing: any[] = [];
   const queueList: any[] = argList.map(i => () => {
-    return new Promise<any>(resolve => {
+    return new Promise((resolve, reject) => {
+      // browser
+      if (isBrowserEnv && isFunction(customFunc)) {
+        customFunc
+          .apply(this, i)
+          .then(r => resolve(r))
+          .catch(err => reject(err));
+      }
+      // node
       if (isAsync(customFunc)) {
-        resolve(customFunc.apply(this, i));
-      } else {
-        resolve(customFunc(...i));
+        customFunc
+          .apply(this, i)
+          .then(r => resolve(r))
+          .catch(err => reject(err));
       }
     });
   });
@@ -51,14 +54,7 @@ export async function queueTask(
               sucessList.push(r);
               queueRun();
             })
-            .catch(e => {
-              if (retryCount < retry) {
-                retryCount += 1;
-                queueList.unshift(job);
-              } else {
-                errorList.push(e);
-              }
-            })
+            .catch(e => errorList.push(e.toString()))
             .then(() => {
               doing.pop();
               if (!doing.length) {
@@ -78,6 +74,6 @@ export async function queueTask(
     });
   }
 
-  const result = await task();
-  return result;
+  // const result = await task();
+  return task();
 }
