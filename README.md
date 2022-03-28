@@ -4384,7 +4384,23 @@ Each error return by OSS server will contains these properties:
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
-The following table lists the OSS error codes:
+### ResponseTimeoutError
+The request to get the object file cannot be returned within the default time, please set a longer timeout. Or change to use multipart to download
+
+```javascript
+  client.get('example.txt', { timeout:60000 * 2})
+  client.get('example.txt', { headers:{ Range:`bytes=0-${ 1024 * 1024 * 100 }` } }) // Download the first 100MB
+```
+
+### ConnectionTimeoutError
+The request link has timed out. Please check the network link status. If there is no problem with the network, please reduce the partSize or increase the timeout to retry.
+```javascript
+  const client = new OSS({ ak, sk, retryMax:10 })
+  client.multipartUpload('example.txt', { timeout:60000 * 2 })
+  client.multipartUpload('example.txt', { partSize: 1024 * 512 }) // partSize 512KB
+```
+
+### The following table lists the OSS error codes:
 
 [More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
