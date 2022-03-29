@@ -34,7 +34,7 @@ export async function signatureUrl(this: any, name: string, options: signatureUr
   url.query = {
     OSSAccessKeyId: this.options.accessKeyId,
     Expires: expires,
-    Signature: signRes.Signature.replace(/\+/g, '%2B')
+    Signature: signRes.Signature
   };
 
   copy(signRes.subResource).to(url.query);
