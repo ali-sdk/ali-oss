@@ -14,13 +14,13 @@ import { setRegion } from './initOptions';
 const _debug = debug('ali-oss');
 
 interface Headers {
-  [propName: string]: any
-  'x-oss-date': string,
-  'x-oss-user-agent'?: string,
+  [propName: string]: any;
+  'x-oss-date': string;
+  'x-oss-user-agent'?: string;
 }
 
 interface ReqParams {
-  [propName: string]: any
+  [propName: string]: any;
 }
 
 function getHeader(headers: Headers, name: string) {
@@ -38,7 +38,7 @@ export function _createRequest(this: any, params) {
     date = +new Date() + this.options.amendTimeSkewed;
   }
   const headers: Headers = {
-    'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\'')
+    'x-oss-date': dateFormat(date, "UTC:ddd, dd mmm yyyy HH:MM:ss 'GMT'")
   };
 
   if (typeof window !== 'undefined') {
@@ -73,10 +73,11 @@ export function _createRequest(this: any, params) {
 
   if (params.content) {
     if (!params.disabledMD5) {
-      headers['Content-MD5'] = crypto
-        .createHash('md5')
-        .update(Buffer.from(params.content, 'utf8'))
-        .digest('base64');
+      if (!params.headers['Content-MD5']) {
+        headers['Content-MD5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
+      } else {
+        headers['Content-MD5'] = params.headers['Content-MD5'];
+      }
     }
     if (!headers['Content-Length']) {
       headers['Content-Length'] = params.content.length;
@@ -91,7 +92,14 @@ export function _createRequest(this: any, params) {
   }
 
   const authResource = getResource(params, this.options.headerEncoding);
-  headers.authorization = authorization(params.method, authResource, params.subres, headers, this.options, this.options.headerEncoding);
+  headers.authorization = authorization(
+    params.method,
+    authResource,
+    params.subres,
+    headers,
+    this.options,
+    this.options.headerEncoding
+  );
 
   const url = getReqUrl(params, this.options);
   if (isIP(this.options.endpoint.hostname)) {
