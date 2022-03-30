@@ -25,7 +25,7 @@ const { options } = require('benchmark');
 
 timemachine.reset();
 
-const sleep = (time) => {
+const sleep = time => {
   return new Promise(resolve => setTimeout(resolve, time));
 };
 
@@ -59,8 +59,7 @@ describe('browser', () => {
     //   accessKeyId: creds.AccessKeyId,
     //   accessKeySecret: creds.AccessKeySecret,
     //   stsToken: creds.SecurityToken,
-    //   bucket: stsConfig.bucket
-    // });
+    //   bucket: stsConfig.bucket // });
   });
   after(async () => {
     const store = new OSS(ossConfig);
@@ -636,13 +635,11 @@ describe('browser', () => {
       let keyCount = 0;
       do {
         // eslint-disable-next-line no-await-in-loop
-        const result = await store.listV2(
-          {
-            prefix: listPrefix,
-            'max-keys': 2,
-            'continuation-token': nextContinuationToken,
-          },
-        );
+        const result = await store.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken
+        });
         keyCount += result.keyCount;
         nextContinuationToken = result.nextContinuationToken;
       } while (nextContinuationToken);
@@ -651,7 +648,7 @@ describe('browser', () => {
   });
 
   describe('get()', () => {
-    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`;
     let store;
     before(async () => {
       store = new OSS(ossConfig);
@@ -726,7 +723,9 @@ describe('browser', () => {
 
     it('should throw ConnectionTimeoutError when putstream timeout', async () => {
       const name = `${prefix}put/test`;
-      const content = Array(1024 * 1024 * 10).fill(1).join('');
+      const content = Array(1024 * 1024 * 10)
+        .fill(1)
+        .join('');
       const body = new Blob([content], { type: 'text/plain' });
       const options = {
         timeout: 300
@@ -748,7 +747,10 @@ describe('browser', () => {
         .fill(1)
         .join('');
       const body = new Blob([content], { type: 'text/plain' });
-      const MD5Value = crypto1.createHash('md5').update(OSS.Buffer(await body.arrayBuffer())).digest('base64');
+      const MD5Value = crypto1
+        .createHash('md5')
+        .update(OSS.Buffer(await body.arrayBuffer()))
+        .digest('base64');
       await store.put(name, body, {
         headers: {
           'Content-MD5': MD5Value
@@ -843,10 +845,10 @@ describe('browser', () => {
       };
       const url = await store.signatureUrl(name, {
         method: 'PUT',
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       });
       const headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       };
       const res = await OSS.urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
@@ -919,7 +921,6 @@ describe('browser', () => {
         }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-
 
       const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
       const result = await store.copy(originname, name, {
@@ -1040,7 +1041,6 @@ describe('browser', () => {
     it('should signature url for PUT', async () => {
       const putString = 'Hello World';
       const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
-      console.log(contentMd5);
       const url = await store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
@@ -1074,10 +1074,12 @@ describe('browser', () => {
     });
 
     it('should signature url with custom host ok', async () => {
-      const signatureStore = new OSS(Object.assign({}, ossConfig, {
-        endpoint: 'www.aliyun.com',
-        cname: true
-      }));
+      const signatureStore = new OSS(
+        Object.assign({}, ossConfig, {
+          endpoint: 'www.aliyun.com',
+          cname: true
+        })
+      );
 
       const url = await signatureStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
@@ -1361,7 +1363,9 @@ describe('browser', () => {
 
       it('should upload buffer', async () => {
         // create a buffer with 1M random data
-        const bufferString = Array(1024 * 1024).fill('a').join('');
+        const bufferString = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const fileBuf = Buffer.from(bufferString);
 
         const name = `${prefix}multipart/upload-buffer`;
@@ -1704,7 +1708,9 @@ describe('browser', () => {
 
       it('should upload partSize be int number and greater then minPartSize', async () => {
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const filename = `multipart-upload-file-${Date.now()}`;
         const file = new File([fileContent], filename);
         const name = `${prefix}multipart/upload-file`;
@@ -1714,7 +1720,7 @@ describe('browser', () => {
             partSize: 14.56,
             progress() {
               progress++;
-            },
+            }
           });
         } catch (e) {
           assert.equal('partSize must be int number', e.message);
@@ -1725,7 +1731,7 @@ describe('browser', () => {
             partSize: 1,
             progress() {
               progress++;
-            },
+            }
           });
         } catch (e) {
           assert.ok(e.message.startsWith('partSize must not be smaller'));
@@ -1756,7 +1762,7 @@ describe('browser', () => {
             partSize: PART_SIZE,
             progress: (percentage, c) => {
               checkpoint = c;
-            },
+            }
           });
         } catch (e) {
           assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
@@ -1766,14 +1772,16 @@ describe('browser', () => {
         await store.multipartUpload(object, file, {
           parallel: 1,
           partSize: PART_SIZE,
-          checkpoint,
+          checkpoint
         });
-        assert.strictEqual(createStreamSpy.callCount, (FILE_SIZE / PART_SIZE) - SUSPENSION_LIMIT + 1);
+        assert.strictEqual(createStreamSpy.callCount, FILE_SIZE / PART_SIZE - SUSPENSION_LIMIT + 1);
         createStreamSpy.restore();
       });
 
       it('should request throw abort event', async () => {
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-file');
         const name = `${prefix}multipart/upload-file`;
         const createStreamStub = sinon.stub(store, '_createStream', () => {
@@ -1928,7 +1936,7 @@ describe('browser', () => {
   });
 
   describe('request time is skew', () => {
-    it('When the client\'s date is skew, the request will calibration time and retry', async () => {
+    it("When the client's date is skew, the request will calibration time and retry", async () => {
       const store = new OSS(ossConfig);
       const name = `${prefix}put/skew_date`;
       const body = Buffer.from('body');
@@ -2047,7 +2055,9 @@ describe('browser', () => {
     });
 
     it('should request throw ResponseTimeoutError', async () => {
-      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
       const fileName = new File([fileContent], 'multipart-upload-file');
       const name = `${prefix}multipart/upload-file`;
 
@@ -2207,6 +2217,79 @@ describe('browser', () => {
         assert(false, 'should not reach here');
       } catch (e) {
         assert.strictEqual(e.status, -1);
+      }
+    });
+  });
+
+  describe('utils/queueTask', () => {
+    let store;
+    before(async () => {
+      store = new OSS(ossConfig);
+    });
+
+    it.only('put()', async () => {
+      const list = [];
+      for (let i = 0; i < 10; i++) {
+        list.push([
+          `put-test-${i}`,
+          Buffer.from(
+            Array(1024 * 1024 * 2)
+              .fill('a')
+              .join('')
+          )
+        ]);
+      }
+      const result = await store.queueTask(list, store.put);
+      assert.equal(result.errorList.length, 0);
+      assert.equal(result.sucessList.length, 10);
+    });
+    it('multipartUpload()', async () => {
+      const list = [];
+      for (let i = 0; i < 10; i++) {
+        list.push([
+          `multipart-test-${i}`,
+          Buffer.from(
+            Array(1024 * 1024 * 3)
+              .fill('a')
+              .join('')
+          )
+        ]);
+      }
+      const result = await store.queueTask(list, store.multipartUpload);
+      assert.equal(result.errorList.length, 0);
+      assert.equal(result.sucessList.length, 10);
+    });
+
+    it('catch error', async () => {
+      const list = [
+        [
+          'object-1',
+          Buffer.from(
+            Array(1024 * 1024 * 2)
+              .fill('a')
+              .join('')
+          )
+        ],
+        [
+          'object-2',
+          Buffer.from(
+            Array(1024 * 1024 * 2)
+              .fill('a')
+              .join('')
+          )
+        ],
+        ['error-1', 'error']
+      ];
+      const result = await store.queueTask(list, store.put);
+      assert.equal(result.sucessList.length, 2);
+      assert.equal(result.errorList.length, 1);
+    });
+
+    it('threads exceeded limit', async () => {
+      try {
+        store.queueTask(['list', './tmp'], store.put, { limit: 11 });
+      } catch (e) {
+        assert.equal(e.toString(), 'Error: no more than 10 threads');
       }
     });
   });
