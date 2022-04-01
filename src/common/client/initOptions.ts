@@ -36,7 +36,7 @@ function isHttpsWebProtocol() {
   let secure = false;
   try {
     secure = location && location.protocol === 'https:';
-  // eslint-disable-next-line no-empty
+    // eslint-disable-next-line no-empty
   } catch (error) {}
   return secure;
 }
@@ -73,6 +73,7 @@ export function initOptions(options) {
       refreshSTSToken: null, // auto set sts config
       enableProxy: false,
       proxy: null,
+      disabledMD5: false
     },
     options
   );
