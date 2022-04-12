@@ -9,7 +9,7 @@ const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
 const OSS = require('../..');
-const STS = require('../..').STS;
+const { STS } = require('../..');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
 const urllib = require('urllib');
@@ -31,6 +31,29 @@ describe('test/object.test.js', () => {
   let bucket;
   let bucketRegion;
   let archvieBucket;
+  const uploadSucc = false;
+
+  const createFile = async (name, size) => {
+    size = size || 200 * 1024;
+    await new Promise((resolve, reject) => {
+      const rs = fs.createReadStream('/dev/random', {
+        start: 0,
+        end: size - 1
+      });
+      const ws = fs.createWriteStream(name);
+      rs.pipe(ws);
+      ws.on('finish', (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+
+    return name;
+  };
+
   before(async () => {
     store = new OSS(config);
     bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
@@ -485,26 +508,26 @@ describe('test/object.test.js', () => {
   });
 
   describe('mimetype', () => {
-    const createFile = async (name, size) => {
-      size = size || 200 * 1024;
-      await new Promise((resolve, reject) => {
-        const rs = fs.createReadStream('/dev/random', {
-          start: 0,
-          end: size - 1
-        });
-        const ws = fs.createWriteStream(name);
-        rs.pipe(ws);
-        ws.on('finish', (err, res) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res);
-          }
-        });
-      });
+    // const createFile = async (name, size) => {
+    //   size = size || 200 * 1024;
+    //   await new Promise((resolve, reject) => {
+    //     const rs = fs.createReadStream('/dev/random', {
+    //       start: 0,
+    //       end: size - 1
+    //     });
+    //     const ws = fs.createWriteStream(name);
+    //     rs.pipe(ws);
+    //     ws.on('finish', (err, res) => {
+    //       if (err) {
+    //         reject(err);
+    //       } else {
+    //         resolve(res);
+    //       }
+    //     });
+    //   });
 
-      return name;
-    };
+    //   return name;
+    // };
 
     it('should set mimetype by file ext', async () => {
       const filepath = path.join(tmpdir, 'content-type-by-file.jpg');
@@ -2617,6 +2640,102 @@ describe('test/object.test.js', () => {
       const info = await store.head(name);
       assert.equal(info.status, 200);
       assert.equal(info.meta.b, latin1_content);
+    });
+  });
+
+  const multipleFiles = [
+    { name: 'multiple-upload-by-file.jpg', size: 15 * 1024 * 1024 }, // 15MB
+    { name: 'multiple-upload-by-file-small.jpg', size: 1 * 1024 * 1024 }
+  ];
+
+  describe('multiple.upload', () => {
+    it('multiple upload test', done => {
+      const start = async () => {
+        const result = store.multipleUpload({ syncNumber: 9 });
+
+        const list = [];
+        const succs = [];
+
+        const doUpload = (name, size, filePath) => {
+          list.push({
+            name,
+            size,
+            filePath,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) done();
+            }
+          });
+        };
+
+        for (const file of multipleFiles) {
+          const _filePath = path.join(tmpdir, file.name);
+          // eslint-disable-next-line no-await-in-loop
+          await createFile(_filePath, file.size);
+          doUpload(file.name, file.size, _filePath);
+        }
+
+        // const defaultPath = `${process.env.HOME}/Downloads/multipleUpload/`;
+        // const getFiles = dir => {
+        //   const files = fs.readdirSync(dir);
+        //   files.forEach(fi => {
+        //     const filePath = path.join(dir, fi);
+        //     const info = fs.statSync(filePath);
+
+        //     if (info.isDirectory()) {
+        //       getFiles(filePath);
+        //     } else {
+        //       const name = filePath.replace(defaultPath, '');
+        //       doUpload(name, info.size, filePath);
+        //     }
+        //   });
+        // };
+
+        // getFiles(defaultPath);
+
+        result.add(list);
+      };
+
+      start();
+    });
+  });
+
+  describe('multiple.download', () => {
+    it('multiple download test', done => {
+      const defaultPath = path.join(tmpdir, 'multiple-download');
+      const result = store.multipleDownload({ path: defaultPath });
+
+      const start = async () => {
+        const succs = [];
+        const getProgress = (num, suspends) => {
+          if (num === 1) succs.push({});
+          // console.log('download num:::', num, suspends);
+          if (succs.length === list.length) done();
+        };
+
+        // const { objects } = await store.list();
+        // const list = objects
+        //   .filter(obj => obj.size > 0)
+        //   .map(obj => {
+        //     return { name: obj.name, getProgress };
+        //   });
+        const list = multipleFiles.map(obj => ({ name: obj.name, getProgress }));
+        await result.add(list);
+      };
+
+      setTimeout(() => start(), 500); // make big file upload delayed
+    });
+  });
+
+  describe('multiple.delete', () => {
+    it('multiple delete test', done => {
+      const result = store.multipleDelete({});
+      const getProgress = num => {
+        if (num === 1) done();
+      };
+
+      const list = multipleFiles.map(obj => ({ name: obj.name, getProgress }));
+      result.add(list);
     });
   });
 });

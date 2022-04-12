@@ -72,7 +72,7 @@ export interface MultipartUploadOptions extends RequestOptions {
 export interface GetObjectOptions extends MultiVersionCommonOptions {
   process?: string; // image process params, will send with x-oss-process e.g.: {process: 'image/resize,w_200'}
   /** only support Browser.js */
-  responseCacheControl?: string
+  responseCacheControl?: string;
 }
 
 export interface PutObjectOptions extends RequestOptions {
@@ -242,13 +242,13 @@ export interface listQuery {
 }
 
 export interface listV2Query {
-  prefix?: string,
-  delimiter?: string,
-  'start-after'?: string,
-  'continuation-token'?: string,
-  'max-keys'?: string,
-  'encoding-type'?: 'url',
-  'fetch-owner'?: boolean,
+  prefix?: string;
+  delimiter?: string;
+  'start-after'?: string;
+  'continuation-token'?: string;
+  'max-keys'?: string;
+  'encoding-type'?: 'url';
+  'fetch-owner'?: boolean;
 }
 
 export interface postAsyncFetchOptions extends RequestOptions {
@@ -268,3 +268,133 @@ export interface signatureUrlOptions extends RequestOptions {
   expires?: number;
   method?: HttpMethod;
 }
+
+/** multiple upload object start */
+
+/** multiple upload object option */
+export type MultipleObjectUploadOptions = {
+  splitSize?: number; // default fragment upload is not used within 10MB
+  syncNumber?: number; // sync upload object number, default 5
+  progress?: (res: number) => void;
+};
+
+/** multiple upload object result */
+export type MultipleObjectUploadResult = {
+  add: (objects: TMUploadStartPara[]) => boolean;
+  suspend: (obj: string) => boolean;
+  reStart: (obj: string) => boolean;
+  delete: (obj: string) => boolean;
+  dispose: () => void;
+};
+
+export type MultipleObjectDownloadResult = {
+  add: (objects: TMDownloadStartPara[]) => Promise<boolean>;
+  suspend: (obj: string) => boolean;
+  reStart: (obj: string) => boolean;
+  delete: (obj: string) => boolean;
+  dispose: () => void;
+};
+
+export type MultipleObjectDeleteResult = {
+  add: (objects: TMDeleteStartPara[]) => boolean;
+  suspend: (obj: string) => boolean;
+  reStart: (obj: string) => boolean;
+  delete: (obj: string) => boolean;
+  dispose: () => void;
+};
+
+/** task status */
+export enum ETaskStatus {
+  wait,
+  suspend,
+  doing,
+  fail,
+  success
+}
+
+/** multiple upload object config */
+export type TMUploadConfig = {
+  bucketName: string;
+  region: string;
+  folder: string;
+};
+
+/** multiple upload object type */
+export enum EMUploadType {
+  small,
+  big
+}
+
+/** multiple upload object */
+export type TMUploadObject = {
+  // id: string;
+  type: EMUploadType;
+  name: string; // object name
+  filePath: string; // file local path
+  size: number; // object size (byte)
+  status: ETaskStatus;
+  progress: number; // Task progress percentage
+  checkpoint?: any;
+  getProgress: (res: number, checkpoint?: any) => void;
+  message?: string;
+  // uploadConfig?: TMUploadConfig;
+};
+
+/** multiple upload object start parameter */
+export type TMUploadStartPara = {
+  name: string;
+  filePath: string;
+  size: number;
+  checkpoint?: any;
+  getProgress: (res: number, checkpoint?: any) => void;
+};
+
+/** multiple download object option */
+export type MultipleObjectDownloadOptions = {
+  path?: string; // Download to ~/downloads by default
+  splitSize?: number; // default fragment download is not used within 100MB
+  syncNumber?: number; // sync download object number, default 5
+  progress?: (res: number) => void;
+};
+
+/** multiple download object */
+/** multiple upload object start parameter */
+export type TMDownloadStartPara = {
+  name: string;
+  size?: number;
+  checkpoint?: any;
+  getProgress: (res: number, checkpoint?: any) => void;
+};
+
+export type TMDownloadObject = {
+  type: EMUploadType;
+  name: string; // object name
+  size: number; // object size (byte)
+  status: ETaskStatus;
+  progress: number; // Task progress percentage
+  checkpoint?: any;
+  getProgress: (res: number, checkpoint?: any) => void;
+  error?: string;
+  // uploadConfig?: TMUploadConfig;
+};
+
+/** multiple upload object start parameter */
+export type TMDeleteStartPara = {
+  name: string;
+  getProgress: (res: number, checkpoint?: any) => void;
+};
+
+/** multiple delete object option */
+export type MultipleObjectDeleteOptions = {
+  pageSize?: number; // By default, 100 are deleted per page
+  progress?: (res: number) => void;
+};
+
+/** multiple delete object */
+export type TMDeleteObject = {
+  name: string; // object name
+  status: ETaskStatus;
+  progress: number; // Task progress percentage
+  getProgress: (res: number, checkpoint?: any) => void;
+  message?: string;
+};

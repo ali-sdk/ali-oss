@@ -229,4 +229,115 @@ export interface signatureUrlOptions extends RequestOptions {
     expires?: number;
     method?: HttpMethod;
 }
+/** multiple upload object start */
+/** multiple upload object option */
+export declare type MultipleObjectUploadOptions = {
+    splitSize?: number;
+    syncNumber?: number;
+    progress?: (res: number) => void;
+};
+/** multiple upload object result */
+export declare type MultipleObjectUploadResult = {
+    add: (objects: TMUploadStartPara[]) => boolean;
+    suspend: (obj: string) => boolean;
+    reStart: (obj: string) => boolean;
+    delete: (obj: string) => boolean;
+    dispose: () => void;
+};
+export declare type MultipleObjectDownloadResult = {
+    add: (objects: TMDownloadStartPara[]) => Promise<boolean>;
+    suspend: (obj: string) => boolean;
+    reStart: (obj: string) => boolean;
+    delete: (obj: string) => boolean;
+    dispose: () => void;
+};
+export declare type MultipleObjectDeleteResult = {
+    add: (objects: TMDeleteStartPara[]) => boolean;
+    suspend: (obj: string) => boolean;
+    reStart: (obj: string) => boolean;
+    delete: (obj: string) => boolean;
+    dispose: () => void;
+};
+/** task status */
+export declare enum ETaskStatus {
+    wait = 0,
+    suspend = 1,
+    doing = 2,
+    fail = 3,
+    success = 4
+}
+/** multiple upload object config */
+export declare type TMUploadConfig = {
+    bucketName: string;
+    region: string;
+    folder: string;
+};
+/** multiple upload object type */
+export declare enum EMUploadType {
+    small = 0,
+    big = 1
+}
+/** multiple upload object */
+export declare type TMUploadObject = {
+    type: EMUploadType;
+    name: string;
+    filePath: string;
+    size: number;
+    status: ETaskStatus;
+    progress: number;
+    checkpoint?: any;
+    getProgress: (res: number, checkpoint?: any) => void;
+    message?: string;
+};
+/** multiple upload object start parameter */
+export declare type TMUploadStartPara = {
+    name: string;
+    filePath: string;
+    size: number;
+    checkpoint?: any;
+    getProgress: (res: number, checkpoint?: any) => void;
+};
+/** multiple download object option */
+export declare type MultipleObjectDownloadOptions = {
+    path?: string;
+    splitSize?: number;
+    syncNumber?: number;
+    progress?: (res: number) => void;
+};
+/** multiple download object */
+/** multiple upload object start parameter */
+export declare type TMDownloadStartPara = {
+    name: string;
+    size?: number;
+    checkpoint?: any;
+    getProgress: (res: number, checkpoint?: any) => void;
+};
+export declare type TMDownloadObject = {
+    type: EMUploadType;
+    name: string;
+    size: number;
+    status: ETaskStatus;
+    progress: number;
+    checkpoint?: any;
+    getProgress: (res: number, checkpoint?: any) => void;
+    error?: string;
+};
+/** multiple upload object start parameter */
+export declare type TMDeleteStartPara = {
+    name: string;
+    getProgress: (res: number, checkpoint?: any) => void;
+};
+/** multiple delete object option */
+export declare type MultipleObjectDeleteOptions = {
+    pageSize?: number;
+    progress?: (res: number) => void;
+};
+/** multiple delete object */
+export declare type TMDeleteObject = {
+    name: string;
+    status: ETaskStatus;
+    progress: number;
+    getProgress: (res: number, checkpoint?: any) => void;
+    message?: string;
+};
 export {};
