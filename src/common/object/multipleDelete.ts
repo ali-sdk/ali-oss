@@ -4,6 +4,19 @@ import { MultipleObjectDeleteOptions, TMDeleteObject, TMDeleteStartPara, ETaskSt
  * multiple delete
  * pageSize: 1000
  */
+
+/**
+ * Delete directory
+ * @param {object} [options] - Delete directory option
+ * @param {number} [options.syncNumber=5] - By default, up to 5 directories can be deleted at the same time
+ * @param {number} [pageSize=1000] - By default, each directory can delete 1000 at a time, and only 1000 at most
+ * @returns {object} obj
+ * @returns {Function} obj.add(prefixs: TMDeleteStartPara[]) - Add delete task
+ * @returns {Function} obj.suspend(prefix: string) -  Pause the delete of an object
+ * @returns {Function} obj.reStart(prefix: string) -  For objects that have been suspended from deleting, start deleting again
+ * @returns {Function} obj.delete(prefix: string) - Delete the delete task of the specified object
+ * @returns {Function} obj.dispose() - Terminate all ongoing delete tasks and release the delete queue
+ */
 export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions): MultipleObjectDeleteResult {
   const that = this;
 
@@ -20,13 +33,13 @@ export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions)
 
     // stop doings
     for (const item of doings) {
-      stopDoing(item.name);
+      stopDoing(item.prefix);
     }
     doings.length = 0;
   };
 
-  const stopDoing = (objectName: string) => {
-    const index = doings.findIndex(item => item.name === objectName);
+  const stopDoing = (prefix: string) => {
+    const index = doings.findIndex(item => item.prefix === prefix);
     if (index === -1) return false;
 
     const obj = doings[index];
@@ -35,14 +48,14 @@ export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions)
     return true;
   };
 
-  const itemSucc = item => {
-    const index = doings.findIndex(doItem => doItem.name === item.name);
+  const itemSucc = (item: TMDeleteObject) => {
+    const index = doings.findIndex(doItem => doItem.prefix === item.prefix);
     if (index > -1) doings.splice(index, 1); // remove doing item
     doDelete(); // recursion
   };
 
-  const itemFail = (item, error) => {
-    const index = doings.findIndex(doItem => doItem.name === item.name);
+  const itemFail = (item: TMDeleteObject, error) => {
+    const index = doings.findIndex(doItem => doItem.prefix === item.prefix);
     if (index > -1) doings.splice(index, 1); // remove doing item
     item.status = ETaskStatus.fail;
     item.message = error.message;
@@ -67,7 +80,7 @@ export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions)
         const { status } = doItem;
         if (status === ETaskStatus.wait) {
           doItem.status = ETaskStatus.doing;
-          exeDelete(doItem, doItem.name, undefined); // async doing
+          exeDelete(doItem, doItem.prefix, undefined); // async doing
         }
       });
     }
@@ -85,21 +98,19 @@ export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions)
       };
       const res = await that.listV2(para);
       const { prefixes, objects, nextContinuationToken } = res;
-      // console.log('prefixes', prefixes, 'objects', objects, para);
+
       if (prefixes) {
         for (const pre of prefixes) {
-          // eslint-disable-next-line no-await-in-loop
           await exeDelete(item, pre, undefined);
         }
       }
 
       if (nextContinuationToken) {
-        await exeDelete(item, item.name, nextContinuationToken);
+        await exeDelete(item, item.prefix, nextContinuationToken);
       } else {
         const dres = await that.deleteMulti(objects.map(f => f.name));
-        const succ = dres.deleted.length === objects.length; // TODO fails
-
-        getProgress(succ ? 1 : 0);
+        item.progress += dres.deleted.length;
+        getProgress(item.progress);
         itemSucc(item);
       }
     } catch (error) {
@@ -109,18 +120,21 @@ export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions)
 
   /**
    * add delete
-   * @objects [{name:'test/1.txt', path:'D://1.txt', size:1024}]
+   * @param {object[]} prefixs - add delete option
+   * @param {string} prefixs[].prefix - The name of the directory to delete, for example: /del/
+   * @param {Function} prefixs[].getProgress - The callback function gets the number of deleted objects
+   * @returns {boolean} - After adding, an exception will be thrown when the new task is being executed
    */
-  const add = (objects: TMDeleteStartPara[]) => {
-    if (waits.some(item => objects.some(obj => obj.name === item.name)) || doings.some(item => objects.some(obj => obj.name === item.name))) {
+  const add = (prefixs: TMDeleteStartPara[]) => {
+    if (waits.some(item => prefixs.some(obj => obj.prefix === item.prefix)) || doings.some(item => prefixs.some(obj => obj.prefix === item.prefix))) {
       throw new Error('The task is in progress. Please use dispose to release the task first');
     }
 
-    objects.forEach(item => {
-      const { name, getProgress } = item;
+    prefixs.forEach(item => {
+      const { prefix, getProgress } = item;
 
       waits.push({
-        name,
+        prefix,
         status: ETaskStatus.wait,
         progress: 0,
         getProgress: (res: number) => {
@@ -134,14 +148,14 @@ export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions)
     return true;
   };
 
-  const suspend = (objectName: string) => {
-    let index = doings.findIndex(item => item.name === objectName);
+  const suspend = (prefix: string) => {
+    let index = doings.findIndex(item => item.prefix === prefix);
     let obj;
     if (index > -1) {
       obj = doings[index];
       doings.splice(index, 1); // remove doings
     } else {
-      index = waits.findIndex(item => item.name === objectName);
+      index = waits.findIndex(item => item.prefix === prefix);
       obj = waits[index];
       waits.splice(index, 1);
     }
@@ -154,33 +168,34 @@ export function multipleDelete(this: any, options?: MultipleObjectDeleteOptions)
     return true;
   };
 
-  const reStart = (objectName: string) => {
-    const index = suspends.findIndex(item => item.name === objectName);
+  const reStart = (prefix: string) => {
+    const index = suspends.findIndex(item => item.prefix === prefix);
     if (index > -1) {
       const obj = suspends[index];
       obj.status = ETaskStatus.wait;
       obj.message = undefined; // reset error message
       suspends.splice(index, 1);
       waits.unshift(obj); // entries first
-      return true;
-    } else return false;
+    } else throw new Error('object is not suspend');
+
+    return true;
   };
 
   /**
    * delete task
    * small file is not delete
    */
-  const deleteItem = (objectName: string) => {
-    let index = waits.findIndex(item => item.name === objectName);
+  const deleteItem = (prefix: string) => {
+    let index = waits.findIndex(item => item.prefix === prefix);
 
     if (index > -1) {
       waits.splice(index, 1);
     } else {
-      index = suspends.findIndex(item => item.name === objectName);
+      index = suspends.findIndex(item => item.prefix === prefix);
       if (index > -1) {
         suspends.splice(index, 1);
       } else {
-        return stopDoing(objectName);
+        return stopDoing(prefix);
       }
     }
 

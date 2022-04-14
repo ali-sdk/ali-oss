@@ -651,7 +651,7 @@ describe('browser', () => {
   });
 
   describe('get()', () => {
-    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`
+    const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`;
     let store;
     before(async () => {
       store = new OSS(ossConfig);
@@ -1545,8 +1545,7 @@ describe('browser', () => {
           Array(10)
             .fill(1)
             .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
-            )
+              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
@@ -2219,7 +2218,7 @@ describe('browser', () => {
     it('should not calculate MD5 default when use put', async () => {
       const store = new OSS(ossConfig);
       const name = `${prefix}put/test-md5-0`;
-      const request = store.urllib.request;
+      const { request } = store.urllib;
       let reqParams;
       store.urllib.request = (url, params) => {
         reqParams = params;
@@ -2237,7 +2236,7 @@ describe('browser', () => {
       const name = `${prefix}put/test-md5-2`;
       const partSize = 100 * 1024;
       const body2 = new File(Array(2 * partSize).fill(1), { type: 'text/plain' });
-      const request = store.urllib.request;
+      const { request } = store.urllib;
       let headerWithMD5Count = 0;
       store.urllib.request = (url, params) => {
         if (params.headers['Content-MD5'] && /partNumber=\d/.test(url)) {
@@ -2252,4 +2251,33 @@ describe('browser', () => {
       store.urllib.request = request;
     });
   });
+
+  // describe('multiple.upload', () => {
+  //   it.only('get fail list', async () => {
+  //     const result = store.multipleUpload({ syncNumber: 9 });
+
+  //     const list = [];
+  //     const doUpload = (name, size, filePath) => {
+  //       list.push({
+  //         name,
+  //         size,
+  //         filePath,
+  //         getProgress: () => {
+  //           result.suspend(tfile.name);
+  //           const res = result.getFails();
+  //           fs.unlinkSync(filePath);
+
+  //           assert.equal(res.length, 1);
+  //         }
+  //       });
+  //     };
+
+  //     const tfile = { name: 'get-fails.jpg', size: 11 * 1024 * 1024 };
+  //     const tfilePath = path.join(tmpdir, tfile.name);
+  //     await createFile(tfilePath, tfile.size);
+  //     doUpload(tfile.name, tfile.size, tfilePath);
+
+  //     result.add(list);
+  //   });
+  // });
 });

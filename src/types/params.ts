@@ -275,7 +275,7 @@ export interface signatureUrlOptions extends RequestOptions {
 export type MultipleObjectUploadOptions = {
   splitSize?: number; // default fragment upload is not used within 10MB
   syncNumber?: number; // sync upload object number, default 5
-  progress?: (res: number) => void;
+  taskOver?:(objects:TMUploadObject[])=>void;
 };
 
 /** multiple upload object result */
@@ -284,7 +284,8 @@ export type MultipleObjectUploadResult = {
   suspend: (obj: string) => boolean;
   reStart: (obj: string) => boolean;
   delete: (obj: string) => boolean;
-  dispose: () => void;
+  dispose: () => boolean;
+  getFails:()=>TMUploadObject[];
 };
 
 export type MultipleObjectDownloadResult = {
@@ -346,7 +347,7 @@ export type TMUploadStartPara = {
   filePath: string;
   size: number;
   checkpoint?: any;
-  getProgress: (res: number, checkpoint?: any) => void;
+  getProgress?: (res: number, checkpoint?: any) => void;
 };
 
 /** multiple download object option */
@@ -378,23 +379,23 @@ export type TMDownloadObject = {
   // uploadConfig?: TMUploadConfig;
 };
 
-/** multiple upload object start parameter */
+/** multiple delete object start parameter */
 export type TMDeleteStartPara = {
-  name: string;
-  getProgress: (res: number, checkpoint?: any) => void;
+  prefix: string;
+  getProgress: (res: number, checkpoint?: any) => void; // get delete progress
 };
 
 /** multiple delete object option */
 export type MultipleObjectDeleteOptions = {
+  syncNumber?: number;
   pageSize?: number; // By default, 100 are deleted per page
-  progress?: (res: number) => void;
 };
 
 /** multiple delete object */
 export type TMDeleteObject = {
-  name: string; // object name
+  prefix: string;
   status: ETaskStatus;
   progress: number; // Task progress percentage
-  getProgress: (res: number, checkpoint?: any) => void;
+  getProgress: (res: number) => void;
   message?: string;
 };

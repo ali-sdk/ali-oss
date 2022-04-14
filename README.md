@@ -155,6 +155,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
   - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
+  
   - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)

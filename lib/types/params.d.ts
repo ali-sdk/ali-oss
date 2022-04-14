@@ -234,7 +234,7 @@ export interface signatureUrlOptions extends RequestOptions {
 export declare type MultipleObjectUploadOptions = {
     splitSize?: number;
     syncNumber?: number;
-    progress?: (res: number) => void;
+    taskOver?: (objects: TMUploadObject[]) => void;
 };
 /** multiple upload object result */
 export declare type MultipleObjectUploadResult = {
@@ -242,7 +242,8 @@ export declare type MultipleObjectUploadResult = {
     suspend: (obj: string) => boolean;
     reStart: (obj: string) => boolean;
     delete: (obj: string) => boolean;
-    dispose: () => void;
+    dispose: () => boolean;
+    getFails: () => TMUploadObject[];
 };
 export declare type MultipleObjectDownloadResult = {
     add: (objects: TMDownloadStartPara[]) => Promise<boolean>;
@@ -295,7 +296,7 @@ export declare type TMUploadStartPara = {
     filePath: string;
     size: number;
     checkpoint?: any;
-    getProgress: (res: number, checkpoint?: any) => void;
+    getProgress?: (res: number, checkpoint?: any) => void;
 };
 /** multiple download object option */
 export declare type MultipleObjectDownloadOptions = {
@@ -322,22 +323,22 @@ export declare type TMDownloadObject = {
     getProgress: (res: number, checkpoint?: any) => void;
     error?: string;
 };
-/** multiple upload object start parameter */
+/** multiple delete object start parameter */
 export declare type TMDeleteStartPara = {
-    name: string;
+    prefix: string;
     getProgress: (res: number, checkpoint?: any) => void;
 };
 /** multiple delete object option */
 export declare type MultipleObjectDeleteOptions = {
+    syncNumber?: number;
     pageSize?: number;
-    progress?: (res: number) => void;
 };
 /** multiple delete object */
 export declare type TMDeleteObject = {
-    name: string;
+    prefix: string;
     status: ETaskStatus;
     progress: number;
-    getProgress: (res: number, checkpoint?: any) => void;
+    getProgress: (res: number) => void;
     message?: string;
 };
 export {};

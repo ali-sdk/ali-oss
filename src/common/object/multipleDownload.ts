@@ -11,16 +11,24 @@ import {
 import { F_OK } from 'constants';
 
 /**
- * multiple download
- * path: Download to ~/downloads by default
- * splitSize: 100MB
- * syncNumber: 5
+ * multiple object download
+ * @param {object} [options] - multiple download object option
+ * @param {number} [options.splitSize=30 * 1024 * 1024] - By default, only files larger than 30MB are downloaded using Shards
+ * @param {number} [options.syncNumber=5] - By default, 5 files are download at the same time to avoid timeout and DNS errors. It is recommended not to exceed 10 files
+ * @param {string} [path] - The default download path is: __dirname/Downloads
+ * @param {number} [partSize] - The default partition size for partition download is 1MB
+ * @returns {object} obj
+ * @returns {Function} obj.add(objects: TMDownloadStartPara[]) - Add download task
+ * @returns {Function} obj.suspend(objectName: string) -  Pause the download of an object
+ * @returns {Function} obj.reStart(objectName: string) -  For objects that have been suspended from downloading, start downloading again
+ * @returns {Function} obj.delete(objectName: string) - Delete the download task of the specified object
+ * @returns {Function} obj.dispose() - Terminate all ongoing download tasks and release the download queue
  */
 export function multipleDownload(this: any, options?: MultipleObjectDownloadOptions): MultipleObjectDownloadResult {
   const that = this;
 
-  const defDir = `${process.env.HOME}/Downloads`;
-  const splitSize = 10 * 1024 * 1024; // default fragment download is not used within 10MB
+  const defDir = path.join(__dirname, 'Downloads');
+  const splitSize = 30 * 1024 * 1024; // default fragment download is not used within 30MB
   const partSize = 1 * 1024 * 1024; // download part size default 1MB
   const opt = { path: defDir, splitSize, partSize, syncNumber: 5 };
   Object.assign(opt, options);
@@ -144,6 +152,7 @@ export function multipleDownload(this: any, options?: MultipleObjectDownloadOpti
   /**
    * add download
    * @objects [{name:'test/1.txt', size:1024}]
+   * @returns {boolean} - After adding, an exception will be thrown when the new task is being executed
    */
   const add = async (objects: TMDownloadStartPara[]) => {
     if (waits.some(item => objects.some(obj => obj.name === item.name)) || doings.some(item => objects.some(obj => obj.name === item.name))) {
@@ -154,7 +163,6 @@ export function multipleDownload(this: any, options?: MultipleObjectDownloadOpti
       const { name, getProgress, checkpoint } = item;
       let { size } = item;
       if (size === undefined) {
-        // eslint-disable-next-line no-await-in-loop
         const meta = await that.getObjectMeta(name);
         size = parseInt(meta.res.headers['content-length'], 10);
       }
@@ -207,7 +215,7 @@ export function multipleDownload(this: any, options?: MultipleObjectDownloadOpti
       obj.status = ETaskStatus.wait;
       suspends.splice(index, 1);
       waits.unshift(obj); // entries first
-    }
+    } else throw new Error('object is not suspend');
 
     return true;
   };
