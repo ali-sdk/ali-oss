@@ -2,6 +2,8 @@
 
 例子采用 PostObject https://help.aliyun.com/document_detail/31988.html
 
+在微信小程序开发工具打开右上角的详情->本地设置->勾选不检验合法域名、web-view...（用于本地开发,生产环境请登录微信小程序平台，将上传和下载的合法域名填写为Bucket的外网访问域名。）
+
 复制 lib/wx/pages 目录到小程序项目里面
 
 复制 lib/wx/server 目录到单独文件
