@@ -3,6 +3,7 @@ import { obj2xml } from '../utils/obj2xml';
 import { deepCopyWith } from '../utils/deepCopy';
 import { isBuffer } from '../utils/isBuffer';
 import { CompleteMultipartUploadOptions } from '../../types/params';
+import { omit } from '../utils/omit';
 
 /**
  * Complete a multipart upload transaction
@@ -34,25 +35,23 @@ export async function completeMultipartUpload(
   const completeParts = parts
     .concat()
     .sort((a: { number: number }, b: { number: number }) => a.number - b.number)
-    .filter(
-      (item: { number: number }, index: number, arr: any[]) =>
-        !index || item.number !== arr[index - 1].number
-    );
+    .filter((item: { number: number }, index: number, arr: any[]) => !index || item.number !== arr[index - 1].number);
 
   const xmlParamObj = {
     CompleteMultipartUpload: {
       Part: completeParts.map((_: { number: number; etag: string }) => ({
         PartNumber: _.number,
-        ETag: _.etag,
-      })),
-    },
+        ETag: _.etag
+      }))
+    }
   };
 
-  const opt: any = deepCopyWith(options, (_) => {
+  const opt: any = deepCopyWith(options, _ => {
     if (isBuffer(_)) return null;
     return undefined;
   });
 
+  opt.headers = omit(opt.headers, ['x-oss-server-side-encryption', 'x-oss-storage-class']);
   if (opt.headers) delete opt.headers['x-oss-server-side-encryption'];
   opt.subres = { uploadId };
 
@@ -71,7 +70,7 @@ export async function completeMultipartUpload(
     res: result.res,
     bucket: params.bucket,
     name,
-    etag: result.res.headers.etag,
+    etag: result.res.headers.etag
   };
 
   if (params.headers && params.headers['x-oss-callback']) {

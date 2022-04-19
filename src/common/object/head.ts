@@ -1,4 +1,5 @@
 import { MultiVersionCommonOptions } from '../../types/params';
+import { checkEnv } from '../utils/checkEnv';
 
 /**
  * head
@@ -7,11 +8,10 @@ import { MultiVersionCommonOptions } from '../../types/params';
  * @param {{res}}
  */
 
-export async function head(
-  this: any,
-  name: string,
-  options: MultiVersionCommonOptions = {}
-) {
+export async function head(this: any, name: string, options: MultiVersionCommonOptions = {}) {
+  checkEnv(
+    'Because HeadObject has gzip enabled, head cannot get the file size correctly. If you need to get the file size, please use getObjectMeta'
+  );
   options.subres = Object.assign({}, options.subres);
   if (options.versionId) {
     options.subres.versionId = options.versionId;
@@ -24,7 +24,7 @@ export async function head(
   const data: any = {
     meta: null,
     res: result.res,
-    status: result.status,
+    status: result.status
   };
 
   if (result.status === 200) {
