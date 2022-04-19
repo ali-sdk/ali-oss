@@ -1,0 +1,6 @@
+<!--index.wxml-->
+<view class="container">
+  <view >
+    <button bindtap="test">选择上传文件</button>
+  </view>
+</view>
