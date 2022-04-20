@@ -3,15 +3,18 @@ const config = require('../config').oss;
 const OSS = require('../..');
 
 const store = OSS(config);
+const interval = new Date().getTime() - 24 * 60 * 60 * 7 * 1000;
 
 store.listBuckets().then(r => {
   const bucketList = [];
   r.buckets.forEach(i => {
     if (i.name.indexOf('ali-oss') === 0) {
-      bucketList.push({
-        bucket: i.name,
-        region: i.region
-      });
+      if (calculateData(i.name) < interval) {
+        bucketList.push({
+          bucket: i.name,
+          region: i.region
+        });
+      }
     }
   });
 
@@ -27,3 +30,7 @@ store.listBuckets().then(r => {
     });
   }
 });
+
+const calculateData = bucket => {
+  return parseInt(bucket.split('-').pop());
+};
