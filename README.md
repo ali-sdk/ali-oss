@@ -28,7 +28,7 @@ npm install ali-oss --save
 ## Compatibility
 
 ### Node
-Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
+Node.js >= 14.0.0 required. You can use 4.x in Node.js < 8.
 
 ### Browser
 
