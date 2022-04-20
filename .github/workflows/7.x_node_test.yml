@@ -68,7 +68,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run test
-      - run: node test/node/cleanAllBucket.js
 
   node_12:
     if: always()
