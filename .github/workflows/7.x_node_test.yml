@@ -5,9 +5,9 @@ name: 7.x branch
 
 on:
   push:
-    branches: ["7.x"]
+    branches: ['7.x']
   pull_request:
-    branches: ["7.x"]
+    branches: ['7.x']
 
 jobs:
   browser_test:
@@ -100,7 +100,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run test
-      - run: node test/node/cleanAllBucket.js
 
   node_14:
     if: always()
@@ -132,7 +131,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run test
-      - run: node test/node/cleanAllBucket.js
 
   cleanAllBucket:
     if: always()
@@ -161,4 +159,3 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: node test/node/cleanAllBucket.js
