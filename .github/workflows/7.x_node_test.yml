@@ -5,9 +5,9 @@ name: 7.x branch
 
 on:
   push:
-    branches: ["7.x"]
+    branches: ['7.x']
   pull_request:
-    branches: ["7.x"]
+    branches: ['7.x']
 
 jobs:
   browser_test:
@@ -68,7 +68,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run test
-      - run: node test/node/cleanAllBucket.js
 
   node_12:
     if: always()
@@ -100,7 +99,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run test
-      - run: node test/node/cleanAllBucket.js
 
   node_14:
     if: always()
@@ -132,33 +130,3 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run test
-      - run: node test/node/cleanAllBucket.js
-
-  cleanAllBucket:
-    if: always()
-    needs: [node_10, node_12, node_14]
-    environment: ali_oss_AK
-    runs-on: ubuntu-latest
-
-    env:
-      ONCI: true
-      ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
-      ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
-      ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}
-      ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
-      ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
-      ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
-      ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
-      ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
-
-    strategy:
-      matrix:
-        node-version: [14.x]
-    steps:
-      - uses: actions/checkout@v2
-      - name: clean all bucket
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm install
-      - run: node test/node/cleanAllBucket.js
