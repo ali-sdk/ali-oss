@@ -196,7 +196,7 @@ npm install ali-oss --save
 2.for example:
 ```js
 const OSS = require('ali-oss');
-const client = new OSS({
+const store= new OSS({
   region: '<oss region>',
   accessKeyId: '<Your accessKeyId>',
   accessKeySecret: '<Your accessKeySecret>',
@@ -256,7 +256,7 @@ for creating client.
  <script src="./aliyun-oss-sdk-x.x.x.min.js"></script>
 
 <script type="text/javascript">
-  const client = new OSS({
+  const store = new OSS({
     region: 'oss-cn-hangzhou',
     accessKeyId: '<access-key-id>',
     accessKeySecret: '<access-key-secret>',
@@ -264,12 +264,12 @@ for creating client.
     stsToken: '<security-token>'
   });
 
-  client.list().then((result) => {
+  store.list().then((result) => {
     console.log('objects: %j', result.objects);
-    return client.put('my-obj', new OSS.Buffer('hello world'));
+    return store.put('my-obj', new OSS.Buffer('hello world'));
   }).then((result) => {
     console.log('put result: %j', result);
-    return client.get('my-obj');
+    return store.get('my-obj');
   }).then((result) => {
     console.log('get result: %j', result.content.toString());
   });
@@ -1357,7 +1357,7 @@ Success will return:
 ```js
 async function getBucketInventoryById() {
   try {
-    const result = await client.getBucketInventory('bucket', 'inventoryid');
+    const result = await store.getBucketInventory('bucket', 'inventoryid');
     console.log(result.inventory)
   } catch (err) {
     console.log(err)
@@ -1438,7 +1438,7 @@ const inventory = {
 async function putInventory(){
   const bucket = 'Your Bucket Name';
   try {
-    await client.putBucketInventory(bucket, inventory);
+    await store.putBucketInventory(bucket, inventory);
   } catch(err) {
     console.log(err);
   }
@@ -1485,7 +1485,7 @@ async function listBucketInventory() {
   let nextContinuationToken;
   // list all inventory of the bucket
   do {
-    const result = await client.listBucketInventory(bucket, nextContinuationToken);
+    const result = await store.listBucketInventory(bucket, nextContinuationToken);
     console.log(result.inventoryList);
     nextContinuationToken = result.nextContinuationToken;
   } while (nextContinuationToken)
@@ -1831,7 +1831,7 @@ If provide `baseUrl`, will use `baseUrl` instead the default `endpoint`.
 e.g.:
 
 ```js
-const cdnUrl = client.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+const cdnUrl = store.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
@@ -1844,10 +1844,10 @@ Suggest use generateObjectUrl instead of getObjectUrl.
 e.g.:
 
 ```js
-const url = client.generateObjectUrl('foo/bar.jpg');
+const url = store.generateObjectUrl('foo/bar.jpg');
 // cdnUrl should be `https://${bucketname}.${endpotint}foo/bar.jpg`
 
-const cdnUrl = client.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+const cdnUrl = store.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
@@ -3023,7 +3023,7 @@ example:
     const start = partSize * (i -1);
     const end = Math.min(start + partSize, fileSize);
     const data = file.slice(start, end);
-    const part = yield store.uploadPart(name, result.uploadId, i, data);
+    const part = store.uploadPart(name, result.uploadId, i, data);
     console.log(part);
     done.push({
           number: i,
