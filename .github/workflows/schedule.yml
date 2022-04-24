@@ -2,7 +2,7 @@ name: 'Schdule Delete'
 
 on:
   schedule:
-    - cron: '* * * * 1,3,5'
+    - cron: '0 0 * * 1,3,5'
 
 jobs:
   cleanAllBucket:
