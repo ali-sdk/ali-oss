@@ -3023,7 +3023,7 @@ example:
     const start = partSize * (i -1);
     const end = Math.min(start + partSize, fileSize);
     const data = file.slice(start, end);
-    const part = store.uploadPart(name, result.uploadId, i, data);
+    const part = store.uploadPart(name, result.uploadId, i, data, 0, data.length);
     console.log(part);
     done.push({
           number: i,
