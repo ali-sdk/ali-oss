@@ -10,6 +10,7 @@ import { getReqUrl } from '../utils/getReqUrl';
 import { encoder } from '../utils/encoder';
 import { isIP } from '../utils/isIP';
 import { setRegion } from './initOptions';
+import { checkUA } from '../utils/checkUA';
 
 const _debug = debug('ali-oss');
 
@@ -62,6 +63,9 @@ export function _createRequest(this: any, params) {
   if (!getHeader(headers, 'Content-Type')) {
     if (params.mime && params.mime.indexOf('/') > 0) {
       headers['Content-Type'] = params.mime;
+      // dingtalk webkit
+    } else if (checkUA(params)) {
+      headers['Content-Type'] = 'application/octet-stream';
     } else {
       headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));
     }
@@ -73,7 +77,11 @@ export function _createRequest(this: any, params) {
 
   if (params.content) {
     if (!params.disabledMD5) {
-      headers['Content-MD5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
+      if (!headers['Content-MD5']) {
+        headers['Content-MD5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
+      } else {
+        headers['Content-MD5'] = params.headers['Content-MD5'];
+      }
     }
     if (!headers['Content-Length']) {
       headers['Content-Length'] = params.content.length;
