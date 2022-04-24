@@ -2619,4 +2619,42 @@ describe('test/object.test.js', () => {
       assert.equal(info.meta.b, latin1_content);
     });
   });
+
+  describe('anonymous access object', async () => {
+    const fileContent = '12345';
+    const file = Buffer.from(fileContent);
+    const fileName = 'accessObject.txt';
+
+    before(async () => {
+      try {
+        await store.put(fileName, file);
+        await store.putBucketVersioning(bucket, 'Enabled');
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    it('anonymous access return 200', async () => {
+      const url = await store.anonymousAccessObject({ object: fileName });
+      const acl = await store.getACL(fileName);
+      const res = await urllib.request(url);
+
+      assert.equal(res.data.toString(), fileContent);
+      assert.equal(res.status, 200);
+      assert.equal(acl.acl, 'public-read');
+    });
+
+    it('access history version', async () => {
+      const newContent = '67890';
+      await store.put(fileName, Buffer.from(newContent));
+      const objects = await store.getBucketVersions();
+      const url = await store.anonymousAccessObject({ object: fileName }, { versionId: objects.objects[1].versionId });
+      const acl = await store.getACL(fileName, { versionId: objects.objects[1].versionId });
+      const res = await urllib.request(url);
+
+      assert.equal(res.data.toString(), fileContent);
+      assert.equal(res.status, 200);
+      assert.equal(acl.acl, 'public-read');
+    });
+  });
 });
