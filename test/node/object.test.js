@@ -2683,7 +2683,7 @@ describe('test/object.test.js', () => {
           list.push({
             name,
             size,
-            filePath,
+            file: filePath,
             getProgress: res => {
               if (res === 1) succs.push({});
               console.log(res, succs.length, list.length);
