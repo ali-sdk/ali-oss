@@ -6,7 +6,6 @@ const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
-const sleep = require('mz-modules/sleep');
 const utils = require('./utils');
 const OSS = require('../..');
 const STS = require('../..').STS;
