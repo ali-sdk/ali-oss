@@ -275,7 +275,7 @@ export interface signatureUrlOptions extends RequestOptions {
 export type MultipleObjectUploadOptions = {
   splitSize?: number; // default fragment upload is not used within 10MB
   syncNumber?: number; // sync upload object number, default 5
-  taskOver?:(objects:TMUploadObject[])=>void;
+  taskOver?: (objects: TMUploadObject[]) => void;
 };
 
 /** multiple upload object result */
@@ -285,7 +285,7 @@ export type MultipleObjectUploadResult = {
   reStart: (obj: string) => boolean;
   delete: (obj: string) => boolean;
   dispose: () => boolean;
-  getFails:()=>TMUploadObject[];
+  getFails: () => TMUploadObject[];
 };
 
 export type MultipleObjectDownloadResult = {
@@ -331,7 +331,7 @@ export type TMUploadObject = {
   // id: string;
   type: EMUploadType;
   name: string; // object name
-  filePath: string; // file local path
+  file: string; // Node: String(file path)/Buffer/ReadableStream; Browser: Buffer/Blob/File
   size: number; // object size (byte)
   status: ETaskStatus;
   progress: number; // Task progress percentage
@@ -344,7 +344,7 @@ export type TMUploadObject = {
 /** multiple upload object start parameter */
 export type TMUploadStartPara = {
   name: string;
-  filePath: string;
+  file: string; // Node: String(file path)/Buffer/ReadableStream; Browser: Buffer/Blob/File
   size: number;
   checkpoint?: any;
   getProgress?: (res: number, checkpoint?: any) => void;

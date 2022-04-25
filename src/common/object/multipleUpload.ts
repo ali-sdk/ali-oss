@@ -29,7 +29,7 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
   const opt = {
     splitSize,
     syncNumber: 5,
-    taskOver: (_objects:TMUploadObject[]) => {}
+    taskOver: (_objects: TMUploadObject[]) => { }
   };
 
   Object.assign(opt, options);
@@ -47,8 +47,8 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
     for (const item of doings) {
       try {
         stopDoing(item.name);
-      // eslint-disable-next-line no-empty
-      } catch {}
+        // eslint-disable-next-line no-empty
+      } catch { }
     }
     doings.length = 0;
     return true;
@@ -112,21 +112,25 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
       doings.push(...list);
 
       list.forEach(async doItem => {
-        const { type, status, name, filePath, getProgress, checkpoint } = doItem;
+        const { type, status, name, file, getProgress, checkpoint } = doItem;
         if (status === ETaskStatus.wait) {
           doItem.status = ETaskStatus.doing;
 
           try {
             if (type === EMUploadType.small) {
-              const { res } = await that.put(name, filePath);
+              const { res } = await that.put(name, file);
               if (res.statusCode === 200) {
                 getProgress(1);
                 itemSucc(doItem);
               }
             } else {
-              const { res } = await that.multipartUpload(name, filePath, {
+              console.log('start-upload:', name);
+
+              const { res } = await that.multipartUpload(name, file, {
                 checkpoint,
                 progress: (p, cpt) => {
+                  console.log('big:res::', p);
+
                   doItem.checkpoint = cpt;
                   getProgress(p, cpt); // success p=1
                 }
@@ -151,7 +155,7 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
    * add upload
    * @param {object[]} objects - List of objects to upload,for example [{name:'test/1.txt', path:'D://1.txt', size:1024}]
    * @param {string} objects[].name - object name
-   * @param {string} objects[].filePath - Local file path,for example by windows : 'D://1.txt'
+   * @param {string} objects[].file - Node: String(file path)/Buffer/ReadableStream; Browser: Buffer/Blob/File
    * @param {number} objects[].size - object size (byte)
    * @param {object} [objects[].checkpoint] - You can pass in a checkpoint to continue transmitting an object
    * @param {Function} [objects[].getProgress] - (res: number, checkpoint?: any) The callback function obtains the checkpoint required for upload progress and breakpoint continuation
@@ -163,12 +167,12 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
     }
 
     objects.forEach(item => {
-      const { name, filePath, size, getProgress, checkpoint } = item;
+      const { name, file, size, getProgress, checkpoint } = item;
 
       waits.push({
         type: size < opt.splitSize ? EMUploadType.small : EMUploadType.big,
         name,
-        filePath,
+        file,
         size,
         status: ETaskStatus.wait,
         progress: 0,

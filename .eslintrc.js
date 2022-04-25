@@ -37,6 +37,7 @@ module.exports = {
     'comma-dangle': [0],
     'import/prefer-default-export': [0],
     'implicit-arrow-linebreak': [0],
-    '@typescript-eslint/no-unused-vars': [0]
+    '@typescript-eslint/no-unused-vars': [0],
+    'max-len': 0
   }
 };

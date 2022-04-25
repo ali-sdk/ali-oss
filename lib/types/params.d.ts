@@ -282,7 +282,7 @@ export declare enum EMUploadType {
 export declare type TMUploadObject = {
     type: EMUploadType;
     name: string;
-    filePath: string;
+    file: string;
     size: number;
     status: ETaskStatus;
     progress: number;
@@ -293,7 +293,7 @@ export declare type TMUploadObject = {
 /** multiple upload object start parameter */
 export declare type TMUploadStartPara = {
     name: string;
-    filePath: string;
+    file: string;
     size: number;
     checkpoint?: any;
     getProgress?: (res: number, checkpoint?: any) => void;

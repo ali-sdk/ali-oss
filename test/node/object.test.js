@@ -2666,11 +2666,13 @@ describe('test/object.test.js', () => {
         fs.unlinkSync(filePath);
       }
     });
-    if (count === files.length) { fs.rmdirSync(dirPath); }
+    if (count === files.length) {
+      fs.rmdirSync(dirPath);
+    }
   }
 
   describe('multiple.upload', () => {
-    it('upload 2 file 11MB and 1MB', done => {
+    it.only('upload 2 file 11MB and 1MB', done => {
       const start = async () => {
         const result = store.multipleUpload({ syncNumber: 9 });
 
@@ -2716,7 +2718,9 @@ describe('test/object.test.js', () => {
             const filePath = path.join(tempDir, file.name);
             const tmpfile = path.join(tmpdir, file.name);
             isSucc = fs.readFileSync(tmpfile, 'utf8') === fs.readFileSync(filePath, 'utf8');
-            if (!isSucc) { break; }
+            if (!isSucc) {
+              break;
+            }
           }
 
           done(isSucc ? undefined : new Error('file validate fail'));
@@ -2785,7 +2789,9 @@ describe('test/object.test.js', () => {
         result.add(list);
         const sres = result.suspend(tfile.name);
         let error;
-        if (!sres) { error = new Error('suspend fail'); }
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
         if (sres) {
           try {
             result.reStart(tfile.name);
@@ -2793,7 +2799,9 @@ describe('test/object.test.js', () => {
             error = err;
           }
         }
-        if (error) { done(error); }
+        if (error) {
+          done(error);
+        }
 
         const succValidate = async () => {
           const tempDir = path.join(tmpdir, 'multiple-upload-validate');
@@ -2839,7 +2847,9 @@ describe('test/object.test.js', () => {
         result.add(list);
         const sres = result.suspend(tfile.name);
         let error;
-        if (!sres) { error = new Error('suspend fail'); }
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
         if (sres) {
           try {
             setTimeout(() => result.reStart(tfile.name), 1000);
@@ -2847,7 +2857,9 @@ describe('test/object.test.js', () => {
             error = err;
           }
         }
-        if (error) { done(error); }
+        if (error) {
+          done(error);
+        }
 
         const succValidate = async () => {
           const tempDir = path.join(tmpdir, 'multiple-upload-validate');
@@ -2874,7 +2886,7 @@ describe('test/object.test.js', () => {
         list.push({
           name,
           size,
-          filePath,
+          filePath
         });
       };
 
@@ -2896,7 +2908,7 @@ describe('test/object.test.js', () => {
       fs.unlinkSync(tfilePath);
     });
 
-    it.only('big file fast delete', async () => {
+    it('big file 11MB fast delete', async () => {
       const result = store.multipleUpload();
 
       const list = [];
@@ -2904,7 +2916,7 @@ describe('test/object.test.js', () => {
         list.push({
           name,
           size,
-          filePath,
+          filePath
         });
       };
 
@@ -2925,7 +2937,7 @@ describe('test/object.test.js', () => {
       fs.unlinkSync(tfilePath);
     });
 
-    it.only('big file slow delete', done => {
+    it('big file slow delete', done => {
       const start = async () => {
         const result = store.multipleUpload();
 
@@ -2960,7 +2972,7 @@ describe('test/object.test.js', () => {
       start();
     });
 
-    it.only('fast dispose upload 2 file 11MB and 1MB', async () => {
+    it('fast dispose upload 2 file 11MB and 1MB', async () => {
       const result = store.multipleUpload({ syncNumber: 9 });
 
       const list = [];
@@ -2968,7 +2980,7 @@ describe('test/object.test.js', () => {
         list.push({
           name,
           size,
-          filePath,
+          filePath
         });
       };
 
@@ -2987,7 +2999,7 @@ describe('test/object.test.js', () => {
       list.forEach(item => fs.unlinkSync(item.filePath));
     });
 
-    it.only('slow dispose upload 2 file 11MB and 1MB', done => {
+    it('slow dispose upload 2 file 11MB and 1MB', done => {
       const start = async () => {
         const result = store.multipleUpload({ syncNumber: 9 });
 
@@ -2997,7 +3009,7 @@ describe('test/object.test.js', () => {
             name,
             size,
             filePath,
-            getProgress: (process) => {
+            getProgress: process => {
               if (process !== 1) {
                 const res = result.dispose();
                 done(!res);
@@ -3022,7 +3034,7 @@ describe('test/object.test.js', () => {
       start();
     });
 
-    it.only('get fail list', async () => {
+    it('get fail list', async () => {
       const result = store.multipleUpload({ syncNumber: 9 });
 
       const list = [];

@@ -4,6 +4,8 @@ import { isBuffer } from '../../common/utils/isBuffer';
 import { statFile } from './statFile';
 
 export async function getFileSize(file: any) {
+  console.log(JSON.stringify(is), 'issssss');
+
   if (isBuffer(file)) {
     return file.length;
   } else if (isFile(file)) {
