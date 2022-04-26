@@ -1,7 +1,7 @@
 const mime = require('mime');
 const path = require('path');
 
-export function checkUA(params) {
+export function checkBrowserUA(params) {
   if (
     process.browser &&
     !mime.getType(params.mime || path.extname(params.object || '')) &&

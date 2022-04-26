@@ -8,7 +8,7 @@ const { encoder } = require('./encoder');
 const { isIP } = require('./isIP');
 const { setRegion } = require('./setRegion');
 const { getReqUrl } = require('../client/getReqUrl');
-const { checkUA } = require('./checkUA');
+const { checkBrowserUA } = require('./checkBrowserUA');
 
 interface Headers {
   [propName: string]: any;
@@ -59,7 +59,7 @@ export function createRequest(this: any, params) {
   if (!getHeader(headers, 'Content-Type')) {
     if (params.mime && params.mime.indexOf('/') > 0) {
       headers['Content-Type'] = params.mime;
-    } else if (checkUA(params)) {
+    } else if (checkBrowserUA(params)) {
       headers['Content-Type'] = 'application/octet-stream';
     } else {
       headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));
