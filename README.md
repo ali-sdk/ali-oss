@@ -2624,24 +2624,24 @@ example:
 - Get signature url for object
 
 ```js
-const url = await store.signatureUrl('ossdemo.txt');
+const url = await store.asyncSignatureUrl('ossdemo.txt');
 console.log(url);
 // --------------------------------------------------
-const url = await store.signatureUrl('ossdemo.txt', {
+const url = await store.asyncSignatureUrl('ossdemo.txt', {
   expires: 3600,
   method: 'PUT'
 });
 console.log(url);
 //  put object with signatureUrl
 // -------------------------------------------------
-const url = await store.signatureUrl('ossdemo.txt', {
+const url = await store.asyncSignatureUrl('ossdemo.txt', {
   expires: 3600,
   method: 'PUT',
   'Content-Type': 'text/plain; charset=UTF-8',
 });
 console.log(url);
 // --------------------------------------------------
-const url = await store.signatureUrl('ossdemo.txt', {
+const url = await store.asyncSignatureUrl('ossdemo.txt', {
   expires: 3600,
   response: {
     'content-type': 'text/custom',
@@ -2655,12 +2655,12 @@ console.log(url);
 - Get a signature url for a processed image
 
 ```js
-const url = await store.signatureUrl('ossdemo.png', {
+const url = await store.asyncSignatureUrl('ossdemo.png', {
   process: 'image/resize,w_200'
 });
 console.log(url);
 // --------------------------------------------------
-const url = await store.signatureUrl('ossdemo.png', {
+const url = await store.asyncSignatureUrl('ossdemo.png', {
   expires: 3600,
   process: 'image/resize,w_200'
 });
