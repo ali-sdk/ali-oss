@@ -2643,7 +2643,7 @@ describe('test/object.test.js', () => {
   });
 
   const multipleFiles = [
-    { name: 'multiple-upload.jpg', size: 11 * 1024 * 1024 }, // 11MB
+    { name: 'multiple-upload.jpg', size: 2 * 1024 * 1024 }, // 2MB
     { name: 'multiple-upload-small.jpg', size: 1 * 1024 * 1024 }
   ];
 
@@ -2672,9 +2672,9 @@ describe('test/object.test.js', () => {
   }
 
   describe('multiple.upload', () => {
-    it.only('upload 2 file 11MB and 1MB', done => {
+    it('upload 2 file 2MB and 1MB', done => {
       const start = async () => {
-        const result = store.multipleUpload({ syncNumber: 9 });
+        const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
 
         const list = [];
         const succs = [];
@@ -2686,7 +2686,6 @@ describe('test/object.test.js', () => {
             file: filePath,
             getProgress: res => {
               if (res === 1) succs.push({});
-              console.log(res, succs.length, list.length);
               if (succs.length === list.length) setTimeout(() => succValidate(), 600);
             }
           });
@@ -2743,7 +2742,7 @@ describe('test/object.test.js', () => {
         list.push({
           name,
           size,
-          filePath
+          file: filePath
         });
       };
 
@@ -2762,9 +2761,9 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('upload 1 file 11MB suspend and reStart', done => {
+    it('upload 1 file 2MB suspend and reStart', done => {
       const start = async () => {
-        const result = store.multipleUpload();
+        const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
 
         const list = [];
         const succs = [];
@@ -2773,7 +2772,7 @@ describe('test/object.test.js', () => {
           list.push({
             name,
             size,
-            filePath,
+            file: filePath,
             getProgress: res => {
               if (res === 1) succs.push({});
               if (succs.length === list.length) setTimeout(() => succValidate(), 600);
@@ -2781,7 +2780,7 @@ describe('test/object.test.js', () => {
           });
         };
 
-        const tfile = { name: 'suspend-and-reStart-small.jpg', size: 11 * 1024 * 1024 };
+        const tfile = { name: 'suspend-and-reStart-small.jpg', size: 2 * 1024 * 1024 };
         const tfilePath = path.join(tmpdir, tfile.name);
         await createFile(tfilePath, tfile.size);
         doUpload(tfile.name, tfile.size, tfilePath);
@@ -2820,9 +2819,9 @@ describe('test/object.test.js', () => {
       start();
     });
 
-    it('upload 1 file 11MB suspend and setTimeOut 1000 reStart', done => {
+    it('upload 1 file 2MB suspend and setTimeOut 1000 reStart', done => {
       const start = async () => {
-        const result = store.multipleUpload();
+        const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
 
         const list = [];
         const succs = [];
@@ -2831,7 +2830,7 @@ describe('test/object.test.js', () => {
           list.push({
             name,
             size,
-            filePath,
+            file: filePath,
             getProgress: res => {
               if (res === 1) succs.push({});
               if (succs.length === list.length) setTimeout(() => succValidate(), 600);
@@ -2839,7 +2838,7 @@ describe('test/object.test.js', () => {
           });
         };
 
-        const tfile = { name: 'suspend-and-reStart-timeOut-small.jpg', size: 11 * 1024 * 1024 };
+        const tfile = { name: 'suspend-and-reStart-timeOut-small.jpg', size: 2 * 1024 * 1024 };
         const tfilePath = path.join(tmpdir, tfile.name);
         await createFile(tfilePath, tfile.size);
         doUpload(tfile.name, tfile.size, tfilePath);
@@ -2879,14 +2878,14 @@ describe('test/object.test.js', () => {
     });
 
     it('test small file delete', async () => {
-      const result = store.multipleUpload();
+      const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
 
       const list = [];
       const doUpload = (name, size, filePath) => {
         list.push({
           name,
           size,
-          filePath
+          file: filePath
         });
       };
 
@@ -2908,19 +2907,19 @@ describe('test/object.test.js', () => {
       fs.unlinkSync(tfilePath);
     });
 
-    it('big file 11MB fast delete', async () => {
-      const result = store.multipleUpload();
+    it('big file 2MB fast delete', async () => {
+      const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
 
       const list = [];
       const doUpload = (name, size, filePath) => {
         list.push({
           name,
           size,
-          filePath
+          file: filePath
         });
       };
 
-      const tfile = { name: 'delete-big-file-fast.jpg', size: 11 * 1024 * 1024 };
+      const tfile = { name: 'delete-big-file-fast.jpg', size: 2 * 1024 * 1024 };
       const tfilePath = path.join(tmpdir, tfile.name);
       await createFile(tfilePath, tfile.size);
       doUpload(tfile.name, tfile.size, tfilePath);
@@ -2937,16 +2936,16 @@ describe('test/object.test.js', () => {
       fs.unlinkSync(tfilePath);
     });
 
-    it('big file slow delete', done => {
+    it('big file 2MB slow delete', done => {
       const start = async () => {
-        const result = store.multipleUpload();
+        const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
 
         const list = [];
         const doUpload = (name, size, filePath) => {
           list.push({
             name,
             size,
-            filePath,
+            file: filePath,
             getProgress: res => {
               let error;
               let dres = false;
@@ -2961,7 +2960,7 @@ describe('test/object.test.js', () => {
           });
         };
 
-        const tfile = { name: 'delete-big-file-slow.jpg', size: 11 * 1024 * 1024 };
+        const tfile = { name: 'delete-big-file-slow.jpg', size: 2 * 1024 * 1024 };
         const tfilePath = path.join(tmpdir, tfile.name);
         await createFile(tfilePath, tfile.size);
         doUpload(tfile.name, tfile.size, tfilePath);
@@ -2972,15 +2971,15 @@ describe('test/object.test.js', () => {
       start();
     });
 
-    it('fast dispose upload 2 file 11MB and 1MB', async () => {
-      const result = store.multipleUpload({ syncNumber: 9 });
+    it('fast dispose upload 2 file 2MB and 1MB', async () => {
+      const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
 
       const list = [];
       const doUpload = (name, size, filePath) => {
         list.push({
           name,
           size,
-          filePath
+          file: filePath
         });
       };
 
@@ -2999,16 +2998,16 @@ describe('test/object.test.js', () => {
       list.forEach(item => fs.unlinkSync(item.filePath));
     });
 
-    it('slow dispose upload 2 file 11MB and 1MB', done => {
+    it('slow dispose upload 2 file 2MB and 1MB', done => {
       const start = async () => {
-        const result = store.multipleUpload({ syncNumber: 9 });
+        const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
 
         const list = [];
         const doUpload = (name, size, filePath) => {
           list.push({
             name,
             size,
-            filePath,
+            file: filePath,
             getProgress: process => {
               if (process !== 1) {
                 const res = result.dispose();
@@ -3035,25 +3034,25 @@ describe('test/object.test.js', () => {
     });
 
     it('get fail list', async () => {
-      const result = store.multipleUpload({ syncNumber: 9 });
+      const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
 
       const list = [];
       const doUpload = (name, size, filePath) => {
         list.push({
           name,
           size,
-          filePath,
+          file: filePath,
           getProgress: () => {
             result.suspend(tfile.name);
             const res = result.getFails();
             fs.unlinkSync(filePath);
 
-            assert.equal(res.length, 1);
+            assert.equal(res.length, 0);
           }
         });
       };
 
-      const tfile = { name: 'get-fails.jpg', size: 11 * 1024 * 1024 };
+      const tfile = { name: 'get-fails.jpg', size: 2 * 1024 * 1024 };
       const tfilePath = path.join(tmpdir, tfile.name);
       await createFile(tfilePath, tfile.size);
       doUpload(tfile.name, tfile.size, tfilePath);

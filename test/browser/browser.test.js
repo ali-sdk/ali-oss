@@ -21,11 +21,11 @@ const { prefix } = require('./browser-utils');
 
 let ossConfig;
 const timemachine = require('timemachine');
-const { options } = require('benchmark');
+// const { options } = require('benchmark');
 
 timemachine.reset();
 
-const sleep = (time) => {
+const sleep = time => {
   return new Promise(resolve => setTimeout(resolve, time));
 };
 
@@ -636,13 +636,11 @@ describe('browser', () => {
       let keyCount = 0;
       do {
         // eslint-disable-next-line no-await-in-loop
-        const result = await store.listV2(
-          {
-            prefix: listPrefix,
-            'max-keys': 2,
-            'continuation-token': nextContinuationToken,
-          },
-        );
+        const result = await store.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken
+        });
         keyCount += result.keyCount;
         nextContinuationToken = result.nextContinuationToken;
       } while (nextContinuationToken);
@@ -726,7 +724,9 @@ describe('browser', () => {
 
     it('should throw ConnectionTimeoutError when putstream timeout', async () => {
       const name = `${prefix}put/test`;
-      const content = Array(1024 * 1024 * 10).fill(1).join('');
+      const content = Array(1024 * 1024 * 10)
+        .fill(1)
+        .join('');
       const body = new Blob([content], { type: 'text/plain' });
       const options = {
         timeout: 300
@@ -748,7 +748,10 @@ describe('browser', () => {
         .fill(1)
         .join('');
       const body = new Blob([content], { type: 'text/plain' });
-      const MD5Value = crypto1.createHash('md5').update(OSS.Buffer(await body.arrayBuffer())).digest('base64');
+      const MD5Value = crypto1
+        .createHash('md5')
+        .update(OSS.Buffer(await body.arrayBuffer()))
+        .digest('base64');
       await store.put(name, body, {
         headers: {
           'Content-MD5': MD5Value
@@ -843,10 +846,10 @@ describe('browser', () => {
       };
       const url = await store.signatureUrl(name, {
         method: 'PUT',
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       });
       const headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       };
       const res = await OSS.urllib.request(url, { method: 'PUT', data: putString, headers });
       assert.equal(res.status, 200);
@@ -919,7 +922,6 @@ describe('browser', () => {
         }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-
 
       const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
       const result = await store.copy(originname, name, {
@@ -1074,17 +1076,19 @@ describe('browser', () => {
     });
 
     it('should signature url with custom host ok', async () => {
-      const signatureStore = new OSS(Object.assign({}, ossConfig, {
-        endpoint: 'www.aliyun.com',
-        cname: true
-      }));
+      const signatureStore = new OSS(
+        Object.assign({}, ossConfig, {
+          endpoint: 'www.aliyun.com',
+          cname: true
+        })
+      );
 
       const url = await signatureStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
 
-    it.only('signatureUrl will should use refreshSTSToken', async () => {
+    it('signatureUrl will should use refreshSTSToken', async () => {
       const stsService = () => {
         return new Promise((resolve, reject) => {
           resolve({
@@ -1361,7 +1365,9 @@ describe('browser', () => {
 
       it('should upload buffer', async () => {
         // create a buffer with 1M random data
-        const bufferString = Array(1024 * 1024).fill('a').join('');
+        const bufferString = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const fileBuf = Buffer.from(bufferString);
 
         const name = `${prefix}multipart/upload-buffer`;
@@ -1703,7 +1709,9 @@ describe('browser', () => {
 
       it('should upload partSize be int number and greater then minPartSize', async () => {
         // create a file with 1M random data
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const filename = `multipart-upload-file-${Date.now()}`;
         const file = new File([fileContent], filename);
         const name = `${prefix}multipart/upload-file`;
@@ -1713,7 +1721,7 @@ describe('browser', () => {
             partSize: 14.56,
             progress() {
               progress++;
-            },
+            }
           });
         } catch (e) {
           assert.equal('partSize must be int number', e.message);
@@ -1724,7 +1732,7 @@ describe('browser', () => {
             partSize: 1,
             progress() {
               progress++;
-            },
+            }
           });
         } catch (e) {
           assert.ok(e.message.startsWith('partSize must not be smaller'));
@@ -1755,7 +1763,7 @@ describe('browser', () => {
             partSize: PART_SIZE,
             progress: (percentage, c) => {
               checkpoint = c;
-            },
+            }
           });
         } catch (e) {
           assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
@@ -1765,14 +1773,16 @@ describe('browser', () => {
         await store.multipartUpload(object, file, {
           parallel: 1,
           partSize: PART_SIZE,
-          checkpoint,
+          checkpoint
         });
-        assert.strictEqual(createStreamSpy.callCount, (FILE_SIZE / PART_SIZE) - SUSPENSION_LIMIT + 1);
+        assert.strictEqual(createStreamSpy.callCount, FILE_SIZE / PART_SIZE - SUSPENSION_LIMIT + 1);
         createStreamSpy.restore();
       });
 
       it('should request throw abort event', async () => {
-        const fileContent = Array(1024 * 1024).fill('a').join('');
+        const fileContent = Array(1024 * 1024)
+          .fill('a')
+          .join('');
         const file = new File([fileContent], 'multipart-upload-file');
         const name = `${prefix}multipart/upload-file`;
         const createStreamStub = sinon.stub(store, '_createStream', () => {
@@ -1927,7 +1937,7 @@ describe('browser', () => {
   });
 
   describe('request time is skew', () => {
-    it('When the client\'s date is skew, the request will calibration time and retry', async () => {
+    it("When the client's date is skew, the request will calibration time and retry", async () => {
       const store = new OSS(ossConfig);
       const name = `${prefix}put/skew_date`;
       const body = Buffer.from('body');
@@ -2046,7 +2056,9 @@ describe('browser', () => {
     });
 
     it('should request throw ResponseTimeoutError', async () => {
-      const fileContent = Array(1024 * 1024).fill('a').join('');
+      const fileContent = Array(1024 * 1024)
+        .fill('a')
+        .join('');
       const fileName = new File([fileContent], 'multipart-upload-file');
       const name = `${prefix}multipart/upload-file`;
 
@@ -2252,32 +2264,275 @@ describe('browser', () => {
     });
   });
 
-  // describe('multiple.upload', () => {
-  //   it.only('get fail list', async () => {
-  //     const result = store.multipleUpload({ syncNumber: 9 });
+  describe('multiple.upload', () => {
+    let result;
+    const oneMB = 1 * 1024 * 1024;
+    const oneStr = Buffer.from(Array(oneMB).fill('a').join(''));
+    const twoMB = 2 * 1024 * 1024;
+    const twoStr = Buffer.from(Array(twoMB).fill('a').join(''));
 
-  //     const list = [];
-  //     const doUpload = (name, size, filePath) => {
-  //       list.push({
-  //         name,
-  //         size,
-  //         filePath,
-  //         getProgress: () => {
-  //           result.suspend(tfile.name);
-  //           const res = result.getFails();
-  //           fs.unlinkSync(filePath);
+    const multipleFiles = [
+      {
+        name: 'browser-multiple-upload.jpg',
+        content: twoStr,
+        size: 2 * oneMB
+      }, // 2MB
+      {
+        name: 'browser-multiple-upload-small.jpg',
+        content: oneStr,
+        size: oneMB
+      }
+    ];
 
-  //           assert.equal(res.length, 1);
-  //         }
-  //       });
-  //     };
+    before(() => {
+      const store = new OSS(ossConfig);
+      result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
+    });
 
-  //     const tfile = { name: 'get-fails.jpg', size: 11 * 1024 * 1024 };
-  //     const tfilePath = path.join(tmpdir, tfile.name);
-  //     await createFile(tfilePath, tfile.size);
-  //     doUpload(tfile.name, tfile.size, tfilePath);
+    it('upload 2 file 2MB and 1MB', done => {
+      const start = async () => {
+        const list = [];
+        const succs = [];
 
-  //     result.add(list);
-  //   });
-  // });
+        for (const file of multipleFiles) {
+          const { name, size, content } = file;
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) done();
+            }
+          });
+        }
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('small file is not suspend', async () => {
+      const tfile = {
+        name: 'suspend-and-reStart-small.jpg',
+        file: oneStr,
+        size: oneMB
+      };
+      result.add([tfile]);
+
+      try {
+        result.suspend(tfile.name);
+      } catch (error) {
+        assert.equal(error.message, 'Files smaller than splitsize cannot be uploaded temporarily');
+      }
+    });
+
+    it('upload 1 file 2MB suspend and reStart', done => {
+      const start = async () => {
+        const list = [];
+        const succs = [];
+
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) done();
+            }
+          });
+        };
+
+        const tfile = { name: 'suspend-and-reStart.jpg', size: twoMB, content: twoStr };
+        doUpload(tfile);
+        result.add(list);
+
+        const sres = result.suspend(tfile.name);
+        let error;
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
+        if (sres) {
+          try {
+            result.reStart(tfile.name);
+          } catch (err) {
+            error = err;
+          }
+        }
+        if (error) {
+          done(error);
+        }
+      };
+
+      start();
+    });
+
+    it('upload 1 file 2MB suspend and setTimeOut 1000 reStart', done => {
+      const start = async () => {
+        const list = [];
+        const succs = [];
+
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) done();
+            }
+          });
+        };
+
+        const tfile = { name: 'suspend-and-reStart-timeOut-small.jpg', size: twoMB, content: twoStr };
+        doUpload(tfile);
+        result.add(list);
+
+        const sres = result.suspend(tfile.name);
+        let error;
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
+        if (sres) {
+          try {
+            setTimeout(() => {
+              result.reStart(tfile.name);
+            }, 700);
+          } catch (err) {
+            error = err;
+          }
+        }
+        if (error) {
+          done(error);
+        }
+      };
+
+      start();
+    });
+
+    it('test small file delete', () => {
+      const tfile = { name: 'delete-item-small.jpg', size: oneMB, file: oneStr };
+      result.add([tfile]);
+
+      let error;
+      try {
+        result.delete(tfile.name);
+      } catch (err) {
+        error = err;
+      }
+
+      assert.equal(error, undefined);
+    });
+
+    it('big file 2MB fast delete', () => {
+      const tfile = { name: 'delete-big-file-fast.jpg', size: twoMB, file: twoStr };
+      result.add([tfile]);
+
+      let error;
+      try {
+        result.delete(tfile.name);
+      } catch (err) {
+        error = err;
+      }
+
+      assert.equal(error, undefined);
+    });
+
+    it('big file 2MB slow delete', done => {
+      const start = async () => {
+        const list = [];
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              let error;
+              let dres = false;
+              try {
+                dres = result.delete(tfile.name);
+              } catch (err) {
+                error = err;
+              }
+              done(!dres, error);
+            }
+          });
+        };
+
+        const tfile = { name: 'delete-big-file-slow.jpg', size: twoMB, content: twoStr };
+        doUpload(tfile);
+
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('fast dispose upload 2 file 2MB and 1MB', async () => {
+      const list = [];
+
+      const pfiles = [];
+      for (const file of multipleFiles) {
+        const { name, size, content } = file;
+        list.push({
+          name,
+          size,
+          file: content
+        });
+      }
+
+      result.add(list);
+      const res = result.dispose();
+      assert.equal(res, true);
+    });
+
+    it('slow dispose upload 2 file 2MB and 1MB', done => {
+      const start = async () => {
+        const list = [];
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: process => {
+              if (process !== 1) {
+                const res = result.dispose();
+                done(!res);
+              }
+            }
+          });
+        };
+
+        for (const file of multipleFiles) {
+          doUpload(file);
+        }
+
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('get fail list', async () => {
+      const list = [];
+      const doUpload = ({ name, size, content }) => {
+        list.push({
+          name,
+          size,
+          file: content,
+          getProgress: () => {
+            result.suspend(tfile.name);
+            const res = result.getFails();
+            assert.equal(res.length, 0);
+          }
+        });
+      };
+
+      const tfile = { name: 'get-fails.jpg', size: twoMB, content: twoStr };
+      doUpload(tfile);
+
+      result.add(list);
+    });
+  });
 });

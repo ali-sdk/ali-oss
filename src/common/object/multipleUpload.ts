@@ -29,7 +29,7 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
   const opt = {
     splitSize,
     syncNumber: 5,
-    taskOver: (_objects: TMUploadObject[]) => { }
+    taskOver: (_objects: TMUploadObject[]) => { },
   };
 
   Object.assign(opt, options);
@@ -124,13 +124,9 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
                 itemSucc(doItem);
               }
             } else {
-              console.log('start-upload:', name);
-
               const { res } = await that.multipartUpload(name, file, {
                 checkpoint,
                 progress: (p, cpt) => {
-                  console.log('big:res::', p);
-
                   doItem.checkpoint = cpt;
                   getProgress(p, cpt); // success p=1
                 }
@@ -161,7 +157,7 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
    * @param {Function} [objects[].getProgress] - (res: number, checkpoint?: any) The callback function obtains the checkpoint required for upload progress and breakpoint continuation
    * @returns {boolean} - After adding, an exception will be thrown when the new task is being executed
    */
-  const add = (objects: TMUploadStartPara[]) => {
+  const add = (objects: TMUploadStartPara[]): boolean => {
     if (waits.some(item => objects.some(obj => obj.name === item.name)) || doings.some(item => objects.some(obj => obj.name === item.name))) {
       throw new Error('The task is in progress. Please use dispose to release the task first');
     }
@@ -192,7 +188,7 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
    * Pause the upload of an object, Restore via reStart
    * @param {string} objectName - object name, Path without bucket name
   */
-  const suspend = (objectName: string) => {
+  const suspend = (objectName: string): boolean => {
     let index = doings.findIndex(item => item.name === objectName);
     let obj;
     if (index > -1) {
@@ -219,7 +215,7 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
    * Resume the previously suspended task. If the suspended task is not found, an exception will be thrown
    * @param {string} objectName - object name, Path without bucket name
   */
-  const reStart = (objectName: string) => {
+  const reStart = (objectName: string): boolean => {
     const index = suspends.findIndex(item => item.name === objectName);
     if (index > -1) {
       const obj = suspends[index];
@@ -239,7 +235,7 @@ export function multipleUpload(this: any, options?: MultipleObjectUploadOptions)
    * Files smaller than splitsize cannot be deleted
    * @param {string} objectName - object name, Path without bucket name
    */
-  const deleteItem = (objectName: string) => {
+  const deleteItem = (objectName: string): boolean => {
     let index = waits.findIndex(item => item.name === objectName);
 
     if (index > -1) {
