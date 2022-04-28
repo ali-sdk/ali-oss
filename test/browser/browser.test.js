@@ -2263,13 +2263,5 @@ describe('browser', () => {
       assert.strictEqual(headerWithMD5Count, 2);
       store.urllib.request = request;
     });
-
-    it.only('should get bucket stat', async () => {
-      const store = new OSS(ossConfig);
-      const result = await store.getBucketStat(ossConfig.bucket);
-      console.log(result);
-      assert.equal(typeof result.stat, 'object');
-      assert.equal(result.res.status, 200);
-    });
   });
 });
