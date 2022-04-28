@@ -72,6 +72,7 @@ All operation use es7 async/await to implement. All api is async function.
     - [.useBucket(name)](#usebucketname)
     - [.deleteBucket(name[, options])](#deletebucketname-options)
     - [.getBucketInfo(name)](#getbucketinfoname)
+    - [.getBucketStat(name)](#getbucketstatname)
     - [.getBucketLocation(name)](#getbucketlocationname)
   - ACL
     - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
@@ -562,6 +563,53 @@ store.getBucketInfo('helloworld').then( (res) => {
   console.log(res.bucket)
 })
 ```
+
+### .getBucketStat(name)
+
+Call the GetBucketStat interface to get the storage capacity of the specified storage space (Bucket) and the number of files (Object).
+
+Calling this interface requires the oss:GetBucketStat permission.
+The data obtained by calling this interface is not real-time data and may be delayed for more than an hour.
+The point in time of the stored information obtained by calling this interface is not guaranteed to be up-to-date, i.e. the LastModifiedTime field returned by a later call to this interface may be smaller than the LastModifiedTime field returned by a previous call to this interface.
+
+parameters:
+
+- name {String} bucket name
+
+Success will return:
+
+- stat {Objecg} container for the BucketStat structure:
+  - Storage {String} the total storage capacity of the Bucket, in bytes.
+  - ObjectCount {String} Bucket中总的Object数量。
+  - MultipartUploadCount {String} The number of Multipart Uploads in the Bucket that have been initialized but not yet completed (Complete) or not yet aborted (Abort).
+  - LiveChannelCount {String} The number of Live Channels in the Bucket.
+  - LastModifiedTime {String} The point in time, in timestamps, when the storage information was retrieved.
+  - StandardStorage {String} The amount of storage of the standard storage type, in bytes.
+  - StandardObjectCount {String} The number of objects of the standard storage type.
+  - InfrequentAccessStorage {String} The amount of billed storage for the low-frequency storage type, in bytes.
+  - InfrequentAccessRealStorage {String} The actual storage amount of the low-frequency storage type, in bytes.
+  - InfrequentAccessObjectCount {String} The number of Objects of the low-frequency storage type.
+  - ArchiveStorage {String} The amount of billed storage for the archive storage type, in bytes.
+  - ArchiveRealStorage {String} The actual storage amount of the archive storage type, in bytes.
+  - ArchiveObjectCount {String} The number of objects of the archive storage type.
+  - ColdArchiveStorage {String} The amount of billed storage for the cold archive storage type, in bytes.
+  - ColdArchiveRealStorage {String} The actual storage amount in bytes for the cold archive storage type.
+  - ColdArchiveObjectCount {String} The number of objects of the cold archive storage type.
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- If you don't fill in the name, the default is the bucket defined during initialization.
+
+```js
+store.getBucketStat().then(res=>console.log(res))
+```
+
 
 ### .getBucketLocation(name)
 

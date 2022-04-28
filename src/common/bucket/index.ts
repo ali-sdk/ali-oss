@@ -42,6 +42,7 @@ import { putBucketRequestPayment } from './putBucketRequestPayment';
 import { putBucketTags } from './putBucketTags';
 import { putBucketVersioning } from './putBucketVersioning';
 import { putBucketWebsite } from './putBucketWebsite';
+import { getBucketStat } from './getBucketStat';
 
 export default {
   abortBucketWorm,
@@ -88,4 +89,5 @@ export default {
   putBucketTags,
   putBucketVersioning,
   putBucketWebsite,
+  getBucketStat
 };
