@@ -578,7 +578,7 @@ parameters:
 
 Success will return:
 
-- stat {Objecg} container for the BucketStat structure:
+- stat {Object} container for the BucketStat structure:
   - Storage {String} the total storage capacity of the Bucket, in bytes.
   - ObjectCount {String} Bucket中总的Object数量。
   - MultipartUploadCount {String} The number of Multipart Uploads in the Bucket that have been initialized but not yet completed (Complete) or not yet aborted (Abort).
