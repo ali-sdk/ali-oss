@@ -209,7 +209,7 @@ describe('test/sts.test.js', () => {
         accessKeyId: credentials.AccessKeyId,
         accessKeySecret: credentials.AccessKeySecret,
         stsToken: credentials.SecurityToken,
-        refreshSTSToken: async () => {
+        refreshSTSToken: () => {
           flag = true;
         },
         bucket: stsConfig.bucket,

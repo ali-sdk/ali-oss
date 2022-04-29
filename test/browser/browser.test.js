@@ -22,7 +22,6 @@ const timemachine = require('timemachine');
 
 timemachine.reset();
 
-
 function sleep(time) {
   return new Promise(resolve => {
     setTimeout(resolve, time);
@@ -1088,45 +1087,23 @@ describe('browser', () => {
     });
 
     it('signatureUrl will should use refreshSTSToken', async () => {
-      const stsService = () => {
-        return new Promise((resolve, reject) => {
-          resolve({
-            accessKeyId: 'b',
-            accessKeySecret: 'b',
-            stsToken: 'b'
-          });
-          if (1 === 2) reject();
-        });
-      };
+      let flag = false;
 
       store = oss({
         region: ossConfig.region,
         accessKeyId: ossConfig.accessKeyId,
         accessKeySecret: ossConfig.accessKeySecret,
         stsToken: ossConfig.stsToken,
-        refreshSTSToken: async () => {
-          const info = await stsService();
-          return {
-            accessKeyId: info.accessKeyId,
-            accessKeySecret: info.accessKeySecret,
-            stsToken: info.stsToken
-          };
+        refreshSTSToken: () => {
+          flag = true;
         },
         bucket: ossConfig.bucket,
         refreshSTSTokenInterval: 1000
       });
 
       await sleep(2000);
-      const a = await store.asyncSignatureUrl('test.txt');
-      store = oss({
-        region: ossConfig.region,
-        accessKeyId: 'b',
-        accessKeySecret: 'b',
-        stsToken: 'b',
-        bucket: ossConfig.bucket
-      });
-      const b = store.signatureUrl('test.txt');
-      assert.equal(a, b);
+      await store.asyncSignatureUrl('test.txt');
+      assert(flag);
     });
   });
 
