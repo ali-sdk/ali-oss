@@ -1096,6 +1096,11 @@ describe('browser', () => {
         stsToken: ossConfig.stsToken,
         refreshSTSToken: () => {
           flag = true;
+          return {
+            accessKeyId: 'b',
+            accessKeySecret: 'b',
+            stsToken: 'b'
+          };
         },
         bucket: ossConfig.bucket,
         refreshSTSTokenInterval: 1000

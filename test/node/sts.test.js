@@ -211,6 +211,11 @@ describe('test/sts.test.js', () => {
         stsToken: credentials.SecurityToken,
         refreshSTSToken: () => {
           flag = true;
+          return {
+            accessKeyId: 'b',
+            accessKeySecret: 'b',
+            stsToken: 'b'
+          };
         },
         bucket: stsConfig.bucket,
         refreshSTSTokenInterval: 1000
