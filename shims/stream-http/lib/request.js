@@ -166,11 +166,14 @@ ClientRequest.prototype._onFinish = function () {
       );
   } else {
     var xhr = (self._xhr = new global.XMLHttpRequest());
+
     // listen progress
-    xhr.upload.onprogress = item => {
-      item.percentage = parseInt(String(item.loaded / item.total) * 100);
-      console.log(item.percentage);
-    };
+    if (opts.onXHRProgress && typeof opts.onXHRProgress === 'function') {
+      xhr.upload.onprogress = item => {
+        item.percentage = parseInt(String(item.loaded / item.total) * 100);
+        opts.onXHRProgress(item.percentage, item.loaded, item.total);
+      };
+    }
 
     try {
       xhr.open(self._opts.method, self._opts.url, true);
