@@ -578,23 +578,23 @@ parameters:
 
 Success will return:
 
-- stat {Objecg} container for the BucketStat structure:
+- stat {Object} container for the BucketStat structure:
   - Storage {String} the total storage capacity of the Bucket, in bytes.
-  - ObjectCount {String} Bucket中总的Object数量。
-  - MultipartUploadCount {String} The number of Multipart Uploads in the Bucket that have been initialized but not yet completed (Complete) or not yet aborted (Abort).
-  - LiveChannelCount {String} The number of Live Channels in the Bucket.
-  - LastModifiedTime {String} The point in time, in timestamps, when the storage information was retrieved.
-  - StandardStorage {String} The amount of storage of the standard storage type, in bytes.
-  - StandardObjectCount {String} The number of objects of the standard storage type.
-  - InfrequentAccessStorage {String} The amount of billed storage for the low-frequency storage type, in bytes.
-  - InfrequentAccessRealStorage {String} The actual storage amount of the low-frequency storage type, in bytes.
-  - InfrequentAccessObjectCount {String} The number of Objects of the low-frequency storage type.
-  - ArchiveStorage {String} The amount of billed storage for the archive storage type, in bytes.
-  - ArchiveRealStorage {String} The actual storage amount of the archive storage type, in bytes.
-  - ArchiveObjectCount {String} The number of objects of the archive storage type.
-  - ColdArchiveStorage {String} The amount of billed storage for the cold archive storage type, in bytes.
-  - ColdArchiveRealStorage {String} The actual storage amount in bytes for the cold archive storage type.
-  - ColdArchiveObjectCount {String} The number of objects of the cold archive storage type.
+  - ObjectCount {String} total number of Objects in the Bucket。
+  - MultipartUploadCount {String} the number of Multipart Uploads in the Bucket that have been initialized but not yet completed (Complete) or not yet aborted (Abort).
+  - LiveChannelCount {String} the number of Live Channels in the Bucket.
+  - LastModifiedTime {String} the point in time, in timestamps, when the storage information was retrieved.
+  - StandardStorage {String} the amount of storage of the standard storage type, in bytes.
+  - StandardObjectCount {String} the number of objects of the standard storage type.
+  - InfrequentAccessStorage {String} the amount of billed storage for the low-frequency storage type, in bytes.
+  - InfrequentAccessRealStorage {String} the actual storage amount of the low-frequency storage type, in bytes.
+  - InfrequentAccessObjectCount {String} the number of Objects of the low-frequency storage type.
+  - ArchiveStorage {String} the amount of billed storage for the archive storage type, in bytes.
+  - ArchiveRealStorage {String} the actual storage amount of the archive storage type, in bytes.
+  - ArchiveObjectCount {String} the number of objects of the archive storage type.
+  - ColdArchiveStorage {String} the amount of billed storage for the cold archive storage type, in bytes.
+  - ColdArchiveRealStorage {String} the actual storage amount in bytes for the cold archive storage type.
+  - ColdArchiveObjectCount {String} the number of objects of the cold archive storage type.
 
 - res {Object} response info, including
   - status {Number} response status
