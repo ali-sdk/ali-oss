@@ -1,13 +1,30 @@
 import { checkBucketName } from '../utils/checkBucketName';
 import { RequestOptions } from '../../types/params';
 
-/**
- * getBucketStat
- * @param {String} name - bucket name
- * @return {Object}
- */
+type bucketStatRes = {
+  Storage: string;
+  ObjectCount: string;
+  MultipartUploadCount: string;
+  LiveChannelCount: string;
+  LastModifiedTime: string;
+  StandardStorage: string;
+  StandardObjectCount: string;
+  InfrequentAccessStorage: string;
+  InfrequentAccessRealStorage: string;
+  InfrequentAccessObjectCount: string;
+  ArchiveStorage: string;
+  ArchiveRealStorage: string;
+  ArchiveObjectCount: string;
+  ColdArchiveStorage: string;
+  ColdArchiveRealStorage: string;
+  ColdArchiveObjectCount: string;
+};
 
-export async function getBucketStat(this: any, name: string, options: RequestOptions = {}) {
+export async function getBucketStat(
+  this: any,
+  name: string,
+  options: RequestOptions = {}
+): Promise<{ res: any; stat: bucketStatRes }> {
   name = name || this.options.bucket;
   checkBucketName(name);
   const params = this._bucketRequestParams('GET', name, 'stat', options);
