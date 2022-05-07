@@ -39,15 +39,15 @@
     "tsc": "npm run tsc:clean && npm run tsc:build",
     "tsc:build": "tsc -b tsconfig-es.json tsconfig-cjs.json && node task/handle-es-export.js",
     "tsc:watch": "tsc -b tsconfig-es.json tsconfig-cjs.json --watch",
-    "tsc:clean": "tsc -b tsconfig-es.json tsconfig-cjs.json --clean "
+    "tsc:clean": "tsc -b tsconfig-es.json tsconfig-cjs.json --clean ",
+    "prepare": "husky install"
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
     "post-release": [
       "npm run publish-to-npm",
       "npm run publish-to-cdn"
-    ],
-    "pre-commit": "npm run lint-staged"
+    ]
   },
   "repository": {
     "type": "git",
@@ -74,6 +74,8 @@
     "@babel/plugin-transform-runtime": "^7.11.5",
     "@babel/preset-env": "^7.11.5",
     "@babel/runtime": "^7.11.2",
+    "@commitlint/cli": "^16.2.4",
+    "@commitlint/config-conventional": "^16.2.4",
     "@types/node": "^14.0.12",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
@@ -95,6 +97,7 @@
     "eslint-plugin-react": "^7.7.0",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
+    "husky": "^7.0.4",
     "immediate": "^3.3.0",
     "karma": "^6.3.4",
     "karma-browserify": "^5.1.1",
@@ -149,6 +152,7 @@
   "lint-staged": {
     "**/!(dist)/*": [
       "npm run detect-secrets --"
-    ]
+    ],
+    "*.js": "eslint --cache --fix"
   }
 }
