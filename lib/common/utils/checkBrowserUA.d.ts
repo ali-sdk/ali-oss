@@ -1,1 +1,1 @@
-export declare function checkUA(params: any): boolean;
+export declare function checkBrowserUA(params: any): boolean;
