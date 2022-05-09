@@ -42,6 +42,7 @@ import { putBucketRequestPayment } from './putBucketRequestPayment';
 import { putBucketTags } from './putBucketTags';
 import { putBucketVersioning } from './putBucketVersioning';
 import { putBucketWebsite } from './putBucketWebsite';
+import { getBucketStat } from './getBucketStat';
 declare const _default: {
     abortBucketWorm: typeof abortBucketWorm;
     completeBucketWorm: typeof completeBucketWorm;
@@ -87,5 +88,6 @@ declare const _default: {
     putBucketTags: typeof putBucketTags;
     putBucketVersioning: typeof putBucketVersioning;
     putBucketWebsite: typeof putBucketWebsite;
+    getBucketStat: typeof getBucketStat;
 };
 export default _default;
