@@ -8,7 +8,7 @@ const { encoder } = require('./encoder');
 const { isIP } = require('./isIP');
 const { setRegion } = require('./setRegion');
 const { getReqUrl } = require('../client/getReqUrl');
-const { checkBrowserUA } = require('./checkBrowserUA');
+const { isDingTalk } = require('./isDingTalk');
 
 interface Headers {
   [propName: string]: any;
@@ -59,7 +59,7 @@ export function createRequest(this: any, params) {
   if (!getHeader(headers, 'Content-Type')) {
     if (params.mime && params.mime.indexOf('/') > 0) {
       headers['Content-Type'] = params.mime;
-    } else if (checkBrowserUA(params)) {
+    } else if (isDingTalk(params)) {
       headers['Content-Type'] = 'application/octet-stream';
     } else {
       headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));
