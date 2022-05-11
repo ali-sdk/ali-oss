@@ -69,6 +69,7 @@ All operation use es7 async/await to implement. All api is async function.
     - [.useBucket(name)](#usebucketname)
     - [.deleteBucket(name[, options])](#deletebucketname-options)
     - [.getBucketInfo(name)](#getbucketinfoname)
+    - [.getBucketStat(name)](#getbucketstatname)
     - [.getBucketLocation(name)](#getbucketlocationname)
   - ACL
     - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
@@ -141,6 +142,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name[, options])](#signatureurlname-options)
+  - [.asyncSignatureUrl(name[, options])](#signatureurlname-options)
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
@@ -198,7 +200,7 @@ npm install ali-oss --save
 2.for example:
 ```js
 const OSS = require('ali-oss');
-const client = new OSS({
+const store= new OSS({
   region: '<oss region>',
   accessKeyId: '<Your accessKeyId>',
   accessKeySecret: '<Your accessKeySecret>',
@@ -258,7 +260,7 @@ for creating client.
  <script src="./aliyun-oss-sdk-x.x.x.min.js"></script>
 
 <script type="text/javascript">
-  const client = new OSS({
+  const store = new OSS({
     region: 'oss-cn-hangzhou',
     accessKeyId: '<access-key-id>',
     accessKeySecret: '<access-key-secret>',
@@ -266,12 +268,12 @@ for creating client.
     stsToken: '<security-token>'
   });
 
-  client.list().then((result) => {
+  store.list().then((result) => {
     console.log('objects: %j', result.objects);
-    return client.put('my-obj', new OSS.Buffer('hello world'));
+    return store.put('my-obj', new OSS.Buffer('hello world'));
   }).then((result) => {
     console.log('put result: %j', result);
-    return client.get('my-obj');
+    return store.get('my-obj');
   }).then((result) => {
     console.log('get result: %j', result.content.toString());
   });
@@ -566,6 +568,52 @@ example:
 store.getBucketInfo('helloworld').then( (res) => {
   console.log(res.bucket)
 })
+```
+
+### .getBucketStat(name)
+
+Call the GetBucketStat interface to get the storage capacity of the specified storage space (Bucket) and the number of files (Object).
+
+Calling this interface requires the oss:GetBucketStat permission.
+The data obtained by calling this interface is not real-time data and may be delayed for more than an hour.
+The point in time of the stored information obtained by calling this interface is not guaranteed to be up-to-date, i.e. the LastModifiedTime field returned by a later call to this interface may be smaller than the LastModifiedTime field returned by a previous call to this interface.
+
+parameters:
+
+- name {String} bucket name
+
+Success will return:
+
+- stat {Object} container for the BucketStat structure:
+  - Storage {String} the total storage capacity of the Bucket, in bytes.
+  - ObjectCount {String} total number of Objects in the Bucket。
+  - MultipartUploadCount {String} the number of Multipart Uploads in the Bucket that have been initialized but not yet completed (Complete) or not yet aborted (Abort).
+  - LiveChannelCount {String} the number of Live Channels in the Bucket.
+  - LastModifiedTime {String} the point in time, in timestamps, when the storage information was retrieved.
+  - StandardStorage {String} the amount of storage of the standard storage type, in bytes.
+  - StandardObjectCount {String} the number of objects of the standard storage type.
+  - InfrequentAccessStorage {String} the amount of billed storage for the low-frequency storage type, in bytes.
+  - InfrequentAccessRealStorage {String} the actual storage amount of the low-frequency storage type, in bytes.
+  - InfrequentAccessObjectCount {String} the number of Objects of the low-frequency storage type.
+  - ArchiveStorage {String} the amount of billed storage for the archive storage type, in bytes.
+  - ArchiveRealStorage {String} the actual storage amount of the archive storage type, in bytes.
+  - ArchiveObjectCount {String} the number of objects of the archive storage type.
+  - ColdArchiveStorage {String} the amount of billed storage for the cold archive storage type, in bytes.
+  - ColdArchiveRealStorage {String} the actual storage amount in bytes for the cold archive storage type.
+  - ColdArchiveObjectCount {String} the number of objects of the cold archive storage type.
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- If you don't fill in the name, the default is the bucket defined during initialization.
+
+```js
+store.getBucketStat().then(res=>console.log(res))
 ```
 
 ### .getBucketLocation(name)
@@ -1359,7 +1407,7 @@ Success will return:
 ```js
 async function getBucketInventoryById() {
   try {
-    const result = await client.getBucketInventory('bucket', 'inventoryid');
+    const result = await store.getBucketInventory('bucket', 'inventoryid');
     console.log(result.inventory)
   } catch (err) {
     console.log(err)
@@ -1440,7 +1488,7 @@ const inventory = {
 async function putInventory(){
   const bucket = 'Your Bucket Name';
   try {
-    await client.putBucketInventory(bucket, inventory);
+    await store.putBucketInventory(bucket, inventory);
   } catch(err) {
     console.log(err);
   }
@@ -1487,7 +1535,7 @@ async function listBucketInventory() {
   let nextContinuationToken;
   // list all inventory of the bucket
   do {
-    const result = await client.listBucketInventory(bucket, nextContinuationToken);
+    const result = await store.listBucketInventory(bucket, nextContinuationToken);
     console.log(result.inventoryList);
     nextContinuationToken = result.nextContinuationToken;
   } while (nextContinuationToken)
@@ -1606,7 +1654,7 @@ parameters:
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
     - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
@@ -1732,7 +1780,7 @@ parameters:
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
     - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
@@ -1835,7 +1883,7 @@ If provide `baseUrl`, will use `baseUrl` instead the default `endpoint`.
 e.g.:
 
 ```js
-const cdnUrl = client.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+const cdnUrl = store.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
@@ -1848,10 +1896,10 @@ Suggest use generateObjectUrl instead of getObjectUrl.
 e.g.:
 
 ```js
-const url = client.generateObjectUrl('foo/bar.jpg');
+const url = store.generateObjectUrl('foo/bar.jpg');
 // cdnUrl should be `https://${bucketname}.${endpotint}foo/bar.jpg`
 
-const cdnUrl = client.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+const cdnUrl = store.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
@@ -2594,6 +2642,83 @@ const url = store.signatureUrl('ossdemo.png', {
 console.log(url);
 ```
 
+### .asyncSignatureUrl(name[, options])
+
+Basically the same as signatureUrl, if refreshSTSToken is configured asyncSignatureUrl will refresh stsToken
+
+parameters:
+
+- name {String} object name store on OSS
+- [options] {Object} optional parameters
+  - [expires] {Number} after expires seconds, the url will become invalid, default is `1800`
+  - [method] {String} the HTTP method, default is 'GET'
+  - [Content-Type] {String} set the request content type
+  - [process] {String} image process params, will send with `x-oss-process`
+    e.g.: `{process: 'image/resize,w_200'}`
+  - [trafficLimit] {Number} traffic limit, range: `819200`~`838860800`.
+  - [subResource] {Object} additional signature parameters in url.
+  - [response] {Object} set the response headers for download
+    - [content-type] {String} set the response content type
+    - [content-disposition] {String} set the response content disposition
+    - [cache-control] {String} set the response cache control
+    - See more: <https://help.aliyun.com/document_detail/31980.html>
+  - [callback] {Object} set the callback for the operation
+    - url {String} set the url for callback
+    - [host] {String} set the host for callback
+    - body {String} set the body for callback
+    - [contentType] {String} set the type for body
+    - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+
+Success will return signature url.
+
+example:
+
+- Get signature url for object
+
+```js
+const url = await store.asyncSignatureUrl('ossdemo.txt');
+console.log(url);
+// --------------------------------------------------
+const url = await store.asyncSignatureUrl('ossdemo.txt', {
+  expires: 3600,
+  method: 'PUT'
+});
+console.log(url);
+//  put object with signatureUrl
+// -------------------------------------------------
+const url = await store.asyncSignatureUrl('ossdemo.txt', {
+  expires: 3600,
+  method: 'PUT',
+  'Content-Type': 'text/plain; charset=UTF-8',
+});
+console.log(url);
+// --------------------------------------------------
+const url = await store.asyncSignatureUrl('ossdemo.txt', {
+  expires: 3600,
+  response: {
+    'content-type': 'text/custom',
+    'content-disposition': 'attachment'
+  }
+});
+console.log(url);
+// put operation
+```
+
+- Get a signature url for a processed image
+
+```js
+const url = await store.asyncSignatureUrl('ossdemo.png', {
+  process: 'image/resize,w_200'
+});
+console.log(url);
+// --------------------------------------------------
+const url = await store.asyncSignatureUrl('ossdemo.png', {
+  expires: 3600,
+  process: 'image/resize,w_200'
+});
+console.log(url);
+```
+
 ### .putACL(name, acl[, options])
 
 Set object's ACL.
@@ -2988,7 +3113,7 @@ parameters:
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
     - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
@@ -3028,7 +3153,7 @@ example:
     const start = partSize * (i -1);
     const end = Math.min(start + partSize, fileSize);
     const data = file.slice(start, end);
-    const part = yield store.uploadPart(name, result.uploadId, i, data);
+    const part = store.uploadPart(name, result.uploadId, i, data, 0, data.length);
     console.log(part);
     done.push({
           number: i,
@@ -3076,7 +3201,7 @@ parameters:
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
     - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
-    - body {String} The value of the request body when a callback is initiated, for example, key=$(key)&etag=$(etag)&my_var=$(x:my_var).
+    - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
           e.g.:

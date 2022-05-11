@@ -1488,5 +1488,12 @@ describe('test/bucket.test.js', () => {
         }
       });
     });
+    describe('getBucketStat', () => {
+      it('should get bucket stat', async () => {
+        const result = await store.getBucketStat(bucket);
+        assert.equal(typeof result.stat, 'object');
+        assert.equal(result.res.status, 200);
+      });
+    });
   });
 });
