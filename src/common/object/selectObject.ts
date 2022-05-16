@@ -1,5 +1,6 @@
 import { obj2xml } from '../utils/obj2xml';
 import { base64encode } from 'utility';
+import unpackFrame from '../utils/unpackFrame';
 
 type InputCSV = {
   FileHeaderInfo?: string;
@@ -143,10 +144,14 @@ export async function selectObject(this: any, name: string, expression: string, 
   params.successStatuses = [206];
 
   const result = await this.request(params);
-  // const version = result.data.slice(0, 1);
-  // const frameType = result.data.slice(1, 4);
-  // const payload = result.data.slice(4, 8);
-  console.log(result.data.slice(20, result.data.length - 41).toString());
+  if (result.res.headers['x-oss-select-output-raw'] !== 'true') {
+    result.data = unpackFrame(result.data);
+  } else {
+    result.data = JSON.parse(result.data.toString());
+  }
 
-  return result.data;
+  return {
+    res: result.res,
+    data: result.data
+  };
 }
