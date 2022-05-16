@@ -3621,11 +3621,10 @@ object:
 
 ```javascript
 // example CSV
-client.selectObject('example.csv', 'select * from ossobject limit 10', 'csv').then(r => console.log(r));
+store.selectObject('example.csv', 'select * from ossobject limit 10', 'csv').then(r => console.log(r));
 
 // example JSON
-client
-  .selectObject('example.json', 'select address from ossobject.contacts[*]', 'json')
+store.selectObject('example.json', 'select address from ossobject.contacts[*]', 'json')
   .then(r => console.log(r));
 ```
 
