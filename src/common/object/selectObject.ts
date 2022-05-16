@@ -147,7 +147,7 @@ export async function selectObject(this: any, name: string, expression: string, 
   if (result.res.headers['x-oss-select-output-raw'] !== 'true') {
     result.data = unpackFrame(result.data);
   } else {
-    result.data = JSON.parse(result.data.toString());
+    result.data = result.data.toString();
   }
 
   return {
