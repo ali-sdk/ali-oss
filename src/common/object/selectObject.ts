@@ -59,13 +59,13 @@ type ParamsXMLObj = {
 
 const needToEncode: string[] = ['RecordDelimiter', 'FieldDelimiter', 'QuoteCharacter', 'CommentCharacter'];
 
-export async function selectObject(this: any, name: string, expression: string, process: string, options: any) {
-  if (!['json', 'csv'].includes(process.toLocaleLowerCase())) {
-    throw new Error('process must be json or csv');
+export async function selectObject(this: any, name: string, expression: string, grammar: string, options: any) {
+  if (!['json', 'csv'].includes(grammar.toLocaleLowerCase())) {
+    throw new Error('grammar must be json or csv');
   }
   const opts = Object.assign({}, options);
 
-  opts.subres = Object.assign({ 'x-oss-process': `${process}/select` });
+  opts.subres = Object.assign({ 'x-oss-process': `${grammar}/select` });
 
   let InputSerialization: InputSerialization;
   let OutputSerialization: OutputSerialization;
@@ -85,7 +85,7 @@ export async function selectObject(this: any, name: string, expression: string, 
   }
 
   // CSV
-  if (process.toLocaleLowerCase() === 'csv') {
+  if (grammar.toLocaleLowerCase() === 'csv') {
     // inputSerialization
     if (opts.InputSerialization && opts.InputSerialization.CSV) {
       Object.keys(opts.InputSerialization.CSV).forEach(i => {
@@ -110,7 +110,7 @@ export async function selectObject(this: any, name: string, expression: string, 
   }
 
   // JSON
-  if (process.toLowerCase() === 'json') {
+  if (grammar.toLowerCase() === 'json') {
     // InputSerialization
     if (opts.InputSerialization && opts.InputSerialization.JSON) {
       opts.InputSerialization.JSON.Type = opts.InputSerialization.JSON.Type
