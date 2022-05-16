@@ -1,5 +1,5 @@
 import { obj2xml } from '../utils/obj2xml';
-import { base64encode } from 'utility';
+import { Base64 } from 'js-base64';
 import unpackFrame from '../utils/unpackFrame';
 
 type InputCSV = {
@@ -73,7 +73,7 @@ export async function selectObject(this: any, name: string, expression: string, 
 
   const paramsXMLObj: ParamsXMLObj = {
     SelectRequest: {
-      Expression: base64encode(expression)
+      Expression: Base64.encode(expression)
     }
   };
 
@@ -90,7 +90,7 @@ export async function selectObject(this: any, name: string, expression: string, 
     if (opts.InputSerialization && opts.InputSerialization.CSV) {
       Object.keys(opts.InputSerialization.CSV).forEach(i => {
         if (needToEncode.includes(i)) {
-          opts.InputSerialization.CSV[i] = base64encode(opts.InputSerialization.CSV[i]);
+          opts.InputSerialization.CSV[i] = Base64.encode(opts.InputSerialization.CSV[i]);
         }
       });
     }
@@ -101,7 +101,7 @@ export async function selectObject(this: any, name: string, expression: string, 
     if (opts.OutputSerialization && opts.OutputSerialization.CSV) {
       Object.keys(opts.OutputSerialization.CSV).forEach(i => {
         if (needToEncode.includes(i)) {
-          opts.OutputSerialization.CSV[i] = base64encode(opts.OutputSerialization.CSV[i]);
+          opts.OutputSerialization.CSV[i] = Base64.encode(opts.OutputSerialization.CSV[i]);
         }
       });
     }
@@ -125,7 +125,7 @@ export async function selectObject(this: any, name: string, expression: string, 
     // OutputSerialization
     if (opts.OutputSerialization && opts.OutputSerialization.JSON) {
       if (opts.OutputSerialization.JSON.RecordDelimiter) {
-        opts.OutputSerialization.JSON.RecordDelimiter = base64encode(opts.OutputSerialization.JSON.RecordDelimiter);
+        opts.OutputSerialization.JSON.RecordDelimiter = Base64.encode(opts.OutputSerialization.JSON.RecordDelimiter);
       }
     }
     OutputSerialization = Object.assign({}, opts.OutputSerialization);
