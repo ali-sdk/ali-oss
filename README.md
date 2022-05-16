@@ -162,7 +162,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
   - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
   - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
-  - [.selectObject(name, query, grammar[, options])](#selectObjectname-query-options)
+  - [.selectObject(name, query, grammar[, options])](#selectObjectname-query-grammar-options)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -3609,6 +3609,8 @@ parameters:
   - [Other] {Object} Other option
     - [SkipPartialDataRecord] {Boolean} Whether to skip partial data record, which is optional.
     - [MaxSkippedRecordsAllowed] {String} The max skipped records allowed, which is optional.
+
+[More code info](https://help.aliyun.com/document_detail/74054.html#section-v2y-dzp-o5k)
 
 Succeed will return the channel information.
 
