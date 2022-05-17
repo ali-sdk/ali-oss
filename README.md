@@ -28,7 +28,7 @@ npm install ali-oss --save
 ## Compatibility
 
 ### Node
-Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
+Node.js >= 14.0.0 required. You can use 4.x in Node.js < 8.
 
 ### Browser
 
@@ -72,6 +72,7 @@ All operation use es7 async/await to implement. All api is async function.
     - [.useBucket(name)](#usebucketname)
     - [.deleteBucket(name[, options])](#deletebucketname-options)
     - [.getBucketInfo(name)](#getbucketinfoname)
+    - [.getBucketStat(name)](#getbucketstatname)
     - [.getBucketLocation(name)](#getbucketlocationname)
   - ACL
     - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
@@ -200,7 +201,7 @@ npm install ali-oss --save
 2.for example:
 ```js
 const OSS = require('ali-oss');
-const client = new OSS({
+const store= new OSS({
   region: '<oss region>',
   accessKeyId: '<Your accessKeyId>',
   accessKeySecret: '<Your accessKeySecret>',
@@ -260,7 +261,7 @@ for creating client.
  <script src="./aliyun-oss-sdk-x.x.x.min.js"></script>
 
 <script type="text/javascript">
-  const client = new OSS({
+  const store= new OSS({
     region: 'oss-cn-hangzhou',
     accessKeyId: '<access-key-id>',
     accessKeySecret: '<access-key-secret>',
@@ -268,12 +269,12 @@ for creating client.
     stsToken: '<security-token>'
   });
 
-  client.list().then((result) => {
+  store.list().then((result) => {
     console.log('objects: %j', result.objects);
-    return client.put('my-obj', new OSS.Buffer('hello world'));
+    return store.put('my-obj', new OSS.Buffer('hello world'));
   }).then((result) => {
     console.log('put result: %j', result);
-    return client.get('my-obj');
+    return store.get('my-obj');
   }).then((result) => {
     console.log('get result: %j', result.content.toString());
   });
@@ -563,6 +564,53 @@ store.getBucketInfo('helloworld').then( (res) => {
   console.log(res.bucket)
 })
 ```
+
+### .getBucketStat(name)
+
+Call the GetBucketStat interface to get the storage capacity of the specified storage space (Bucket) and the number of files (Object).
+
+Calling this interface requires the oss:GetBucketStat permission.
+The data obtained by calling this interface is not real-time data and may be delayed for more than an hour.
+The point in time of the stored information obtained by calling this interface is not guaranteed to be up-to-date, i.e. the LastModifiedTime field returned by a later call to this interface may be smaller than the LastModifiedTime field returned by a previous call to this interface.
+
+parameters:
+
+- name {String} bucket name
+
+Success will return:
+
+- stat {Object} container for the BucketStat structure:
+  - Storage {String} the total storage capacity of the Bucket, in bytes.
+  - ObjectCount {String} total number of Objects in the Bucket。
+  - MultipartUploadCount {String} the number of Multipart Uploads in the Bucket that have been initialized but not yet completed (Complete) or not yet aborted (Abort).
+  - LiveChannelCount {String} the number of Live Channels in the Bucket.
+  - LastModifiedTime {String} the point in time, in timestamps, when the storage information was retrieved.
+  - StandardStorage {String} the amount of storage of the standard storage type, in bytes.
+  - StandardObjectCount {String} the number of objects of the standard storage type.
+  - InfrequentAccessStorage {String} the amount of billed storage for the low-frequency storage type, in bytes.
+  - InfrequentAccessRealStorage {String} the actual storage amount of the low-frequency storage type, in bytes.
+  - InfrequentAccessObjectCount {String} the number of Objects of the low-frequency storage type.
+  - ArchiveStorage {String} the amount of billed storage for the archive storage type, in bytes.
+  - ArchiveRealStorage {String} the actual storage amount of the archive storage type, in bytes.
+  - ArchiveObjectCount {String} the number of objects of the archive storage type.
+  - ColdArchiveStorage {String} the amount of billed storage for the cold archive storage type, in bytes.
+  - ColdArchiveRealStorage {String} the actual storage amount in bytes for the cold archive storage type.
+  - ColdArchiveObjectCount {String} the number of objects of the cold archive storage type.
+
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+
+example:
+
+- If you don't fill in the name, the default is the bucket defined during initialization.
+
+```js
+store.getBucketStat().then(res=>console.log(res))
+```
+
 
 ### .getBucketLocation(name)
 
@@ -1443,7 +1491,7 @@ Success will return:
 ```js
 async function getBucketInventoryById() {
   try {
-    const result = await client.getBucketInventory('bucket', 'inventoryid');
+    const result = await store.getBucketInventory('bucket', 'inventoryid');
     console.log(result.inventory)
   } catch (err) {
     console.log(err)
@@ -1524,7 +1572,7 @@ const inventory = {
 async function putInventory(){
   const bucket = 'Your Bucket Name';
   try {
-    await client.putBucketInventory(bucket, inventory);
+    await  store.putBucketInventory(bucket, inventory);
   } catch(err) {
     console.log(err);
   }
@@ -1571,7 +1619,7 @@ async function listBucketInventory() {
   let nextContinuationToken;
   // list all inventory of the bucket
   do {
-    const result = await client.listBucketInventory(bucket, nextContinuationToken);
+    const result = await store.listBucketInventory(bucket, nextContinuationToken);
     console.log(result.inventoryList);
     nextContinuationToken = result.nextContinuationToken;
   } while (nextContinuationToken)
@@ -1828,7 +1876,7 @@ If provide `baseUrl`, will use `baseUrl` instead the default `endpoint`.
 e.g.:
 
 ```js
-const cdnUrl = client.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+const cdnUrl = store.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
@@ -1841,10 +1889,10 @@ Suggest use generateObjectUrl instead of getObjectUrl.
 e.g.:
 
 ```js
-const url = client.generateObjectUrl('foo/bar.jpg');
+const url = store.generateObjectUrl('foo/bar.jpg');
 // cdnUrl should be `https://${bucketname}.${endpotint}foo/bar.jpg`
 
-const cdnUrl = client.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+const cdnUrl = store.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
@@ -3019,7 +3067,7 @@ example:
     const start = partSize * (i -1);
     const end = Math.min(start + partSize, fileSize);
     const data = file.slice(start, end);
-    const part = yield store.uploadPart(name, result.uploadId, i, data);
+    const part = store.uploadPart(name, result.uploadId, i, data, 0, data.length);
     console.log(part);
     done.push({
           number: i,
@@ -4441,7 +4489,23 @@ Each error return by OSS server will contains these properties:
     you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
-The following table lists the OSS error codes:
+### ResponseTimeoutError
+The request to get the object file cannot be returned within the default time, please set a longer timeout. Or change to use multipart to download
+
+```javascript
+  client.get('example.txt', { timeout:60000 * 2})
+  client.get('example.txt', { headers:{ Range:`bytes=0-${ 1024 * 1024 * 100 }` } }) // Download the first 100MB
+```
+
+### ConnectionTimeoutError
+The request link has timed out. Please check the network link status. If there is no problem with the network, please reduce the partSize or increase the timeout to retry.
+```javascript
+  const client = new OSS({ ak, sk, retryMax:10 })
+  client.multipartUpload('example.txt', { timeout:60000 * 2 })
+  client.multipartUpload('example.txt', { partSize: 1024 * 512 }) // partSize 512KB
+```
+
+### The following table lists the OSS error codes:
 
 [More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
