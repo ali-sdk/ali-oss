@@ -117,7 +117,7 @@ export async function selectObject(this: any, name: string, expression: string, 
         ? opts.InputSerialization.JSON.Type.toUpperCase()
         : 'DOCUMENT';
 
-      opts.InputSerialization.JSON = Object.assign({}, opts.inputSerialization.JSON);
+      opts.InputSerialization.JSON = Object.assign({}, opts.InputSerialization.JSON);
     }
     InputSerialization = Object.assign({}, opts.InputSerialization);
     paramsXMLObj.SelectRequest.InputSerialization = InputSerialization;
