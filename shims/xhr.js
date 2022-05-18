@@ -38,10 +38,7 @@ function makeCallback(resolve, reject) {
 // exports.TIMEOUT = ms('5s');
 exports.TIMEOUTS = [ms('300s'), ms('300s')];
 
-const TEXT_DATA_TYPES = [
-  'json',
-  'text'
-];
+const TEXT_DATA_TYPES = ['json', 'text'];
 
 exports.request = function request(url, args, callback) {
   // request(url, callback)
@@ -58,11 +55,9 @@ exports.request = function request(url, args, callback) {
   });
 };
 
-
 exports.requestWithCallback = function requestWithCallback(url, args, callback) {
   if (!url || (typeof url !== 'string' && typeof url !== 'object')) {
-    const msg = util.format('expect request url to be a string or a http request options, but got' +
-      ' %j', url);
+    const msg = util.format('expect request url to be a string or a http request options, but got' + ' %j', url);
     throw new Error(msg);
   }
 
@@ -83,7 +78,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     requestId: reqId,
     url: url,
     args: args,
-    ctx: args.ctx,
+    ctx: args.ctx
   };
   if (args.emitter) {
     args.emitter.emit('request', reqMeta);
@@ -133,11 +128,12 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     port: port,
     agent: agent,
     headers: args.headers || {},
+    onXHRProgress: args.onXHRProgress,
     // default is dns.lookup
     // https://github.com/nodejs/node/blob/master/lib/net.js#L986
     // custom dnslookup require node >= 4.0.0
     // https://github.com/nodejs/node/blob/archived-io.js-v0.12/lib/net.js#L952
-    lookup: args.lookup,
+    lookup: args.lookup
   };
 
   if (Array.isArray(args.timeout)) {
@@ -250,7 +246,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
       requestSent: 0,
       // Time to first byte (TTFB)
       waiting: 0,
-      contentDownload: 0,
+      contentDownload: 0
     };
   }
 
@@ -270,12 +266,25 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   function done(err, data, res) {
     cancelResponseTimer();
     if (!callback) {
-      console.warn('[urllib:warn] [%s] [%s] [worker:%s] %s %s callback twice!!!',
-        Date(), reqId, process.pid, options.method, url);
+      console.warn(
+        '[urllib:warn] [%s] [%s] [worker:%s] %s %s callback twice!!!',
+        Date(),
+        reqId,
+        process.pid,
+        options.method,
+        url
+      );
       // https://github.com/node-modules/urllib/pull/30
       if (err) {
-        console.warn('[urllib:warn] [%s] [%s] [worker:%s] %s: %s\nstack: %s',
-          Date(), reqId, process.pid, err.name, err.message, err.stack);
+        console.warn(
+          '[urllib:warn] [%s] [%s] [worker:%s] %s: %s\nstack: %s',
+          Date(),
+          reqId,
+          process.pid,
+          err.name,
+          err.message,
+          err.stack
+        );
       }
       return;
     }
@@ -308,9 +317,17 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
       timing.contentDownload = requestUseTime;
     }
 
-    debug('[%sms] done, %s bytes HTTP %s %s %s %s, keepAliveSocket: %s, timing: %j',
-      requestUseTime, responseSize, statusCode, options.method, options.host, options.path,
-      keepAliveSocket, timing);
+    debug(
+      '[%sms] done, %s bytes HTTP %s %s %s %s, keepAliveSocket: %s, timing: %j',
+      requestUseTime,
+      responseSize,
+      statusCode,
+      options.method,
+      options.host,
+      options.path,
+      keepAliveSocket,
+      timing
+    );
 
     const response = {
       status: statusCode,
@@ -324,7 +341,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
       requestUrls: args.requestUrls,
       timing: timing,
       remoteAddress: remoteAddress,
-      remotePort: remotePort,
+      remotePort: remotePort
     };
 
     if (err) {
@@ -333,9 +350,21 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
         // add current agent status to error message for logging and debug
         agentStatus = ', agent status: ' + JSON.stringify(agent.getCurrentStatus());
       }
-      err.message += ', ' + options.method + ' ' + url + ' ' + statusCode
-        + ' (connected: ' + connected + ', keepalive socket: ' + keepAliveSocket + agentStatus + ')'
-        + '\nheaders: ' + JSON.stringify(headers);
+      err.message +=
+        ', ' +
+        options.method +
+        ' ' +
+        url +
+        ' ' +
+        statusCode +
+        ' (connected: ' +
+        connected +
+        ', keepalive socket: ' +
+        keepAliveSocket +
+        agentStatus +
+        ')' +
+        '\nheaders: ' +
+        JSON.stringify(headers);
       err.data = data;
       err.path = options.path;
       err.status = statusCode;
@@ -357,14 +386,15 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
         error: err,
         ctx: args.ctx,
         req: reqMeta,
-        res: response,
+        res: response
       });
     }
   }
 
   function handleRedirect(res) {
     let err = null;
-    if (args.followRedirect && statuses.redirect[res.statusCode]) {  // handle redirect
+    if (args.followRedirect && statuses.redirect[res.statusCode]) {
+      // handle redirect
       args._followRedirectCount = (args._followRedirectCount || 0) + 1;
       const location = res.headers.location;
       if (!location) {
@@ -398,7 +428,6 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     };
   }
 
-
   if (args.gzip) {
     if (!options.headers['Accept-Encoding'] && !options.headers['accept-encoding']) {
       options.headers['Accept-Encoding'] = 'gzip';
@@ -412,7 +441,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     // }
 
     // if (!encoding || encoding.toLowerCase() !== 'gzip') {
-      return cb(null, body, encoding);
+    return cb(null, body, encoding);
     // }
 
     // debug('gunzip %d length body', body.length);
@@ -421,8 +450,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 
   const writeStream = args.writeStream;
 
-  debug('Request#%d %s %s with headers %j, options.path: %s',
-    reqId, method, url, options.headers, options.path);
+  debug('Request#%d %s %s with headers %j, options.path: %s', reqId, method, url, options.headers, options.path);
 
   args.requestUrls.push(url);
 
@@ -430,8 +458,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     if (timing) {
       timing.waiting = Date.now() - requestStartTime;
     }
-    debug('Request#%d %s `req response` event emit: status %d, headers: %j',
-      reqId, url, res.statusCode, res.headers);
+    debug('Request#%d %s `req response` event emit: status %d, headers: %j', reqId, url, res.statusCode, res.headers);
 
     if (args.streaming) {
       const result = handleRedirect(res);
@@ -448,19 +475,16 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
     }
 
     res.on('close', function () {
-      debug('Request#%d %s: `res close` event emit, total size %d',
-        reqId, url, responseSize);
+      debug('Request#%d %s: `res close` event emit, total size %d', reqId, url, responseSize);
     });
 
     res.on('error', function () {
-      debug('Request#%d %s: `res error` event emit, total size %d',
-        reqId, url, responseSize);
+      debug('Request#%d %s: `res error` event emit, total size %d', reqId, url, responseSize);
     });
 
     res.on('aborted', function () {
       responseAborted = true;
-      debug('Request#%d %s: `res aborted` event emit, total size %d',
-        reqId, url, responseSize);
+      debug('Request#%d %s: `res aborted` event emit, total size %d', reqId, url, responseSize);
     });
 
     if (writeStream) {
@@ -505,9 +529,8 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
         //     done(__err || null, null, res);
         //   });
         if (false) {
-
         } else {
-          writeStream.on('close', function() {
+          writeStream.on('close', function () {
             debug('Request#%d %s: writeStream close event emitted', reqId, url);
             done(__err || null, null, res);
           });
@@ -539,8 +562,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 
     res.on('end', function () {
       const body = Buffer.concat(chunks, responseSize);
-      debug('Request#%d %s: `res end` event emit, total size %d, _dumped: %s',
-        reqId, url, responseSize, res._dumped);
+      debug('Request#%d %s: `res end` event emit, total size %d, _dumped: %s', reqId, url, responseSize, res._dumped);
 
       if (__err) {
         // req.abort() after `res data` event emit.
@@ -599,7 +621,8 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   if (Array.isArray(args.timeout)) {
     connectTimeout = ms(args.timeout[0]);
     responseTimeout = ms(args.timeout[1]);
-  } else {  // set both timeout equal
+  } else {
+    // set both timeout equal
     connectTimeout = responseTimeout = ms(args.timeout);
   }
   debug('ConnectTimeout: %d, ResponseTimeout: %d', connectTimeout, responseTimeout);
@@ -649,7 +672,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
   }
 
   // environment detection: browser or nodejs
-  if (typeof(window) === 'undefined') {
+  if (typeof window === 'undefined') {
     // start connect timer just after `request` return, and just in nodejs environment
     startConnectTimer();
   } else {
@@ -678,7 +701,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 
   if (timing) {
     // request sent
-    req.on('finish', function() {
+    req.on('finish', function () {
       timing.requestSent = Date.now() - requestStartTime;
     });
   }
@@ -698,7 +721,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
 
     const readyState = socket.readyState;
     if (readyState === 'opening') {
-      socket.once('lookup', function(err, ip, addressType) {
+      socket.once('lookup', function (err, ip, addressType) {
         debug('Request#%d %s lookup: %s, %s, %s', reqId, url, err, ip, addressType);
         if (timing) {
           timing.dnslookup = Date.now() - requestStartTime;
@@ -707,7 +730,7 @@ exports.requestWithCallback = function requestWithCallback(url, args, callback) 
           remoteAddress = ip;
         }
       });
-      socket.once('connect', function() {
+      socket.once('connect', function () {
         if (timing) {
           // socket connected
           timing.connected = Date.now() - requestStartTime;
