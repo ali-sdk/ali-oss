@@ -10,7 +10,7 @@ import { getReqUrl } from '../utils/getReqUrl';
 import { encoder } from '../utils/encoder';
 import { isIP } from '../utils/isIP';
 import { setRegion } from './initOptions';
-import { checkUA } from '../utils/checkUA';
+import { isDingTalk } from '../utils/isDingTalk';
 
 const _debug = debug('ali-oss');
 
@@ -64,7 +64,7 @@ export function _createRequest(this: any, params) {
     if (params.mime && params.mime.indexOf('/') > 0) {
       headers['Content-Type'] = params.mime;
       // dingtalk webkit
-    } else if (checkUA(params)) {
+    } else if (isDingTalk(params)) {
       headers['Content-Type'] = 'application/octet-stream';
     } else {
       headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));

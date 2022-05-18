@@ -7,7 +7,7 @@ interface Process {
 
 declare let process: Process;
 
-export function checkUA(params) {
+export function isDingTalk(params) {
   if (
     process.browser &&
     !mime.getType(params.mime || path.extname(params.object || '')) &&
