@@ -59,7 +59,7 @@ export function createRequest(this: any, params) {
   if (!getHeader(headers, 'Content-Type')) {
     if (params.mime && params.mime.indexOf('/') > 0) {
       headers['Content-Type'] = params.mime;
-    } else if (isDingTalk(params)) {
+    } else if (isDingTalk()) {
       headers['Content-Type'] = 'application/octet-stream';
     } else {
       headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));

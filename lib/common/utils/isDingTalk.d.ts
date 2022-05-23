@@ -1,1 +1,1 @@
-export declare function isDingTalk(params: any): boolean;
+export declare function isDingTalk(): boolean;
