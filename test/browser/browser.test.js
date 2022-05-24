@@ -62,6 +62,7 @@ describe('browser', () => {
     //   bucket: stsConfig.bucket
     // });
   });
+
   after(async () => {
     const store = new OSS(ossConfig);
     await cleanBucket(store);
@@ -1088,7 +1089,7 @@ describe('browser', () => {
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
 
-    it.only('signatureUrl will should use refreshSTSToken', async () => {
+    it('signatureUrl will should use refreshSTSToken', async () => {
       const stsService = () => {
         return new Promise((resolve, reject) => {
           resolve({
@@ -1551,8 +1552,7 @@ describe('browser', () => {
           Array(10)
             .fill(1)
             .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
-            )
+              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
@@ -2231,7 +2231,7 @@ describe('browser', () => {
     it('should not calculate MD5 default when use put', async () => {
       const store = new OSS(ossConfig);
       const name = `${prefix}put/test-md5-0`;
-      const request = store.urllib.request;
+      const { request } = store.urllib;
       let reqParams;
       store.urllib.request = (url, params) => {
         reqParams = params;
@@ -2249,7 +2249,7 @@ describe('browser', () => {
       const name = `${prefix}put/test-md5-2`;
       const partSize = 100 * 1024;
       const body2 = new File(Array(2 * partSize).fill(1), { type: 'text/plain' });
-      const request = store.urllib.request;
+      const { request } = store.urllib;
       let headerWithMD5Count = 0;
       store.urllib.request = (url, params) => {
         if (params.headers['Content-MD5'] && /partNumber=\d/.test(url)) {

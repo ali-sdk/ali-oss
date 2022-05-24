@@ -152,7 +152,6 @@
   "lint-staged": {
     "**/!(dist)/*": [
       "npm run detect-secrets --"
-    ],
-    "*.js": "eslint --cache --fix"
+    ]
   }
 }
