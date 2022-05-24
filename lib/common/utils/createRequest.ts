@@ -8,15 +8,16 @@ const { encoder } = require('./encoder');
 const { isIP } = require('./isIP');
 const { setRegion } = require('./setRegion');
 const { getReqUrl } = require('../client/getReqUrl');
+const { isDingTalk } = require('./isDingTalk');
 
 interface Headers {
-  [propName: string]: any
-  'x-oss-date': string,
-  'x-oss-user-agent'?: string,
+  [propName: string]: any;
+  'x-oss-date': string;
+  'x-oss-user-agent'?: string;
 }
 
 interface ReqParams {
-  [propName: string]: any
+  [propName: string]: any;
 }
 
 function getHeader(headers: Headers, name: string) {
@@ -34,7 +35,7 @@ export function createRequest(this: any, params) {
     date = +new Date() + this.options.amendTimeSkewed;
   }
   const headers: Headers = {
-    'x-oss-date': dateFormat(date, 'UTC:ddd, dd mmm yyyy HH:MM:ss \'GMT\''),
+    'x-oss-date': dateFormat(date, "UTC:ddd, dd mmm yyyy HH:MM:ss 'GMT'")
   };
 
   if (typeof window !== 'undefined') {
@@ -58,6 +59,8 @@ export function createRequest(this: any, params) {
   if (!getHeader(headers, 'Content-Type')) {
     if (params.mime && params.mime.indexOf('/') > 0) {
       headers['Content-Type'] = params.mime;
+    } else if (isDingTalk()) {
+      headers['Content-Type'] = 'application/octet-stream';
     } else {
       headers['Content-Type'] = mime.getType(params.mime || path.extname(params.object || ''));
     }
@@ -69,10 +72,7 @@ export function createRequest(this: any, params) {
 
   if (params.content) {
     if (!params.disabledMD5) {
-      headers['Content-MD5'] = crypto
-        .createHash('md5')
-        .update(Buffer.from(params.content, 'utf8'))
-        .digest('base64');
+      headers['Content-MD5'] = crypto.createHash('md5').update(Buffer.from(params.content, 'utf8')).digest('base64');
     }
     if (!headers['Content-Length']) {
       headers['Content-Length'] = params.content.length;
@@ -87,7 +87,13 @@ export function createRequest(this: any, params) {
   }
 
   const authResource = this._getResource(params);
-  headers.authorization = this.authorization(params.method, authResource, params.subres, headers, this.options.headerEncoding);
+  headers.authorization = this.authorization(
+    params.method,
+    authResource,
+    params.subres,
+    headers,
+    this.options.headerEncoding
+  );
 
   // const url = this._getReqUrl(params);
   if (isIP(this.options.endpoint.hostname)) {
