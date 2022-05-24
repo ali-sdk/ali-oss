@@ -344,7 +344,7 @@ options:
 - [enableProxy] {Boolean}, Enable proxy request, default is false.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
-- [disabledMD5] {Boolean} turn off global MD5 default value is false
+- [disabledMD5] {Boolean} Not set Content-MD5 for all http request header to oss server, it can be used to check the message validity. Default value is false
 
 example:
 
