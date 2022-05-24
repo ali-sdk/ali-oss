@@ -1088,7 +1088,7 @@ describe('browser', () => {
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
     });
 
-    it.only('signatureUrl will should use refreshSTSToken', async () => {
+    it('signatureUrl will should use refreshSTSToken', async () => {
       const stsService = () => {
         return new Promise((resolve, reject) => {
           resolve({

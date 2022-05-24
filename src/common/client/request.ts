@@ -29,6 +29,9 @@ export async function _request(this: any, params) {
   if (this.options.stsToken && isFunction(this.options.refreshSTSToken)) {
     await setSTSToken.call(this);
   }
+  if (this.options.disabledMD5) {
+    params.disabledMD5 = true;
+  }
   const reqParams = this._createRequest(params);
   const isNode = this._getUserAgent().includes('nodejs');
 
@@ -63,9 +66,12 @@ export async function _request(this: any, params) {
       await this.sendToWormhole(result.res);
     }
 
-    if (err.status === 403 && err.code === 'InvalidAccessKeyId' &&
-     this.options.accessKeyId.startsWith('STS.') &&
-     typeof this.options.refreshSTSToken === 'function') {
+    if (
+      err.status === 403 &&
+      err.code === 'InvalidAccessKeyId' &&
+      this.options.accessKeyId.startsWith('STS.') &&
+      typeof this.options.refreshSTSToken === 'function'
+    ) {
       // prevent infinite loop, only trigger once within 10 seconds
       if (!this._setOptions || Date.now() - this._setOptions > 10000) {
         this._setOptions = Date.now();
@@ -86,13 +92,12 @@ export async function _request(this: any, params) {
   return result;
 }
 
-
 export async function request(this: any, params) {
   const isAvailableStream = params.stream ? params.stream.readable : true;
   if (this.options.retryMax && isAvailableStream) {
     const requestfn = retry(_request.bind(this), this.options.retryMax, {
-      errorHandler: (err) => {
-        const _errHandle = (_err) => {
+      errorHandler: err => {
+        const _errHandle = _err => {
           const statusErr = [-1, -2].includes(_err.status);
           const requestErrorRetryHandle = this.options.requestErrorRetryHandle || (() => true);
           return statusErr && requestErrorRetryHandle(_err);
