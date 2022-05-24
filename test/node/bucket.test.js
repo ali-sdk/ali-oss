@@ -180,7 +180,7 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('putBucketACL()', () => {
-    it('should set bucket acl to private', async () => {
+    it('should set bucket acl to public-read-write', async () => {
       const bucketacl = `${bucket}-acl-new`;
       const resultAcl = await store.putBucketACL(bucketacl, 'public-read-write');
       assert.equal(resultAcl.res.status, 200);
