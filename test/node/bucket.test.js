@@ -34,9 +34,9 @@ describe('test/bucket.test.js', () => {
   });
 
   // restore object will have cache
-  after(async () => {
-    await utils.cleanAllBucket(store);
-  });
+  // after(async () => {
+  //   await utils.cleanAllBucket(store);
+  // });
 
   describe('setBucket()', () => {
     it('should check bucket name', async () => {
@@ -180,16 +180,18 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('putBucketACL()', () => {
-    it('should set bucket acl to public-read-write', async () => {
-      const resultAcl = await store.putBucketACL(bucket, 'public-read-write');
+    it('should set bucket acl to private', async () => {
+      const bucketacl = `${bucket}-acl-new`;
+      const resultAcl = await store.putBucketACL(bucketacl, 'public-read-write');
       assert.equal(resultAcl.res.status, 200);
-      assert.equal(resultAcl.bucket, bucket);
+      assert.equal(resultAcl.bucket, bucketacl);
 
       // Need wait some time for bucket meta sync
       await utils.sleep(ms(metaSyncTime));
 
-      const r = await store.getBucketACL(bucket);
+      const r = await store.getBucketACL(bucketacl);
       assert.equal(r.res.status, 200);
+      await store.deleteBucket(bucketacl);
       // skip it, data will be delay
       // assert.equal(r.acl, 'public-read-write');
     });
