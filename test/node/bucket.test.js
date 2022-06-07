@@ -141,7 +141,7 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('get bucket stat', () => {
-    it.only('should get bucket stat', async () => {
+    it('should get bucket stat', async () => {
       const result = await store.getBucketStat(bucket);
       assert.equal(typeof result.stat, 'object');
       assert.equal(result.res.status, 200);
@@ -181,15 +181,17 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketACL()', () => {
     it('should set bucket acl to public-read-write', async () => {
-      const resultAcl = await store.putBucketACL(bucket, 'public-read-write');
+      const bucketacl = `${bucket}-acl-new`;
+      const resultAcl = await store.putBucketACL(bucketacl, 'public-read-write');
       assert.equal(resultAcl.res.status, 200);
-      assert.equal(resultAcl.bucket, bucket);
+      assert.equal(resultAcl.bucket, bucketacl);
 
       // Need wait some time for bucket meta sync
       await utils.sleep(ms(metaSyncTime));
 
-      const r = await store.getBucketACL(bucket);
+      const r = await store.getBucketACL(bucketacl);
       assert.equal(r.res.status, 200);
+      await store.deleteBucket(bucketacl);
       // skip it, data will be delay
       // assert.equal(r.acl, 'public-read-write');
     });
