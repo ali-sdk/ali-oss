@@ -3,7 +3,7 @@ const config = require('../config').oss;
 const OSS = require('../..');
 
 const store = OSS(config);
-const interval = new Date().getTime() - 24 * 60 * 60 * 7 * 1000;
+const interval = new Date().getTime() - 24 * 60 * 60 * 1 * 1000;
 
 store.listBuckets().then(r => {
   const bucketList = [];
