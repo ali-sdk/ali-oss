@@ -32,9 +32,9 @@ describe('test/bucket.test.js', () => {
     assert.equal(result.res.status, 200);
   });
   // restore object will have cache
-  // after(async () => {
-  //   await utils.cleanBucket(store, bucket);
-  // });
+  after(async () => {
+    await utils.cleanBucket(store, bucket);
+  });
 
   describe('setBucket()', () => {
     it('should check bucket name', async () => {
@@ -1486,6 +1486,13 @@ describe('test/bucket.test.js', () => {
         } catch (err) {
           assert.equal(err.status, 409);
         }
+      });
+    });
+    describe('getBucketStat', () => {
+      it('should get bucket stat', async () => {
+        const result = await store.getBucketStat(bucket);
+        assert.equal(typeof result.stat, 'object');
+        assert.equal(result.res.status, 200);
       });
     });
   });
