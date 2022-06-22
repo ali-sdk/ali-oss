@@ -1,0 +1,33 @@
+name: 'Schdule Delete'
+
+on:
+  schedule:
+    - cron: '0 0 * * 1,2,3,4,5,6,0'
+
+jobs:
+  cleanAllBucket:
+    environment: ali_oss_AK
+    runs-on: ubuntu-latest
+
+    env:
+      ONCI: true
+      ALI_SDK_OSS_ID: ${{secrets.ALI_SDK_OSS_ID}}
+      ALI_SDK_OSS_SECRET: ${{secrets.ALI_SDK_OSS_SECRET}}
+      ALI_SDK_OSS_REGION: ${{secrets.ALI_SDK_OSS_REGION}}
+      ALI_SDK_STS_BUCKET: ${{secrets.ALI_SDK_STS_BUCKET}}
+      ALI_SDK_STS_ID: ${{secrets.ALI_SDK_STS_ID}}
+      ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
+      ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
+      ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: clean all bucket
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: node test/node/cleanAllBucket.js

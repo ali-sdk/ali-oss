@@ -181,6 +181,7 @@ describe('test/sts.test.js', () => {
       };
       store = new OSS(testRefreshSTSTokenConf);
     });
+
     it('should refresh sts token when token is expired', async () => {
       try {
         store.options.refreshSTSToken = async () => {
@@ -197,6 +198,32 @@ describe('test/sts.test.js', () => {
       } catch (error) {
         assert(false, error);
       }
+    });
+
+    it('asyncSignatureUrl will should use refreshSTSToken', async () => {
+      const { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
+      let flag = false;
+
+      store = new OSS({
+        region: config.region,
+        accessKeyId: credentials.AccessKeyId,
+        accessKeySecret: credentials.AccessKeySecret,
+        stsToken: credentials.SecurityToken,
+        refreshSTSToken: () => {
+          flag = true;
+          return {
+            accessKeyId: 'b',
+            accessKeySecret: 'b',
+            stsToken: 'b'
+          };
+        },
+        bucket: stsConfig.bucket,
+        refreshSTSTokenInterval: 1000
+      });
+      await utils.sleep(2000);
+      await store.asyncSignatureUrl('test.txt');
+
+      assert(flag);
     });
   });
 });

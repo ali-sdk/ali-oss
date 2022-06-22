@@ -22,6 +22,12 @@ const timemachine = require('timemachine');
 
 timemachine.reset();
 
+function sleep(time) {
+  return new Promise(resolve => {
+    setTimeout(resolve, time);
+  });
+}
+
 const cleanBucket = async store => {
   let result = await store.list({
     'max-keys': 1000
@@ -1078,6 +1084,31 @@ describe('browser', () => {
       const url = signatureStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
       assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
+    });
+
+    it('signatureUrl will should use refreshSTSToken', async () => {
+      let flag = false;
+
+      store = oss({
+        region: ossConfig.region,
+        accessKeyId: ossConfig.accessKeyId,
+        accessKeySecret: ossConfig.accessKeySecret,
+        stsToken: ossConfig.stsToken,
+        refreshSTSToken: () => {
+          flag = true;
+          return {
+            accessKeyId: 'b',
+            accessKeySecret: 'b',
+            stsToken: 'b'
+          };
+        },
+        bucket: ossConfig.bucket,
+        refreshSTSTokenInterval: 1000
+      });
+
+      await sleep(2000);
+      await store.asyncSignatureUrl('test.txt');
+      assert(flag);
     });
   });
 
