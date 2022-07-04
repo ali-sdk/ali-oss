@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build-change-log": "standard-version",
-    "pretest": "cd lib/crc64 && npm install &&  npm run build",
+    "pretest": "cd lib/crc64 && npm install",
     "test": "npm run tsc && mocha -t 120000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
     "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js",
     "jshint": "jshint .",
