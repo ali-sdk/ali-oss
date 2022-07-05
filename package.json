@@ -16,6 +16,7 @@
     "crypto": "./shims/crypto/crypto.js",
     "debug": "./shims/debug",
     "fs": false,
+    "./lib/common/utils/checkCrc64": false,
     "child_process": false,
     "is-type-of": "./shims/is-type-of.js"
   },

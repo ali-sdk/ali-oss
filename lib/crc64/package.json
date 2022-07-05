@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node-gyp configure -- -f compile_commands_json",
     "test": "mocha test/crc.test.js",
-    "build": "zx complie_task.js"
+    "build": "zx complie_task.js",
+    "postinstall": "node-gyp rebuild"
   },
   "repository": {
     "type": "git",
