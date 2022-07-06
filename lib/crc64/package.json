@@ -6,24 +6,14 @@
   "scripts": {
     "dev": "node-gyp configure -- -f compile_commands_json",
     "test": "mocha test/crc.test.js",
-    "build": "zx complie_task.js",
-    "postinstall": "node-gyp rebuild"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/taotao7/node_cpp_addon_crc64.git"
+    "build": "zx complie_task.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "gypfile": true,
-  "bugs": {
-    "url": "https://github.com/taotao7/node_cpp_addon_crc64/issues"
-  },
-  "homepage": "https://github.com/taotao7/node_cpp_addon_crc64#readme",
   "devDependencies": {
-    "mocha": "^9.2.2",
     "should": "^13.2.3",
-    "zx": "^7.0.7"
+    "zx": "^6.0.1"
   }
 }

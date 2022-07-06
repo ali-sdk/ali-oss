@@ -41,5 +41,6 @@ package-lock.json
 .DS_Store
 /example/node_modules/
 /example/public/index.js
+.eslintcache
 
 es
