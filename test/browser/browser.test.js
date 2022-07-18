@@ -1349,7 +1349,7 @@ describe('browser', () => {
         });
         sinon.restore();
         assert.equal(result.res.status, 200);
-        assert.equal(progress, 12);
+        assert.equal(progress, 13);
 
         const object = await store.get(name);
         assert.equal(object.res.status, 200);
@@ -1382,7 +1382,7 @@ describe('browser', () => {
         });
         sinon.restore();
         assert.equal(result.res.status, 200);
-        assert.equal(progress, 12);
+        assert.equal(progress, 13);
 
         const object = await store.get(name);
         assert.equal(object.res.status, 200);
@@ -1552,7 +1552,8 @@ describe('browser', () => {
           Array(10)
             .fill(1)
             .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
+              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
+            )
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
