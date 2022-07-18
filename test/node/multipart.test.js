@@ -233,7 +233,7 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 13);
+      assert.equal(progress, 12);
 
       const object = await store.get(name);
       assert.equal(object.res.status, 200);
@@ -327,7 +327,7 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 13);
+      assert.equal(progress, 12);
 
       const object = await store.get(name);
       assert.equal(object.res.status, 200);
@@ -444,7 +444,7 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 13);
+      assert.equal(progress, 12);
 
       const object = await store.get(name);
       assert.equal(object.res.status, 200);
@@ -953,7 +953,7 @@ describe('test/multipart.test.js', () => {
       } catch (e) {}
       mm.restore();
       await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
-      assert.strictEqual(store.multipartUploadStreams.length, 1);
+      assert.strictEqual(store.multipartUploadStreams.length, 0);
     });
 
     it('destroy the stream when multipartUploaded and the cancel method is called', async () => {
