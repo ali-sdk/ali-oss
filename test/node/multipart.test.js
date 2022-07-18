@@ -951,7 +951,7 @@ describe('test/multipart.test.js', () => {
       } catch (e) {}
       mm.restore();
       await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
-      assert.strictEqual(store.multipartUploadStreams.length, 1);
+      assert.strictEqual(store.multipartUploadStreams.length, 0);
     });
 
     it('destroy the stream when multipartUploaded and the cancel method is called', async () => {
