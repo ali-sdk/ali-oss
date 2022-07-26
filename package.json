@@ -142,7 +142,7 @@
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
-    "urllib": "^2.33.1",
+    "urllib": "^2.38.1",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16"
   },
