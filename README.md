@@ -185,8 +185,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
 - [Utils](#utils)
   - crc
-    - [.checkCrc64(content, result)](#utilscheckcrc64-content-result)
-    - [.checkCrc64File(filePath,callback)](#utilscheckcrc64-filePath-callback)
+    - [.checkCrc64(content, result)](#checkcrc64)
+    - [.checkCrc64File(filePath,callback)](#checkcrc64file)
 - [Known Errors](#known-errors)
 
 ## Node Usage
