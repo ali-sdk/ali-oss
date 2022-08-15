@@ -4461,6 +4461,7 @@ const url = imgClient.signatureUrl('
 
 ### .checkCrc64
 Whether the calculation is consistent with the results
+Please add [oss-crc64-plug](xxxxx) if it is a browser environment
 
 parameters:
 
