@@ -84,16 +84,19 @@ describe('crc64', () => {
       });
     });
 
-    it('check_stream 串行', done => {
+    it.only('check_stream 串行', done => {
       const len = 100;
       let c = 0;
 
       _dig();
       function _dig() {
         const readStream = fs.createReadStream(path.join(__dirname, 'apps.png'));
+        console.log('debug readStream->', readStream);
 
         CRC64.check_stream(readStream, (err, result) => {
           if (!err) {
+            console.log('debug result->', crc.toUInt64String(result));
+            console.log('debug checksum->', result2);
             crc.toUInt64String(result).should.equal(result2);
             readStream.close();
             c++;
