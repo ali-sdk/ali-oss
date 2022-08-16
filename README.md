@@ -4478,6 +4478,7 @@ store.checkCrc64(Buffer.from('123456789','11051210869376104954'))
 
 ### .checkCrc64File
 Compare Documents
+Please add [oss-crc64-plug](xxxxx) if it is a browser environment
 
 parameters:
 
