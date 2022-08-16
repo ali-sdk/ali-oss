@@ -4461,7 +4461,7 @@ const url = imgClient.signatureUrl('
 
 ### .checkCrc64
 Whether the calculation is consistent with the results
-Please add [oss-crc64-plug](xxxxx) if it is a browser environment
+If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
 
 parameters:
 
@@ -4478,7 +4478,7 @@ store.checkCrc64(Buffer.from('123456789','11051210869376104954'))
 
 ### .checkCrc64File
 Compare Documents
-Please add [oss-crc64-plug](xxxxx) if it is a browser environment
+If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
 
 parameters:
 
