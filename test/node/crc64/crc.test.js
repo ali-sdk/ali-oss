@@ -84,28 +84,6 @@ describe('crc64', () => {
       });
     });
 
-    it.only('check_stream 串行', done => {
-      const len = 99;
-      let c = 0;
-
-      _dig();
-      function _dig() {
-        const readStream = fs.createReadStream(path.join(__dirname, 'apps.png'));
-
-        CRC64.check_stream(readStream, (err, result) => {
-          if (!err) {
-            crc.toUInt64String(result).should.equal(result2);
-            readStream.close();
-            c++;
-            if (c >= len) done();
-            else setTimeout(_dig, 10);
-          } else {
-            console.log(err);
-          }
-        });
-      }
-    });
-
     it('check_stream 并行', done => {
       const len = 100;
       let c = 0;
