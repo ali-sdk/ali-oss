@@ -1669,7 +1669,7 @@ parameters:
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
   - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
-  - [crc64] {Boolean} whether to enable crc64
+  - [crc64] {Boolean} whether to enable crc64. If you are using a browser environment please check the oss-crc64-plug plugin
 
 Success will return the object information.
 
@@ -1793,7 +1793,7 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
-  - [crc64] {Boolean} whether to enable crc64
+  - [crc64] {Boolean} whether to enable crc64. If you are using a browser environment please check the oss-crc64-plug plugin
 
 Success will return the object information.
 
@@ -2029,7 +2029,7 @@ parameters:
         otherwise throw PreconditionFailedError
     - 'If-None-Match' object etag not equal this will return 200 and object meta,
         otherwise return 304 not modified
-  - [crc64] {Boolean} whether to enable crc64 
+  - [crc64] {Boolean} whether to enable crc64 . If you are using a browser environment please check the oss-crc64-plug plugin
 
 Success will return the info contains response.
 
@@ -3217,7 +3217,7 @@ parameters:
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
-  - [crc64] {Boolean} whether to enable crc64
+  - [crc64] {Boolean} whether to enable crc64 . If you are using a browser environment please check the oss-crc64-plug plugin
 
 Success will return:
 
