@@ -33,6 +33,7 @@ export interface RequestOptions {
   subres?: Subres;
   ctx?: string;
   disabledMD5?: boolean;
+  crc64?: boolean | Function;
 }
 
 interface UserMeta {
@@ -67,12 +68,14 @@ export interface MultipartUploadOptions extends RequestOptions {
   callback?: ObjectCallback;
   copyheaders?: object; //  {Object} only uploadPartCopy api used, detail
   contentLength?: number;
+  crc64?: boolean | Function;
 }
 
 export interface GetObjectOptions extends MultiVersionCommonOptions {
   process?: string; // image process params, will send with x-oss-process e.g.: {process: 'image/resize,w_200'}
   /** only support Browser.js */
-  responseCacheControl?: string
+  responseCacheControl?: string;
+  crc64?: boolean | Function;
 }
 
 export interface PutObjectOptions extends RequestOptions {
@@ -82,6 +85,7 @@ export interface PutObjectOptions extends RequestOptions {
   contentLength?: number;
   method?: string; // append object need
   disabledMD5?: boolean;
+  crc64?: boolean | Function;
 }
 
 export interface PutBucketOptions extends RequestOptions {
@@ -242,13 +246,13 @@ export interface listQuery {
 }
 
 export interface listV2Query {
-  prefix?: string,
-  delimiter?: string,
-  'start-after'?: string,
-  'continuation-token'?: string,
-  'max-keys'?: string,
-  'encoding-type'?: 'url',
-  'fetch-owner'?: boolean,
+  prefix?: string;
+  delimiter?: string;
+  'start-after'?: string;
+  'continuation-token'?: string;
+  'max-keys'?: string;
+  'encoding-type'?: 'url';
+  'fetch-owner'?: boolean;
 }
 
 export interface postAsyncFetchOptions extends RequestOptions {
