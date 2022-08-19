@@ -17,7 +17,8 @@
     "debug": "./shims/debug",
     "fs": false,
     "child_process": false,
-    "is-type-of": "./shims/is-type-of.js"
+    "is-type-of": "./shims/is-type-of.js",
+    "crc64-ecma182": false
   },
   "scripts": {
     "build-change-log": "standard-version",
@@ -111,7 +112,7 @@
     "promise-polyfill": "^6.0.2",
     "puppeteer": "^10.4.0",
     "request": "^2.88.0",
-    "should": "^11.0.0",
+    "should": "^11.2.1",
     "sinon": "^1.17.7",
     "snyk": "1.454.0",
     "standard-version": "^9.3.1",
@@ -126,6 +127,7 @@
     "agentkeepalive": "^3.4.1",
     "bowser": "^1.6.0",
     "copy-to": "^2.0.1",
+    "crc64-ecma182": "^1.0.0",
     "dateformat": "^2.0.0",
     "debug": "^2.2.0",
     "destroy": "^1.0.4",
