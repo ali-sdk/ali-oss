@@ -29,7 +29,7 @@ describe('crc64', () => {
     );
     // fs.writeFile(filePath, uploadContent);
     checkNumber = '455889540452056977';
-    store = oss(config);
+    store = new oss(config);
     bucket = `ali-oss-test-crc-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     await store.putBucket(bucket);
@@ -98,7 +98,7 @@ describe('crc64', () => {
             readStream.close();
             c++;
             if (c >= len) done();
-            //else setTimeout(_dig,10);
+            // else setTimeout(_dig,10);
           } else {
             console.log(err);
           }

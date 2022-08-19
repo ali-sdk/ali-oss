@@ -65,7 +65,6 @@ export async function put(this: any, name: string, file: any, options: PutObject
   const result = await this.request(params);
 
   if (options?.crc64) {
-    console.log('check -- -- - - ->', checkCrc64(content, result.res.headers['x-oss-hash-crc64ecma']));
     if (!checkCrc64(content, result.res.headers['x-oss-hash-crc64ecma'])) {
       throw new Error('crc64 check faild');
     }
