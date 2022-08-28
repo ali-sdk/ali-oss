@@ -3634,7 +3634,7 @@ console.log(result);
 
 ### .calculatePostSignature(policy)
 
-get postObject params
+Get postObject params to upload objects on the web.
 
 parameters:
 
@@ -3642,11 +3642,25 @@ parameters:
 
 Success will return postObject Api params.
 
+```js
+const policy = {
+  expiration: date.toISOString(),
+  conditions: [
+    ["content-length-range", 0, 1048576000], // size of contents in bytes
+  ],
+};
+
+const postObjectParams = client.calculatePostSignature(policy);
+console.log(postObjectParams);
+```
+
 Object:
 
 - OSSAccessKeyId {String}
 - Signature {String}
 - policy {Object} response info
+
+[PostObject For Uploading Objects Guide](https://www.alibabacloud.com/help/en/object-storage-service/latest/add-signatures-on-the-client-by-using-javascript-and-upload-data-to-oss#concept-frd-4gy-5db)
 
 ### .getObjectTagging(name[, options])
 
