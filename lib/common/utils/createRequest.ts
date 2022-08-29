@@ -30,8 +30,8 @@ function delHeader(headers: Headers, name: string) {
 
 export function createRequest(this: any, params) {
   let date = new Date();
-  if (this.options.amendTimeSkewed) {
-    date = +new Date() + this.options.amendTimeSkewed;
+  if (this.amendTimeSkewed) {
+    date = +new Date() + this.amendTimeSkewed;
   }
   const headers: Headers = {
     'x-oss-date': dateFormat(date, "UTC:ddd, dd mmm yyyy HH:MM:ss 'GMT'")
