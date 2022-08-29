@@ -68,7 +68,6 @@ export function initOptions(options) {
       sldEnable: false,
       useFetch: false,
       headerEncoding: 'utf-8',
-      amendTimeSkewed: 0, // record the time difference between client and server
       refreshSTSTokenInterval: 60000 * 5,
       refreshSTSToken: null, // auto set sts config
       enableProxy: false,
