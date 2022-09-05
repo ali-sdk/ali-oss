@@ -1,6 +1,6 @@
 {
   "name": "ali-oss-csg",
-  "version": "7.0.0-beta.1",
+  "version": "7.0.0-beta.2",
   "description": "aliyun oss(object storage service) node client",
   "main": "./lib/node/index.js",
   "files": [
