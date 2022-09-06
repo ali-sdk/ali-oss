@@ -1990,8 +1990,9 @@ describe('browser', () => {
       const resultPut = await store.put(name, file);
       assert.equal(resultPut.res.status, 200);
 
-      assert.equal(requestSpy.callCount, 2);
-      assert.equal(requestErrorSpy.callCount, 1);
+      // 因为现在更改了时间偏移的实现，当第一实例矫正偏移后会保存所以这里现在只能为1，因为都矫正过了
+      assert.equal(requestSpy.callCount, 1);
+      assert.equal(requestErrorSpy.callCount, 0);
 
       const resultGet = await store.get(name);
       assert.equal(resultGet.res.status, 200);
