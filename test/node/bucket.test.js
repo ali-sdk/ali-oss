@@ -81,9 +81,9 @@ describe('test/bucket.test.js', () => {
       await utils.sleep(ms(metaSyncTime));
       const result2 = await store.listBuckets({}, { timeout });
       const { buckets } = result2;
-      const m = buckets.some(item => item.name === archvieBucket);
+      const m = buckets.some((item) => item.name === archvieBucket);
       assert(m === true);
-      buckets.map(item => {
+      buckets.map((item) => {
         if (item.name === archvieBucket) {
           assert(item.StorageClass === 'Archive');
         }
@@ -106,7 +106,7 @@ describe('test/bucket.test.js', () => {
     it('should create an public-read bucket', async () => {
       const public_read_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
       const public_read_name_res = await store.putBucket(public_read_name, {
-        acl: 'public-read'
+        acl: 'public-read',
       });
       assert.strictEqual(public_read_name_res.res.status, 200);
       const public_read_name_get_res = await store.getBucketInfo(public_read_name);
@@ -220,7 +220,7 @@ describe('test/bucket.test.js', () => {
       await Promise.all(
         Array(2)
           .fill(1)
-          .map((v, i) => store.putBucket(listBucketsPrefix + i))
+          .map((v, i) => store.putBucket(listBucketsPrefix + i)),
       );
     });
 
@@ -228,9 +228,9 @@ describe('test/bucket.test.js', () => {
       const result = await store.listBuckets(
         {
           prefix: listBucketsPrefix,
-          'max-keys': 20
+          'max-keys': 20,
         },
-        { timeout }
+        { timeout },
       );
 
       assert(Array.isArray(result.buckets));
@@ -250,7 +250,7 @@ describe('test/bucket.test.js', () => {
     it('should list buckets by subres', async () => {
       const tag = {
         a: '1',
-        b: '2'
+        b: '2',
       };
       const putTagBukcet = `${listBucketsPrefix}0`;
       await store.putBucketTags(putTagBukcet, tag);
@@ -258,9 +258,9 @@ describe('test/bucket.test.js', () => {
         prefix: listBucketsPrefix,
         subres: {
           tagging: Object.entries(tag)
-            .map(_ => _.map(inner => `"${inner.toString()}"`).join(':'))
-            .join(',')
-        }
+            .map((_) => _.map((inner) => `"${inner.toString()}"`).join(':'))
+            .join(','),
+        },
       });
 
       if (buckets && buckets.length && buckets[0]) {
@@ -274,7 +274,7 @@ describe('test/bucket.test.js', () => {
       await Promise.all(
         Array(2)
           .fill(1)
-          .map((v, i) => store.deleteBucket(listBucketsPrefix + i))
+          .map((v, i) => store.deleteBucket(listBucketsPrefix + i)),
       );
     });
   });
@@ -300,7 +300,7 @@ describe('test/bucket.test.js', () => {
   describe('putBucketWebsite(), getBucketWebsite(), deleteBucketWebsite()', () => {
     it('should get and delete the website settings', async () => {
       await store.putBucketWebsite(bucket, {
-        index: 'index.html'
+        index: 'index.html',
       });
 
       await utils.sleep(ms(metaSyncTime));
@@ -320,7 +320,7 @@ describe('test/bucket.test.js', () => {
         RuleNumber: '1',
         Condition: {
           KeyPrefixEquals: 'abc/',
-          HttpErrorCodeReturnedEquals: '404'
+          HttpErrorCodeReturnedEquals: '404',
         },
         Redirect: {
           RedirectType: 'Mirror',
@@ -340,17 +340,17 @@ describe('test/bucket.test.js', () => {
             Remove: ['remove1', 'remove2'],
             Set: {
               Key: 'myheader-key5',
-              Value: 'myheader-value5'
-            }
-          }
-        }
+              Value: 'myheader-value5',
+            },
+          },
+        },
       };
       const routingRules = [
         {
           RuleNumber: '2',
           Condition: {
             KeyPrefixEquals: 'a1bc/',
-            HttpErrorCodeReturnedEquals: '404'
+            HttpErrorCodeReturnedEquals: '404',
           },
           Redirect: {
             RedirectType: 'Mirror',
@@ -370,18 +370,18 @@ describe('test/bucket.test.js', () => {
               Remove: ['remove1', 'remove2'],
               Set: {
                 Key: 'myheader-key5',
-                Value: 'myheader-value5'
-              }
-            }
-          }
-        }
+                Value: 'myheader-value5',
+              },
+            },
+          },
+        },
       ];
       const website = {
         index: 'index1.html',
         supportSubDir: 'true',
         type: '1',
         error: 'error1.html',
-        routingRules
+        routingRules,
       };
 
       const result1 = await store.putBucketWebsite(bucket, website);
@@ -404,7 +404,7 @@ describe('test/bucket.test.js', () => {
         supportSubDir: 'true',
         type: '1',
         error: 'error1.html',
-        routingRules: ''
+        routingRules: '',
       };
 
       try {
@@ -425,7 +425,9 @@ describe('test/bucket.test.js', () => {
 
   describe('putBucketReferer(), getBucketReferer(), deleteBucketReferer()', () => {
     it('should create, get and delete the referer', async () => {
-      const putresult = await store.putBucketReferer(bucket, true, ['http://npm.taobao.org'], { timeout });
+      const putresult = await store.putBucketReferer(bucket, true, ['http://npm.taobao.org'], {
+        timeout,
+      });
       assert.equal(putresult.res.status, 200);
 
       // put again will be fine
@@ -461,8 +463,8 @@ describe('test/bucket.test.js', () => {
           allowedMethod: 'GET',
           allowedHeader: '*',
           exposeHeader: 'Content-Length',
-          maxAgeSeconds: '30'
-        }
+          maxAgeSeconds: '30',
+        },
       ];
       const putResult = await store.putBucketCORS(bucket, rules);
       assert.equal(putResult.res.status, 200);
@@ -475,8 +477,8 @@ describe('test/bucket.test.js', () => {
           allowedMethod: 'GET',
           allowedHeader: '*',
           exposeHeader: 'Content-Length',
-          maxAgeSeconds: '30'
-        }
+          maxAgeSeconds: '30',
+        },
       ]);
     });
 
@@ -485,8 +487,8 @@ describe('test/bucket.test.js', () => {
         {
           allowedOrigin: '*',
           allowedMethod: 'GET',
-          timeout
-        }
+          timeout,
+        },
       ];
       const putCorsResult1 = await store.putBucketCORS(bucket, rules1);
       assert.equal(putCorsResult1.res.status, 200);
@@ -498,15 +500,15 @@ describe('test/bucket.test.js', () => {
       assert.deepEqual(getCorsResult1.rules, [
         {
           allowedOrigin: '*',
-          allowedMethod: 'GET'
-        }
+          allowedMethod: 'GET',
+        },
       ]);
 
       const rules2 = [
         {
           allowedOrigin: 'localhost',
-          allowedMethod: 'HEAD'
-        }
+          allowedMethod: 'HEAD',
+        },
       ];
       const putCorsResult2 = await store.putBucketCORS(bucket, rules2);
       assert.equal(putCorsResult2.res.status, 200);
@@ -518,8 +520,8 @@ describe('test/bucket.test.js', () => {
       assert.deepEqual(getCorsResult2.rules, [
         {
           allowedOrigin: 'localhost',
-          allowedMethod: 'HEAD'
-        }
+          allowedMethod: 'HEAD',
+        },
       ]);
     });
 
@@ -545,8 +547,8 @@ describe('test/bucket.test.js', () => {
       try {
         const rules = [
           {
-            allowedOrigin: '*'
-          }
+            allowedOrigin: '*',
+          },
         ];
         await store.putBucketCORS(bucket, rules);
         throw new Error('should not run');
@@ -701,8 +703,10 @@ describe('test/bucket.test.js', () => {
         const tag = { a: '1', b: '2' };
         await store.putBucketTags(bucket, tag);
 
-        result = await store.deleteBucketTags(bucket);
+        result = await store.deleteBucketTags(bucket, ['a']);
         assert.strictEqual(result.status, 204);
+        const deleteAll = await store.deleteBucketTags(bucket);
+        assert.strictEqual(deleteAll.status, 204);
 
         result = await store.getBucketTags(bucket);
         assert.strictEqual(result.status, 200);
@@ -717,7 +721,7 @@ describe('test/bucket.test.js', () => {
     it('should create, get and delete the bucket encryption', async () => {
       // put with AES256
       const putresult1 = await store.putBucketEncryption(bucket, {
-        SSEAlgorithm: 'AES256'
+        SSEAlgorithm: 'AES256',
       });
       assert.equal(putresult1.res.status, 200);
       // put again with KMS will be fine
@@ -731,7 +735,7 @@ describe('test/bucket.test.js', () => {
       const getBucketEncryption = await store.getBucketEncryption(bucket);
       assert.equal(getBucketEncryption.res.status, 200);
       assert.deepEqual(getBucketEncryption.encryption, {
-        SSEAlgorithm: 'AES256'
+        SSEAlgorithm: 'AES256',
         // KMSMasterKeyID: '1b2c3132-b2ce-4ba3-a4dd-9885904099ad'
       });
       // delete
@@ -748,8 +752,8 @@ describe('test/bucket.test.js', () => {
           id: 'expiration1',
           prefix: 'logs/',
           status: 'Enabled',
-          days: 1
-        }
+          days: 1,
+        },
       ]);
       assert.equal(putresult1.res.status, 200);
 
@@ -758,8 +762,8 @@ describe('test/bucket.test.js', () => {
           id: 'expiration2',
           prefix: 'logs/',
           status: 'Enabled',
-          date: '2020-02-18T00:00:00.000Z'
-        }
+          date: '2020-02-18T00:00:00.000Z',
+        },
       ]);
       assert.equal(putresult2.res.status, 200);
     });
@@ -771,14 +775,17 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           expiration: {
-            days: 1
-          }
-        }
+            days: 1,
+          },
+        },
       ]);
       assert.equal(putresult1.res.status, 200);
 
       const getBucketLifecycle = await store.getBucketLifecycle(bucket);
-      assert(getBucketLifecycle.rules.length > 0 && getBucketLifecycle.rules.find(v => v.id === 'expiration1'));
+      assert(
+        getBucketLifecycle.rules.length > 0 &&
+          getBucketLifecycle.rules.find((v) => v.id === 'expiration1'),
+      );
 
       const putresult2 = await store.putBucketLifecycle(bucket, [
         {
@@ -786,9 +793,9 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           expiration: {
-            createdBeforeDate: '2020-02-18T00:00:00.000Z'
-          }
-        }
+            createdBeforeDate: '2020-02-18T00:00:00.000Z',
+          },
+        },
       ]);
       assert.equal(putresult2.res.status, 200);
     });
@@ -800,9 +807,9 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           abortMultipartUpload: {
-            days: 1
-          }
-        }
+            days: 1,
+          },
+        },
       ]);
       assert.equal(putresult1.res.status, 200);
 
@@ -812,9 +819,9 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           abortMultipartUpload: {
-            createdBeforeDate: '2020-02-18T00:00:00.000Z'
-          }
-        }
+            createdBeforeDate: '2020-02-18T00:00:00.000Z',
+          },
+        },
       ]);
       assert.equal(putresult2.res.status, 200);
     });
@@ -826,9 +833,9 @@ describe('test/bucket.test.js', () => {
           prefix: '', // empty prefix (whole bucket)
           status: 'Enabled',
           abortMultipartUpload: {
-            days: 1
-          }
-        }
+            days: 1,
+          },
+        },
       ]);
       assert.equal(putresult.res.status, 200);
     });
@@ -841,16 +848,16 @@ describe('test/bucket.test.js', () => {
           status: 'Enabled',
           transition: {
             createdBeforeDate: '2020-02-18T00:00:00.000Z',
-            storageClass: 'Archive'
+            storageClass: 'Archive',
           },
           expiration: {
-            createdBeforeDate: '2020-02-17T00:00:00.000Z'
+            createdBeforeDate: '2020-02-17T00:00:00.000Z',
           },
           tag: {
             key: 'test',
-            value: '123'
-          }
-        }
+            value: '123',
+          },
+        },
       ]);
       assert.equal(putresult1.res.status, 200);
 
@@ -861,13 +868,13 @@ describe('test/bucket.test.js', () => {
           status: 'Enabled',
           transition: {
             days: 20,
-            storageClass: 'Archive'
+            storageClass: 'Archive',
           },
           tag: {
             key: 'test',
-            value: '123'
-          }
-        }
+            value: '123',
+          },
+        },
       ]);
       assert.equal(putresult2.res.status, 200);
     });
@@ -879,13 +886,13 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           expiration: {
-            days: 1
+            days: 1,
           },
           tag: {
             key: 1,
-            value: '2'
-          }
-        }
+            value: '2',
+          },
+        },
       ]);
       assert.equal(putresult1.res.status, 200);
 
@@ -895,13 +902,13 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           expiration: {
-            createdBeforeDate: '2020-02-18T00:00:00.000Z'
+            createdBeforeDate: '2020-02-18T00:00:00.000Z',
           },
           tag: {
             key: 1,
-            value: '2'
-          }
-        }
+            value: '2',
+          },
+        },
       ]);
       assert.equal(putresult2.res.status, 200);
 
@@ -911,19 +918,19 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           expiration: {
-            createdBeforeDate: '2020-02-18T00:00:00.000Z'
+            createdBeforeDate: '2020-02-18T00:00:00.000Z',
           },
           tag: [
             {
               key: 1,
-              value: '2'
+              value: '2',
             },
             {
               key: 'testkey',
-              value: 'testvalue'
-            }
-          ]
-        }
+              value: 'testvalue',
+            },
+          ],
+        },
       ]);
       assert.equal(putresult3.res.status, 200);
     });
@@ -935,8 +942,8 @@ describe('test/bucket.test.js', () => {
           {
             id: testID,
             prefix: 'testid/',
-            status: 'Enabled'
-          }
+            status: 'Enabled',
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -949,8 +956,8 @@ describe('test/bucket.test.js', () => {
         await store.putBucketLifecycle(bucket, [
           {
             id: 'prefix',
-            status: 'Enabled'
-          }
+            status: 'Enabled',
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -964,8 +971,8 @@ describe('test/bucket.test.js', () => {
           {
             id: 'status',
             prefix: 'fix/',
-            status: 'test'
-          }
+            status: 'test',
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -976,8 +983,8 @@ describe('test/bucket.test.js', () => {
           {
             id: 'status',
             prefix: 'fix/',
-            status: ''
-          }
+            status: '',
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -994,9 +1001,9 @@ describe('test/bucket.test.js', () => {
             status: 'Enabled',
             transition: {
               createdBeforeDate: '2020-02-18T00:00:00.000Z',
-              storageClass: 'test'
-            }
-          }
+              storageClass: 'test',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1012,9 +1019,9 @@ describe('test/bucket.test.js', () => {
             prefix: 'fix/',
             status: 'Enabled',
             transition: {
-              storageClass: 'Archive'
-            }
-          }
+              storageClass: 'Archive',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1032,9 +1039,9 @@ describe('test/bucket.test.js', () => {
             status: 'Enabled',
             transition: {
               days: 1.1,
-              storageClass: 'Archive'
-            }
-          }
+              storageClass: 'Archive',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1049,9 +1056,9 @@ describe('test/bucket.test.js', () => {
             status: 'Enabled',
             transition: {
               days: 'asd',
-              storageClass: 'Archive'
-            }
-          }
+              storageClass: 'Archive',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1069,9 +1076,9 @@ describe('test/bucket.test.js', () => {
             status: 'Enabled',
             transition: {
               createdBeforeDate: new Date().toISOString(), // eg: YYYY-MM-DDT00:00:00.000Z
-              storageClass: 'Archive'
-            }
-          }
+              storageClass: 'Archive',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1086,9 +1093,9 @@ describe('test/bucket.test.js', () => {
             status: 'Enabled',
             transition: {
               createdBeforeDate: new Date().toString(),
-              storageClass: 'Archive'
-            }
-          }
+              storageClass: 'Archive',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1103,8 +1110,8 @@ describe('test/bucket.test.js', () => {
             id: 'storageClass',
             prefix: 'fix/',
             status: 'Enabled',
-            abortMultipartUpload: {}
-          }
+            abortMultipartUpload: {},
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1121,9 +1128,9 @@ describe('test/bucket.test.js', () => {
             prefix: 'fix/',
             status: 'Enabled',
             abortMultipartUpload: {
-              days: 1.1
-            }
-          }
+              days: 1.1,
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1137,9 +1144,9 @@ describe('test/bucket.test.js', () => {
             prefix: 'fix/',
             status: 'Enabled',
             abortMultipartUpload: {
-              days: 'a'
-            }
-          }
+              days: 'a',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1156,9 +1163,9 @@ describe('test/bucket.test.js', () => {
             prefix: 'fix/',
             status: 'Enabled',
             abortMultipartUpload: {
-              createdBeforeDate: new Date().toISOString() // eg: YYYY-MM-DDT00:00:00.000Z
-            }
-          }
+              createdBeforeDate: new Date().toISOString(), // eg: YYYY-MM-DDT00:00:00.000Z
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1172,9 +1179,9 @@ describe('test/bucket.test.js', () => {
             prefix: 'fix/',
             status: 'Enabled',
             abortMultipartUpload: {
-              createdBeforeDate: new Date().toString() // eg: YYYY-MM-DDT00:00:00.000Z
-            }
-          }
+              createdBeforeDate: new Date().toString(), // eg: YYYY-MM-DDT00:00:00.000Z
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1188,8 +1195,8 @@ describe('test/bucket.test.js', () => {
         await store.putBucketLifecycle(bucket, [
           {
             prefix: 'expirationAndAbortMultipartUpload/',
-            status: 'Enabled'
-          }
+            status: 'Enabled',
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1205,16 +1212,16 @@ describe('test/bucket.test.js', () => {
             prefix: 'expirationAndAbortMultipartUpload/',
             status: 'Enabled',
             abortMultipartUpload: {
-              days: 1
+              days: 1,
             },
             expiration: {
-              days: 1
+              days: 1,
             },
             tag: {
               value: '1',
-              key: 'test'
-            }
-          }
+              key: 'test',
+            },
+          },
         ]);
         assert(false);
       } catch (error) {
@@ -1231,19 +1238,19 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           expiration: {
-            days: 1
+            days: 1,
           },
           tag: [
             {
               key: 'test',
-              value: '1'
+              value: '1',
             },
             {
               key: 'test1',
-              value: '2'
-            }
-          ]
-        }
+              value: '2',
+            },
+          ],
+        },
       ]);
       assert.equal(putresult.res.status, 200);
 
@@ -1261,19 +1268,19 @@ describe('test/bucket.test.js', () => {
           prefix: 'logs/',
           status: 'Enabled',
           expiration: {
-            days: 1
+            days: 1,
           },
           tag: [
             {
               key: 'test',
-              value: '1'
+              value: '1',
             },
             {
               key: 'test1',
-              value: '2'
-            }
-          ]
-        }
+              value: '2',
+            },
+          ],
+        },
       ]);
       assert.equal(putresult.res.status, 200);
 
@@ -1293,9 +1300,9 @@ describe('test/bucket.test.js', () => {
               Action: ['oss:PutObject', 'oss:GetObject'],
               Effect: 'Deny',
               Principal: ['1234567890'],
-              Resource: ['acs:oss:*:1234567890:*/*']
-            }
-          ]
+              Resource: ['acs:oss:*:1234567890:*/*'],
+            },
+          ],
         };
         const result = await store.putBucketPolicy(bucket, policy);
         assert.strictEqual(result.status, 200);
@@ -1328,13 +1335,13 @@ describe('test/bucket.test.js', () => {
         accountId: '1817184078010220',
         rolename: 'AliyunOSSRole',
         bucket,
-        prefix: 'test'
+        prefix: 'test',
       },
       frequency: 'Daily',
       includedObjectVersions: 'All',
       optionalFields: {
-        field: ['Size', 'LastModifiedDate']
-      }
+        field: ['Size', 'LastModifiedDate'],
+      },
     };
 
     describe('putBucketInventory', () => {
@@ -1366,7 +1373,7 @@ describe('test/bucket.test.js', () => {
 
           inventory.id = 'test_field_is_one';
           inventory.optionalFields = {
-            field: ['Size']
+            field: ['Size'],
           };
           await store.putBucketInventory(bucket, inventory);
           assert(true);
@@ -1422,7 +1429,7 @@ describe('test/bucket.test.js', () => {
             testGetInventory.optionalFields &&
               testGetInventory.optionalFields.field &&
               Array.isArray(testGetInventory.optionalFields.field) &&
-              testGetInventory.optionalFields.field.length === 1
+              testGetInventory.optionalFields.field.length === 1,
           );
         } catch (err) {
           assert(false);
@@ -1436,8 +1443,11 @@ describe('test/bucket.test.js', () => {
           await Promise.all(
             new Array(1).fill(1).map(() => {
               _index++;
-              return store.putBucketInventory(bucket, Object.assign({}, inventory, { id: `test_list_${_index}` }));
-            })
+              return store.putBucketInventory(
+                bucket,
+                Object.assign({}, inventory, { id: `test_list_${_index}` }),
+              );
+            }),
           );
         }
 
@@ -1463,7 +1473,7 @@ describe('test/bucket.test.js', () => {
           // avoid Qps limit
           do {
             const list = inventoryList.splice(0, 10);
-            await Promise.all(list.map(_ => store.deleteBucketInventory(bucket, _.id)));
+            await Promise.all(list.map((_) => store.deleteBucketInventory(bucket, _.id)));
             utils.sleep(400);
           } while (inventoryList.length);
           assert(true);

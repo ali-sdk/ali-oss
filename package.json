@@ -90,6 +90,7 @@
     "f2elint": "^2.2.1",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
+    "husky": "^8.0.1",
     "immediate": "^3.3.0",
     "karma": "^6.3.4",
     "karma-browserify": "^5.1.1",

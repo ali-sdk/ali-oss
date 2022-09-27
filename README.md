@@ -107,7 +107,7 @@ All operation use es7 async/await to implement. All api is async function.
   - tagging
     - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
     - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
-    - [.deleteBucketTags(name, [, options])](#deleteBucketTagsname-options)
+    - [.deleteBucketTags(name, tags[, options])](#deleteBucketTagsname-tags-options)
   - policy
     - [.putBucketPolicy(name, policy[, options])](#putBucketPolicyname-policy-options)
     - [.getBucketPolicy(name, [, options])](#getBucketPolicyname-options)
@@ -1268,13 +1268,14 @@ Success will return:
 
 ---
 
-### .deleteBucketTags(name[, options])
+### .deleteBucketTags(name, tags[, options])
 
 Deletes the tags added for a bucket.
 
 parameters:
 
 - name {String} the object name
+- tags {Array} specified tags
 - [options] {Object} optional args
 
 Success will return:
