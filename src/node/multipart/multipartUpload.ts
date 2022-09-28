@@ -26,7 +26,17 @@ import { MultipartUploadOptions } from '../../types/params';
  *                    key2: 'value2'
  *                  }
  */
-export async function multipartUpload(this: any, name: string, file: any, options: MultipartUploadOptions = {}) {
+export async function multipartUpload(
+  this: any,
+  name: string,
+  file: any,
+  options: MultipartUploadOptions = {},
+) {
+  if (this.options.multipartRunning) {
+    console.warn(
+      'multipartUpload is already executing, if you need to call more than one multipartUpload at the same time, please create more instances',
+    );
+  }
   this.resetCancelFlag();
   if (options.checkpoint && options.checkpoint.uploadId) {
     return await resumeMultipart.call(this, options.checkpoint, options);
@@ -59,7 +69,7 @@ export async function multipartUpload(this: any, name: string, file: any, option
       res: result.res,
       bucket: this.options.bucket,
       name,
-      etag: result.res.headers.etag
+      etag: result.res.headers.etag,
     };
 
     if ((options.headers && options.headers['x-oss-callback']) || options.callback) {
@@ -87,7 +97,7 @@ export async function multipartUpload(this: any, name: string, file: any, option
     fileSize,
     partSize,
     uploadId,
-    doneParts: []
+    doneParts: [],
   };
 
   if (options && options.progress) {
