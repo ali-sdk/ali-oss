@@ -38,7 +38,9 @@
     "tsc:build": "tsc -b tsconfig.json tsconfig-cjs.json",
     "tsc:watch": "tsc -b tsconfig.json tsconfig-cjs.json --watch",
     "tsc:clean": "tsc -b tsconfig.json tsconfig-cjs.json --clean ",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "f2elint-scan": "f2elint scan",
+    "f2elint-fix": "f2elint fix"
   },
   "git-pre-hooks": {
     "pre-release": "npm run build-dist",
@@ -72,11 +74,8 @@
     "@babel/plugin-transform-runtime": "^7.11.5",
     "@babel/preset-env": "^7.11.5",
     "@babel/runtime": "^7.11.2",
-    "@commitlint/cli": "^16.2.4",
     "@commitlint/config-conventional": "^16.2.4",
     "@types/node": "^14.0.12",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
     "aliasify": "^2.0.0",
     "autod": "^2.6.1",
     "babelify": "^10.0.0",
@@ -87,15 +86,10 @@
     "core-js": "^3.6.5",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^8.2.0",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-config-ali": "^9.0.2",
-    "eslint-plugin-import": "^2.21.1",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0",
+    "f2elint": "^2.2.1",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
-    "husky": "^7.0.4",
+    "husky": "^8.0.1",
     "immediate": "^3.3.0",
     "karma": "^6.3.4",
     "karma-browserify": "^5.1.1",
@@ -108,6 +102,7 @@
     "mm": "^2.0.0",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",
+    "prettier": "^2.7.1",
     "promise-polyfill": "^6.0.2",
     "puppeteer": "^10.4.0",
     "request": "^2.88.0",
@@ -150,7 +145,12 @@
   "lint-staged": {
     "**/!(dist)/*": [
       "npm run detect-secrets --"
-    ],
-    "lib/**/*.js": "eslint --cache --fix"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "f2elint commit-file-scan",
+      "commit-msg": "f2elint commit-msg-scan"
+    }
   }
 }
