@@ -1,15 +1,9 @@
-export function _parallel(
-  this: any,
-  todo,
-  num: number,
-  fn: Function,
-  sourceData?
-): Promise<any> {
+export function _parallel(this: any, todo, num: number, fn: Function, sourceData?): Promise<any> {
   const that = this;
-  return new Promise(res => {
+  return new Promise((res) => {
     const jobErr: any = [];
     const doing: any = [];
-    const jobs = todo.map(_ => {
+    const jobs = todo.map((_) => {
       return () => {
         return fn(_, sourceData);
       };
@@ -25,10 +19,10 @@ export function _parallel(
       const item = queue.pop();
       doing.push(item);
       item()
-        .then(_res => {
+        .then(() => {
           continueFn(queue);
         })
-        .catch(_err => {
+        .catch((_err) => {
           queue.length = 0;
           jobErr.push(_err);
           res(jobErr);
