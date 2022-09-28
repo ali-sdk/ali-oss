@@ -1,35 +1,6 @@
-/* eslint max-len: [0] */
 module.exports = {
-  extends: ['airbnb', 'eslint-config-ali/typescript'],
-  parserOptions: {
-    ecmaFeatures: {
-      experimentalObjectRestSpread: true,
-    },
-  },
-  env: {
-    browser: true,
-    node: true,
-    es6: true,
-    mocha: true,
-    jasmine: true,
-    jest: true,
-  },
-  rules: {
-    indent: ['error', 2],
-    // override default options
-    'no-underscore-dangle': [0],
-    'no-plusplus': [0],
-    'no-return-await':[0],
-    'no-param-reassign': [0],
-    'max-len': ['warn', 120, 2, {
-      ignoreUrls: true,
-      ignoreComments: false,
-      ignoreRegExpLiterals: true,
-      ignoreStrings: true,
-      ignoreTemplateLiterals: true,
-    }],
-    'no-buffer-constructor': [2],
-    "comma-dangle": [0],
-    'import/prefer-default-export': [0],
-  }
+  extends: [
+    'eslint-config-ali/node',
+    'prettier',
+  ],
 };
