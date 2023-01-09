@@ -127,7 +127,7 @@
     "bowser": "^1.6.0",
     "copy-to": "^2.0.1",
     "dateformat": "^2.0.0",
-    "debug": "^2.2.0",
+    "debug": "^3.1.0",
     "destroy": "^1.0.4",
     "end-or-error": "^1.0.1",
     "get-ready": "^1.0.0",
@@ -142,7 +142,7 @@
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
-    "urllib": "^2.33.1",
+    "urllib": "^3.0.0",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16"
   },
