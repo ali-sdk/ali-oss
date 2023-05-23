@@ -30,23 +30,26 @@ export async function completeMultipartUpload(
   name: string,
   uploadId: string,
   parts: Array<{ number: number; etag: string }>,
-  options: CompleteMultipartUploadOptions = {}
+  options: CompleteMultipartUploadOptions = {},
 ) {
   const completeParts = parts
     .concat()
     .sort((a: { number: number }, b: { number: number }) => a.number - b.number)
-    .filter((item: { number: number }, index: number, arr: any[]) => !index || item.number !== arr[index - 1].number);
+    .filter(
+      (item: { number: number }, index: number, arr: any[]) =>
+        !index || item.number !== arr[index - 1].number,
+    );
 
   const xmlParamObj = {
     CompleteMultipartUpload: {
       Part: completeParts.map((_: { number: number; etag: string }) => ({
         PartNumber: _.number,
-        ETag: _.etag
-      }))
-    }
+        ETag: _.etag,
+      })),
+    },
   };
 
-  const opt: any = deepCopyWith(options, _ => {
+  const opt: any = deepCopyWith(options, (_) => {
     if (isBuffer(_)) return null;
     return undefined;
   });
@@ -65,12 +68,13 @@ export async function completeMultipartUpload(
   }
   params.successStatuses = [200];
   const result = await this.request(params);
+  this.options.multipartRunning = false;
 
   const ret: any = {
     res: result.res,
     bucket: params.bucket,
     name,
-    etag: result.res.headers.etag
+    etag: result.res.headers.etag,
   };
 
   if (params.headers && params.headers['x-oss-callback']) {

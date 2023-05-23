@@ -48,7 +48,7 @@ export function initOptions(options) {
 
   if (options.stsToken && !options.refreshSTSToken && !options.refreshSTSTokenInterval) {
     console.warn(
-      "It's recommended to set 'refreshSTSToken' and 'refreshSTSTokenInterval' to refresh stsToken、accessKeyId、accessKeySecret automatically when sts info expires"
+      "It's recommended to set 'refreshSTSToken' and 'refreshSTSTokenInterval' to refresh stsToken、accessKeyId、accessKeySecret automatically when sts info expires",
     );
   }
 
@@ -73,9 +73,10 @@ export function initOptions(options) {
       refreshSTSToken: null, // auto set sts config
       enableProxy: false,
       proxy: null,
-      disabledMD5: false
+      disabledMD5: false,
+      multipartRunning: false,
     },
-    options
+    options,
   );
 
   opts.accessKeyId = opts.accessKeyId.trim();
