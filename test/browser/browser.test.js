@@ -21,7 +21,7 @@ const { prefix } = require('./browser-utils');
 
 let ossConfig;
 const timemachine = require('timemachine');
-const { options } = require('benchmark');
+// const { options } = require('benchmark');
 
 timemachine.reset();
 
@@ -2262,6 +2262,278 @@ describe('browser', () => {
       await store.multipartUpload(name, body2, { disabledMD5: false, partSize });
       assert.strictEqual(headerWithMD5Count, 2);
       store.urllib.request = request;
+    });
+  });
+
+  describe('multiple.upload', () => {
+    let result;
+    const oneMB = 1 * 1024 * 1024;
+    const oneStr = Buffer.from(Array(oneMB).fill('a').join(''));
+    const twoMB = 2 * 1024 * 1024;
+    const twoStr = Buffer.from(Array(twoMB).fill('a').join(''));
+
+    const multipleFiles = [
+      {
+        name: 'browser-multiple-upload.jpg',
+        content: twoStr,
+        size: 2 * oneMB
+      }, // 2MB
+      {
+        name: 'browser-multiple-upload-small.jpg',
+        content: oneStr,
+        size: oneMB
+      }
+    ];
+
+    before(() => {
+      const store = new OSS(ossConfig);
+      result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
+    });
+
+    it('upload 2 file 2MB and 1MB', done => {
+      const start = async () => {
+        const list = [];
+        const succs = [];
+
+        for (const file of multipleFiles) {
+          const { name, size, content } = file;
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) done();
+            }
+          });
+        }
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('small file is not suspend', async () => {
+      const tfile = {
+        name: 'suspend-and-reStart-small.jpg',
+        file: oneStr,
+        size: oneMB
+      };
+      result.add([tfile]);
+
+      try {
+        result.suspend(tfile.name);
+      } catch (error) {
+        assert.equal(error.message, 'Files smaller than splitsize cannot be uploaded temporarily');
+      }
+    });
+
+    it('upload 1 file 2MB suspend and reStart', done => {
+      const start = async () => {
+        const list = [];
+        const succs = [];
+
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) done();
+            }
+          });
+        };
+
+        const tfile = { name: 'suspend-and-reStart.jpg', size: twoMB, content: twoStr };
+        doUpload(tfile);
+        result.add(list);
+
+        const sres = result.suspend(tfile.name);
+        let error;
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
+        if (sres) {
+          try {
+            result.reStart(tfile.name);
+          } catch (err) {
+            error = err;
+          }
+        }
+        if (error) {
+          done(error);
+        }
+      };
+
+      start();
+    });
+
+    it('upload 1 file 2MB suspend and setTimeOut 1000 reStart', done => {
+      const start = async () => {
+        const list = [];
+        const succs = [];
+
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) done();
+            }
+          });
+        };
+
+        const tfile = { name: 'suspend-and-reStart-timeOut-small.jpg', size: twoMB, content: twoStr };
+        doUpload(tfile);
+        result.add(list);
+
+        const sres = result.suspend(tfile.name);
+        let error;
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
+        if (sres) {
+          try {
+            setTimeout(() => {
+              result.reStart(tfile.name);
+            }, 700);
+          } catch (err) {
+            error = err;
+          }
+        }
+        if (error) {
+          done(error);
+        }
+      };
+
+      start();
+    });
+
+    it('test small file delete', () => {
+      const tfile = { name: 'delete-item-small.jpg', size: oneMB, file: oneStr };
+      result.add([tfile]);
+
+      let error;
+      try {
+        result.delete(tfile.name);
+      } catch (err) {
+        error = err;
+      }
+
+      assert.equal(error, undefined);
+    });
+
+    it('big file 2MB fast delete', () => {
+      const tfile = { name: 'delete-big-file-fast.jpg', size: twoMB, file: twoStr };
+      result.add([tfile]);
+
+      let error;
+      try {
+        result.delete(tfile.name);
+      } catch (err) {
+        error = err;
+      }
+
+      assert.equal(error, undefined);
+    });
+
+    it('big file 2MB slow delete', done => {
+      const start = async () => {
+        const list = [];
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: res => {
+              let error;
+              let dres = false;
+              try {
+                dres = result.delete(tfile.name);
+              } catch (err) {
+                error = err;
+              }
+              done(!dres, error);
+            }
+          });
+        };
+
+        const tfile = { name: 'delete-big-file-slow.jpg', size: twoMB, content: twoStr };
+        doUpload(tfile);
+
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('fast dispose upload 2 file 2MB and 1MB', async () => {
+      const list = [];
+
+      const pfiles = [];
+      for (const file of multipleFiles) {
+        const { name, size, content } = file;
+        list.push({
+          name,
+          size,
+          file: content
+        });
+      }
+
+      result.add(list);
+      const res = result.dispose();
+      assert.equal(res, true);
+    });
+
+    it('slow dispose upload 2 file 2MB and 1MB', done => {
+      const start = async () => {
+        const list = [];
+        const doUpload = ({ name, size, content }) => {
+          list.push({
+            name,
+            size,
+            file: content,
+            getProgress: process => {
+              if (process !== 1) {
+                const res = result.dispose();
+                done(!res);
+              }
+            }
+          });
+        };
+
+        for (const file of multipleFiles) {
+          doUpload(file);
+        }
+
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('get fail list', async () => {
+      const list = [];
+      const doUpload = ({ name, size, content }) => {
+        list.push({
+          name,
+          size,
+          file: content,
+          getProgress: () => {
+            result.suspend(tfile.name);
+            const res = result.getFails();
+            assert.equal(res.length, 0);
+          }
+        });
+      };
+
+      const tfile = { name: 'get-fails.jpg', size: twoMB, content: twoStr };
+      doUpload(tfile);
+
+      result.add(list);
     });
   });
 });

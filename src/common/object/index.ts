@@ -24,6 +24,10 @@ import { putSymlink } from './putSymlink';
 import { restore } from './restore';
 import { signatureUrl } from './signatureUrl';
 
+import { multipleUpload } from './multipleUpload';
+import { multipleDownload } from './multipleDownload';
+import { multipleDelete } from './multipleDelete';
+
 export default {
   append,
   calculatePostSignature,
@@ -52,4 +56,7 @@ export default {
   putSymlink,
   restore,
   signatureUrl,
+  multipleUpload,
+  multipleDownload,
+  multipleDelete
 };

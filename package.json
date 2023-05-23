@@ -1,6 +1,6 @@
 {
-  "name": "ali-oss",
-  "version": "7.0.0-beta.1",
+  "name": "ali-oss-csg",
+  "version": "7.0.0-beta.2",
   "description": "aliyun oss(object storage service) node client",
   "main": "./lib/node/index.js",
   "files": [
@@ -51,7 +51,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/aliyun/oss-nodejs-sdk.git"
+    "url": "https://github.com/shungang/ali-oss.git"
   },
   "keywords": [
     "oss",
@@ -59,7 +59,7 @@
     "file",
     "aliyun"
   ],
-  "author": "dead_horse",
+  "author": "chenshungang",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/aliyun/oss-nodejs-sdk/issues"
@@ -67,7 +67,7 @@
   "engines": {
     "node": ">=8"
   },
-  "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
+  "homepage": "https://github.com/shungang/ali-oss",
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/plugin-transform-regenerator": "^7.10.4",

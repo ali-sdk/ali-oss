@@ -8,7 +8,7 @@ const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
 const OSS = require('../..');
-const STS = require('../..').STS;
+const { STS } = require('../..');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
 const urllib = require('urllib');
@@ -30,6 +30,28 @@ describe('test/object.test.js', () => {
   let bucket;
   let bucketRegion;
   let archvieBucket;
+
+  const createFile = async (name, size) => {
+    size = size || 200 * 1024;
+    await new Promise((resolve, reject) => {
+      const rs = fs.createReadStream('/dev/random', {
+        start: 0,
+        end: size - 1
+      });
+      const ws = fs.createWriteStream(name);
+      rs.pipe(ws);
+      ws.on('finish', (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+
+    return name;
+  };
+
   before(async () => {
     store = new OSS(config);
     bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
@@ -484,26 +506,26 @@ describe('test/object.test.js', () => {
   });
 
   describe('mimetype', () => {
-    const createFile = async (name, size) => {
-      size = size || 200 * 1024;
-      await new Promise((resolve, reject) => {
-        const rs = fs.createReadStream('/dev/random', {
-          start: 0,
-          end: size - 1
-        });
-        const ws = fs.createWriteStream(name);
-        rs.pipe(ws);
-        ws.on('finish', (err, res) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res);
-          }
-        });
-      });
+    // const createFile = async (name, size) => {
+    //   size = size || 200 * 1024;
+    //   await new Promise((resolve, reject) => {
+    //     const rs = fs.createReadStream('/dev/random', {
+    //       start: 0,
+    //       end: size - 1
+    //     });
+    //     const ws = fs.createWriteStream(name);
+    //     rs.pipe(ws);
+    //     ws.on('finish', (err, res) => {
+    //       if (err) {
+    //         reject(err);
+    //       } else {
+    //         resolve(res);
+    //       }
+    //     });
+    //   });
 
-      return name;
-    };
+    //   return name;
+    // };
 
     it('should set mimetype by file ext', async () => {
       const filepath = path.join(tmpdir, 'content-type-by-file.jpg');
@@ -2616,6 +2638,457 @@ describe('test/object.test.js', () => {
       const info = await store.head(name);
       assert.equal(info.status, 200);
       assert.equal(info.meta.b, latin1_content);
+    });
+  });
+
+  const multipleFiles = [
+    { name: 'multiple-upload.jpg', size: 2 * 1024 * 1024 }, // 2MB
+    { name: 'multiple-upload-small.jpg', size: 1 * 1024 * 1024 }
+  ];
+
+  // Delete the directory if it exists and create it if it does not exist
+  function mkDir(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath);
+      return;
+    }
+
+    const files = fs.readdirSync(dirPath);
+    let count = 0;
+    files.forEach(file => {
+      const filePath = `${dirPath}/${file}`;
+      const stats = fs.statSync(filePath);
+      if (stats.isDirectory()) {
+        mkDir(filePath);
+      } else {
+        count += 1;
+        fs.unlinkSync(filePath);
+      }
+    });
+    if (count === files.length) {
+      fs.rmdirSync(dirPath);
+    }
+  }
+
+  describe('multiple.upload', () => {
+    it('upload 2 file 2MB and 1MB', done => {
+      const start = async () => {
+        const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
+
+        const list = [];
+        const succs = [];
+
+        const doUpload = (name, size, filePath) => {
+          list.push({
+            name,
+            size,
+            file: filePath,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) setTimeout(() => succValidate(), 600);
+            }
+          });
+        };
+
+        const pfiles = [];
+        for (const file of multipleFiles) {
+          const filePath = path.join(tmpdir, file.name);
+          pfiles.push(createFile(filePath, file.size));
+          doUpload(file.name, file.size, filePath);
+        }
+        await Promise.all(pfiles);
+
+        result.add(list);
+
+        const succValidate = async () => {
+          const tempDir = path.join(tmpdir, 'multiple-upload-validate');
+          mkDir(tempDir);
+
+          const gets = [];
+          for (const file of multipleFiles) {
+            const filePath = path.join(tempDir, file.name);
+            gets.push(store.get(file.name, filePath));
+          }
+          await Promise.all(gets);
+
+          let isSucc = false;
+          for (const file of multipleFiles) {
+            const filePath = path.join(tempDir, file.name);
+            const tmpfile = path.join(tmpdir, file.name);
+            isSucc = fs.readFileSync(tmpfile, 'utf8') === fs.readFileSync(filePath, 'utf8');
+            if (!isSucc) {
+              break;
+            }
+          }
+
+          done(isSucc ? undefined : new Error('file validate fail'));
+          mkDir(tempDir);
+          for (const file of multipleFiles) {
+            const tmpfile = path.join(tmpdir, file.name);
+            fs.unlinkSync(tmpfile);
+          }
+        };
+      };
+
+      start();
+    });
+
+    it('small file is not suspend', async () => {
+      const result = store.multipleUpload();
+
+      const list = [];
+      const doUpload = (name, size, filePath) => {
+        list.push({
+          name,
+          size,
+          file: filePath
+        });
+      };
+
+      const tfile = { name: 'suspend-and-reStart-small.jpg', size: 1 * 1024 * 1024 };
+      const tfilePath = path.join(tmpdir, tfile.name);
+      await createFile(tfilePath, tfile.size);
+      doUpload(tfile.name, tfile.size, tfilePath);
+
+      result.add(list);
+
+      setTimeout(() => fs.unlinkSync(tfilePath), 5000);
+      try {
+        result.suspend(tfile.name);
+      } catch (error) {
+        assert.equal(error.message, 'Files smaller than splitsize cannot be uploaded temporarily');
+      }
+    });
+
+    it('upload 1 file 2MB suspend and reStart', done => {
+      const start = async () => {
+        const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
+
+        const list = [];
+        const succs = [];
+
+        const doUpload = (name, size, filePath) => {
+          list.push({
+            name,
+            size,
+            file: filePath,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) setTimeout(() => succValidate(), 600);
+            }
+          });
+        };
+
+        const tfile = { name: 'suspend-and-reStart-small.jpg', size: 2 * 1024 * 1024 };
+        const tfilePath = path.join(tmpdir, tfile.name);
+        await createFile(tfilePath, tfile.size);
+        doUpload(tfile.name, tfile.size, tfilePath);
+
+        result.add(list);
+        const sres = result.suspend(tfile.name);
+        let error;
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
+        if (sres) {
+          try {
+            result.reStart(tfile.name);
+          } catch (err) {
+            error = err;
+          }
+        }
+        if (error) {
+          done(error);
+        }
+
+        const succValidate = async () => {
+          const tempDir = path.join(tmpdir, 'multiple-upload-validate');
+          mkDir(tempDir);
+
+          const tempFile = path.join(tempDir, tfile.name);
+          await store.get(tfile.name, tempFile);
+
+          const isSucc = fs.readFileSync(tfilePath, 'utf8') === fs.readFileSync(tempFile, 'utf8');
+          done(isSucc ? undefined : new Error(' file validate fail'));
+          mkDir(tempDir);
+          fs.unlinkSync(tfilePath);
+        };
+      };
+
+      start();
+    });
+
+    it('upload 1 file 2MB suspend and setTimeOut 1000 reStart', done => {
+      const start = async () => {
+        const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
+
+        const list = [];
+        const succs = [];
+
+        const doUpload = (name, size, filePath) => {
+          list.push({
+            name,
+            size,
+            file: filePath,
+            getProgress: res => {
+              if (res === 1) succs.push({});
+              if (succs.length === list.length) setTimeout(() => succValidate(), 600);
+            }
+          });
+        };
+
+        const tfile = { name: 'suspend-and-reStart-timeOut-small.jpg', size: 2 * 1024 * 1024 };
+        const tfilePath = path.join(tmpdir, tfile.name);
+        await createFile(tfilePath, tfile.size);
+        doUpload(tfile.name, tfile.size, tfilePath);
+
+        result.add(list);
+        const sres = result.suspend(tfile.name);
+        let error;
+        if (!sres) {
+          error = new Error('suspend fail');
+        }
+        if (sres) {
+          try {
+            setTimeout(() => result.reStart(tfile.name), 1000);
+          } catch (err) {
+            error = err;
+          }
+        }
+        if (error) {
+          done(error);
+        }
+
+        const succValidate = async () => {
+          const tempDir = path.join(tmpdir, 'multiple-upload-validate');
+          mkDir(tempDir);
+
+          const tempFile = path.join(tempDir, tfile.name);
+          await store.get(tfile.name, tempFile);
+
+          const isSucc = fs.readFileSync(tfilePath, 'utf8') === fs.readFileSync(tempFile, 'utf8');
+          done(isSucc ? undefined : new Error(' file validate fail'));
+          mkDir(tempDir);
+          fs.unlinkSync(tfilePath);
+        };
+      };
+
+      start();
+    });
+
+    it('test small file delete', async () => {
+      const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
+
+      const list = [];
+      const doUpload = (name, size, filePath) => {
+        list.push({
+          name,
+          size,
+          file: filePath
+        });
+      };
+
+      const tfile = { name: 'delete-item-small.jpg', size: 1 * 1024 * 1024 };
+      const tfilePath = path.join(tmpdir, tfile.name);
+      await createFile(tfilePath, tfile.size);
+      doUpload(tfile.name, tfile.size, tfilePath);
+
+      result.add(list);
+
+      let error;
+      try {
+        result.delete(tfile.name);
+      } catch (err) {
+        error = err;
+      }
+
+      assert.equal(error.message, 'small file is not delete');
+      fs.unlinkSync(tfilePath);
+    });
+
+    it('big file 2MB fast delete', async () => {
+      const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
+
+      const list = [];
+      const doUpload = (name, size, filePath) => {
+        list.push({
+          name,
+          size,
+          file: filePath
+        });
+      };
+
+      const tfile = { name: 'delete-big-file-fast.jpg', size: 2 * 1024 * 1024 };
+      const tfilePath = path.join(tmpdir, tfile.name);
+      await createFile(tfilePath, tfile.size);
+      doUpload(tfile.name, tfile.size, tfilePath);
+
+      result.add(list);
+      let error;
+      try {
+        result.delete(tfile.name);
+      } catch (err) {
+        error = err;
+      }
+      assert.equal(error.message, 'item is not get checkpoint');
+
+      fs.unlinkSync(tfilePath);
+    });
+
+    it('big file 2MB slow delete', done => {
+      const start = async () => {
+        const result = store.multipleUpload({ splitSize: 1.5 * 1024 * 1024 });
+
+        const list = [];
+        const doUpload = (name, size, filePath) => {
+          list.push({
+            name,
+            size,
+            file: filePath,
+            getProgress: res => {
+              let error;
+              let dres = false;
+              try {
+                dres = result.delete(tfile.name);
+              } catch (err) {
+                error = err;
+              }
+              done(!dres, error);
+              fs.unlinkSync(tfilePath);
+            }
+          });
+        };
+
+        const tfile = { name: 'delete-big-file-slow.jpg', size: 2 * 1024 * 1024 };
+        const tfilePath = path.join(tmpdir, tfile.name);
+        await createFile(tfilePath, tfile.size);
+        doUpload(tfile.name, tfile.size, tfilePath);
+
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('fast dispose upload 2 file 2MB and 1MB', async () => {
+      const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
+
+      const list = [];
+      const doUpload = (name, size, filePath) => {
+        list.push({
+          name,
+          size,
+          file: filePath
+        });
+      };
+
+      const pfiles = [];
+      for (const file of multipleFiles) {
+        const filePath = path.join(tmpdir, file.name);
+        pfiles.push(createFile(filePath, file.size));
+        doUpload(file.name, file.size, filePath);
+      }
+      await Promise.all(pfiles);
+
+      result.add(list);
+      const res = result.dispose();
+      assert.equal(res, true);
+
+      list.forEach(item => fs.unlinkSync(item.filePath));
+    });
+
+    it('slow dispose upload 2 file 2MB and 1MB', done => {
+      const start = async () => {
+        const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
+
+        const list = [];
+        const doUpload = (name, size, filePath) => {
+          list.push({
+            name,
+            size,
+            file: filePath,
+            getProgress: process => {
+              if (process !== 1) {
+                const res = result.dispose();
+                done(!res);
+
+                list.forEach(item => fs.unlinkSync(item.filePath));
+              }
+            }
+          });
+        };
+
+        const pfiles = [];
+        for (const file of multipleFiles) {
+          const filePath = path.join(tmpdir, file.name);
+          pfiles.push(createFile(filePath, file.size));
+          doUpload(file.name, file.size, filePath);
+        }
+        await Promise.all(pfiles);
+
+        result.add(list);
+      };
+
+      start();
+    });
+
+    it('get fail list', async () => {
+      const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024 });
+
+      const list = [];
+      const doUpload = (name, size, filePath) => {
+        list.push({
+          name,
+          size,
+          file: filePath,
+          getProgress: () => {
+            result.suspend(tfile.name);
+            const res = result.getFails();
+            fs.unlinkSync(filePath);
+
+            assert.equal(res.length, 0);
+          }
+        });
+      };
+
+      const tfile = { name: 'get-fails.jpg', size: 2 * 1024 * 1024 };
+      const tfilePath = path.join(tmpdir, tfile.name);
+      await createFile(tfilePath, tfile.size);
+      doUpload(tfile.name, tfile.size, tfilePath);
+
+      result.add(list);
+    });
+  });
+
+  describe('multiple.download', () => {
+    it('multiple download test', done => {
+      const defaultPath = path.join(tmpdir, 'multiple-download');
+      const result = store.multipleDownload({ path: defaultPath });
+
+      const start = async () => {
+        const succs = [];
+        const getProgress = (num, suspends) => {
+          if (num === 1) succs.push({});
+          if (succs.length === list.length) done();
+        };
+
+        const list = multipleFiles.map(obj => ({ name: obj.name, getProgress }));
+        await result.add(list);
+      };
+
+      setTimeout(() => start(), 500); // make big file upload delayed
+    });
+  });
+
+  describe('multiple.delete', () => {
+    it('multiple delete test', done => {
+      const result = store.multipleDelete({});
+      const getProgress = num => {
+        if (num === 1) done();
+      };
+
+      const list = multipleFiles.map(obj => ({ name: obj.name, getProgress }));
+      result.add(list);
     });
   });
 });

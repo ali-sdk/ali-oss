@@ -23,6 +23,9 @@ import { putObjectTagging } from './putObjectTagging';
 import { putSymlink } from './putSymlink';
 import { restore } from './restore';
 import { signatureUrl } from './signatureUrl';
+import { multipleUpload } from './multipleUpload';
+import { multipleDownload } from './multipleDownload';
+import { multipleDelete } from './multipleDelete';
 declare const _default: {
     append: typeof append;
     calculatePostSignature: typeof calculatePostSignature;
@@ -51,5 +54,8 @@ declare const _default: {
     putSymlink: typeof putSymlink;
     restore: typeof restore;
     signatureUrl: typeof signatureUrl;
+    multipleUpload: typeof multipleUpload;
+    multipleDownload: typeof multipleDownload;
+    multipleDelete: typeof multipleDelete;
 };
 export default _default;

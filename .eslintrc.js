@@ -3,8 +3,8 @@ module.exports = {
   extends: ['airbnb', 'eslint-config-ali/typescript'],
   parserOptions: {
     ecmaFeatures: {
-      experimentalObjectRestSpread: true,
-    },
+      experimentalObjectRestSpread: true
+    }
   },
   env: {
     browser: true,
@@ -12,26 +12,32 @@ module.exports = {
     es6: true,
     mocha: true,
     jasmine: true,
-    jest: true,
+    jest: true
   },
   rules: {
     indent: ['error', 2],
     // override default options
     'no-underscore-dangle': [0],
     'no-plusplus': [0],
-    'no-return-await':[0],
+    'no-return-await': [0],
     'no-param-reassign': [0],
-    'max-len': ['warn', 120, 2, {
-      ignoreUrls: true,
-      ignoreComments: false,
-      ignoreRegExpLiterals: true,
-      ignoreStrings: true,
-      ignoreTemplateLiterals: true,
-    }],
+    'max-len': [
+      'warn',
+      120,
+      2,
+      {
+        ignoreUrls: true,
+        ignoreComments: false,
+        ignoreRegExpLiterals: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true
+      }
+    ],
     'no-buffer-constructor': [2],
     'comma-dangle': [0],
     'import/prefer-default-export': [0],
     'implicit-arrow-linebreak': [0],
     '@typescript-eslint/no-unused-vars': [0],
+    'max-len': 0
   }
 };

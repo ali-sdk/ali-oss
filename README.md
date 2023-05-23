@@ -156,6 +156,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
   - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
   - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
+  
   - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
@@ -163,6 +164,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
   - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
   - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
+  - [.multipleUpload([, options])](#multipleUpload-options)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -3618,6 +3620,54 @@ object:
 - status {Number} response status
 - res {Object} response info
 
+### .multipleUpload([, options])
+
+multiple object upload.
+
+parameters:
+
+- [options] {Object} optional args
+  - [splitSize] {Number} By default, only files over 10MB can be uploaded in pieces
+  - [syncNumber] {Number} By default, 5 files are uploaded at the same time to avoid timeout and DNS errors. It is recommended not to exceed 10 files
+  - [taskOver] {Function} The task completion event returns the failed task
+
+Success will return the channel information.
+
+object:
+
+- {Function} obj.add(objects: TMUploadStartPara[]) - Add upload task, Can be added repeatedly
+- {Function} obj.suspend(objectName: string) -  Pause the upload of an object
+- {Function} obj.reStart(objectName: string) -  For objects that have been suspended from uploading, start uploading again
+- {Function} obj.delete(objectName: string) - Delete the upload task of the specified object
+- {Function} obj.dispose() - Terminate all ongoing upload tasks and release the upload queue
+- {Function} obj.getFails() - Get failed tasks
+```js
+const store = new OSS({accessKeyId:'',accessKeySecret: '',region: 'oss-cn-hangzhou',bucket:''});
+const result = store.multipleUpload({ syncNumber: 9, splitSize: 1.5 * 1024 * 1024, taskOver:(fails)=>{} });
+
+const oneMB =  1 * 1024 * 1024;
+const multipleFiles = [
+  { name: 'multiple-upload.jpg', size: oneMB * 2, content: Buffer.from(Array(oneMB * 2).fill(1).join('')) },
+  { name: 'multiple-upload-small.jpg', size: oneMB, content: Buffer.from(Array(oneMB).fill(1).join(''))}
+];
+const list = [];
+const succs = [];
+for (const file of multipleFiles) {
+    const {name, size, content} = file;
+    list.push({
+      name,
+      size,
+      file: content,
+      getProgress: res => {
+        if (res === 1) succs.push({});
+        if (succs.length === list.length) console.log('over') ;
+      }
+    });
+}
+
+result.add(list);
+
+```
 ### .processObjectSave(sourceObject, targetObject, process[, targetBucket])
 
 Persistency indicates that images are asynchronously stored in the specified Bucket
