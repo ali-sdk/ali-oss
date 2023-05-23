@@ -20,7 +20,7 @@ export function encodeCallback(reqParams, options) {
       if (options.callback.customValue) {
         const callbackVar = {};
         Object.keys(options.callback.customValue).forEach((key) => {
-          callbackVar[`x:${key}`] = options.callback.customValue[key];
+          callbackVar[`x:${key}`] = options.callback.customValue[key].toString();
         });
         reqParams.headers['x-oss-callback-var'] = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
       }
