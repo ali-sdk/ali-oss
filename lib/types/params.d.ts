@@ -21,6 +21,7 @@ export interface RequestOptions {
     subres?: Subres;
     ctx?: string;
     disabledMD5?: boolean;
+    crc64?: boolean | Function;
 }
 interface UserMeta {
     [propsName: string]: string;
@@ -51,11 +52,13 @@ export interface MultipartUploadOptions extends RequestOptions {
     callback?: ObjectCallback;
     copyheaders?: object;
     contentLength?: number;
+    crc64?: boolean | Function;
 }
 export interface GetObjectOptions extends MultiVersionCommonOptions {
     process?: string;
     /** only support Browser.js */
     responseCacheControl?: string;
+    crc64?: boolean | Function;
 }
 export interface PutObjectOptions extends RequestOptions {
     mime?: string;
@@ -64,6 +67,7 @@ export interface PutObjectOptions extends RequestOptions {
     contentLength?: number;
     method?: string;
     disabledMD5?: boolean;
+    crc64?: boolean | Function;
 }
 export interface PutBucketOptions extends RequestOptions {
     storageClass?: StorageType;

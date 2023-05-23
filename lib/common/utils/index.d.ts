@@ -66,5 +66,7 @@ declare const _default: {
         _signatureForURL: typeof import("./signUtils")._signatureForURL;
     };
     WebFileReadStream: typeof WebFileReadStream;
+    checkCrc64: (content: any, oss_crc64: any) => boolean;
+    checkCrc64File: (p: any, callback: any) => any;
 };
 export default _default;

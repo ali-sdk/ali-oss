@@ -9,6 +9,7 @@ import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { isBuffer } from '../../common/utils/isBuffer';
+import { checkCrc64 } from '../../common/utils/crc64';
 import { PutObjectOptions } from '../../types/params';
 
 /**
@@ -62,6 +63,12 @@ export async function put(this: any, name: string, file: any, options: PutObject
   params.successStatuses = [200];
 
   const result = await this.request(params);
+
+  if (options?.crc64) {
+    if (!checkCrc64(content, result.res.headers['x-oss-hash-crc64ecma'])) {
+      throw new Error('crc64 check faild');
+    }
+  }
 
   const ret: any = {
     name,

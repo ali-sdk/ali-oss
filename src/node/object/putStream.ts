@@ -5,6 +5,7 @@ import { convertMetaToHeaders } from '../../common/utils/convertMetaToHeaders';
 import { objectUrl } from '../../common/utils/objectUrl';
 import { encodeCallback } from '../../common/utils/encodeCallback';
 import { PutObjectOptions } from '../../types/params';
+import { checkCrc64File } from '../../common/utils/crc64';
 
 /**
  * put an object from ReadableStream. If `options.contentLength` is
@@ -41,6 +42,14 @@ export async function putStream(this: any, name: string, stream: Readable, optio
 
   const result = await this.request(params);
 
+  if (options.crc64) {
+    checkCrc64File((stream as any).path, (err, data) => {
+      if (err) throw new Error(err.toString());
+      if (result.res.headers['x-oss-hash-crc64ecma'] !== data) {
+        throw new Error('crc64 check fail');
+      }
+    });
+  }
   const ret: any = {
     name,
     url: objectUrl(name, this.options),
@@ -53,4 +62,3 @@ export async function putStream(this: any, name: string, stream: Readable, optio
 
   return ret;
 }
-
