@@ -163,6 +163,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
   - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
   - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
+  - [.selectObject(name, query, grammar[, options])](#selectObjectname-query-grammar-options)
 - [RTMP Operations](#rtmp-operations)
   - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
   - [.getChannel(id[, options])](#getchannelid-options)
@@ -3617,6 +3618,62 @@ object:
 
 - status {Number} response status
 - res {Object} response info
+
+### .selectObject(name, query, grammar[, options])
+
+SelectObject is used to execute SQL statements on the target file and return the execution result.
+
+parameters:
+
+- name {String} the object name
+- query {Object} query parameters eg. `'select * from my_table'`
+- grammar {String} The request syntax is divided into two formats, CSV and JSON.
+- [options] {Object} optional args
+  - [InputSerialization] {Object} InputSerialization
+    - [CompressionType] {String} The type of compression used to compress the object.
+    - [CSV] {Object} CSV
+      - [FileHeaderInfo] {String} The file header information, which is optional.
+      - [RecordDelimiter] {String} The record delimiter, which is optional.
+      - [FieldDelimiter] {String} The field delimiter, which is optional.
+      - [QuoteCharacter] {String} The quote character, which is optional.
+      - [CommentCharacter] {String} The comment character, which is optional.
+      - [Range] {String} The range, which is optional.
+      - [AllowQuotedRecordDelimiter] {Boolean} Whether to allow quoted record delimiter, which is optional.
+    - [JSON] {Object} JSON
+      - [Type] {String} The type, which is optional.
+      - [Range] {String} The range, which is optional.
+      - [ParseJsonNumberAsString] {Boolean} The parse json number as string, which is optional.
+  - [OutputSerialization] {Object} OutputSerialization
+    - [CSV] {Object} CSV
+      - [RecordDelimiter] {String} The record delimiter, which is optional.
+      - [FieldDelimiter] {String} The field delimiter, which is optional.
+    - [JSON] {Object} JSON
+        - [RecordDelimiter] {String} The record delimiter, which is optional.
+    - [KeepAllColumns] {Boolean} Whether to keep all columns, which is optional.
+    - [OutputRawData] {Boolean} Whether to output raw data, which is optional.
+    - [EnablePayloadCrc] {Boolean} Whether to enable payload crc, which is optional.
+    - [OutputHeader] {Boolean} Whether to output header, which is optional.
+  - [Other] {Object} Other option
+    - [SkipPartialDataRecord] {Boolean} Whether to skip partial data record, which is optional.
+    - [MaxSkippedRecordsAllowed] {String} The max skipped records allowed, which is optional.
+
+[More code info](https://help.aliyun.com/document_detail/74054.html#section-v2y-dzp-o5k)
+
+Succeed will return the channel information.
+
+object:
+
+- res {Object} response info
+- data {Object} data info
+
+```javascript
+// example CSV
+store.selectObject('example.csv', 'select * from ossobject limit 10', 'csv').then(r => console.log(r));
+
+// example JSON
+store.selectObject('example.json', 'select address from ossobject.contacts[*]', 'json')
+  .then(r => console.log(r));
+```
 
 ### .processObjectSave(sourceObject, targetObject, process[, targetBucket])
 

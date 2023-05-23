@@ -1,0 +1,102 @@
+Year,Industry_aggregation_NZSIOC,Industry_code_NZSIOC,Industry_name_NZSIOC,Units,Variable_code,Variable_name,Variable_category,Value
+2020,Level 1,99999,All industries,Dollars (millions),H01,Total income,Financial performance,"733,258"
+2020,Level 1,99999,All industries,Dollars (millions),H04,"Sales, government funding, grants and subsidies",Financial performance,"660,630"
+2020,Level 1,99999,All industries,Dollars (millions),H05,"Interest, dividends and donations",Financial performance,"54,342"
+2020,Level 1,99999,All industries,Dollars (millions),H07,Non-operating income,Financial performance,"18,285"
+2020,Level 1,99999,All industries,Dollars (millions),H08,Total expenditure,Financial performance,"654,872"
+2020,Level 1,99999,All industries,Dollars (millions),H09,Interest and donations,Financial performance,"32,730"
+2020,Level 1,99999,All industries,Dollars (millions),H10,Indirect taxes,Financial performance,"7,509"
+2020,Level 1,99999,All industries,Dollars (millions),H11,Depreciation,Financial performance,"26,821"
+2020,Level 1,99999,All industries,Dollars (millions),H12,Salaries and wages paid,Financial performance,"119,387"
+2020,Level 1,99999,All industries,Dollars (millions),H13,Redundancy and severance,Financial performance,305
+2020,Level 1,99999,All industries,Dollars (millions),H14,Salaries and wages to self employed commission agents,Financial performance,"1,756"
+2020,Level 1,99999,All industries,Dollars (millions),H19,Purchases and other operating expenses,Financial performance,"450,394"
+2020,Level 1,99999,All industries,Dollars (millions),H20,Non-operating expenses,Financial performance,"16,274"
+2020,Level 1,99999,All industries,Dollars (millions),H21,Opening stocks,Financial performance,"68,109"
+2020,Level 1,99999,All industries,Dollars (millions),H22,Closing stocks,Financial performance,"69,123"
+2020,Level 1,99999,All industries,Dollars (millions),H23,Surplus before income tax,Financial performance,"79,400"
+2020,Level 1,99999,All industries,Dollars (millions),H24,Total assets,Financial position,"2,396,143"
+2020,Level 1,99999,All industries,Dollars (millions),H25,Current assets,Financial position,"665,643"
+2020,Level 1,99999,All industries,Dollars (millions),H26,Fixed tangible assets,Financial position,"562,646"
+2020,Level 1,99999,All industries,Dollars (millions),H29,Other assets,Financial position,"1,167,854"
+2020,Level 1,99999,All industries,Dollars (millions),H30,Total equity and liabilities,Financial position,"2,396,143"
+2020,Level 1,99999,All industries,Dollars (millions),H31,Shareholders funds or owners equity,Financial position,"775,466"
+2020,Level 1,99999,All industries,Dollars (millions),H32,Current liabilities,Financial position,"866,332"
+2020,Level 1,99999,All industries,Dollars (millions),H33,Other liabilities,Financial position,"754,345"
+2020,Level 1,99999,All industries,Dollars,H34,Total income per employee count,Financial ratios,"385,100"
+2020,Level 1,99999,All industries,Dollars,H35,Surplus per employee count,Financial ratios,"41,700"
+2020,Level 1,99999,All industries,Percentage,H36,Current ratio,Financial ratios,77
+2020,Level 1,99999,All industries,Percentage,H37,Quick ratio,Financial ratios,69
+2020,Level 1,99999,All industries,Percentage,H39,Return on equity,Financial ratios,10
+2020,Level 1,99999,All industries,Percentage,H40,Return on total assets,Financial ratios,3
+2020,Level 1,99999,All industries,Percentage,H41,Liabilities structure,Financial ratios,32
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H01,Total income,Financial performance,"5,099"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H04,"Sales, government funding, grants and subsidies",Financial performance,"4,721"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H05,"Interest, dividends and donations",Financial performance,164
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H07,Non-operating income,Financial performance,215
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H08,Total expenditure,Financial performance,"4,165"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H09,Interest and donations,Financial performance,207
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H10,Indirect taxes,Financial performance,36
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H11,Depreciation,Financial performance,264
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H12,Salaries and wages paid,Financial performance,836
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H13,Redundancy and severance,Financial performance,0
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H19,Purchases and other operating expenses,Financial performance,"2,800"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H20,Non-operating expenses,Financial performance,23
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H21,Opening stocks,Financial performance,374
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H22,Closing stocks,Financial performance,365
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H23,Surplus before income tax,Financial performance,924
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H24,Total assets,Financial position,"16,005"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H25,Current assets,Financial position,"2,798"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H26,Fixed tangible assets,Financial position,"10,532"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H29,Other assets,Financial position,"2,675"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H30,Total equity and liabilities,Financial position,"16,005"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H31,Shareholders funds or owners equity,Financial position,"7,653"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H32,Current liabilities,Financial position,"3,480"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars (millions),H33,Other liabilities,Financial position,"4,872"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars,H34,Total income per employee count,Financial ratios,"195,800"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Dollars,H35,Surplus per employee count,Financial ratios,"35,500"
+2020,Level 4,AA111,Horticulture and Fruit Growing,Percentage,H36,Current ratio,Financial ratios,80
+2020,Level 4,AA111,Horticulture and Fruit Growing,Percentage,H37,Quick ratio,Financial ratios,70
+2020,Level 4,AA111,Horticulture and Fruit Growing,Percentage,H39,Return on equity,Financial ratios,12
+2020,Level 4,AA111,Horticulture and Fruit Growing,Percentage,H40,Return on total assets,Financial ratios,6
+2020,Level 4,AA111,Horticulture and Fruit Growing,Percentage,H41,Liabilities structure,Financial ratios,48
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H01,Total income,Financial performance,"5,099"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H04,"Sales, government funding, grants and subsidies",Financial performance,"4,721"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H05,"Interest, dividends and donations",Financial performance,164
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H07,Non-operating income,Financial performance,215
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H08,Total expenditure,Financial performance,"4,165"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H09,Interest and donations,Financial performance,207
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H10,Indirect taxes,Financial performance,36
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H11,Depreciation,Financial performance,264
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H12,Salaries and wages paid,Financial performance,836
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H13,Redundancy and severance,Financial performance,0
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H19,Purchases and other operating expenses,Financial performance,"2,800"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H20,Non-operating expenses,Financial performance,23
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H21,Opening stocks,Financial performance,374
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H22,Closing stocks,Financial performance,365
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H23,Surplus before income tax,Financial performance,924
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H24,Total assets,Financial position,"16,005"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H25,Current assets,Financial position,"2,798"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H26,Fixed tangible assets,Financial position,"10,532"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H29,Other assets,Financial position,"2,675"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H30,Total equity and liabilities,Financial position,"16,005"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H31,Shareholders funds or owners equity,Financial position,"7,653"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H32,Current liabilities,Financial position,"3,480"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars (millions),H33,Other liabilities,Financial position,"4,872"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars,H34,Total income per employee count,Financial ratios,"195,800"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Dollars,H35,Surplus per employee count,Financial ratios,"35,500"
+2020,Level 3,AA11,Horticulture and Fruit Growing,Percentage,H36,Current ratio,Financial ratios,80
+2020,Level 3,AA11,Horticulture and Fruit Growing,Percentage,H37,Quick ratio,Financial ratios,70
+2020,Level 3,AA11,Horticulture and Fruit Growing,Percentage,H39,Return on equity,Financial ratios,12
+2020,Level 3,AA11,Horticulture and Fruit Growing,Percentage,H40,Return on total assets,Financial ratios,6
+2020,Level 3,AA11,Horticulture and Fruit Growing,Percentage,H41,Liabilities structure,Financial ratios,48
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H01,Total income,Financial performance,"12,174"
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H04,"Sales, government funding, grants and subsidies",Financial performance,"11,437"
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H05,"Interest, dividends and donations",Financial performance,139
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H07,Non-operating income,Financial performance,598
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H08,Total expenditure,Financial performance,"10,449"
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H09,Interest and donations,Financial performance,684
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H10,Indirect taxes,Financial performance,188
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H11,Depreciation,Financial performance,582
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H12,Salaries and wages paid,Financial performance,"1,088"
+2020,Level 4,AA121,"Sheep, Beef Cattle and Grain Farming",Dollars (millions),H13,Redundancy and severance,Financial performance,0
