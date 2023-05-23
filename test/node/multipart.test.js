@@ -233,7 +233,7 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 12);
+      assert.equal(progress, 13);
 
       const object = await store.get(name);
       assert.equal(object.res.status, 200);
@@ -327,7 +327,7 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 12);
+      assert.equal(progress, 13);
 
       const object = await store.get(name);
       assert.equal(object.res.status, 200);
@@ -444,7 +444,7 @@ describe('test/multipart.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(progress, 12);
+      assert.equal(progress, 13);
 
       const object = await store.get(name);
       assert.equal(object.res.status, 200);

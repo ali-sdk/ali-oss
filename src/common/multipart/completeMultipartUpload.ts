@@ -66,6 +66,10 @@ export async function completeMultipartUpload(
   params.successStatuses = [200];
   const result = await this.request(params);
 
+  if (options.progress) {
+    await options.progress(1, null, result.res);
+  }
+
   const ret: any = {
     res: result.res,
     bucket: params.bucket,

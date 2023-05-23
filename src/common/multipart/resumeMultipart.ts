@@ -13,11 +13,7 @@ import { Checkpoint } from '../../types/params';
  * @param {Object} checkpoint the checkpoint
  * @param {Object} options
  */
-export async function resumeMultipart(
-  this: any,
-  checkpoint: Checkpoint,
-  options: any = {}
-) {
+export async function resumeMultipart(this: any, checkpoint: Checkpoint, options: any = {}) {
   if (this.isCancel()) {
     throw _makeCancelEvent();
   }
@@ -39,7 +35,7 @@ export async function resumeMultipart(
           const stream = await this._createStream(file, pi.start, pi.end);
           const data = {
             stream,
-            size: pi.end - pi.start,
+            size: pi.end - pi.start
           };
 
           if (stream && stream.pipe) {
@@ -64,14 +60,7 @@ export async function resumeMultipart(
 
           let result;
           try {
-            result = await handleUploadPart.call(
-              this,
-              name,
-              uploadId,
-              partNo,
-              data,
-              options
-            );
+            result = await handleUploadPart.call(this, name, uploadId, partNo, data, options);
           } catch (error) {
             if (typeof stream.destroy === 'function') {
               stream.destroy();
@@ -87,21 +76,17 @@ export async function resumeMultipart(
           if (!this.isCancel()) {
             doneParts.push({
               number: partNo,
-              etag: result.res.headers.etag,
+              etag: result.res.headers.etag
             });
             checkpoint.doneParts = doneParts;
 
             if (options.progress) {
-              await options.progress(
-                doneParts.length / numParts,
-                checkpoint,
-                result.res
-              );
+              await options.progress(doneParts.length / (numParts + 1), checkpoint, result.res);
             }
 
             resolve({
               number: partNo,
-              etag: result.res.headers.etag,
+              etag: result.res.headers.etag
             });
           }
         }
@@ -123,10 +108,7 @@ export async function resumeMultipart(
   const defaultParallel = 5;
   const parallel = options.parallel || defaultParallel;
 
-  if (
-    this.checkBrowserAndVersion('Internet Explorer', '10') ||
-    parallel === 1
-  ) {
+  if (this.checkBrowserAndVersion('Internet Explorer', '10') || parallel === 1) {
     for (let i = 0; i < todo.length; i++) {
       if (this.isCancel()) {
         throw _makeCancelEvent();
@@ -136,12 +118,18 @@ export async function resumeMultipart(
     }
   } else {
     // upload in parallel
-    const jobErr = await _parallel.call(this, todo, parallel,
+    const jobErr = await _parallel.call(
+      this,
+      todo,
+      parallel,
       value => new Promise((resolve, reject) => {
-        uploadPartJob(value).then(() => {
-          resolve();
-        }).catch(reject);
-      }));
+          uploadPartJob(value)
+            .then(() => {
+              resolve();
+            })
+            .catch(reject);
+        })
+    );
 
     if (this.isCancel()) {
       uploadPartJob = null;
@@ -152,17 +140,12 @@ export async function resumeMultipart(
       const abortEvent = jobErr.find(err => err.name === 'abort');
       if (abortEvent) throw abortEvent;
 
-      jobErr[0].message = `Failed to upload some parts with error: ${jobErr[0].toString()} part_num: ${jobErr[0].partNum
-        }`;
+      jobErr[0].message = `Failed to upload some parts with error: ${jobErr[0].toString()} part_num: ${
+        jobErr[0].partNum
+      }`;
       throw jobErr[0];
     }
   }
 
-  return await completeMultipartUpload.call(
-    this,
-    name,
-    uploadId,
-    doneParts,
-    options
-  );
+  return await completeMultipartUpload.call(this, name, uploadId, doneParts, options);
 }
