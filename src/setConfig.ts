@@ -24,7 +24,10 @@ class Client {
   public userAgent;
 
   public _createStream;
+
   public stsTokenFreshTime;
+
+  public amendTimeSkewed;
 
   public constructor(options, ctx) {
     if (!(this instanceof Client)) {
@@ -39,6 +42,8 @@ class Client {
     Object.keys(base).forEach(prop => {
       Client.prototype[prop] = base[prop];
     });
+
+    this.amendTimeSkewed = 0;
 
     this.setConfig(options, ctx);
   }
@@ -74,11 +79,8 @@ class Client {
   }
 }
 
-
 export const initClient = (options, ctx) => {
   return new Client(options, ctx);
 };
 
-export {
-  Client
-};
+export { Client };

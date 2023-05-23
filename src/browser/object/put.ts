@@ -50,7 +50,7 @@ export async function put(this: any, name: string, file: any, options: PutObject
       return result;
     } catch (err) {
       if (err.code === 'RequestTimeTooSkewed') {
-        this.options.amendTimeSkewed = +new Date(err.serverTime) - new Date().valueOf();
+        this.amendTimeSkewed = +new Date(err.serverTime) - new Date().valueOf();
         return await put.call(this, name, file, options);
       } else {
         throw err;
