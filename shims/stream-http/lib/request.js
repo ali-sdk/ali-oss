@@ -211,10 +211,11 @@ ClientRequest.prototype._onFinish = function () {
 			}
 		}
 
-		xhr.onerror = function () {
-			if (self._destroyed)
-				return
-			self.emit('error', new Error('XHR error'))
+		xhr.onerror = function (err) {
+			// when abort request, also get error
+			// if (self._destroyed)
+			// 	return
+			self.emit('error', new Error('XHR error, ProgressEvent => type='+ err.type + ';total=' + err.total + ';loaded=' + err.loaded))
 		}
 
 		try {
