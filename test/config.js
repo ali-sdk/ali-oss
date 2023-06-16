@@ -2,7 +2,7 @@ const { env } = process;
 
 const config = module.exports;
 const USWEST = 'oss-us-west-1'; // ONCI 用美国硅谷的region速度会快些
-console.log('config----', env.ALI_SDK_STS_ROLE, env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i));
+console.log('config----', env.ALI_SDK_STS_BUCKET, env.ALI_SDK_OSS_ID, env.ALI_SDK_STS_ROLE, env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i));
 config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
