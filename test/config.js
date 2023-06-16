@@ -1,12 +1,13 @@
 const { env } = process;
 
 const config = module.exports;
-
+const USWEST = 'oss-us-west-1'; // ONCI 用美西的region速度会快些
 config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
-  region: env.ALI_SDK_OSS_REGION || 'oss-cn-hangzhou',
-  endpoint: env.ONCI ? 'https://oss-us-west-1.aliyuncs.com' : null
+  accountId: env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i)[1], // 通过roleRan获取主账号id
+  region: env.ONCI ? USWEST : (env.ALI_SDK_OSS_REGION || 'oss-cn-hangzhou'),
+  endpoint: env.ONCI ? `https://${USWEST}.aliyuncs.com` : undefined
 };
 
 config.sts = {
@@ -14,7 +15,7 @@ config.sts = {
   accessKeySecret: env.ALI_SDK_STS_SECRET,
   roleArn: env.ALI_SDK_STS_ROLE,
   bucket: env.ALI_SDK_STS_BUCKET,
-  endpoint: env.ONCI ? 'https://sts.aliyuncs.com/' : null
+  endpoint: env.ONCI ? 'https://sts.aliyuncs.com/' : undefined
 };
 
 config.metaSyncTime = env.ONCI ? '30s' : '1000ms';

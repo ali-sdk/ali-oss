@@ -74,7 +74,7 @@ describe('test/multipart.test.js', () => {
         await Promise.all(
           Array(5)
             .fill(1)
-            .map(_ => store.initMultipartUpload(name))
+            .map(() => store.initMultipartUpload(name))
         )
       )
         .map(_ => _.uploadId)
@@ -110,7 +110,7 @@ describe('test/multipart.test.js', () => {
         await Promise.all(
           Array(5)
             .fill(1)
-            .map(_ => store.initMultipartUpload(fooName))
+            .map(() => store.initMultipartUpload(fooName))
         )
       )
         .map(_ => _.uploadId)
@@ -121,7 +121,7 @@ describe('test/multipart.test.js', () => {
         await Promise.all(
           Array(5)
             .fill(5)
-            .map(_ => store.initMultipartUpload(barName))
+            .map(() => store.initMultipartUpload(barName))
         )
       )
         .map(_ => _.uploadId)
@@ -484,16 +484,14 @@ describe('test/multipart.test.js', () => {
       const parts = await Promise.all(
         Array(10)
           .fill(1)
-          .map((v, i) =>
-            store.uploadPart(
-              name,
-              uploadId,
-              i + 1,
-              fileName,
-              i * partSize,
-              Math.min((i + 1) * partSize, 10 * 100 * 1024)
-            )
-          )
+          .map((v, i) => store.uploadPart(
+            name,
+            uploadId,
+            i + 1,
+            fileName,
+            i * partSize,
+            Math.min((i + 1) * partSize, 10 * 100 * 1024)
+          ))
       );
       const dones = parts.map((_, i) => ({
         number: i + 1,
@@ -509,12 +507,12 @@ describe('test/multipart.test.js', () => {
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);
 
       const name = `${prefix}multipart/upload-file`;
-      let progress = 0;
+      // let progress = 0;
       try {
-        const result = await store.multipartUpload(name, fileName, {
+        await store.multipartUpload(name, fileName, {
           partSize: 14.56,
           progress() {
-            progress++;
+            // progress++;
           }
         });
       } catch (e) {
@@ -525,7 +523,7 @@ describe('test/multipart.test.js', () => {
         await store.multipartUpload(name, fileName, {
           partSize: 1,
           progress() {
-            progress++;
+            // progress++;
           }
         });
       } catch (e) {
@@ -861,6 +859,7 @@ describe('test/multipart.test.js', () => {
       const stubUploadPart = sinon.stub(
         clientTmp,
         'uploadPartCopy',
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async (objectKey, uploadId, partNo, range, sourceData, options) => {
           if (partNo === 1) {
             throw new Error('TestErrorException');

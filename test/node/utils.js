@@ -64,6 +64,7 @@ exports.cleanAllBucket = async function (store) {
       bucket: bucketListItem.bucket,
       region: bucketListItem.region
     });
+    // eslint-disable-next-line no-await-in-loop
     await this.cleanBucket(client, bucketListItem.bucket);
   }
 };
