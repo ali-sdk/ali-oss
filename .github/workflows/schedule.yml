@@ -1,3 +1,4 @@
+# 定时清理测试的bucket
 name: 'Schdule Delete'
 
 on:
