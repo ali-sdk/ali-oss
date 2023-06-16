@@ -8,8 +8,6 @@ const config = require('../config').oss;
 const ms = require('humanize-ms');
 const { metaSyncTime, timeout } = require('../config');
 
-// if (!process.env.CI) { return;}
-
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;

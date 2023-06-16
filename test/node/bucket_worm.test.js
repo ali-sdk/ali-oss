@@ -2,7 +2,7 @@ const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
 const config = require('../config').oss;
-const timeout = require('../config').timeout;
+const { timeout } = require('../config');
 
 describe('test/bucket_worm.test.js', () => {
   const { prefix } = utils;
