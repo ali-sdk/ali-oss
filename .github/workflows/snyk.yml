@@ -3,7 +3,7 @@ on:
   push:
     branches: [master]
   pull_request:
-    branches: []
+    branches: [master]
 
 jobs:
   security:
