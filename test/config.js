@@ -22,4 +22,4 @@ config.sts = {
 config.metaSyncTime = env.ONCI ? '30s' : '1000ms';
 config.timeout = '120s';
 
-console.log('config----', JSON.stringify(config), env);
+console.log('config----', config.oss.accountId.length, env.ALI_SDK_STS_BUCKET.length);
