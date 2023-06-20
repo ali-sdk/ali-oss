@@ -1,3 +1,4 @@
+# 漏洞扫描 #
 name: SNYK_SCAN
 on:
   push:
@@ -10,7 +11,6 @@ jobs:
     environment: ali_oss_AK
     runs-on: ubuntu-latest
     steps:
-      - run: echo "${{ secrets.ALI_SDK_OSS_ID }} = ${{ secrets.ALI_SDK_STS_BUCKET }}"
       - uses: actions/checkout@v2
         with:
           ref: master
