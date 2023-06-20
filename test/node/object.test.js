@@ -8,9 +8,7 @@ const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
 const oss = require('../..');
-const sts = require('../..').STS;
 const config = require('../config').oss;
-const stsConfig = require('../config').sts;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
@@ -2331,13 +2329,12 @@ describe('test/object.test.js', () => {
           }
         };
 
-        const postFile = () =>
-          new Promise((resolve, reject) => {
-            request(options, (err, res) => {
-              if (err) reject(err);
-              if (res) resolve(res);
-            });
+        const postFile = () => new Promise((resolve, reject) => {
+          request(options, (err, res) => {
+            if (err) reject(err);
+            if (res) resolve(res);
           });
+        });
 
         const result = await postFile();
         assert(result.statusCode === 204);

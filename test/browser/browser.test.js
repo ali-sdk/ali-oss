@@ -1168,8 +1168,7 @@ describe('browser', () => {
           await Promise.all(
             Array(5)
               .fill(1)
-              // eslint-disable-next-line no-unused-vars
-              .map(_ => store.initMultipartUpload(name))
+              .map(() => store.initMultipartUpload(name))
           )
         )
           .map(_ => _.uploadId)
@@ -1204,8 +1203,7 @@ describe('browser', () => {
           await Promise.all(
             Array(5)
               .fill(1)
-              // eslint-disable-next-line no-unused-vars
-              .map(_ => store.initMultipartUpload(fooName))
+              .map(() => store.initMultipartUpload(fooName))
           )
         )
           .map(_ => _.uploadId)
@@ -1216,8 +1214,7 @@ describe('browser', () => {
           await Promise.all(
             Array(5)
               .fill(5)
-              // eslint-disable-next-line no-unused-vars
-              .map(_ => store.initMultipartUpload(barName))
+              .map(() => store.initMultipartUpload(barName))
           )
         )
           .map(_ => _.uploadId)
@@ -1535,9 +1532,7 @@ describe('browser', () => {
         const parts = await Promise.all(
           Array(10)
             .fill(1)
-            .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
-            )
+            .map((v, i) => store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
@@ -1723,12 +1718,12 @@ describe('browser', () => {
         const filename = `multipart-upload-file-${Date.now()}`;
         const file = new File([fileContent], filename);
         const name = `${prefix}multipart/upload-file`;
-        let progress = 0;
+        // let progress = 0;
         try {
-          const result = await store.multipartUpload(name, file, {
+          await store.multipartUpload(name, file, {
             partSize: 14.56,
             progress() {
-              progress++;
+              // progress++;
             }
           });
         } catch (e) {
@@ -1739,7 +1734,7 @@ describe('browser', () => {
           await store.multipartUpload(name, file, {
             partSize: 1,
             progress() {
-              progress++;
+              // progress++;
             }
           });
         } catch (e) {

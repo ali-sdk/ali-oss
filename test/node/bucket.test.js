@@ -8,16 +8,12 @@ const config = require('../config').oss;
 const ms = require('humanize-ms');
 const { metaSyncTime, timeout } = require('../config');
 
-// only run on travis ci
-
-// if (!process.env.CI) { return;
-// }
-
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
   let bucketRegion;
+  const { accountId } = config;
   const defaultRegion = config.region;
   before(async () => {
     store = oss(config);
@@ -1320,7 +1316,7 @@ describe('test/bucket.test.js', () => {
       prefix: 'ttt',
       OSSBucketDestination: {
         format: 'CSV',
-        accountId: '1817184078010220',
+        accountId, // 目标Bucket拥有者的主账号ID
         rolename: 'AliyunOSSRole',
         bucket,
         prefix: 'test'

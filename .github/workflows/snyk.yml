@@ -1,3 +1,4 @@
+# 漏洞扫描 #
 name: SNYK_SCAN
 on:
   push:
