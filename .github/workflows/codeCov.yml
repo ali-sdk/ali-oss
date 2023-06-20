@@ -23,7 +23,6 @@ jobs:
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
     steps:
-      - run: echo "${{ secrets.ALI_SDK_OSS_ID }} = ${{ secrets.ALI_SDK_STS_BUCKET }}"
       - uses: actions/checkout@v2
       - name: test and report upload
         run: |
