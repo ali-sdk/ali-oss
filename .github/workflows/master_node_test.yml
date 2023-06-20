@@ -54,6 +54,7 @@ jobs:
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
+      
     strategy:
       matrix:
         node-version: [10.x]
