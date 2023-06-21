@@ -22,4 +22,3 @@ config.sts = {
 config.metaSyncTime = env.ONCI ? '30s' : '1000ms';
 config.timeout = '120s';
 
-console.log('--99-', config.oss.accountId);

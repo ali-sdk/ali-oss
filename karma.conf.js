@@ -1,4 +1,5 @@
 process.env.CHROME_BIN = require('puppeteer').executablePath();
+
 const isCiEnv = process.env.ONCI;
 
 module.exports = function (config) {
@@ -11,7 +12,7 @@ module.exports = function (config) {
       require('karma-firefox-launcher'),
       require('karma-safari-launcher')
     ],
-    browsers: isCiEnv ? ['ChromeHeadless'] : ['Chrome', 'Safari', 'Firefox'],
+    browsers: isCiEnv ? ['ChromeHeadless'] : ['Chrome', 'Safari', 'Firefox'], //
     files: ['test/browser/build/aliyun-oss-sdk.min.js', 'test/browser/build/tests.js'],
     // preprocessors: {
     // 'dist/aliyun-oss-sdk.js': ['coverage']
@@ -25,7 +26,7 @@ module.exports = function (config) {
     port: 19876,
     colors: true,
     logLevel: config.LOG_INFO,
-    singleRun: true,
+    singleRun: true, // 开启或禁用持续集成模式 (设置为true, Karma将打开浏览器，执行测试并最后退出)
     browserDisconnectTolerance: 3,
     browserNoActivityTimeout: 30000,
     concurrency: 1,
