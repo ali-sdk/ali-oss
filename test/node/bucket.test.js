@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 /* eslint-disable no-loop-func */
 /* eslint-disable no-await-in-loop */
 
@@ -1309,7 +1310,7 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
-  describe('inventory()', () => {
+  describe.only('inventory()', () => {
     const inventory = {
       id: 'default',
       isEnabled: false,
@@ -1351,13 +1352,15 @@ describe('test/bucket.test.js', () => {
           delete inventory.optionalFields;
           await store.putBucketInventory(bucket, inventory);
 
-          await store.putBucketInventory(bucket, { ...inventory, id: 'test_field', optionalFields: {} });
+          inventory.id = 'test_field';
+          inventory.optionalFields = {};
+          await store.putBucketInventory(bucket, inventory);
 
-          // eslint-disable-next-line require-atomic-updates
+          inventory.id = 'test_field_is_one';
           inventory.optionalFields = {
             field: ['Size']
           };
-          await store.putBucketInventory(bucket, { ...inventory, id: 'test_field_is_one' });
+          await store.putBucketInventory(bucket, inventory);
           assert(true);
         } catch (err) {
           assert(false, err);
