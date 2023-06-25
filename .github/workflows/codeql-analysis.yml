@@ -30,8 +30,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      with:
-          ref: master
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
