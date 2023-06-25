@@ -1310,7 +1310,7 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
-  describe.only('inventory()', () => {
+  describe('inventory()', () => {
     const inventory = {
       id: 'default',
       isEnabled: false,
