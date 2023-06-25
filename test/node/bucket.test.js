@@ -1347,20 +1347,17 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory when no optionalFields or no field', async () => {
         try {
-          const inv = { ...inventory };
-          inv.id = 'test_optionalFields';
-          delete inv.optionalFields;
-          await store.putBucketInventory(bucket, inv);
+          inventory.id = 'test_optionalFields';
+          delete inventory.optionalFields;
+          await store.putBucketInventory(bucket, inventory);
 
-          inv.id = 'test_field';
-          inv.optionalFields = {};
-          await store.putBucketInventory(bucket, inv);
+          await store.putBucketInventory(bucket, { ...inventory, id: 'test_field', optionalFields: {} });
 
-          inv.id = 'test_field_is_one';
-          inv.optionalFields = {
+          // eslint-disable-next-line require-atomic-updates
+          inventory.optionalFields = {
             field: ['Size']
           };
-          await store.putBucketInventory(bucket, inv);
+          await store.putBucketInventory(bucket, { ...inventory, id: 'test_field_is_one' });
           assert(true);
         } catch (err) {
           assert(false, err);
