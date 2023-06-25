@@ -1347,19 +1347,20 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory when no optionalFields or no field', async () => {
         try {
-          inventory.id = 'test_optionalFields';
-          delete inventory.optionalFields;
-          await store.putBucketInventory(bucket, inventory);
+          const inv = { ...inventory };
+          inv.id = 'test_optionalFields';
+          delete inv.optionalFields;
+          await store.putBucketInventory(bucket, inv);
 
-          inventory.id = 'test_field';
-          inventory.optionalFields = {};
-          await store.putBucketInventory(bucket, inventory);
+          inv.id = 'test_field';
+          inv.optionalFields = {};
+          await store.putBucketInventory(bucket, inv);
 
-          inventory.id = 'test_field_is_one';
-          inventory.optionalFields = {
+          inv.id = 'test_field_is_one';
+          inv.optionalFields = {
             field: ['Size']
           };
-          await store.putBucketInventory(bucket, inventory);
+          await store.putBucketInventory(bucket, inv);
           assert(true);
         } catch (err) {
           assert(false, err);
@@ -1453,7 +1454,7 @@ describe('test/bucket.test.js', () => {
         try {
           // avoid Qps limit
           do {
-            const list = inventoryList.splice(0, 10);
+            const list = inventoryList.splice(0, 5);// 执行删除不能太快，否则服务端容易报InternalError
             await Promise.all(list.map(_ => store.deleteBucketInventory(bucket, _.id)));
             utils.sleep(400);
           } while (inventoryList.length);
