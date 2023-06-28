@@ -1,4 +1,4 @@
-# 漏洞扫描 #
+# Vulnerability scanning #
 name: SNYK_SCAN
 on:
   push:

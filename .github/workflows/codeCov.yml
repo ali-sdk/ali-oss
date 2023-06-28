@@ -1,4 +1,4 @@
-# 测试覆盖率 #
+# Test Coverage #
 name: CodeCov
 
 on:

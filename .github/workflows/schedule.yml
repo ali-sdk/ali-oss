@@ -1,4 +1,4 @@
-# 每天0点定时清理测试的bucket
+# Regularly clean test buckets at 0:00 every day
 name: 'Schdule Delete'
 
 on:

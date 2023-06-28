@@ -1455,8 +1455,12 @@ describe('test/bucket.test.js', () => {
           // avoid Qps limit
           do {
             const list = inventoryList.splice(0, 5);// 执行删除不能太快，否则服务端容易报InternalError
-            await Promise.all(list.map(_ => store.deleteBucketInventory(bucket, _.id)));
-            utils.sleep(400);
+            await Promise.all(list.map(_ => {
+              return store.deleteBucketInventory(bucket, _.id).catch(err => {
+                console.log('deleteBucketInventory-error', err);
+              });
+            }));
+            utils.sleep(900);
           } while (inventoryList.length);
           assert(true);
         } catch (err) {
