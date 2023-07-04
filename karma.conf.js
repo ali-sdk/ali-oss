@@ -12,7 +12,7 @@ module.exports = function (config) {
       require('karma-firefox-launcher'),
       require('karma-safari-launcher')
     ],
-    browsers: isCiEnv ? ['ChromeHeadless'] : ['Chrome', 'Safari', 'Firefox'], //
+    browsers: isCiEnv ? ['ChromeHeadless'] : ['Chrome', 'Safari', 'Firefox'],
     files: ['test/browser/build/aliyun-oss-sdk.min.js', 'test/browser/build/tests.js'],
     // preprocessors: {
     // 'dist/aliyun-oss-sdk.js': ['coverage']

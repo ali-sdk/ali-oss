@@ -6,7 +6,6 @@
  *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
  */
 
-
 /**
  * Module dependencies.
  */
@@ -40,7 +39,7 @@ exports.throws = async function (block, checkError) {
 };
 
 exports.sleep = function (ms) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve();
     }, ms);
@@ -59,6 +58,7 @@ exports.cleanAllBucket = async function (store) {
     }
   }
   for (const bucketListItem of bucketList) {
+    store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
     const client = new OSS({
       ...store.options,
       bucket: bucketListItem.bucket,
@@ -68,7 +68,6 @@ exports.cleanAllBucket = async function (store) {
     await this.cleanBucket(client, bucketListItem.bucket);
   }
 };
-
 
 exports.cleanBucket = async function (store, bucket, multiversion) {
   store.useBucket(bucket);
@@ -97,11 +96,10 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
       });
     }
     result[deleteKey] = result[deleteKey] || [];
-
-    await Promise.all(result[deleteKey]
-      .map(_ => store.delete(_.name, multiversion ?
-        Object.assign({}, options, { versionId: _.versionId }) :
-        options)));
+    const list = result[deleteKey].map(_ => {
+      return store.delete(_.name, multiversion ? Object.assign({}, options, { versionId: _.versionId }) : options);
+    });
+    await Promise.all(list);
   }
   await handleDelete('objects');
   if (multiversion) {
@@ -122,7 +120,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
 if (process && process.browser) {
   exports.prefix = `${platform.name}-${platform.version}-${new Date().getTime()}/`;
 } else {
-  exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`;// unique prefix add time timestamp
+  exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`; // unique prefix add time timestamp
   if (process && process.execPath.indexOf('iojs') >= 0) {
     exports.prefix = `iojs-${exports.prefix}`;
   }
@@ -134,7 +132,7 @@ exports.createTempFile = async function createTempFile(name, size) {
     fs.mkdirSync(tmpdir);
   }
 
-  await new Promise(((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     const rs = fs.createReadStream('/dev/urandom', {
       start: 0,
       end: size - 1
@@ -148,7 +146,7 @@ exports.createTempFile = async function createTempFile(name, size) {
         resolve(res);
       }
     });
-  }));
+  });
 
   return tmpdir + name;
 };

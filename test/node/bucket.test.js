@@ -5,9 +5,8 @@
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
-const config = require('../config').oss;
 const ms = require('humanize-ms');
-const { metaSyncTime, timeout } = require('../config');
+const { oss: config, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
@@ -1335,6 +1334,7 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory', async () => {
         try {
+          console.log('bucket', bucket, inventory);
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
           assert(false, err);
