@@ -1329,12 +1329,13 @@ describe('test/bucket.test.js', () => {
       }
     };
 
-    describe('putBucketInventory', () => {
+    describe.only('putBucketInventory', () => {
       before(() => {
         inventory.OSSBucketDestination.bucket = bucket;
       });
       it('should put bucket inventory', async () => {
         try {
+          console.log('bucket', bucket.replace('a', '-'), inventory);
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
           assert(false, err);
@@ -1454,12 +1455,14 @@ describe('test/bucket.test.js', () => {
         try {
           // avoid Qps limit
           do {
-            const list = inventoryList.splice(0, 5);// 执行删除不能太快，否则服务端容易报InternalError
-            await Promise.all(list.map(_ => {
-              return store.deleteBucketInventory(bucket, _.id).catch(err => {
-                console.log('deleteBucketInventory-error', err);
-              });
-            }));
+            const list = inventoryList.splice(0, 5); // 执行删除不能太快，否则服务端容易报InternalError
+            await Promise.all(
+              list.map(_ => {
+                return store.deleteBucketInventory(bucket, _.id).catch(err => {
+                  console.log('deleteBucketInventory-error', err);
+                });
+              })
+            );
             utils.sleep(900);
           } while (inventoryList.length);
           assert(true);

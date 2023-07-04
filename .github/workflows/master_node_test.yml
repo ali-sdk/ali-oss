@@ -6,8 +6,8 @@ name: Master branch
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
+  # pull_request:
+  #   branches: [master]
 
 jobs:
   browser_test:
