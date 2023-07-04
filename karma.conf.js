@@ -26,7 +26,7 @@ module.exports = function (config) {
     port: 19876,
     colors: true,
     logLevel: config.LOG_INFO,
-    singleRun: true, // 开启或禁用持续集成模式 (设置为true, Karma将打开浏览器，执行测试并最后退出)
+    singleRun: true,
     browserDisconnectTolerance: 3,
     browserNoActivityTimeout: 30000,
     concurrency: 1,

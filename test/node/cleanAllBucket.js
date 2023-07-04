@@ -21,7 +21,7 @@ store.listBuckets().then(async r => {
   });
 
   for (const bucketListItem of bucketList) {
-    console.log(`正在清理：${bucketListItem.bucket}`);
+    console.log(`Cleaning up : ${bucketListItem.bucket}`);
     store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
     const client = new OSS({
       ...store.options,

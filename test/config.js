@@ -1,12 +1,12 @@
 const { env } = process;
 
 const config = module.exports;
-const USWEST = 'oss-us-west-1'; // ONCI 用美国硅谷的region速度会快些，否则很容易超时
+const USWEST = 'oss-us-west-1'; // ONCI=true Using the region of Silicon Valley in the United States would be faster
 
 config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
-  accountId: env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i)[1], // 通过roleRan获取主账号id
+  accountId: env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i)[1], // Obtain the main account ID through roleRan
   region: env.ALI_SDK_OSS_REGION,
   endpoint: env.ONCI ? `https://${USWEST}.aliyuncs.com` : undefined
 };

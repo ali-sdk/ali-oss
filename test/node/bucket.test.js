@@ -1316,7 +1316,7 @@ describe('test/bucket.test.js', () => {
       prefix: 'ttt',
       OSSBucketDestination: {
         format: 'CSV',
-        accountId, // 目标Bucket拥有者的主账号ID
+        accountId, // The primary account ID of the target bucket owner
         rolename: 'AliyunOSSRole',
         bucket,
         prefix: 'test'
@@ -1454,7 +1454,8 @@ describe('test/bucket.test.js', () => {
         try {
           // avoid Qps limit
           do {
-            const list = inventoryList.splice(0, 5); // 执行删除不能太快，否则服务端容易报InternalError
+            // The deletion cannot be performed too quickly, otherwise the server may easily report an InternalError
+            const list = inventoryList.splice(0, 5);
             await Promise.all(
               list.map(_ => {
                 return store.deleteBucketInventory(bucket, _.id).catch(err => {
