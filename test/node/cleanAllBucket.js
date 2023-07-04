@@ -9,7 +9,7 @@ const store = new OSS(config);
 //   return parseInt(bucket.split('-').pop());
 // };
 
-store.listBuckets().then(r => {
+store.listBuckets().then(async r => {
   const bucketList = [];
   r.buckets.forEach(i => {
     if (i.name.indexOf('ali-oss-') === 0) {
@@ -26,11 +26,14 @@ store.listBuckets().then(r => {
     const client = new OSS({
       ...store.options,
       bucket: bucketListItem.bucket,
-      region: bucketListItem.region,
+      region: bucketListItem.region
     });
-    utils.cleanBucket(client, bucketListItem.bucket).catch(e => {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await utils.cleanBucket(client, bucketListItem.bucket);
+    } catch (e) {
       console.log('bucket name =======>', bucketListItem.bucket);
       console.log('error:====>', e);
-    });
+    }
   }
 });

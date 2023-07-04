@@ -1329,7 +1329,7 @@ describe('test/bucket.test.js', () => {
       }
     };
 
-    describe.only('putBucketInventory', () => {
+    describe('putBucketInventory', () => {
       before(() => {
         inventory.OSSBucketDestination.bucket = bucket;
       });
