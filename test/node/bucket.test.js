@@ -1335,7 +1335,6 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory', async () => {
         try {
-          console.log('bucket', bucket.replace('a', '-'), inventory);
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
           assert(false, err);
