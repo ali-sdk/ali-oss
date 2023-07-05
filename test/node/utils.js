@@ -48,41 +48,41 @@ exports.sleep = function (ms) {
 };
 
 exports.cleanAllBucket = async (store, limit) => {
-  store.listBuckets().then(r => {
-    const bucketList = [];
-    r.buckets.forEach(i => {
-      if (i.name.indexOf('ali-oss-') === 0) {
-        bucketList.push({
-          bucket: i.name,
-          region: i.region
-        });
-      }
-    });
-    const proDelete = async () => {
-      const list = bucketList.splice(0, limit);
-      const pros = [];
-      for (const bucketListItem of list) {
-        console.log(`Cleaning up : ${bucketListItem.bucket}`);
-        store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
-        const client = new OSS({
-          ...JSON.parse(JSON.stringify(store.options)),
-          bucket: bucketListItem.bucket,
-          region: bucketListItem.region,
-          maxSocket: 50
-        });
-        try {
-          const delRes = this.cleanBucket(client, bucketListItem.bucket);
-          pros.push(delRes);
-        } catch (e) {
-          console.log('bucket name =======>', bucketListItem.bucket);
-          console.log('error:====>', e);
-        }
-      }
-      await Promise.all(pros);
-      if (bucketList.length > 0) await proDelete();
-    };
-    proDelete();
+  const res = await store.listBuckets();
+  const bucketList = [];
+  res.buckets.forEach(i => {
+    if (i.name.indexOf('ali-oss-') === 0) {
+      bucketList.push({
+        bucket: i.name,
+        region: i.region
+      });
+    }
   });
+
+  const proDelete = async () => {
+    const list = bucketList.splice(0, limit);
+    const pros = [];
+    for (const bucketListItem of list) {
+      console.log(`Cleaning up : ${bucketListItem.bucket}`);
+      store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
+      const client = new OSS({
+        ...JSON.parse(JSON.stringify(store.options)),
+        bucket: bucketListItem.bucket,
+        region: bucketListItem.region,
+        maxSocket: 50
+      });
+      try {
+        const delRes = this.cleanBucket(client, bucketListItem.bucket);
+        pros.push(delRes);
+      } catch (e) {
+        console.log('bucket name =======>', bucketListItem.bucket);
+        console.log('error:====>', e);
+      }
+    }
+    await Promise.all(pros);
+    if (bucketList.length > 0) await proDelete();
+  };
+  await proDelete();
 };
 
 exports.cleanBucket = async function (store, bucket, multiversion) {
