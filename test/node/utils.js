@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
@@ -46,47 +47,62 @@ exports.sleep = function (ms) {
   });
 };
 
-exports.cleanAllBucket = async function (store) {
-  const res = await store.listBuckets();
-  const bucketList = [];
-  for (let i = 0; i < res.buckets.length; i++) {
-    if (!res.buckets[i].name.indexOf('ali-oss')) {
-      bucketList.push({
-        bucket: res.buckets[i].name,
-        region: res.buckets[i].region
-      });
-    }
-  }
-  for (const bucketListItem of bucketList) {
-    store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
-    const client = new OSS({
-      ...store.options,
-      bucket: bucketListItem.bucket,
-      region: bucketListItem.region
+exports.cleanAllBucket = async (store, limit) => {
+  store.listBuckets().then(r => {
+    const bucketList = [];
+    r.buckets.forEach(i => {
+      if (i.name.indexOf('ali-oss-') === 0) {
+        bucketList.push({
+          bucket: i.name,
+          region: i.region
+        });
+      }
     });
-    // eslint-disable-next-line no-await-in-loop
-    await this.cleanBucket(client, bucketListItem.bucket);
-  }
+    const proDelete = async () => {
+      const list = bucketList.splice(0, limit);
+      const pros = [];
+      for (const bucketListItem of list) {
+        console.log(`Cleaning up : ${bucketListItem.bucket}`);
+        store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
+        const client = new OSS({
+          ...JSON.parse(JSON.stringify(store.options)),
+          bucket: bucketListItem.bucket,
+          region: bucketListItem.region,
+          maxSocket: 50
+        });
+        try {
+          const delRes = this.cleanBucket(client, bucketListItem.bucket);
+          pros.push(delRes);
+        } catch (e) {
+          console.log('bucket name =======>', bucketListItem.bucket);
+          console.log('error:====>', e);
+        }
+      }
+      await Promise.all(pros);
+      if (bucketList.length > 0) await proDelete();
+    };
+    proDelete();
+  });
 };
 
 exports.cleanBucket = async function (store, bucket, multiversion) {
   store.useBucket(bucket);
   let result;
   const options = { versionId: null };
-
+  let isMs = multiversion;
   if (!multiversion) {
     try {
       await store.getBucketVersions({
         'max-keys': 1000
       });
-      multiversion = true;
+      isMs = true;
     } catch (error) {
-      multiversion = false;
+      isMs = false;
     }
   }
 
   async function handleDelete(deleteKey) {
-    if (multiversion) {
+    if (isMs) {
       result = await store.getBucketVersions({
         'max-keys': 1000
       });
@@ -97,7 +113,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
     }
     result[deleteKey] = result[deleteKey] || [];
     const list = result[deleteKey].map(_ => {
-      return store.delete(_.name, multiversion ? Object.assign({}, options, { versionId: _.versionId }) : options);
+      return store.delete(_.name, isMs ? Object.assign({}, options, { versionId: _.versionId }) : options);
     });
     await Promise.all(list);
   }

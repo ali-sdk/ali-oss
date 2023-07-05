@@ -3,12 +3,11 @@ const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
-const { metaSyncTime } = require('../config');
+const { oss: config, metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
 const oss = require('../..');
-const config = require('../config').oss;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
@@ -2329,12 +2328,14 @@ describe('test/object.test.js', () => {
           }
         };
 
-        const postFile = () => new Promise((resolve, reject) => {
-          request(options, (err, res) => {
-            if (err) reject(err);
-            if (res) resolve(res);
+        const postFile = () => {
+          return new Promise((resolve, reject) => {
+            request(options, (err, res) => {
+              if (err) reject(err);
+              if (res) resolve(res);
+            });
           });
-        });
+        };
 
         const result = await postFile();
         assert(result.statusCode === 204);
