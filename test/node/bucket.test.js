@@ -1337,6 +1337,7 @@ describe('test/bucket.test.js', () => {
           console.log('bucket', bucket, inventory);
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
+          console.log('err-inventory', err);
           assert(false, err);
         }
       });

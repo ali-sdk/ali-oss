@@ -1,15 +1,12 @@
 /* eslint-disable no-console */
 const utils = require('./utils');
-const config = require('../config').oss;
+const { oss: config } = require('../config');
 const OSS = require('../..');
 
 const store = new OSS(config);
-// const interval = new Date().getTime() - 24 * 60 * 60 * 1 * 1000;
-// const calculateData = bucket => {
-//   return parseInt(bucket.split('-').pop());
-// };
+const limit = 50;
 
-store.listBuckets().then(async r => {
+store.listBuckets().then(r => {
   const bucketList = [];
   r.buckets.forEach(i => {
     if (i.name.indexOf('ali-oss-') === 0) {
@@ -19,21 +16,33 @@ store.listBuckets().then(async r => {
       });
     }
   });
-
-  for (const bucketListItem of bucketList) {
-    console.log(`Cleaning up : ${bucketListItem.bucket}`);
-    store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
-    const client = new OSS({
-      ...store.options,
-      bucket: bucketListItem.bucket,
-      region: bucketListItem.region
-    });
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      await utils.cleanBucket(client, bucketListItem.bucket);
-    } catch (e) {
-      console.log('bucket name =======>', bucketListItem.bucket);
-      console.log('error:====>', e);
+  const proDelete = async () => {
+    const list = bucketList.splice(0, limit);
+    const pros = [];
+    for (const bucketListItem of list) {
+      console.log(`Cleaning up : ${bucketListItem.bucket}`);
+      const client = new OSS({
+        ...store.options,
+        endpoint: `https://${bucketListItem.region}.aliyuncs.com`,
+        bucket: bucketListItem.bucket,
+        region: bucketListItem.region,
+        maxSocket: 50
+      });
+      try {
+        const delRes = utils.cleanBucket(client, bucketListItem.bucket);
+        pros.push(delRes);
+      } catch (e) {
+        console.log('bucket name =======>', bucketListItem.bucket);
+        console.log('error:====>', e);
+      }
     }
-  }
+    await Promise.all(pros);
+    if (bucketList.length > 0) await proDelete();
+  };
+  proDelete();
 });
+
+// const interval = new Date().getTime() - 24 * 60 * 60 * 1 * 1000;
+// const calculateData = bucket => {
+//   return parseInt(bucket.split('-').pop());
+// };
