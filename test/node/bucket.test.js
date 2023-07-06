@@ -1457,13 +1457,12 @@ describe('test/bucket.test.js', () => {
           do {
             // The deletion cannot be performed too quickly, otherwise the server may easily report an InternalError
             const list = inventoryList.splice(0, 5);
-            await Promise.all(
-              list.map(_ => {
-                return store.deleteBucketInventory(bucket, _.id).catch(err => {
-                  console.log('deleteBucketInventory-error', err);
-                });
-              })
-            );
+            const plist = list.map(_ => {
+              return store.deleteBucketInventory(bucket, _.id).catch(err => {
+                console.log('deleteBucketInventory-error', err);
+              });
+            });
+            await Promise.all(plist);
             utils.sleep(900);
           } while (inventoryList.length);
           assert(true);

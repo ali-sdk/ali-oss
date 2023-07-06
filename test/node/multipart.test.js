@@ -658,7 +658,7 @@ describe('test/multipart.test.js', () => {
     });
   });
 
-  describe.only('multipartCopy()', () => {
+  describe('multipartCopy()', () => {
     let fileName;
     let name;
     before(async () => {
