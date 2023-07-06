@@ -513,7 +513,7 @@ describe('test/multipart.test.js', () => {
         await store.multipartUpload(name, fileName, {
           partSize: 14.56,
           progress() {
-            // progress++;
+            // progress++;;
           }
         });
       } catch (e) {
