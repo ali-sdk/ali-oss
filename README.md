@@ -40,7 +40,7 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 - For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
 
 ### QA
-You can join DingDing Talk Group, [Group Link](https://qr.dingtalk.com/action/joingroup?code=v1,k1,inkSDqCxm7LilkaR/kknRVBDQ8PDA0Lj5hj4Cf9io3w=&_dt_no_comment=1&origin=11)
+You can join DingDing Talk Group, [Group Link](https://qr.dingtalk.com/action/joingroup?code=v1,k1,E60EuCmxajfilkaR/kknRcGR9UissskPEXu/1td36z0=)
 
 <img src="task/dingding.jpg" height="400" title="dingding" width="300">
 
@@ -2106,8 +2106,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -4170,8 +4169,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
