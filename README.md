@@ -323,9 +323,7 @@ options:
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
-- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be
-  less than sts info expire interval, default is 300000ms(5min)
-  when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
+- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be less than sts info expire interval, default is 300000ms(5min)
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`. Set as extranet domain name, intranet domain name, accelerated domain name, etc. according to different needs. please see [endpoints](https://www.alibabacloud.com/help/doc-detail/31837.htm)
@@ -2108,8 +2106,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -4172,8 +4169,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
