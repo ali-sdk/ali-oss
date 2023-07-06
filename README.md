@@ -2108,8 +2108,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -4172,8 +4171,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
