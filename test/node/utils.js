@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * Copyright(c) ali-sdk and other contributors.
  * MIT Licensed
@@ -63,7 +62,6 @@ exports.cleanAllBucket = async (store, limit) => {
     const list = bucketList.splice(0, limit);
     const pros = [];
     for (const bucketListItem of list) {
-      console.log(`Cleaning up : ${bucketListItem.bucket}`);
       store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
       const client = new OSS({
         ...JSON.parse(JSON.stringify(store.options)),
@@ -75,7 +73,6 @@ exports.cleanAllBucket = async (store, limit) => {
         const delRes = this.cleanBucket(client, bucketListItem.bucket);
         pros.push(delRes);
       } catch (e) {
-        console.log('bucket name =======>', bucketListItem.bucket);
         console.log('error:====>', e);
       }
     }

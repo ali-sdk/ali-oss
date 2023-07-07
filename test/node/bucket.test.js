@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
