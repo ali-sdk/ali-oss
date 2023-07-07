@@ -40,7 +40,7 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 - For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
 
 ### QA
-You can join DingDing Talk Group, [Group Link](https://qr.dingtalk.com/action/joingroup?code=v1,k1,inkSDqCxm7LilkaR/kknRVBDQ8PDA0Lj5hj4Cf9io3w=&_dt_no_comment=1&origin=11)
+You can join DingDing Talk Group, [Group Link](https://qr.dingtalk.com/action/joingroup?code=v1,k1,E60EuCmxajfilkaR/kknRcGR9UissskPEXu/1td36z0=)
 
 <img src="task/dingding.jpg" height="400" title="dingding" width="300">
 
@@ -323,9 +323,7 @@ options:
 - accessKeySecret {String} access secret you create
 - [stsToken] {String} used by temporary authorization, detail [see](https://www.alibabacloud.com/help/doc-detail/32077.htm)
 - [refreshSTSToken] {Function} used by auto set `stsToken`、`accessKeyId`、`accessKeySecret` when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
-- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be
-  less than sts info expire interval, default is 300000ms(5min)
-  when sts info expires. return value must be object contains `stsToken`、`accessKeyId`、`accessKeySecret`
+- [refreshSTSTokenInterval] {number} use time (ms) of refresh STSToken interval it should be less than sts info expire interval, default is 300000ms(5min)
 - [bucket] {String} the default bucket you want to access
   If you don't have any bucket, please use `putBucket()` create one first.
 - [endpoint] {String} oss region domain. It takes priority over `region`. Set as extranet domain name, intranet domain name, accelerated domain name, etc. according to different needs. please see [endpoints](https://www.alibabacloud.com/help/doc-detail/31837.htm)
@@ -2108,8 +2106,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -4172,8 +4169,7 @@ Success will return the stream instance and response info.
 
 object:
 
-- stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+- stream {ReadStream} readable stream instance. If response status is not `200`, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
