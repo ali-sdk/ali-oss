@@ -1,7 +1,4 @@
-/* eslint-disable require-atomic-updates */
-/* eslint-disable no-loop-func */
-/* eslint-disable no-await-in-loop */
-
+/* eslint-disable no-console */
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
@@ -1334,7 +1331,6 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory', async () => {
         try {
-          console.log('bucket', bucket, inventory);
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
           console.log('err-inventory', err);
@@ -1353,11 +1349,14 @@ describe('test/bucket.test.js', () => {
           delete inventory.optionalFields;
           await store.putBucketInventory(bucket, inventory);
 
+          // eslint-disable-next-line require-atomic-updates
           inventory.id = 'test_field';
+          // eslint-disable-next-line require-atomic-updates
           inventory.optionalFields = {};
           await store.putBucketInventory(bucket, inventory);
-
+          // eslint-disable-next-line require-atomic-updates
           inventory.id = 'test_field_is_one';
+          // eslint-disable-next-line require-atomic-updates
           inventory.optionalFields = {
             field: ['Size']
           };
@@ -1447,6 +1446,7 @@ describe('test/bucket.test.js', () => {
         let isTruncated;
         let continuationToken;
         do {
+          // eslint-disable-next-line no-await-in-loop
           const inventoryRes = await store.listBucketInventory(bucket, { continuationToken });
           inventoryList = [...inventoryList, ...inventoryRes.inventoryList];
           isTruncated = inventoryRes.isTruncated;
@@ -1457,11 +1457,9 @@ describe('test/bucket.test.js', () => {
           do {
             // The deletion cannot be performed too quickly, otherwise the server may easily report an InternalError
             const list = inventoryList.splice(0, 5);
-            const plist = list.map(_ => {
-              return store.deleteBucketInventory(bucket, _.id).catch(err => {
-                console.log('deleteBucketInventory-error', err);
-              });
-            });
+            // eslint-disable-next-line no-loop-func
+            const plist = list.map(_ => store.deleteBucketInventory(bucket, _.id));
+            // eslint-disable-next-line no-await-in-loop
             await Promise.all(plist);
             utils.sleep(900);
           } while (inventoryList.length);

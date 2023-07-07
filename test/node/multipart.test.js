@@ -972,4 +972,22 @@ describe('test/multipart.test.js', () => {
       assert.strictEqual(stream.destroyed, true);
     });
   });
+
+  describe.only('set headers', () => {
+    // 执行分片上传，设置header，查看header是否生效
+    it('Test whether the speed limit setting for sharded upload is effective', async () => {
+      const file = await utils.createTempFile('multipart-upload-file-set-header', 101 * 1024);
+      const objectKey = `${prefix}multipart/upload-file-set-header`;
+      const stime = new Date();
+      await store.multipartUpload(objectKey, file, {
+        headers: {
+          // 'x-oss-traffic-limit': 245763
+        }
+      });
+      const etime = new Date();
+      const useTime = etime - stime;
+      console.log('rr', useTime);
+      assert(useTime > 3000);
+    });
+  });
 });

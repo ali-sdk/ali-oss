@@ -735,7 +735,7 @@ describe('browser', () => {
         await store.put(name, body, options);
         assert(false);
       } catch (error) {
-        assert(error.name === 'ConnectionTimeoutError');
+        assert.equal(error.name, 'ConnectionTimeoutError');
       }
     });
 
@@ -1528,12 +1528,19 @@ describe('browser', () => {
         const init = await store.initMultipartUpload(name);
         const { uploadId } = init;
         const partSize = 100 * 1024;
-
-        const parts = await Promise.all(
-          Array(10)
-            .fill(1)
-            .map((v, i) => store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
-        );
+        const list = Array(10)
+          .fill(1)
+          .map((v, i) => {
+            return store.uploadPart(
+              name,
+              uploadId,
+              i + 1,
+              file,
+              i * partSize,
+              Math.min((i + 1) * partSize, 10 * 100 * 1024)
+            );
+          });
+        const parts = await Promise.all(list);
         const dones = parts.map((_, i) => ({
           number: i + 1,
           etag: _.etag
