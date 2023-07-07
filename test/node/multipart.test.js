@@ -503,17 +503,17 @@ describe('test/multipart.test.js', () => {
       assert.equal(result.res.status, 200);
     });
 
-    it('should upload partSize be int number and greater then minPartSize', async () => {
+    it.only('should upload partSize be int number and greater then minPartSize', async () => {
       // create a file with 1M random data
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);
 
       const name = `${prefix}multipart/upload-file`;
-      // let progress = 0;
+      let progress = 0;
       try {
         await store.multipartUpload(name, fileName, {
           partSize: 14.56,
           progress() {
-            // progress++;;
+            progress++;
           }
         });
       } catch (e) {
@@ -524,12 +524,13 @@ describe('test/multipart.test.js', () => {
         await store.multipartUpload(name, fileName, {
           partSize: 1,
           progress() {
-            // progress++;
+            progress++;
           }
         });
       } catch (e) {
         assert.ok(e.message.startsWith('partSize must not be smaller'));
       }
+      assert.equal(progress, 0);
     });
 
     it('should skip doneParts when re-upload mutilpart files', async () => {
