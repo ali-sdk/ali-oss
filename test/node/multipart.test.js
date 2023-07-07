@@ -503,7 +503,7 @@ describe('test/multipart.test.js', () => {
       assert.equal(result.res.status, 200);
     });
 
-    it.only('should upload partSize be int number and greater then minPartSize', async () => {
+    it('should upload partSize be int number and greater then minPartSize', async () => {
       // create a file with 1M random data
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024);
 

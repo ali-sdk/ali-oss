@@ -1717,7 +1717,7 @@ describe('browser', () => {
       //   assert.equal(result.res.status, 200);
       // });
 
-      it.only('should upload partSize be int number and greater then minPartSize', async () => {
+      it('should upload partSize be int number and greater then minPartSize', async () => {
         // create a file with 1M random data
         const fileContent = Array(1024 * 1024)
           .fill('a')
