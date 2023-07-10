@@ -1332,8 +1332,8 @@ describe('test/bucket.test.js', () => {
         try {
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
-          console.log('err-inventory', err);
           assert(false, err);
+          assert.fail(`put-inventory-error:${err.requestId}`);
         }
       });
       it('should return inventory array when inventory is one config', async () => {
@@ -1344,22 +1344,13 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory when no optionalFields or no field', async () => {
         try {
-          inventory.id = 'test_optionalFields';
-          delete inventory.optionalFields;
-          await store.putBucketInventory(bucket, inventory);
-
-          // eslint-disable-next-line require-atomic-updates
-          inventory.id = 'test_field';
-          // eslint-disable-next-line require-atomic-updates
-          inventory.optionalFields = {};
-          await store.putBucketInventory(bucket, inventory);
-          // eslint-disable-next-line require-atomic-updates
-          inventory.id = 'test_field_is_one';
-          // eslint-disable-next-line require-atomic-updates
-          inventory.optionalFields = {
-            field: ['Size']
-          };
-          await store.putBucketInventory(bucket, inventory);
+          await store.putBucketInventory(bucket, { ...inventory, id: 'test_optionalFields', optionalFields: {} });
+          await store.putBucketInventory(bucket, { ...inventory, id: 'test_field', optionalFields: {} });
+          await store.putBucketInventory(bucket, {
+            ...inventory,
+            id: 'test_field_is_one',
+            optionalFields: { field: ['Size'] }
+          });
           assert(true);
         } catch (err) {
           assert(false, err);

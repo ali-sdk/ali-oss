@@ -86,7 +86,7 @@ exports.cleanAllBucket = async (store, limit, isAll) => {
         const delRes = this.cleanBucket(client, bucketListItem.bucket);
         pros.push(delRes);
       } catch (e) {
-        console.error('cleanBucket-error', e.request?.id);
+        console.error('cleanBucket-error', e.requestId);
       }
     }
     await Promise.all(pros);

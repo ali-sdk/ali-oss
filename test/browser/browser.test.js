@@ -2440,11 +2440,13 @@ describe('browser', () => {
       const limit = 645763;
       await store.multipartUpload(objectKey, fileName, {
         headers: {
+          'x-oss-server-side-encryption': 'KMS',
           'x-oss-traffic-limit': limit
         }
       });
 
       assert.equal(header['x-oss-traffic-limit'], 645763);
+      assert.equal(header['x-oss-server-side-encryption'], undefined);
     });
   });
 });
