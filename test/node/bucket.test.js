@@ -1332,7 +1332,6 @@ describe('test/bucket.test.js', () => {
         try {
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
-          assert(false, err);
           assert.fail(`put-inventory-error:${err.requestId}`);
         }
       });
