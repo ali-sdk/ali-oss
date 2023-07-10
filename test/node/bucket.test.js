@@ -1346,10 +1346,10 @@ describe('test/bucket.test.js', () => {
         try {
           await store.putBucketInventory(bucket, { ...inventory, id: 'test_optionalFields', optionalFields: {} });
           await store.putBucketInventory(bucket, { ...inventory, id: 'test_field', optionalFields: {} });
+          inventory.optionalFields = { field: ['Size'] };
           await store.putBucketInventory(bucket, {
             ...inventory,
-            id: 'test_field_is_one',
-            optionalFields: { field: ['Size'] }
+            id: 'test_field_is_one'
           });
           assert(true);
         } catch (err) {
