@@ -1305,7 +1305,7 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
-  describe('inventory()', () => {
+  describe.only('inventory()', () => {
     const inventory = {
       id: 'default',
       isEnabled: false,
@@ -1330,6 +1330,7 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory', async () => {
         try {
+          console.log('inventory', inventory);
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
           assert.fail(`put-inventory-error:${err.requestId}`);
