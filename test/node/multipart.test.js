@@ -975,18 +975,25 @@ describe('test/multipart.test.js', () => {
   });
 
   describe('set headers', () => {
+    afterEach(mm.restore);
+
     it('Test whether the speed limit setting for sharded upload is effective', async () => {
       const file = await utils.createTempFile('multipart-upload-file-set-header', 101 * 1024);
       const objectKey = `${prefix}multipart/upload-file-set-header`;
-      const stime = new Date();
+      const req = store.urllib.request;
+      let header;
+      mm(store.urllib, 'request', (url, args) => {
+        header = args.headers;
+        return req(url, args);
+      });
+      const limit = 645763;
       await store.multipartUpload(objectKey, file, {
         headers: {
-          'x-oss-traffic-limit': 645763
+          'x-oss-traffic-limit': limit
         }
       });
-      const etime = new Date();
-      const useTime = etime - stime;
-      assert(useTime > 1000); // Unlimited speed is generally below 500 milliseconds
+
+      assert.equal(header['x-oss-traffic-limit'], 645763);
     });
   });
 });

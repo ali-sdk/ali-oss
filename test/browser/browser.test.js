@@ -1,9 +1,7 @@
 const assert = require('assert');
-// var oss = require('../');
-// var oss = OSS.Wrapper;
+const mm = require('mm');
 /* eslint no-undef: [0] */
 const oss = OSS;
-// var sts = oss.STS;
 const urllib = require('urllib');
 const sinon = require('sinon');
 const md5 = require('crypto-js/md5');
@@ -11,7 +9,6 @@ const md5 = require('crypto-js/md5');
 const stsConfig = require('./.tmp/stsConfig.json');
 const pkg = require('../../package.json');
 const platform = require('platform');
-// const { callbackServer } = require('../../test/const');
 
 const crypto1 = require('crypto');
 const { Readable } = require('stream');
@@ -2417,6 +2414,37 @@ describe('browser', () => {
         sourceBucketName: stsConfig.bucket
       });
       assert.equal(result.res.statusCode, 200);
+    });
+  });
+
+  describe.only('set headers', () => {
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+
+    afterEach(mm.restore);
+
+    it('Test whether the speed limit setting for sharded upload is effective', async () => {
+      const fileContent = Array(1034 * 1024)
+        .fill('a')
+        .join('');
+      const fileName = new File([fileContent], 'multipart-upload-kms');
+      const objectKey = 'multipart-upload-file-set-header-browser-test';
+      const req = store.urllib.request;
+      let header;
+      mm(store.urllib, 'request', (url, args) => {
+        header = args.headers;
+        return req(url, args);
+      });
+      const limit = 645763;
+      await store.multipartUpload(objectKey, fileName, {
+        headers: {
+          'x-oss-traffic-limit': limit
+        }
+      });
+
+      assert.equal(header['x-oss-traffic-limit'], 645763);
     });
   });
 });

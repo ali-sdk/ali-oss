@@ -46,11 +46,24 @@ exports.sleep = function (ms) {
   });
 };
 
-exports.cleanAllBucket = async (store, limit) => {
+exports.cleanAllBucket = async (store, limit, isAll) => {
   const res = await store.listBuckets();
   const bucketList = [];
+
+  const interval = new Date().getTime() - 24 * 60 * 60 * 1000;
+  const calculateData = bucket => {
+    return parseInt(bucket.split('-').pop(), 10);
+  };
+
   res.buckets.forEach(i => {
-    if (i.name.indexOf('ali-oss-') === 0) {
+    if (i.name.indexOf('ali-oss-') === 0 && isAll) {
+      bucketList.push({
+        bucket: i.name,
+        region: i.region
+      });
+    }
+    // Only clean buckets 24 hours ago
+    if (i.name.indexOf('ali-oss-') === 0 && !isAll && calculateData(i.name) < interval) {
       bucketList.push({
         bucket: i.name,
         region: i.region
@@ -73,7 +86,7 @@ exports.cleanAllBucket = async (store, limit) => {
         const delRes = this.cleanBucket(client, bucketListItem.bucket);
         pros.push(delRes);
       } catch (e) {
-        console.log('error:====>', e);
+        console.error('cleanBucket-error', e.request?.id);
       }
     }
     await Promise.all(pros);
