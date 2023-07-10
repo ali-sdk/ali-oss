@@ -21,5 +21,5 @@ config.sts = {
   maxSocket: 50
 };
 
-config.metaSyncTime = env.ONCI ? '30s' : '1000ms';
+config.metaSyncTime = env.ONCI ? '10s' : '1000ms';
 config.timeout = '120s';
