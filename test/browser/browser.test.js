@@ -2417,7 +2417,7 @@ describe('browser', () => {
     });
   });
 
-  describe.only('set headers', () => {
+  describe('set headers', () => {
     let store;
     before(() => {
       store = oss(ossConfig);
