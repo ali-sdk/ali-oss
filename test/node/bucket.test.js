@@ -1443,19 +1443,24 @@ describe('test/bucket.test.js', () => {
           continuationToken = inventoryRes.nextContinuationToken;
         } while (isTruncated);
         try {
-          // avoid Qps limit
-          do {
-            // The deletion cannot be performed too quickly, otherwise the server may easily report an InternalError
-            const list = inventoryList.splice(0, 5);
-            // eslint-disable-next-line no-loop-func
-            const plist = list.map(_ => store.deleteBucketInventory(bucket, _.id));
+          for (const item of inventoryList) {
+            const { id } = item;
             // eslint-disable-next-line no-await-in-loop
-            await Promise.all(plist);
-            utils.sleep(900);
-          } while (inventoryList.length);
+            await store.deleteBucketInventory(bucket, id);
+          }
+          // do {
+          //   const list = inventoryList.splice(0, 10);
+          //   const plist = list.map(_ => {
+          //     const { id } = _;
+          //     return store.deleteBucketInventory(bucket, id);
+          //   });
+          //   // eslint-disable-next-line no-await-in-loop
+          //   await Promise.all(plist);
+          //   utils.sleep(400);
+          // } while (inventoryList.length);
           assert(true);
         } catch (err) {
-          assert(false, err);
+          assert.fail(`deleteBucketInventory-error:${err.requestId}`);
         }
       });
     });
