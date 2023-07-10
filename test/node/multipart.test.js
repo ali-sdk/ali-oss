@@ -858,16 +858,11 @@ describe('test/multipart.test.js', () => {
       const clientTmp = oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
       /* eslint no-unused-vars: [0] */
-      const stubUploadPart = sinon.stub(
-        clientTmp,
-        'uploadPartCopy',
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        async (objectKey, uploadId, partNo, range, sourceData, options) => {
-          if (partNo === 1) {
-            throw new Error('TestErrorException');
-          }
+      const stubUploadPart = sinon.stub(clientTmp, 'uploadPartCopy', async (objectKey, uploadId, partNo) => {
+        if (partNo === 1) {
+          throw new Error('TestErrorException');
         }
-      );
+      });
 
       let errorMsg;
       let errPartNum;
