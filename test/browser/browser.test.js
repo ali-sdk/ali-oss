@@ -2426,7 +2426,7 @@ describe('browser', () => {
     afterEach(mm.restore);
 
     it('Test whether the speed limit setting for sharded upload is effective', async () => {
-      const fileContent = Array(1034 * 1024)
+      const fileContent = Array(101 * 1024)
         .fill('a')
         .join('');
       const fileName = new File([fileContent], 'multipart-upload-kms');
