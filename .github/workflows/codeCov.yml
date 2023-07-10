@@ -4,12 +4,10 @@ name: CodeCov
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
-  # workflow_run:
-  #   workflows: ['Master branch']
-  #   types:
-  #     - completed
+  workflow_run:
+    workflows: ['Master branch']
+    types:
+      - completed
 
 jobs:
   CodeCov:
