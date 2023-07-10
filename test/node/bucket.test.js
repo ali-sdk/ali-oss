@@ -1445,19 +1445,8 @@ describe('test/bucket.test.js', () => {
         try {
           for (const item of inventoryList) {
             const { id } = item;
-            // eslint-disable-next-line no-await-in-loop
-            await store.deleteBucketInventory(bucket, id);
+            store.deleteBucketInventory(bucket, id);
           }
-          // do {
-          //   const list = inventoryList.splice(0, 10);
-          //   const plist = list.map(_ => {
-          //     const { id } = _;
-          //     return store.deleteBucketInventory(bucket, id);
-          //   });
-          //   // eslint-disable-next-line no-await-in-loop
-          //   await Promise.all(plist);
-          //   utils.sleep(400);
-          // } while (inventoryList.length);
           assert(true);
         } catch (err) {
           assert.fail(`deleteBucketInventory-error:${err.requestId}`);
