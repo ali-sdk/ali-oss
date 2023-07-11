@@ -926,7 +926,7 @@ describe('test/multipart.test.js', () => {
 
   describe('multipartUploadStreams', () => {
     afterEach(mm.restore);
-    it.only('multipartUploadStreams.length', async () => {
+    it('multipartUploadStreams.length', async () => {
       const uploadPart = store._uploadPart;
       let i = 0;
       const LIMIT = 1;
