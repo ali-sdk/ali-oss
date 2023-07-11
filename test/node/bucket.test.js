@@ -1446,7 +1446,6 @@ describe('test/bucket.test.js', () => {
             const { id } = item;
             store.deleteBucketInventory(bucket, id);
           }
-          assert(true);
         } catch (err) {
           assert.fail(`deleteBucketInventory-error:${err.requestId}`);
         }
