@@ -74,7 +74,7 @@ describe('test/multipart.test.js', () => {
         await Promise.all(
           Array(5)
             .fill(1)
-            .map(_ => store.initMultipartUpload(name))
+            .map(() => store.initMultipartUpload(name))
         )
       )
         .map(_ => _.uploadId)
@@ -110,7 +110,7 @@ describe('test/multipart.test.js', () => {
         await Promise.all(
           Array(5)
             .fill(1)
-            .map(_ => store.initMultipartUpload(fooName))
+            .map(() => store.initMultipartUpload(fooName))
         )
       )
         .map(_ => _.uploadId)
@@ -121,7 +121,7 @@ describe('test/multipart.test.js', () => {
         await Promise.all(
           Array(5)
             .fill(5)
-            .map(_ => store.initMultipartUpload(barName))
+            .map(() => store.initMultipartUpload(barName))
         )
       )
         .map(_ => _.uploadId)
@@ -481,20 +481,19 @@ describe('test/multipart.test.js', () => {
       const init = await store.initMultipartUpload(name);
       const { uploadId } = init;
       const partSize = 100 * 1024;
-      const parts = await Promise.all(
-        Array(10)
-          .fill(1)
-          .map((v, i) =>
-            store.uploadPart(
-              name,
-              uploadId,
-              i + 1,
-              fileName,
-              i * partSize,
-              Math.min((i + 1) * partSize, 10 * 100 * 1024)
-            )
-          )
-      );
+      const list = Array(10)
+        .fill(1)
+        .map((v, i) => {
+          return store.uploadPart(
+            name,
+            uploadId,
+            i + 1,
+            fileName,
+            i * partSize,
+            Math.min((i + 1) * partSize, 10 * 100 * 1024)
+          );
+        });
+      const parts = await Promise.all(list);
       const dones = parts.map((_, i) => ({
         number: i + 1,
         etag: _.etag
@@ -511,7 +510,7 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-file`;
       let progress = 0;
       try {
-        const result = await store.multipartUpload(name, fileName, {
+        await store.multipartUpload(name, fileName, {
           partSize: 14.56,
           progress() {
             progress++;
@@ -531,6 +530,7 @@ describe('test/multipart.test.js', () => {
       } catch (e) {
         assert.ok(e.message.startsWith('partSize must not be smaller'));
       }
+      assert.equal(progress, 0);
     });
 
     it('should skip doneParts when re-upload mutilpart files', async () => {
@@ -858,15 +858,11 @@ describe('test/multipart.test.js', () => {
       const clientTmp = oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
       /* eslint no-unused-vars: [0] */
-      const stubUploadPart = sinon.stub(
-        clientTmp,
-        'uploadPartCopy',
-        async (objectKey, uploadId, partNo, range, sourceData, options) => {
-          if (partNo === 1) {
-            throw new Error('TestErrorException');
-          }
+      const stubUploadPart = sinon.stub(clientTmp, 'uploadPartCopy', async (objectKey, uploadId, partNo) => {
+        if (partNo === 1) {
+          throw new Error('TestErrorException');
         }
-      );
+      });
 
       let errorMsg;
       let errPartNum;
@@ -970,6 +966,31 @@ describe('test/multipart.test.js', () => {
       }
       mm.restore();
       assert.strictEqual(stream.destroyed, true);
+    });
+  });
+
+  describe('set headers', () => {
+    afterEach(mm.restore);
+
+    it('Test whether the speed limit setting for sharded upload is effective', async () => {
+      const file = await utils.createTempFile('multipart-upload-file-set-header', 101 * 1024);
+      const objectKey = `${prefix}multipart/upload-file-set-header`;
+      const req = store.urllib.request;
+      let header;
+      mm(store.urllib, 'request', (url, args) => {
+        header = args.headers;
+        return req(url, args);
+      });
+      const limit = 645763;
+      await store.multipartUpload(objectKey, file, {
+        headers: {
+          'x-oss-server-side-encryption': 'KMS',
+          'x-oss-traffic-limit': limit
+        }
+      });
+
+      assert.equal(header['x-oss-traffic-limit'], 645763);
+      assert.equal(header['x-oss-server-side-encryption'], undefined);
     });
   });
 });

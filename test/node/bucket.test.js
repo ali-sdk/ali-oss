@@ -1,23 +1,15 @@
-/* eslint-disable no-loop-func */
-/* eslint-disable no-await-in-loop */
-
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
-const config = require('../config').oss;
 const ms = require('humanize-ms');
-const { metaSyncTime, timeout } = require('../config');
-
-// only run on travis ci
-
-// if (!process.env.CI) { return;
-// }
+const { oss: config, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
   let bucketRegion;
+  const { accountId } = config;
   const defaultRegion = config.region;
   before(async () => {
     store = oss(config);
@@ -1320,7 +1312,7 @@ describe('test/bucket.test.js', () => {
       prefix: 'ttt',
       OSSBucketDestination: {
         format: 'CSV',
-        accountId: '1817184078010220',
+        accountId, // The primary account ID of the target bucket owner
         rolename: 'AliyunOSSRole',
         bucket,
         prefix: 'test'
@@ -1340,7 +1332,7 @@ describe('test/bucket.test.js', () => {
         try {
           await store.putBucketInventory(bucket, inventory);
         } catch (err) {
-          assert(false, err);
+          assert.fail(`put-inventory-error:${err.requestId}`);
         }
       });
       it('should return inventory array when inventory is one config', async () => {
@@ -1351,19 +1343,13 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory when no optionalFields or no field', async () => {
         try {
-          inventory.id = 'test_optionalFields';
-          delete inventory.optionalFields;
-          await store.putBucketInventory(bucket, inventory);
-
-          inventory.id = 'test_field';
-          inventory.optionalFields = {};
-          await store.putBucketInventory(bucket, inventory);
-
-          inventory.id = 'test_field_is_one';
-          inventory.optionalFields = {
-            field: ['Size']
-          };
-          await store.putBucketInventory(bucket, inventory);
+          await store.putBucketInventory(bucket, { ...inventory, id: 'test_optionalFields', optionalFields: {} });
+          await store.putBucketInventory(bucket, { ...inventory, id: 'test_field', optionalFields: {} });
+          inventory.optionalFields = { field: ['Size'] };
+          await store.putBucketInventory(bucket, {
+            ...inventory,
+            id: 'test_field_is_one'
+          });
           assert(true);
         } catch (err) {
           assert(false, err);
@@ -1449,21 +1435,19 @@ describe('test/bucket.test.js', () => {
         let isTruncated;
         let continuationToken;
         do {
+          // eslint-disable-next-line no-await-in-loop
           const inventoryRes = await store.listBucketInventory(bucket, { continuationToken });
           inventoryList = [...inventoryList, ...inventoryRes.inventoryList];
           isTruncated = inventoryRes.isTruncated;
           continuationToken = inventoryRes.nextContinuationToken;
         } while (isTruncated);
         try {
-          // avoid Qps limit
-          do {
-            const list = inventoryList.splice(0, 10);
-            await Promise.all(list.map(_ => store.deleteBucketInventory(bucket, _.id)));
-            utils.sleep(400);
-          } while (inventoryList.length);
-          assert(true);
+          for (const item of inventoryList) {
+            const { id } = item;
+            store.deleteBucketInventory(bucket, id);
+          }
         } catch (err) {
-          assert(false, err);
+          assert.fail(`deleteBucketInventory-error:${err.requestId}`);
         }
       });
     });
