@@ -70,11 +70,14 @@ describe('test/rtmp.test.js', () => {
       result = await store.deleteChannel(tempCid);
       assert.equal(result.res.status, 204);
 
-      await utils.throws(async () => {
-        await store.getChannel(tempCid);
-      }, (err) => {
-        assert.equal(err.status, 404);
-      });
+      await utils.throws(
+        async () => {
+          await store.getChannel(tempCid);
+        },
+        err => {
+          assert.equal(err.status, 404);
+        }
+      );
     });
   });
 
@@ -113,14 +116,22 @@ describe('test/rtmp.test.js', () => {
     before(async () => {
       channelNum = 10;
       channelPrefix = 'channel-list-';
-      await Promise.all(Array(channelNum).fill(1).map((_, i) => {
-        conf.Description = i;
-        return store.putChannel(channelPrefix + i, conf);
-      }));
+      await Promise.all(
+        Array(channelNum)
+          .fill(1)
+          .map((_, i) => {
+            conf.Description = i;
+            return store.putChannel(channelPrefix + i, conf);
+          })
+      );
     });
 
     after(async () => {
-      await Promise.all(Array(channelNum).fill(1).map((_, i) => store.deleteChannel(channelPrefix + i)));
+      await Promise.all(
+        Array(channelNum)
+          .fill(1)
+          .map((_, i) => store.deleteChannel(channelPrefix + i))
+      );
     });
 
     it('list channels using prefix/marker/max-keys', async () => {
@@ -177,13 +188,12 @@ describe('test/rtmp.test.js', () => {
       createVodConf.Description = 'this is live channel 4';
       const result = await store.putChannel(createVodCid, createVodConf);
       assert.equal(result.res.status, 200);
-      const url = store.getRtmpUrl(createVodCid, {
+      store.getRtmpUrl(createVodCid, {
         params: {
           playlistName: 'vod.m3u8'
         },
         expires: 3600
       });
-      console.log(url);
     });
 
     after(async () => {
@@ -203,7 +213,7 @@ describe('test/rtmp.test.js', () => {
 
         assert.equal(result.res.status, 200);
       } catch (err) {
-        console.error(err);
+        assert.fail(err);
       }
     });
   });
