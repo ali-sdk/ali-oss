@@ -1792,9 +1792,13 @@ describe('browser', () => {
         const file = new File([fileContent], 'multipart-upload-file');
         const name = `${prefix}multipart/upload-file`;
         const uploadPart = store._uploadPart;
+        const requestId = 'KDJSJJSHDEEEEEEWWW';
+
         store._uploadPart = () => {
+          store._stop();
           const e = new Error('TEST Not Found');
           e.status = 404;
+          e.requestId = requestId;
           throw e;
         };
         let netErrs;
@@ -1803,8 +1807,11 @@ describe('browser', () => {
         } catch (err) {
           netErrs = err;
         }
+        store.resetCancelFlag();
+
         assert.strictEqual(netErrs.status, 0);
         assert.strictEqual(netErrs.name, 'abort');
+        assert.strictEqual(netErrs.requestId, requestId);
         store._uploadPart = uploadPart;
       });
     });
@@ -2430,7 +2437,7 @@ describe('browser', () => {
         .fill('a')
         .join('');
       const fileName = new File([fileContent], 'multipart-upload-kms');
-      const objectKey = 'multipart-upload-file-set-header-browser-test';
+      const objectKey = `multipart-upload-file-set-header-browser-test-${Date.now()}`;
       const req = store.urllib.request;
       let header;
       mm(store.urllib, 'request', (url, args) => {
