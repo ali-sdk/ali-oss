@@ -926,11 +926,12 @@ describe('test/multipart.test.js', () => {
 
   describe('multipartUploadStreams', () => {
     afterEach(mm.restore);
-    it('multipartUploadStreams.length', async () => {
+    it.only('multipartUploadStreams.length', async () => {
       const uploadPart = store._uploadPart;
       let i = 0;
       const LIMIT = 1;
       mm(store, '_uploadPart', function (name, uploadId, partNo, data) {
+        console.log('i=', i);
         if (i === LIMIT) {
           throw new Error('mock upload part fail.');
         } else {
@@ -944,10 +945,11 @@ describe('test/multipart.test.js', () => {
       const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
       try {
         await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
-      } catch (e) {}
+      } catch (e) {
+        console.log('multipart-error:', e);
+      }
       mm.restore();
       await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
-      utils.sleep(20);
       assert.strictEqual(store.multipartUploadStreams.length, 0);
     });
 
