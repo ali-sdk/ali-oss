@@ -2463,24 +2463,25 @@ describe('browser', () => {
 
     it('should apend object with content blob', async () => {
       let object = await store.append(name, new Blob(['foo']));
-      assert(object.res.status === 200);
-      assert(object.nextAppendPosition === '3');
-      assert(object.res.headers['x-oss-next-append-position'] === '3');
+      const { nextAppendPosition } = object;
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(nextAppendPosition, '3');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '3');
 
       let res = await store.get(name);
-      assert(res.content.toString() === 'foo');
-      assert(res.res.headers['x-oss-next-append-position'] === '3');
+      assert.strictEqual(res.content.toString(), 'foo');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '3');
 
       object = await store.append(name, new Blob(['bar']), {
-        position: 3
+        position: nextAppendPosition
       });
-      assert(object.res.status === 200);
-      assert(object.nextAppendPosition === '6');
-      assert(object.res.headers['x-oss-next-append-position'] === '6');
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(object.nextAppendPosition, '6');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '6');
 
-      res = await store.get(name);
-      assert(res.content.toString() === 'foobar');
-      assert(res.res.headers['x-oss-next-append-position'] === '6');
+      res = await store.get(name, { subres: { 'response-cache-control': 'no-store' } });
+      assert.strictEqual(res.content.toString(), 'foobar');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '6');
     });
   });
 });
