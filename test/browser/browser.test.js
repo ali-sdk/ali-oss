@@ -2449,4 +2449,38 @@ describe('browser', () => {
       assert.equal(header['x-oss-server-side-encryption'], undefined);
     });
   });
+
+  describe.only('append()', () => {
+    const name = `/${prefix}ali-sdk/oss/apend${Date.now()}`;
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+
+    afterEach(async () => {
+      await store.delete(name);
+    });
+
+    it('should apend object with content blob', async () => {
+      let object = await store.append(name, new Blob(['foo']));
+      assert(object.res.status === 200);
+      assert(object.nextAppendPosition === '3');
+      assert(object.res.headers['x-oss-next-append-position'] === '3');
+
+      let res = await store.get(name);
+      assert(res.content.toString() === 'foo');
+      assert(res.res.headers['x-oss-next-append-position'] === '3');
+
+      object = await store.append(name, new Blob(['bar']), {
+        position: 3
+      });
+      assert(object.res.status === 200);
+      assert(object.nextAppendPosition === '6');
+      assert(object.res.headers['x-oss-next-append-position'] === '6');
+
+      res = await store.get(name);
+      assert(res.content.toString() === 'foobar');
+      assert(res.res.headers['x-oss-next-append-position'] === '6');
+    });
+  });
 });
