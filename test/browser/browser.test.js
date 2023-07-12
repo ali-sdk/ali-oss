@@ -2450,7 +2450,7 @@ describe('browser', () => {
     });
   });
 
-  describe.only('append()', () => {
+  describe('append()', () => {
     const name = `/${prefix}ali-sdk/oss/apend${Date.now()}`;
     let store;
     before(() => {
