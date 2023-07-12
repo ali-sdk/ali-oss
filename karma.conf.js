@@ -1,4 +1,5 @@
 process.env.CHROME_BIN = require('puppeteer').executablePath();
+
 const isCiEnv = process.env.ONCI;
 
 module.exports = function (config) {

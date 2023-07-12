@@ -1,9 +1,7 @@
 const assert = require('assert');
-// var oss = require('../');
-// var oss = OSS.Wrapper;
+const mm = require('mm');
 /* eslint no-undef: [0] */
 const oss = OSS;
-// var sts = oss.STS;
 const urllib = require('urllib');
 const sinon = require('sinon');
 const md5 = require('crypto-js/md5');
@@ -11,7 +9,6 @@ const md5 = require('crypto-js/md5');
 const stsConfig = require('./.tmp/stsConfig.json');
 const pkg = require('../../package.json');
 const platform = require('platform');
-// const { callbackServer } = require('../../test/const');
 
 const crypto1 = require('crypto');
 const { Readable } = require('stream');
@@ -735,7 +732,7 @@ describe('browser', () => {
         await store.put(name, body, options);
         assert(false);
       } catch (error) {
-        assert(error.name === 'ConnectionTimeoutError');
+        assert.equal(error.name, 'ConnectionTimeoutError');
       }
     });
 
@@ -1168,8 +1165,7 @@ describe('browser', () => {
           await Promise.all(
             Array(5)
               .fill(1)
-              // eslint-disable-next-line no-unused-vars
-              .map(_ => store.initMultipartUpload(name))
+              .map(() => store.initMultipartUpload(name))
           )
         )
           .map(_ => _.uploadId)
@@ -1204,8 +1200,7 @@ describe('browser', () => {
           await Promise.all(
             Array(5)
               .fill(1)
-              // eslint-disable-next-line no-unused-vars
-              .map(_ => store.initMultipartUpload(fooName))
+              .map(() => store.initMultipartUpload(fooName))
           )
         )
           .map(_ => _.uploadId)
@@ -1216,8 +1211,7 @@ describe('browser', () => {
           await Promise.all(
             Array(5)
               .fill(5)
-              // eslint-disable-next-line no-unused-vars
-              .map(_ => store.initMultipartUpload(barName))
+              .map(() => store.initMultipartUpload(barName))
           )
         )
           .map(_ => _.uploadId)
@@ -1531,14 +1525,19 @@ describe('browser', () => {
         const init = await store.initMultipartUpload(name);
         const { uploadId } = init;
         const partSize = 100 * 1024;
-
-        const parts = await Promise.all(
-          Array(10)
-            .fill(1)
-            .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
-            )
-        );
+        const list = Array(10)
+          .fill(1)
+          .map((v, i) => {
+            return store.uploadPart(
+              name,
+              uploadId,
+              i + 1,
+              file,
+              i * partSize,
+              Math.min((i + 1) * partSize, 10 * 100 * 1024)
+            );
+          });
+        const parts = await Promise.all(list);
         const dones = parts.map((_, i) => ({
           number: i + 1,
           etag: _.etag
@@ -1725,7 +1724,7 @@ describe('browser', () => {
         const name = `${prefix}multipart/upload-file`;
         let progress = 0;
         try {
-          const result = await store.multipartUpload(name, file, {
+          await store.multipartUpload(name, file, {
             partSize: 14.56,
             progress() {
               progress++;
@@ -1745,6 +1744,7 @@ describe('browser', () => {
         } catch (e) {
           assert.ok(e.message.startsWith('partSize must not be smaller'));
         }
+        assert.equal(progress, 0);
       });
 
       it('should skip doneParts when re-upload mutilpart files', async () => {
@@ -2414,6 +2414,39 @@ describe('browser', () => {
         sourceBucketName: stsConfig.bucket
       });
       assert.equal(result.res.statusCode, 200);
+    });
+  });
+
+  describe('set headers', () => {
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+
+    afterEach(mm.restore);
+
+    it('Test whether the speed limit setting for sharded upload is effective', async () => {
+      const fileContent = Array(101 * 1024)
+        .fill('a')
+        .join('');
+      const fileName = new File([fileContent], 'multipart-upload-kms');
+      const objectKey = 'multipart-upload-file-set-header-browser-test';
+      const req = store.urllib.request;
+      let header;
+      mm(store.urllib, 'request', (url, args) => {
+        header = args.headers;
+        return req(url, args);
+      });
+      const limit = 645763;
+      await store.multipartUpload(objectKey, fileName, {
+        headers: {
+          'x-oss-server-side-encryption': 'KMS',
+          'x-oss-traffic-limit': limit
+        }
+      });
+
+      assert.equal(header['x-oss-traffic-limit'], 645763);
+      assert.equal(header['x-oss-server-side-encryption'], undefined);
     });
   });
 });
