@@ -3,7 +3,7 @@ import pkg from '../../browser/version';
 import { checkUserAgent } from './checkUserAgent';
 
 export const getUserAgent = () => {
-  const agent = (process && process.browser) ? 'js' : 'nodejs';
+  const agent = process && process.browser ? 'js' : 'nodejs';
   const sdk = `aliyun-sdk-${agent}/${pkg.version}`;
   let plat = platform.description;
   if (!plat && process) {
@@ -12,4 +12,3 @@ export const getUserAgent = () => {
 
   return checkUserAgent(`${sdk} ${plat}`);
 };
-

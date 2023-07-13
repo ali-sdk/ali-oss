@@ -10,4 +10,3 @@ export function getStrBytesCount(str) {
   }
   return bytesCount;
 }
-

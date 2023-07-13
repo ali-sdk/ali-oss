@@ -12,7 +12,7 @@ export function formatTag(obj) {
   obj = obj && isObject(obj) ? [obj] : obj || [];
 
   const tag = {};
-  obj.forEach((item) => {
+  obj.forEach(item => {
     tag[item.Key] = item.Value;
   });
 

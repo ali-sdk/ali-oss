@@ -1,4 +1,3 @@
-
 interface Config {
   exclude?: string[];
 }
@@ -10,7 +9,7 @@ export function formatObjKey(obj: any, type: FormatObjKeyType, options?: Config)
     return obj;
   }
 
-  let o:any;
+  let o: any;
   if (Array.isArray(obj)) {
     o = [];
     for (let i = 0; i < obj.length; i++) {
@@ -18,7 +17,7 @@ export function formatObjKey(obj: any, type: FormatObjKeyType, options?: Config)
     }
   } else {
     o = {};
-    Object.keys(obj).forEach((key) => {
+    Object.keys(obj).forEach(key => {
       o[handelFormat(key, type, options)] = formatObjKey(obj[key], type, options);
     });
   }
