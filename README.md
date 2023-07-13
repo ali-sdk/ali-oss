@@ -1856,7 +1856,7 @@ object:
   - headers {Object} response headers
   - size {Number} response size
   - rt {Number} request total use time (ms)
-- nextAppendPosition {String} the next position
+- nextAppendPosition {String} the next position（The browser needs to set cross domain and expose the x-oss-next-append-position header）
 
 example:
 
