@@ -132,7 +132,7 @@
     "end-or-error": "^1.0.1",
     "get-ready": "^1.0.0",
     "humanize-ms": "^1.2.0",
-    "is-type-of": "^1.0.0",
+    "is-type-of": "^1.4.0",
     "js-base64": "^2.5.2",
     "jstoxml": "^2.0.0",
     "merge-descriptors": "^1.0.1",
@@ -143,7 +143,7 @@
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
     "urllib": "^2.33.1",
-    "utility": "^1.8.0",
+    "utility": "^1.18.0",
     "xml2js": "^0.4.16"
   },
   "snyk": true,

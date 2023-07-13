@@ -6,7 +6,6 @@
  *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
  */
 
-
 /**
  * Module dependencies.
  */
@@ -40,53 +39,80 @@ exports.throws = async function (block, checkError) {
 };
 
 exports.sleep = function (ms) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve();
     }, ms);
   });
 };
 
-exports.cleanAllBucket = async function (store) {
+exports.cleanAllBucket = async (store, limit, isAll) => {
   const res = await store.listBuckets();
   const bucketList = [];
-  for (let i = 0; i < res.buckets.length; i++) {
-    if (!res.buckets[i].name.indexOf('ali-oss')) {
+
+  const interval = new Date().getTime() - 24 * 60 * 60 * 1000;
+  const calculateData = bucket => {
+    return parseInt(bucket.split('-').pop(), 10);
+  };
+
+  res.buckets.forEach(i => {
+    if (i.name.indexOf('ali-oss-') === 0 && isAll) {
       bucketList.push({
-        bucket: res.buckets[i].name,
-        region: res.buckets[i].region
+        bucket: i.name,
+        region: i.region
       });
     }
-  }
-  for (const bucketListItem of bucketList) {
-    const client = new OSS({
-      ...store.options,
-      bucket: bucketListItem.bucket,
-      region: bucketListItem.region
-    });
-    await this.cleanBucket(client, bucketListItem.bucket);
-  }
-};
+    // Only clean buckets 24 hours ago
+    if (i.name.indexOf('ali-oss-') === 0 && !isAll && calculateData(i.name) < interval) {
+      bucketList.push({
+        bucket: i.name,
+        region: i.region
+      });
+    }
+  });
 
+  const proDelete = async () => {
+    const list = bucketList.splice(0, limit);
+    const pros = [];
+    for (const bucketListItem of list) {
+      store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
+      const client = new OSS({
+        ...JSON.parse(JSON.stringify(store.options)),
+        bucket: bucketListItem.bucket,
+        region: bucketListItem.region,
+        maxSocket: 50
+      });
+      try {
+        const delRes = this.cleanBucket(client, bucketListItem.bucket);
+        pros.push(delRes);
+      } catch (e) {
+        console.error('cleanBucket-error', e.requestId);
+      }
+    }
+    await Promise.all(pros);
+    if (bucketList.length > 0) await proDelete();
+  };
+  await proDelete();
+};
 
 exports.cleanBucket = async function (store, bucket, multiversion) {
   store.useBucket(bucket);
   let result;
   const options = { versionId: null };
-
+  let isMs = multiversion;
   if (!multiversion) {
     try {
       await store.getBucketVersions({
         'max-keys': 1000
       });
-      multiversion = true;
+      isMs = true;
     } catch (error) {
-      multiversion = false;
+      isMs = false;
     }
   }
 
   async function handleDelete(deleteKey) {
-    if (multiversion) {
+    if (isMs) {
       result = await store.getBucketVersions({
         'max-keys': 1000
       });
@@ -96,11 +122,10 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
       });
     }
     result[deleteKey] = result[deleteKey] || [];
-
-    await Promise.all(result[deleteKey]
-      .map(_ => store.delete(_.name, multiversion ?
-        Object.assign({}, options, { versionId: _.versionId }) :
-        options)));
+    const list = result[deleteKey].map(_ => {
+      return store.delete(_.name, isMs ? Object.assign({}, options, { versionId: _.versionId }) : options);
+    });
+    await Promise.all(list);
   }
   await handleDelete('objects');
   if (multiversion) {
@@ -121,7 +146,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
 if (process && process.browser) {
   exports.prefix = `${platform.name}-${platform.version}-${new Date().getTime()}/`;
 } else {
-  exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`;// unique prefix add time timestamp
+  exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`; // unique prefix add time timestamp
   if (process && process.execPath.indexOf('iojs') >= 0) {
     exports.prefix = `iojs-${exports.prefix}`;
   }
@@ -133,7 +158,7 @@ exports.createTempFile = async function createTempFile(name, size) {
     fs.mkdirSync(tmpdir);
   }
 
-  await new Promise(((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     const rs = fs.createReadStream('/dev/urandom', {
       start: 0,
       end: size - 1
@@ -147,7 +172,7 @@ exports.createTempFile = async function createTempFile(name, size) {
         resolve(res);
       }
     });
-  }));
+  });
 
   return tmpdir + name;
 };
