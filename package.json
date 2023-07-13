@@ -108,6 +108,7 @@
     "mm": "^2.0.0",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",
+    "prettier": "^3.0.0",
     "promise-polyfill": "^6.0.2",
     "puppeteer": "^10.4.0",
     "request": "^2.88.0",
@@ -151,6 +152,10 @@
     "**/!(dist)/*": [
       "npm run detect-secrets --"
     ],
-    "lib/**/*.js": "eslint --cache --fix"
+    "**/*.{js,ts}": [
+      "eslint --cache --fix --ext .js,.ts",
+      "prettier --write",
+      "git add"
+    ]
   }
 }
