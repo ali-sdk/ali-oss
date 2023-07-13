@@ -5,7 +5,7 @@ const fs = require('fs');
 const app = express();
 const path = require('path');
 const conf = require('./config');
-// test
+
 app.get('/sts', (req, res) => {
   console.log(conf);
   let policy;
