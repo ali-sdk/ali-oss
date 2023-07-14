@@ -25,7 +25,7 @@ export function formatObjKey(obj: any, type: FormatObjKeyType, options?: Config)
 }
 
 function handelFormat(key: string, type: FormatObjKeyType, options?: Config) {
-  if (options && options.exclude?.includes(key)) return key;
+  if (options && options.exclude && options.exclude.includes(key)) return key;
   if (type === 'firstUpperCase') {
     key = key.replace(/^./, (_: string) => _.toUpperCase());
   } else if (type === 'firstLowerCase') {
