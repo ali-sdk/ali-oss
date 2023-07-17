@@ -148,7 +148,7 @@
     "stream-wormhole": "^1.0.4",
     "urllib": "^2.33.1",
     "utility": "^1.18.0",
-    "xml2js": "^0.4.16"
+    "xml2js": "^0.6.0"
   },
   "snyk": true,
   "lint-staged": {
