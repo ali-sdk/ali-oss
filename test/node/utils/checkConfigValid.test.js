@@ -14,16 +14,17 @@ describe('checkConfigValid()', () => {
     });
     it('should throw when endpoint includes invalid character', () => {
       const errorStr = '中~!@#$%^&*()+={}[]|\\";\',<>?';
-      errorStr.split('').map(_ => `test-a_b.${_}.com`).forEach(
-        str => {
+      errorStr
+        .split('')
+        .map(_ => `test-a_b.${_}.com`)
+        .forEach(str => {
           try {
             checkConfigValid(str, 'endpoint');
             assert(false);
           } catch (error) {
             assert(error.message.includes('endpoint'));
           }
-        }
-      );
+        });
     });
   });
 
@@ -39,17 +40,17 @@ describe('checkConfigValid()', () => {
     });
     it('should throw when region includes invalid character', () => {
       const errorStr = '中~!@#$%^&*()+={}[]|\\";\',<>?';
-      errorStr.split('').map(_ => `oss-${_}hangzhou`).forEach(
-        str => {
+      errorStr
+        .split('')
+        .map(_ => `oss-${_}hangzhou`)
+        .forEach(str => {
           try {
             checkConfigValid(str, 'region');
             assert(false);
           } catch (error) {
             assert(error.message.includes('region'));
           }
-        }
-      );
+        });
     });
   });
-
 });

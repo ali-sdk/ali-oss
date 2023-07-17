@@ -15,9 +15,9 @@ Thank you for reporting an issue.
 5. 扩展阅读：[如何向开源项目提交无法解答的问题](https://zhuanlan.zhihu.com/p/25795393)
 -->
 
-* **Browser Version or Node Version**:
-* **ali-oss Version**:
-* **Mini Showcase Repository**:
-* **Network Resoponse Header x-oss-request-id**:
+- **Browser Version or Node Version**:
+- **ali-oss Version**:
+- **Mini Showcase Repository**:
+- **Network Resoponse Header x-oss-request-id**:
 
 <!-- Enter your issue details below this comment. -->

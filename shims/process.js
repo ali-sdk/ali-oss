@@ -1,6 +1,6 @@
 var immediate = require('immediate');
-var process = module.exports = {};
-process.nextTick = immediate
+var process = (module.exports = {});
+process.nextTick = immediate;
 
 process.title = 'browser';
 process.browser = true;
@@ -18,12 +18,18 @@ process.removeAllListeners = noop;
 process.emit = noop;
 process.prependListener = noop;
 process.prependOnceListener = noop;
-process.listeners = function (name) { return [] }
+process.listeners = function (name) {
+  return [];
+};
 process.binding = function (name) {
   throw new Error('process.binding is not supported');
 };
-process.cwd = function () { return '/' };
+process.cwd = function () {
+  return '/';
+};
 process.chdir = function (dir) {
   throw new Error('process.chdir is not supported');
 };
-process.umask = function() { return 0; };
+process.umask = function () {
+  return 0;
+};

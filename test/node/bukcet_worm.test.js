@@ -70,11 +70,7 @@ describe('test/bucket.test.js', () => {
       it('should extend bucket worm', async () => {
         try {
           const { wormId, days } = await store.getBucketWorm(bucket);
-          await store.extendBucketWorm(
-            bucket,
-            wormId,
-            (days * 1 + 1).toString()
-          );
+          await store.extendBucketWorm(bucket, wormId, (days * 1 + 1).toString());
           const result = await store.getBucketWorm(bucket);
           assert(result.days - days === 1);
         } catch (error) {
@@ -83,5 +79,4 @@ describe('test/bucket.test.js', () => {
       });
     });
   });
-
 });

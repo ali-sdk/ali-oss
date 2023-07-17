@@ -4,4 +4,3 @@ export const checkBucketName = (name: string, createBucket = false): void => {
     throw new Error('The bucket must be conform to the specifications');
   }
 };
-

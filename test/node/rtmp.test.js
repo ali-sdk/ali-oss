@@ -70,11 +70,14 @@ describe('test/rtmp.test.js', () => {
       result = await store.deleteChannel(tempCid);
       assert.equal(result.res.status, 204);
 
-      await utils.throws(async () => {
-        await store.getChannel(tempCid);
-      }, (err) => {
-        assert.equal(err.status, 404);
-      });
+      await utils.throws(
+        async () => {
+          await store.getChannel(tempCid);
+        },
+        err => {
+          assert.equal(err.status, 404);
+        }
+      );
     });
   });
 
@@ -113,14 +116,22 @@ describe('test/rtmp.test.js', () => {
     before(async () => {
       channelNum = 10;
       channelPrefix = 'channel-list-';
-      await Promise.all(Array(channelNum).fill(1).map((_, i) => {
-        conf.Description = i;
-        return store.putChannel(channelPrefix + i, conf);
-      }));
+      await Promise.all(
+        Array(channelNum)
+          .fill(1)
+          .map((_, i) => {
+            conf.Description = i;
+            return store.putChannel(channelPrefix + i, conf);
+          })
+      );
     });
 
     after(async () => {
-      await Promise.all(Array(channelNum).fill(1).map((_, i) => store.deleteChannel(channelPrefix + i)));
+      await Promise.all(
+        Array(channelNum)
+          .fill(1)
+          .map((_, i) => store.deleteChannel(channelPrefix + i))
+      );
     });
 
     it('list channels using prefix/marker/max-keys', async () => {
