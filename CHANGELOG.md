@@ -4,1084 +4,986 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [6.17.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.17.0) (2022-01-27)
 
-
 ### Features
 
-* add browser useBucket api ([345b218](https://github.com/aliyun/oss-nodejs-sdk/commit/345b218c2fc4ec51cdb3a6a00faf6632970becf5))
-* add develop gitaction ([#1017](https://github.com/aliyun/oss-nodejs-sdk/issues/1017)) ([a303df9](https://github.com/aliyun/oss-nodejs-sdk/commit/a303df98eb9c8100fd9b6ae76d804c94773b6549)) ([#991](https://github.com/aliyun/oss-nodejs-sdk/issues/991)) ([5b8ef2d](https://github.com/aliyun/oss-nodejs-sdk/commit/5b8ef2d858de5b013f0af79c71bc274187f37e88))
-* add disabled md5 for browser to improve performance ([#946](https://github.com/aliyun/oss-nodejs-sdk/issues/946)) ([9213e42](https://github.com/aliyun/oss-nodejs-sdk/commit/9213e42e4bcd0662dabdfb71125983ed736eba63)), closes [#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943) [#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)
-* add maxSockets options ([e85e54f](https://github.com/aliyun/oss-nodejs-sdk/commit/e85e54f5526160976c5433c863b634e63a921568))
-* add signatureUrl refreshSTSToken and init refreshSTSToken ([df0384e](https://github.com/aliyun/oss-nodejs-sdk/commit/df0384e5e53fc35acf0ea4eac461def480f08900)) ([fb89dfe](https://github.com/aliyun/oss-nodejs-sdk/commit/fb89dfe329664b43566dc9087e31ed26d57c8d36)) ([f48af53](https://github.com/aliyun/oss-nodejs-sdk/commit/f48af5394e69d98fb5f1878825f1a900d38b31c9)) ([c26004a](https://github.com/aliyun/oss-nodejs-sdk/commit/c26004a329850b333f40796f80f36ee968d1241e))
+- add browser useBucket api ([345b218](https://github.com/aliyun/oss-nodejs-sdk/commit/345b218c2fc4ec51cdb3a6a00faf6632970becf5))
+- add develop gitaction ([#1017](https://github.com/aliyun/oss-nodejs-sdk/issues/1017)) ([a303df9](https://github.com/aliyun/oss-nodejs-sdk/commit/a303df98eb9c8100fd9b6ae76d804c94773b6549)) ([#991](https://github.com/aliyun/oss-nodejs-sdk/issues/991)) ([5b8ef2d](https://github.com/aliyun/oss-nodejs-sdk/commit/5b8ef2d858de5b013f0af79c71bc274187f37e88))
+- add disabled md5 for browser to improve performance ([#946](https://github.com/aliyun/oss-nodejs-sdk/issues/946)) ([9213e42](https://github.com/aliyun/oss-nodejs-sdk/commit/9213e42e4bcd0662dabdfb71125983ed736eba63)), closes [#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943) [#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)
+- add maxSockets options ([e85e54f](https://github.com/aliyun/oss-nodejs-sdk/commit/e85e54f5526160976c5433c863b634e63a921568))
+- add signatureUrl refreshSTSToken and init refreshSTSToken ([df0384e](https://github.com/aliyun/oss-nodejs-sdk/commit/df0384e5e53fc35acf0ea4eac461def480f08900)) ([fb89dfe](https://github.com/aliyun/oss-nodejs-sdk/commit/fb89dfe329664b43566dc9087e31ed26d57c8d36)) ([f48af53](https://github.com/aliyun/oss-nodejs-sdk/commit/f48af5394e69d98fb5f1878825f1a900d38b31c9)) ([c26004a](https://github.com/aliyun/oss-nodejs-sdk/commit/c26004a329850b333f40796f80f36ee968d1241e))
 
 ### Bug Fixes
 
-* fix list() and listV2() params and test case ([#1043](https://github.com/aliyun/oss-nodejs-sdk/issues/1043)) ([4fc3bd4](https://github.com/aliyun/oss-nodejs-sdk/commit/4fc3bd4f0a9777f2a80ba16aad72d11fa7e0de9a))
-* fix some test error and variable ([#1030](https://github.com/aliyun/oss-nodejs-sdk/issues/1030)) ([78ffb5d](https://github.com/aliyun/oss-nodejs-sdk/commit/78ffb5d999ff6c5b3e11406ec3954842ce39cfef))
-* node api use parallel ([#968](https://github.com/aliyun/oss-nodejs-sdk/issues/968)) ([6279ed0](https://github.com/aliyun/oss-nodejs-sdk/commit/6279ed0c9d10adcb9b83a4f3dec5a092b80979db))
-* put json data ([#959](https://github.com/aliyun/oss-nodejs-sdk/issues/959)) ([a0fc989](https://github.com/aliyun/oss-nodejs-sdk/commit/a0fc989f7c7c2b6bb177c41d3f29422bf0ab5211))
-* remove http header x-oss-user-agent in node api ([#987](https://github.com/aliyun/oss-nodejs-sdk/issues/987)) ([fe39041](https://github.com/aliyun/oss-nodejs-sdk/commit/fe39041168a455ad9dbc49bad5292af9f8ae2dad))
-* remove setSTSToken async function ([73f3330](https://github.com/aliyun/oss-nodejs-sdk/commit/73f33308287470420fd56ca4e165fffe3f5ee237))
-* spec compatible "browser" mapping ([#1018](https://github.com/aliyun/oss-nodejs-sdk/issues/1018)) ([c2f9b0e](https://github.com/aliyun/oss-nodejs-sdk/commit/c2f9b0eb89258f4bd76cc6b4308dd28a8b4bac6a))
-* **test:** test case optimized ([#1044](https://github.com/aliyun/oss-nodejs-sdk/issues/1044)) ([e8eed0a](https://github.com/aliyun/oss-nodejs-sdk/commit/e8eed0a19faa27fb54a2de6591b3ef582dcc9e07)) ([#1045](https://github.com/aliyun/oss-nodejs-sdk/issues/1045)) ([4f19fe6](https://github.com/aliyun/oss-nodejs-sdk/commit/4f19fe6fe417d8e107cb84d43b53f34f47feb427))
-* to add minify3 git action and some test error ([#1005](https://github.com/aliyun/oss-nodejs-sdk/issues/1005)) ([bec8845](https://github.com/aliyun/oss-nodejs-sdk/commit/bec88457daa011a19ff53da9e8f193f8a87e0616)), closes [#976](https://github.com/aliyun/oss-nodejs-sdk/issues/976) [#1002](https://github.com/aliyun/oss-nodejs-sdk/issues/1002) [#1006](https://github.com/aliyun/oss-nodejs-sdk/issues/1006)
-* to append method signatureNotMath ([#1033](https://github.com/aliyun/oss-nodejs-sdk/issues/1033)) ([2678db8](https://github.com/aliyun/oss-nodejs-sdk/commit/2678db8d15facdfe39dd0c660e1b5707d4db1097))
-* to remove travis ([8c40b22](https://github.com/aliyun/oss-nodejs-sdk/commit/8c40b22170df069ec2f239b43509c316a7a04a32))
-* use uglify3 ([#1004](https://github.com/aliyun/oss-nodejs-sdk/issues/1004)) ([36a9ef3](https://github.com/aliyun/oss-nodejs-sdk/commit/36a9ef301b8f3e9fac7b191ba2f967f64e7dbcaa))
+- fix list() and listV2() params and test case ([#1043](https://github.com/aliyun/oss-nodejs-sdk/issues/1043)) ([4fc3bd4](https://github.com/aliyun/oss-nodejs-sdk/commit/4fc3bd4f0a9777f2a80ba16aad72d11fa7e0de9a))
+- fix some test error and variable ([#1030](https://github.com/aliyun/oss-nodejs-sdk/issues/1030)) ([78ffb5d](https://github.com/aliyun/oss-nodejs-sdk/commit/78ffb5d999ff6c5b3e11406ec3954842ce39cfef))
+- node api use parallel ([#968](https://github.com/aliyun/oss-nodejs-sdk/issues/968)) ([6279ed0](https://github.com/aliyun/oss-nodejs-sdk/commit/6279ed0c9d10adcb9b83a4f3dec5a092b80979db))
+- put json data ([#959](https://github.com/aliyun/oss-nodejs-sdk/issues/959)) ([a0fc989](https://github.com/aliyun/oss-nodejs-sdk/commit/a0fc989f7c7c2b6bb177c41d3f29422bf0ab5211))
+- remove http header x-oss-user-agent in node api ([#987](https://github.com/aliyun/oss-nodejs-sdk/issues/987)) ([fe39041](https://github.com/aliyun/oss-nodejs-sdk/commit/fe39041168a455ad9dbc49bad5292af9f8ae2dad))
+- remove setSTSToken async function ([73f3330](https://github.com/aliyun/oss-nodejs-sdk/commit/73f33308287470420fd56ca4e165fffe3f5ee237))
+- spec compatible "browser" mapping ([#1018](https://github.com/aliyun/oss-nodejs-sdk/issues/1018)) ([c2f9b0e](https://github.com/aliyun/oss-nodejs-sdk/commit/c2f9b0eb89258f4bd76cc6b4308dd28a8b4bac6a))
+- **test:** test case optimized ([#1044](https://github.com/aliyun/oss-nodejs-sdk/issues/1044)) ([e8eed0a](https://github.com/aliyun/oss-nodejs-sdk/commit/e8eed0a19faa27fb54a2de6591b3ef582dcc9e07)) ([#1045](https://github.com/aliyun/oss-nodejs-sdk/issues/1045)) ([4f19fe6](https://github.com/aliyun/oss-nodejs-sdk/commit/4f19fe6fe417d8e107cb84d43b53f34f47feb427))
+- to add minify3 git action and some test error ([#1005](https://github.com/aliyun/oss-nodejs-sdk/issues/1005)) ([bec8845](https://github.com/aliyun/oss-nodejs-sdk/commit/bec88457daa011a19ff53da9e8f193f8a87e0616)), closes [#976](https://github.com/aliyun/oss-nodejs-sdk/issues/976) [#1002](https://github.com/aliyun/oss-nodejs-sdk/issues/1002) [#1006](https://github.com/aliyun/oss-nodejs-sdk/issues/1006)
+- to append method signatureNotMath ([#1033](https://github.com/aliyun/oss-nodejs-sdk/issues/1033)) ([2678db8](https://github.com/aliyun/oss-nodejs-sdk/commit/2678db8d15facdfe39dd0c660e1b5707d4db1097))
+- to remove travis ([8c40b22](https://github.com/aliyun/oss-nodejs-sdk/commit/8c40b22170df069ec2f239b43509c316a7a04a32))
+- use uglify3 ([#1004](https://github.com/aliyun/oss-nodejs-sdk/issues/1004)) ([36a9ef3](https://github.com/aliyun/oss-nodejs-sdk/commit/36a9ef301b8f3e9fac7b191ba2f967f64e7dbcaa))
 
 ## [6.16.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.16.0) (2021-07-12)
 
-
 ### Features
 
-* add disabled md5 ([#946](https://github.com/aliyun/oss-nodejs-sdk/issues/946)) ([9213e42](https://github.com/aliyun/oss-nodejs-sdk/commit/9213e42e4bcd0662dabdfb71125983ed736eba63)), closes [#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943) [#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)
-* refactor refresh token ([#955](https://github.com/aliyun/oss-nodejs-sdk/issues/955)) ([b0c6771](https://github.com/aliyun/oss-nodejs-sdk/commit/b0c6771c3c5f9455d0319480b6b4c651f9c6ea39))
-
+- add disabled md5 ([#946](https://github.com/aliyun/oss-nodejs-sdk/issues/946)) ([9213e42](https://github.com/aliyun/oss-nodejs-sdk/commit/9213e42e4bcd0662dabdfb71125983ed736eba63)), closes [#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943) [#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)
+- refactor refresh token ([#955](https://github.com/aliyun/oss-nodejs-sdk/issues/955)) ([b0c6771](https://github.com/aliyun/oss-nodejs-sdk/commit/b0c6771c3c5f9455d0319480b6b4c651f9c6ea39))
 
 ### Bug Fixes
 
-* node parallel ([#968](https://github.com/aliyun/oss-nodejs-sdk/issues/968)) ([6279ed0](https://github.com/aliyun/oss-nodejs-sdk/commit/6279ed0c9d10adcb9b83a4f3dec5a092b80979db))
-* put json data ([#959](https://github.com/aliyun/oss-nodejs-sdk/issues/959)) ([a0fc989](https://github.com/aliyun/oss-nodejs-sdk/commit/a0fc989f7c7c2b6bb177c41d3f29422bf0ab5211))
+- node parallel ([#968](https://github.com/aliyun/oss-nodejs-sdk/issues/968)) ([6279ed0](https://github.com/aliyun/oss-nodejs-sdk/commit/6279ed0c9d10adcb9b83a4f3dec5a092b80979db))
+- put json data ([#959](https://github.com/aliyun/oss-nodejs-sdk/issues/959)) ([a0fc989](https://github.com/aliyun/oss-nodejs-sdk/commit/a0fc989f7c7c2b6bb177c41d3f29422bf0ab5211))
 
 ## [6.15.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.14.1...v6.15.0) (2021-03-26)
 
-
 ### Features
 
-* provide a switch to generate upload file md5 ([#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)) ([2d65189](https://github.com/aliyun/oss-nodejs-sdk/commit/2d651896a93d4c2a67404479dce90ef01d79bb5a))
+- provide a switch to generate upload file md5 ([#945](https://github.com/aliyun/oss-nodejs-sdk/issues/945)) ([2d65189](https://github.com/aliyun/oss-nodejs-sdk/commit/2d651896a93d4c2a67404479dce90ef01d79bb5a))
 
 ### [6.14.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.14.0...v6.14.1) (2021-03-23)
 
-
 ### Bug Fixes
 
-* use arrayBuffer first, fall back to FileReader if it does not work ([#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943)) ([7c5fd52](https://github.com/aliyun/oss-nodejs-sdk/commit/7c5fd5234244cc81a7c18ce6dca0bafd5f429b1a))
+- use arrayBuffer first, fall back to FileReader if it does not work ([#943](https://github.com/aliyun/oss-nodejs-sdk/issues/943)) ([7c5fd52](https://github.com/aliyun/oss-nodejs-sdk/commit/7c5fd5234244cc81a7c18ce6dca0bafd5f429b1a))
 
 ## [6.14.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.2...v6.14.0) (2021-03-19)
 
-
 ### Features
 
-* add refreshSTSToken example ([#924](https://github.com/aliyun/oss-nodejs-sdk/issues/924)) ([f69d8ed](https://github.com/aliyun/oss-nodejs-sdk/commit/f69d8ed8dcebdefaee5acf540d1baef9866ffb26))
-
+- add refreshSTSToken example ([#924](https://github.com/aliyun/oss-nodejs-sdk/issues/924)) ([f69d8ed](https://github.com/aliyun/oss-nodejs-sdk/commit/f69d8ed8dcebdefaee5acf540d1baef9866ffb26))
 
 ### Bug Fixes
 
-* link in README.md ([#934](https://github.com/aliyun/oss-nodejs-sdk/issues/934)) ([1c676da](https://github.com/aliyun/oss-nodejs-sdk/commit/1c676da5a101dba16b5f355854c4fe38e818a87e))
+- link in README.md ([#934](https://github.com/aliyun/oss-nodejs-sdk/issues/934)) ([1c676da](https://github.com/aliyun/oss-nodejs-sdk/commit/1c676da5a101dba16b5f355854c4fe38e818a87e))
 
 ### [6.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.1...v6.13.2) (2021-01-21)
 
-
 ### Bug Fixes
 
-* not use `object spread operator` because of the low version of Node.js ([#921](https://github.com/aliyun/oss-nodejs-sdk/issues/921)) ([cd50f88](https://github.com/aliyun/oss-nodejs-sdk/commit/cd50f8857fdbbf78e5f7702514cdbe0806e332be))
+- not use `object spread operator` because of the low version of Node.js ([#921](https://github.com/aliyun/oss-nodejs-sdk/issues/921)) ([cd50f88](https://github.com/aliyun/oss-nodejs-sdk/commit/cd50f8857fdbbf78e5f7702514cdbe0806e332be))
 
 ### [6.13.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.13.0...v6.13.1) (2021-01-07)
 
-
 ### Bug Fixes
 
-* responseCacheControl in Node.js ([#919](https://github.com/aliyun/oss-nodejs-sdk/issues/919)) ([7ca7055](https://github.com/aliyun/oss-nodejs-sdk/commit/7ca7055a667604f3f653621b9f2974e28e9d2190))
+- responseCacheControl in Node.js ([#919](https://github.com/aliyun/oss-nodejs-sdk/issues/919)) ([7ca7055](https://github.com/aliyun/oss-nodejs-sdk/commit/7ca7055a667604f3f653621b9f2974e28e9d2190))
 
 ## [6.13.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.12.0...v6.13.0) (2021-01-06)
 
-
 ### Features
 
-* prevent caching for the get api ([#916](https://github.com/aliyun/oss-nodejs-sdk/issues/916)) ([f16fc50](https://github.com/aliyun/oss-nodejs-sdk/commit/f16fc50375a2ab54be46d076fe523a2147f1723a))
-
+- prevent caching for the get api ([#916](https://github.com/aliyun/oss-nodejs-sdk/issues/916)) ([f16fc50](https://github.com/aliyun/oss-nodejs-sdk/commit/f16fc50375a2ab54be46d076fe523a2147f1723a))
 
 ### Bug Fixes
 
-* **node:** deepCopy not working for large Buffers ([#909](https://github.com/aliyun/oss-nodejs-sdk/issues/909)) ([f52cd2e](https://github.com/aliyun/oss-nodejs-sdk/commit/f52cd2e5127730b99e452284f49cf63b04f81d40))
-* do not copy buffer in completeMultipartUpload ([#915](https://github.com/aliyun/oss-nodejs-sdk/issues/915)) ([c18f4ea](https://github.com/aliyun/oss-nodejs-sdk/commit/c18f4ea97bf3edc485d67f82783a737b285fcaeb))
-* merge conflict from master ([860cf32](https://github.com/aliyun/oss-nodejs-sdk/commit/860cf3225296ccdc5feedae031c7309a117fbdad))
-* should use encodeURIComponent insteadof encodeURI in copy api ([#914](https://github.com/aliyun/oss-nodejs-sdk/issues/914)) ([9dceb70](https://github.com/aliyun/oss-nodejs-sdk/commit/9dceb70a63bc47a748e21af97902952b2fe6e5e2))
-* the continuation-token params in listV2 ([#906](https://github.com/aliyun/oss-nodejs-sdk/issues/906)) ([df18401](https://github.com/aliyun/oss-nodejs-sdk/commit/df18401be7a83c8ec09aa86d6b279f486d3b79a7))
-* use lowercase header when calculating signatures ([#910](https://github.com/aliyun/oss-nodejs-sdk/issues/910)) ([8e1adfd](https://github.com/aliyun/oss-nodejs-sdk/commit/8e1adfdbdfb8b2ad40bc41cc15c86ab72e668044))
+- **node:** deepCopy not working for large Buffers ([#909](https://github.com/aliyun/oss-nodejs-sdk/issues/909)) ([f52cd2e](https://github.com/aliyun/oss-nodejs-sdk/commit/f52cd2e5127730b99e452284f49cf63b04f81d40))
+- do not copy buffer in completeMultipartUpload ([#915](https://github.com/aliyun/oss-nodejs-sdk/issues/915)) ([c18f4ea](https://github.com/aliyun/oss-nodejs-sdk/commit/c18f4ea97bf3edc485d67f82783a737b285fcaeb))
+- merge conflict from master ([860cf32](https://github.com/aliyun/oss-nodejs-sdk/commit/860cf3225296ccdc5feedae031c7309a117fbdad))
+- should use encodeURIComponent insteadof encodeURI in copy api ([#914](https://github.com/aliyun/oss-nodejs-sdk/issues/914)) ([9dceb70](https://github.com/aliyun/oss-nodejs-sdk/commit/9dceb70a63bc47a748e21af97902952b2fe6e5e2))
+- the continuation-token params in listV2 ([#906](https://github.com/aliyun/oss-nodejs-sdk/issues/906)) ([df18401](https://github.com/aliyun/oss-nodejs-sdk/commit/df18401be7a83c8ec09aa86d6b279f486d3b79a7))
+- use lowercase header when calculating signatures ([#910](https://github.com/aliyun/oss-nodejs-sdk/issues/910)) ([8e1adfd](https://github.com/aliyun/oss-nodejs-sdk/commit/8e1adfdbdfb8b2ad40bc41cc15c86ab72e668044))
 
 ## [6.12.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.2...v6.12.0) (2020-12-03)
 
-
 ### Features
 
-* auto set stsConfig when sts expires ([#856](https://github.com/aliyun/oss-nodejs-sdk/issues/856)) ([158d294](https://github.com/aliyun/oss-nodejs-sdk/commit/158d29473ec50eb43a8260f8d1e6039b0f35e4c3))
-* inventory ([#860](https://github.com/aliyun/oss-nodejs-sdk/issues/860)) ([6fa9f3f](https://github.com/aliyun/oss-nodejs-sdk/commit/6fa9f3f5c177ddc56b197997bc2fbbef44a0f57f))
-* listObjectsV2 ([#888](https://github.com/aliyun/oss-nodejs-sdk/issues/888)) ([f75ad23](https://github.com/aliyun/oss-nodejs-sdk/commit/f75ad239af8d60a16d8c00b736ee8b7a517d9152))
-* retry when net err or timeout ([#876](https://github.com/aliyun/oss-nodejs-sdk/issues/876)) ([db4969e](https://github.com/aliyun/oss-nodejs-sdk/commit/db4969ee1b14ac7898ed14b92c95f331e914ae07))
-* support non-english http header ([#842](https://github.com/aliyun/oss-nodejs-sdk/issues/842)) ([4b6f511](https://github.com/aliyun/oss-nodejs-sdk/commit/4b6f511df214d538664edd696071d164077d7101))
-* worm ([#857](https://github.com/aliyun/oss-nodejs-sdk/issues/857)) ([7435c56](https://github.com/aliyun/oss-nodejs-sdk/commit/7435c56503033c8748364b0fa1ba14ad1bed920e))
-
+- auto set stsConfig when sts expires ([#856](https://github.com/aliyun/oss-nodejs-sdk/issues/856)) ([158d294](https://github.com/aliyun/oss-nodejs-sdk/commit/158d29473ec50eb43a8260f8d1e6039b0f35e4c3))
+- inventory ([#860](https://github.com/aliyun/oss-nodejs-sdk/issues/860)) ([6fa9f3f](https://github.com/aliyun/oss-nodejs-sdk/commit/6fa9f3f5c177ddc56b197997bc2fbbef44a0f57f))
+- listObjectsV2 ([#888](https://github.com/aliyun/oss-nodejs-sdk/issues/888)) ([f75ad23](https://github.com/aliyun/oss-nodejs-sdk/commit/f75ad239af8d60a16d8c00b736ee8b7a517d9152))
+- retry when net err or timeout ([#876](https://github.com/aliyun/oss-nodejs-sdk/issues/876)) ([db4969e](https://github.com/aliyun/oss-nodejs-sdk/commit/db4969ee1b14ac7898ed14b92c95f331e914ae07))
+- support non-english http header ([#842](https://github.com/aliyun/oss-nodejs-sdk/issues/842)) ([4b6f511](https://github.com/aliyun/oss-nodejs-sdk/commit/4b6f511df214d538664edd696071d164077d7101))
+- worm ([#857](https://github.com/aliyun/oss-nodejs-sdk/issues/857)) ([7435c56](https://github.com/aliyun/oss-nodejs-sdk/commit/7435c56503033c8748364b0fa1ba14ad1bed920e))
 
 ### Bug Fixes
 
-* **browser:** checkpoint.file ([#795](https://github.com/aliyun/oss-nodejs-sdk/issues/795)) ([4e38050](https://github.com/aliyun/oss-nodejs-sdk/commit/4e38050b7ea7f3776ce3e5940a7a8dd897777224))
-* browser test and listV2 docs ([#901](https://github.com/aliyun/oss-nodejs-sdk/issues/901)) ([67f0e5f](https://github.com/aliyun/oss-nodejs-sdk/commit/67f0e5f879cf79c2ed42211949218c41e5c0163e))
-* cannot use ali-oss in webworker ([#823](https://github.com/aliyun/oss-nodejs-sdk/issues/823)) ([afb07f3](https://github.com/aliyun/oss-nodejs-sdk/commit/afb07f353c603ea7813150026811e8904bc6c806))
-* check region and endpoint for ssrf ([#874](https://github.com/aliyun/oss-nodejs-sdk/issues/874)) ([5457ecf](https://github.com/aliyun/oss-nodejs-sdk/commit/5457ecf58fa382606c57c4d18c430e5bbb20413c))
-* getBucketVersions should use NextKeyMarker property ([#896](https://github.com/aliyun/oss-nodejs-sdk/issues/896)) ([b9076d4](https://github.com/aliyun/oss-nodejs-sdk/commit/b9076d4cb0895ca7437fed55070a693a5acd7a5a))
-* host err which old image client request ([#869](https://github.com/aliyun/oss-nodejs-sdk/issues/869)) ([b7b2f1c](https://github.com/aliyun/oss-nodejs-sdk/commit/b7b2f1c89f87e509fa3c9329be9d8e64216bf5b4))
-* merge conflict [#726](https://github.com/aliyun/oss-nodejs-sdk/issues/726) ([#892](https://github.com/aliyun/oss-nodejs-sdk/issues/892)) ([6c77ecc](https://github.com/aliyun/oss-nodejs-sdk/commit/6c77ecc3373e4611553235ebb4af455cdce7b7d4))
-* use put insteadof putStream when calling multipartUpload to process small file in browser ([#890](https://github.com/aliyun/oss-nodejs-sdk/issues/890)) ([cdd9995](https://github.com/aliyun/oss-nodejs-sdk/commit/cdd999526335e278562a7d1bc88d9f107ed80a7d))
+- **browser:** checkpoint.file ([#795](https://github.com/aliyun/oss-nodejs-sdk/issues/795)) ([4e38050](https://github.com/aliyun/oss-nodejs-sdk/commit/4e38050b7ea7f3776ce3e5940a7a8dd897777224))
+- browser test and listV2 docs ([#901](https://github.com/aliyun/oss-nodejs-sdk/issues/901)) ([67f0e5f](https://github.com/aliyun/oss-nodejs-sdk/commit/67f0e5f879cf79c2ed42211949218c41e5c0163e))
+- cannot use ali-oss in webworker ([#823](https://github.com/aliyun/oss-nodejs-sdk/issues/823)) ([afb07f3](https://github.com/aliyun/oss-nodejs-sdk/commit/afb07f353c603ea7813150026811e8904bc6c806))
+- check region and endpoint for ssrf ([#874](https://github.com/aliyun/oss-nodejs-sdk/issues/874)) ([5457ecf](https://github.com/aliyun/oss-nodejs-sdk/commit/5457ecf58fa382606c57c4d18c430e5bbb20413c))
+- getBucketVersions should use NextKeyMarker property ([#896](https://github.com/aliyun/oss-nodejs-sdk/issues/896)) ([b9076d4](https://github.com/aliyun/oss-nodejs-sdk/commit/b9076d4cb0895ca7437fed55070a693a5acd7a5a))
+- host err which old image client request ([#869](https://github.com/aliyun/oss-nodejs-sdk/issues/869)) ([b7b2f1c](https://github.com/aliyun/oss-nodejs-sdk/commit/b7b2f1c89f87e509fa3c9329be9d8e64216bf5b4))
+- merge conflict [#726](https://github.com/aliyun/oss-nodejs-sdk/issues/726) ([#892](https://github.com/aliyun/oss-nodejs-sdk/issues/892)) ([6c77ecc](https://github.com/aliyun/oss-nodejs-sdk/commit/6c77ecc3373e4611553235ebb4af455cdce7b7d4))
+- use put insteadof putStream when calling multipartUpload to process small file in browser ([#890](https://github.com/aliyun/oss-nodejs-sdk/issues/890)) ([cdd9995](https://github.com/aliyun/oss-nodejs-sdk/commit/cdd999526335e278562a7d1bc88d9f107ed80a7d))
 
 ### [6.11.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.11.0...v6.11.2) (2020-10-10)
 
-
 ### Bug Fixes
 
-* **browser:** delete set header "User-Agent" ([#873](https://github.com/aliyun/oss-nodejs-sdk/issues/873)) ([b11c162](https://github.com/aliyun/oss-nodejs-sdk/commit/b11c162ed162c4a71788b88b78ba5ebeea70093a))
+- **browser:** delete set header "User-Agent" ([#873](https://github.com/aliyun/oss-nodejs-sdk/issues/873)) ([b11c162](https://github.com/aliyun/oss-nodejs-sdk/commit/b11c162ed162c4a71788b88b78ba5ebeea70093a))
 
 ## [6.11.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.10.0...v6.11.0) (2020-10-09)
 
-
 ### Features
 
-* multipartUpload support Node.JS Buffer ([#832](https://github.com/aliyun/oss-nodejs-sdk/issues/832)) ([3287cb9](https://github.com/aliyun/oss-nodejs-sdk/commit/3287cb9c01d3b4562d60d4ad80255d23a0acd701))
-* putBucket support set acl and dataRedundancyType ([#837](https://github.com/aliyun/oss-nodejs-sdk/issues/837)) ([8f8edbb](https://github.com/aliyun/oss-nodejs-sdk/commit/8f8edbb19929c5131334e40f883ba80461e80669))
-* support proxy ([#858](https://github.com/aliyun/oss-nodejs-sdk/issues/858)) ([ca287ba](https://github.com/aliyun/oss-nodejs-sdk/commit/ca287ba9605363cb17af88be800d6eb706b8b969))
-
+- multipartUpload support Node.JS Buffer ([#832](https://github.com/aliyun/oss-nodejs-sdk/issues/832)) ([3287cb9](https://github.com/aliyun/oss-nodejs-sdk/commit/3287cb9c01d3b4562d60d4ad80255d23a0acd701))
+- putBucket support set acl and dataRedundancyType ([#837](https://github.com/aliyun/oss-nodejs-sdk/issues/837)) ([8f8edbb](https://github.com/aliyun/oss-nodejs-sdk/commit/8f8edbb19929c5131334e40f883ba80461e80669))
+- support proxy ([#858](https://github.com/aliyun/oss-nodejs-sdk/issues/858)) ([ca287ba](https://github.com/aliyun/oss-nodejs-sdk/commit/ca287ba9605363cb17af88be800d6eb706b8b969))
 
 ### Bug Fixes
 
-* _getPartSize ([#846](https://github.com/aliyun/oss-nodejs-sdk/issues/846)) ([70f6329](https://github.com/aliyun/oss-nodejs-sdk/commit/70f6329e7a75bea2c68cb4bbd4bfdd13a09c3400))
-* copyObject set headers bug ([#850](https://github.com/aliyun/oss-nodejs-sdk/issues/850)) ([2624cc3](https://github.com/aliyun/oss-nodejs-sdk/commit/2624cc3e0de5417b42cde872b5ea9db6fc3b05e1))
-* IP does not support third-level domain ([#834](https://github.com/aliyun/oss-nodejs-sdk/issues/834)) ([1c26ec8](https://github.com/aliyun/oss-nodejs-sdk/commit/1c26ec817d16e5f0db6a0c19ddda63d8bd1e9fbc))
-* multipartupload task unhandle abort error ([#849](https://github.com/aliyun/oss-nodejs-sdk/issues/849)) ([8f9c61b](https://github.com/aliyun/oss-nodejs-sdk/commit/8f9c61b599b1b8098fbb6af37c9a17d70540c53d))
-* sts SignatureDoesNotMatch ([#847](https://github.com/aliyun/oss-nodejs-sdk/issues/847)) ([009c0b2](https://github.com/aliyun/oss-nodejs-sdk/commit/009c0b2d18cbca9ee9db6aa4e4436def11d345ba))
-* Support empty prefix in putBucketLifecycle ([#835](https://github.com/aliyun/oss-nodejs-sdk/issues/835)) ([7788394](https://github.com/aliyun/oss-nodejs-sdk/commit/778839471cbd7909d87a0b5cb1eeb4fc4716b4e6))
-* throw error when put path is not file ([#838](https://github.com/aliyun/oss-nodejs-sdk/issues/838)) ([9033453](https://github.com/aliyun/oss-nodejs-sdk/commit/90334538b38a8fda67fce906bd2f63b83d02a393))
-* **browser:** presets dont support ie10 ([#861](https://github.com/aliyun/oss-nodejs-sdk/issues/861)) ([28dd95d](https://github.com/aliyun/oss-nodejs-sdk/commit/28dd95d08f82d9298c4964cf071144c68f3363aa))
+- \_getPartSize ([#846](https://github.com/aliyun/oss-nodejs-sdk/issues/846)) ([70f6329](https://github.com/aliyun/oss-nodejs-sdk/commit/70f6329e7a75bea2c68cb4bbd4bfdd13a09c3400))
+- copyObject set headers bug ([#850](https://github.com/aliyun/oss-nodejs-sdk/issues/850)) ([2624cc3](https://github.com/aliyun/oss-nodejs-sdk/commit/2624cc3e0de5417b42cde872b5ea9db6fc3b05e1))
+- IP does not support third-level domain ([#834](https://github.com/aliyun/oss-nodejs-sdk/issues/834)) ([1c26ec8](https://github.com/aliyun/oss-nodejs-sdk/commit/1c26ec817d16e5f0db6a0c19ddda63d8bd1e9fbc))
+- multipartupload task unhandle abort error ([#849](https://github.com/aliyun/oss-nodejs-sdk/issues/849)) ([8f9c61b](https://github.com/aliyun/oss-nodejs-sdk/commit/8f9c61b599b1b8098fbb6af37c9a17d70540c53d))
+- sts SignatureDoesNotMatch ([#847](https://github.com/aliyun/oss-nodejs-sdk/issues/847)) ([009c0b2](https://github.com/aliyun/oss-nodejs-sdk/commit/009c0b2d18cbca9ee9db6aa4e4436def11d345ba))
+- Support empty prefix in putBucketLifecycle ([#835](https://github.com/aliyun/oss-nodejs-sdk/issues/835)) ([7788394](https://github.com/aliyun/oss-nodejs-sdk/commit/778839471cbd7909d87a0b5cb1eeb4fc4716b4e6))
+- throw error when put path is not file ([#838](https://github.com/aliyun/oss-nodejs-sdk/issues/838)) ([9033453](https://github.com/aliyun/oss-nodejs-sdk/commit/90334538b38a8fda67fce906bd2f63b83d02a393))
+- **browser:** presets dont support ie10 ([#861](https://github.com/aliyun/oss-nodejs-sdk/issues/861)) ([28dd95d](https://github.com/aliyun/oss-nodejs-sdk/commit/28dd95d08f82d9298c4964cf071144c68f3363aa))
 
 ## [6.10.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.9.0...v6.10.0) (2020-07-14)
 
-
 ### Features
 
-* add async task ([#818](https://github.com/aliyun/oss-nodejs-sdk/issues/818)) ([8d27f24](https://github.com/aliyun/oss-nodejs-sdk/commit/8d27f245f6340291b801613b9c23c3162039c18d)), closes [#810](https://github.com/aliyun/oss-nodejs-sdk/issues/810) [#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814) [#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)
-* add typescript support ([#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814)) ([8ef7528](https://github.com/aliyun/oss-nodejs-sdk/commit/8ef7528d4d39ef641ed2e6998a7dd9ce74a3b57c))
-* asyncFetch ([#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)) ([bbe2ded](https://github.com/aliyun/oss-nodejs-sdk/commit/bbe2dedb3ff92fa2234f567b07bed3da04946515))
-* listBucket support search by tagging ([#819](https://github.com/aliyun/oss-nodejs-sdk/issues/819)) ([4b8edf6](https://github.com/aliyun/oss-nodejs-sdk/commit/4b8edf6b9cdc2e46d438847a3894d4a090e56a55))
-
+- add async task ([#818](https://github.com/aliyun/oss-nodejs-sdk/issues/818)) ([8d27f24](https://github.com/aliyun/oss-nodejs-sdk/commit/8d27f245f6340291b801613b9c23c3162039c18d)), closes [#810](https://github.com/aliyun/oss-nodejs-sdk/issues/810) [#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814) [#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)
+- add typescript support ([#814](https://github.com/aliyun/oss-nodejs-sdk/issues/814)) ([8ef7528](https://github.com/aliyun/oss-nodejs-sdk/commit/8ef7528d4d39ef641ed2e6998a7dd9ce74a3b57c))
+- asyncFetch ([#817](https://github.com/aliyun/oss-nodejs-sdk/issues/817)) ([bbe2ded](https://github.com/aliyun/oss-nodejs-sdk/commit/bbe2dedb3ff92fa2234f567b07bed3da04946515))
+- listBucket support search by tagging ([#819](https://github.com/aliyun/oss-nodejs-sdk/issues/819)) ([4b8edf6](https://github.com/aliyun/oss-nodejs-sdk/commit/4b8edf6b9cdc2e46d438847a3894d4a090e56a55))
 
 ### Bug Fixes
 
-* **browser:** put unhandle non-RequestTimeTooSkewed error ([#825](https://github.com/aliyun/oss-nodejs-sdk/issues/825)) ([87dd7d6](https://github.com/aliyun/oss-nodejs-sdk/commit/87dd7d6ff964fceae503707ba1bbdb309ac1c033))
-* crypto each exports, close [#473](https://github.com/aliyun/oss-nodejs-sdk/issues/473) ([#830](https://github.com/aliyun/oss-nodejs-sdk/issues/830)) ([1cf7231](https://github.com/aliyun/oss-nodejs-sdk/commit/1cf7231488c21c5fdc9f1c039379d924669df6a8))
-* WebFileReadStream no throw error when filereader onerror ([#824](https://github.com/aliyun/oss-nodejs-sdk/issues/824)) ([d4977bf](https://github.com/aliyun/oss-nodejs-sdk/commit/d4977bf52858b83fac11f65b2c348180b457a5be))
+- **browser:** put unhandle non-RequestTimeTooSkewed error ([#825](https://github.com/aliyun/oss-nodejs-sdk/issues/825)) ([87dd7d6](https://github.com/aliyun/oss-nodejs-sdk/commit/87dd7d6ff964fceae503707ba1bbdb309ac1c033))
+- crypto each exports, close [#473](https://github.com/aliyun/oss-nodejs-sdk/issues/473) ([#830](https://github.com/aliyun/oss-nodejs-sdk/issues/830)) ([1cf7231](https://github.com/aliyun/oss-nodejs-sdk/commit/1cf7231488c21c5fdc9f1c039379d924669df6a8))
+- WebFileReadStream no throw error when filereader onerror ([#824](https://github.com/aliyun/oss-nodejs-sdk/issues/824)) ([d4977bf](https://github.com/aliyun/oss-nodejs-sdk/commit/d4977bf52858b83fac11f65b2c348180b457a5be))
 
 <a name="6.9.0"></a>
+
 # [6.9.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.8.0...v6.9.0) (2020-06-05)
 
-
 ### Bug Fixes
 
-* _unSupportBrowserTip ([#755](https://github.com/aliyun/oss-nodejs-sdk/issues/755)) ([8ed3228](https://github.com/aliyun/oss-nodejs-sdk/commit/8ed3228))
-* add CORS for server-side-encryption ([449f908](https://github.com/aliyun/oss-nodejs-sdk/commit/449f908))
-* add putSymlink getSymlink deleteMulti  getObjectMeta  for browser ([#786](https://github.com/aliyun/oss-nodejs-sdk/issues/786)) ([807c7e1](https://github.com/aliyun/oss-nodejs-sdk/commit/807c7e1))
-* add successStatus ([#762](https://github.com/aliyun/oss-nodejs-sdk/issues/762)) ([0ef0fe2](https://github.com/aliyun/oss-nodejs-sdk/commit/0ef0fe2))
-* browser端,去除没有使用的 sha256.js 文件 ([#780](https://github.com/aliyun/oss-nodejs-sdk/issues/780)) ([d721265](https://github.com/aliyun/oss-nodejs-sdk/commit/d721265))
-* checkBucketName bug ([#749](https://github.com/aliyun/oss-nodejs-sdk/issues/749)) ([67275bd](https://github.com/aliyun/oss-nodejs-sdk/commit/67275bd))
-* checkBucketName bug ([#763](https://github.com/aliyun/oss-nodejs-sdk/issues/763)) ([0a3c64c](https://github.com/aliyun/oss-nodejs-sdk/commit/0a3c64c))
-* delete unless code and delete invalid Content-Type ([#805](https://github.com/aliyun/oss-nodejs-sdk/issues/805)) ([72f55bb](https://github.com/aliyun/oss-nodejs-sdk/commit/72f55bb))
-* getBucketVersions result has no prefixes ([#799](https://github.com/aliyun/oss-nodejs-sdk/issues/799)) ([390b449](https://github.com/aliyun/oss-nodejs-sdk/commit/390b449))
-* proto.put TypeError text ([#771](https://github.com/aliyun/oss-nodejs-sdk/issues/771)) ([ffed08c](https://github.com/aliyun/oss-nodejs-sdk/commit/ffed08c))
-* putBucketWebsite testting ([#785](https://github.com/aliyun/oss-nodejs-sdk/issues/785)) ([7a11eda](https://github.com/aliyun/oss-nodejs-sdk/commit/7a11eda))
-* putStream can not close request when stream destroyed ([#782](https://github.com/aliyun/oss-nodejs-sdk/issues/782)) ([c7ceedd](https://github.com/aliyun/oss-nodejs-sdk/commit/c7ceedd))
-
+- \_unSupportBrowserTip ([#755](https://github.com/aliyun/oss-nodejs-sdk/issues/755)) ([8ed3228](https://github.com/aliyun/oss-nodejs-sdk/commit/8ed3228))
+- add CORS for server-side-encryption ([449f908](https://github.com/aliyun/oss-nodejs-sdk/commit/449f908))
+- add putSymlink getSymlink deleteMulti getObjectMeta for browser ([#786](https://github.com/aliyun/oss-nodejs-sdk/issues/786)) ([807c7e1](https://github.com/aliyun/oss-nodejs-sdk/commit/807c7e1))
+- add successStatus ([#762](https://github.com/aliyun/oss-nodejs-sdk/issues/762)) ([0ef0fe2](https://github.com/aliyun/oss-nodejs-sdk/commit/0ef0fe2))
+- browser端,去除没有使用的 sha256.js 文件 ([#780](https://github.com/aliyun/oss-nodejs-sdk/issues/780)) ([d721265](https://github.com/aliyun/oss-nodejs-sdk/commit/d721265))
+- checkBucketName bug ([#749](https://github.com/aliyun/oss-nodejs-sdk/issues/749)) ([67275bd](https://github.com/aliyun/oss-nodejs-sdk/commit/67275bd))
+- checkBucketName bug ([#763](https://github.com/aliyun/oss-nodejs-sdk/issues/763)) ([0a3c64c](https://github.com/aliyun/oss-nodejs-sdk/commit/0a3c64c))
+- delete unless code and delete invalid Content-Type ([#805](https://github.com/aliyun/oss-nodejs-sdk/issues/805)) ([72f55bb](https://github.com/aliyun/oss-nodejs-sdk/commit/72f55bb))
+- getBucketVersions result has no prefixes ([#799](https://github.com/aliyun/oss-nodejs-sdk/issues/799)) ([390b449](https://github.com/aliyun/oss-nodejs-sdk/commit/390b449))
+- proto.put TypeError text ([#771](https://github.com/aliyun/oss-nodejs-sdk/issues/771)) ([ffed08c](https://github.com/aliyun/oss-nodejs-sdk/commit/ffed08c))
+- putBucketWebsite testting ([#785](https://github.com/aliyun/oss-nodejs-sdk/issues/785)) ([7a11eda](https://github.com/aliyun/oss-nodejs-sdk/commit/7a11eda))
+- putStream can not close request when stream destroyed ([#782](https://github.com/aliyun/oss-nodejs-sdk/issues/782)) ([c7ceedd](https://github.com/aliyun/oss-nodejs-sdk/commit/c7ceedd))
 
 ### Features
 
-* **node:** bucket policy ([#751](https://github.com/aliyun/oss-nodejs-sdk/issues/751)) ([2d2b33a](https://github.com/aliyun/oss-nodejs-sdk/commit/2d2b33a))
-* **node:** uploadPart support file stream ([#798](https://github.com/aliyun/oss-nodejs-sdk/issues/798)) ([50321d4](https://github.com/aliyun/oss-nodejs-sdk/commit/50321d4))
-* browser端,将 is-type-of 包的依赖处理为 shim ([#801](https://github.com/aliyun/oss-nodejs-sdk/issues/801)) ([6f4ae51](https://github.com/aliyun/oss-nodejs-sdk/commit/6f4ae51))
-* image processing ([#744](https://github.com/aliyun/oss-nodejs-sdk/issues/744)) ([02d59da](https://github.com/aliyun/oss-nodejs-sdk/commit/02d59da)), closes [#676](https://github.com/aliyun/oss-nodejs-sdk/issues/676)
-* multiversion ([#750](https://github.com/aliyun/oss-nodejs-sdk/issues/750)) ([9e8bb20](https://github.com/aliyun/oss-nodejs-sdk/commit/9e8bb20))
-* putBucketWebsite support new parameter ([#736](https://github.com/aliyun/oss-nodejs-sdk/issues/736)) ([e1cb438](https://github.com/aliyun/oss-nodejs-sdk/commit/e1cb438))
-* signatureUrl support trafficLimit ([#756](https://github.com/aliyun/oss-nodejs-sdk/issues/756)) ([a57315f](https://github.com/aliyun/oss-nodejs-sdk/commit/a57315f))
-* support for the latest putBucketLifecycle api features ([#757](https://github.com/aliyun/oss-nodejs-sdk/issues/757)) ([17c2984](https://github.com/aliyun/oss-nodejs-sdk/commit/17c2984))
-* update mime, use mime/lite replace mime and use shims/debug.js replace debug in browser ([#802](https://github.com/aliyun/oss-nodejs-sdk/issues/802)) ([b4d1c56](https://github.com/aliyun/oss-nodejs-sdk/commit/b4d1c56))
-
-
+- **node:** bucket policy ([#751](https://github.com/aliyun/oss-nodejs-sdk/issues/751)) ([2d2b33a](https://github.com/aliyun/oss-nodejs-sdk/commit/2d2b33a))
+- **node:** uploadPart support file stream ([#798](https://github.com/aliyun/oss-nodejs-sdk/issues/798)) ([50321d4](https://github.com/aliyun/oss-nodejs-sdk/commit/50321d4))
+- browser端,将 is-type-of 包的依赖处理为 shim ([#801](https://github.com/aliyun/oss-nodejs-sdk/issues/801)) ([6f4ae51](https://github.com/aliyun/oss-nodejs-sdk/commit/6f4ae51))
+- image processing ([#744](https://github.com/aliyun/oss-nodejs-sdk/issues/744)) ([02d59da](https://github.com/aliyun/oss-nodejs-sdk/commit/02d59da)), closes [#676](https://github.com/aliyun/oss-nodejs-sdk/issues/676)
+- multiversion ([#750](https://github.com/aliyun/oss-nodejs-sdk/issues/750)) ([9e8bb20](https://github.com/aliyun/oss-nodejs-sdk/commit/9e8bb20))
+- putBucketWebsite support new parameter ([#736](https://github.com/aliyun/oss-nodejs-sdk/issues/736)) ([e1cb438](https://github.com/aliyun/oss-nodejs-sdk/commit/e1cb438))
+- signatureUrl support trafficLimit ([#756](https://github.com/aliyun/oss-nodejs-sdk/issues/756)) ([a57315f](https://github.com/aliyun/oss-nodejs-sdk/commit/a57315f))
+- support for the latest putBucketLifecycle api features ([#757](https://github.com/aliyun/oss-nodejs-sdk/issues/757)) ([17c2984](https://github.com/aliyun/oss-nodejs-sdk/commit/17c2984))
+- update mime, use mime/lite replace mime and use shims/debug.js replace debug in browser ([#802](https://github.com/aliyun/oss-nodejs-sdk/issues/802)) ([b4d1c56](https://github.com/aliyun/oss-nodejs-sdk/commit/b4d1c56))
 
 <a name="6.8.0"></a>
+
 # [6.8.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.5.0...v6.8.0) (2020-05-12)
 
-
 ### Bug Fixes
-* **browser:** remove proto._statFile ([#770](https://github.com/aliyun/oss-nodejs-sdk/issues/770
-)) ([fed2ba7
-](https://github.com/aliyun/oss-nodejs-sdk/commit/fed2ba7))
-* **browser:** remove sha256.js
+
+- **browser:** remove proto.\_statFile ([#770](https://github.com/aliyun/oss-nodejs-sdk/issues/770)) ([fed2ba7
+  ](https://github.com/aliyun/oss-nodejs-sdk/commit/fed2ba7))
+- **browser:** remove sha256.js
 
 ### Features
-* support multiversion api
 
+- support multiversion api
 
 <a name="6.7.0"></a>
+
 # [6.7.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.5.0...v6.7.0) (2020-04-17)
 
-
 ### Bug Fixes
 
-* _signatureForURL bug ([#772](https://github.com/aliyun/oss-nodejs-sdk/issues/772)) ([cef1840](https://github.com/aliyun/oss-nodejs-sdk/commit/cef1840))
-
-
+- \_signatureForURL bug ([#772](https://github.com/aliyun/oss-nodejs-sdk/issues/772)) ([cef1840](https://github.com/aliyun/oss-nodejs-sdk/commit/cef1840))
 
 <a name="6.6.0"></a>
+
 # [6.6.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.5.0...v6.6.0) (2020-04-07)
 
-
 ### Bug Fixes
 
-* _unSupportBrowserTip ([#755](https://github.com/aliyun/oss-nodejs-sdk/issues/755)) ([8ed3228](https://github.com/aliyun/oss-nodejs-sdk/commit/8ed3228))
-* add successStatus ([#762](https://github.com/aliyun/oss-nodejs-sdk/issues/762)) ([0ef0fe2](https://github.com/aliyun/oss-nodejs-sdk/commit/0ef0fe2))
-* checkBucketName bug ([#763](https://github.com/aliyun/oss-nodejs-sdk/issues/763)) ([0a3c64c](https://github.com/aliyun/oss-nodejs-sdk/commit/0a3c64c))
-
+- \_unSupportBrowserTip ([#755](https://github.com/aliyun/oss-nodejs-sdk/issues/755)) ([8ed3228](https://github.com/aliyun/oss-nodejs-sdk/commit/8ed3228))
+- add successStatus ([#762](https://github.com/aliyun/oss-nodejs-sdk/issues/762)) ([0ef0fe2](https://github.com/aliyun/oss-nodejs-sdk/commit/0ef0fe2))
+- checkBucketName bug ([#763](https://github.com/aliyun/oss-nodejs-sdk/issues/763)) ([0a3c64c](https://github.com/aliyun/oss-nodejs-sdk/commit/0a3c64c))
 
 ### Features
 
-* add CORS for server-side-encryption ([449f908](https://github.com/aliyun/oss-nodejs-sdk/commit/449f908))
-* image processing ([#744](https://github.com/aliyun/oss-nodejs-sdk/issues/744)) ([02d59da](https://github.com/aliyun/oss-nodejs-sdk/commit/02d59da)), closes [#676](https://github.com/aliyun/oss-nodejs-sdk/issues/676)
-* putBucketWebsite support new parameter ([#736](https://github.com/aliyun/oss-nodejs-sdk/issues/736)) ([e1cb438](https://github.com/aliyun/oss-nodejs-sdk/commit/e1cb438))
-* signatureUrl support trafficLimit ([#756](https://github.com/aliyun/oss-nodejs-sdk/issues/756)) ([a57315f](https://github.com/aliyun/oss-nodejs-sdk/commit/a57315f))
-* support for the latest putBucketLifecycle api features ([#757](https://github.com/aliyun/oss-nodejs-sdk/issues/757)) ([17c2984](https://github.com/aliyun/oss-nodejs-sdk/commit/17c2984))
-* **node:** bucket policy ([#751](https://github.com/aliyun/oss-nodejs-sdk/issues/751)) ([2d2b33a](https://github.com/aliyun/oss-nodejs-sdk/commit/2d2b33a))
-
-
+- add CORS for server-side-encryption ([449f908](https://github.com/aliyun/oss-nodejs-sdk/commit/449f908))
+- image processing ([#744](https://github.com/aliyun/oss-nodejs-sdk/issues/744)) ([02d59da](https://github.com/aliyun/oss-nodejs-sdk/commit/02d59da)), closes [#676](https://github.com/aliyun/oss-nodejs-sdk/issues/676)
+- putBucketWebsite support new parameter ([#736](https://github.com/aliyun/oss-nodejs-sdk/issues/736)) ([e1cb438](https://github.com/aliyun/oss-nodejs-sdk/commit/e1cb438))
+- signatureUrl support trafficLimit ([#756](https://github.com/aliyun/oss-nodejs-sdk/issues/756)) ([a57315f](https://github.com/aliyun/oss-nodejs-sdk/commit/a57315f))
+- support for the latest putBucketLifecycle api features ([#757](https://github.com/aliyun/oss-nodejs-sdk/issues/757)) ([17c2984](https://github.com/aliyun/oss-nodejs-sdk/commit/17c2984))
+- **node:** bucket policy ([#751](https://github.com/aliyun/oss-nodejs-sdk/issues/751)) ([2d2b33a](https://github.com/aliyun/oss-nodejs-sdk/commit/2d2b33a))
 
 <a name="6.5.0"></a>
+
 # [6.5.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.4.0...v6.5.0) (2020-01-16)
 
-
 ### Bug Fixes
 
-* bucket encryption test ([#721](https://github.com/aliyun/oss-nodejs-sdk/issues/721)) ([a7d4904](https://github.com/aliyun/oss-nodejs-sdk/commit/a7d4904))
-* remove completeMultipartUpload encryption header ([#718](https://github.com/aliyun/oss-nodejs-sdk/issues/718)) ([0ed0d57](https://github.com/aliyun/oss-nodejs-sdk/commit/0ed0d57)), closes [#715](https://github.com/aliyun/oss-nodejs-sdk/issues/715)
-* when value is Number,Buffer.alloc replace Buffer.from ([#719](https://github.com/aliyun/oss-nodejs-sdk/issues/719)) ([4e137d4](https://github.com/aliyun/oss-nodejs-sdk/commit/4e137d4))
-
+- bucket encryption test ([#721](https://github.com/aliyun/oss-nodejs-sdk/issues/721)) ([a7d4904](https://github.com/aliyun/oss-nodejs-sdk/commit/a7d4904))
+- remove completeMultipartUpload encryption header ([#718](https://github.com/aliyun/oss-nodejs-sdk/issues/718)) ([0ed0d57](https://github.com/aliyun/oss-nodejs-sdk/commit/0ed0d57)), closes [#715](https://github.com/aliyun/oss-nodejs-sdk/issues/715)
+- when value is Number,Buffer.alloc replace Buffer.from ([#719](https://github.com/aliyun/oss-nodejs-sdk/issues/719)) ([4e137d4](https://github.com/aliyun/oss-nodejs-sdk/commit/4e137d4))
 
 ### Features
 
-*  add tip for exposing headers etags ([#725](https://github.com/aliyun/oss-nodejs-sdk/issues/725)) ([9eb368a](https://github.com/aliyun/oss-nodejs-sdk/commit/9eb368a))
-* bucket severside encryption ([#707](https://github.com/aliyun/oss-nodejs-sdk/issues/707)) ([68be73e](https://github.com/aliyun/oss-nodejs-sdk/commit/68be73e))
-* support SecondLevelDomain ([#729](https://github.com/aliyun/oss-nodejs-sdk/issues/729)) ([1580167](https://github.com/aliyun/oss-nodejs-sdk/commit/1580167))
-* support tags for bucket and object ([#734](https://github.com/aliyun/oss-nodejs-sdk/issues/734)) ([0daa5ae](https://github.com/aliyun/oss-nodejs-sdk/commit/0daa5ae)), closes [#663](https://github.com/aliyun/oss-nodejs-sdk/issues/663)
-* support uploads directly with signature ([#731](https://github.com/aliyun/oss-nodejs-sdk/issues/731)) ([e6b4ffe](https://github.com/aliyun/oss-nodejs-sdk/commit/e6b4ffe))
-
-
+- add tip for exposing headers etags ([#725](https://github.com/aliyun/oss-nodejs-sdk/issues/725)) ([9eb368a](https://github.com/aliyun/oss-nodejs-sdk/commit/9eb368a))
+- bucket severside encryption ([#707](https://github.com/aliyun/oss-nodejs-sdk/issues/707)) ([68be73e](https://github.com/aliyun/oss-nodejs-sdk/commit/68be73e))
+- support SecondLevelDomain ([#729](https://github.com/aliyun/oss-nodejs-sdk/issues/729)) ([1580167](https://github.com/aliyun/oss-nodejs-sdk/commit/1580167))
+- support tags for bucket and object ([#734](https://github.com/aliyun/oss-nodejs-sdk/issues/734)) ([0daa5ae](https://github.com/aliyun/oss-nodejs-sdk/commit/0daa5ae)), closes [#663](https://github.com/aliyun/oss-nodejs-sdk/issues/663)
+- support uploads directly with signature ([#731](https://github.com/aliyun/oss-nodejs-sdk/issues/731)) ([e6b4ffe](https://github.com/aliyun/oss-nodejs-sdk/commit/e6b4ffe))
 
 <a name="6.4.0"></a>
+
 # [6.4.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.3.1...v6.4.0) (2019-12-19)
 
-
 ### Features
 
-* **browser:** warnning when browser is not support ([#703](https://github.com/aliyun/oss-nodejs-sdk/issues/703)) ([bd99280](https://github.com/aliyun/oss-nodejs-sdk/commit/bd99280))
-* checkBucketName in setBucket/initOption/useBucket ([#709](https://github.com/aliyun/oss-nodejs-sdk/issues/709)) ([162dfb5](https://github.com/aliyun/oss-nodejs-sdk/commit/162dfb5))
-* multipartupload support 'x-oss-server-side-encryption'
-* add bucket severside encryption
-
-
+- **browser:** warnning when browser is not support ([#703](https://github.com/aliyun/oss-nodejs-sdk/issues/703)) ([bd99280](https://github.com/aliyun/oss-nodejs-sdk/commit/bd99280))
+- checkBucketName in setBucket/initOption/useBucket ([#709](https://github.com/aliyun/oss-nodejs-sdk/issues/709)) ([162dfb5](https://github.com/aliyun/oss-nodejs-sdk/commit/162dfb5))
+- multipartupload support 'x-oss-server-side-encryption'
+- add bucket severside encryption
 
 <a name="6.3.1"></a>
+
 ## [6.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.3.0...v6.3.1) (2019-12-03)
+
 ### Features
 
-* **browser:** copy for the browser ([#697](https://github.com/aliyun/oss-nodejs-sdk/issues/697))
-
+- **browser:** copy for the browser ([#697](https://github.com/aliyun/oss-nodejs-sdk/issues/697))
 
 <a name="6.3.0"></a>
+
 # [6.3.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.3.0) (2019-12-02)
 
-
 ### Bug Fixes
 
-* **node:** copy bug ([#694](https://github.com/aliyun/oss-nodejs-sdk/issues/694)) ([e24ac42](https://github.com/aliyun/oss-nodejs-sdk/commit/e24ac42))
-
+- **node:** copy bug ([#694](https://github.com/aliyun/oss-nodejs-sdk/issues/694)) ([e24ac42](https://github.com/aliyun/oss-nodejs-sdk/commit/e24ac42))
 
 <a name="5.3.0"></a>
+
 # 5.3.0 (2018-06-20)
 
-
 ### Bug Fixes
 
-* if browser support AbortController api , stream-http timeout err ([#466](https://github.com/aliyun/oss-nodejs-sdk/issues/466)) ([69ad003](https://github.com/aliyun/oss-nodejs-sdk/commit/69ad003))
-* modify config to support ip visit about example ([#486](https://github.com/aliyun/oss-nodejs-sdk/issues/486)) ([304bdbb](https://github.com/aliyun/oss-nodejs-sdk/commit/304bdbb))
-* remove replace %20 to '+' ([#489](https://github.com/aliyun/oss-nodejs-sdk/issues/489)) ([22363d0](https://github.com/aliyun/oss-nodejs-sdk/commit/22363d0))
-* repair timeout excepiton ([#481](https://github.com/aliyun/oss-nodejs-sdk/issues/481)) ([ec8ae25](https://github.com/aliyun/oss-nodejs-sdk/commit/ec8ae25))
-* rtml generate url ([#463](https://github.com/aliyun/oss-nodejs-sdk/issues/463)) ([53f1f0c](https://github.com/aliyun/oss-nodejs-sdk/commit/53f1f0c))
-* signatureUrl With response settings ([#465](https://github.com/aliyun/oss-nodejs-sdk/issues/465)) ([3bf1be7](https://github.com/aliyun/oss-nodejs-sdk/commit/3bf1be7))
-* support ipv6 address when set endpoint ([#482](https://github.com/aliyun/oss-nodejs-sdk/issues/482)) ([1c7616d](https://github.com/aliyun/oss-nodejs-sdk/commit/1c7616d))
-
+- if browser support AbortController api , stream-http timeout err ([#466](https://github.com/aliyun/oss-nodejs-sdk/issues/466)) ([69ad003](https://github.com/aliyun/oss-nodejs-sdk/commit/69ad003))
+- modify config to support ip visit about example ([#486](https://github.com/aliyun/oss-nodejs-sdk/issues/486)) ([304bdbb](https://github.com/aliyun/oss-nodejs-sdk/commit/304bdbb))
+- remove replace %20 to '+' ([#489](https://github.com/aliyun/oss-nodejs-sdk/issues/489)) ([22363d0](https://github.com/aliyun/oss-nodejs-sdk/commit/22363d0))
+- repair timeout excepiton ([#481](https://github.com/aliyun/oss-nodejs-sdk/issues/481)) ([ec8ae25](https://github.com/aliyun/oss-nodejs-sdk/commit/ec8ae25))
+- rtml generate url ([#463](https://github.com/aliyun/oss-nodejs-sdk/issues/463)) ([53f1f0c](https://github.com/aliyun/oss-nodejs-sdk/commit/53f1f0c))
+- signatureUrl With response settings ([#465](https://github.com/aliyun/oss-nodejs-sdk/issues/465)) ([3bf1be7](https://github.com/aliyun/oss-nodejs-sdk/commit/3bf1be7))
+- support ipv6 address when set endpoint ([#482](https://github.com/aliyun/oss-nodejs-sdk/issues/482)) ([1c7616d](https://github.com/aliyun/oss-nodejs-sdk/commit/1c7616d))
 
 ### Features
 
-* add sample about cname's usage ([#453](https://github.com/aliyun/oss-nodejs-sdk/issues/453)) ([54db574](https://github.com/aliyun/oss-nodejs-sdk/commit/54db574))
-* publish CDN check script ([#452](https://github.com/aliyun/oss-nodejs-sdk/issues/452)) ([3190ce6](https://github.com/aliyun/oss-nodejs-sdk/commit/3190ce6))
-* restore object api and support to  create archvie bucket ([#450](https://github.com/aliyun/oss-nodejs-sdk/issues/450)) ([79eb5ef](https://github.com/aliyun/oss-nodejs-sdk/commit/79eb5ef))
-
-
+- add sample about cname's usage ([#453](https://github.com/aliyun/oss-nodejs-sdk/issues/453)) ([54db574](https://github.com/aliyun/oss-nodejs-sdk/commit/54db574))
+- publish CDN check script ([#452](https://github.com/aliyun/oss-nodejs-sdk/issues/452)) ([3190ce6](https://github.com/aliyun/oss-nodejs-sdk/commit/3190ce6))
+- restore object api and support to create archvie bucket ([#450](https://github.com/aliyun/oss-nodejs-sdk/issues/450)) ([79eb5ef](https://github.com/aliyun/oss-nodejs-sdk/commit/79eb5ef))
 
 <a name="5.1.1"></a>
-## 5.1.1 (2018-04-16)
 
+## 5.1.1 (2018-04-16)
 
 ### Bug Fixes
 
-* **Browser:** multipartUpload callback resumble parse error ([#442](https://github.com/aliyun/oss-nodejs-sdk/issues/442)) ([e22ecf6](https://github.com/aliyun/oss-nodejs-sdk/commit/e22ecf6))
-* **Browser:** signatureUrl with content-type and content-md5 ([#441](https://github.com/aliyun/oss-nodejs-sdk/issues/441)) ([50f0093](https://github.com/aliyun/oss-nodejs-sdk/commit/50f0093))
-
+- **Browser:** multipartUpload callback resumble parse error ([#442](https://github.com/aliyun/oss-nodejs-sdk/issues/442)) ([e22ecf6](https://github.com/aliyun/oss-nodejs-sdk/commit/e22ecf6))
+- **Browser:** signatureUrl with content-type and content-md5 ([#441](https://github.com/aliyun/oss-nodejs-sdk/issues/441)) ([50f0093](https://github.com/aliyun/oss-nodejs-sdk/commit/50f0093))
 
 ### Features
 
-* example base64 to blob and doc ([#434](https://github.com/aliyun/oss-nodejs-sdk/issues/434)) ([37f65f0](https://github.com/aliyun/oss-nodejs-sdk/commit/37f65f0))
-
-
+- example base64 to blob and doc ([#434](https://github.com/aliyun/oss-nodejs-sdk/issues/434)) ([37f65f0](https://github.com/aliyun/oss-nodejs-sdk/commit/37f65f0))
 
 <a name="5.1.0"></a>
+
 # 5.1.0 (2018-04-14)
 
-
-
 <a name="6.2.1"></a>
+
 # [6.2.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.2.0...v6.2.1) (2019-11-15)
 
 ### Bug Fixes
 
-* endpoint not use secure([#687](https://github.com/aliyun/oss-nodejs-sdk/issues/687) ([245da04](https://github.com/aliyun/oss-nodejs-sdk/commit/245da04))
+- endpoint not use secure([#687](https://github.com/aliyun/oss-nodejs-sdk/issues/687) ([245da04](https://github.com/aliyun/oss-nodejs-sdk/commit/245da04))
 
 <a name="6.2.0"></a>
-# [6.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.2.0) (2019-11-13)
 
+# [6.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v6.2.0) (2019-11-13)
 
 ### Bug Fixes
 
-* **browser:** set ascii_only to be true for browserify ([#661](https://github.com/aliyun/oss-nodejs-sdk/issues/661)) ([e0ec299](https://github.com/aliyun/oss-nodejs-sdk/commit/e0ec299))
-* **browser:** support web work ([#667](https://github.com/aliyun/oss-nodejs-sdk/issues/667)) ([655ee3d](https://github.com/aliyun/oss-nodejs-sdk/commit/655ee3d))
-* **browser:** put stream content empty when date is skew  ([#669](https://github.com/aliyun/oss-nodejs-sdk/issues/669)) ([48d9546](https://github.com/aliyun/oss-nodejs-sdk/commit/48d9546))
-* **node:** bucket name cause ssrf attack ([#666](https://github.com/aliyun/oss-nodejs-sdk/issues/666)) ([d200573](https://github.com/aliyun/oss-nodejs-sdk/commit/d200573))
-* **node:** putStream use third lib stream will signature error([#402](https://github.com/aliyun/oss-nodejs-sdk/issues/402)) ([c544bab](https://github.com/aliyun/oss-nodejs-sdk/commit/c544bab))
-
+- **browser:** set ascii_only to be true for browserify ([#661](https://github.com/aliyun/oss-nodejs-sdk/issues/661)) ([e0ec299](https://github.com/aliyun/oss-nodejs-sdk/commit/e0ec299))
+- **browser:** support web work ([#667](https://github.com/aliyun/oss-nodejs-sdk/issues/667)) ([655ee3d](https://github.com/aliyun/oss-nodejs-sdk/commit/655ee3d))
+- **browser:** put stream content empty when date is skew ([#669](https://github.com/aliyun/oss-nodejs-sdk/issues/669)) ([48d9546](https://github.com/aliyun/oss-nodejs-sdk/commit/48d9546))
+- **node:** bucket name cause ssrf attack ([#666](https://github.com/aliyun/oss-nodejs-sdk/issues/666)) ([d200573](https://github.com/aliyun/oss-nodejs-sdk/commit/d200573))
+- **node:** putStream use third lib stream will signature error([#402](https://github.com/aliyun/oss-nodejs-sdk/issues/402)) ([c544bab](https://github.com/aliyun/oss-nodejs-sdk/commit/c544bab))
 
 ### Features
 
-* **browser:** add warn when not use sts for the browser ([#668](https://github.com/aliyun/oss-nodejs-sdk/issues/668)) ([1f49ff3](https://github.com/aliyun/oss-nodejs-sdk/commit/1f49ff3))
-* **node:** only read from master ([#623](https://github.com/aliyun/oss-nodejs-sdk/issues/623)) ([6357340](https://github.com/aliyun/oss-nodejs-sdk/commit/6357340))
-* **node:** support symlink api ([#673](https://github.com/aliyun/oss-nodejs-sdk/issues/673)) ([041591b](https://github.com/aliyun/oss-nodejs-sdk/commit/041591b))
+- **browser:** add warn when not use sts for the browser ([#668](https://github.com/aliyun/oss-nodejs-sdk/issues/668)) ([1f49ff3](https://github.com/aliyun/oss-nodejs-sdk/commit/1f49ff3))
+- **node:** only read from master ([#623](https://github.com/aliyun/oss-nodejs-sdk/issues/623)) ([6357340](https://github.com/aliyun/oss-nodejs-sdk/commit/6357340))
+- **node:** support symlink api ([#673](https://github.com/aliyun/oss-nodejs-sdk/issues/673)) ([041591b](https://github.com/aliyun/oss-nodejs-sdk/commit/041591b))
 
 <a name="6.1.1"></a>
+
 ## [6.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.1.0...v6.1.1) (2019-01-08)
 
 ### Bug Fixes
 
-* support useFetch options to resovle browser compatibility
-* fix mulipartUpload bug in IE 10 or parallel == 1
-* fix invalid partSize
+- support useFetch options to resovle browser compatibility
+- fix mulipartUpload bug in IE 10 or parallel == 1
+- fix invalid partSize
 
 <a name="6.1.0"></a>
+
 ## [6.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.2...v6.1.0) (2019-04-08)
 
 ### Features
-* support requestPayer
+
+- support requestPayer
 
 ### Bug Fixes
 
-* repair codecov
-* docs
+- repair codecov
+- docs
 
 <a name="6.0.2"></a>
+
 ## [6.0.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.1...v6.0.2) (2018-12-10)
 
 ### Bug Fixes
 
-* fix `comma-dangle` eslint
-* fix this refrence bug ([435f942](https://github.com/aliyun/oss-nodejs-sdk/commit/435f942))
-* repair example ([#502](https://github.com/aliyun/oss-nodejs-sdk/issues/502)) ([2a0099d](https://github.com/aliyun/oss-nodejs-sdk/commit/2a0099d))
-
+- fix `comma-dangle` eslint
+- fix this refrence bug ([435f942](https://github.com/aliyun/oss-nodejs-sdk/commit/435f942))
+- repair example ([#502](https://github.com/aliyun/oss-nodejs-sdk/issues/502)) ([2a0099d](https://github.com/aliyun/oss-nodejs-sdk/commit/2a0099d))
 
 <a name="6.0.1"></a>
-## [6.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.0...v6.0.1) (2018-07-17)
 
+## [6.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.0.0...v6.0.1) (2018-07-17)
 
 ### Bug Fixes
 
-* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
+- should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
 
 <a name="6.0.0"></a>
+
 # [6.0.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v6.0.0) (2018-07-10)
 
 ### Features
 
-* refactor async/await instead of generator and test case
-* remove region param about bucket operations
-* support cancel on node sdk
-* mount debug info on client proto
-* remove unuse browser.js in /
+- refactor async/await instead of generator and test case
+- remove region param about bucket operations
+- support cancel on node sdk
+- mount debug info on client proto
+- remove unuse browser.js in /
 
 ### docs
 
-* README.md example
+- README.md example
 
 <a name="5.3.2"></a>
-## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v5.3.2) (2018-07-17)
 
+## [5.3.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.1...v5.3.2) (2018-07-17)
 
 ### Bug Fixes
 
-* should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
-
+- should consume the response stream on error ([#503](https://github.com/aliyun/oss-nodejs-sdk/issues/503)) ([14e4038](https://github.com/aliyun/oss-nodejs-sdk/commit/14e4038))
 
 <a name="5.3.1"></a>
+
 # [5.3.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.3.0...v5.3.1) (2018-06-27)
 
 ### Bug Fixes
 
-* lock dependency stream-http 2.8.2
+- lock dependency stream-http 2.8.2
 
 <a name="5.3.0"></a>
-# [5.3.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.0) (2018-06-13)
 
+# [5.3.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.1.0...v5.3.0) (2018-06-13)
 
 ### Bug Fixes
 
-* remove replace %20 to '+' ([#489](https://github.com/aliyun/oss-nodejs-sdk/issues/489)) ([22363d0](https://github.com/aliyun/oss-nodejs-sdk/commit/22363d0))
-* clean browser test bucket ([#487](https://github.com/aliyun/oss-nodejs-sdk/issues/487)) ([bf546ce](https://github.com/aliyun/oss-nodejs-sdk/commit/bf546ce))
-* support ipv6 address when set endpoint  ([#482](https://github.com/aliyun/oss-nodejs-sdk/issues/482)) ([1c7616d](https://github.com/aliyun/oss-nodejs-sdk/commit/1c7616d))
-* repair timeout excepiton ([#481](https://github.com/aliyun/oss-nodejs-sdk/issues/481)) ([ec8ae25](https://github.com/aliyun/oss-nodejs-sdk/commit/ec8ae25))
-* refactor example to support open browser auto and hot reload  ([#477](https://github.com/aliyun/oss-nodejs-sdk/issues/477)) ([3012bc6](https://github.com/aliyun/oss-nodejs-sdk/commit/3012bc6))
+- remove replace %20 to '+' ([#489](https://github.com/aliyun/oss-nodejs-sdk/issues/489)) ([22363d0](https://github.com/aliyun/oss-nodejs-sdk/commit/22363d0))
+- clean browser test bucket ([#487](https://github.com/aliyun/oss-nodejs-sdk/issues/487)) ([bf546ce](https://github.com/aliyun/oss-nodejs-sdk/commit/bf546ce))
+- support ipv6 address when set endpoint ([#482](https://github.com/aliyun/oss-nodejs-sdk/issues/482)) ([1c7616d](https://github.com/aliyun/oss-nodejs-sdk/commit/1c7616d))
+- repair timeout excepiton ([#481](https://github.com/aliyun/oss-nodejs-sdk/issues/481)) ([ec8ae25](https://github.com/aliyun/oss-nodejs-sdk/commit/ec8ae25))
+- refactor example to support open browser auto and hot reload ([#477](https://github.com/aliyun/oss-nodejs-sdk/issues/477)) ([3012bc6](https://github.com/aliyun/oss-nodejs-sdk/commit/3012bc6))
 
 ### Features
 
-* support getBucketLocation api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
-* support getBucketInfo api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+- support getBucketLocation api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+- support getBucketInfo api in node sdk ([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
 
 ### docs
 
-* add getBucketLoaction and getBucketInfo docs([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
-* fix putStream api demo([#478](https://github.com/aliyun/oss-nodejs-sdk/issues/478)) ([b6dc1df](https://github.com/aliyun/oss-nodejs-sdk/commit/b6dc1df))
+- add getBucketLoaction and getBucketInfo docs([#476](https://github.com/aliyun/oss-nodejs-sdk/issues/476)) ([2273a39](https://github.com/aliyun/oss-nodejs-sdk/commit/2273a39))
+- fix putStream api demo([#478](https://github.com/aliyun/oss-nodejs-sdk/issues/478)) ([b6dc1df](https://github.com/aliyun/oss-nodejs-sdk/commit/b6dc1df))
 
 <a name="5.2.0"></a>
+
 # [5.2.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.1...5.2.0) (2018-05-08)
 
-
 ### Bug Fixes
 
-* if browser support AbortController api , stream-http timeout err ([#466](https://github.com/aliyun/oss-nodejs-sdk/issues/466)) ([69ad003](https://github.com/aliyun/oss-nodejs-sdk/commit/69ad003))
-* rtml generate url ([#463](https://github.com/aliyun/oss-nodejs-sdk/issues/463)) ([53f1f0c](https://github.com/aliyun/oss-nodejs-sdk/commit/53f1f0c))
-* signatureUrl With response settings ([#465](https://github.com/aliyun/oss-nodejs-sdk/issues/465)) ([3bf1be7](https://github.com/aliyun/oss-nodejs-sdk/commit/3bf1be7))
-
+- if browser support AbortController api , stream-http timeout err ([#466](https://github.com/aliyun/oss-nodejs-sdk/issues/466)) ([69ad003](https://github.com/aliyun/oss-nodejs-sdk/commit/69ad003))
+- rtml generate url ([#463](https://github.com/aliyun/oss-nodejs-sdk/issues/463)) ([53f1f0c](https://github.com/aliyun/oss-nodejs-sdk/commit/53f1f0c))
+- signatureUrl With response settings ([#465](https://github.com/aliyun/oss-nodejs-sdk/issues/465)) ([3bf1be7](https://github.com/aliyun/oss-nodejs-sdk/commit/3bf1be7))
 
 ### Features
 
-* add sample about cname's usage ([#453](https://github.com/aliyun/oss-nodejs-sdk/issues/453)) ([54db574](https://github.com/aliyun/oss-nodejs-sdk/commit/54db574))
-* publish CDN check script ([#452](https://github.com/aliyun/oss-nodejs-sdk/issues/452)) ([3190ce6](https://github.com/aliyun/oss-nodejs-sdk/commit/3190ce6))
-* restore object api and support to  create archvie bucket ([#450](https://github.com/aliyun/oss-nodejs-sdk/issues/450)) ([79eb5ef](https://github.com/aliyun/oss-nodejs-sdk/commit/79eb5ef))
-
-
+- add sample about cname's usage ([#453](https://github.com/aliyun/oss-nodejs-sdk/issues/453)) ([54db574](https://github.com/aliyun/oss-nodejs-sdk/commit/54db574))
+- publish CDN check script ([#452](https://github.com/aliyun/oss-nodejs-sdk/issues/452)) ([3190ce6](https://github.com/aliyun/oss-nodejs-sdk/commit/3190ce6))
+- restore object api and support to create archvie bucket ([#450](https://github.com/aliyun/oss-nodejs-sdk/issues/450)) ([79eb5ef](https://github.com/aliyun/oss-nodejs-sdk/commit/79eb5ef))
 
 <a name="5.1.1"></a>
-# [5.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.0...5.1.1) (2018-04-16)
 
+# [5.1.1](https://github.com/aliyun/oss-nodejs-sdk/compare/5.1.0...5.1.1) (2018-04-16)
 
 ### Bug Fixes
 
-* **Browser:** multipartUpload callback resumble parse error ([#442](https://github.com/aliyun/oss-nodejs-sdk/issues/442)) ([e22ecf6](https://github.com/aliyun/oss-nodejs-sdk/commit/e22ecf6))
-* **Browser:** signatureUrl with content-type and content-md5 ([#441](https://github.com/aliyun/oss-nodejs-sdk/issues/441)) ([50f0093](https://github.com/aliyun/oss-nodejs-sdk/commit/50f0093))
-
+- **Browser:** multipartUpload callback resumble parse error ([#442](https://github.com/aliyun/oss-nodejs-sdk/issues/442)) ([e22ecf6](https://github.com/aliyun/oss-nodejs-sdk/commit/e22ecf6))
+- **Browser:** signatureUrl with content-type and content-md5 ([#441](https://github.com/aliyun/oss-nodejs-sdk/issues/441)) ([50f0093](https://github.com/aliyun/oss-nodejs-sdk/commit/50f0093))
 
 ### Docs
 
-* example base64 to blob and doc ([#434](https://github.com/aliyun/oss-nodejs-sdk/issues/434)) ([37f65f0](https://github.com/aliyun/oss-nodejs-sdk/commit/37f65f0))
-
-
+- example base64 to blob and doc ([#434](https://github.com/aliyun/oss-nodejs-sdk/issues/434)) ([37f65f0](https://github.com/aliyun/oss-nodejs-sdk/commit/37f65f0))
 
 <a name="5.1.0"></a>
-# [5.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.0.1...5.1.0) (2018-04-14)
 
+# [5.1.0](https://github.com/aliyun/oss-nodejs-sdk/compare/5.0.1...5.1.0) (2018-04-14)
 
 ### Features
 
-* cluster mode support acl ([#439](https://github.com/aliyun/oss-nodejs-sdk/issues/439)) ([af3d533](https://github.com/aliyun/oss-nodejs-sdk/commit/af3d533))
-
-
+- cluster mode support acl ([#439](https://github.com/aliyun/oss-nodejs-sdk/issues/439)) ([af3d533](https://github.com/aliyun/oss-nodejs-sdk/commit/af3d533))
 
 <a name="5.0.1"></a>
-## [5.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.0.0...v5.0.1) (2018-04-10)
 
+## [5.0.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v5.0.0...v5.0.1) (2018-04-10)
 
 ### Bug Fixes
 
-* **browser:** use dist file for build tools ([#430](https://github.com/aliyun/oss-nodejs-sdk/issues/430)) ([8494fbd](https://github.com/aliyun/oss-nodejs-sdk/commit/8494fbd))
+- **browser:** use dist file for build tools ([#430](https://github.com/aliyun/oss-nodejs-sdk/issues/430)) ([8494fbd](https://github.com/aliyun/oss-nodejs-sdk/commit/8494fbd))
 
-* sign method fix && ci support node 9 ([f82bf8f3c](https://github.com/ali-sdk/ali-oss/commit/f82bf8f3c))
+- sign method fix && ci support node 9 ([f82bf8f3c](https://github.com/ali-sdk/ali-oss/commit/f82bf8f3c))
 
 ### Docs
-* add node and browser compatibility desc ([f5de168e](https://github.com/ali-sdk/ali-oss/commit/f5de168e))
 
+- add node and browser compatibility desc ([f5de168e](https://github.com/ali-sdk/ali-oss/commit/f5de168e))
 
 <a name="5.0.0"></a>
+
 # [5.0.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.14.1...v5.0.0) (2018-04-03)
 
 ### Bug Fixes
+
 Node >= 8 is required.
 
-
 <a name="4.14.1"></a>
+
 ## [4.14.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.14.0...v4.14.1) (2018-04-03)
 
-
 ### Bug Fixes
 
-* signUtils header sort err fix ([#418](https://github.com/aliyun/oss-nodejs-sdk/issues/418)) ([60383ee](https://github.com/aliyun/oss-nodejs-sdk/commit/60383ee))
-
-
+- signUtils header sort err fix ([#418](https://github.com/aliyun/oss-nodejs-sdk/issues/418)) ([60383ee](https://github.com/aliyun/oss-nodejs-sdk/commit/60383ee))
 
 <a name="4.14.0"></a>
+
 # [4.14.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.2...v4.14.0) (2018-03-30)
 
-
 ### Bug Fixes
 
-* **Browser:** multipartUpload InvalidPartOrderError by doneParts repeat ([#414](https://github.com/aliyun/oss-nodejs-sdk/issues/414)) ([2b0967f](https://github.com/aliyun/oss-nodejs-sdk/commit/2b0967f))
-* _resumeMultipart not use yield ([ba2382b](https://github.com/aliyun/oss-nodejs-sdk/commit/ba2382b))
-* issues https://github.com/ali-sdk/ali-oss/issues/386 ([#390](https://github.com/aliyun/oss-nodejs-sdk/issues/390)) ([5b5ae3e](https://github.com/aliyun/oss-nodejs-sdk/commit/5b5ae3e))
-
+- **Browser:** multipartUpload InvalidPartOrderError by doneParts repeat ([#414](https://github.com/aliyun/oss-nodejs-sdk/issues/414)) ([2b0967f](https://github.com/aliyun/oss-nodejs-sdk/commit/2b0967f))
+- \_resumeMultipart not use yield ([ba2382b](https://github.com/aliyun/oss-nodejs-sdk/commit/ba2382b))
+- issues https://github.com/ali-sdk/ali-oss/issues/386 ([#390](https://github.com/aliyun/oss-nodejs-sdk/issues/390)) ([5b5ae3e](https://github.com/aliyun/oss-nodejs-sdk/commit/5b5ae3e))
 
 ### Features
 
-* add ignore ([#397](https://github.com/aliyun/oss-nodejs-sdk/issues/397)) ([0f003aa](https://github.com/aliyun/oss-nodejs-sdk/commit/0f003aa))
-* **browser:** multipartUpload err will cancel this task ([#399](https://github.com/aliyun/oss-nodejs-sdk/issues/399)) ([64f8d68](https://github.com/aliyun/oss-nodejs-sdk/commit/64f8d68))
-* browser support blob ([#409](https://github.com/aliyun/oss-nodejs-sdk/issues/409)) ([e8a78b5](https://github.com/aliyun/oss-nodejs-sdk/commit/e8a78b5)), closes [#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)
-* expose sdk version with OSS ([#389](https://github.com/aliyun/oss-nodejs-sdk/issues/389)) ([0bdc876](https://github.com/aliyun/oss-nodejs-sdk/commit/0bdc876))
-* rm unused test data ([#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)) ([3d2ce4e](https://github.com/aliyun/oss-nodejs-sdk/commit/3d2ce4e))
-* signatureUrl refactor and support callback ([#408](https://github.com/aliyun/oss-nodejs-sdk/issues/408)) ([343938f](https://github.com/aliyun/oss-nodejs-sdk/commit/343938f))
-
-
+- add ignore ([#397](https://github.com/aliyun/oss-nodejs-sdk/issues/397)) ([0f003aa](https://github.com/aliyun/oss-nodejs-sdk/commit/0f003aa))
+- **browser:** multipartUpload err will cancel this task ([#399](https://github.com/aliyun/oss-nodejs-sdk/issues/399)) ([64f8d68](https://github.com/aliyun/oss-nodejs-sdk/commit/64f8d68))
+- browser support blob ([#409](https://github.com/aliyun/oss-nodejs-sdk/issues/409)) ([e8a78b5](https://github.com/aliyun/oss-nodejs-sdk/commit/e8a78b5)), closes [#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)
+- expose sdk version with OSS ([#389](https://github.com/aliyun/oss-nodejs-sdk/issues/389)) ([0bdc876](https://github.com/aliyun/oss-nodejs-sdk/commit/0bdc876))
+- rm unused test data ([#401](https://github.com/aliyun/oss-nodejs-sdk/issues/401)) ([3d2ce4e](https://github.com/aliyun/oss-nodejs-sdk/commit/3d2ce4e))
+- signatureUrl refactor and support callback ([#408](https://github.com/aliyun/oss-nodejs-sdk/issues/408)) ([343938f](https://github.com/aliyun/oss-nodejs-sdk/commit/343938f))
 
 <a name="4.13.2"></a>
+
 ## [4.13.2](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.1...v4.13.2) (2018-03-13)
 
-
 ### Bug Fixes
 
-* change timeout default value to 60s ([fcb8847](https://github.com/aliyun/oss-nodejs-sdk/commit/fcb8847))
-
-
+- change timeout default value to 60s ([fcb8847](https://github.com/aliyun/oss-nodejs-sdk/commit/fcb8847))
 
 <a name="4.13.1"></a>
+
 ## [4.13.1](https://github.com/aliyun/oss-nodejs-sdk/compare/v4.13.0...v4.13.1) (2018-03-11)
 
-
 ### Bug Fixes
 
-* fix bug about value of requestTimeout! ([#383](https://github.com/aliyun/oss-nodejs-sdk/issues/383)) ([a3653a7](https://github.com/aliyun/oss-nodejs-sdk/commit/a3653a7))
-
-
+- fix bug about value of requestTimeout! ([#383](https://github.com/aliyun/oss-nodejs-sdk/issues/383)) ([a3653a7](https://github.com/aliyun/oss-nodejs-sdk/commit/a3653a7))
 
 <a name="4.13.0"></a>
-# [4.13.0](https://github.com/aliyun/oss-nodejs-sdk/compare/4.12.1...4.13.0) (2018-03-07)
 
+# [4.13.0](https://github.com/aliyun/oss-nodejs-sdk/compare/4.12.1...4.13.0) (2018-03-07)
 
 ### Bug Fixes
 
-* add any-promise dependencies ([#381](https://github.com/aliyun/oss-nodejs-sdk/issues/381)) ([366257a](https://github.com/aliyun/oss-nodejs-sdk/commit/366257a))
-* move 'stream-http' to devDependencies ([7c4f330](https://github.com/aliyun/oss-nodejs-sdk/commit/7c4f330))
-* userAgent with alpha and beta ([#373](https://github.com/aliyun/oss-nodejs-sdk/issues/373)) ([367521b](https://github.com/aliyun/oss-nodejs-sdk/commit/367521b))
-
+- add any-promise dependencies ([#381](https://github.com/aliyun/oss-nodejs-sdk/issues/381)) ([366257a](https://github.com/aliyun/oss-nodejs-sdk/commit/366257a))
+- move 'stream-http' to devDependencies ([7c4f330](https://github.com/aliyun/oss-nodejs-sdk/commit/7c4f330))
+- userAgent with alpha and beta ([#373](https://github.com/aliyun/oss-nodejs-sdk/issues/373)) ([367521b](https://github.com/aliyun/oss-nodejs-sdk/commit/367521b))
 
 ### Features
 
-* add options doc and multipart options-progress doc ([#370](https://github.com/aliyun/oss-nodejs-sdk/issues/370)) ([2086bd3](https://github.com/aliyun/oss-nodejs-sdk/commit/2086bd3))
-* example with build in es6 ([#363](https://github.com/aliyun/oss-nodejs-sdk/issues/363)) ([a00e26e](https://github.com/aliyun/oss-nodejs-sdk/commit/a00e26e))
-* multipart copy support ([#371](https://github.com/aliyun/oss-nodejs-sdk/issues/371)) ([e42a534](https://github.com/aliyun/oss-nodejs-sdk/commit/e42a534))
-* rtmp api  ([#359](https://github.com/aliyun/oss-nodejs-sdk/issues/359)) ([b4f9434](https://github.com/aliyun/oss-nodejs-sdk/commit/b4f9434)), closes [#345](https://github.com/aliyun/oss-nodejs-sdk/issues/345)
-* support callback options for put and multipartUpload ([#379](https://github.com/aliyun/oss-nodejs-sdk/issues/379)) ([46c8dec](https://github.com/aliyun/oss-nodejs-sdk/commit/46c8dec)), closes [#85](https://github.com/aliyun/oss-nodejs-sdk/issues/85)
+- add options doc and multipart options-progress doc ([#370](https://github.com/aliyun/oss-nodejs-sdk/issues/370)) ([2086bd3](https://github.com/aliyun/oss-nodejs-sdk/commit/2086bd3))
+- example with build in es6 ([#363](https://github.com/aliyun/oss-nodejs-sdk/issues/363)) ([a00e26e](https://github.com/aliyun/oss-nodejs-sdk/commit/a00e26e))
+- multipart copy support ([#371](https://github.com/aliyun/oss-nodejs-sdk/issues/371)) ([e42a534](https://github.com/aliyun/oss-nodejs-sdk/commit/e42a534))
+- rtmp api ([#359](https://github.com/aliyun/oss-nodejs-sdk/issues/359)) ([b4f9434](https://github.com/aliyun/oss-nodejs-sdk/commit/b4f9434)), closes [#345](https://github.com/aliyun/oss-nodejs-sdk/issues/345)
+- support callback options for put and multipartUpload ([#379](https://github.com/aliyun/oss-nodejs-sdk/issues/379)) ([46c8dec](https://github.com/aliyun/oss-nodejs-sdk/commit/46c8dec)), closes [#85](https://github.com/aliyun/oss-nodejs-sdk/issues/85)
 
-4.12.2 / 2018-02-01
-==================
+  # 4.12.2 / 2018-02-01
 
 **fix**
-  * move 'stream-http' to devDependencies (饶培泽 <<peizerao@gmail.com>>)
-  
+
+- move 'stream-http' to devDependencies (饶培泽 <<peizerao@gmail.com>>)
+
 **others**
-  * chore: update version to 4.12.2 (饶培泽 <<peizerao@gmail.com>>)
 
+- chore: update version to 4.12.2 (饶培泽 <<peizerao@gmail.com>>)
 
-4.12.1 / 2018-01-29
-==================
+# 4.12.1 / 2018-01-29
 
 **features**
-  * [[`b7c5daaf812`](https://github.com/ali-sdk/ali-oss/commit/b7c5daaf812ae9a9d46ffdccd008158b7fbcffd5)] - feat: add local protocol check for web (#347) (binghaiwang <<binghaiwang@gmail.com>>)
-  * [[`02f9ba7ed87935`](https://github.com/ali-sdk/ali-oss/commit/02f9ba7ed8793573e3a16e4534b7b10d92e8b6b9)] - feat: cancel multipartUpload (#356) (binghaiwang <<binghaiwang@gmail.com>>)
+
+- [[`b7c5daaf812`](https://github.com/ali-sdk/ali-oss/commit/b7c5daaf812ae9a9d46ffdccd008158b7fbcffd5)] - feat: add local protocol check for web (#347) (binghaiwang <<binghaiwang@gmail.com>>)
+- [[`02f9ba7ed87935`](https://github.com/ali-sdk/ali-oss/commit/02f9ba7ed8793573e3a16e4534b7b10d92e8b6b9)] - feat: cancel multipartUpload (#356) (binghaiwang <<binghaiwang@gmail.com>>)
 
 **fixs**
-  * [[`b62bd2eea`](https://github.com/ali-sdk/ali-oss/commit/b62bd2eea0e52b64257c2d1b60f0c8b02243fc2c)] - fix: multipartUpload small file upload by callback data (#358) (binghaiwang <<binghaiwang@gmail.com>>)
+
+- [[`b62bd2eea`](https://github.com/ali-sdk/ali-oss/commit/b62bd2eea0e52b64257c2d1b60f0c8b02243fc2c)] - fix: multipartUpload small file upload by callback data (#358) (binghaiwang <<binghaiwang@gmail.com>>)
 
 **others**
-  * chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
-  * docs: add timeout doc about multipart (#353) (binghaiwang <<binghaiwang@gmail.com>>)
-  
-4.11.5 / 2018-01-17
-==================
+
+- chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
+- docs: add timeout doc about multipart (#353) (binghaiwang <<binghaiwang@gmail.com>>)
+
+# 4.11.5 / 2018-01-17
 
 **fixes**
-  * [[`dda7ff6`](https://github.com/ali-sdk/ali-oss/commit/dda7ff6f9b30affadccff389995d29841266abf7)] - fix: safari blob fail case (#346) (binghaiwang <<binghaiwang@gmail.com>>)
-  * [[`ed68ba3d7c9`](https://github.com/ali-sdk/ali-oss/commit/ed68ba3d7c9bc251584c0c9189a5eba0704f94a4)] - fix: RequestTimeTooSkewed(#341) (binghaiwang <<binghaiwang@gmail.com>>)
+
+- [[`dda7ff6`](https://github.com/ali-sdk/ali-oss/commit/dda7ff6f9b30affadccff389995d29841266abf7)] - fix: safari blob fail case (#346) (binghaiwang <<binghaiwang@gmail.com>>)
+- [[`ed68ba3d7c9`](https://github.com/ali-sdk/ali-oss/commit/ed68ba3d7c9bc251584c0c9189a5eba0704f94a4)] - fix: RequestTimeTooSkewed(#341) (binghaiwang <<binghaiwang@gmail.com>>)
 
 **others**
-  * chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
-  
-4.11.4 / 2018-01-09
-==================
+
+- chore: update version to 4.11.5 (饶培泽 <<peizerao@gmail.com>>)
+
+# 4.11.4 / 2018-01-09
 
 **fixes**
-  * [[`2021661`](https://github.com/ali-sdk/ali-oss/commit/2021661a259f66516e51549ce2158fca55b51b05)] - feat: add net error code (#332) (binghaiwang <<binghaiwang@gmail.com>>)
-  * [[`ceae401`](https://github.com/ali-sdk/ali-oss/commit/ceae401c3dd3d9e1f64fef172bcf42a291402dc6)] - feat: multipartUpload add the return parameter for resoponse (#335) (binghaiwang <<binghaiwang@gmail.com>>)
+
+- [[`2021661`](https://github.com/ali-sdk/ali-oss/commit/2021661a259f66516e51549ce2158fca55b51b05)] - feat: add net error code (#332) (binghaiwang <<binghaiwang@gmail.com>>)
+- [[`ceae401`](https://github.com/ali-sdk/ali-oss/commit/ceae401c3dd3d9e1f64fef172bcf42a291402dc6)] - feat: multipartUpload add the return parameter for resoponse (#335) (binghaiwang <<binghaiwang@gmail.com>>)
 
 **others**
-  * chore: update version to 4.11.4 (饶培泽 <<peizerao@gmail.com>>)
 
-4.11.3 / 2017-12-21
-==================
+- chore: update version to 4.11.4 (饶培泽 <<peizerao@gmail.com>>)
+
+# 4.11.3 / 2017-12-21
 
 **fixes**
-  * [[`12a4271`](http://github.com/ali-sdk/ali-oss/commit/12a427197ec29bd1bafb1d1286e3b5a7f86645c1)] - fix: add shims for browser (#316) (饶培泽 <<peizerao@gmail.com>>)
+
+- [[`12a4271`](http://github.com/ali-sdk/ali-oss/commit/12a427197ec29bd1bafb1d1286e3b5a7f86645c1)] - fix: add shims for browser (#316) (饶培泽 <<peizerao@gmail.com>>)
 
 **others**
-  * [[`060df98`](http://github.com/ali-sdk/ali-oss/commit/060df98d72d1ae8b85f9cca4e35c3222ef447c57)] - chore: update dist version to 4.11.2 (fengmk2 <<fengmk2@gmail.com>>)
 
-4.11.2 / 2017-11-07
-==================
+- [[`060df98`](http://github.com/ali-sdk/ali-oss/commit/060df98d72d1ae8b85f9cca4e35c3222ef447c57)] - chore: update dist version to 4.11.2 (fengmk2 <<fengmk2@gmail.com>>)
 
-**fixes**
-  * [[`c062249`](http://github.com/ali-sdk/ali-oss/commit/c062249bb8c8570411dbb3912c3a312826d86027)] - fix: the multipartUpload return value has same structure (#306) (饶培泽 <<peizerao@gmail.com>>)
-
-4.11.1 / 2017-11-07
-==================
+# 4.11.2 / 2017-11-07
 
 **fixes**
-  * [[`029dcc2`](http://github.com/ali-sdk/ali-oss/commit/029dcc2374c1d4cbb1589a4b15bae1d3057228e0)] - fix: process the client's local time is skew (#314) (饶培泽 <<peizerao@gmail.com>>)
 
-4.11.0 / 2017-10-25
-==================
+- [[`c062249`](http://github.com/ali-sdk/ali-oss/commit/c062249bb8c8570411dbb3912c3a312826d86027)] - fix: the multipartUpload return value has same structure (#306) (饶培泽 <<peizerao@gmail.com>>)
+
+# 4.11.1 / 2017-11-07
+
+**fixes**
+
+- [[`029dcc2`](http://github.com/ali-sdk/ali-oss/commit/029dcc2374c1d4cbb1589a4b15bae1d3057228e0)] - fix: process the client's local time is skew (#314) (饶培泽 <<peizerao@gmail.com>>)
+
+# 4.11.0 / 2017-10-25
 
 **features**
-  * [[`c50cc9e`](http://github.com/ali-sdk/ali-oss/commit/c50cc9e83166f56c24455f84c72106e00e0bed13)] - feat: handle browser compatibility alone (饶培泽 <<peizerao@gmail.com>>)
 
-4.10.2 / 2017-10-20
-==================
+- [[`c50cc9e`](http://github.com/ali-sdk/ali-oss/commit/c50cc9e83166f56c24455f84c72106e00e0bed13)] - feat: handle browser compatibility alone (饶培泽 <<peizerao@gmail.com>>)
+
+# 4.10.2 / 2017-10-20
 
 **fixes**
-  * [[`22fbad2`](http://github.com/ali-sdk/ali-oss/commit/22fbad2664f75c70c52e2db1ded31e762abf43d4)] - fix: getStream support options.process (#304) (饶培泽 <<peizerao@gmail.com>>)
+
+- [[`22fbad2`](http://github.com/ali-sdk/ali-oss/commit/22fbad2664f75c70c52e2db1ded31e762abf43d4)] - fix: getStream support options.process (#304) (饶培泽 <<peizerao@gmail.com>>)
 
 **others**
-  * [[`fc3cd7f`](http://github.com/ali-sdk/ali-oss/commit/fc3cd7fc394de5cbc98aada7bf95e7344451d505)] - docs: update the full name of OSS (#297) (David Chen <<tianniu_chen@163.com>>)
 
-4.10.1 / 2017-08-30
-==================
+- [[`fc3cd7f`](http://github.com/ali-sdk/ali-oss/commit/fc3cd7fc394de5cbc98aada7bf95e7344451d505)] - docs: update the full name of OSS (#297) (David Chen <<tianniu_chen@163.com>>)
 
-  * fix issue #288: startsWith not support by ie11 (#289)
-  * fix: add 4.10.0 dist
+# 4.10.1 / 2017-08-30
 
-4.10.0 / 2017-08-07
-==================
+- fix issue #288: startsWith not support by ie11 (#289)
+- fix: add 4.10.0 dist
+
+# 4.10.0 / 2017-08-07
 
 **features**
-  * [[`8b176d6`](http://github.com/ali-sdk/ali-oss/commit/8b176d6d53f204310230b4495fc15a24be6f3370)] - feat: manage cors for bucket (#279) (Haoliang Gao <<sakura9515@gmail.com>>)
+
+- [[`8b176d6`](http://github.com/ali-sdk/ali-oss/commit/8b176d6d53f204310230b4495fc15a24be6f3370)] - feat: manage cors for bucket (#279) (Haoliang Gao <<sakura9515@gmail.com>>)
 
 **fixes**
-  * [[`915b196`](http://github.com/ali-sdk/ali-oss/commit/915b196380da8c8fd31bcf5fd69bae99aea08361)] - fix: add missing dist (fengmk2 <<fengmk2@gmail.com>>)
 
-4.9.0 / 2017-07-28
-==================
+- [[`915b196`](http://github.com/ali-sdk/ali-oss/commit/915b196380da8c8fd31bcf5fd69bae99aea08361)] - fix: add missing dist (fengmk2 <<fengmk2@gmail.com>>)
 
-  * feat: support oss.append  (#275)
-  * test: add node 8
-  * test: skip callbackurl test cases
-  * test: set default platform on user-agent
-  * docs: Document `secure` option when creating bucket store. (#252)
-  * chore: add dist build files
+# 4.9.0 / 2017-07-28
 
-4.8.0 / 2017-01-19
-==================
+- feat: support oss.append (#275)
+- test: add node 8
+- test: skip callbackurl test cases
+- test: set default platform on user-agent
+- docs: Document `secure` option when creating bucket store. (#252)
+- chore: add dist build files
 
-  * feat: support VPC region #181 (#183)
-  * fix comment typo and add object check to avoid call properties of null object (#176)
+# 4.8.0 / 2017-01-19
 
-4.7.3 / 2017-01-06
-==================
+- feat: support VPC region #181 (#183)
+- fix comment typo and add object check to avoid call properties of null object (#176)
 
-  * update dist 
+# 4.7.3 / 2017-01-06
 
-4.7.2 / 2017-01-06
-==================
+- update dist
 
-  * update dist
+# 4.7.2 / 2017-01-06
 
-4.7.1 / 2017-01-06
-==================
+- update dist
 
-  * :bug: fix bowser dependency (#174)
+# 4.7.1 / 2017-01-06
 
-4.7.0 / 2017-01-05
-==================
+- :bug: fix bowser dependency (#174)
 
-  * fix: the copy object api bug which can not use non-English source object name (#166)
-  * feat: add process params to signatureUrl and get api for image process (#170)
-  * fix: multipartUpload can not work with IE10 bug (#167)
+# 4.7.0 / 2017-01-05
 
-4.6.3 / 2016-12-20
-==================
+- fix: the copy object api bug which can not use non-English source object name (#166)
+- feat: add process params to signatureUrl and get api for image process (#170)
+- fix: multipartUpload can not work with IE10 bug (#167)
 
-  * fix request stream bug of the multipart upload feature (#155)
-  * chore(package): update dateformat to version 2.0.0 (#156)
-  * doc: param "file" of `*get` method is optional (#158)
+# 4.6.3 / 2016-12-20
 
-4.6.2 / 2016-10-28
-==================
+- fix request stream bug of the multipart upload feature (#155)
+- chore(package): update dateformat to version 2.0.0 (#156)
+- doc: param "file" of `*get` method is optional (#158)
 
-  * Fix browserify transform with co-gather (#150)
+# 4.6.2 / 2016-10-28
 
-4.6.0 / 2016-10-27
-==================
+- Fix browserify transform with co-gather (#150)
 
-  * feat: implement parallel uploading for multipartUpload (#149)
+# 4.6.0 / 2016-10-27
 
-4.5.0 / 2016-10-13
-==================
+- feat: implement parallel uploading for multipartUpload (#149)
 
-  * feat: add options.ctx for every request params (#144)
-  * chore(package): update urllib to version 2.16.1 (#146)
-  * chore(package): update uglify-js to version 2.7.1
-  * chore(package): update should to version 11.0.0
-  * chore(package): update mocha to version 3.0.0
-  * chore(package): update mm to version 2.0.0
-  * chore(package): update mm to version 1.5.1
-  * chore(package): update should to version 10.0.0 (#125)
-  * doc: Update API doc for .multipartUpload
-  * chore(package): update should to version 9.0.2
+# 4.5.0 / 2016-10-13
 
-4.4.4 / 2016-06-04
-==================
+- feat: add options.ctx for every request params (#144)
+- chore(package): update urllib to version 2.16.1 (#146)
+- chore(package): update uglify-js to version 2.7.1
+- chore(package): update should to version 11.0.0
+- chore(package): update mocha to version 3.0.0
+- chore(package): update mm to version 2.0.0
+- chore(package): update mm to version 1.5.1
+- chore(package): update should to version 10.0.0 (#125)
+- doc: Update API doc for .multipartUpload
+- chore(package): update should to version 9.0.2
 
-  * deps: use ^
-  * Fix isGeneratorFunction and Date format problems in IE10 (#118)
-  * chore(package): update humanize-ms to version 1.2.0
+# 4.4.4 / 2016-06-04
 
-4.4.3 / 2016-05-17
-==================
+- deps: use ^
+- Fix isGeneratorFunction and Date format problems in IE10 (#118)
+- chore(package): update humanize-ms to version 1.2.0
 
-  * fix: memory leak in multipart (#113) (#114)
-  * chore(package): update utility to version 1.8.0
-  * chore(package): update urllib to version 2.9.1 (#111)
+# 4.4.3 / 2016-05-17
 
-4.4.2 / 2016-05-05
-==================
+- fix: memory leak in multipart (#113) (#114)
+- chore(package): update utility to version 1.8.0
+- chore(package): update urllib to version 2.9.1 (#111)
 
-  * fix: support node 6 (#109)
+# 4.4.2 / 2016-05-05
 
-4.4.1 / 2016-05-04
-==================
+- fix: support node 6 (#109)
 
-  * fix: Correctly parse Put/MultipartUpload response when using upload callback (#104)
-  * chore(package): update babel-plugin-transform-runtime to version 6.8.0 (#103)
+# 4.4.1 / 2016-05-04
 
-4.4.0 / 2016-04-28
-==================
+- fix: Correctly parse Put/MultipartUpload response when using upload callback (#104)
+- chore(package): update babel-plugin-transform-runtime to version 6.8.0 (#103)
 
-  * add options.ignoreStatusFile to ignore put status file for status check (#100)
+# 4.4.0 / 2016-04-28
 
-4.3.0 / 2016-04-14
-==================
+- add options.ignoreStatusFile to ignore put status file for status check (#100)
 
-  * deps: uglify-js
-  * Add a wrapper to return Promise (#95)
+# 4.3.0 / 2016-04-14
 
-4.2.2 / 2016-04-12
-==================
+- deps: uglify-js
+- Add a wrapper to return Promise (#95)
 
-  * Rework browser build to reduce dist size (#94)
-  * chore(package): update babel-plugin-transform-runtime to version 6.7.5
-  * test: add update exists object headers test case
-
-4.2.1 / 2016-04-07
-==================
-
-  * fix: add getObjectUrl on cluster client
-
-4.2.0 / 2016-04-07
-==================
-
-  * feat: introduce getObjectUrl method
-
-4.1.7 / 2016-03-30
-==================
-
-  * Trim access key id/secret
-
-4.1.6 / 2016-03-16
-==================
-
-  * Replace babel-polyfill with babel-runtime to avoid conflict with react
-  * chore(package): update sdk-base to version 2.0.1
-  * chore(package): update sdk-base to version 2.0.0
-
-4.1.5 / 2016-03-02
-==================
-
-  * add README for multipart
-  * provide checkpoint in multipart upload progress
-  * allow more HTTP methods in signatureUrl
-  * allow config expires in signatureUrl
-  * ignore image-client coverage
-  * stop check leaks in test, work around #74
-  * chore(package): update urllib to version 2.8.0
-  * fix post-release
-
-4.1.4 / 2016-01-28
-==================
-
-  * improve user-agent test
-  * use platform to detect browser user agent
-  * add script to publish dist/ to cdn after each release
-
-4.1.3 / 2016-01-27
-==================
-
-  * chore: update README
-  * add user-agent in header
-
-4.1.2 / 2016-01-27
-==================
-
-  * update dist
-
-4.1.1 / 2016-01-27
-==================
-
-  * deps: update dependencies
-  * update dist
-  * add build-dist script
-
-4.1.0 / 2016-01-26
-==================
-
-  * refine put/putStream interfaces
-  * add putACL & getACL
-  * fix bug when endpoint is IP with port
-
-4.0.1 / 2016-01-25
-==================
-
-  * fix IE10 compatibility and refine test
+# 4.2.2 / 2016-04-12
 
-4.0.0 / 2016-01-22
-==================
+- Rework browser build to reduce dist size (#94)
+- chore(package): update babel-plugin-transform-runtime to version 6.7.5
+- test: add update exists object headers test case
 
-  * build: only test on 4&5
-  * Merge pull request #55 from rockuw/master
-  * add .babelrc
-  * use readAsArrayBuffer for IE11 doesn't support readAsBinaryString
-  * reduce putBucketACL() case
-  * avoid putBucketACL() timeout
-  * sleep logger in bucket.test.js
-  * add node 5 and tidy .travis.yml
-  * use ms to tidy code
-  * Wait some time in test for bucket meta sync
-  * make region configurable
-  * test travis ci
-  * Set sts client default timeout to 60s
-  * test travis ci
-  * handle policy string in STS
-  * Merge pull request #57 from ali-sdk/greenkeeper-autod-2.4.2
-  * fix cdn addr
-  * use utility.escape
-  * chore(package): update autod to version 2.4.2
-  * refine as review comments
-  * add object key encoding test
-  * refine bucket test
-  * add content type test
-  * add browser usage in README
-  * signatureUrl() supports STS
-  * refine as review comments
-  * Merge pull request #56 from ali-sdk/greenkeeper-merge-descriptors-1.0.1
-  * chore(package): update merge-descriptors to version 1.0.1
-  * add policy to STS assumeRole
-  * correct author & cont. remove indent tabs
-  * expose .putData as public function
-  * remove indent tabs
-  * add comments to browser.js
-  * add browser.js and change 'let' to 'var'
-  * move multipart into a separate file
-  * refine subres
-  * rich multipart test
-  * support STS in oss client
-  * add STS client, test pass
-  * fix bug in uploadPart, and refine multipart test
-  * support generator progress callback
-  * add progress callback
-  * browser multipartUpload test pass
-  * multipart for server test pass
-  * fix object url
-  * pass all tests
-  * refine client constructor to handle endpoint/ip/cname/region
-  * Change 'Date' header to 'x-oss-date' for browser compatibility
+# 4.2.1 / 2016-04-07
 
-3.1.3 / 2015-12-18
-==================
+- fix: add getObjectUrl on cluster client
+
+# 4.2.0 / 2016-04-07
+
+- feat: introduce getObjectUrl method
+
+# 4.1.7 / 2016-03-30
+
+- Trim access key id/secret
+
+# 4.1.6 / 2016-03-16
+
+- Replace babel-polyfill with babel-runtime to avoid conflict with react
+- chore(package): update sdk-base to version 2.0.1
+- chore(package): update sdk-base to version 2.0.0
+
+# 4.1.5 / 2016-03-02
+
+- add README for multipart
+- provide checkpoint in multipart upload progress
+- allow more HTTP methods in signatureUrl
+- allow config expires in signatureUrl
+- ignore image-client coverage
+- stop check leaks in test, work around #74
+- chore(package): update urllib to version 2.8.0
+- fix post-release
+
+# 4.1.4 / 2016-01-28
+
+- improve user-agent test
+- use platform to detect browser user agent
+- add script to publish dist/ to cdn after each release
 
-  * fix(object): custom content-type support lower case
-  * deps: update dependencies
+# 4.1.3 / 2016-01-27
 
-3.1.2 / 2015-10-26
-==================
+- chore: update README
+- add user-agent in header
 
-  * feat: support custom Content-Type
+# 4.1.2 / 2016-01-27
 
-3.1.1 / 2015-10-23
-==================
+- update dist
 
- * fix(cluster): simplify cluster config
+# 4.1.1 / 2016-01-27
 
-3.1.0 / 2015-10-23
-==================
+- deps: update dependencies
+- update dist
+- add build-dist script
 
- * feat: support custom urllib client
- * chore: add node required on package.json
+# 4.1.0 / 2016-01-26
 
-3.0.3 / 2015-10-03
-==================
+- refine put/putStream interfaces
+- add putACL & getACL
+- fix bug when endpoint is IP with port
 
-  * feat: change check status file path
+# 4.0.1 / 2016-01-25
 
-3.0.2 / 2015-10-01
-==================
+- fix IE10 compatibility and refine test
 
-  * feat: make chooseAvailable public
+# 4.0.0 / 2016-01-22
 
-3.0.1 / 2015-09-30
-==================
+- build: only test on 4&5
+- Merge pull request #55 from rockuw/master
+- add .babelrc
+- use readAsArrayBuffer for IE11 doesn't support readAsBinaryString
+- reduce putBucketACL() case
+- avoid putBucketACL() timeout
+- sleep logger in bucket.test.js
+- add node 5 and tidy .travis.yml
+- use ms to tidy code
+- Wait some time in test for bucket meta sync
+- make region configurable
+- test travis ci
+- Set sts client default timeout to 60s
+- test travis ci
+- handle policy string in STS
+- Merge pull request #57 from ali-sdk/greenkeeper-autod-2.4.2
+- fix cdn addr
+- use utility.escape
+- chore(package): update autod to version 2.4.2
+- refine as review comments
+- add object key encoding test
+- refine bucket test
+- add content type test
+- add browser usage in README
+- signatureUrl() supports STS
+- refine as review comments
+- Merge pull request #56 from ali-sdk/greenkeeper-merge-descriptors-1.0.1
+- chore(package): update merge-descriptors to version 1.0.1
+- add policy to STS assumeRole
+- correct author & cont. remove indent tabs
+- expose .putData as public function
+- remove indent tabs
+- add comments to browser.js
+- add browser.js and change 'let' to 'var'
+- move multipart into a separate file
+- refine subres
+- rich multipart test
+- support STS in oss client
+- add STS client, test pass
+- fix bug in uploadPart, and refine multipart test
+- support generator progress callback
+- add progress callback
+- browser multipartUpload test pass
+- multipart for server test pass
+- fix object url
+- pass all tests
+- refine client constructor to handle endpoint/ip/cname/region
+- Change 'Date' header to 'x-oss-date' for browser compatibility
 
-  * deps: urllib@2.5.0
+# 3.1.3 / 2015-12-18
 
-3.0.0 / 2015-09-30
-==================
+- fix(object): custom content-type support lower case
+- deps: update dependencies
 
-  * refactor: change signatureUrl to normal function
-  * feat: add available checking
+# 3.1.2 / 2015-10-26
 
-2.8.0 / 2015-09-29
-==================
+- feat: support custom Content-Type
 
- * test: cluster store to two different bucket
- * feat: support signatureUrl
- * feat: add clusterClient
+# 3.1.1 / 2015-10-23
 
-2.7.0 / 2015-09-22
-==================
+- fix(cluster): simplify cluster config
 
- * feat: support cname and object url
+# 3.1.0 / 2015-10-23
 
-2.6.1 / 2015-09-09
-==================
+- feat: support custom urllib client
+- chore: add node required on package.json
 
- * add endpoint into readme
- * chore: fix codecov link
+# 3.0.3 / 2015-10-03
 
-2.6.0 / 2015-09-07
-==================
+- feat: change check status file path
 
- * test: skip image upload
- * docs: add putStream doc
- * test: use codecov
- * feat: put object support streaming
+# 3.0.2 / 2015-10-01
 
-2.5.1 / 2015-08-24
-==================
+- feat: make chooseAvailable public
 
- * fix: remove unnecessary decode
- * fix: signature url
- * fix: escape resource
+# 3.0.1 / 2015-09-30
 
-2.5.0 / 2015-08-22
-==================
+- deps: urllib@2.5.0
 
- * chore: travis use sudo: false
- * feat: request error add params info
+# 3.0.0 / 2015-09-30
 
-2.4.0 / 2015-08-15
-==================
+- refactor: change signatureUrl to normal function
+- feat: add available checking
 
-  * feat(createRequest): expose create request method
-  * deps upgrade
+# 2.8.0 / 2015-09-29
 
-2.3.0 / 2015-07-25
-==================
+- test: cluster store to two different bucket
+- feat: support signatureUrl
+- feat: add clusterClient
 
- * feature: support custom agent by options.agent
+# 2.7.0 / 2015-09-22
 
-2.2.0 / 2015-04-02
-==================
+- feat: support cname and object url
 
- * Image service API (@zensh)
+# 2.6.1 / 2015-09-09
 
-2.1.0 / 2015-03-23
-==================
+- add endpoint into readme
+- chore: fix codecov link
 
- * feat: add getStream*() api
+# 2.6.0 / 2015-09-07
 
-2.0.0 / 2015-02-28
-==================
+- test: skip image upload
+- docs: add putStream doc
+- test: use codecov
+- feat: put object support streaming
 
-  * fix get not exists object TypeError
-  * transfer to ali-sdk/ali-oss
-  * feat(object): support streaming put
-  * refactor object operations with successStatuses and xmpResponse
-  * finish bucket operations
-  * ensure tmp dir exists
-  * add appveyor.yml
-  * add bucket operations
-  * support deleteMulti
-  * support copy and updateMeta
-  * support get object
-  * support delete object
-  * totally refactor according to ali-sdk
+# 2.5.1 / 2015-08-24
 
-1.1.0 / 2015-01-30
-==================
+- fix: remove unnecessary decode
+- fix: signature url
+- fix: escape resource
 
- * feat: support signature url
+# 2.5.0 / 2015-08-22
 
-1.0.0 / 2014-10-26
-==================
+- chore: travis use sudo: false
+- feat: request error add params info
 
-  * use urllib replace of co-urllib
-  * fix readme
-  * ocd
-  * update examples
+# 2.4.0 / 2015-08-15
 
-0.0.3 / 2014-04-11
-==================
+- feat(createRequest): expose create request method
+- deps upgrade
 
-  * update co-urllib, add mime, add alias
+# 2.3.0 / 2015-07-25
 
-0.0.2 / 2014-04-10
-==================
+- feature: support custom agent by options.agent
 
-  * fix 404 error handler
-  * Merge branch 'master' of github.com:node-modules/ali-oss
-  * add istanbul
-  * Merge pull request #1 from chunpu/patch-1
-  * fix regenerator url
+# 2.2.0 / 2015-04-02
 
-0.0.1 / 2014-04-08
-==================
+- Image service API (@zensh)
 
-  * fix readme
-  * add travis-ci
-  * use renegerator
-  * update readme
-  * add callback example
-  * add test
-  * finish get and remove
-  * complete upload
-  * Initial commit
+# 2.1.0 / 2015-03-23
+
+- feat: add getStream\*() api
+
+# 2.0.0 / 2015-02-28
+
+- fix get not exists object TypeError
+- transfer to ali-sdk/ali-oss
+- feat(object): support streaming put
+- refactor object operations with successStatuses and xmpResponse
+- finish bucket operations
+- ensure tmp dir exists
+- add appveyor.yml
+- add bucket operations
+- support deleteMulti
+- support copy and updateMeta
+- support get object
+- support delete object
+- totally refactor according to ali-sdk
+
+# 1.1.0 / 2015-01-30
+
+- feat: support signature url
+
+# 1.0.0 / 2014-10-26
+
+- use urllib replace of co-urllib
+- fix readme
+- ocd
+- update examples
+
+# 0.0.3 / 2014-04-11
+
+- update co-urllib, add mime, add alias
+
+# 0.0.2 / 2014-04-10
+
+- fix 404 error handler
+- Merge branch 'master' of github.com:node-modules/ali-oss
+- add istanbul
+- Merge pull request #1 from chunpu/patch-1
+- fix regenerator url
+
+# 0.0.1 / 2014-04-08
+
+- fix readme
+- add travis-ci
+- use renegerator
+- update readme
+- add callback example
+- add test
+- finish get and remove
+- complete upload
+- Initial commit

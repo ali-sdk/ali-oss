@@ -16,6 +16,6 @@ export async function deleteBucketInventory(this: any, bucketName: string, inven
   const result = await this.request(params);
   return {
     status: result.status,
-    res: result.res,
+    res: result.res
   };
 }

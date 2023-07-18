@@ -2,7 +2,7 @@
 
 # Upgrading Notes (5.x to 6.x)
 
-No matter how it changes, the api  will never change. In order to give developers a better experience, we just change the way that the client use. This document captures breaking changes from 5.x versions to the first
+No matter how it changes, the api will never change. In order to give developers a better experience, we just change the way that the client use. This document captures breaking changes from 5.x versions to the first
 stable 6.x (non-RC) release of the Aliyun SDK for JavaScript.
 
 ## 1. Remove Region Param for All Bucket Operations
@@ -22,6 +22,7 @@ const Client = new OSS(...);
 
 Client.deleteBucket(bucket,region);
 ```
+
 Should be changed to the following:
 
 ```

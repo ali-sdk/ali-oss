@@ -1,12 +1,7 @@
 import { obj2xml } from '../utils/obj2xml';
 import { checkBucketName } from '../utils/checkBucketName';
 
-export async function initiateBucketWorm(
-  this: any,
-  name: string,
-  days: string,
-  options
-) {
+export async function initiateBucketWorm(this: any, name: string, days: string, options) {
   checkBucketName(name);
   const params = this._bucketRequestParams('POST', name, 'worm', options);
   const paramlXMLObJ = {

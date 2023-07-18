@@ -75,8 +75,8 @@
     "@commitlint/cli": "^16.2.4",
     "@commitlint/config-conventional": "^16.2.4",
     "@types/node": "^14.0.12",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
     "aliasify": "^2.0.0",
     "autod": "^2.6.1",
     "babelify": "^10.0.0",
@@ -87,12 +87,15 @@
     "core-js": "^3.6.5",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^8.2.0",
-    "eslint": "^6.8.0",
+    "eslint": "^8.44.0",
     "eslint-config-airbnb": "^18.2.1",
-    "eslint-config-ali": "^9.0.2",
+    "eslint-config-ali": "^13.0.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.21.1",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "filereader": "^0.10.3",
     "git-pre-hooks": "^1.2.0",
     "husky": "^7.0.4",
@@ -108,6 +111,7 @@
     "mm": "^2.0.0",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",
+    "prettier": "^3.0.0",
     "promise-polyfill": "^6.0.2",
     "puppeteer": "^10.4.0",
     "request": "^2.88.0",
@@ -122,7 +126,7 @@
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "address": "^1.2.0",
+    "address": "^1.2.2",
     "agentkeepalive": "^3.4.1",
     "bowser": "^1.6.0",
     "copy-to": "^2.0.1",
@@ -151,6 +155,10 @@
     "**/!(dist)/*": [
       "npm run detect-secrets --"
     ],
-    "lib/**/*.js": "eslint --cache --fix"
+    "**/*.{js,ts}": [
+      "eslint --cache --fix --ext .js,.ts",
+      "prettier --write",
+      "git add"
+    ]
   }
 }
