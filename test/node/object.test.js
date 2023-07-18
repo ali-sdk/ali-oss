@@ -1018,6 +1018,17 @@ describe('test/object.test.js', () => {
         assert.equal(result.content.toString(), 'aaaaaaaaaa');
       });
     });
+    describe('get(name, null, options)', () => {
+      it('test get(name, null, options)', async () => {
+        const result = await store.get(name, null, {
+          headers: {
+            Range: 'bytes=0-9'
+          }
+        });
+        assert.equal(result.res.headers['content-length'], '10');
+        assert(Buffer.isBuffer(result.content), 'content should be Buffer');
+      });
+    });
   });
 
   describe('signatureUrl()', () => {
