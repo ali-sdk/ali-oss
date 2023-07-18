@@ -24,9 +24,7 @@ export function obj2xml(obj, options?) {
         } else if (type(obj[key]) === 'object') {
           s += `<${key}>${obj2xml(obj[key])}</${key}>`;
         } else if (type(obj[key]) === 'array') {
-          s += obj[key]
-            .map(keyChild => `<${key}>${obj2xml(keyChild)}</${key}>`)
-            .join('');
+          s += obj[key].map(keyChild => `<${key}>${obj2xml(keyChild)}</${key}>`).join('');
         } else {
           s += `<${key}>${obj[key].toString()}</${key}>`;
         }

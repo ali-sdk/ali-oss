@@ -14,12 +14,12 @@ interface Inventory {
     bucket: string;
     prefix?: string;
     encryption?:
-    | {'SSE-OSS': ''}
-    | {
-      'SSE-KMS': {
-        keyId: string;
-      };
-    };
+      | { 'SSE-OSS': '' }
+      | {
+          'SSE-KMS': {
+            keyId: string;
+          };
+        };
   };
   frequency: 'Daily' | 'Weekly';
   includedObjectVersions: 'Current' | 'All';
@@ -46,7 +46,7 @@ export async function putBucketInventory(this: any, bucketName: string, inventor
       Id: inventory.id,
       IsEnabled: inventory.isEnabled,
       Filter: {
-        Prefix: inventory.prefix || '',
+        Prefix: inventory.prefix || ''
       },
       Destination: {
         OSSBucketDestination: {
@@ -55,21 +55,21 @@ export async function putBucketInventory(this: any, bucketName: string, inventor
           RoleArn: `${rolePrefix}${OSSBucketDestination.rolename}`,
           Bucket: `${destinationBucketPrefix}${OSSBucketDestination.bucket}`,
           Prefix: OSSBucketDestination.prefix || '',
-          Encryption: OSSBucketDestination.encryption || '',
-        },
+          Encryption: OSSBucketDestination.encryption || ''
+        }
       },
       Schedule: {
-        Frequency: inventory.frequency,
+        Frequency: inventory.frequency
       },
       IncludedObjectVersions: includedObjectVersions,
       OptionalFields: {
-        Field: optionalFields?.field || [],
-      },
-    },
+        Field: optionalFields?.field || []
+      }
+    }
   };
   const paramXML = obj2xml(paramXMLObj, {
     headers: true,
-    firstUpperCase: true,
+    firstUpperCase: true
   });
 
   const params = this._bucketRequestParams('PUT', bucketName, subres, options);
@@ -79,6 +79,6 @@ export async function putBucketInventory(this: any, bucketName: string, inventor
   const result = await this.request(params);
   return {
     status: result.status,
-    res: result.res,
+    res: result.res
   };
 }

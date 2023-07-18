@@ -951,7 +951,11 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-file-${Date.now()}`;
       const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
       try {
-        await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+        const p1 = store.multipartUpload(name, fileName);
+        const p2 = store.multipartUpload(name1, fileName).catch(error => {
+          console.log('info >', error.message);
+        });
+        await Promise.all([p1, p2]);
       } catch (e) {}
       mm.restore();
       await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);

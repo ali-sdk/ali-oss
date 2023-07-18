@@ -18,13 +18,7 @@ const FALSE = ['false', 'FALSE', '0', 0];
 export function dataFix(o: object, conf: Config, finalKill?: Function) {
   if (!isObject(o)) return;
 
-  const {
-    remove = [],
-    rename = {},
-    camel = [],
-    bool = [],
-    lowerFirst = false,
-  } = conf;
+  const { remove = [], rename = {}, camel = [], bool = [], lowerFirst = false } = conf;
 
   // 删除不需要的数据
   remove.forEach(v => delete o[v]);
@@ -40,9 +34,7 @@ export function dataFix(o: object, conf: Config, finalKill?: Function) {
   // 驼峰化
   camel.forEach(v => {
     if (!o[v]) return;
-    const afterKey = v
-      .replace(/^(.)/, $0 => $0.toLowerCase())
-      .replace(/-(\w)/g, (_, $1) => $1.toUpperCase());
+    const afterKey = v.replace(/^(.)/, $0 => $0.toLowerCase()).replace(/-(\w)/g, (_, $1) => $1.toUpperCase());
     if (o[afterKey]) return;
     o[afterKey] = o[v];
     // todo 暂时兼容以前数据，不做删除

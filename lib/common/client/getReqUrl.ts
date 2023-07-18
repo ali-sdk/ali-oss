@@ -1,4 +1,3 @@
-
 import copy from 'copy-to';
 import urlutil from 'url';
 import merge from 'merge-descriptors';
@@ -17,7 +16,7 @@ export function getReqUrl(this: any, params) {
   }
 
   let resourcePath = '/';
-  if (params.bucket && (this.options.sldEnable)) {
+  if (params.bucket && this.options.sldEnable) {
     resourcePath += `${params.bucket}/`;
   }
 
@@ -37,7 +36,7 @@ export function getReqUrl(this: any, params) {
     if ((is as any).string(params.subres)) {
       subresAsQuery[params.subres] = '';
     } else if (is.array(params.subres)) {
-      params.subres.forEach((k) => {
+      params.subres.forEach(k => {
         subresAsQuery[k] = '';
       });
     } else {
@@ -50,4 +49,3 @@ export function getReqUrl(this: any, params) {
 
   return urlutil.format(ep);
 }
-

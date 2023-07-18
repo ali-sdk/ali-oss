@@ -1,4 +1,4 @@
-declare type bucketStatRes = {
+interface bucketStatRes {
     Storage: string;
     ObjectCount: string;
     MultipartUploadCount: string;
@@ -15,7 +15,7 @@ declare type bucketStatRes = {
     ColdArchiveStorage: string;
     ColdArchiveRealStorage: string;
     ColdArchiveObjectCount: string;
-};
+}
 export declare function getBucketStat(this: any, name: string, options: {}): Promise<{
     res: any;
     stat: bucketStatRes;
