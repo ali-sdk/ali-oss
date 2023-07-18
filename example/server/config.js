@@ -1,4 +1,4 @@
-const env = process.env;
+const { env } = process;
 module.exports = {
   AccessKeyId: env.ALI_SDK_STS_ID,
   AccessKeySecret: env.ALI_SDK_STS_SECRET,

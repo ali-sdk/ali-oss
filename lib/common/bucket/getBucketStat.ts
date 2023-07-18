@@ -1,6 +1,6 @@
 import { checkBucketName } from '../utils/checkBucketName';
 
-type bucketStatRes = {
+interface bucketStatRes {
   Storage: string;
   ObjectCount: string;
   MultipartUploadCount: string;
@@ -17,7 +17,7 @@ type bucketStatRes = {
   ColdArchiveStorage: string;
   ColdArchiveRealStorage: string;
   ColdArchiveObjectCount: string;
-};
+}
 
 export async function getBucketStat(this: any, name: string, options: {}): Promise<{ res: any; stat: bucketStatRes }> {
   name = name || this.options.bucket;
