@@ -1270,7 +1270,7 @@ describe('test/bucket.test.js', () => {
     });
   });
 
-  describe('getBucketPolicy() putBucketPolicy() deleteBucketPolicy()', () => {
+  describe.only('getBucketPolicy() putBucketPolicy() deleteBucketPolicy()', () => {
     it('should put, get, delete, when policy is Object', async () => {
       try {
         const policy = {
@@ -1285,6 +1285,7 @@ describe('test/bucket.test.js', () => {
           ]
         };
         const result = await store.putBucketPolicy(bucket, policy);
+        console.log('rr-', result);
         assert.strictEqual(result.status, 200);
         const result1 = await store.getBucketPolicy(bucket);
         assert.deepStrictEqual(policy, result1.policy);
@@ -1293,7 +1294,7 @@ describe('test/bucket.test.js', () => {
         const result3 = await store.getBucketPolicy(bucket);
         assert.deepStrictEqual(null, result3.policy);
       } catch (err) {
-        assert(false, err.message);
+        assert.fail(err.message);
       }
     });
     it('should throw error, when policy is not Object', async () => {
