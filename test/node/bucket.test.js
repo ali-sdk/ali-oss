@@ -25,7 +25,7 @@ describe('test/bucket.test.js', () => {
   });
   // restore object will have cache
   after(async () => {
-    // await utils.cleanBucket(store, bucket);
+    await utils.cleanBucket(store, bucket);
   });
 
   describe('setBucket()', () => {
