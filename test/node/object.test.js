@@ -173,7 +173,7 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe.only('processObjectSave()', () => {
+  describe('processObjectSave()', () => {
     const name = 'sourceObject.png';
     before(async () => {
       const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
