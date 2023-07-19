@@ -1,22 +1,19 @@
+/* eslint-disable no-undef */
 const assert = require('assert');
 const mm = require('mm');
-/* eslint no-undef: [0] */
-const oss = OSS;
 const urllib = require('urllib');
 const sinon = require('sinon');
 const md5 = require('crypto-js/md5');
-/* eslint import/no-unresolved: [0] */
 const stsConfig = require('./.tmp/stsConfig.json');
 const pkg = require('../../package.json');
 const platform = require('platform');
-
 const crypto1 = require('crypto');
 const { Readable } = require('stream');
 const { prefix } = require('./browser-utils');
-
-let ossConfig;
 const timemachine = require('timemachine');
 
+let ossConfig;
+const oss = OSS;
 timemachine.reset();
 
 function sleep(time) {
@@ -48,13 +45,6 @@ describe('browser', () => {
       stsToken: stsConfig.Credentials.SecurityToken,
       bucket: stsConfig.bucket
     };
-    // this.store = oss({
-    //   region: stsConfig.region,
-    //   accessKeyId: creds.AccessKeyId,
-    //   accessKeySecret: creds.AccessKeySecret,
-    //   stsToken: creds.SecurityToken,
-    //   bucket: stsConfig.bucket
-    // });
   });
   after(async () => {
     const store = oss(ossConfig);
@@ -2447,6 +2437,34 @@ describe('browser', () => {
 
       assert.equal(header['x-oss-traffic-limit'], 645763);
       assert.equal(header['x-oss-server-side-encryption'], undefined);
+    });
+  });
+
+  describe.only('refreshSTSToken()', () => {
+    let store;
+    before(async () => {
+      store = oss({ ...ossConfig, refreshSTSTokenInterval: 1000 });
+    });
+
+    it('should refresh sts token when token is expired', async () => {
+      try {
+        const temp = { accessKeySecret: 's', accessKeyId: 'a', stsToken: 's' };
+        store.options.refreshSTSToken = async () => {
+          mm.restore();
+          return temp;
+        };
+        const { accessKeyId: ak } = store.options;
+        await store.listV2({ 'max-keys': 1 });
+        assert.strictEqual(ak, store.options.accessKeyId);
+        await sleep(2000);
+        try {
+          await store.listV2({ 'max-keys': 1 });
+        } catch (e) {
+          assert.strictEqual(store.options.stsToken, temp.stsToken);
+        }
+      } catch (error) {
+        assert(false, error);
+      }
     });
   });
 });
