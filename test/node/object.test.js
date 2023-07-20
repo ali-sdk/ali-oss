@@ -2115,24 +2115,24 @@ describe('test/object.test.js', () => {
 
     it('should apend object with content buffer', async () => {
       let object = await store.append(name, Buffer.from('foo'));
-      assert(object.res.status === 200);
-      assert(object.nextAppendPosition === '3');
-      assert(object.res.headers['x-oss-next-append-position'] === '3');
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(object.nextAppendPosition, '3');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '3');
 
       let res = await store.get(name);
-      assert(res.content.toString() === 'foo');
-      assert(res.res.headers['x-oss-next-append-position'] === '3');
+      assert.strictEqual(res.content.toString(), 'foo');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '3');
 
       object = await store.append(name, Buffer.from('bar'), {
         position: 3
       });
-      assert(object.res.status === 200);
-      assert(object.nextAppendPosition === '6');
-      assert(object.res.headers['x-oss-next-append-position'] === '6');
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(object.nextAppendPosition, '6');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '6');
 
       res = await store.get(name);
-      assert(res.content.toString() === 'foobar');
-      assert(res.res.headers['x-oss-next-append-position'] === '6');
+      assert.strictEqual(res.content.toString(), 'foobar');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '6');
     });
 
     it('should apend object with local file path', async () => {
