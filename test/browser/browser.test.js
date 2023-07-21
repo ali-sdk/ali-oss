@@ -2508,7 +2508,7 @@ describe('browser', () => {
           assert.strictEqual(store.options.stsToken, temp.stsToken);
         }
       } catch (error) {
-        assert(false, error);
+        assert.fail(error);
       }
     });
   });
