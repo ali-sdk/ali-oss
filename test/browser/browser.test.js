@@ -2450,6 +2450,41 @@ describe('browser', () => {
     });
   });
 
+  describe('append()', () => {
+    const name = `/${prefix}ali-sdk/oss/apend${Date.now()}`;
+    let store;
+    before(() => {
+      store = oss(ossConfig);
+    });
+
+    afterEach(async () => {
+      await store.delete(name);
+    });
+
+    it('should apend object with content blob', async () => {
+      let object = await store.append(name, new Blob(['foo']));
+      const { nextAppendPosition } = object;
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(nextAppendPosition, '3');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '3');
+
+      let res = await store.get(name);
+      assert.strictEqual(res.content.toString(), 'foo');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '3');
+
+      object = await store.append(name, new Blob(['bar']), {
+        position: nextAppendPosition
+      });
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(object.nextAppendPosition, '6');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '6');
+
+      res = await store.get(name, { subres: { 'response-cache-control': 'no-store' } });
+      assert.strictEqual(res.content.toString(), 'foobar');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '6');
+    });
+  });
+
   describe('refreshSTSToken()', () => {
     let store;
     before(async () => {
