@@ -2049,7 +2049,7 @@ describe.only('test/object.test.js', () => {
   });
 
   describe('object key encoding', () => {
-    it.only('should encode variant object keys', async () => {
+    it('should encode variant object keys', async () => {
       const prefixz = 'ali-oss-test-key-';
       const keys = {
         simple: 'simple_key',
@@ -2515,7 +2515,7 @@ describe.only('test/object.test.js', () => {
     });
   });
 
-  describe('options.headerEncoding', () => {
+  describe.only('options.headerEncoding', () => {
     const utf8_content = '阿达的大多';
     const latin1_content = Buffer.from(utf8_content).toString('latin1');
     let name;
@@ -2530,6 +2530,7 @@ describe.only('test/object.test.js', () => {
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
+      console.log('info', info);
       assert.equal(info.status, 200);
       assert.equal(info.meta.a, latin1_content);
     });
