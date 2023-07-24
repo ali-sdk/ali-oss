@@ -188,13 +188,13 @@ describe('test/rtmp.test.js', () => {
       createVodConf.Description = 'this is live channel 4';
       const result = await store.putChannel(createVodCid, createVodConf);
       assert.equal(result.res.status, 200);
-      const url = store.getRtmpUrl(createVodCid, {
+      store.getRtmpUrl(createVodCid, {
         params: {
           playlistName: 'vod.m3u8'
         },
         expires: 3600
       });
-      console.log(url);
+      // console.log(url);  const url =
     });
 
     after(async () => {
@@ -202,7 +202,7 @@ describe('test/rtmp.test.js', () => {
     });
 
     // this case need have data in server
-    it.skip('should create vod playlist', async () => {
+    it('should create vod playlist', async () => {
       const name = 'vod.m3u8';
       const now = Date.now();
 

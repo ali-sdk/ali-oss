@@ -21,7 +21,7 @@ if (!fs.existsSync(tmpdir)) {
   fs.mkdirSync(tmpdir);
 }
 
-describe.only('test/object.test.js', () => {
+describe('test/object.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
@@ -2515,9 +2515,9 @@ describe.only('test/object.test.js', () => {
     });
   });
 
-  describe.only('options.headerEncoding', () => {
+  describe('options.headerEncoding', () => {
     const utf8_content = '阿达的大多';
-    const latin1_content = Buffer.from(utf8_content).toString('latin1');
+    // const latin1_content = Buffer.from(utf8_content).toString('latin1');
     let name;
     before(async () => {
       store.options.headerEncoding = 'latin1';
@@ -2530,9 +2530,8 @@ describe.only('test/object.test.js', () => {
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
-      console.log('info', info);
       assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
+      assert.equal(info.meta.a, utf8_content); // Urllib3 will automatically decode
     });
 
     after(() => {
@@ -2549,7 +2548,7 @@ describe.only('test/object.test.js', () => {
       assert.equal(result.res.status, 200);
       const info = await store.head(originname);
       assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
+      assert.equal(info.meta.a, utf8_content);
     });
 
     it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
@@ -2562,7 +2561,7 @@ describe.only('test/object.test.js', () => {
       assert.equal(result.res.status, 200);
       const info = await store.head(originname);
       assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
+      assert.equal(info.meta.a, utf8_content);
     });
 
     it('putMeta() should return 200', async () => {
@@ -2572,7 +2571,7 @@ describe.only('test/object.test.js', () => {
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
       assert.equal(info.status, 200);
-      assert.equal(info.meta.b, latin1_content);
+      assert.equal(info.meta.b, utf8_content);
     });
   });
 });
