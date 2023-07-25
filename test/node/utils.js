@@ -33,6 +33,7 @@ exports.throws = async function (block, checkError) {
     if (!checkError.test(err.toString())) {
       throw new Error(`expected ${err.toString()} to match ${checkError.toString()}`);
     }
+
     return false;
   }
   throw new Error(`${block.toString()} should throws error`);
