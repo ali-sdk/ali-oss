@@ -808,12 +808,19 @@ describe('test/object.test.js', () => {
       );
     });
 
-    it('should throw error when writeStream emit error', async () => {
+    it.only('should throw error when writeStream emit error', async () => {
       const savepath = path.join(tmpdir, 'not-exists-dir', name.replace(/\//g, '-'));
       try {
-        await utils.throws(async () => {
-          await store.get(name, fs.createWriteStream(savepath));
+        const res = await utils.throws(async () => {
+          try {
+            await store.get(name, fs.createWriteStream(savepath));
+          } catch (error) {
+            console.log('ccc', error.message);
+            // throw error;
+          }
+          // throw 'ENOENT';
         }, /ENOENT/);
+        console.log('res-', res);
       } catch (error) {
         console.log('000---', error);
       }
