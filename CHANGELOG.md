@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.18.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.17.0...v6.18.0) (2023-07-27)
+
+### Features
+
+- add asyncSignatureUrl method ([#1057](https://github.com/aliyun/oss-nodejs-sdk/issues/1057)) ([1a05e80](https://github.com/aliyun/oss-nodejs-sdk/commit/1a05e8077b9e2ecbef0579253594ee2e67c45af4))
+- add getBucketStat method ([#1102](https://github.com/aliyun/oss-nodejs-sdk/issues/1102)) ([a63a5a4](https://github.com/aliyun/oss-nodejs-sdk/commit/a63a5a4c6c853f78dbbb97ca065866dcfe212ab0))
+- optimized multipartUpload progress close [#1139](https://github.com/aliyun/oss-nodejs-sdk/issues/1139) ([#1141](https://github.com/aliyun/oss-nodejs-sdk/issues/1141)) ([12fcfd1](https://github.com/aliyun/oss-nodejs-sdk/commit/12fcfd1abd9f6fb7ca0fce9b81c076b2d7518c1f))
+- the browser needs to set cross domain and expose the x-oss-next-append-position header ([#1218](https://github.com/aliyun/oss-nodejs-sdk/issues/1218)) ([ab2f4a3](https://github.com/aliyun/oss-nodejs-sdk/commit/ab2f4a3c795d1ab61b54112f3fc081d8afb39b7f))
+
+### Bug Fixes
+
+- uploadPart not pass all headers parameters ([#1215](https://github.com/aliyun/oss-nodejs-sdk/issues/1215)) ([d842a6c](https://github.com/aliyun/oss-nodejs-sdk/commit/d842a6cd1653901ad865f080f37d40ff0a73cbe1))
+- **6.x:** lock dependencies ([#1088](https://github.com/aliyun/oss-nodejs-sdk/issues/1088)) ([9b65ef2](https://github.com/aliyun/oss-nodejs-sdk/commit/9b65ef28db5859b13238bd6aaccb3c25547b11e3))
+- fix user input header MD5 value being overwritten problem ([#1100](https://github.com/aliyun/oss-nodejs-sdk/issues/1100)) ([3f26b79](https://github.com/aliyun/oss-nodejs-sdk/commit/3f26b79384d733687e9324fa6b03df863a9a43dd))
+- remove Invalid Comparison ([#1090](https://github.com/aliyun/oss-nodejs-sdk/issues/1090)) ([bbb55b8](https://github.com/aliyun/oss-nodejs-sdk/commit/bbb55b821b5b0254827e62042bbadd6f96311c8b))
+- require module exits ([#1052](https://github.com/aliyun/oss-nodejs-sdk/issues/1052)) ([b176fa8](https://github.com/aliyun/oss-nodejs-sdk/commit/b176fa87d0de8b346f0f792f77acaf3002ca3a4d))
+- to fix callback customValue ([#1126](https://github.com/aliyun/oss-nodejs-sdk/issues/1126)) ([e6cdfe5](https://github.com/aliyun/oss-nodejs-sdk/commit/e6cdfe5a778e30de33eebd3f2b95791c38d6a8f6))
+- upgrade address from 1.1.2 to 1.2.2 ([#1114](https://github.com/aliyun/oss-nodejs-sdk/issues/1114)) ([a9b4d03](https://github.com/aliyun/oss-nodejs-sdk/commit/a9b4d03d7c53cb91efe790b9716c8bb8ecc2fda9))([#1184](https://github.com/aliyun/oss-nodejs-sdk/issues/1184)) ([b113222](https://github.com/aliyun/oss-nodejs-sdk/commit/b1132220f430d38e9e8738b6fdd8fb7f20b668a6))
+- upgrade is-type-of from 1.2.1 to 1.4.0 ([#1204](https://github.com/aliyun/oss-nodejs-sdk/issues/1204)) ([39ef9ac](https://github.com/aliyun/oss-nodejs-sdk/commit/39ef9acd9177b5d6348df7b9c83ca3a87c6b6185))
+- upgrade utility from 1.17.0 to 1.18.0 ([#1203](https://github.com/aliyun/oss-nodejs-sdk/issues/1203)) ([bc05406](https://github.com/aliyun/oss-nodejs-sdk/commit/bc05406b1b9326e1e08975e7639259cf04c2bf1e))
+
 ## [6.17.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.15.0...v6.17.0) (2022-01-27)
 
 ### Features

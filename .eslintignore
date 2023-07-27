@@ -16,3 +16,4 @@ task/
 browser-build.js
 es
 cjs
+dist/
