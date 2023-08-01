@@ -24,10 +24,13 @@ jobs:
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
     steps:
-      - uses: actions/checkout@v2
-      - name: test and report upload
+      - uses: actions/checkout@master
+      - name: test
         run: |
           npm install
           npm run tsc
           npx nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js
-          npx codecov -t ${{secrets.CODECOV_KEY}}
+      - name: upload coverage to codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_KEY }}
