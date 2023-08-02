@@ -52,7 +52,7 @@ describe('test/rtmp.test.js', () => {
   });
 
   describe('put/get/deleteChannel()', () => {
-    it('should create a new channel', async () => {
+    it.only('should create a new channel', async () => {
       const tempCid = cid;
       const tempConf = conf;
 

@@ -738,7 +738,7 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe.only('get()', () => {
+  describe('get()', () => {
     let name;
     let resHeaders;
     let needEscapeName;
@@ -808,23 +808,23 @@ describe('test/object.test.js', () => {
       );
     });
 
-    it.only('should throw error when writeStream emit error', async () => {
-      const savepath = path.join(tmpdir, 'not-exists-dir', name.replace(/\//g, '-'));
-      try {
-        const res = await utils.throws(async () => {
-          try {
-            await store.get(name, fs.createWriteStream(savepath));
-          } catch (error) {
-            console.log('ccc', error.message);
-            // throw error;
-          }
-          // throw 'ENOENT';
-        }, /ENOENT/);
-        console.log('res-', res);
-      } catch (error) {
-        console.log('000---', error);
-      }
-    });
+    // it('should throw error when writeStream emit error', async () => {
+    //   const savepath = path.join(tmpdir, 'not-exists-dir', name.replace(/\//g, '-'));
+    //   try {
+    //     const res = await utils.throws(async () => {
+    //       try {
+    //         await store.get(name, fs.createWriteStream(savepath));
+    //       } catch (error) {
+    //         console.log('ccc', error.message);
+    //         // throw error;
+    //       }
+    //       // throw 'ENOENT';
+    //     }, /ENOENT/);
+    //     console.log('res-', res);
+    //   } catch (error) {
+    //     console.log('000---', error);
+    //   }
+    // });
 
     it('should get object content buffer', async () => {
       let result = await store.get(name);
