@@ -14,7 +14,7 @@ const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
-const request = require('request');
+const axios = require('axios');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -127,7 +127,7 @@ describe('test/object.test.js', () => {
         const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
         await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
         const signUrl = await store.signatureUrl(name, { expires: 3600 });
-        const httpStream = request(signUrl);
+        const httpStream = await axios.getStream(signUrl);
         let result = await store.putStream(nameCpy, httpStream);
         assert.equal(result.res.status, 200);
         result = await store.get(nameCpy);
@@ -2309,7 +2309,7 @@ describe('test/object.test.js', () => {
   });
 
   describe('calculatePostSignature()', () => {
-    it('should get signature for postObject', async () => {
+    it.only('should get signature for postObject', async () => {
       try {
         const name = 'calculatePostSignature.js';
         const url = store.generateObjectUrl(name).replace(name, '');
@@ -2325,7 +2325,7 @@ describe('test/object.test.js', () => {
         const options = {
           url,
           method: 'POST',
-          formData: {
+          data: {
             ...params,
             key: name,
             file: {
@@ -2340,10 +2340,15 @@ describe('test/object.test.js', () => {
 
         const postFile = () => {
           return new Promise((resolve, reject) => {
-            request(options, (err, res) => {
-              if (err) reject(err);
-              if (res) resolve(res);
-            });
+            axios(options)
+              .then((err, res) => {
+                console.log('cc', err, res);
+                if (err) reject(err);
+                if (res) resolve(res);
+              })
+              .catch(rr => {
+                console.log('rr', rr);
+              });
           });
         };
 
