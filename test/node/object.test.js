@@ -2340,14 +2340,15 @@ describe('test/object.test.js', () => {
 
         const postFile = () => {
           return new Promise((resolve, reject) => {
+            console.log('pp', options);
             axios(options)
-              .then((err, res) => {
-                console.log('cc', err, res);
-                if (err) reject(err);
+              .then(res => {
+                console.log('res', res);
                 if (res) resolve(res);
               })
-              .catch(rr => {
-                console.log('rr', rr);
+              .catch(err => {
+                console.log('err', err);
+                if (err) reject(err);
               });
           });
         };
