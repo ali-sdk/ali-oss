@@ -75,9 +75,9 @@ export function createRequest(this: any, params) {
         headers['Content-MD5'] = params.headers['Content-MD5'];
       }
     }
-    if (!headers['Content-Length']) {
-      headers['Content-Length'] = params.content.length;
-    }
+    // if (!headers['Content-Length']) {
+    //   headers['Content-Length'] = params.content.length;
+    // }
   }
 
   const { hasOwnProperty } = Object.prototype;
