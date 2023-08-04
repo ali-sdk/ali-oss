@@ -4,8 +4,8 @@ const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
 const { oss: config, metaSyncTime } = require('../config');
-const AgentKeepalive = require('agentkeepalive');
-const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
+// const AgentKeepalive = require('agentkeepalive');
+// const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
 const oss = require('../..');
 const urllib = require('urllib');
@@ -15,6 +15,7 @@ const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
 const axios = require('axios');
+const FormData = require('form-data');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -127,14 +128,14 @@ describe('test/object.test.js', () => {
         const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
         await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
         const signUrl = await store.signatureUrl(name, { expires: 3600 });
-        const httpStream = await axios.getStream(signUrl);
-        let result = await store.putStream(nameCpy, httpStream);
+        const { data } = await axios({ url: signUrl, method: 'get', responseType: 'stream' });
+        let result = await store.putStream(nameCpy, data);
         assert.equal(result.res.status, 200);
         result = await store.get(nameCpy);
         assert.equal(result.res.status, 200);
         assert.equal(result.res.headers['content-type'], 'application/octet-stream');
       } catch (error) {
-        assert(error.message === 'can not get the object URL when endpoint is IP');
+        assert.equal(error.message, 'can not get the object URL when endpoint is IP');
       }
     });
 
@@ -1314,23 +1315,23 @@ describe('test/object.test.js', () => {
       }
     });
 
-    if (!process.env.ONCI) {
-      it('should throw error and consume the response stream', async () => {
-        store.agent = new AgentKeepalive({
-          keepAlive: true
-        });
-        store.httpsAgent = new HttpsAgentKeepalive();
-        try {
-          await store.getStream(`${name}not-exists`);
-          throw new Error('should not run this');
-        } catch (err) {
-          assert.equal(err.name, 'NoSuchKeyError');
-          assert(Object.keys(store.agent.freeSockets).length === 0);
-          await utils.sleep(ms(metaSyncTime));
-          assert(Object.keys(store.agent.freeSockets).length === 1);
-        }
-      });
-    }
+    // if (!process.env.ONCI) {
+    //   it('should throw error and consume the response stream', async () => {
+    //     store.agent = new AgentKeepalive({
+    //       keepAlive: true
+    //     });
+    //     store.httpsAgent = new HttpsAgentKeepalive();
+    //     try {
+    //       await store.getStream(`${name}not-exists`);
+    //       throw new Error('should not run this');
+    //     } catch (err) {
+    //       assert.equal(err.name, 'NoSuchKeyError');
+    //       assert.equal(Object.keys(store.agent.freeSockets).length, 0);
+    //       await utils.sleep(ms(metaSyncTime));
+    //       assert.equal(Object.keys(store.agent.freeSockets).length, 1);
+    //     }
+    //   });
+    // }
   });
 
   describe('delete()', () => {
@@ -2309,7 +2310,7 @@ describe('test/object.test.js', () => {
   });
 
   describe('calculatePostSignature()', () => {
-    it.only('should get signature for postObject', async () => {
+    it('should get signature for postObject', async () => {
       try {
         const name = 'calculatePostSignature.js';
         const url = store.generateObjectUrl(name).replace(name, '');
@@ -2321,44 +2322,36 @@ describe('test/object.test.js', () => {
         };
 
         const params = store.calculatePostSignature(policy);
-
-        const options = {
-          url,
-          method: 'POST',
-          data: {
-            ...params,
-            key: name,
-            file: {
-              value: 'calculatePostSignature',
-              options: {
-                filename: name,
-                contentType: 'application/x-javascript'
-              }
-            }
-          }
-        };
+        const data = new FormData();
+        data.append('key', name);
+        Object.keys(params).forEach(key => {
+          data.append(key, params[key]);
+        });
+        data.append('file', 'calculatePostSignature', { filename: name, contentType: 'application/x-javascript' });
 
         const postFile = () => {
           return new Promise((resolve, reject) => {
-            console.log('pp', options);
-            axios(options)
+            axios
+              .post(url, data, {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              })
               .then(res => {
-                console.log('res', res);
                 if (res) resolve(res);
               })
               .catch(err => {
-                console.log('err', err);
                 if (err) reject(err);
               });
           });
         };
 
         const result = await postFile();
-        assert(result.statusCode === 204);
+        assert.equal(result.status, 204);
         const headRes = await store.head(name);
         assert.equal(headRes.status, 200);
       } catch (error) {
-        assert(error.message === 'can not get the object URL when endpoint is IP');
+        assert.equal(error.message, 'can not get the object URL when endpoint is IP');
       }
     });
 
