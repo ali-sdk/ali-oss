@@ -128,8 +128,9 @@ describe('test/object.test.js', () => {
         const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
         await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
         const signUrl = await store.signatureUrl(name, { expires: 3600 });
-        const { data } = await axios({ url: signUrl, method: 'get', responseType: 'stream' });
-        let result = await store.putStream(nameCpy, data);
+        const stream = fs.createWriteStream(imagepath);
+        await urllib.request(signUrl, { writeStream: stream });
+        let result = await store.putStream(nameCpy, stream);
         assert.equal(result.res.status, 200);
         result = await store.get(nameCpy);
         assert.equal(result.res.status, 200);
@@ -2322,6 +2323,7 @@ describe('test/object.test.js', () => {
         };
 
         const params = store.calculatePostSignature(policy);
+
         const data = new FormData();
         data.append('key', name);
         Object.keys(params).forEach(key => {
