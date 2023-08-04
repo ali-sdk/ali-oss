@@ -79,175 +79,175 @@ describe('test/utils.test.js', () => {
     assert.equal(_isIP('A:0f:0F:FFFF1:5:6:7:8'), false);
     assert.equal(_isIP('G:0f:0F:FFFF:5:6:7:8'), false);
   });
+});
 
-  describe('utils/includesConf', () => {
-    it('shoud return true when conf-item is primitive value', () => {
-      const data = {
-        testNum: 1,
-        testStr: '2',
-        testUndefined: undefined,
-        testNull: null,
-        testExtral: 'extral'
-      };
-      const conf = {
-        testNum: 1,
-        testStr: '2',
-        testUndefined: undefined,
-        testNull: null
-      };
-      assert(includesConf(data, conf));
-    });
-    it('shoud return false when conf-item is primitive value and conf not in data', () => {
-      const data = {
-        testNum: 1,
-        testStr: '2',
-        testUndefined: undefined,
-        testNull: null,
-        testExtral: 'extral'
-      };
-      const conf = {
-        testNonExist: 1
-      };
-      const conf1 = {
-        testExtral: 'test'
-      };
-      assert(!includesConf(data, conf));
-      assert(!includesConf(data, conf1));
-    });
-    it('shoud return true when conf-item is simple Array', () => {
-      const data = {
-        testArray1: ['extral', '1', 0, undefined],
-        testExtral: 'extral'
-      };
-      const conf = {
-        testArray1: ['1', 0, undefined]
-      };
-      assert(includesConf(data, conf));
-    });
-    it('shoud return false when conf-item is simple Array and conf not in data', () => {
-      const data = {
-        testArray1: ['extral', '1', 0, undefined],
-        testExtral: 'extral'
-      };
-      const conf = {
-        testArray1: ['1', 0, undefined, 'noexist']
-      };
-      assert(!includesConf(data, conf));
-    });
-    it('shoud return true when conf-item is simple Object', () => {
-      const data = {
-        testObject: { test: 1, test1: 2 },
-        testExtral: 'extral'
-      };
-      const conf = {
-        testObject: { test: 1 }
-      };
-      assert(includesConf(data, conf));
-    });
-    it('shoud return false when conf-item is simple Object and conf not in data', () => {
-      const data = {
-        testObject: { test: 1, test1: 2 },
-        testExtral: 'extral'
-      };
-      const conf = {
-        testObject: { test: 1, noExist: 'test' }
-      };
-      assert(!includesConf(data, conf));
-    });
-    it('shoud return true when conf-item is complex Array', () => {
-      const data = {
-        testArray: [{ test: 1, test1: 2 }, { test: 2 }],
-        testExtral: 'extral'
-      };
-      const conf = {
-        testArray: [{ test: 2 }]
-      };
-      assert(includesConf(data, conf));
-    });
-    it('shoud return false when conf-item is complex Array and conf not in data', () => {
-      const data = {
-        testArray: [{ test: 1, test1: 2 }, { test: 2 }],
-        testExtral: 'extral'
-      };
-      const conf = {
-        testArray: [{ test: 0 }]
-      };
-      assert(!includesConf(data, conf));
-    });
-    it('shoud return true when conf-item is complex Object', () => {
-      const data = {
-        testObject: {
-          test01: {
-            test11: {
-              a: 1
-            },
-            test12: 1123
+describe('utils/includesConf', () => {
+  it('shoud return true when conf-item is primitive value', () => {
+    const data = {
+      testNum: 1,
+      testStr: '2',
+      testUndefined: undefined,
+      testNull: null,
+      testExtral: 'extral'
+    };
+    const conf = {
+      testNum: 1,
+      testStr: '2',
+      testUndefined: undefined,
+      testNull: null
+    };
+    assert(includesConf(data, conf));
+  });
+  it('shoud return false when conf-item is primitive value and conf not in data', () => {
+    const data = {
+      testNum: 1,
+      testStr: '2',
+      testUndefined: undefined,
+      testNull: null,
+      testExtral: 'extral'
+    };
+    const conf = {
+      testNonExist: 1
+    };
+    const conf1 = {
+      testExtral: 'test'
+    };
+    assert(!includesConf(data, conf));
+    assert(!includesConf(data, conf1));
+  });
+  it('shoud return true when conf-item is simple Array', () => {
+    const data = {
+      testArray1: ['extral', '1', 0, undefined],
+      testExtral: 'extral'
+    };
+    const conf = {
+      testArray1: ['1', 0, undefined]
+    };
+    assert(includesConf(data, conf));
+  });
+  it('shoud return false when conf-item is simple Array and conf not in data', () => {
+    const data = {
+      testArray1: ['extral', '1', 0, undefined],
+      testExtral: 'extral'
+    };
+    const conf = {
+      testArray1: ['1', 0, undefined, 'noexist']
+    };
+    assert(!includesConf(data, conf));
+  });
+  it('shoud return true when conf-item is simple Object', () => {
+    const data = {
+      testObject: { test: 1, test1: 2 },
+      testExtral: 'extral'
+    };
+    const conf = {
+      testObject: { test: 1 }
+    };
+    assert(includesConf(data, conf));
+  });
+  it('shoud return false when conf-item is simple Object and conf not in data', () => {
+    const data = {
+      testObject: { test: 1, test1: 2 },
+      testExtral: 'extral'
+    };
+    const conf = {
+      testObject: { test: 1, noExist: 'test' }
+    };
+    assert(!includesConf(data, conf));
+  });
+  it('shoud return true when conf-item is complex Array', () => {
+    const data = {
+      testArray: [{ test: 1, test1: 2 }, { test: 2 }],
+      testExtral: 'extral'
+    };
+    const conf = {
+      testArray: [{ test: 2 }]
+    };
+    assert(includesConf(data, conf));
+  });
+  it('shoud return false when conf-item is complex Array and conf not in data', () => {
+    const data = {
+      testArray: [{ test: 1, test1: 2 }, { test: 2 }],
+      testExtral: 'extral'
+    };
+    const conf = {
+      testArray: [{ test: 0 }]
+    };
+    assert(!includesConf(data, conf));
+  });
+  it('shoud return true when conf-item is complex Object', () => {
+    const data = {
+      testObject: {
+        test01: {
+          test11: {
+            a: 1
           },
-          test02: [{ test11: 1 }, '123', 0, undefined, '456']
+          test12: 1123
         },
-        testExtral: 'extral'
-      };
-      const conf = {
-        testObject: {
-          test01: {
-            test11: {
-              a: 1
-            }
-          },
-          test02: [{ test11: 1 }, '123', 0, undefined]
-        }
-      };
-      assert(includesConf(data, conf));
-    });
-    it('shoud return false when conf-item is complex Object and conf not in data', () => {
-      const data = {
-        testObject: {
-          test01: {
-            test11: {
-              a: 1
-            },
-            test12: 1123
-          },
-          test02: [{ test11: 1 }, '123', 0, undefined, '456']
+        test02: [{ test11: 1 }, '123', 0, undefined, '456']
+      },
+      testExtral: 'extral'
+    };
+    const conf = {
+      testObject: {
+        test01: {
+          test11: {
+            a: 1
+          }
         },
-        testExtral: 'extral'
-      };
-      const conf = {
-        testObject: {
-          test01: {
-            test11: {
-              a: 1,
-              b: 'test cpx'
-            }
+        test02: [{ test11: 1 }, '123', 0, undefined]
+      }
+    };
+    assert(includesConf(data, conf));
+  });
+  it('shoud return false when conf-item is complex Object and conf not in data', () => {
+    const data = {
+      testObject: {
+        test01: {
+          test11: {
+            a: 1
           },
-          test02: [{ test11: 1 }, '123', 0, undefined]
-        }
-      };
-      assert(!includesConf(data, conf));
-    });
+          test12: 1123
+        },
+        test02: [{ test11: 1 }, '123', 0, undefined, '456']
+      },
+      testExtral: 'extral'
+    };
+    const conf = {
+      testObject: {
+        test01: {
+          test11: {
+            a: 1,
+            b: 'test cpx'
+          }
+        },
+        test02: [{ test11: 1 }, '123', 0, undefined]
+      }
+    };
+    assert(!includesConf(data, conf));
+  });
+});
+
+describe('test timeout number', () => {
+  let store;
+  let bucket;
+  const defaultRegion = config.region;
+
+  before(async () => {
+    store = oss(config);
+    config.region = defaultRegion;
+    store = oss(config);
+    bucket = `ali-oss-test-timeout-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = bucket.substring(0, bucket.length - 1);
   });
 
-  describe('test timeout number', () => {
-    let store;
-    let bucket;
-    const defaultRegion = config.region;
+  it('timeout is number', async () => {
+    const result = await store.putBucket(bucket, { timeout: ms(timeout) });
+    assert.equal(result.bucket, bucket);
+    assert.equal(result.res.status, 200);
+  });
 
-    before(async () => {
-      store = oss(config);
-      config.region = defaultRegion;
-      store = oss(config);
-      bucket = `ali-oss-test-timeout-bucket-${prefix.replace(/[/.]/g, '-')}`;
-      bucket = bucket.substring(0, bucket.length - 1);
-    });
-
-    it('timeout is number', async () => {
-      const result = await store.putBucket(bucket, { timeout: ms(timeout) });
-      assert.equal(result.bucket, bucket);
-      assert.equal(result.res.status, 200);
-    });
-
-    after(async () => {
-      await cleanBucket(store, bucket);
-    });
+  after(async () => {
+    await cleanBucket(store, bucket);
   });
 });

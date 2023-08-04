@@ -194,7 +194,6 @@ describe('test/rtmp.test.js', () => {
         },
         expires: 3600
       });
-      // console.log(url);  const url =
     });
 
     after(async () => {
