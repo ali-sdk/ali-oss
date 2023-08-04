@@ -62,7 +62,7 @@
     "url": "https://github.com/aliyun/oss-nodejs-sdk/issues"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=14"
   },
   "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
   "devDependencies": {
