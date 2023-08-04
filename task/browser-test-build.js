@@ -30,7 +30,7 @@ function build(options, callback) {
   });
 
   store.assumeRole(conf.roleArn).then(result => {
-    var stsConf = result.credentials; //JSON.parse(result.data);
+    var stsConf = JSON.parse(result.res.data);
     var tmpdir = path.join(__dirname, '../test/browser/.tmp');
     var stsConfFile = tmpdir + '/stsConfig.json';
     if (!fs.existsSync(tmpdir)) {
