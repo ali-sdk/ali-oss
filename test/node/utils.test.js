@@ -1,9 +1,6 @@
-const ms = require('humanize-ms');
 const { isIP: _isIP } = require('../../lib/common/utils/isIP');
-const { prefix, includesConf, cleanBucket } = require('./utils');
+const { includesConf } = require('./utils');
 const assert = require('assert');
-const { oss: config, timeout } = require('../config');
-const oss = require('../..');
 
 describe('test/utils.test.js', () => {
   it('ipv4 test', () => {
@@ -81,7 +78,7 @@ describe('test/utils.test.js', () => {
   });
 });
 
-describe('utils/includesConf', () => {
+describe('test/includesConf.js', () => {
   it('shoud return true when conf-item is primitive value', () => {
     const data = {
       testNum: 1,
@@ -225,29 +222,5 @@ describe('utils/includesConf', () => {
       }
     };
     assert(!includesConf(data, conf));
-  });
-});
-
-describe('test timeout number', () => {
-  let store;
-  let bucket;
-  const defaultRegion = config.region;
-
-  before(async () => {
-    store = oss(config);
-    config.region = defaultRegion;
-    store = oss(config);
-    bucket = `ali-oss-test-timeout-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    bucket = bucket.substring(0, bucket.length - 1);
-  });
-
-  it('timeout is number', async () => {
-    const result = await store.putBucket(bucket, { timeout: ms(timeout) });
-    assert.equal(result.bucket, bucket);
-    assert.equal(result.res.status, 200);
-  });
-
-  after(async () => {
-    await cleanBucket(store, bucket);
   });
 });
