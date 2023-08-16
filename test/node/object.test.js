@@ -2532,18 +2532,8 @@ describe('test/object.test.js', () => {
     let name;
 
     const checkHeader = async (oname, headName) => {
-      let info = { headers: {} };
-      mm(store.urllib, 'request', async (url, args) => {
-        info = await axios.head(url, args);
-        return info;
-      });
-      try {
-        await store.head(oname);
-      } catch (error) {
-        /* empty */
-      }
-      mm.restore();
-
+      const url = store.generateObjectUrl(oname);
+      const info = await axios.head(url);
       assert.equal(info.status, 200);
       assert.equal(info.headers[headName], latin1_content);
     };
@@ -2553,6 +2543,7 @@ describe('test/object.test.js', () => {
 
       name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
       const result = await store.put(name, __filename, {
+        headers: { 'x-oss-object-acl': 'public-read' },
         meta: {
           a: utf8_content
         }
