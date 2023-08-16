@@ -151,6 +151,11 @@
   "lint-staged": {
     "**/!(dist)/*": [
       "npm run detect-secrets --"
+    ],
+    "**/*.{js,ts}": [
+      "eslint --cache --fix --ext .js,.ts",
+      "prettier --write",
+      "git add"
     ]
   }
 }
