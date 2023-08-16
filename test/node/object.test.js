@@ -2527,29 +2527,9 @@ describe('test/object.test.js', () => {
   });
 
   describe('options.headerEncoding', () => {
-    afterEach(mm.restore);
-
     const utf8_content = '阿达的大多';
     const latin1_content = Buffer.from(utf8_content).toString('latin1');
     let name;
-    before(async () => {
-      store.options.headerEncoding = 'latin1';
-
-      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
-      const result = await store.put(name, __filename, {
-        meta: {
-          a: utf8_content
-        }
-      });
-      assert.equal(result.res.status, 200);
-      const info = await store.head(name);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, utf8_content); // Urllib3 will automatically decode
-    });
-
-    after(() => {
-      store.options.headerEncoding = 'utf-8';
-    });
 
     const checkHeader = async (oname, headName) => {
       let info = { headers: {} };
@@ -2562,10 +2542,28 @@ describe('test/object.test.js', () => {
       } catch (error) {
         /* empty */
       }
+      mm.restore();
 
       assert.equal(info.status, 200);
       assert.equal(info.headers[headName], latin1_content);
     };
+
+    before(async () => {
+      store.options.headerEncoding = 'latin1';
+
+      name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
+      const result = await store.put(name, __filename, {
+        meta: {
+          a: utf8_content
+        }
+      });
+      assert.equal(result.res.status, 200);
+      await checkHeader(name, 'x-oss-meta-a');
+    });
+
+    after(() => {
+      store.options.headerEncoding = 'utf-8';
+    });
 
     it('copy() should return 200 when set zh-cn meta', async () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
@@ -2575,7 +2573,7 @@ describe('test/object.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      checkHeader(originname, 'x-oss-meta-a');
+      await checkHeader(originname, 'x-oss-meta-a');
     });
 
     it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
@@ -2586,7 +2584,7 @@ describe('test/object.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      checkHeader(originname, 'x-oss-meta-a');
+      await checkHeader(originname, 'x-oss-meta-a');
     });
 
     it('putMeta() should return 200', async () => {
@@ -2594,7 +2592,7 @@ describe('test/object.test.js', () => {
         b: utf8_content
       });
       assert.equal(result.res.status, 200);
-      checkHeader(name, 'x-oss-meta-b');
+      await checkHeader(name, 'x-oss-meta-b');
     });
   });
 });
