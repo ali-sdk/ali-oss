@@ -1,8 +1,7 @@
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
-const config = require('../config').oss;
-const { timeout } = require('../config');
+const { oss: config, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix } = utils;
