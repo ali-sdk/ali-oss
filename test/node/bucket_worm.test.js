@@ -3,7 +3,7 @@ const utils = require('./utils');
 const oss = require('../..');
 const { oss: config, timeout } = require('../config');
 
-describe('test/bucket.test.js', () => {
+describe('test/bucket_worm.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
