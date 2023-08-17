@@ -36,6 +36,7 @@ module.exports = {
     'no-buffer-constructor': [2],
     'comma-dangle': [0],
     'import/prefer-default-export': [0],
+    '@typescript-eslint/no-require-imports': 0,
     'no-void': 0
   }
 };
