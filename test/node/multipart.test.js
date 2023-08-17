@@ -392,11 +392,9 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-webfile-ie10`;
       const clientTmp = oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
-      sinon.stub(
-        clientTmp,
-        'checkBrowserAndVersion',
-        (browser, version) => browser === 'Internet Explorer' && version === '10'
-      );
+      sinon
+        .stub(clientTmp, 'checkBrowserAndVersion')
+        .callsFake((browser, version) => browser === 'Internet Explorer' && version === '10');
       const result = await clientTmp.multipartUpload(name, webFile, {
         partSize: 100 * 1024
       });
@@ -773,11 +771,9 @@ describe('test/multipart.test.js', () => {
       const copyName = `${prefix}multipart/upload-copy-in-ie10`;
       const clientTmp = oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
-      const checkBrowserAndVersion = sinon.stub(
-        clientTmp,
-        'checkBrowserAndVersion',
-        (browser, version) => browser === 'Internet Explorer' && version === '10'
-      );
+      const checkBrowserAndVersion = sinon
+        .stub(clientTmp, 'checkBrowserAndVersion')
+        .callsFake((browser, version) => browser === 'Internet Explorer' && version === '10');
       const result = await clientTmp.multipartUploadCopy(
         copyName,
         {
@@ -857,8 +853,7 @@ describe('test/multipart.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-exception`;
       const clientTmp = oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
-      /* eslint no-unused-vars: [0] */
-      const stubUploadPart = sinon.stub(clientTmp, 'uploadPartCopy', async (objectKey, uploadId, partNo) => {
+      const stubUploadPart = sinon.stub(clientTmp, 'uploadPartCopy').callsFake(async (objectKey, uploadId, partNo) => {
         if (partNo === 1) {
           throw new Error('TestErrorException');
         }
