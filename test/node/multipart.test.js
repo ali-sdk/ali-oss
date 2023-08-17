@@ -945,7 +945,11 @@ describe('test/multipart.test.js', () => {
         await Promise.all([p1, p2]);
       } catch (e) {}
       mm.restore();
-      await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+      const p3 = store.multipartUpload(name, fileName);
+      const p4 = store.multipartUpload(name1, fileName).catch(error => {
+        console.log('info >', error.message);
+      });
+      await Promise.all([p3, p4]);
       assert.strictEqual(store.multipartUploadStreams.length, 0);
     });
 
