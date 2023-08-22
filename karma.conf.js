@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable global-require */
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 const isCiEnv = process.env.ONCI;

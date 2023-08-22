@@ -1293,7 +1293,7 @@ describe('test/bucket.test.js', () => {
         const result3 = await store.getBucketPolicy(bucket);
         assert.deepStrictEqual(null, result3.policy);
       } catch (err) {
-        assert(false, err.message);
+        assert.fail(err.message);
       }
     });
     it('should throw error, when policy is not Object', async () => {
