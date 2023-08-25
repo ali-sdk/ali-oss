@@ -24,6 +24,8 @@ import { objectUrl } from './objectUrl';
 import { parseXML } from './parseXML';
 import { policy2Str } from './policy2Str';
 import { WebFileReadStream } from './webFileReadStream';
+import { queueTask } from './queueTask';
+import { isAsync } from './isAsync';
 declare const _default: {
     _getObjectMeta: typeof _getObjectMeta;
     authorization: typeof authorization;
@@ -66,5 +68,7 @@ declare const _default: {
         _signatureForURL: typeof import("./signUtils")._signatureForURL;
     };
     WebFileReadStream: typeof WebFileReadStream;
+    queueTask: typeof queueTask;
+    isAsync: typeof isAsync;
 };
 export default _default;
