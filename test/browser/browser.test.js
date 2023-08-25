@@ -2484,4 +2484,32 @@ describe('browser', () => {
       assert.strictEqual(res.res.headers['x-oss-next-append-position'], '6');
     });
   });
+
+  describe('refreshSTSToken()', () => {
+    let store;
+    before(async () => {
+      store = oss({ ...ossConfig, refreshSTSTokenInterval: 1000 });
+    });
+
+    it('should refresh sts token when token is expired', async () => {
+      try {
+        const temp = { accessKeySecret: 's', accessKeyId: 'a', stsToken: 's' };
+        store.options.refreshSTSToken = async () => {
+          mm.restore();
+          return temp;
+        };
+        const { accessKeyId: ak } = store.options;
+        await store.listV2({ 'max-keys': 1 });
+        assert.strictEqual(ak, store.options.accessKeyId);
+        await sleep(2000);
+        try {
+          await store.listV2({ 'max-keys': 1 });
+        } catch (e) {
+          assert.strictEqual(store.options.stsToken, temp.stsToken);
+        }
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+  });
 });

@@ -196,7 +196,7 @@ describe('test/sts.test.js', () => {
         await store.listBuckets();
         assert.notStrictEqual(ak, store.options.accessKeyId);
       } catch (error) {
-        assert(false, error);
+        assert.fail(error);
       }
     });
 
