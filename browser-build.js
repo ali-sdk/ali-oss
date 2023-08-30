@@ -21,7 +21,7 @@ function build(options, callback) {
     options = {};
   }
 
-  console.error('Building with options: %j', options);
+  console.error('Building with options: %j %j', options, pkg.version);
 
   const verStr = `exports.version = '${pkg.version}';`;
   fs.writeFileSync(path.resolve(__dirname + '/lib/browser/version.js'), verStr);

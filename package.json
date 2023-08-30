@@ -46,9 +46,18 @@
       "npm run publish-to-cdn"
     ]
   },
+  "homepage": "https://github.com/ali-sdk/ali-oss",
+  "bugs": {
+    "url": "https://github.com/ali-sdk/ali-oss/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public",
+    "tag": "testtag"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/aliyun/oss-nodejs-sdk.git"
+    "url": "https://github.com/ali-sdk/ali-oss.git"
   },
   "keywords": [
     "oss",
@@ -58,13 +67,9 @@
   ],
   "author": "dead_horse",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/aliyun/oss-nodejs-sdk/issues"
-  },
   "engines": {
     "node": ">=8"
   },
-  "homepage": "https://github.com/aliyun/oss-nodejs-sdk",
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/plugin-transform-regenerator": "^7.10.4",
@@ -73,6 +78,10 @@
     "@babel/runtime": "^7.11.2",
     "@commitlint/cli": "^17.6.7",
     "@commitlint/config-conventional": "^16.2.4",
+    "@octokit/core": "^5.0.0",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^10.0.5",
     "@snyk/protect": "^1.1196.0",
     "@types/node": "^14.0.12",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
@@ -113,6 +122,7 @@
     "prettier": "^3.0.0",
     "promise-polyfill": "^6.0.2",
     "puppeteer": "^20.9.0",
+    "semantic-release": "^21.1.1",
     "should": "^11.0.0",
     "sinon": "^15.2.0",
     "standard-version": "^9.3.1",

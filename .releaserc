@@ -1,0 +1,31 @@
+{
+  "branches": "release",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/github",
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": true
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "npm run build-dist"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "package.json",
+          "lib/browser/version.js",
+          "dist/*.js"
+        ],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}
