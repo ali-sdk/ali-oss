@@ -1666,7 +1666,7 @@ parameters:
 - name {String} object name store on OSS
 - file {String|Buffer|ReadStream|File(only support Browser)|Blob(only support Browser)} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
 - [options] {Object} optional parameters
-  - [timeout] {Number} the operation timeout
+  - [timeout] {Number} the operation timeout (ms)
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
@@ -4551,7 +4551,6 @@ Will put to all clients.
 
 Each error return by OSS server will contains these properties:
 
-
 - name {String} error name
 - message {String} error message
 - requestId {String} uuid for this request, if you meet some unhandled problem,
@@ -4559,22 +4558,25 @@ Each error return by OSS server will contains these properties:
 - hostId {String} OSS cluster name for this request
 
 ### ResponseTimeoutError
+
 The request to get the object file cannot be returned within the default time, please set a longer timeout. Or change to use multipart to download
 
 ```javascript
-  client.get('example.txt', { timeout:60000 * 2})
+client.get('example.txt', { timeout: 60000 * 2 });
 
-  client.get('example.txt', { headers:{ Range:`bytes=0-${ 1024 * 1024 * 100 }` } }) // Download the first 100MB
+client.get('example.txt', { headers: { Range: `bytes=0-${1024 * 1024 * 100}` } }); // Download the first 100MB
 ```
 
 ### ConnectionTimeoutError
+
 The request link has timed out. Please check the network link status. If there is no problem with the network, please reduce the partSize or increase the timeout to retry.
+
 ```javascript
-  const client = new OSS({ ak, sk, retryMax:10 })
+const client = new OSS({ ak, sk, retryMax: 10 });
 
-  client.multipartUpload('example.txt', { timeout:60000 * 2 })
+client.multipartUpload('example.txt', { timeout: 60000 * 2 });
 
-  client.multipartUpload('example.txt', { partSize: 1024 * 512 }) // partSize 512KB
+client.multipartUpload('example.txt', { partSize: 1024 * 512 }); // partSize 512KB
 ```
 
 ### The following table lists the OSS error codes:
