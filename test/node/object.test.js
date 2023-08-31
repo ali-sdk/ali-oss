@@ -3,21 +3,19 @@ const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
-const { metaSyncTime } = require('../config');
+const { oss: config, metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
 const oss = require('../..');
-const sts = require('../..').STS;
-const config = require('../config').oss;
-const stsConfig = require('../config').sts;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
-const request = require('request');
+const axios = require('axios');
+const FormData = require('form-data');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -130,14 +128,15 @@ describe('test/object.test.js', () => {
         const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
         await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
         const signUrl = await store.signatureUrl(name, { expires: 3600 });
-        const httpStream = request(signUrl);
-        let result = await store.putStream(nameCpy, httpStream);
+        const stream = fs.createWriteStream(imagepath);
+        await urllib.request(signUrl, { writeStream: stream });
+        let result = await store.putStream(nameCpy, stream);
         assert.equal(result.res.status, 200);
         result = await store.get(nameCpy);
         assert.equal(result.res.status, 200);
         assert.equal(result.res.headers['content-type'], 'application/octet-stream');
       } catch (error) {
-        assert(error.message === 'can not get the object URL when endpoint is IP');
+        assert.equal(error.message, 'can not get the object URL when endpoint is IP');
       }
     });
 
@@ -1318,9 +1317,9 @@ describe('test/object.test.js', () => {
         } catch (err) {
           console.log('error is', err);
           assert.equal(err.name, 'NoSuchKeyError');
-          assert(Object.keys(store.agent.freeSockets).length === 0);
+          assert.equal(Object.keys(store.agent.freeSockets).length, 0);
           await utils.sleep(ms(metaSyncTime));
-          assert(Object.keys(store.agent.freeSockets).length === 1);
+          assert.equal(Object.keys(store.agent.freeSockets).length, 1);
         }
       });
     }
@@ -2118,24 +2117,24 @@ describe('test/object.test.js', () => {
 
     it('should apend object with content buffer', async () => {
       let object = await store.append(name, Buffer.from('foo'));
-      assert(object.res.status === 200);
-      assert(object.nextAppendPosition === '3');
-      assert(object.res.headers['x-oss-next-append-position'] === '3');
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(object.nextAppendPosition, '3');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '3');
 
       let res = await store.get(name);
-      assert(res.content.toString() === 'foo');
-      assert(res.res.headers['x-oss-next-append-position'] === '3');
+      assert.strictEqual(res.content.toString(), 'foo');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '3');
 
       object = await store.append(name, Buffer.from('bar'), {
         position: 3
       });
-      assert(object.res.status === 200);
-      assert(object.nextAppendPosition === '6');
-      assert(object.res.headers['x-oss-next-append-position'] === '6');
+      assert.strictEqual(object.res.status, 200);
+      assert.strictEqual(object.nextAppendPosition, '6');
+      assert.strictEqual(object.res.headers['x-oss-next-append-position'], '6');
 
       res = await store.get(name);
-      assert(res.content.toString() === 'foobar');
-      assert(res.res.headers['x-oss-next-append-position'] === '6');
+      assert.strictEqual(res.content.toString(), 'foobar');
+      assert.strictEqual(res.res.headers['x-oss-next-append-position'], '6');
     });
 
     it('should apend object with local file path', async () => {
@@ -2315,36 +2314,36 @@ describe('test/object.test.js', () => {
 
         const params = store.calculatePostSignature(policy);
 
-        const options = {
-          url,
-          method: 'POST',
-          formData: {
-            ...params,
-            key: name,
-            file: {
-              value: 'calculatePostSignature',
-              options: {
-                filename: name,
-                contentType: 'application/x-javascript'
-              }
-            }
-          }
+        const data = new FormData();
+        data.append('key', name);
+        Object.keys(params).forEach(key => {
+          data.append(key, params[key]);
+        });
+        data.append('file', 'calculatePostSignature', { filename: name, contentType: 'application/x-javascript' });
+
+        const postFile = () => {
+          return new Promise((resolve, reject) => {
+            axios
+              .post(url, data, {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              })
+              .then(res => {
+                if (res) resolve(res);
+              })
+              .catch(err => {
+                if (err) reject(err);
+              });
+          });
         };
 
-        const postFile = () =>
-          new Promise((resolve, reject) => {
-            request(options, (err, res) => {
-              if (err) reject(err);
-              if (res) resolve(res);
-            });
-          });
-
         const result = await postFile();
-        assert(result.statusCode === 204);
+        assert.equal(result.status, 204);
         const headRes = await store.head(name);
         assert.equal(headRes.status, 200);
       } catch (error) {
-        assert(error.message === 'can not get the object URL when endpoint is IP');
+        assert.equal(error.message, 'can not get the object URL when endpoint is IP');
       }
     });
 

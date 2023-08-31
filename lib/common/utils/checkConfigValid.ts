@@ -1,6 +1,6 @@
 const checkConfigMap = {
   endpoint: checkEndpoint,
-  region: /^[a-zA-Z0-9\-_]+$/,
+  region: /^[a-zA-Z0-9\-_]+$/
 };
 
 function checkEndpoint(endpoint) {

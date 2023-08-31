@@ -23,4 +23,3 @@ export async function getAsyncFetch(this: any, taskId, options: any = {}): Promi
     taskInfo
   };
 }
-

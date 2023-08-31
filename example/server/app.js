@@ -18,20 +18,23 @@ app.get('/sts', (req, res) => {
     accessKeySecret: conf.AccessKeySecret
   });
 
-  client.assumeRole(conf.RoleArn, policy, conf.TokenExpireTime).then((result) => {
-    console.log(result);
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-METHOD', 'GET');
-    res.json({
-      AccessKeyId: result.credentials.AccessKeyId,
-      AccessKeySecret: result.credentials.AccessKeySecret,
-      SecurityToken: result.credentials.SecurityToken,
-      Expiration: result.credentials.Expiration
+  client
+    .assumeRole(conf.RoleArn, policy, conf.TokenExpireTime)
+    .then(result => {
+      console.log(result);
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-METHOD', 'GET');
+      res.json({
+        AccessKeyId: result.credentials.AccessKeyId,
+        AccessKeySecret: result.credentials.AccessKeySecret,
+        SecurityToken: result.credentials.SecurityToken,
+        Expiration: result.credentials.Expiration
+      });
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(400).json(err.message);
     });
-  }).catch((err) => {
-    console.log(err);
-    res.status(400).json(err.message);
-  });
 });
 
 app.use('/static', express.static('public'));

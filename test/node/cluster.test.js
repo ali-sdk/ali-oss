@@ -1,4 +1,3 @@
-
 const oss = require('../..');
 const cluster = require('../..').ClusterClient;
 const config = require('../config').oss;
@@ -37,7 +36,7 @@ describe('test/cluster.test.js', () => {
       ]
     };
     this.store = cluster(options);
-    this.store.on('error', (err) => {
+    this.store.on('error', err => {
       if (err.name === 'MockError' || err.name === 'CheckAvailableError') {
         return;
       }
@@ -60,7 +59,7 @@ describe('test/cluster.test.js', () => {
     });
 
     it('should _init() _checkAvailable throw error', function (done) {
-      this.store.once('error', (err) => {
+      this.store.once('error', err => {
         err.message.should.equal('mock error');
         done();
       });
@@ -472,7 +471,7 @@ describe('test/cluster.test.js', () => {
     it('should available on error count < 3', async function () {
       // client[0] error 2 times
       let count = 0;
-      mm(this.store.clients[0], 'head', async (name) => {
+      mm(this.store.clients[0], 'head', async name => {
         count++;
         if (count === 3) {
           return { name };
@@ -487,7 +486,7 @@ describe('test/cluster.test.js', () => {
 
       // client[1] error 1 times
       count = 0;
-      mm(this.store.clients[1], 'head', async (name) => {
+      mm(this.store.clients[1], 'head', async name => {
         count++;
         if (count === 2) {
           return { name };
