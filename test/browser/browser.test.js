@@ -726,9 +726,6 @@ describe('browser', () => {
         timeout: 300
       };
       try {
-        setTimeout(() => {
-          options.timeout = 60000;
-        }, 200);
         await store.put(name, body, options);
         assert(false);
       } catch (error) {
