@@ -38,6 +38,7 @@ const cleanBucket = async store => {
   const uploads = result.uploads || [];
   await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
 };
+
 describe('browser', () => {
   /* eslint require-yield: [0] */
   before(() => {
@@ -726,9 +727,6 @@ describe('browser', () => {
         timeout: 300
       };
       try {
-        setTimeout(() => {
-          options.timeout = 60000;
-        }, 200);
         await store.put(name, body, options);
         assert(false);
       } catch (error) {
@@ -2508,6 +2506,28 @@ describe('browser', () => {
           assert.strictEqual(store.options.stsToken, temp.stsToken);
         }
       } catch (error) {
+        assert.fail(error);
+      }
+    });
+  });
+
+  // oss server 不支持跨域 大概要到9月30号才上生产支持 跨域，后端是：云仁
+  describe.skip('bucket data index', () => {
+    let store;
+    before(async () => {
+      store = oss({ ...ossConfig, refreshSTSTokenInterval: 1000 });
+    });
+
+    it.only('open meta query of bucket', async () => {
+      try {
+        // await store.listV2({ 'max-keys': 1 });
+        // const result = await store.getMetaQueryStatus(stsConfig.bucket); // oss server does not support cross domain
+        const result = await store.openMetaQuery(stsConfig.bucket);
+        console.log('rr', result);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.res.statusMessage, 'OK');
+      } catch (error) {
+        console.log('bb', JSON.stringify(error), error);
         assert.fail(error);
       }
     });

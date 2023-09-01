@@ -5,7 +5,7 @@ const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
 
-describe('test/cluster.test.js', () => {
+describe.only('test/cluster.test.js', () => {
   const { prefix } = utils;
   afterEach(mm.restore);
 

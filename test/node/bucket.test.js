@@ -1480,4 +1480,40 @@ describe('test/bucket.test.js', () => {
       });
     });
   });
+
+  describe('openMetaQuery() openMetaQuery() doMetaQuery()', () => {
+    it('open meta query of bucket', async () => {
+      try {
+        const result = await store.openMetaQuery(bucket);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.res.statusMessage, 'OK');
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+
+    it('getMetaQueryStatus()', async () => {
+      try {
+        const result = await store.getMetaQueryStatus(bucket);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.res.statusMessage, 'OK');
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+
+    it('doMetaQuery()', async () => {
+      try {
+        const queryParam = {
+          query: { operation: 'and', subQueries: [{ Field: 'Size', Value: '1048576', Operation: 'lt' }] }
+        };
+        const result = await store.doMetaQuery(bucket, queryParam);
+        console.log('rr', result);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.res.statusMessage, 'OK');
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+  });
 });
