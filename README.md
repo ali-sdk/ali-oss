@@ -4559,7 +4559,7 @@ Each error return by OSS server will contains these properties:
 
 ### ResponseTimeoutError
 
-The request to get the object file cannot be returned within the default time, please set a longer timeout. Or change to use multipart to download
+The default timeout is 60 seconds. Please set the timeout as needed. The timeout unit is milliseconds.
 
 ```javascript
 client.get('example.txt', { timeout: 60000 * 2 });
@@ -4569,7 +4569,7 @@ client.get('example.txt', { headers: { Range: `bytes=0-${1024 * 1024 * 100}` } }
 
 ### ConnectionTimeoutError
 
-The request link has timed out. Please check the network link status. If there is no problem with the network, please reduce the partSize or increase the timeout to retry.
+The network link timed out. Please check the network status. If there is no problem with the network, please reduce the partSize or increase the timeout.
 
 ```javascript
 const client = new OSS({ ak, sk, retryMax: 10 });
