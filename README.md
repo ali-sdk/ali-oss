@@ -1666,7 +1666,7 @@ parameters:
 - name {String} object name store on OSS
 - file {String|Buffer|ReadStream|File(only support Browser)|Blob(only support Browser)} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
 - [options] {Object} optional parameters
-  - [timeout] {Number} the operation timeout
+  - [timeout] {Number} the operation timeout (ms)
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
@@ -4557,7 +4557,29 @@ Each error return by OSS server will contains these properties:
   you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
-The following table lists the OSS error codes:
+### ResponseTimeoutError
+
+The default timeout is 60 seconds. Please set the timeout as needed. The timeout unit is milliseconds.
+
+```javascript
+client.get('example.txt', { timeout: 60000 * 2 });
+
+client.get('example.txt', { headers: { Range: `bytes=0-${1024 * 1024 * 100}` } }); // Download the first 100MB
+```
+
+### ConnectionTimeoutError
+
+The network link timed out. Please check the network status. If there is no problem with the network, please reduce the partSize or increase the timeout.
+
+```javascript
+const client = new OSS({ ak, sk, retryMax: 10 });
+
+client.multipartUpload('example.txt', { timeout: 60000 * 2 });
+
+client.multipartUpload('example.txt', { partSize: 1024 * 512 }); // partSize 512KB
+```
+
+### The following table lists the OSS error codes:
 
 [More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
