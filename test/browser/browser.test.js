@@ -2518,7 +2518,7 @@ describe('browser', () => {
       store = oss({ ...ossConfig, refreshSTSTokenInterval: 1000 });
     });
 
-    it.only('open meta query of bucket', async () => {
+    it('open meta query of bucket', async () => {
       try {
         // await store.listV2({ 'max-keys': 1 });
         // const result = await store.getMetaQueryStatus(stsConfig.bucket); // oss server does not support cross domain
