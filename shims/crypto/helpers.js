@@ -1,10 +1,11 @@
 var Buffer = require('buffer').Buffer;
 var intSize = 4;
-var zeroBuffer = Buffer.alloc(intSize); zeroBuffer.fill(0);
+var zeroBuffer = Buffer.alloc(intSize);
+zeroBuffer.fill(0);
 var chrsz = 8;
 
 function toArray(buf, bigEndian) {
-  if ((buf.length % intSize) !== 0) {
+  if (buf.length % intSize !== 0) {
     var len = buf.length + (intSize - (buf.length % intSize));
     buf = Buffer.concat([buf, zeroBuffer], len);
   }

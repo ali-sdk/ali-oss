@@ -1,8 +1,7 @@
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
-const config = require('../config').oss;
-const timeout = require('../config').timeout;
+const { oss: config, timeout } = require('../config');
 
 describe('test/bucket_worm.test.js', () => {
   const { prefix } = utils;
@@ -20,11 +19,13 @@ describe('test/bucket_worm.test.js', () => {
     assert.equal(result.bucket, bucket);
     assert.equal(result.res.status, 200);
   });
+
   // github CI will remove buckets
   // restore object will have cache
   // after(async () => {
   //   await utils.cleanBucket(store, bucket);
   // });
+
   describe('worm()', () => {
     describe('initiateBucketWorm()', () => {
       it('should init bucket worm', async () => {

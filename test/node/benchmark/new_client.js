@@ -7,6 +7,7 @@ const OssClient = require('../..');
 const suite = new Benchmark.Suite();
 
 let config = require('../config').oss;
+
 config = OssClient.initOptions(config);
 
 const ctx = { foo: 'bar' };
@@ -14,26 +15,23 @@ const ctx = { foo: 'bar' };
 console.log(new OssClient(config, ctx));
 
 suite
-
-.add('new OssClient(config, ctx)', () => {
-  new OssClient(config, ctx);
-})
-
-.add('OssClient(config, ctx)', () => {
-  OssClient(config, ctx);
-})
-
-.on('cycle', event => {
-  benchmarks.add(event.target);
-})
-.on('start', () => {
-  console.log('\n  new Client() Benchmark\n  node version: %s, date: %s\n  Starting...',
-    process.version, Date());
-})
-.on('complete', () => {
-  benchmarks.log();
-})
-.run({ async: false });
+  .add('new OssClient(config, ctx)', () => {
+    /* eslint-disable no-new */
+    new OssClient(config, ctx);
+  })
+  .add('OssClient(config, ctx)', () => {
+    OssClient(config, ctx);
+  })
+  .on('cycle', event => {
+    benchmarks.add(event.target);
+  })
+  .on('start', () => {
+    console.log('\n  new Client() Benchmark\n  node version: %s, date: %s\n  Starting...', process.version, Date());
+  })
+  .on('complete', () => {
+    benchmarks.log();
+  })
+  .run({ async: false });
 
 // new Client() Benchmark
 // node version: v6.7.0, date: Fri Sep 30 2016 16:10:51 GMT+0800 (CST)

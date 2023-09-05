@@ -1,6 +1,6 @@
 import { isBuffer } from './isBuffer';
 
-export const deepCopy = (obj) => {
+export const deepCopy = obj => {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
@@ -10,7 +10,7 @@ export const deepCopy = (obj) => {
 
   const copy = Array.isArray(obj) ? [] : {};
 
-  Object.keys(obj).forEach((key) => {
+  Object.keys(obj).forEach(key => {
     copy[key] = deepCopy(obj[key]);
   });
 
@@ -32,7 +32,7 @@ export const deepCopyWith = (obj: any, customizer?: (v: any, k: string, o: any) 
 
     const copy = Array.isArray(value) ? [] : {};
 
-    Object.keys(value).forEach((k) => {
+    Object.keys(value).forEach(k => {
       copy[k] = deepCopyWithHelper(value[k], k, value);
     });
 
@@ -44,5 +44,4 @@ export const deepCopyWith = (obj: any, customizer?: (v: any, k: string, o: any) 
   } else {
     return deepCopy(obj);
   }
-
 };

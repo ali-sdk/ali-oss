@@ -16,13 +16,7 @@ export async function postAsyncFetch(this: any, object, url, options: any = {}):
   options.headers = options.headers || {};
   object = this._objectName(object);
 
-  const {
-    host = '',
-    contentMD5 = '',
-    callback = '',
-    storageClass = '',
-    ignoreSameKey = true
-  } = options;
+  const { host = '', contentMD5 = '', callback = '', storageClass = '', ignoreSameKey = true } = options;
 
   const paramXMLObj = {
     AsyncFetchTaskConfiguration: {
@@ -50,4 +44,3 @@ export async function postAsyncFetch(this: any, object, url, options: any = {}):
     taskId: result.data.TaskId
   };
 }
-

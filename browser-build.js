@@ -23,7 +23,8 @@ function build(options, callback) {
 
   console.error('Building with options: %j', options);
 
-  fs.writeFileSync(path.resolve(__dirname + '/lib/browser/version.js'), 'exports.version="' + pkg.version + '"');
+  const verStr = `exports.version = '${pkg.version}';`;
+  fs.writeFileSync(path.resolve(__dirname + '/lib/browser/version.js'), verStr);
 
   const brOpts = {
     basedir: path.resolve(__dirname, '.'),

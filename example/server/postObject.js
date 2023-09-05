@@ -27,9 +27,7 @@ app.get('/postObject', async (req, res) => {
   };
 
   const formData = await client.calculatePostSignature(policy);
-  const url = `http://${config.bucket}.${
-    (await client.getBucketLocation()).location
-  }.aliyuncs.com`;
+  const url = `http://${config.bucket}.${(await client.getBucketLocation()).location}.aliyuncs.com`;
   const params = {
     formData,
     url
@@ -86,9 +84,7 @@ app.get('/postObjectBySTS', async (req, res) => {
     const signatureFormData = await client.calculatePostSignature(policy);
     Object.assign(formData, signatureFormData);
     formData['x-oss-security-token'] = credentials.SecurityToken;
-    const url = `http://${config.bucket}.${
-      (await client.getBucketLocation()).location
-    }.aliyuncs.com`;
+    const url = `http://${config.bucket}.${(await client.getBucketLocation()).location}.aliyuncs.com`;
     const params = {
       formData,
       url

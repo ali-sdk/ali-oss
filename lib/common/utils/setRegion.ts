@@ -1,4 +1,3 @@
-
 import urlutil from 'url';
 import { checkConfigValid } from './checkConfigValid';
 

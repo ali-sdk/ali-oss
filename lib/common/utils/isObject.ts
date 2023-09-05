@@ -1,3 +1,3 @@
-export const isObject = (obj) => {
+export const isObject = obj => {
   return Object.prototype.toString.call(obj) === '[object Object]';
 };

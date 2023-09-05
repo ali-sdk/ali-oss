@@ -9,7 +9,11 @@ import { formatInventoryConfig } from '../utils/formatInventoryConfig';
 
 export async function listBucketInventory(this: any, bucketName: string, options: any = {}) {
   const { continuationToken } = options;
-  const subres: any = Object.assign({ inventory: '' }, continuationToken && { 'continuation-token': continuationToken }, options.subres);
+  const subres: any = Object.assign(
+    { inventory: '' },
+    continuationToken && { 'continuation-token': continuationToken },
+    options.subres
+  );
   checkBucketName(bucketName);
 
   const params = this._bucketRequestParams('GET', bucketName, subres, options);
@@ -23,6 +27,6 @@ export async function listBucketInventory(this: any, bucketName: string, options
     nextContinuationToken: data.NextContinuationToken,
     inventoryList: formatInventoryConfig(data.InventoryConfiguration, true),
     status,
-    res,
+    res
   };
 }

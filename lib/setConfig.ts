@@ -8,19 +8,19 @@ const globalHttpAgent = new AgentKeepalive();
 const globalHttpsAgent = new HttpsAgentKeepalive();
 
 class Client {
-  public options;
+  options;
 
-  public urllib;
+  urllib;
 
-  public agent;
+  agent;
 
-  public httpsAgent;
+  httpsAgent;
 
-  public ctx;
+  ctx;
 
-  public userAgent;
+  userAgent;
 
-  public constructor(options, ctx) {
+  constructor(options, ctx) {
     if (!(this instanceof Client)) {
       return new Client(options, ctx);
     }
@@ -49,6 +49,4 @@ export const setConfig = (options, ctx) => {
   client = new Client(options, ctx);
 };
 
-export {
-  client
-};
+export { client };

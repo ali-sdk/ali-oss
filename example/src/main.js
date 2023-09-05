@@ -1,4 +1,3 @@
-
 // require("babel-polyfill")
 require('./style.css');
 const $ = require('jquery');
@@ -12,7 +11,6 @@ const appServer = 'http://localhost:9000/sts';
 const bucket = '<bucket-name>';
 const region = 'oss-cn-hangzhou';
 const { Buffer } = OSS;
-
 
 // Play without STS. NOT SAFE! Because access key id/secret are
 // exposed in web page.
@@ -29,12 +27,12 @@ const { Buffer } = OSS;
 // };
 
 const applyTokenDo = function (func, refreshSts) {
-  const refresh = typeof (refreshSts) !== 'undefined' ? refreshSts : true;
+  const refresh = typeof refreshSts !== 'undefined' ? refreshSts : true;
   if (refresh) {
     const url = appServer;
     return $.ajax({
       url
-    }).then((result) => {
+    }).then(result => {
       const creds = result;
       const client = new OSS({
         region,
@@ -80,32 +78,34 @@ const uploadFile = function uploadFile(client) {
       people: 'test'
     },
     timeout: 60000
-
   };
   if (currentCheckpoint) {
     options.checkpoint = currentCheckpoint;
   }
-  return uploadFileClient.multipartUpload(key, file, options).then((res) => {
-    console.log('upload success: %j', res);
-    currentCheckpoint = null;
-    uploadFileClient = null;
-  }).catch((err) => {
-    if (uploadFileClient && uploadFileClient.isCancel()) {
-      console.log('stop-upload!');
-    } else {
-      console.error(err);
-      console.log(`err.name : ${err.name}`);
-      console.log(`err.message : ${err.message}`);
-      if (err.name.toLowerCase().indexOf('connectiontimeout') !== -1) {
-        // timeout retry
-        if (retryCount < retryCountMax) {
-          retryCount++;
-          console.error(`retryCount : ${retryCount}`);
-          uploadFile('');
+  return uploadFileClient
+    .multipartUpload(key, file, options)
+    .then(res => {
+      console.log('upload success: %j', res);
+      currentCheckpoint = null;
+      uploadFileClient = null;
+    })
+    .catch(err => {
+      if (uploadFileClient && uploadFileClient.isCancel()) {
+        console.log('stop-upload!');
+      } else {
+        console.error(err);
+        console.log(`err.name : ${err.name}`);
+        console.log(`err.message : ${err.message}`);
+        if (err.name.toLowerCase().indexOf('connectiontimeout') !== -1) {
+          // timeout retry
+          if (retryCount < retryCountMax) {
+            retryCount++;
+            console.error(`retryCount : ${retryCount}`);
+            uploadFile('');
+          }
         }
       }
-    }
-  });
+    });
 };
 
 const base64progress = function base64progress(p) {
@@ -120,7 +120,7 @@ const base64progress = function base64progress(p) {
  * @param filename  set up a meaningful suffix, or you can set mime type in options
  * @returns {File|*}
  */
-const dataURLtoFile = function dataURLtoFile(dataurl, filename) {
+const dataURLtoFile = function dataURLtoFile(dataurl) {
   const arr = dataurl.split(',');
   const mime = arr[0].match(/:(.*?);/)[1];
   const bstr = atob(arr[1]);
@@ -129,7 +129,7 @@ const dataURLtoFile = function dataURLtoFile(dataurl, filename) {
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
-  return new Blob([u8arr], { type: mime });// if env support File, also can use this: return new File([u8arr], filename, { type: mime });
+  return new Blob([u8arr], { type: mime }); // if env support File, also can use this: return new File([u8arr], filename, { type: mime });
 };
 
 const uploadBase64Img = function uploadBase64Img(client) {
@@ -137,13 +137,16 @@ const uploadBase64Img = function uploadBase64Img(client) {
   const key = document.getElementById('base64-object-key-file').value.trim() || 'object';
   if (base64Content.indexOf('data:image') === 0) {
     const imgfile = dataURLtoFile(base64Content, 'img.png');
-    client.multipartUpload(key, imgfile, {
-      progress: base64progress
-    }).then((res) => {
-      console.log('upload success: %j', res);
-    }).catch((err) => {
-      console.error(err);
-    });
+    client
+      .multipartUpload(key, imgfile, {
+        progress: base64progress
+      })
+      .then(res => {
+        console.log('upload success: %j', res);
+      })
+      .catch(err => {
+        console.error(err);
+      });
   } else {
     alert('Please fill in the correct Base64 img');
   }
@@ -153,29 +156,31 @@ const listFiles = function listFiles(client) {
   const table = document.getElementById('list-files-table');
   console.log('list files');
 
-  return client.list({
-    'max-keys': 100
-  }).then((result) => {
-    const objects = result.objects.sort((a, b) => {
-      const ta = new Date(a.lastModified);
-      const tb = new Date(b.lastModified);
-      if (ta > tb) return -1;
-      if (ta < tb) return 1;
-      return 0;
+  return client
+    .list({
+      'max-keys': 100
+    })
+    .then(result => {
+      const objects = result.objects.sort((a, b) => {
+        const ta = new Date(a.lastModified);
+        const tb = new Date(b.lastModified);
+        if (ta > tb) return -1;
+        if (ta < tb) return 1;
+        return 0;
+      });
+
+      const numRows = table.rows.length;
+      for (let i = 1; i < numRows; i++) {
+        table.deleteRow(table.rows.length - 1);
+      }
+
+      for (let i = 0; i < Math.min(3, objects.length); i++) {
+        const row = table.insertRow(table.rows.length);
+        row.insertCell(0).innerHTML = objects[i].name;
+        row.insertCell(1).innerHTML = objects[i].size;
+        row.insertCell(2).innerHTML = objects[i].lastModified;
+      }
     });
-
-    const numRows = table.rows.length;
-    for (let i = 1; i < numRows; i++) {
-      table.deleteRow(table.rows.length - 1);
-    }
-
-    for (let i = 0; i < Math.min(3, objects.length); i++) {
-      const row = table.insertRow(table.rows.length);
-      row.insertCell(0).innerHTML = objects[i].name;
-      row.insertCell(1).innerHTML = objects[i].size;
-      row.insertCell(2).innerHTML = objects[i].lastModified;
-    }
-  });
 };
 
 /* eslint no-unused-vars: [0] */
@@ -184,7 +189,7 @@ const uploadContent = function uploadContent(client) {
   const key = document.getElementById('object-key-content').value.trim() || 'object';
   console.log(`content => ${key}`);
 
-  return client.put(key, Buffer.from(content)).then(res => listFiles(client));
+  return client.put(key, Buffer.from(content)).then(() => listFiles(client));
 };
 
 const uploadBlob = function (client) {
@@ -192,7 +197,7 @@ const uploadBlob = function (client) {
   const key = document.getElementById('object-key-blob').value.trim() || 'blob';
   console.log(`content => ${key}`);
 
-  return client.put(key, new Blob([content], { type: 'text/plain' })).then(res => listFiles(client));
+  return client.put(key, new Blob([content], { type: 'text/plain' })).then(() => listFiles(client));
 };
 
 const putBlob = function (client) {
@@ -245,7 +250,7 @@ const cnameUsage = function (cname) {
   const url = appServer;
   $.ajax({
     url
-  }).then((result) => {
+  }).then(result => {
     const creds = result;
     const client = new OSS({
       accessKeyId: creds.AccessKeyId,

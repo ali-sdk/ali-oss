@@ -1,4 +1,3 @@
-
 const assert = require('assert');
 const oss = require('../..');
 const config = require('../config').oss;
@@ -22,10 +21,7 @@ describe('test/client.test.js', () => {
       region: 'oss-cn-hangzhou'
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://oss-cn-hangzhou.aliyuncs.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://oss-cn-hangzhou.aliyuncs.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -34,10 +30,7 @@ describe('test/client.test.js', () => {
       internal: true
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://oss-cn-hangzhou-internal.aliyuncs.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://oss-cn-hangzhou-internal.aliyuncs.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -47,10 +40,7 @@ describe('test/client.test.js', () => {
       secure: true
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'https://oss-cn-hangzhou-internal.aliyuncs.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'https://oss-cn-hangzhou-internal.aliyuncs.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -58,10 +48,7 @@ describe('test/client.test.js', () => {
       region: 'vpc100-oss-cn-beijing'
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://vpc100-oss-cn-beijing.aliyuncs.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://vpc100-oss-cn-beijing.aliyuncs.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -70,10 +57,7 @@ describe('test/client.test.js', () => {
       internal: true
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://vpc100-oss-cn-shenzhen.aliyuncs.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://vpc100-oss-cn-shenzhen.aliyuncs.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -83,10 +67,7 @@ describe('test/client.test.js', () => {
       secure: true
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'https://vpc100-oss-cn-hangzhou.aliyuncs.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'https://vpc100-oss-cn-hangzhou.aliyuncs.com/');
   });
 
   it('should init with cname: foo.bar.com', () => {
@@ -97,10 +78,7 @@ describe('test/client.test.js', () => {
       cname: true
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://foo.bar.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://foo.bar.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -109,10 +87,7 @@ describe('test/client.test.js', () => {
       cname: true
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://foo.bar.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://foo.bar.com/');
   });
 
   it('should init with endpoint: http://test.oss.com', () => {
@@ -122,10 +97,7 @@ describe('test/client.test.js', () => {
       endpoint: 'test.oss.com'
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://test.oss.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://test.oss.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -133,10 +105,7 @@ describe('test/client.test.js', () => {
       endpoint: 'http://test.oss.com'
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://test.oss.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://test.oss.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -145,10 +114,7 @@ describe('test/client.test.js', () => {
       endpoint: 'test.oss.com'
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'https://test.oss.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'https://test.oss.com/');
 
     store = oss({
       accessKeyId: 'foo',
@@ -156,10 +122,7 @@ describe('test/client.test.js', () => {
       endpoint: 'https://test.oss.com'
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'https://test.oss.com/',
-    );
+    assert.equal(store.options.endpoint.format(), 'https://test.oss.com/');
   });
 
   it('should init with ip address: http://127.0.0.1', () => {
@@ -169,10 +132,7 @@ describe('test/client.test.js', () => {
       endpoint: '127.0.0.1'
     });
 
-    assert.equal(
-      store.options.endpoint.format(),
-      'http://127.0.0.1/',
-    );
+    assert.equal(store.options.endpoint.format(), 'http://127.0.0.1/');
   });
 
   it('should create request url with bucket', () => {

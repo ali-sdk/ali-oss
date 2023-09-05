@@ -3,7 +3,7 @@ const { isObject } = require('./isObject');
 
 const commonRules = [
   {
-    validator: (value) => {
+    validator: value => {
       if (typeof value !== 'string') {
         throw new Error('the key and value of the tag must be String');
       }
@@ -44,7 +44,7 @@ export const checkBucketTag = (tag: object) => {
   }
 
   const rulesIndexKey = ['key', 'value'];
-  entries.forEach((keyValue) => {
+  entries.forEach(keyValue => {
     keyValue.forEach((item, index) => {
       checkValid(item, rules[rulesIndexKey[index]]);
     });

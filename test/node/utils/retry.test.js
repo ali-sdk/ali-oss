@@ -15,7 +15,7 @@ describe('test/retry.test.js', () => {
   before(async () => {
     store = new OSS({
       ...config,
-      retryMax: RETRY_MAX,
+      retryMax: RETRY_MAX
     });
     const result = await store.putBucket(bucket);
     assert.strictEqual(result.bucket, bucket);

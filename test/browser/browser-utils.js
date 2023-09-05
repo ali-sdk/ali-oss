@@ -1,4 +1,3 @@
-
 const platform = require('platform');
 
 if (process && process.browser) {
@@ -38,10 +37,11 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
     }
     result[deleteKey] = result[deleteKey] || [];
 
-    await Promise.all(result[deleteKey].map(_ =>
-      store.delete(_.name, multiversion ?
-        Object.assign({}, options, { versionId: _.versionId }) :
-        options)));
+    await Promise.all(
+      result[deleteKey].map(_ =>
+        store.delete(_.name, multiversion ? Object.assign({}, options, { versionId: _.versionId }) : options)
+      )
+    );
   }
   await handleDelete('objects');
   if (multiversion) {
@@ -60,7 +60,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
 };
 
 exports.sleep = function sleep(ms) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve();
     }, ms);

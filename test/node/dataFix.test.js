@@ -11,7 +11,7 @@ describe('dataFix()', () => {
       const data = 'string';
 
       const conf = {
-        remove: ['rm', 'rm2'],
+        remove: ['rm', 'rm2']
       };
       dataFix(data, conf);
     });
@@ -22,11 +22,11 @@ describe('dataFix()', () => {
       const data = {
         rmNot: 'do NOT remove me',
         rm: [],
-        rm2: 'what ever value dos NOT matter',
+        rm2: 'what ever value dos NOT matter'
       };
 
       const conf = {
-        remove: ['rm', 'rm2'],
+        remove: ['rm', 'rm2']
       };
 
       dataFix(data, conf);
@@ -45,11 +45,11 @@ describe('dataFix()', () => {
       One,
       Another,
       Both,
-      both,
+      both
     };
 
     dataFix(data, {
-      lowerFirst: true,
+      lowerFirst: true
     });
 
     it('should covert and remove the Old', () => {
@@ -81,7 +81,7 @@ describe('dataFix()', () => {
       false0N: 0,
       falseNull: null,
       cannotConvertNumber2,
-      cannotConvertOtherString,
+      cannotConvertOtherString
     };
 
     dataFix(data, {
@@ -99,8 +99,8 @@ describe('dataFix()', () => {
         'falseNull',
         'cannotConvertNumber2',
         'cannotConvertOtherString',
-        'nonExist',
-      ],
+        'nonExist'
+      ]
     });
 
     it('should boolean true/false remain boolean', () => {
@@ -129,10 +129,7 @@ describe('dataFix()', () => {
 
     it('should leave those cannot be converted as is', () => {
       assert.strictEqual(cannotConvertNumber2, data.cannotConvertNumber2);
-      assert.strictEqual(
-        cannotConvertOtherString,
-        data.cannotConvertOtherString
-      );
+      assert.strictEqual(cannotConvertOtherString, data.cannotConvertOtherString);
     });
   });
 
@@ -143,15 +140,15 @@ describe('dataFix()', () => {
     const data = {
       existValue,
       renameToAlready,
-      alreadyExist,
+      alreadyExist
     };
 
     dataFix(data, {
       rename: {
         existValue: 'existValueRenamed',
         nonExistValue: 'nonExistValueRenamed',
-        renameToAlready: 'alreadyExist',
-      },
+        renameToAlready: 'alreadyExist'
+      }
     });
 
     it('should replace existed values with new name and same value', () => {
@@ -177,11 +174,11 @@ describe('dataFix()', () => {
       One: 'One',
       'Another-another': 'Another-another',
       'Both-both': Both,
-      bothBoth: both,
+      bothBoth: both
     };
 
     dataFix(data, {
-      camel: [...Object.keys(data), 'noExistkey'],
+      camel: [...Object.keys(data), 'noExistkey']
     });
 
     it('should covert and remove the Old', () => {
@@ -206,12 +203,12 @@ describe('dataFix()', () => {
         test: 1,
         test1: 2,
         needDelete: 'del',
-        needDelete1: 'del',
+        needDelete1: 'del'
       };
 
       const delKey = 'needDelete';
       const addKey = 'addKey';
-      dataFix(data, {}, (o) => {
+      dataFix(data, {}, o => {
         Object.keys(o).forEach(_ => {
           if (_.includes(delKey)) delete o[_];
         });

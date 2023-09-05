@@ -1,4 +1,4 @@
-declare let process : {
+declare let process: {
   browser: string;
   version: string;
   platform: string;

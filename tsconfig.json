@@ -16,11 +16,6 @@
     "noImplicitAny": false,
     "moduleResolution": "node"
   },
-  "include": [
-    "./lib"
-  ],
-  "exclude": [
-    "node_modules",
-    "example"
-  ]
+  "include": ["./lib"],
+  "exclude": ["node_modules", "example"]
 }

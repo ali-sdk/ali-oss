@@ -14,9 +14,5 @@ function isStream(obj) {
 }
 
 module.exports.writableStream = function isWritableStream(obj) {
-  return (
-    isStream(obj) &&
-    typeof obj._write === 'function' &&
-    typeof obj._writableState === 'object'
-  );
+  return isStream(obj) && typeof obj._write === 'function' && typeof obj._writableState === 'object';
 };

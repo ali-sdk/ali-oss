@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const crypto = require('crypto');
 const pkg = require('./package.json');
@@ -32,7 +31,7 @@ exports.caculateFileMd5 = function (filePath) {
 
     const hash = crypto.createHash('md5');
     rs.on('data', hash.update.bind(hash));
-    rs.on('error', (err) => {
+    rs.on('error', err => {
       reject(err);
     });
     rs.on('end', () => {
@@ -41,4 +40,3 @@ exports.caculateFileMd5 = function (filePath) {
     });
   });
 };
-
