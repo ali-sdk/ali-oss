@@ -120,7 +120,7 @@
     "nyc": "^15.1.0",
     "prettier": "^3.0.0",
     "promise-polyfill": "^6.0.2",
-    "puppeteer": "20.9.0",
+    "puppeteer": "19.0.0",
     "semantic-release": "^21.1.1",
     "should": "^11.0.0",
     "sinon": "^15.2.0",
