@@ -14,6 +14,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # semantic-release和create-pull-request.js需要
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # 只有semantic-release需要
+      SNYK_TOKEN: ${{ secrets.SNYK_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
