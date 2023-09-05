@@ -10,10 +10,12 @@ jobs:
   security:
     environment: ali_oss_AK
     runs-on: ubuntu-latest
-    env:
-      SNYK_TOKEN: ${{ secrets.SNYK_KEY }}
+
     steps:
       - uses: actions/checkout@v2
+
       - run: npm install
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_KEY }}

@@ -30,7 +30,6 @@
     "publish-to-npm": "node publish-npm-check.js && npm publish",
     "publish-to-cdn": "node publish.js",
     "snyk-protect": "snyk-protect",
-    "prepublish": "npm run snyk-protect",
     "lint-staged": "lint-staged",
     "detect-secrets": "node task/detect-secrets",
     "tsc": "npm run tsc:clean && npm run tsc:build",
