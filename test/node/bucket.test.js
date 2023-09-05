@@ -1296,6 +1296,7 @@ describe('test/bucket.test.js', () => {
         assert.fail(err.message);
       }
     });
+
     it('should throw error, when policy is not Object', async () => {
       try {
         await store.putBucketPolicy(bucket, 'policy');

@@ -2,7 +2,7 @@ const { isIP: _isIP } = require('../../lib/common/utils/isIP');
 const { includesConf } = require('./utils');
 const assert = require('assert');
 
-describe('test/test.js', () => {
+describe('test/utils.test.js', () => {
   it('ipv4 test', () => {
     // first length is 3
     assert.equal(_isIP('200.255.255.255'), true);

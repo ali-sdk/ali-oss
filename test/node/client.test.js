@@ -1,8 +1,11 @@
 const assert = require('assert');
+const mm = require('mm');
+const ms = require('humanize-ms');
 const oss = require('../..');
 const config = require('../config').oss;
-const mm = require('mm');
+const { prefix, cleanBucket } = require('./utils');
 const pkg = require('../../package.json');
+const { timeout } = require('../config');
 
 describe('test/client.test.js', () => {
   it('init stsTokenFreshTime', () => {
@@ -381,6 +384,30 @@ describe('test/client.test.js', () => {
       } catch (error) {
         assert(error.message.includes('region'));
       }
+    });
+  });
+
+  describe('test timeout number', () => {
+    let store;
+    let bucket;
+    const defaultRegion = config.region;
+
+    before(async () => {
+      store = oss(config);
+      config.region = defaultRegion;
+      store = oss(config);
+      bucket = `ali-oss-test-timeout-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      bucket = bucket.substring(0, bucket.length - 1);
+    });
+
+    it('timeout is number', async () => {
+      const result = await store.putBucket(bucket, { timeout: ms(timeout) });
+      assert.equal(result.bucket, bucket);
+      assert.equal(result.res.status, 200);
+    });
+
+    after(async () => {
+      await cleanBucket(store, bucket);
     });
   });
 });

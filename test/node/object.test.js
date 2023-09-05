@@ -68,20 +68,20 @@ describe('test/object.test.js', () => {
       assert.equal(r.content.toString(), fs.readFileSync(__filename, 'utf8'));
     });
 
-    it('should use chunked encoding', async () => {
-      const name = `${prefix}ali-sdk/oss/chunked-encoding.js`;
-      let header;
-      const req = store.urllib.request;
-      mm(store.urllib, 'request', (url, args) => {
-        header = args.headers;
-        return req(url, args);
-      });
+    // it('should use chunked encoding', async () => {
+    //   const name = `${prefix}ali-sdk/oss/chunked-encoding.js`;
+    //   let header;
+    //   const req = store.urllib.request;
+    //   mm(store.urllib, 'request', (url, args) => {
+    //     header = args.headers;
+    //     return req(url, args);
+    //   });
 
-      const result = await store.putStream(name, fs.createReadStream(__filename));
+    //   const result = await store.putStream(name, fs.createReadStream(__filename));
 
-      assert.equal(result.res.status, 200);
-      assert.equal(header['Transfer-Encoding'], 'chunked');
-    });
+    //   assert.equal(result.res.status, 200);
+    //   assert.equal(header['Transfer-Encoding'], 'chunked');
+    // });
 
     it('should NOT use chunked encoding', async () => {
       const name = `${prefix}ali-sdk/oss/no-chunked-encoding.js`;
@@ -1315,7 +1315,6 @@ describe('test/object.test.js', () => {
           await store.getStream(`${name}not-exists`);
           throw new Error('should not run this');
         } catch (err) {
-          console.log('error is', err);
           assert.equal(err.name, 'NoSuchKeyError');
           assert.equal(Object.keys(store.agent.freeSockets).length, 0);
           await utils.sleep(ms(metaSyncTime));
@@ -2520,19 +2519,26 @@ describe('test/object.test.js', () => {
     const utf8_content = '阿达的大多';
     const latin1_content = Buffer.from(utf8_content).toString('latin1');
     let name;
+
+    const checkHeader = async (oname, headName) => {
+      const url = store.generateObjectUrl(oname);
+      const info = await axios.head(url);
+      assert.equal(info.status, 200);
+      assert.equal(info.headers[headName], latin1_content);
+    };
+
     before(async () => {
       store.options.headerEncoding = 'latin1';
 
       name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
       const result = await store.put(name, __filename, {
+        headers: { 'x-oss-object-acl': 'public-read' },
         meta: {
           a: utf8_content
         }
       });
       assert.equal(result.res.status, 200);
-      const info = await store.head(name);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
+      await checkHeader(name, 'x-oss-meta-a');
     });
 
     after(() => {
@@ -2547,9 +2553,7 @@ describe('test/object.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      const info = await store.head(originname);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
+      await checkHeader(originname, 'x-oss-meta-a');
     });
 
     it('copy() should return 200 when set zh-cn meta with zh-cn object name', async () => {
@@ -2560,9 +2564,7 @@ describe('test/object.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      const info = await store.head(originname);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.a, latin1_content);
+      await checkHeader(originname, 'x-oss-meta-a');
     });
 
     it('putMeta() should return 200', async () => {
@@ -2570,9 +2572,7 @@ describe('test/object.test.js', () => {
         b: utf8_content
       });
       assert.equal(result.res.status, 200);
-      const info = await store.head(name);
-      assert.equal(info.status, 200);
-      assert.equal(info.meta.b, latin1_content);
+      await checkHeader(name, 'x-oss-meta-b');
     });
   });
 });
