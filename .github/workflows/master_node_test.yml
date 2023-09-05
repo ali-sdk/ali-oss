@@ -66,7 +66,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install npm@6.14.12 -g
+      - run: npm install -D npm@6.14.12
       - run: npm install
       - run: npm run test
 
@@ -98,7 +98,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install npm@6.14.16 -g
+      - run: npm install -D npm@6.14.16
       - run: npm install
       - run: npm run test
 
@@ -130,6 +130,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install npm@6.14.18 -g
+      - run: npm install -D npm@6.14.18
       - run: npm install
       - run: npm run test
