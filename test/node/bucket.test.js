@@ -1305,7 +1305,7 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
-  describe('inventory()', () => {
+  describe.only('inventory()', () => {
     const inventory = {
       id: 'default',
       isEnabled: false,
@@ -1323,7 +1323,7 @@ describe('test/bucket.test.js', () => {
         field: ['Size', 'LastModifiedDate']
       }
     };
-
+    console.log('inventory', inventory);
     describe('putBucketInventory', () => {
       before(() => {
         inventory.OSSBucketDestination.bucket = bucket;
@@ -1343,16 +1343,19 @@ describe('test/bucket.test.js', () => {
       });
       it('should put bucket inventory when no optionalFields or no field', async () => {
         try {
+          console.log('111', bucket);
           await store.putBucketInventory(bucket, { ...inventory, id: 'test_optionalFields', optionalFields: {} });
+          console.log('222');
           await store.putBucketInventory(bucket, { ...inventory, id: 'test_field', optionalFields: {} });
           inventory.optionalFields = { field: ['Size'] };
           await store.putBucketInventory(bucket, {
             ...inventory,
             id: 'test_field_is_one'
           });
+          console.log('333', inventory);
           assert(true);
         } catch (err) {
-          assert(false, err);
+          assert.fail(err);
         }
       });
       it('should put bucket inventory when no prefix', async () => {
