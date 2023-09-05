@@ -25,7 +25,7 @@ jobs:
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
-
+      SNYK_TOKEN: ${{ secrets.SNYK_KEY }}
     strategy:
       matrix:
         node-version: [14.x]
@@ -56,7 +56,7 @@ jobs:
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
-
+      SNYK_TOKEN: ${{ secrets.SNYK_KEY }}
     strategy:
       matrix:
         node-version: [10.x]
@@ -89,7 +89,7 @@ jobs:
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
-
+      SNYK_TOKEN: ${{ secrets.SNYK_KEY }}
     strategy:
       matrix:
         node-version: [12.x]
@@ -122,7 +122,7 @@ jobs:
       ALI_SDK_STS_REGION: ${{secrets.ALI_SDK_STS_REGION}}
       ALI_SDK_STS_ROLE: ${{secrets.ALI_SDK_STS_ROLE}}
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
-
+      SNYK_TOKEN: ${{ secrets.SNYK_KEY }}
     strategy:
       matrix:
         node-version: [14.x]
