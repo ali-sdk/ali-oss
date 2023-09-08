@@ -51,8 +51,7 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-    "access": "public",
-    "tag": "testtag"
+    "access": "public"
   },
   "repository": {
     "type": "git",

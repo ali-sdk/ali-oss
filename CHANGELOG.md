@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [6.18.1](https://github.com/ali-sdk/ali-oss/compare/v6.18.0...v6.18.1) (2023-09-08)
 
+### Features
+
+* add default content-type in DingTalk for ios ([#1244](https://github.com/ali-sdk/ali-oss/issues/1244)) ([13a2691](https://github.com/ali-sdk/ali-oss/commit/13a2691e49ee04667f41070d63478301fbc983e3))
 
 ### Bug Fixes
 
-* _ UploadPart opt.headers does not use es6 ([#1248](https://github.com/ali-sdk/ali-oss/issues/1248)) ([e2872a0](https://github.com/ali-sdk/ali-oss/commit/e2872a0046af9c5bf537c6eb67e8c32bd119021e))
-* upgrade urllib to 2.41.0 avoid deps vm2 ([#1239](https://github.com/ali-sdk/ali-oss/issues/1239)) ([7656d6f](https://github.com/ali-sdk/ali-oss/commit/7656d6f49489451a7862015b0893ef1286b2e948))
+* opt.headers in _uploadPart does not use es6 ([#1248](https://github.com/ali-sdk/ali-oss/issues/1248)) ([e2872a0](https://github.com/ali-sdk/ali-oss/commit/e2872a0046af9c5bf537c6eb67e8c32bd119021e))
+* upgrade urllib to 2.41.0 to avoid deps vm2 ([#1239](https://github.com/ali-sdk/ali-oss/issues/1239) [#1232](https://github.com/ali-sdk/ali-oss/issues/1232)) ([7656d6f](https://github.com/ali-sdk/ali-oss/commit/7656d6f49489451a7862015b0893ef1286b2e948))
 
 ## [6.18.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.17.0...v6.18.0) (2023-07-27)
 
