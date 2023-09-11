@@ -1,6 +1,6 @@
 {
   "name": "ali-oss",
-  "version": "6.18.0",
+  "version": "6.18.1",
   "description": "aliyun oss(object storage service) node client",
   "main": "./lib/client.js",
   "files": [
@@ -51,8 +51,7 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-    "access": "public",
-    "tag": "testtag"
+    "access": "public"
   },
   "repository": {
     "type": "git",
