@@ -1,3 +1,4 @@
+// https://help.aliyun.com/zh/oss/developer-reference/data-indexing
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
 
@@ -24,7 +25,7 @@ export async function getMetaQueryStatus(this: any, bucketName: string, options 
 }
 
 interface ISubQuerie {
-  // https://help.aliyun.com/zh/oss/developer-reference/appendix-supported-fields-and-operators?spm=a2c4g.11186623.0.i38#concept-2084036
+  // https://help.aliyun.com/zh/oss/developer-reference/appendix-supported-fields-and-operators
   field?: string;
   value?: string;
   // 操作符。取值范围为eq（等于）、gt（大于）、gte（大于等于）、lt（小于）、 lte（小于等于）、match（模糊查询）、prefix（前缀查询）、and（逻辑与）、or（逻辑或）和not（逻辑非）。
@@ -70,6 +71,17 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
   };
   params.mime = 'xml';
   params.content = obj2xml(paramXMLObj);
+
+  const result = await this.request(params);
+  return {
+    res: result.res,
+    status: result.status
+  };
+}
+
+export async function closeMetaQuery(this: any, bucketName: string, options = {}) {
+  checkBucketName(bucketName);
+  const params = this._bucketRequestParams('POST', bucketName, { metaQuery: '', comp: 'delete' }, options);
 
   const result = await this.request(params);
   return {

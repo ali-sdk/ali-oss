@@ -1481,7 +1481,7 @@ describe('test/bucket.test.js', () => {
     });
   });
 
-  describe('openMetaQuery() openMetaQuery() doMetaQuery()', () => {
+  describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
     it('open meta query of bucket', async () => {
       try {
         const result = await store.openMetaQuery(bucket);
@@ -1508,7 +1508,30 @@ describe('test/bucket.test.js', () => {
           query: { operation: 'and', subQueries: [{ Field: 'Size', Value: '1048576', Operation: 'lt' }] }
         };
         const result = await store.doMetaQuery(bucket, queryParam);
-        console.log('rr', result);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.res.statusMessage, 'OK');
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+
+    it('doMetaQuery() Aggregations', async () => {
+      try {
+        const queryParam = {
+          query: { operation: 'and', subQueries: [{ Field: 'Size', Value: '1048576', Operation: 'lt' }] },
+          aggregations: [{ field: 'Size', operation: 'sum' }]
+        };
+        const result = await store.doMetaQuery(bucket, queryParam);
+        assert.strictEqual(result.status, 200);
+        assert.deepEqual(result.res.statusMessage, 'OK');
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+
+    it('closeMetaQuery()', async () => {
+      try {
+        const result = await store.closeMetaQuery(bucket);
         assert.strictEqual(result.status, 200);
         assert.deepEqual(result.res.statusMessage, 'OK');
       } catch (error) {

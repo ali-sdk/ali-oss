@@ -28,4 +28,8 @@ export declare function doMetaQuery(this: any, bucketName: string, queryParam: I
     res: any;
     status: any;
 }>;
+export declare function closeMetaQuery(this: any, bucketName: string, options?: {}): Promise<{
+    res: any;
+    status: any;
+}>;
 export {};
