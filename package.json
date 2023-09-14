@@ -31,7 +31,6 @@
     "publish-to-cdn": "node publish.js",
     "snyk-protect": "snyk-protect",
     "lint-staged": "lint-staged",
-    "detect-secrets": "node task/detect-secrets",
     "tsc": "npm run tsc:clean && npm run tsc:build",
     "tsc:build": "tsc -b tsconfig.json tsconfig-cjs.json",
     "tsc:watch": "tsc -b tsconfig.json tsconfig-cjs.json --watch",
@@ -120,6 +119,7 @@
     "prettier": "^3.0.0",
     "promise-polyfill": "^6.0.2",
     "puppeteer": "19.0.0",
+    "readline-sync": "^1.4.10",
     "semantic-release": "^21.1.1",
     "should": "^11.0.0",
     "sinon": "^15.2.0",
@@ -157,9 +157,6 @@
   },
   "snyk": true,
   "lint-staged": {
-    "**/!(dist)/*": [
-      "npm run detect-secrets --"
-    ],
     "**/*.{js,ts}": [
       "eslint --cache --fix --ext .js,.ts",
       "prettier --write",
