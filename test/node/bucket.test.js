@@ -128,6 +128,17 @@ describe('test/bucket.test.js', () => {
       assert.equal(result.bucket.StorageClass, 'Standard');
     });
 
+    it('it should return correct bucketInfo when bucket exist by store setting', async () => {
+        const result = await store.getBucketInfo();
+        assert.equal(result.res.status, 200);
+  
+        assert.equal(result.bucket.Location, `${bucketRegion}`);
+        assert.equal(result.bucket.ExtranetEndpoint, `${bucketRegion}.aliyuncs.com`);
+        assert.equal(result.bucket.IntranetEndpoint, `${bucketRegion}-internal.aliyuncs.com`);
+        assert.equal(result.bucket.AccessControlList.Grant, 'private');
+        assert.equal(result.bucket.StorageClass, 'Standard');
+    });
+
     it('it should return NoSuchBucketError when bucket not exist', async () => {
       await utils.throws(async () => {
         await store.getBucketInfo('not-exists-bucket');
@@ -139,6 +150,11 @@ describe('test/bucket.test.js', () => {
     it('it should return loaction this.region', async () => {
       const result = await store.getBucketLocation(bucket);
       assert.equal(result.location, bucketRegion);
+    });
+
+    it('it should return localtion this.region by store setting', async () => {
+        const result = await store.getBucketLocation();
+        assert.equal(result.location, bucketRegion);
     });
 
     it('it should return NoSuchBucketError when bucket not exist', async () => {
