@@ -864,7 +864,7 @@ describe('test/bucket.test.js', () => {
           status: 'Enabled',
           transition: {
             days: 20,
-            storageClass: 'DeepColdArchive'
+            storageClass: 'ColdArchive'
           },
           tag: {
             key: 'test',
@@ -873,6 +873,22 @@ describe('test/bucket.test.js', () => {
         }
       ]);
       assert.equal(putresult3.res.status, 200);
+      const putresult4 = await store.putBucketLifecycle(bucket, [
+        {
+          id: 'transition',
+          prefix: 'logs/',
+          status: 'Enabled',
+          transition: {
+            days: 20,
+            storageClass: 'DeepColdArchive'
+          },
+          tag: {
+            key: 'test',
+            value: '123'
+          }
+        }
+      ]);
+      assert.equal(putresult4.res.status, 200);
     });
 
     it('should put the lifecycle with expiration and Tag', async () => {
@@ -1003,7 +1019,7 @@ describe('test/bucket.test.js', () => {
         ]);
         assert(false);
       } catch (error) {
-        assert(error.message.includes('IA or Archive'));
+        assert(error.message.includes('IA、Archive'));
       }
     });
 
