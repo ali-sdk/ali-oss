@@ -857,38 +857,41 @@ describe('test/bucket.test.js', () => {
         }
       ]);
       assert.equal(putresult2.res.status, 200);
-      // const putresult3 = await store.putBucketLifecycle(bucket, [
-      //   {
-      //     id: 'transition3',
-      //     prefix: 'logs/',
-      //     status: 'Enabled',
-      //     transition: {
-      //       days: 20,
-      //       storageClass: 'ColdArchive'
-      //     },
-      //     tag: {
-      //       key: 'test3',
-      //       value: '123'
-      //     }
-      //   }
-      // ]);
-      // assert.equal(putresult3.res.status, 200);
-      const putresult4 = await store.putBucketLifecycle(bucket, [
+      const putresult3 = await store.putBucketLifecycle(bucket, [
         {
-          id: 'transition4',
+          id: 'transition3',
           prefix: 'logs/',
           status: 'Enabled',
           transition: {
             days: 20,
-            storageClass: 'DeepColdArchive'
+            storageClass: 'ColdArchive'
           },
           tag: {
-            key: 'test4',
+            key: 'test3',
             value: '123'
           }
         }
       ]);
-      assert.equal(putresult4.res.status, 200);
+      assert.equal(putresult3.res.status, 200);
+      // oss-us-west-1 not support DeepColdArchive
+      if (!config.endpoint) {
+        const putresult4 = await store.putBucketLifecycle(bucket, [
+          {
+            id: 'transition4',
+            prefix: 'logs/',
+            status: 'Enabled',
+            transition: {
+              days: 20,
+              storageClass: 'DeepColdArchive'
+            },
+            tag: {
+              key: 'test4',
+              value: '123'
+            }
+          }
+        ]);
+        assert.equal(putresult4.res.status, 200);
+      }
     });
 
     it('should put the lifecycle with expiration and Tag', async () => {
