@@ -857,6 +857,22 @@ describe('test/bucket.test.js', () => {
         }
       ]);
       assert.equal(putresult2.res.status, 200);
+      const putresult3 = await store.putBucketLifecycle(bucket, [
+        {
+          id: 'transition',
+          prefix: 'logs/',
+          status: 'Enabled',
+          transition: {
+            days: 20,
+            storageClass: 'DeepColdArchive'
+          },
+          tag: {
+            key: 'test',
+            value: '123'
+          }
+        }
+      ]);
+      assert.equal(putresult3.res.status, 200);
     });
 
     it('should put the lifecycle with expiration and Tag', async () => {
