@@ -1,7 +1,7 @@
 const { env } = process;
 
 const config = module.exports;
-const USWEST = 'oss-us-west-1'; // ONCI=true Using the region of Silicon Valley in the United States would be faster
+const USWEST = 'oss-ap-southeast-1'; // ONCI=true Faster using oss-ap-outsoutheast-1
 
 config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,
