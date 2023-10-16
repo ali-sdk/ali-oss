@@ -155,7 +155,7 @@ describe('test/multiversion.test.js', () => {
       assert.strictEqual(rules[0].expiration.expiredObjectDeleteMarker, 'true');
     });
 
-    it.only('should putBucketLifecycle with noncurrentVersionTransition', async () => {
+    it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
       const putresult = await store.putBucketLifecycle(bucket, [
         {
           prefix: 'log/',
