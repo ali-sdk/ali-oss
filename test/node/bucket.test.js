@@ -1481,7 +1481,7 @@ describe('test/bucket.test.js', () => {
     });
   });
 
-  describe.only('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
+  describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
     it('open meta query of bucket', async () => {
       try {
         const result = await store.openMetaQuery(bucket);
