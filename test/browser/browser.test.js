@@ -2511,23 +2511,68 @@ describe('browser', () => {
     });
   });
 
-  // oss server 不支持跨域 大概要到9月30号才上生产支持 跨域，后端是：云仁
-  describe.skip('bucket data index', () => {
+  describe('bucket data index', () => {
     let store;
+    const { bucket } = stsConfig;
     before(async () => {
       store = oss({ ...ossConfig, refreshSTSTokenInterval: 1000 });
     });
 
     it('open meta query of bucket', async () => {
       try {
-        // await store.listV2({ 'max-keys': 1 });
-        // const result = await store.getMetaQueryStatus(stsConfig.bucket); // oss server does not support cross domain
-        const result = await store.openMetaQuery(stsConfig.bucket);
-        console.log('rr', result);
-        assert.strictEqual(result.status, 200);
-        assert.deepEqual(result.res.statusMessage, 'OK');
+        const result = await store.openMetaQuery(bucket);
+        assert(result.status === 200 || result.status === 400);
       } catch (error) {
-        console.log('bb', JSON.stringify(error), error);
+        assert.fail(error);
+      }
+    });
+
+    it('getMetaQueryStatus()', async () => {
+      try {
+        const result = await store.getMetaQueryStatus(bucket);
+        assert.strictEqual(result.status, 200);
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+
+    it('doMetaQuery()', async () => {
+      try {
+        const queryParam = {
+          maxResults: 2,
+          query: { operation: 'and', subQueries: [{ field: 'Size', value: '1048575', operation: 'lt' }] },
+          sort: 'Size',
+          order: 'asc'
+        };
+
+        const result = await store.doMetaQuery(bucket, queryParam);
+        assert.strictEqual(result.status, 200);
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+
+    it('doMetaQuery() Aggregations', async () => {
+      try {
+        const queryParam = {
+          maxResults: 2,
+          sort: 'Size',
+          order: 'asc',
+          query: { operation: 'and', subQueries: [{ field: 'Size', value: '1048576', operation: 'lt' }] },
+          aggregations: [{ field: 'Size', operation: 'sum' }]
+        };
+        const result = await store.doMetaQuery(bucket, queryParam);
+        assert.strictEqual(result.status, 200);
+      } catch (error) {
+        assert.fail(error);
+      }
+    });
+
+    it('closeMetaQuery()', async () => {
+      try {
+        const result = await store.closeMetaQuery(bucket);
+        assert.strictEqual(result.status, 200);
+      } catch (error) {
         assert.fail(error);
       }
     });

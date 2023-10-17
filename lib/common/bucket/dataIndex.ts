@@ -1,6 +1,7 @@
 // https://help.aliyun.com/zh/oss/developer-reference/data-indexing
 import { checkBucketName } from '../utils/checkBucketName';
 import { obj2xml } from '../utils/obj2xml';
+import { formatObjKey } from '../utils/formatObjKey';
 
 export async function openMetaQuery(this: any, bucketName: string, options = {}) {
   checkBucketName(bucketName);
@@ -63,14 +64,14 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
     MetaQuery: {
       NextToken: queryParam.nextToken,
       MaxResults: queryParam.maxResults,
-      Query: JSON.stringify(queryParam.query),
+      Query: JSON.stringify(formatObjKey(queryParam.query, 'firstUpperCase')),
       Sort: queryParam.sort,
       Order: queryParam.order,
       Aggregations
     }
   };
   params.mime = 'xml';
-  params.content = obj2xml(paramXMLObj);
+  params.content = obj2xml(paramXMLObj, { headers: true, firstUpperCase: true });
 
   const result = await this.request(params);
   return {

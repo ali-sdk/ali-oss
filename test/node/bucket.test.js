@@ -1505,8 +1505,12 @@ describe('test/bucket.test.js', () => {
     it('doMetaQuery()', async () => {
       try {
         const queryParam = {
-          query: { operation: 'and', subQueries: [{ Field: 'Size', Value: '1048576', Operation: 'lt' }] }
+          maxResults: 2,
+          query: { operation: 'and', subQueries: [{ field: 'Size', value: '1048575', operation: 'lt' }] },
+          sort: 'Size',
+          order: 'asc'
         };
+
         const result = await store.doMetaQuery(bucket, queryParam);
         assert.strictEqual(result.status, 200);
         assert.deepEqual(result.res.statusMessage, 'OK');
@@ -1518,7 +1522,10 @@ describe('test/bucket.test.js', () => {
     it('doMetaQuery() Aggregations', async () => {
       try {
         const queryParam = {
-          query: { operation: 'and', subQueries: [{ Field: 'Size', Value: '1048576', Operation: 'lt' }] },
+          maxResults: 2,
+          sort: 'Size',
+          order: 'asc',
+          query: { operation: 'and', subQueries: [{ field: 'Size', value: '1048576', operation: 'lt' }] },
           aggregations: [{ field: 'Size', operation: 'sum' }]
         };
         const result = await store.doMetaQuery(bucket, queryParam);

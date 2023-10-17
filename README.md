@@ -126,6 +126,11 @@ All operation use es7 async/await to implement. All api is async function.
     - [.extendBucketWorm(name, wormId, days[, options])](#extendBucketWormname-wormId-days-options)
     - [.getBucketWorm(name[, options])](#getBucketWormname-options)
     - [.initiateBucketWorm(name, days[, options])](#initiateBucketWormname-days-options)
+  - Data Indexing
+    - [.openMetaQuery(bucketName[, options])](#openMetaQuery-options)
+    - [.getMetaQueryStatus(bucketName[, options])](#getMetaQueryStatus-options)
+    - [.doMetaQuery(bucketName, queryParam[, options])](#doMetaQuery-options)
+    - [.closeMetaQuery(bucketName[, options])](#closeMetaQuery-options)
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
@@ -1648,6 +1653,107 @@ parameters:
 Success will return:
 
 - wormId {String} worm id
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .openMetaQuery(bucketName[, options])
+
+Enable metadata management function.
+
+parameters:
+
+- bucketName {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .getMetaQueryStatus(bucketName[, options])
+
+Obtain metadata index library information for the specified storage space (bucket).
+
+parameters:
+
+- bucketName {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .doMetaQuery(bucketName, queryParam[, options])
+
+Query files (Objects) that meet the specified conditions and list file information according to the specified fields and sorting method.
+
+parameters:
+
+- bucketName {String} the bucket name
+- queryParam {IMetaQuery}
+
+```js
+interface ISubQuerie {
+  field?: string;
+  value?: string;
+  operation: string;
+  subQueries?: ISubQuerie[];
+}
+
+interface IAggregation {
+  field: string;
+  operation: string;
+}
+
+interface IMetaQuery {
+  nextToken?: string;
+  maxResults?: number;
+  query: ISubQuerie;
+  sort?: string;
+  order?: 'asc' | 'desc';
+  aggregations?: IAggregation[];
+}
+```
+
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+  example:
+
+```js
+const queryParam = {
+  maxResults: 2,
+  query: { operation: 'and', subQueries: [{ field: 'Size', value: '1048575', operation: 'lt' }] },
+  sort: 'Size',
+  order: 'asc'
+};
+const result = await store.doMetaQuery(bucket, queryParam);
+console.log(result);
+```
+
+---
+
+### .closeMetaQuery(bucketName[, options])
+
+Turn off metadata management function for storage space (buckets).
+
+parameters:
+
+- bucketName {String} the bucket name
+- [options] {Object} optional args
+
+Success will return:
+
 - status {Number} response status
 - res {Object} response info
 
