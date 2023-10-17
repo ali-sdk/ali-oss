@@ -1481,7 +1481,7 @@ describe('test/bucket.test.js', () => {
     });
   });
 
-  describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
+  describe.only('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
     it('open meta query of bucket', async () => {
       try {
         const result = await store.openMetaQuery(bucket);
@@ -1541,6 +1541,8 @@ describe('test/bucket.test.js', () => {
         const result = await store.closeMetaQuery(bucket);
         assert.strictEqual(result.status, 200);
         assert.deepEqual(result.res.statusMessage, 'OK');
+        const staRes = await store.getMetaQueryStatus(bucket);
+        assert.strictEqual(staRes.status, 404);
       } catch (error) {
         assert.fail(error);
       }

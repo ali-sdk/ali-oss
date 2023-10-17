@@ -127,10 +127,10 @@ All operation use es7 async/await to implement. All api is async function.
     - [.getBucketWorm(name[, options])](#getBucketWormname-options)
     - [.initiateBucketWorm(name, days[, options])](#initiateBucketWormname-days-options)
   - Data Indexing
-    - [.openMetaQuery(bucketName[, options])](#openMetaQuery-options)
-    - [.getMetaQueryStatus(bucketName[, options])](#getMetaQueryStatus-options)
-    - [.doMetaQuery(bucketName, queryParam[, options])](#doMetaQuery-options)
-    - [.closeMetaQuery(bucketName[, options])](#closeMetaQuery-options)
+    - [.openMetaQuery(bucketName[, options])](#openMetaQueryBucketName-options)
+    - [.getMetaQueryStatus(bucketName[, options])](#getMetaQueryStatusBucketName-options)
+    - [.doMetaQuery(bucketName, queryParam[, options])](#doMetaQueryBucketName-queryParam-options)
+    - [.closeMetaQuery(bucketName[, options])](#closeMetaQueryBucketName-options)
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
@@ -1728,7 +1728,8 @@ Success will return:
 
 - status {Number} response status
 - res {Object} response info
-  example:
+
+example:
 
 ```js
 const queryParam = {

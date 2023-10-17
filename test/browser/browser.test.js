@@ -2572,6 +2572,8 @@ describe('browser', () => {
       try {
         const result = await store.closeMetaQuery(bucket);
         assert.strictEqual(result.status, 200);
+        const staRes = await store.getMetaQueryStatus(bucket);
+        assert.strictEqual(staRes.status, 404);
       } catch (error) {
         assert.fail(error);
       }
