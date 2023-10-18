@@ -111,17 +111,23 @@ describe('test/multiversion.test.js', () => {
   });
 
   describe('putBucketLifecycle() getBucketLifecycle()', async () => {
-    it('should putBucketLifecycle with NoncurrentVersionExpiration', async () => {
+    it('should putBucketLifecycle with noncurrentVersionExpiration', async () => {
       const putresult1 = await store.putBucketLifecycle(
         bucket,
         [
           {
-            id: 'expiration1',
             prefix: 'logs/',
             status: 'Enabled',
             expiration: {
               days: 1
             },
+            noncurrentVersionExpiration: {
+              noncurrentDays: 1
+            }
+          },
+          {
+            prefix: 'logss/',
+            status: 'Enabled',
             noncurrentVersionExpiration: {
               noncurrentDays: 1
             }
@@ -136,6 +142,7 @@ describe('test/multiversion.test.js', () => {
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
     });
+
     it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
       const putresult1 = await store.putBucketLifecycle(bucket, [
         {
@@ -199,7 +206,7 @@ describe('test/multiversion.test.js', () => {
         }
       ] = rules;
 
-      assert(noncurrentDays === '10' && storageClass === 'IA');
+      assert(noncurrentDays === '10' && storageClass === 'IA' && rules.length === 4);
     });
   });
 

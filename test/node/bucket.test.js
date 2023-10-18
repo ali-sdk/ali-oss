@@ -828,7 +828,7 @@ describe('test/bucket.test.js', () => {
           status: 'Enabled',
           transition: {
             createdBeforeDate: '2020-02-18T00:00:00.000Z',
-            storageClass: 'Archive'
+            storageClass: 'IA'
           },
           expiration: {
             createdBeforeDate: '2020-02-17T00:00:00.000Z'
@@ -1020,7 +1020,7 @@ describe('test/bucket.test.js', () => {
         ]);
         assert(false);
       } catch (error) {
-        assert(error.message.includes('IA、Archive'));
+        assert(error.message.includes('IA or Archive or ColdArchive or DeepColdArchive'));
       }
     });
 

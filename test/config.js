@@ -1,14 +1,13 @@
 const { env } = process;
 
 const config = module.exports;
-const USWEST = 'oss-ap-southeast-1'; // ONCI=true Faster using oss-ap-outsoutheast-1
 
 config.oss = {
   accessKeyId: env.ALI_SDK_OSS_ID,
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
   accountId: env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i)[1], // Obtain the main account ID through roleRan
   region: env.ALI_SDK_OSS_REGION,
-  endpoint: env.ONCI ? `https://${USWEST}.aliyuncs.com` : undefined,
+  endpoint: env.ONCI ? `https://${env.ALI_SDK_OSS_REGION}.aliyuncs.com` : undefined,
   maxSocket: 50
 };
 
