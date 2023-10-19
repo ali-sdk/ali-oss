@@ -153,7 +153,9 @@
     "stream-wormhole": "^1.0.4",
     "urllib": "2.41.0",
     "utility": "^1.18.0",
-    "xml2js": "^0.6.2",
+    "xml2js": "^0.6.2"
+  },
+  "peerDependencies": {
     "proxy-agent": "^5.0.0"
   },
   "snyk": true,
