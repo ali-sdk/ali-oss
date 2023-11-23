@@ -1,4 +1,4 @@
-# Regularly clean test buckets at GMT 01:00 every day
+# Regularly clean test buckets at GMT 01:00 every day.
 name: 'Schdule Delete'
 
 on:
