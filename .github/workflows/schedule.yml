@@ -1,9 +1,9 @@
-# Regularly clean test buckets at GMT 20:00 every day
+# Regularly clean test buckets at GMT 01:00 every day
 name: 'Schdule Delete'
 
 on:
   schedule:
-    - cron: '0 20 1/1 * *'
+    - cron: '0 1 1/1 * *'
 
 jobs:
   cleanAllBucket:
