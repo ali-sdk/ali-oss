@@ -1482,9 +1482,9 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
-    it('open meta query of bucket', async () => {
+    it.only('open meta query of bucket', async () => {
       try {
-        const result = await store.openMetaQuery(bucket);
+        const result = await store.openMetaQuery('alioss-sdk-test');
         assert.strictEqual(result.status, 200);
         assert.deepEqual(result.res.statusMessage, 'OK');
       } catch (error) {
@@ -1506,7 +1506,17 @@ describe('test/bucket.test.js', () => {
       try {
         const queryParam = {
           maxResults: 2,
-          query: { operation: 'and', subQueries: [{ field: 'Size', value: '1048575', operation: 'lt' }] },
+          query: {
+            operation: 'and',
+            subQueries: [
+              {
+                field: 'Filename',
+                value: 'exampleobject.txt',
+                operation: 'eq'
+              },
+              { field: 'Size', value: '1048575', operation: 'lt' }
+            ]
+          },
           sort: 'Size',
           order: 'asc'
         };

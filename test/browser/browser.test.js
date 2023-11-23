@@ -2521,7 +2521,7 @@ describe('browser', () => {
     it('open meta query of bucket', async () => {
       try {
         const result = await store.openMetaQuery(bucket);
-        assert(result.status === 200 || result.status === 400);
+        assert(result.status === 200 || result.status === 400); // 400 is the second open
       } catch (error) {
         assert.fail(error);
       }
@@ -2573,6 +2573,7 @@ describe('browser', () => {
         const result = await store.closeMetaQuery(bucket);
         assert.strictEqual(result.status, 200);
         const staRes = await store.getMetaQueryStatus(bucket);
+
         assert.strictEqual(staRes.status, 404);
       } catch (error) {
         assert.fail(error);
