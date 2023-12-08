@@ -981,6 +981,7 @@ describe('browser', () => {
     let store;
     let name;
     let needEscapeName;
+    const testSignatureObjectName = `?{测}\r\n[试];,/?:@&=+$<中>-_.!~*'(文)"￥#%！（字）^ \`符|\\${prefix}test.txt`;
     before(async () => {
       store = oss(ossConfig);
       name = `${prefix}ali-sdk/oss/signatureUrl.js`;
@@ -1006,6 +1007,9 @@ describe('browser', () => {
       });
       assert.equal(object.res.status, 200);
       // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+
+      const testSignatureObject = await store.put(testSignatureObjectName, Buffer.from('Hello World!', 'utf8'));
+      assert.equal(typeof testSignatureObject.res.headers['x-oss-request-id'], 'string');
     });
 
     it('should signature url get object ok', async () => {
@@ -1057,7 +1061,7 @@ describe('browser', () => {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-    it('should signature url with reponse limitation', async () => {
+    it('should signature url with response limitation', async () => {
       const response = {
         'content-type': 'xml',
         'content-language': 'zh-cn'
@@ -1103,6 +1107,75 @@ describe('browser', () => {
       await sleep(2000);
       await store.asyncSignatureUrl('test.txt');
       assert(flag);
+    });
+
+    it('should verify object name strictly by default', () => {
+      assert.throws(() => {
+        try {
+          store.signatureUrl(testSignatureObjectName);
+        } catch (err) {
+          assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+          throw err;
+        }
+      }, Error);
+
+      store
+        .asyncSignatureUrl(testSignatureObjectName)
+        .then(() => {
+          assert.fail('Expected asyncSignatureUrl to throw an error');
+        })
+        .catch(err => {
+          assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+        });
+    });
+
+    it('should verify object name loosely', async () => {
+      store = oss(
+        Object.assign({}, ossConfig, {
+          verifyObjectStrict: false
+        })
+      );
+
+      const testSignatureObjectFromGet = await store.get(testSignatureObjectName);
+      const testSignatureObjectUrl = store.signatureUrl(testSignatureObjectName);
+      const testSignatureObjectFromUrl = await urllib.request(testSignatureObjectUrl);
+      assert.equal(testSignatureObjectFromUrl.data.toString(), testSignatureObjectFromGet.content.toString());
+
+      const testSignatureObjectUrlAsync = await store.asyncSignatureUrl(testSignatureObjectName);
+      const testSignatureObjectFromUrlAsync = await urllib.request(testSignatureObjectUrlAsync);
+      assert.equal(testSignatureObjectFromUrlAsync.data.toString(), testSignatureObjectFromGet.content.toString());
+    });
+
+    it('should verify object name via manual configuration', async () => {
+      store = oss(ossConfig);
+      store.setVerifyObjectNameStrictEnabled(false);
+
+      const testSignatureObjectFromGet = await store.get(testSignatureObjectName);
+      const testSignatureObjectUrl = store.signatureUrl(testSignatureObjectName);
+      const testSignatureObjectFromUrl = await urllib.request(testSignatureObjectUrl);
+      assert.equal(testSignatureObjectFromUrl.data.toString(), testSignatureObjectFromGet.content.toString());
+
+      const testSignatureObjectUrlAsync = await store.asyncSignatureUrl(testSignatureObjectName);
+      const testSignatureObjectFromUrlAsync = await urllib.request(testSignatureObjectUrlAsync);
+      assert.equal(testSignatureObjectFromUrlAsync.data.toString(), testSignatureObjectFromGet.content.toString());
+
+      store.setVerifyObjectNameStrictEnabled(true);
+
+      assert.throws(() => {
+        try {
+          store.signatureUrl(testSignatureObjectName);
+        } catch (err) {
+          assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+          throw err;
+        }
+      }, Error);
+
+      try {
+        await store.asyncSignatureUrl(testSignatureObjectName);
+        assert.fail('Expected asyncSignatureUrl to throw an error');
+      } catch (err) {
+        assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+      }
     });
   });
 
