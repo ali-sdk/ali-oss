@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.19.0](https://github.com/ali-sdk/ali-oss/compare/v6.18.1...v6.19.0) (2023-12-14)
+
+### Features
+
+* add strict mode for verifying object names when signing URLs and enabled by default ([#1265](https://github.com/ali-sdk/ali-oss/issues/1265)) ([ff03bbb](https://github.com/ali-sdk/ali-oss/pull/1265/commits/ff03bbb62b041dd34d30ca2503745ba5d7c0a216))
+
 ### [6.18.1](https://github.com/ali-sdk/ali-oss/compare/v6.18.0...v6.18.1) (2023-09-08)
 
 ### Features

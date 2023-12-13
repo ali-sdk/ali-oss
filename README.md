@@ -343,7 +343,7 @@ options:
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
   default is `oss-cn-hangzhou`.
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
-  If your servers are running on aliyun too, you can set `true` to save lot of money.
+  If your servers are running on aliyun too, you can set `true` to save a lot of money.
 - [secure] {Boolean} instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol.
 - [timeout] {String|Number} instance level timeout for all operations, default is `60s`.
 - [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
@@ -355,6 +355,7 @@ options:
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 - [maxSockets] {Number} Maximum number of sockets to allow per host. Default is infinity
+- [verifyObjectStrict] {Boolean} Strictly verify object names when signing URLs, default is true.
 
 example:
 
