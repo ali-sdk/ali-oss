@@ -355,7 +355,6 @@ options:
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 - [maxSockets] {Number} Maximum number of sockets to allow per host. Default is infinity
-- [verifyObjectStrict] {Boolean} Strictly verify object names when signing URLs, default is true.
 
 example:
 
@@ -2580,7 +2579,7 @@ console.log(result.objects);
 console.log(result.deleteMarker);
 ```
 
-### .signatureUrl(name[, options])
+### .signatureUrl(name[, options, strictObjectNameValidation])
 
 Create a signature url for download or upload object. When you put object with signatureUrl ,you need to pass `Content-Type`.Please look at the example.
 
@@ -2606,6 +2605,7 @@ parameters:
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+- [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
 Success will return signature url.
 
@@ -2640,7 +2640,7 @@ const url = store.signatureUrl('ossdemo.txt', {
     'content-type': 'text/custom',
     'content-disposition': 'attachment'
   }
-});
+}, false);
 console.log(url);
 
 // put operation
@@ -2661,7 +2661,7 @@ const url = store.signatureUrl('ossdemo.png', {
 console.log(url);
 ```
 
-### .asyncSignatureUrl(name[, options])
+### .asyncSignatureUrl(name[, options, strictObjectNameValidation])
 
 Basically the same as signatureUrl, if refreshSTSToken is configured asyncSignatureUrl will refresh stsToken
 
@@ -2687,6 +2687,7 @@ parameters:
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+- [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
 Success will return signature url.
 
@@ -2718,7 +2719,7 @@ const url = await store.asyncSignatureUrl('ossdemo.txt', {
     'content-type': 'text/custom',
     'content-disposition': 'attachment'
   }
-});
+}, false);
 console.log(url);
 // put operation
 ```
