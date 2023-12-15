@@ -981,6 +981,7 @@ describe('browser', () => {
     let store;
     let name;
     let needEscapeName;
+    const testSignatureObjectName = `?{测}\r\n[试];,/?:@&=+$<中>-_.!~*'(文)"￥#%！（字）^ \`符|\\${prefix}test.txt`;
     before(async () => {
       store = oss(ossConfig);
       name = `${prefix}ali-sdk/oss/signatureUrl.js`;
@@ -1006,6 +1007,9 @@ describe('browser', () => {
       });
       assert.equal(object.res.status, 200);
       // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+
+      const testSignatureObject = await store.put(testSignatureObjectName, Buffer.from('Hello World!', 'utf8'));
+      assert.equal(typeof testSignatureObject.res.headers['x-oss-request-id'], 'string');
     });
 
     it('should signature url get object ok', async () => {
@@ -1013,6 +1017,40 @@ describe('browser', () => {
       const url = store.signatureUrl(name);
       const urlRes = await urllib.request(url);
       assert.equal(urlRes.data.toString(), result.content.toString());
+    });
+
+    it('should verify object name strictly by default', () => {
+      assert.throws(() => {
+        try {
+          store.signatureUrl(testSignatureObjectName);
+        } catch (err) {
+          assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+          throw err;
+        }
+      }, Error);
+
+      store
+        .asyncSignatureUrl(testSignatureObjectName)
+        .then(() => {
+          assert.fail('Expected asyncSignatureUrl to throw an error');
+        })
+        .catch(err => {
+          assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+        });
+    });
+
+    it('should verify object name loosely', async () => {
+      const testSignatureObjectFromGet = await store.get(testSignatureObjectName);
+      const testSignatureObjectUrl = store.signatureUrl(testSignatureObjectName, undefined, false);
+      const testSignatureObjectFromUrl = await urllib.request(testSignatureObjectUrl);
+      assert.strictEqual(testSignatureObjectFromUrl.data.toString(), testSignatureObjectFromGet.content.toString());
+
+      const testSignatureObjectUrlAsync = await store.asyncSignatureUrl(testSignatureObjectName, undefined, false);
+      const testSignatureObjectFromUrlAsync = await urllib.request(testSignatureObjectUrlAsync);
+      assert.strictEqual(
+        testSignatureObjectFromUrlAsync.data.toString(),
+        testSignatureObjectFromGet.content.toString()
+      );
     });
 
     // it('should signature url with image processed and get object ok', function* () {
@@ -1057,7 +1095,7 @@ describe('browser', () => {
       assert.equal(urlRes.data.toString(), result.content.toString());
     });
 
-    it('should signature url with reponse limitation', async () => {
+    it('should signature url with response limitation', async () => {
       const response = {
         'content-type': 'xml',
         'content-language': 'zh-cn'
