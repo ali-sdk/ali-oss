@@ -343,7 +343,7 @@ options:
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
   default is `oss-cn-hangzhou`.
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
-  If your servers are running on aliyun too, you can set `true` to save lot of money.
+  If your servers are running on aliyun too, you can set `true` to save a lot of money.
 - [secure] {Boolean} instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol.
 - [timeout] {String|Number} instance level timeout for all operations, default is `60s`.
 - [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
@@ -2579,7 +2579,7 @@ console.log(result.objects);
 console.log(result.deleteMarker);
 ```
 
-### .signatureUrl(name[, options])
+### .signatureUrl(name[, options, strictObjectNameValidation])
 
 Create a signature url for download or upload object. When you put object with signatureUrl ,you need to pass `Content-Type`.Please look at the example.
 
@@ -2605,6 +2605,7 @@ parameters:
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+- [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
 Success will return signature url.
 
@@ -2639,7 +2640,7 @@ const url = store.signatureUrl('ossdemo.txt', {
     'content-type': 'text/custom',
     'content-disposition': 'attachment'
   }
-});
+}, false);
 console.log(url);
 
 // put operation
@@ -2660,7 +2661,7 @@ const url = store.signatureUrl('ossdemo.png', {
 console.log(url);
 ```
 
-### .asyncSignatureUrl(name[, options])
+### .asyncSignatureUrl(name[, options, strictObjectNameValidation])
 
 Basically the same as signatureUrl, if refreshSTSToken is configured asyncSignatureUrl will refresh stsToken
 
@@ -2686,6 +2687,7 @@ parameters:
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+- [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
 Success will return signature url.
 
@@ -2717,7 +2719,7 @@ const url = await store.asyncSignatureUrl('ossdemo.txt', {
     'content-type': 'text/custom',
     'content-disposition': 'attachment'
   }
-});
+}, false);
 console.log(url);
 // put operation
 ```
