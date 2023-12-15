@@ -1025,6 +1025,7 @@ describe('test/object.test.js', () => {
   describe('signatureUrl()', () => {
     let name;
     let needEscapeName;
+    const testSignatureObjectName = `?{测}\r\n[试];,/?:@&=+$<中>-_.!~*'(文)"￥#%！（字）^ \`符|\\${prefix}test.txt`;
     before(async () => {
       name = `${prefix}ali-sdk/oss/signatureUrl.js`;
       let object = await store.put(name, __filename, {
@@ -1045,6 +1046,9 @@ describe('test/object.test.js', () => {
         }
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+
+      const testSignatureObject = await store.put(testSignatureObjectName, Buffer.from('Hello World!', 'utf8'));
+      assert.equal(testSignatureObject.res.status, 200);
     });
 
     it('should signature url get object ok', async () => {
@@ -1056,6 +1060,37 @@ describe('test/object.test.js', () => {
       } catch (error) {
         assert(error.message === 'can not get the object URL when endpoint is IP');
       }
+    });
+
+    it('should verify object name strictly by default', () => {
+      assert.throws(() => {
+        try {
+          store.signatureUrl(testSignatureObjectName);
+        } catch (err) {
+          assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+          throw err;
+        }
+      }, Error);
+
+      assert.rejects(store.asyncSignatureUrl(testSignatureObjectName), err => {
+        assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
+
+        return true;
+      });
+    });
+
+    it('should verify object name loosely', async () => {
+      const testSignatureObjectFromGet = await store.get(testSignatureObjectName);
+      const testSignatureObjectUrl = store.signatureUrl(testSignatureObjectName, undefined, false);
+      const testSignatureObjectFromUrl = await urllib.request(testSignatureObjectUrl);
+      assert.strictEqual(testSignatureObjectFromUrl.data.toString(), testSignatureObjectFromGet.content.toString());
+
+      const testSignatureObjectUrlAsync = await store.asyncSignatureUrl(testSignatureObjectName, undefined, false);
+      const testSignatureObjectFromUrlAsync = await urllib.request(testSignatureObjectUrlAsync);
+      assert.strictEqual(
+        testSignatureObjectFromUrlAsync.data.toString(),
+        testSignatureObjectFromGet.content.toString()
+      );
     });
 
     it('should signature url with response limitation', () => {
