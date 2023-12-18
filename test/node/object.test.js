@@ -1062,7 +1062,7 @@ describe('test/object.test.js', () => {
       }
     });
 
-    it('should verify object name strictly by default', () => {
+    it('should verify object name strictly by default', async () => {
       assert.throws(() => {
         try {
           store.signatureUrl(testSignatureObjectName);
@@ -1072,7 +1072,7 @@ describe('test/object.test.js', () => {
         }
       }, Error);
 
-      assert.rejects(store.asyncSignatureUrl(testSignatureObjectName), err => {
+      await assert.rejects(store.asyncSignatureUrl(testSignatureObjectName), err => {
         assert.strictEqual(err.message, `Invalid object name ${testSignatureObjectName}`);
 
         return true;
@@ -1220,7 +1220,37 @@ describe('test/object.test.js', () => {
 
       const url = tempStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
-      assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
+      assert.strictEqual(url.indexOf('http://www.aliyun.com/'), 0);
+
+      try {
+        const asyncUrl = await tempStore.asyncSignatureUrl(name);
+        assert.strictEqual(asyncUrl.indexOf('http://www.aliyun.com/'), 0);
+      } catch {
+        assert.fail('Expected asyncSignatureUrl to be executed successfully');
+      }
+    });
+
+    it('should signature url with custom host that endpoint cannot be an IP', async () => {
+      const conf = {};
+      copy(config).to(conf);
+      conf.endpoint = '127.0.0.1';
+      conf.cname = true;
+      const tempStore = oss(conf);
+
+      assert.throws(() => {
+        try {
+          tempStore.signatureUrl(name);
+        } catch (err) {
+          assert.strictEqual(err.message, 'can not get the object URL when endpoint is IP');
+          throw err;
+        }
+      }, Error);
+
+      await assert.rejects(tempStore.asyncSignatureUrl(testSignatureObjectName), err => {
+        assert.strictEqual(err.message, 'can not get the object URL when endpoint is IP');
+
+        return true;
+      });
     });
 
     it('should signature url with traffic limit', async () => {
