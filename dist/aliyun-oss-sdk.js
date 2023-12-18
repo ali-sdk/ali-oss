@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.18.1
+// Aliyun OSS SDK for JavaScript v6.19.0
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(global){(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -2632,7 +2632,7 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
 },{"../common/callback":24,"../common/image":27,"../common/object/asyncSignatureUrl":31,"../common/object/copyObject":32,"../common/object/delete":33,"../common/object/deleteMulti":34,"../common/object/deleteObjectTagging":35,"../common/object/generateObjectUrl":36,"../common/object/get":37,"../common/object/getACL":38,"../common/object/getBucketVersions":39,"../common/object/getObjectMeta":40,"../common/object/getObjectTagging":41,"../common/object/getObjectUrl":42,"../common/object/getSymlink":43,"../common/object/head":44,"../common/object/putACL":45,"../common/object/putObjectTagging":46,"../common/object/putSymlink":47,"../common/object/signatureUrl":48,"../common/utils/isBlob":64,"../common/utils/isBuffer":65,"../common/utils/isFile":67,"../common/utils/obj2xml":72,"@babel/runtime/helpers/asyncToGenerator":77,"@babel/runtime/helpers/interopRequireDefault":78,"@babel/runtime/regenerator":80,"copy-to":94,"core-js/modules/es.array.map.js":280,"core-js/modules/es.function.name.js":284,"core-js/modules/es.number.constructor.js":286,"core-js/modules/es.object.assign.js":287,"core-js/modules/es.object.keys.js":290,"core-js/modules/es.object.to-string.js":291,"core-js/modules/es.promise.js":295,"core-js/modules/es.regexp.exec.js":300,"core-js/modules/es.regexp.to-string.js":301,"core-js/modules/es.string.replace.js":305,"core-js/modules/web.dom-collections.for-each.js":339,"fs":89,"merge-descriptors":372,"mime":374,"path":378}],6:[function(require,module,exports){
 "use strict";
 
-exports.version = '6.18.1';
+exports.version = '6.19.0';
 
 },{}],7:[function(require,module,exports){
 "use strict";
@@ -5291,6 +5291,8 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
+require("core-js/modules/es.regexp.exec.js");
+
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var urlutil = require('url');
@@ -5311,22 +5313,44 @@ var _require3 = require('../utils/isFunction'),
     isFunction = _require3.isFunction;
 
 var proto = exports;
+/**
+ * asyncSignatureUrl
+ * @param {String} name object name
+ * @param {Object} options options
+ * @param {boolean} [strictObjectNameValidation=true] the flag of verifying object name strictly
+ */
 
 proto.asyncSignatureUrl = /*#__PURE__*/function () {
   var _asyncSignatureUrl = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(name, options) {
-    var expires, params, resource, signRes, url;
+    var strictObjectNameValidation,
+        expires,
+        params,
+        resource,
+        signRes,
+        url,
+        _args = arguments;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            strictObjectNameValidation = _args.length > 2 && _args[2] !== undefined ? _args[2] : true;
+
             if (!isIP(this.options.endpoint.hostname)) {
-              _context.next = 2;
+              _context.next = 3;
               break;
             }
 
             throw new Error('can not get the object URL when endpoint is IP');
 
-          case 2:
+          case 3:
+            if (!(strictObjectNameValidation && /^\?/.test(name))) {
+              _context.next = 5;
+              break;
+            }
+
+            throw new Error("Invalid object name ".concat(name));
+
+          case 5:
             options = options || {};
             name = this._objectName(name);
             options.method = options.method || 'GET';
@@ -5338,14 +5362,14 @@ proto.asyncSignatureUrl = /*#__PURE__*/function () {
             resource = this._getResource(params);
 
             if (!(this.options.stsToken && isFunction(this.options.refreshSTSToken))) {
-              _context.next = 11;
+              _context.next = 14;
               break;
             }
 
-            _context.next = 11;
+            _context.next = 14;
             return setSTSToken.call(this);
 
-          case 11:
+          case 14:
             if (this.options.stsToken) {
               options['security-token'] = this.options.stsToken;
             }
@@ -5360,7 +5384,7 @@ proto.asyncSignatureUrl = /*#__PURE__*/function () {
             copy(signRes.subResource).to(url.query);
             return _context.abrupt("return", url.format());
 
-          case 17:
+          case 20:
           case "end":
             return _context.stop();
         }
@@ -5375,7 +5399,7 @@ proto.asyncSignatureUrl = /*#__PURE__*/function () {
   return asyncSignatureUrl;
 }();
 
-},{"../../common/signUtils":50,"../utils/isFunction":68,"../utils/isIP":69,"../utils/setSTSToken":76,"@babel/runtime/helpers/asyncToGenerator":77,"@babel/runtime/helpers/interopRequireDefault":78,"@babel/runtime/regenerator":80,"copy-to":94,"url":472,"utility":474}],32:[function(require,module,exports){
+},{"../../common/signUtils":50,"../utils/isFunction":68,"../utils/isIP":69,"../utils/setSTSToken":76,"@babel/runtime/helpers/asyncToGenerator":77,"@babel/runtime/helpers/interopRequireDefault":78,"@babel/runtime/regenerator":80,"copy-to":94,"core-js/modules/es.regexp.exec.js":300,"url":472,"utility":474}],32:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6731,6 +6755,8 @@ proto.putSymlink = /*#__PURE__*/function () {
 },{"@babel/runtime/helpers/asyncToGenerator":77,"@babel/runtime/helpers/interopRequireDefault":78,"@babel/runtime/regenerator":80,"core-js/modules/es.object.assign.js":287}],48:[function(require,module,exports){
 "use strict";
 
+require("core-js/modules/es.regexp.exec.js");
+
 var urlutil = require('url');
 
 var utility = require('utility');
@@ -6747,12 +6773,19 @@ var proto = exports;
  *  signatureUrl
  * @deprecated will be deprecated in 7.x
  * @param {String} name object name
- * @param {Object} options  options
+ * @param {Object} options options
+ * @param {boolean} [strictObjectNameValidation=true] the flag of verifying object name strictly
  */
 
 proto.signatureUrl = function signatureUrl(name, options) {
+  var strictObjectNameValidation = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
   if (isIP(this.options.endpoint.hostname)) {
     throw new Error('can not get the object URL when endpoint is IP');
+  }
+
+  if (strictObjectNameValidation && /^\?/.test(name)) {
+    throw new Error("Invalid object name ".concat(name));
   }
 
   options = options || {};
@@ -6782,7 +6815,7 @@ proto.signatureUrl = function signatureUrl(name, options) {
   return url.format();
 };
 
-},{"../../common/signUtils":50,"../utils/isIP":69,"copy-to":94,"url":472,"utility":474}],49:[function(require,module,exports){
+},{"../../common/signUtils":50,"../utils/isIP":69,"copy-to":94,"core-js/modules/es.regexp.exec.js":300,"url":472,"utility":474}],49:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
