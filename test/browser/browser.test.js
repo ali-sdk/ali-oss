@@ -1115,7 +1115,42 @@ describe('browser', () => {
 
       const url = signatureStore.signatureUrl(name);
       // http://www.aliyun.com/darwin-v4.4.2/ali-sdk/oss/get-meta.js?OSSAccessKeyId=
-      assert.equal(url.indexOf('http://www.aliyun.com/'), 0);
+      assert.strictEqual(url.indexOf('http://www.aliyun.com/'), 0);
+      signatureStore
+        .asyncSignatureUrl(name)
+        .then(asyncUrl => {
+          assert.strictEqual(asyncUrl.indexOf('http://www.aliyun.com/'), 0);
+        })
+        .catch(() => {
+          assert.fail('Expected asyncSignatureUrl to be executed successfully');
+        });
+    });
+
+    it('should signature url with custom host that endpoint cannot be an IP', () => {
+      const signatureStore = oss(
+        Object.assign({}, ossConfig, {
+          endpoint: '127.0.0.1',
+          cname: true
+        })
+      );
+
+      assert.throws(() => {
+        try {
+          signatureStore.signatureUrl(name);
+        } catch (err) {
+          assert.strictEqual(err.message, 'can not get the object URL when endpoint is IP');
+          throw err;
+        }
+      }, Error);
+
+      signatureStore
+        .asyncSignatureUrl(name)
+        .then(() => {
+          assert.fail('Expected asyncSignatureUrl to throw an error');
+        })
+        .catch(err => {
+          assert.strictEqual(err.message, 'can not get the object URL when endpoint is IP');
+        });
     });
 
     it('signatureUrl will should use refreshSTSToken', async () => {
