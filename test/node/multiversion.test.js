@@ -111,17 +111,23 @@ describe('test/multiversion.test.js', () => {
   });
 
   describe('putBucketLifecycle() getBucketLifecycle()', async () => {
-    it('should putBucketLifecycle with NoncurrentVersionExpiration', async () => {
+    it('should putBucketLifecycle with noncurrentVersionExpiration', async () => {
       const putresult1 = await store.putBucketLifecycle(
         bucket,
         [
           {
-            id: 'expiration1',
             prefix: 'logs/',
             status: 'Enabled',
             expiration: {
               days: 1
             },
+            noncurrentVersionExpiration: {
+              noncurrentDays: 1
+            }
+          },
+          {
+            prefix: 'logss/',
+            status: 'Enabled',
             noncurrentVersionExpiration: {
               noncurrentDays: 1
             }
@@ -136,6 +142,7 @@ describe('test/multiversion.test.js', () => {
       const { rules } = await store.getBucketLifecycle(bucket);
       assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
     });
+
     it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
       const putresult1 = await store.putBucketLifecycle(bucket, [
         {
@@ -145,7 +152,7 @@ describe('test/multiversion.test.js', () => {
           expiration: {
             expiredObjectDeleteMarker: 'true'
           },
-          NoncurrentVersionExpiration: {
+          noncurrentVersionExpiration: {
             noncurrentDays: 1
           }
         }
@@ -156,25 +163,50 @@ describe('test/multiversion.test.js', () => {
     });
 
     it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
-      const putresult1 = await store.putBucketLifecycle(bucket, [
+      const putresult = await store.putBucketLifecycle(bucket, [
         {
-          id: 'expiration1',
-          prefix: 'logs/',
+          prefix: 'log/',
           status: 'Enabled',
           noncurrentVersionTransition: {
             noncurrentDays: '10',
             storageClass: 'IA'
           }
+        },
+        {
+          prefix: 'logs/',
+          status: 'Enabled',
+          noncurrentVersionTransition: {
+            noncurrentDays: '10',
+            storageClass: 'Archive'
+          }
+        },
+        {
+          prefix: 'logss/',
+          status: 'Enabled',
+          noncurrentVersionTransition: {
+            noncurrentDays: '10',
+            storageClass: 'ColdArchive'
+          }
+        },
+        {
+          prefix: 'logsss/',
+          status: 'Enabled',
+          noncurrentVersionTransition: {
+            noncurrentDays: '10',
+            storageClass: 'DeepColdArchive'
+          }
         }
       ]);
-      assert.equal(putresult1.res.status, 200);
+      assert.equal(putresult.res.status, 200);
+
       const { rules } = await store.getBucketLifecycle(bucket);
       const [
         {
           noncurrentVersionTransition: { noncurrentDays, storageClass }
         }
       ] = rules;
-      assert(noncurrentDays === '10' && storageClass === 'IA');
+
+      assert(noncurrentDays === '10' && storageClass === 'IA' && rules.length === 4);
     });
   });
 

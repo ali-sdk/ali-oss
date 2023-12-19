@@ -828,7 +828,7 @@ describe('test/bucket.test.js', () => {
           status: 'Enabled',
           transition: {
             createdBeforeDate: '2020-02-18T00:00:00.000Z',
-            storageClass: 'Archive'
+            storageClass: 'IA'
           },
           expiration: {
             createdBeforeDate: '2020-02-17T00:00:00.000Z'
@@ -857,6 +857,39 @@ describe('test/bucket.test.js', () => {
         }
       ]);
       assert.equal(putresult2.res.status, 200);
+      const putresult3 = await store.putBucketLifecycle(bucket, [
+        {
+          id: 'transition3',
+          prefix: 'logs/',
+          status: 'Enabled',
+          transition: {
+            days: 20,
+            storageClass: 'ColdArchive'
+          },
+          tag: {
+            key: 'test3',
+            value: '123'
+          }
+        }
+      ]);
+      assert.equal(putresult3.res.status, 200);
+      // Regions that need to support DeepColdArchive
+      const putresult4 = await store.putBucketLifecycle(bucket, [
+        {
+          id: 'transition4',
+          prefix: 'logs/',
+          status: 'Enabled',
+          transition: {
+            days: 20,
+            storageClass: 'DeepColdArchive'
+          },
+          tag: {
+            key: 'test4',
+            value: '123'
+          }
+        }
+      ]);
+      assert.equal(putresult4.res.status, 200);
     });
 
     it('should put the lifecycle with expiration and Tag', async () => {
@@ -987,7 +1020,7 @@ describe('test/bucket.test.js', () => {
         ]);
         assert(false);
       } catch (error) {
-        assert(error.message.includes('IA or Archive'));
+        assert(error.message.includes('IA or Archive or ColdArchive or DeepColdArchive'));
       }
     });
 
