@@ -1456,7 +1456,7 @@ describe('browser', () => {
 
       it('should multipart upload file with abort', async () => {
         const client = store;
-        // create a file with 1M random data
+        // create a file with 1M random data.
         const fileContent = Array(1024 * 1024)
           .fill('a')
           .join('');
