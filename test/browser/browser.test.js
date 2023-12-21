@@ -661,6 +661,15 @@ describe('browser', () => {
       });
       assert(!requestUrls2[0].includes('response-cache-control=no-cache'));
     });
+
+    it('test get(name, null, options)', async () => {
+      const result = await store.get(name, null, {
+        headers: {
+          Range: 'bytes=0-3'
+        }
+      });
+      assert.equal(result.res.headers['content-length'], '4');
+    });
   });
 
   describe('put', () => {
