@@ -3,6 +3,7 @@ const utils = require('./utils');
 const oss = require('../..');
 const config = require('../config').oss;
 const fs = require('fs');
+const mm = require('mm');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
 
@@ -283,6 +284,45 @@ describe('test/multiversion.test.js', () => {
       } catch (error) {
         assert(false);
       }
+    });
+
+    it('should request throw abort event', async () => {
+      const file = await utils.createTempFile(`multipart-upload-file-abort-${Date.now()}`, 102410);
+      const objectKey = `${prefix}multipart-copy-source-abort.js`;
+      const { res: sourceRes } = await store.multipartUpload(objectKey, file);
+      const versionId = sourceRes.headers['x-oss-version-id'];
+      store.delete(objectKey);
+      const copyName = `${prefix}multipart-copy-target-abort.js`;
+      const requestId = 'KDJSJJSHDEEEEEEWWW';
+      mm(store, 'uploadPartCopy', () => {
+        store._stop();
+        const netErr = new Error('Not Found');
+        netErr.status = 404;
+        netErr.requestId = requestId;
+        throw netErr;
+      });
+
+      let netErrs;
+      try {
+        await store.multipartUploadCopy(
+          copyName,
+          {
+            sourceKey: objectKey,
+            sourceBucketName: bucket
+          },
+          {
+            versionId
+          }
+        );
+      } catch (error) {
+        netErrs = error;
+      }
+      store.resetCancelFlag();
+      mm.restore();
+
+      assert.strictEqual(netErrs.status, 0);
+      assert.strictEqual(netErrs.name, 'abort');
+      assert.strictEqual(netErrs.requestId, requestId);
     });
   });
 

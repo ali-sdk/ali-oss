@@ -639,21 +639,29 @@ describe('test/multipart.test.js', () => {
     it('should request throw abort event', async () => {
       const fileName = await utils.createTempFile('multipart-upload-file', 1024 * 1024); // 1m
       const name = `${prefix}multipart/upload-file`;
-      const stubNetError = sinon.stub(store, '_uploadPart');
-      const netErr = new Error('Not Found');
-      netErr.status = 404;
-      netErr.code = 'Not Found';
-      netErr.name = 'Not Found';
-      stubNetError.throws(netErr);
+      const requestId = 'KDJSJJSHDEEEEEEWWW';
+      mm(store, '_uploadPart', () => {
+        store._stop();
+        const netErr = new Error('Not Found');
+        netErr.status = 404;
+        netErr.code = 'Not Found';
+        netErr.name = 'Not Found';
+        netErr.requestId = requestId;
+        throw netErr;
+      });
+
       let netErrs;
       try {
         await store.multipartUpload(name, fileName);
       } catch (err) {
         netErrs = err;
       }
+      store.resetCancelFlag();
+      mm.restore();
+
       assert.strictEqual(netErrs.status, 0);
       assert.strictEqual(netErrs.name, 'abort');
-      store._uploadPart.restore();
+      assert.strictEqual(netErrs.requestId, requestId);
     });
   });
 
@@ -976,8 +984,8 @@ describe('test/multipart.test.js', () => {
     afterEach(mm.restore);
 
     it('Test whether the speed limit setting for sharded upload is effective', async () => {
-      const file = await utils.createTempFile('multipart-upload-file-set-header', 101 * 1024);
-      const objectKey = `${prefix}multipart/upload-file-set-header`;
+      const file = await utils.createTempFile(`multipart-upload-file-set-header-${Date.now()}`, 101 * 1024);
+      const objectKey = `${prefix}multipart/upload-file-set-header-${Date.now()}`;
       const req = store.urllib.request;
       let header;
       mm(store.urllib, 'request', (url, args) => {

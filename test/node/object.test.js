@@ -1380,7 +1380,6 @@ describe('test/object.test.js', () => {
           await store.getStream(`${name}not-exists`);
           throw new Error('should not run this');
         } catch (err) {
-          console.log('error is', err);
           assert.equal(err.name, 'NoSuchKeyError');
           assert.equal(Object.keys(store.agent.freeSockets).length, 0);
           await utils.sleep(ms(metaSyncTime));

@@ -213,7 +213,7 @@ describe('test/rtmp.test.js', () => {
 
         assert.equal(result.res.status, 200);
       } catch (err) {
-        console.error(err);
+        assert.fail(err);
       }
     });
   });
