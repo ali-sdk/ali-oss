@@ -1697,48 +1697,30 @@ Query files (Objects) that meet the specified conditions and list file informati
 parameters:
 
 - bucketName {String} the bucket name
-- queryParam {IMetaQuery}
-
-```js
-interface ISubQuerie {
-  // the fields. For more information about supported fields and supported operators
-  field?: string;
-  // the value of the field.
-  value?: string;
-  // the operators. Valid values: eq (equal to), gt (greater than), gte (greater than or equal to), lt (less than), lte (less than or equal to), match (fuzzy query), prefix (prefix query), and (AND), or (OR), and not (NOT).
-  operation: string;
-  // the subquery conditions. Options that are included in this element are the same as those of simple query. You must set subquery conditions only when Operation is set to AND, OR, or NOT.
-  subQueries?: ISubQuerie[];
-}
-
-interface IAggregation {
-  // The name of the field. For more information about supported fields and supported operators
-  field: string;
-  // The operator for aggregate operations. Valid values:min,max,average,sum,count,distinct,group
-  operation: string;
-}
-
-interface IMetaQuery {
-  // The token that is used for the next query when the total number of objects exceeds the value of MaxResults. The object information is returned in alphabetical order starting from the value of NextToken. When this operation is called for the first time, set this field to null.
-  nextToken?: string;
-  // The maximum number of objects to return. Valid values: 0 to 100. If this parameter is not set or is set to 0, 100 objects are returned.
-  maxResults?: number;
-  query: ISubQuerie;
-  // The field based on which the results are sorted. For more information about the fields that can be sorted
-  sort?: string;
-  // The order in which you want to sort the queried data. Default value: desc.
-  order?: 'asc' | 'desc';
-  // The container for the information about aggregate operations.
-  aggregations?: IAggregation[];
-}
-```
-
-- [options] {Object} optional args
+- queryParam {Object} query parameters
+  - nextToken {String} The token that is used for the next query when the total number of objects exceeds the value of MaxResults. The object information is returned in alphabetical order starting from the value of NextToken. When this operation is called for the first time, set this field to null.
+  - maxResults {Number} The maximum number of objects to return. Valid values: 0 to 100. If this parameter is not set or is set to 0, 100 objects are returned.
+  - query {Object} query criteria
+    - field {String} Field name. Please refer to Appendix: <a href="https://www.alibabacloud.com/help/en/oss/developer-reference/appendix-supported-fields-and-operators" target="_blank">Support List for Fields and Operators</a>.
+    - value {String} The value of the field.
+    - operation {String} The operators. Valid values: eq (equal to), gt (greater than), gte (greater than or equal to), lt (less than), lte (less than or equal to), match (fuzzy query), prefix (prefix query), and (AND), or (OR), and not (NOT).
+    - subQueries {Array} The subquery conditions. Options that are included in this element are the same as those of simple query. You must set subquery conditions only when Operation is set to AND, OR, or NOT.
+  - sort {String} The field based on which the results are sorted. For more information about the fields that can be sorted. Please refer to Appendix: <a href="https://www.alibabacloud.com/help/en/oss/developer-reference/appendix-supported-fields-and-operators" target="_blank">Support List for Fields and Operators</a>.
+  - order {String} `asc` | `desc` The order in which you want to sort the queried data. Default value: desc.
+  - aggregations {Object} The container for the information about aggregate operations.
+    - field {String} The name of the field. For more information about supported fields and supported operators. Please refer to Appendix: <a href="https://www.alibabacloud.com/help/en/oss/developer-reference/appendix-supported-fields-and-operators" target="_blank">Support List for Fields and Operators</a>.
+    - operation {String} The operator for aggregate operations. Valid values:min,max,average,sum,count,distinct,group.
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout (ms)
 
 Success will return:
 
 - status {Number} response status
-- res {Object} response info
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
 
 example:
 

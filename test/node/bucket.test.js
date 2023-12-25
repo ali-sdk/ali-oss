@@ -1482,7 +1482,7 @@ describe('test/bucket.test.js', () => {
   });
 
   describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
-    it.only('open meta query of bucket', async () => {
+    it('open meta query of bucket', async () => {
       try {
         const result = await store.openMetaQuery('alioss-sdk-test');
         assert.strictEqual(result.status, 200);
@@ -1522,6 +1522,7 @@ describe('test/bucket.test.js', () => {
         };
 
         const result = await store.doMetaQuery(bucket, queryParam);
+
         assert.strictEqual(result.status, 200);
         assert.deepEqual(result.res.statusMessage, 'OK');
       } catch (error) {
