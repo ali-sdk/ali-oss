@@ -1552,6 +1552,7 @@ describe('test/bucket.test.js', () => {
         const result = await store.closeMetaQuery(bucket);
         assert.strictEqual(result.status, 200);
         assert.deepEqual(result.res.statusMessage, 'OK');
+        await utils.sleep(ms(1000 * 5));
         const staRes = await store.getMetaQueryStatus(bucket);
         assert.strictEqual(staRes.status, 404);
       } catch (error) {
