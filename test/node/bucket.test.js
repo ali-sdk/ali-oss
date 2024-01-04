@@ -2,7 +2,7 @@ const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
 const ms = require('humanize-ms');
-const { oss: config, metaSyncTime, timeout } = require('../config');
+const { sts, oss: config, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
@@ -1305,6 +1305,7 @@ describe('test/bucket.test.js', () => {
       }
     });
   });
+
   describe('inventory()', () => {
     const inventory = {
       id: 'default',
@@ -1478,6 +1479,121 @@ describe('test/bucket.test.js', () => {
         assert.equal(typeof result.stat, 'object');
         assert.equal(result.res.status, 200);
       });
+    });
+  });
+
+  describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
+    it('open meta query of bucket', async () => {
+      try {
+        const result = await store.openMetaQuery(sts.bucket);
+        assert.strictEqual(result.status, 200);
+      } catch (error) {
+        if (!['MetaQueryNotReady', 'MetaQueryAlreadyExist'].includes(error.code)) assert.fail(error);
+      }
+    });
+
+    it.only('getMetaQueryStatus()', async () => {
+      try {
+        const result = await store.getMetaQueryStatus(sts.bucket);
+        assert.strictEqual(result.status, 200);
+        assert(result.phase.length > -1);
+      } catch (error) {
+        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+      }
+    });
+
+    it('doMetaQuery()', async () => {
+      try {
+        const maxResults = 2;
+        const queryParam = {
+          maxResults,
+          sort: 'Size',
+          order: 'asc',
+          query: {
+            operation: 'and',
+            subQueries: [
+              { field: 'Filename', value: 'test-doMetaQuery', operation: 'match' },
+              { field: 'Size', value: '1048576', operation: 'lt' }
+            ]
+          }
+        };
+
+        const { status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
+        assert.strictEqual(status, 200);
+        if (nextToken) {
+          assert.strictEqual(files.length, maxResults);
+
+          const result = await store.doMetaQuery(sts.bucket, { ...queryParam, nextToken, maxResults: 1 });
+          assert.strictEqual(result.status, 200);
+          assert(result.files.length > 0);
+          assert(result.files[0].fileName.length > 0);
+        }
+      } catch (error) {
+        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+      }
+    });
+
+    it('doMetaQuery() one Aggregations', async () => {
+      try {
+        const queryParam = {
+          maxResults: 2,
+          sort: 'Size',
+          order: 'asc',
+          query: {
+            operation: 'and',
+            subQueries: [
+              { field: 'Filename', value: '_do', operation: 'match' },
+              { field: 'Size', value: '1048576', operation: 'lt' }
+            ]
+          },
+          aggregations: [{ field: 'Size', operation: 'sum' }]
+        };
+
+        const result = await store.doMetaQuery(sts.bucket, queryParam);
+        assert.strictEqual(result.status, 200);
+        assert(result.aggregations.length > 0);
+        assert(result.aggregations[0].field, 'Size');
+      } catch (error) {
+        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+      }
+    });
+
+    it('doMetaQuery() two Aggregations', async () => {
+      try {
+        const queryParam = {
+          maxResults: 2,
+          sort: 'Size',
+          order: 'asc',
+          query: {
+            operation: 'and',
+            subQueries: [
+              { field: 'Filename', value: 'test-', operation: 'match' },
+              { field: 'Size', value: '1048576', operation: 'lt' }
+            ]
+          },
+          aggregations: [
+            { field: 'Size', operation: 'sum' },
+            { field: 'OSSTaggingCount', operation: 'min' }
+          ]
+        };
+
+        const result = await store.doMetaQuery(sts.bucket, queryParam);
+        assert.strictEqual(result.status, 200);
+        assert(result.aggregations.length > 0);
+        assert(result.aggregations[0].field, 'Size');
+        assert(result.aggregations[1].field, 'OSSTaggingCount');
+      } catch (error) {
+        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+      }
+    });
+
+    it('closeMetaQuery()', async () => {
+      try {
+        const result = await store.closeMetaQuery(sts.bucket);
+        assert.strictEqual(result.status, 200);
+      } catch (error) {
+        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+      }
     });
   });
 });

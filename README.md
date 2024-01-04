@@ -126,6 +126,11 @@ All operation use es7 async/await to implement. All api is async function.
     - [.extendBucketWorm(name, wormId, days[, options])](#extendBucketWormname-wormId-days-options)
     - [.getBucketWorm(name[, options])](#getBucketWormname-options)
     - [.initiateBucketWorm(name, days[, options])](#initiateBucketWormname-days-options)
+  - Data Indexing
+    - [.openMetaQuery(bucketName[, options])](#openMetaQueryBucketName-options)
+    - [.getMetaQueryStatus(bucketName[, options])](#getMetaQueryStatusBucketName-options)
+    - [.doMetaQuery(bucketName, queryParam[, options])](#doMetaQueryBucketName-queryParam-options)
+    - [.closeMetaQuery(bucketName[, options])](#closeMetaQueryBucketName-options)
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
@@ -1648,6 +1653,129 @@ parameters:
 Success will return:
 
 - wormId {String} worm id
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .openMetaQuery(bucketName[, options])
+
+Enables the metadata management feature for a bucket.
+
+parameters:
+
+- bucketName {String} bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+
+---
+
+### .getMetaQueryStatus(bucketName[, options])
+
+Queries the information about the metadata index library of a bucket.
+
+parameters:
+
+- bucketName {String} bucket name
+- [options] {Object} optional args
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info
+- phase {String} the scan type
+- state {String} he status of the metadata index library
+- createTime {Date} the time when the metadata index library was created
+- updateTime {Date} the time when the metadata index library was updated
+
+---
+
+### .doMetaQuery(bucketName, queryParam[, options])
+
+Query files (Objects) that meet the specified conditions and list file information according to the specified fields and sorting method.
+
+parameters:
+
+- bucketName {String} the bucket name
+- queryParam {Object} query parameters
+  - nextToken {String} The token that is used for the next query when the total number of objects exceeds the value of MaxResults. The object information is returned in alphabetical order starting from the value of NextToken. When this operation is called for the first time, set this field to null.
+  - maxResults {Number} The maximum number of objects to return. Valid values: 0 to 100. If this parameter is not set or is set to 0, 100 objects are returned.
+  - query {Object} query criteria
+    - field {String} Field name. Please refer to Appendix: <a href="https://www.alibabacloud.com/help/en/oss/developer-reference/appendix-supported-fields-and-operators" target="_blank">Support List for Fields and Operators</a>.
+    - value {String} The value of the field.
+    - operation {String} The operators. Valid values: eq (equal to), gt (greater than), gte (greater than or equal to), lt (less than), lte (less than or equal to), match (fuzzy query), prefix (prefix query), and (AND), or (OR), and not (NOT).
+    - subQueries {Array} The subquery conditions. Options that are included in this element are the same as those of simple query. You must set subquery conditions only when Operation is set to AND, OR, or NOT.
+  - sort {String} The field based on which the results are sorted. For more information about the fields that can be sorted. Please refer to Appendix: <a href="https://www.alibabacloud.com/help/en/oss/developer-reference/appendix-supported-fields-and-operators" target="_blank">Support List for Fields and Operators</a>.
+  - order {String} `asc` | `desc` The order in which you want to sort the queried data. Default value: desc.
+  - aggregations {Object} The container for the information about aggregate operations.
+    - field {String} The name of the field. For more information about supported fields and supported operators. Please refer to Appendix: <a href="https://www.alibabacloud.com/help/en/oss/developer-reference/appendix-supported-fields-and-operators" target="_blank">Support List for Fields and Operators</a>.
+    - operation {String} The operator for aggregate operations. Valid values:min,max,average,sum,count,distinct,group.
+- [options] {Object} optional parameters
+  - [timeout] {Number} the operation timeout (ms)
+
+Success will return:
+
+- status {Number} response status
+- res {Object} response info, including
+  - status {Number} response status
+  - headers {Object} response headers
+  - size {Number} response size
+  - rt {Number} request total use time (ms)
+- nextToken {String} the token that is used for the next query when the total number of objects exceeds the value of MaxResults
+- files {Array} the container for the information about objects
+- aggregations {Array} the container for the information about aggregate operations
+
+---
+
+example:
+
+```js
+const result = await store.put('test.txt', 'hello world');
+console.log(result);
+```
+
+---
+
+###.get(name[, options])
+
+Get the object content.
+
+parameters:
+
+- name {String} object name store on OSS
+
+---
+
+example:
+
+```js
+const queryParam = {
+  maxResults: 2,
+  query: { operation: 'and', subQueries: [{ field: 'Size', value: '1048575', operation: 'lt' }] },
+  sort: 'Size',
+  order: 'asc'
+};
+const result = await store.doMetaQuery(bucket, queryParam);
+console.log(result);
+```
+
+---
+
+### .closeMetaQuery(bucketName[, options])
+
+Disables the metadata management feature for a bucket.
+
+parameters:
+
+- bucketName {String} bucket name
+- [options] {Object} optional args
+
+Success will return:
+
 - status {Number} response status
 - res {Object} response info
 
