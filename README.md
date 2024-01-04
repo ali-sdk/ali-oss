@@ -1687,6 +1687,10 @@ Success will return:
 
 - status {Number} response status
 - res {Object} response info
+- phase {String} the scan type
+- state {String} he status of the metadata index library
+- createTime {Date} the time when the metadata index library was created
+- updateTime {Date} the time when the metadata index library was updated
 
 ---
 
@@ -1721,6 +1725,30 @@ Success will return:
   - headers {Object} response headers
   - size {Number} response size
   - rt {Number} request total use time (ms)
+- nextToken {String} the token that is used for the next query when the total number of objects exceeds the value of MaxResults
+- files {Array} the container for the information about objects
+- aggregations {Array} the container for the information about aggregate operations
+
+---
+
+example:
+
+```js
+const result = await store.put('test.txt', 'hello world');
+console.log(result);
+```
+
+---
+
+###.get(name[, options])
+
+Get the object content.
+
+parameters:
+
+- name {String} object name store on OSS
+
+---
 
 example:
 

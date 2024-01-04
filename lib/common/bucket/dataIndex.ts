@@ -9,10 +9,15 @@ export async function openMetaQuery(this: any, bucketName: string, options = {})
   const params = this._bucketRequestParams('POST', bucketName, { metaQuery: '', comp: 'add' }, options);
 
   const result = await this.request(params);
-  return {
-    res: result.res,
-    status: result.status
-  };
+
+  if (result.status === 200) {
+    return {
+      res: result.res,
+      status: result.status
+    };
+  }
+
+  throw await this.requestError(result);
 }
 
 export async function getMetaQueryStatus(this: any, bucketName: string, options = {}) {
@@ -20,10 +25,20 @@ export async function getMetaQueryStatus(this: any, bucketName: string, options 
   const params = this._bucketRequestParams('GET', bucketName, 'metaQuery', options);
 
   const result = await this.request(params);
-  return {
-    res: result.res,
-    status: result.status
-  };
+
+  if (result.status === 200) {
+    const data = await this.parseXML(result.data);
+    return {
+      res: result.res,
+      status: result.status,
+      phase: data.Phase,
+      state: data.State,
+      createTime: data.CreateTime,
+      updateTime: data.UpdateTime
+    };
+  }
+
+  throw await this.requestError(result);
 }
 
 // https://help.aliyun.com/zh/oss/developer-reference/appendix-supported-fields-and-operators
@@ -85,10 +100,67 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
   params.content = obj2xml(paramXMLObj, { headers: true, firstUpperCase: true });
 
   const result = await this.request(params);
-  return {
-    res: result.res,
-    status: result.status
-  };
+  if (result.status === 200) {
+    const { NextToken, Files, Aggregations: aggRes } = await this.parseXML(result.data);
+
+    let files;
+    if (Files && Files.File) {
+      const getFileObject = item => ({
+        fileName: item.Filename,
+        size: item.Size,
+        fileModifiedTime: item.FileModifiedTime,
+        ossObjectType: item.OSSObjectType,
+        ossStorageClass: item.OSSStorageClass,
+        objectACL: item.ObjectACL,
+        eTag: item.ETag,
+        ossTaggingCount: item.OSSTaggingCount,
+        ossTagging: item.OSSTagging?.map(tagging => ({
+          key: tagging.Key,
+          value: tagging.Value
+        })),
+        ossUserMeta: item.OSSUserMeta?.map(meta => ({
+          key: meta.Key,
+          value: meta.Value
+        })),
+        ossCRC64: item.OSSCRC64,
+        serverSideEncryption: item.ServerSideEncryption,
+        serverSideEncryptionCustomerAlgorithm: item.ServerSideEncryptionCustomerAlgorithm
+      });
+      if (Files.File instanceof Array) {
+        files = Files.File.map(getFileObject);
+      } else {
+        files = [getFileObject(Files.File)];
+      }
+    }
+
+    let aggList;
+    if (aggRes) {
+      const getAggregationObject = item => ({
+        field: item.Field,
+        operation: item.Operation,
+        value: item.Value,
+        groups: item.Groups?.map(group => ({
+          value: group.Value,
+          count: group.Count
+        }))
+      });
+      if (aggRes.Aggregation instanceof Array) {
+        aggList = aggRes.Aggregation.map(getAggregationObject);
+      } else {
+        aggList = [getAggregationObject(aggRes.Aggregation)];
+      }
+    }
+
+    return {
+      res: result.res,
+      status: result.status,
+      nextToken: NextToken,
+      files,
+      aggregations: aggList
+    };
+  }
+
+  throw await this.requestError(result);
 }
 
 export async function closeMetaQuery(this: any, bucketName: string, options = {}) {
