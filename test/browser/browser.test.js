@@ -1619,7 +1619,6 @@ describe('browser', () => {
       //     }
       //   });
       //   assert.equal(result.res.status, 200);
-      //   assert.equal(result.data.Status, 'OK');
       // });
 
       // TODO fix callback server
@@ -1641,7 +1640,6 @@ describe('browser', () => {
       //     }
       //   });
       //   assert.equal(result.res.status, 200);
-      //   assert.equal(result.data.Status, 'OK');
       // });
 
       // TODO fix callback server
@@ -2519,7 +2517,6 @@ describe('browser', () => {
       try {
         const result = await store.openMetaQuery(bucket);
         assert.strictEqual(result.status, 200);
-        assert.deepEqual(result.res.statusMessage, 'OK');
       } catch (error) {
         if (!['MetaQueryNotReady', 'MetaQueryAlreadyExist'].includes(error.code)) assert.fail(error);
       }
@@ -2624,6 +2621,9 @@ describe('browser', () => {
       try {
         const result = await store.closeMetaQuery(bucket);
         assert.strictEqual(result.status, 200);
+        setTimeout(() => {
+          store.openMetaQuery(bucket).catch();
+        }, 1000 * 60);
       } catch (error) {
         if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
       }

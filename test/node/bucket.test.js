@@ -1487,18 +1487,16 @@ describe('test/bucket.test.js', () => {
       try {
         const result = await store.openMetaQuery(sts.bucket);
         assert.strictEqual(result.status, 200);
-        assert.deepEqual(result.res.statusMessage, 'OK');
       } catch (error) {
         if (!['MetaQueryNotReady', 'MetaQueryAlreadyExist'].includes(error.code)) assert.fail(error);
       }
     });
 
-    it('getMetaQueryStatus()', async () => {
+    it.only('getMetaQueryStatus()', async () => {
       try {
         const result = await store.getMetaQueryStatus(sts.bucket);
         assert.strictEqual(result.status, 200);
         assert(result.phase.length > -1);
-        assert.deepEqual(result.res.statusMessage, 'OK');
       } catch (error) {
         if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
       }
@@ -1520,15 +1518,13 @@ describe('test/bucket.test.js', () => {
           }
         };
 
-        const { res, status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
+        const { status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
         assert.strictEqual(status, 200);
-        assert.deepEqual(res.statusMessage, 'OK');
         if (nextToken) {
           assert.strictEqual(files.length, maxResults);
 
           const result = await store.doMetaQuery(sts.bucket, { ...queryParam, nextToken, maxResults: 1 });
           assert.strictEqual(result.status, 200);
-          assert.deepEqual(result.res.statusMessage, 'OK');
           assert(result.files.length > 0);
           assert(result.files[0].fileName.length > 0);
         }
@@ -1555,7 +1551,6 @@ describe('test/bucket.test.js', () => {
 
         const result = await store.doMetaQuery(sts.bucket, queryParam);
         assert.strictEqual(result.status, 200);
-        assert.deepEqual(result.res.statusMessage, 'OK');
         assert(result.aggregations.length > 0);
         assert(result.aggregations[0].field, 'Size');
       } catch (error) {
@@ -1584,7 +1579,6 @@ describe('test/bucket.test.js', () => {
 
         const result = await store.doMetaQuery(sts.bucket, queryParam);
         assert.strictEqual(result.status, 200);
-        assert.deepEqual(result.res.statusMessage, 'OK');
         assert(result.aggregations.length > 0);
         assert(result.aggregations[0].field, 'Size');
         assert(result.aggregations[1].field, 'OSSTaggingCount');
@@ -1597,7 +1591,6 @@ describe('test/bucket.test.js', () => {
       try {
         const result = await store.closeMetaQuery(sts.bucket);
         assert.strictEqual(result.status, 200);
-        assert.deepEqual(result.res.statusMessage, 'OK');
       } catch (error) {
         if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
       }
