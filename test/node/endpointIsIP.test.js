@@ -31,7 +31,7 @@ describe('test/endpoint.test.js', () => {
     describe(`test endpoint in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
-        bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}${index}`;
+        bucket = `ali-oss-test-endpoint-bucket-${prefix.replace(/[/.]/g, '-')}${index}`;
 
         await store.putBucket(bucket);
         const endpoint = await getIP(`${bucket}.${store.options.endpoint.hostname}`);

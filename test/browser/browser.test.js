@@ -704,7 +704,9 @@ describe('browser', () => {
         it('GETs and PUTs objects to a bucket', async () => {
           const name = `${prefix}put/test`;
           const body = Buffer.from('body');
-          const resultPut = await store.put(name, body);
+          const resultPut = await store.put(name, body, {
+            additionalHeaders: ['content-length']
+          });
           assert.equal(resultPut.res.status, 200);
           const resultGet = await store.get(name);
           assert.equal(resultGet.res.status, 200);

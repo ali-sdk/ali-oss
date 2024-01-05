@@ -311,7 +311,9 @@ describe('test/object.test.js', () => {
       describe('put()', () => {
         it('should add object with local file path', async () => {
           const name = `${prefix}ali-sdk/oss/put-localfile.js`;
-          const object = await store.put(name, __filename);
+          const object = await store.put(name, __filename, {
+            additionalHeaders: ['content-length']
+          });
           assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
           assert.equal(typeof object.res.rt, 'number');
           assert.equal(object.res.size, 0);

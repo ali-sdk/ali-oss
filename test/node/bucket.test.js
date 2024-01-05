@@ -64,7 +64,13 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should create a new bucket', async () => {
-          const result1 = await store.putBucket(name, { timeout });
+          const result1 = await store.putBucket(
+            name,
+            { timeout },
+            {
+              additionalHeaders: ['content-length']
+            }
+          );
           assert.equal(result1.bucket, name);
           assert.equal(result1.res.status, 200);
         });
