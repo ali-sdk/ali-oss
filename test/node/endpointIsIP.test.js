@@ -20,37 +20,47 @@ describe('test/endpoint.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
-  before(async () => {
-    store = oss(config);
-    bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    bucket = bucket.substring(0, bucket.length - 1);
+  [
+    {
+      authorizationV4: false
+    },
+    {
+      authorizationV4: true
+    }
+  ].forEach((moreConfigs, index) => {
+    describe(`test endpoint in iterate ${index}`, () => {
+      before(async () => {
+        store = oss({ ...config, ...moreConfigs });
+        bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}${index}`;
 
-    await store.putBucket(bucket);
-    const endpoint = await getIP(`${bucket}.${store.options.endpoint.hostname}`);
-    const testEndponitConfig = Object.assign({}, config, {
-      cname: true,
-      endpoint
-    });
-    store = oss(testEndponitConfig);
-    store.useBucket(bucket);
-  });
+        await store.putBucket(bucket);
+        const endpoint = await getIP(`${bucket}.${store.options.endpoint.hostname}`);
+        const testEndpointConfig = Object.assign({}, config, moreConfigs, {
+          cname: true,
+          endpoint
+        });
+        store = oss(testEndpointConfig);
+        store.useBucket(bucket);
+      });
 
-  after(async () => {
-    await utils.cleanBucket(store, bucket);
-  });
+      after(async () => {
+        await utils.cleanBucket(store, bucket);
+      });
 
-  describe('endpoint is ip', () => {
-    it('should put and get', async () => {
-      try {
-        const name = `${prefix}ali-sdk/oss/putWidhIP.js`;
-        const object = await store.put(name, __filename);
-        assert(object.name, name);
+      describe('endpoint is ip', () => {
+        it('should put and get', async () => {
+          try {
+            const name = `${prefix}ali-sdk/oss/putWidhIP.js`;
+            const object = await store.put(name, __filename);
+            assert(object.name, name);
 
-        const result = await store.get(name);
-        assert(result.res.status, 200);
-      } catch (error) {
-        assert(false, error.message);
-      }
+            const result = await store.get(name);
+            assert(result.res.status, 200);
+          } catch (error) {
+            assert(false, error.message);
+          }
+        });
+      });
     });
   });
 });
