@@ -41,7 +41,7 @@ describe('test/object.test.js', () => {
         bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         // just for archive bucket test
-        archiveBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
+        archiveBucket = `ali-oss-test-archive-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         // console.log('current buckets: %j',
         //   (yield store.listBuckets()).buckets.map(function (item) {
