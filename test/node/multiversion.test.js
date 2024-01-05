@@ -23,7 +23,7 @@ describe('test/multiversion.test.js', () => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
-        bucket = `ali-oss-test-bucket-multiversion-${prefix.replace(/[/.]/g, '-').slice(0, -1)}${idx}`;
+        bucket = `ali-oss-test-bucket-version-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket);
         store.useBucket(bucket);
