@@ -1012,7 +1012,7 @@ describe('browser', () => {
         });
       });
 
-      describe('signatureUrl()', () => {
+      describe('signatureUrl(), asyncSignatureUrl() and signatureUrlV4()', () => {
         let store;
         let name;
         let needEscapeName;
@@ -1027,7 +1027,7 @@ describe('browser', () => {
               slus: 'test.html'
             }
           });
-          assert.equal(object.res.status, 200);
+          assert.strictEqual(object.res.status, 200);
           // 不允许跨域获取 x-oss-request-id
           // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
           // this.headers = object.res.headers;
@@ -1040,18 +1040,25 @@ describe('browser', () => {
               slus: 'test.html'
             }
           });
-          assert.equal(object.res.status, 200);
-          // assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+          assert.strictEqual(object.res.status, 200);
 
           const testSignatureObject = await store.put(testSignatureObjectName, Buffer.from('Hello World!', 'utf8'));
-          assert.equal(typeof testSignatureObject.res.headers['x-oss-request-id'], 'string');
+          assert.strictEqual(testSignatureObject.res.status, 200);
         });
 
         it('should signature url get object ok', async () => {
-          const result = await store.get(name);
+          const headers = { 'Cache-Control': 'no-cache' };
+          const result = await store.get(name, { headers });
           const url = store.signatureUrl(name);
-          const urlRes = await urllib.request(url);
-          assert.equal(urlRes.data.toString(), result.content.toString());
+          const urlRes = await urllib.request(url, { headers });
+          assert.strictEqual(urlRes.data.toString(), result.content.toString());
+          let urlV4 = await store.signatureUrlV4('GET', 60, undefined, name);
+          let urlResV4 = await urllib.request(urlV4, { headers });
+          assert.strictEqual(urlResV4.data.toString(), result.content.toString());
+
+          urlV4 = await store.signatureUrlV4('GET', 60, { headers }, name, ['cache-control']);
+          urlResV4 = await urllib.request(urlV4, { headers });
+          assert.strictEqual(urlResV4.data.toString(), result.content.toString());
         });
 
         it('should verify object name strictly by default', () => {
@@ -1075,7 +1082,11 @@ describe('browser', () => {
         });
 
         it('should verify object name loosely', async () => {
-          const testSignatureObjectFromGet = await store.get(testSignatureObjectName);
+          const testSignatureObjectFromGet = await store.get(testSignatureObjectName, {
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          });
           const testSignatureObjectUrl = store.signatureUrl(testSignatureObjectName, undefined, false);
           const testSignatureObjectFromUrl = await urllib.request(testSignatureObjectUrl);
           assert.strictEqual(testSignatureObjectFromUrl.data.toString(), testSignatureObjectFromGet.content.toString());
@@ -1117,10 +1128,38 @@ describe('browser', () => {
             'Content-Type': 'text/plain; charset=UTF-8',
             'Content-MD5': contentMd5
           };
+          // const getHeaders = {
+          //   'Cache-Control': 'no-cache'
+          // };
           const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
-          assert.equal(res.status, 200);
-          const headRes = await store.head(name);
-          assert.equal(headRes.status, 200);
+          assert.strictEqual(res.status, 200);
+          // const getRes = await store.get(name, { headers: getHeaders });
+          // assert.strictEqual(getRes.content.toString(), putString);
+          const urlV4 = await store.signatureUrlV4('PUT', 60, undefined, name);
+          const resV4 = await urllib.request(urlV4, { method: 'PUT', data: putString });
+          assert.strictEqual(resV4.status, 200);
+          // const getResV4 = await store.get(name, { headers: getHeaders });
+          // assert.strictEqual(getResV4.content.toString(), putString);
+          const urlV4More = await store.signatureUrlV4(
+            'PUT',
+            60,
+            {
+              headers: { ...headers, 'Content-Length': putString.length }
+            },
+            testSignatureObjectName,
+            ['content-length']
+          );
+          const resV4More = await urllib.request(urlV4More, {
+            method: 'PUT',
+            data: putString,
+            headers: {
+              ...headers,
+              'Content-Length': String(putString.length)
+            }
+          });
+          assert.strictEqual(resV4More.status, 200);
+          // const getTestResV4 = await store.get(testSignatureObjectName, { headers: getHeaders });
+          // assert.strictEqual(getTestResV4.content.toString(), putString);
         });
 
         it('should signature url get need escape object ok', async () => {
@@ -1158,6 +1197,14 @@ describe('browser', () => {
             })
             .catch(() => {
               assert.fail('Expected asyncSignatureUrl to be executed successfully');
+            });
+          signatureStore
+            .signatureUrlV4('GET', 60, undefined)
+            .then(urlV4 => {
+              assert(urlV4.startsWith('http://www.aliyun.com/'));
+            })
+            .catch(() => {
+              assert.fail('Expected signatureUrlV4 to be executed successfully');
             });
         });
 
