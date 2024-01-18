@@ -1235,7 +1235,31 @@ describe('browser', () => {
             });
         });
 
-        it('signatureUrl will should use refreshSTSToken', async () => {
+        it('should set bucket when use signature V4', async () => {
+          const tempStore = oss(
+            Object.assign({}, ossConfig, moreConfigs, {
+              bucket: undefined
+            })
+          );
+
+          try {
+            await tempStore.signatureUrlV4('GET', 60, undefined, 'test.txt');
+            assert.fail('Expected getCanonicalRequest to throw an error');
+          } catch (err) {
+            assert.strictEqual(err.message, 'Please ensure that bucketName is passed into getCanonicalRequest.');
+          }
+        });
+
+        it('should additional headers are included in the request headers when use signature V4', async () => {
+          try {
+            await store.signatureUrlV4('GET', 60, undefined, 'test.txt', ['cache-control']);
+            assert.fail('Expected getCanonicalRequest to throw an error');
+          } catch (err) {
+            assert.strictEqual(err.message, "Can't find additional header cache-control in request headers.");
+          }
+        });
+
+        it('asyncSignatureUrl and signatureUrlV4 should use refreshSTSToken', async () => {
           let flag = false;
 
           store = oss({
@@ -1258,6 +1282,11 @@ describe('browser', () => {
 
           await sleep(2000);
           await store.asyncSignatureUrl('test.txt');
+          assert(flag);
+
+          flag = false;
+          await sleep(2000);
+          await store.signatureUrlV4('GET', 60, undefined, 'test.txt');
           assert(flag);
         });
       });

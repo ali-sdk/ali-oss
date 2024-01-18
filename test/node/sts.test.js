@@ -213,7 +213,7 @@ describe('test/sts.test.js', () => {
           }
         });
 
-        it('asyncSignatureUrl will should use refreshSTSToken', async () => {
+        it('asyncSignatureUrl and signatureUrlV4 should use refreshSTSToken', async () => {
           const { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
           let flag = false;
 
@@ -237,6 +237,11 @@ describe('test/sts.test.js', () => {
           await utils.sleep(2000);
           await store.asyncSignatureUrl('test.txt');
 
+          assert(flag);
+
+          flag = false;
+          await utils.sleep(2000);
+          await store.signatureUrlV4('GET', 60, undefined, 'test.txt');
           assert(flag);
         });
       });
