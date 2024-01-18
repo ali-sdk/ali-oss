@@ -1,5 +1,8 @@
 const crypto = require('crypto');
 const debug = require('debug')('ali-oss');
+const _isString = require('lodash/isString');
+const _isArray = require('lodash/isArray');
+const _isObject = require('lodash/isObject');
 const mime = require('mime');
 const dateFormat = require('dateformat');
 const copy = require('copy-to');
@@ -35,8 +38,15 @@ export function createRequest(this: any, params) {
     date = +new Date() + this.options.amendTimeSkewed;
   }
   const headers: Headers = {
-    'x-oss-date': dateFormat(date, "UTC:ddd, dd mmm yyyy HH:MM:ss 'GMT'")
+    'x-oss-date': dateFormat(
+      date,
+      this.options.authorizationV4 ? "UTC:yyyymmdd'T'HHMMss'Z'" : "UTC:ddd, dd mmm yyyy HH:MM:ss 'GMT'"
+    )
   };
+
+  if (this.options.authorizationV4) {
+    headers['x-oss-content-sha256'] = 'UNSIGNED-PAYLOAD';
+  }
 
   if (typeof window !== 'undefined') {
     headers['x-oss-user-agent'] = this.userAgent;
@@ -90,14 +100,38 @@ export function createRequest(this: any, params) {
     }
   }
 
-  const authResource = this._getResource(params);
-  headers.authorization = this.authorization(
-    params.method,
-    authResource,
-    params.subres,
-    headers,
-    this.options.headerEncoding
-  );
+  const queries = {};
+
+  if (_isString(params.subres)) {
+    queries[params.subres] = null;
+  } else if (_isArray(params.subres)) {
+    params.subres.forEach(v => {
+      queries[v] = null;
+    });
+  } else if (_isObject(params.subres)) {
+    Object.entries(params.subres).forEach(v => {
+      queries[v[0]] = v[1] === '' ? null : v[1];
+    });
+  }
+
+  if (_isObject(params.query)) {
+    Object.entries(params.query).forEach(v => {
+      queries[v[0]] = v[1];
+    });
+  }
+
+  headers.authorization = this.options.authorizationV4
+    ? this.authorizationV4(
+        params.method,
+        {
+          headers,
+          queries
+        },
+        params.bucket,
+        params.object,
+        params.additionalHeaders
+      )
+    : this.authorization(params.method, this._getResource(params), params.subres, headers, this.options.headerEncoding);
 
   // const url = this._getReqUrl(params);
   if (isIP(this.options.endpoint.hostname)) {
