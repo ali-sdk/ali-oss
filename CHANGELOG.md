@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.20.0](https://github.com/ali-sdk/ali-oss/compare/v6.19.0...v6.20.0) (2024-01-18)
+
+
+### Features
+
+* add strict object name validation ([#1265](https://github.com/ali-sdk/ali-oss/issues/1265)) ([830e36e](https://github.com/ali-sdk/ali-oss/commit/830e36ea143b57e09e42d0634bc0c4d07474a2a5))
+* support signature v4 ([#1277](https://github.com/ali-sdk/ali-oss/issues/1277)) ([8bbe9b1](https://github.com/ali-sdk/ali-oss/commit/8bbe9b1ac8aa34c1564a1ad11549b67fc1db7f3a))
+
+
+### Bug Fixes
+
+* merge proto ([b7b3a2f](https://github.com/ali-sdk/ali-oss/commit/b7b3a2f4d59e9d79b5464d6145f4a1959ec25281))
+
 ## [6.19.0](https://github.com/ali-sdk/ali-oss/compare/v6.18.1...v6.19.0) (2023-12-18)
 
 ### Features
