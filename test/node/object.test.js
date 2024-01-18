@@ -1342,6 +1342,25 @@ describe('test/object.test.js', () => {
           });
           assert.strictEqual(200, result.status);
         });
+
+        it('should set bucket when use signature V4', async () => {
+          const conf = { ...config, ...moreConfigs, bucket: undefined };
+          const tempStore = oss(conf);
+
+          await assert.rejects(tempStore.signatureUrlV4('GET', 60, undefined, 'test.txt'), err => {
+            assert.strictEqual(err.message, 'Please ensure that bucketName is passed into getCanonicalRequest.');
+
+            return true;
+          });
+        });
+
+        it('should additional headers are included in the request headers when use signature V4', async () => {
+          await assert.rejects(store.signatureUrlV4('GET', 60, undefined, 'test.txt', ['cache-control']), err => {
+            assert.strictEqual(err.message, "Can't find additional header cache-control in request headers.");
+
+            return true;
+          });
+        });
       });
 
       describe('getStream()', () => {
