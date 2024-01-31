@@ -3349,7 +3349,7 @@ module.exports = function (options) {
   var opts = Object.assign({
     region: 'oss-cn-hangzhou',
     internal: false,
-    secure: false,
+    secure: true, // Bydefault it should be secure true beacuse otherwise user will receive http instead of https, Alibaba cloud provide https for free so why not use https bydefault.
     timeout: 60000,
     bucket: null,
     endpoint: null,
