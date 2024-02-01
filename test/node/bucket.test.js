@@ -1314,7 +1314,18 @@ describe('test/bucket.test.js', () => {
         });
       });
       describe('inventory()', () => {
-        const field = ['Size', 'LastModifiedDate', 'ObjectAcl', 'TaggingCount', 'ObjectType', 'Crc64'];
+        const field = [
+          'Size',
+          'LastModifiedDate',
+          'ETag',
+          'StorageClass',
+          'IsMultipartUploaded',
+          'EncryptionStatus',
+          'ObjectAcl',
+          'TaggingCount',
+          'ObjectType',
+          'Crc64'
+        ];
         const inventory = {
           id: 'default',
           isEnabled: false,
