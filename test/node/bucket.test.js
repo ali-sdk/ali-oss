@@ -1314,6 +1314,18 @@ describe('test/bucket.test.js', () => {
         });
       });
       describe('inventory()', () => {
+        const field = [
+          'Size',
+          'LastModifiedDate',
+          'ETag',
+          'StorageClass',
+          'IsMultipartUploaded',
+          'EncryptionStatus',
+          'ObjectAcl',
+          'TaggingCount',
+          'ObjectType',
+          'Crc64'
+        ];
         const inventory = {
           id: 'default',
           isEnabled: false,
@@ -1328,7 +1340,7 @@ describe('test/bucket.test.js', () => {
           frequency: 'Daily',
           includedObjectVersions: 'All',
           optionalFields: {
-            field: ['Size', 'LastModifiedDate']
+            field
           }
         };
 
@@ -1347,6 +1359,7 @@ describe('test/bucket.test.js', () => {
             const inventoryRes = await store.listBucketInventory(bucket);
             assert(Array.isArray(inventoryRes.inventoryList));
             assert(inventoryRes.inventoryList.length === 1);
+            assert(inventoryRes.inventoryList[0].optionalFields.field.toString(), field.toString());
             assert.strictEqual(inventoryRes.status, 200);
           });
           it('should put bucket inventory when no optionalFields or no field', async () => {
@@ -1399,6 +1412,7 @@ describe('test/bucket.test.js', () => {
           it('should get bucket inventory by inventoryId', async () => {
             try {
               const result = await store.getBucketInventory(bucket, inventory.id);
+              assert(result.inventory.optionalFields.field.toString(), field.toString());
               testGetInventory = result.inventory;
               assert(includesConf(testGetInventory, inventory));
             } catch (err) {
