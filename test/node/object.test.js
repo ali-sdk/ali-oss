@@ -1215,18 +1215,19 @@ describe('test/object.test.js', () => {
         //     body: `bucket=${bucket}`,
         //     host: 'oss-demo.aliyuncs.com',
         //     contentType: 'application/json',
+        //     callbackSNI: true,
         //     customValue: {
-        //       key1: 'value1',
+        //       key1: 'value111',
         //       key2: 'value2'
         //     }
         //   };
-        //
+
         //   const options = {
         //     method: 'PUT',
         //     expires: 3600,
         //     callback
         //   };
-        //
+
         //   const url = store.signatureUrl(name, options);
         //   const res = await urllib.request(url, options);
         //   assert.equal(res.status, 200);

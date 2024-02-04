@@ -460,8 +460,8 @@ try {
   const putObjectResult = await store.put('your bucket name', 'your object name', {
     headers: {
       // The headers of this request
-      'header1': 'value1',
-      'header2': 'value2'
+      header1: 'value1',
+      header2: 'value2'
     },
     // The keys of the request headers that need to be calculated into the V4 signature. Please ensure that these additional headers are included in the request headers.
     additionalHeaders: ['additional header1', 'additional header2']
@@ -1712,6 +1712,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, `key=${key}&etag=${etag}&my_var=${x:my_var}`.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -1837,6 +1838,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -2641,6 +2643,7 @@ parameters:
     - [host] {String} set the host for callback
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 - [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
@@ -2671,13 +2674,17 @@ const url = store.signatureUrl('ossdemo.txt', {
 console.log(url);
 
 // --------------------------------------------------
-const url = store.signatureUrl('ossdemo.txt', {
-  expires: 3600,
-  response: {
-    'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
-}, false);
+const url = store.signatureUrl(
+  'ossdemo.txt',
+  {
+    expires: 3600,
+    response: {
+      'content-type': 'text/custom',
+      'content-disposition': 'attachment'
+    }
+  },
+  false
+);
 console.log(url);
 
 // put operation
@@ -2723,6 +2730,7 @@ parameters:
     - [host] {String} set the host for callback
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 - [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
@@ -2750,13 +2758,17 @@ const url = await store.asyncSignatureUrl('ossdemo.txt', {
 });
 console.log(url);
 // --------------------------------------------------
-const url = await store.asyncSignatureUrl('ossdemo.txt', {
-  expires: 3600,
-  response: {
-    'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
-}, false);
+const url = await store.asyncSignatureUrl(
+  'ossdemo.txt',
+  {
+    expires: 3600,
+    response: {
+      'content-type': 'text/custom',
+      'content-disposition': 'attachment'
+    }
+  },
+  false
+);
 console.log(url);
 // put operation
 ```
@@ -2799,14 +2811,20 @@ example:
 const getObjectUrl = await store.signatureUrlV4('GET', 60, undefined, 'your obejct name');
 console.log(getObjectUrl);
 // --------------------------------------------------
-const getObjectUrl = await store.signatureUrlV4('GET', 60, {
-  headers: {
-    'Cache-Control': 'no-cache'
+const getObjectUrl = await store.signatureUrlV4(
+  'GET',
+  60,
+  {
+    headers: {
+      'Cache-Control': 'no-cache'
+    },
+    queries: {
+      versionId: 'version ID of your object'
+    }
   },
-  queries: {
-    versionId: 'version ID of your object'
-  }
-}, 'your obejct name', ['Cache-Control']);
+  'your obejct name',
+  ['Cache-Control']
+);
 console.log(getObjectUrl);
 
 // -------------------------------------------------
@@ -2814,13 +2832,19 @@ console.log(getObjectUrl);
 const putObejctUrl = await store.signatureUrlV4('PUT', 60, undefined, 'your obejct name');
 console.log(putObejctUrl);
 // --------------------------------------------------
-const putObejctUrl = await store.signatureUrlV4('PUT', 60, {
-  headers: {
-    'Content-Type': 'text/plain',
-    'Content-MD5': 'xxx',
-    'Content-Length': 1
-  }
-}, 'your obejct name', ['Content-Length']);
+const putObejctUrl = await store.signatureUrlV4(
+  'PUT',
+  60,
+  {
+    headers: {
+      'Content-Type': 'text/plain',
+      'Content-MD5': 'xxx',
+      'Content-Length': 1
+    }
+  },
+  'your obejct name',
+  ['Content-Length']
+);
 console.log(putObejctUrl);
 ```
 
@@ -3233,6 +3257,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -3318,6 +3343,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
