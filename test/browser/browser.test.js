@@ -1803,6 +1803,7 @@ describe('browser', () => {
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
+          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -1825,6 +1826,7 @@ describe('browser', () => {
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
+          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -1859,6 +1861,7 @@ describe('browser', () => {
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
+          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -1885,6 +1888,7 @@ describe('browser', () => {
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
+          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
