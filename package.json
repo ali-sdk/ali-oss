@@ -132,7 +132,7 @@
   },
   "dependencies": {
     "address": "^1.2.2",
-    "agentkeepalive": "^3.4.1",
+    "agentkeepalive": "^3.5.3",
     "bowser": "^1.6.0",
     "copy-to": "^2.0.1",
     "dateformat": "^2.0.0",
