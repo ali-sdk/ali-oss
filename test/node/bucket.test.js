@@ -265,6 +265,14 @@ describe('test/bucket.test.js', () => {
           }
         });
 
+        it('should list buckets by group id', async () => {
+          const { buckets } = await store.listBuckets(
+            {},
+            { headers: { 'x-oss-resource-group-id': 'rg-aek22iclavfbksq' } }
+          );
+          assert(buckets.length > -1);
+        });
+
         after(async () => {
           await Promise.all(
             Array(2)
