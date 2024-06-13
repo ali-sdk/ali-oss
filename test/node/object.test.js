@@ -554,7 +554,7 @@ describe('test/object.test.js', () => {
           const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
           await store.multipartUpload(name, filepath, {
             mime: 'text/plain',
-            headers: { 'x-oss-storage-class': 'IA' }
+            headers: { 'x-oss-storage-class': 'Standard' }
           });
           const result = await store.head(name);
           assert.equal(result.res.headers['content-type'], 'text/plain');

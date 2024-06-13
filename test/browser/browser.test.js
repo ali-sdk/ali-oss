@@ -1570,7 +1570,7 @@ describe('browser', () => {
             const file = new File([fileContent], 'multipart-fallback');
             const name = `${prefix}storage-class`;
             const result = await store.multipartUpload(name, file, {
-              headers: { 'x-oss-storage-class': 'IA' }
+              headers: { 'x-oss-storage-class': 'Standard' }
             });
             assert.equal(true, result.res && Object.keys(result.res).length !== 0);
             assert.equal(result.res.status, 200);
