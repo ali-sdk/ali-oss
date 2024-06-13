@@ -548,6 +548,17 @@ describe('test/object.test.js', () => {
           result = await store.head(name);
           assert.equal(result.res.headers['content-type'], 'text/plain');
         });
+        it('should set storage-class header', async () => {
+          const filepath = path.join(tmpdir, 'content-storage-class-file.jpg');
+          await createFile(filepath);
+          const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
+          await store.multipartUpload(name, filepath, {
+            mime: 'text/plain',
+            headers: { 'x-oss-storage-class': 'IA' }
+          });
+          const result = await store.head(name);
+          assert.equal(result.res.headers['content-type'], 'text/plain');
+        });
       });
 
       describe('head()', () => {

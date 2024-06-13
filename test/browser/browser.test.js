@@ -1563,6 +1563,19 @@ describe('browser', () => {
             assert.equal(result.res.status, 200);
           });
 
+          it('should set storage-class header', async () => {
+            const fileContent = Array(1024 * 1024)
+              .fill('a')
+              .join('');
+            const file = new File([fileContent], 'multipart-fallback');
+            const name = `${prefix}storage-class`;
+            const result = await store.multipartUpload(name, file, {
+              headers: { 'x-oss-storage-class': 'IA' }
+            });
+            assert.equal(true, result.res && Object.keys(result.res).length !== 0);
+            assert.equal(result.res.status, 200);
+          });
+
           it('should upload file using multipart upload with exception', async () => {
             // create a file with 1M random data
             const fileContent = Array(1024 * 1024)
