@@ -25,7 +25,7 @@ jobs:
       ALI_SDK_STS_SECRET: ${{secrets.ALI_SDK_STS_SECRET}}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: test and report upload
         run: |
           npm install

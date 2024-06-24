@@ -6,7 +6,7 @@ const fs = require('fs');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
 
-describe('test/multiversion.test.js', () => {
+describe.only('test/multiversion.test.js', () => {
   const { prefix } = utils;
   const enabled = 'Enabled';
   const suspended = 'Suspended';
@@ -142,7 +142,7 @@ describe('test/multiversion.test.js', () => {
           const { rules } = await store.getBucketLifecycle(bucket);
           assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
         });
-        it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
+        it.only('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
           const putresult1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'expiration1',

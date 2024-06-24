@@ -1099,23 +1099,6 @@ describe('browser', () => {
           );
         });
 
-        // it('should signature url with image processed and get object ok', function* () {
-        //   var name = prefix + 'ali-sdk/oss/nodejs-test-signature-1024x768.png';
-        //   var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-        //   var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-        //   var object = yield this.store.put(name, originImagePath, {
-        //     mime: 'image/png'
-        //   });
-        //
-        //   var signUrl = this.store.signatureUrl(name, {expires: 3600, process: 'image/resize,w_200'});
-        //   var processedKeyword = "x-oss-process=image%2Fresize%2Cw_200";
-        //   assert.equal(signUrl.match(processedKeyword), processedKeyword);
-        //   var urlRes = yield urllib.request(signUrl);
-        //   assert.equal(urlRes.status, 200);
-        //   // assert(urlRes.data.toString() == fs.readFileSync(processedImagePath, 'utf8'),
-        //   //   'response content should be same as test/nodejs-processed-w200.png');
-        // });
-        //
         it('should signature url for PUT', async () => {
           const putString = 'Hello World';
           const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
