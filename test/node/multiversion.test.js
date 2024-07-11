@@ -6,7 +6,7 @@ const fs = require('fs');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
 
-describe.only('test/multiversion.test.js', () => {
+describe('test/multiversion.test.js', () => {
   const { prefix } = utils;
   const enabled = 'Enabled';
   const suspended = 'Suspended';
@@ -142,7 +142,7 @@ describe.only('test/multiversion.test.js', () => {
           const { rules } = await store.getBucketLifecycle(bucket);
           assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
         });
-        it.only('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
+        it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
           const putresult1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'expiration1',
@@ -157,6 +157,7 @@ describe.only('test/multiversion.test.js', () => {
             }
           ]);
           assert.equal(putresult1.res.status, 200);
+          await utils.sleep(2000);
           const { rules } = await store.getBucketLifecycle(bucket);
           assert.strictEqual(rules[0].expiration.expiredObjectDeleteMarker, 'true');
         });
@@ -174,6 +175,7 @@ describe.only('test/multiversion.test.js', () => {
             }
           ]);
           assert.equal(putresult1.res.status, 200);
+          await utils.sleep(1000);
           const { rules } = await store.getBucketLifecycle(bucket);
           const [
             {
@@ -246,6 +248,7 @@ describe.only('test/multiversion.test.js', () => {
         let versionId;
         before(async () => {
           await store.putBucketVersioning(bucket, enabled);
+          await utils.sleep(1000);
           const result = await store.put(name, __filename);
           store.delete(name);
           versionId = result.res.headers['x-oss-version-id'];
@@ -257,7 +260,7 @@ describe.only('test/multiversion.test.js', () => {
             assert.strictEqual(result.res.headers['x-oss-version-id'], versionId);
             assert.strictEqual(result.res.status, 200);
           } catch (error) {
-            assert(false);
+            assert(false, error);
           }
         });
       });
@@ -568,18 +571,22 @@ describe.only('test/multiversion.test.js', () => {
         // 暂停多版本后，当前版本为DELETE标记，指定version删除该DELETE标记（包括null version），则恢复上一个版本
         it('should delete marker and restore lastest version when suspended ', async () => {
           await store.putBucketVersioning(bucket, enabled);
+          await utils.sleep(2000);
           try {
             const currentName = 'delete-marker-test';
             const result = await store.put(currentName, Buffer.from(currentName));
             const currentVersionId = result.res.headers['x-oss-version-id'];
             // 删除当前版本 产生标记
             const delRes = await store.delete(currentName);
+            await utils.sleep(1000);
             const delVerionsId = delRes.res.headers['x-oss-version-id'];
             await store.putBucketVersioning(bucket, suspended);
+            await utils.sleep(1000);
             // 删除标记
             await store.delete(currentName, {
               versionId: delVerionsId
             });
+            await utils.sleep(1000);
             // 验证是否恢复上一个版本
             const headInfo = await store.head(currentName);
             assert.strictEqual(headInfo.res.headers['x-oss-version-id'], currentVersionId);
@@ -593,6 +600,7 @@ describe.only('test/multiversion.test.js', () => {
         it('should return bucket Versioning', async () => {
           try {
             await store.putBucketVersioning(bucket, enabled);
+            await utils.sleep(2000);
             const result = await store.getBucketInfo(bucket);
             assert.equal(result.res.status, 200);
             assert.equal(result.bucket.Versioning, enabled);
