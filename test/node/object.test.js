@@ -1398,7 +1398,7 @@ describe('test/object.test.js', () => {
         });
 
         /**
-         * Image processing uses different compression algorithms,
+         * Image processing uses different compression algorithms
          * and the performance may be inconsistent
          * between different regions
          */
