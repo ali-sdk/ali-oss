@@ -1432,6 +1432,7 @@ describe('test/object.test.js', () => {
           assert.equal(result2.res.status, 200);
           isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
           isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
+          console.log('22', isEqual, isEqual2);
           assert(isEqual || isEqual2);
         });
 
