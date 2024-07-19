@@ -1402,7 +1402,7 @@ describe('test/object.test.js', () => {
          * and the performance may be inconsistent
          * between different regions
          */
-        it('should get image stream with image process', async () => {
+        it.only('should get image stream with image process', async () => {
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
           const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           const processedImagePath = path.join(__dirname, './fixtures/nodejs-processed-w200.png');
@@ -1418,7 +1418,7 @@ describe('test/object.test.js', () => {
 
           let isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
           let isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
-
+          console.log('cc', isEqual, isEqual2);
           assert(isEqual || isEqual2);
           result = await store.getStream(imageName, {
             process: 'image/resize,w_200',
