@@ -48,3 +48,6 @@ es
 lib/common/utils/createRequest.js
 lib/common/utils/encodeString.js
 lib/common/utils/getStandardRegion.js
+
+/test/node/fixtures/nodejs-processed-w200-latest.png
+/test/node/fixtures/nodejs-processed-w200.png
