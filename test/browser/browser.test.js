@@ -2526,7 +2526,7 @@ describe('browser', () => {
           const info = await store.restore(name);
           assert.equal(info.res.status, 202);
 
-          // in 1 minute verify RestoreAlreadyInProgressError
+          // in 1 minute verify RestoreAlreadyInProgressError.
           try {
             await store.restore(name);
           } catch (err) {
