@@ -1552,11 +1552,13 @@ describe('browser', () => {
               .join('');
             const file = new File([fileContent], 'multipart-fallback');
             const name = `${prefix}storage-class`;
-            const result = await store.multipartUpload(name, file, {
-              headers: { 'x-oss-storage-class': 'Standard' }
+            let result = await store.multipartUpload(name, file, {
+              headers: { 'x-oss-storage-class': 'IA' }
             });
             assert.equal(true, result.res && Object.keys(result.res).length !== 0);
             assert.equal(result.res.status, 200);
+            result = await store.head(name);
+            assert.equal(result.res.headers['x-oss-storage-class'], 'IA');
           });
 
           it('should upload file using multipart upload with exception', async () => {

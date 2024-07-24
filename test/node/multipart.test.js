@@ -1037,10 +1037,11 @@ describe('test/multipart.test.js', () => {
           const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
           await store.multipartUpload(name, filepath, {
             mime: 'text/plain',
-            headers: { 'x-oss-storage-class': 'Standard' }
+            headers: { 'x-oss-storage-class': 'IA' }
           });
           const result = await store.head(name);
           assert.equal(result.res.headers['content-type'], 'text/plain');
+          assert.equal(result.res.headers['x-oss-storage-class'], 'IA');
         });
       });
     });
