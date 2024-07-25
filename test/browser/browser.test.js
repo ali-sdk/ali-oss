@@ -2042,11 +2042,10 @@ describe('browser', () => {
           await store.putSymlink(twoLinkName, oneLinkName);
           try {
             await store.head(twoLinkName);
+            assert.fail('expected an error to be thrown');
           } catch (e) {
             assert.equal(e.code, 'InvalidTargetType');
-            return;
           }
-          assert.fail('expected an error to be thrown');
         });
       });
 
