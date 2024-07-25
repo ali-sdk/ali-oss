@@ -2029,6 +2029,23 @@ describe('browser', () => {
           // result = await store.getObjectMeta(name);
           // console.log(result);
         });
+
+        it('return 403 error details', async () => {
+          const store = oss({ ...ossConfig, ...moreConfigs });
+          const name = '/oss/symlink-软链接403.js';
+          const result = await store.put(name, Buffer.from('test-symlink'));
+          assert.equal(result.res.status, 200);
+
+          const oneLinkName = '/oss/oneLinkName-temp.js';
+          await store.putSymlink(oneLinkName, name);
+          const twoLinkName = '/oss/twoLinkName-temp.js';
+          await store.putSymlink(twoLinkName, oneLinkName);
+          try {
+            await store.head(twoLinkName);
+          } catch (e) {
+            assert.equal(e.code, 'InvalidTargetType');
+          }
+        });
       });
 
       describe('deleteMulti()', () => {
