@@ -2030,7 +2030,7 @@ describe('browser', () => {
           // console.log(result);
         });
 
-        it.only('error detail from header', async () => {
+        it('error detail from header', async () => {
           const store = oss({ ...ossConfig, ...moreConfigs });
           const name = '/oss/return-symlink-软链接403.js';
           const result = await store.put(name, Buffer.from('test-symlink'));
