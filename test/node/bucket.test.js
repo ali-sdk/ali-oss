@@ -266,8 +266,11 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should list buckets by group id', async () => {
-          const { buckets } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': 'rg-testid' } });
-          assert(buckets === null);
+          const { buckets } = await store.listBuckets(
+            {},
+            { headers: { 'x-oss-resource-group-id': 'rg-acfmwscflgywd3q' } } // default resource group
+          );
+          assert(buckets.length > 0);
         });
 
         after(async () => {
