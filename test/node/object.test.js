@@ -1059,9 +1059,9 @@ describe('test/object.test.js', () => {
           const url = store.signatureUrl(name);
           const urlRes = await urllib.request(url);
           assert.strictEqual(urlRes.data.toString(), result.content.toString());
-          // const urlV4 = await store.signatureUrlV4('GET', 60, undefined, name);
-          // const urlResV4 = await urllib.request(urlV4);
-          // assert.strictEqual(urlResV4.data.toString(), result.content.toString());
+          const urlV4 = await store.signatureUrlV4('GET', 60, undefined, name);
+          const urlResV4 = await urllib.request(urlV4);
+          assert.strictEqual(urlResV4.data.toString(), result.content.toString());
         });
 
         it('should verify object name strictly by default', async () => {
