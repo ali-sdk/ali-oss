@@ -2030,7 +2030,7 @@ describe('browser', () => {
           // console.log(result);
         });
 
-        it('return 403 error details', async () => {
+        it.only('error detail from header', async () => {
           const store = oss({ ...ossConfig, ...moreConfigs });
           const name = '/oss/return-symlink-软链接403.js';
           const result = await store.put(name, Buffer.from('test-symlink'));
@@ -2044,7 +2044,9 @@ describe('browser', () => {
             await store.head(twoLinkName);
           } catch (e) {
             assert.equal(e.code, 'InvalidTargetType');
+            return;
           }
+          assert.fail('expected an error to be thrown');
         });
       });
 

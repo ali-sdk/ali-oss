@@ -566,16 +566,19 @@ describe('test/object.test.js', () => {
           resHeaders = object.res.headers;
         });
 
-        it('return 403 error details', async () => {
-          const oneLinkName = 'oneLinkName-temp.js';
-          await store.putSymlink(oneLinkName, name);
-          const twoLinkName = 'twoLinkName-temp.js';
-          await store.putSymlink(twoLinkName, oneLinkName);
-          try {
-            await store.head(twoLinkName);
-          } catch (e) {
-            assert.equal(e.code, 'InvalidTargetType');
-          }
+        it('error detail from header', () => {
+          assert.rejects(async () => {
+            const oneLinkName = 'oneLinkName-temp.js';
+            await store.putSymlink(oneLinkName, name);
+            const twoLinkName = 'twoLinkName-temp.js';
+            await store.putSymlink(twoLinkName, oneLinkName);
+            try {
+              await store.head(twoLinkName);
+            } catch (e) {
+              assert.equal(e.code, 'InvalidTargetType');
+              throw e;
+            }
+          }, Error);
         });
 
         it('should head not exists object throw NoSuchKeyError', async () => {
