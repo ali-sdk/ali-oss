@@ -2032,7 +2032,7 @@ describe('browser', () => {
 
         it('return 403 error details', async () => {
           const store = oss({ ...ossConfig, ...moreConfigs });
-          const name = '/oss/symlink-软链接403.js';
+          const name = '/oss/return-symlink-软链接403.js';
           const result = await store.put(name, Buffer.from('test-symlink'));
           assert.equal(result.res.status, 200);
 
