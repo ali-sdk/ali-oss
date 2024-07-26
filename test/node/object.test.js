@@ -569,9 +569,11 @@ describe('test/object.test.js', () => {
         it('error detail from header', () => {
           assert.rejects(async () => {
             const oneLinkName = 'oneLinkName-temp.js';
-            await store.putSymlink(oneLinkName, name);
+            let result = await store.putSymlink(oneLinkName, name);
+            assert.equal(result.res.status, 200);
             const twoLinkName = 'twoLinkName-temp.js';
-            await store.putSymlink(twoLinkName, oneLinkName);
+            result = await store.putSymlink(twoLinkName, oneLinkName);
+            assert.equal(result.res.status, 200);
             try {
               await store.head(twoLinkName);
             } catch (e) {

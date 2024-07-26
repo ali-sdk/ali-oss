@@ -2033,13 +2033,15 @@ describe('browser', () => {
         it('error detail from header', async () => {
           const store = oss({ ...ossConfig, ...moreConfigs });
           const name = '/oss/return-symlink-软链接403.js';
-          const result = await store.put(name, Buffer.from('test-symlink'));
+          let result = await store.put(name, Buffer.from('test-symlink'));
           assert.equal(result.res.status, 200);
 
           const oneLinkName = '/oss/oneLinkName-temp.js';
-          await store.putSymlink(oneLinkName, name);
+          result = await store.putSymlink(oneLinkName, name);
+          assert.equal(result.res.status, 200);
           const twoLinkName = '/oss/twoLinkName-temp.js';
-          await store.putSymlink(twoLinkName, oneLinkName);
+          result = await store.putSymlink(twoLinkName, oneLinkName);
+          assert.equal(result.res.status, 200);
           try {
             await store.head(twoLinkName);
             assert.fail('expected an error to be thrown');
