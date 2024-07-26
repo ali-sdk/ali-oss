@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
 const ms = require('humanize-ms');
+const { default: ResourceManager, ListResourceGroupsRequest } = require('@alicloud/resourcemanager20200331');
+const { Config: OConfig } = require('@alicloud/openapi-client');
+const { RuntimeOptions } = require('@alicloud/tea-util');
+
 const { oss: config, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
@@ -265,12 +270,23 @@ describe('test/bucket.test.js', () => {
           }
         });
 
-        it('should list buckets by group id', async () => {
-          const { buckets } = await store.listBuckets(
-            {},
-            { headers: { 'x-oss-resource-group-id': 'rg-acfmwscflgywd3q' } } // default resource group
-          );
-          assert(buckets.length > 0);
+        it.only('should list buckets by group id', async () => {
+          const { accessKeyId, accessKeySecret } = config;
+          const oconfig = new OConfig({
+            accessKeyId,
+            accessKeySecret
+          });
+          oconfig.endpoint = `resourcemanager.aliyuncs.com`;
+          const client = new ResourceManager(oconfig);
+          const runtime = new RuntimeOptions({});
+          const {
+            body: {
+              resourceGroups: { resourceGroup }
+            }
+          } = await client.listResourceGroupsWithOptions(new ListResourceGroupsRequest({}), runtime);
+          const { id } = resourceGroup.find(re => re.name === 'sdktest');
+          const { buckets } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': id } });
+          assert(buckets.length, 2);
         });
 
         after(async () => {
