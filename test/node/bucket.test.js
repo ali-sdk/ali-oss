@@ -284,9 +284,9 @@ describe('test/bucket.test.js', () => {
               resourceGroups: { resourceGroup }
             }
           } = await client.listResourceGroupsWithOptions(new ListResourceGroupsRequest({}), runtime);
-          const { id } = resourceGroup.find(re => re.name === 'sdktest');
+          const { id } = resourceGroup.find(re => re.name.indexOf('sdk') === 0);
           const { buckets } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': id } });
-          assert(buckets.length, 2);
+          assert(buckets.length, 2); // 2 buckets
         });
 
         after(async () => {
