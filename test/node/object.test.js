@@ -108,7 +108,7 @@ describe('test/object.test.js', () => {
 
         it('should add image with file streaming way', async () => {
           const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
-          const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+          const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           const object = await store.putStream(name, fs.createReadStream(imagepath), {
             mime: 'image/png'
           });
@@ -129,7 +129,7 @@ describe('test/object.test.js', () => {
         it('should put object with http streaming way', async () => {
           const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
           const nameCpy = `${prefix}ali-sdk/oss/nodejs-1024x768`;
-          const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+          const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
           const signUrl = await store.signatureUrl(name, { expires: 3600 });
           const stream = fs.createWriteStream(imagepath);
@@ -179,7 +179,7 @@ describe('test/object.test.js', () => {
       describe('processObjectSave()', () => {
         const name = 'sourceObject.png';
         before(async () => {
-          const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+          const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           await store.putStream(name, fs.createReadStream(imagepath), {
             mime: 'image/png'
           });
@@ -848,8 +848,8 @@ describe('test/object.test.js', () => {
 
         it('should get object content buffer with image process', async () => {
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          path.join(__dirname, 'nodejs-processed-w200.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          // path.join(__dirname, 'nodejs-processed-w200.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
@@ -1132,8 +1132,8 @@ describe('test/object.test.js', () => {
             testParameters: 'xxx'
           };
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          path.join(__dirname, 'nodejs-processed-w200.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          // path.join(__dirname, 'nodejs-processed-w200.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
@@ -1168,8 +1168,8 @@ describe('test/object.test.js', () => {
         // todo 这个用例和上面的重复了
         it('should signature url with image processed and get object ok', async () => {
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          path.join(__dirname, 'nodejs-processed-w200.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          // path.join(__dirname, 'nodejs-processed-w200.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
@@ -1414,36 +1414,41 @@ describe('test/object.test.js', () => {
         });
 
         /**
-         * Image processing uses different compression algorithms,
+         * Image processing uses different compression algorithms
          * and the performance may be inconsistent
          * between different regions
          */
         it('should get image stream with image process', async () => {
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          const processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-          const processedImagePath2 = path.join(__dirname, 'nodejs-processed-w200-latest.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          const processedImagePath = path.join(__dirname, './fixtures/nodejs-processed-w200.png');
+          const processedImagePath2 = path.join(__dirname, './fixtures/nodejs-processed-w200-latest.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
 
-          let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
-          let result2 = await store.getStream(imageName, { process: 'image/resize,w_200' });
+          let opts = { process: 'image/resize,w_200' };
+          let result = await store.getStream(imageName, opts);
+          let result2 = await store.getStream(imageName, opts);
           assert.equal(result.res.status, 200);
           assert.equal(result2.res.status, 200);
+          await store.get(imageName, processedImagePath, opts);
+          await store.get(imageName, processedImagePath2, opts);
+
           let isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
           let isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
           assert(isEqual || isEqual2);
-          result = await store.getStream(imageName, {
+
+          opts = {
             process: 'image/resize,w_200',
             subres: { 'x-oss-process': 'image/resize,w_100' }
-          });
-          result2 = await store.getStream(imageName, {
-            process: 'image/resize,w_200',
-            subres: { 'x-oss-process': 'image/resize,w_100' }
-          });
+          };
+          result = await store.getStream(imageName, opts);
+          result2 = await store.getStream(imageName, opts);
           assert.equal(result.res.status, 200);
           assert.equal(result2.res.status, 200);
+          await store.get(imageName, processedImagePath, opts);
+          await store.get(imageName, processedImagePath2, opts);
           isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
           isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
           assert(isEqual || isEqual2);
@@ -1468,7 +1473,6 @@ describe('test/object.test.js', () => {
               await store.getStream(`${name}not-exists`);
               throw new Error('should not run this');
             } catch (err) {
-              console.log('error is', err);
               assert.equal(err.name, 'NoSuchKeyError');
               assert.equal(Object.keys(store.agent.freeSockets).length, 0);
               await utils.sleep(ms(metaSyncTime));
