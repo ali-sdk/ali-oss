@@ -343,7 +343,7 @@ options:
 - [region] {String} the bucket data region location, please see [Data Regions](#data-regions),
   default is `oss-cn-hangzhou`.
 - [internal] {Boolean} access OSS with aliyun internal network or not, default is `false`.
-  If your servers are running on aliyun too, you can set `true` to save lot of money.
+  If your servers are running on aliyun too, you can set `true` to save a lot of money.
 - [secure] {Boolean} instruct OSS client to use HTTPS (secure: true) or HTTP (secure: false) protocol.
 - [timeout] {String|Number} instance level timeout for all operations, default is `60s`.
 - [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
@@ -355,6 +355,7 @@ options:
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 - [maxSockets] {Number} Maximum number of sockets to allow per host. Default is infinity
+- [authorizationV4] {Boolean} Use V4 signature. Default is false.
 
 example:
 
@@ -432,6 +433,42 @@ for (let i = 0; i <= store.options.retryMax; i++) {
   } catch (e) {
     console.log(e);
   }
+}
+```
+
+6. use V4 signature, and use optional additionalHeaders option which type is a string array, and the values inside need to be included in the header.
+
+```js
+const OSS = require('ali-oss');
+
+const store = new OSS({
+  accessKeyId: 'your access key',
+  accessKeySecret: 'your access secret',
+  bucket: 'your bucket name',
+  region: 'oss-cn-hangzhou',
+  authorizationV4: true
+});
+
+try {
+  const bucketInfo = await store.getBucketInfo('your bucket name');
+  console.log(bucketInfo);
+} catch (e) {
+  console.log(e);
+}
+
+try {
+  const putObjectResult = await store.put('your bucket name', 'your object name', {
+    headers: {
+      // The headers of this request
+      'header1': 'value1',
+      'header2': 'value2'
+    },
+    // The keys of the request headers that need to be calculated into the V4 signature. Please ensure that these additional headers are included in the request headers.
+    additionalHeaders: ['additional header1', 'additional header2']
+  });
+  console.log(putObjectResult);
+} catch (e) {
+  console.log(e);
 }
 ```
 
@@ -2579,7 +2616,7 @@ console.log(result.objects);
 console.log(result.deleteMarker);
 ```
 
-### .signatureUrl(name[, options])
+### .signatureUrl(name[, options, strictObjectNameValidation])
 
 Create a signature url for download or upload object. When you put object with signatureUrl ,you need to pass `Content-Type`.Please look at the example.
 
@@ -2605,6 +2642,7 @@ parameters:
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+- [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
 Success will return signature url.
 
@@ -2639,7 +2677,7 @@ const url = store.signatureUrl('ossdemo.txt', {
     'content-type': 'text/custom',
     'content-disposition': 'attachment'
   }
-});
+}, false);
 console.log(url);
 
 // put operation
@@ -2660,7 +2698,7 @@ const url = store.signatureUrl('ossdemo.png', {
 console.log(url);
 ```
 
-### .asyncSignatureUrl(name[, options])
+### .asyncSignatureUrl(name[, options, strictObjectNameValidation])
 
 Basically the same as signatureUrl, if refreshSTSToken is configured asyncSignatureUrl will refresh stsToken
 
@@ -2686,6 +2724,7 @@ parameters:
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
+- [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
 Success will return signature url.
 
@@ -2717,7 +2756,7 @@ const url = await store.asyncSignatureUrl('ossdemo.txt', {
     'content-type': 'text/custom',
     'content-disposition': 'attachment'
   }
-});
+}, false);
 console.log(url);
 // put operation
 ```
@@ -2735,6 +2774,54 @@ const url = await store.asyncSignatureUrl('ossdemo.png', {
   process: 'image/resize,w_200'
 });
 console.log(url);
+```
+
+### .signatureUrlV4(method, expires[, request, objectName, additionalHeaders])
+
+Generate a signed URL for V4 of an OSS resource and share the URL to allow authorized third-party users to access the resource.
+
+parameters:
+
+- method {string} the HTTP method
+- expires {number} the signed URL will expire after the set number of seconds
+- [request] {Object} optional request parameters
+  - [headers] {Object} headers of http requests, please make sure these request headers are set during the actual request
+  - [queries] {Object} queries of the signed URL, please ensure that if the query only has key, the value is set to null
+- [objectName] {string} object name
+- [additionalHeaders] {string[]} the keys of the request headers that need to be calculated into the V4 signature, please ensure that these additional headers are included in the request headers
+
+Success will return signature url.
+
+example:
+
+```js
+//  GetObject
+const getObjectUrl = await store.signatureUrlV4('GET', 60, undefined, 'your obejct name');
+console.log(getObjectUrl);
+// --------------------------------------------------
+const getObjectUrl = await store.signatureUrlV4('GET', 60, {
+  headers: {
+    'Cache-Control': 'no-cache'
+  },
+  queries: {
+    versionId: 'version ID of your object'
+  }
+}, 'your obejct name', ['Cache-Control']);
+console.log(getObjectUrl);
+
+// -------------------------------------------------
+//  PutObject
+const putObejctUrl = await store.signatureUrlV4('PUT', 60, undefined, 'your obejct name');
+console.log(putObejctUrl);
+// --------------------------------------------------
+const putObejctUrl = await store.signatureUrlV4('PUT', 60, {
+  headers: {
+    'Content-Type': 'text/plain',
+    'Content-MD5': 'xxx',
+    'Content-Length': 1
+  }
+}, 'your obejct name', ['Content-Length']);
+console.log(putObejctUrl);
 ```
 
 ### .putACL(name, acl[, options])
