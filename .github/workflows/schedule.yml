@@ -25,10 +25,11 @@ jobs:
       matrix:
         node-version: [14.x]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: clean all bucket
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          architecture: x64
       - run: npm install
-      - run: node test/node/cleanAllBucket.js
+      - run: node test/node/fixtures/cleanAllBucket.js
