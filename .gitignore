@@ -44,3 +44,6 @@ package-lock.json
 
 es
 .eslintcache
+
+/test/node/fixtures/nodejs-processed-w200-latest.png
+/test/node/fixtures/nodejs-processed-w200.png
