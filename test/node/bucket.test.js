@@ -4,7 +4,7 @@ const utils = require('./utils');
 const oss = require('../..');
 const ms = require('humanize-ms');
 const { default: ResourceManager, ListResourceGroupsRequest } = require('@alicloud/resourcemanager20200331');
-const { Config: OConfig } = require('@alicloud/openapi-client');
+const { Config: OpenConfig } = require('@alicloud/openapi-client');
 const { RuntimeOptions } = require('@alicloud/tea-util');
 
 const { oss: config, metaSyncTime, timeout } = require('../config');
@@ -270,23 +270,27 @@ describe('test/bucket.test.js', () => {
           }
         });
 
-        it.only('should list buckets by group id', async () => {
+        it('should list buckets by group id', async () => {
           const { accessKeyId, accessKeySecret } = config;
-          const oconfig = new OConfig({
+          const openConfig = new OpenConfig({
             accessKeyId,
             accessKeySecret
           });
-          oconfig.endpoint = `resourcemanager.aliyuncs.com`;
-          const client = new ResourceManager(oconfig);
+          openConfig.endpoint = `resourcemanager.aliyuncs.com`;
+          const client = new ResourceManager(openConfig);
           const runtime = new RuntimeOptions({});
           const {
             body: {
               resourceGroups: { resourceGroup }
             }
           } = await client.listResourceGroupsWithOptions(new ListResourceGroupsRequest({}), runtime);
-          const { id } = resourceGroup.find(re => re.name.indexOf('sdk') === 0);
-          const { buckets } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': id } });
-          assert(buckets.length, 2); // 2 buckets
+          assert(resourceGroup.length > 1);
+          const { id: defaultId } = resourceGroup.find(re => re.name.indexOf('default') > -1);
+          const { buckets } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': defaultId } });
+          assert(buckets.some(b => b.name === bucket));
+          const { id } = resourceGroup.find(re => re.name.indexOf('default') === -1);
+          const { buckets: list } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': id } });
+          assert(list === null || !list.some(b => b.name === bucket));
         });
 
         after(async () => {
