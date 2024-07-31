@@ -10,7 +10,7 @@ describe('test/cluster.test.js', () => {
   afterEach(mm.restore);
 
   before(async function () {
-    this.region = config.region;
+    // this.region = config.region;
     this.bucket1 = `ali-oss-test-cluster1-${prefix.replace(/[/.]/g, '')}`;
     this.bucket2 = `ali-oss-test-cluster2-${prefix.replace(/[/.]/g, '')}`;
     const client = oss(config);
@@ -25,13 +25,13 @@ describe('test/cluster.test.js', () => {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket1,
-          endpoint: config.endpoint
+          region: config.region
         },
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket2,
-          endpoint: config.endpoint
+          region: config.region
         }
       ]
     };

@@ -69,6 +69,9 @@
     "node": ">=8"
   },
   "devDependencies": {
+    "@alicloud/openapi-client": "^0.4.10",
+    "@alicloud/resourcemanager20200331": "^2.3.0",
+    "@alicloud/tea-util": "^1.4.9",
     "@babel/core": "^7.11.6",
     "@babel/plugin-transform-regenerator": "^7.10.4",
     "@babel/plugin-transform-runtime": "^7.11.5",
@@ -153,7 +156,7 @@
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
-    "urllib": "2.41.0",
+    "urllib": "^2.44.0",
     "utility": "^1.18.0",
     "xml2js": "^0.6.2"
   },

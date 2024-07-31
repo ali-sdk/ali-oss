@@ -1,2 +1,6 @@
 node_modules/
 dist/
+
+lib/common/utils/createRequest.js
+lib/common/utils/encodeString.js
+lib/common/utils/getStandardRegion.js
