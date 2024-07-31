@@ -566,6 +566,22 @@ describe('test/object.test.js', () => {
           resHeaders = object.res.headers;
         });
 
+        it('error detail from header', async () => {
+          const oneLinkName = 'oneLinkName-temp.js';
+          let result = await store.putSymlink(oneLinkName, name);
+          assert.equal(result.res.status, 200);
+          const twoLinkName = 'twoLinkName-temp.js';
+          result = await store.putSymlink(twoLinkName, oneLinkName);
+          assert.equal(result.res.status, 200);
+
+          try {
+            await store.head(twoLinkName);
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.equal(e.code, 'InvalidTargetType');
+          }
+        });
+
         it('should head not exists object throw NoSuchKeyError', async () => {
           await utils.throws(
             async () => {

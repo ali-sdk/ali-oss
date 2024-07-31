@@ -2031,6 +2031,26 @@ describe('browser', () => {
           // result = await store.getObjectMeta(name);
           // console.log(result);
         });
+
+        it('error detail from header', async () => {
+          const store = oss({ ...ossConfig, ...moreConfigs });
+          const name = '/oss/return-symlink-软链接403.js';
+          let result = await store.put(name, Buffer.from('test-symlink'));
+          assert.equal(result.res.status, 200);
+
+          const oneLinkName = '/oss/oneLinkName-temp.js';
+          result = await store.putSymlink(oneLinkName, name);
+          assert.equal(result.res.status, 200);
+          const twoLinkName = '/oss/twoLinkName-temp.js';
+          result = await store.putSymlink(twoLinkName, oneLinkName);
+          assert.equal(result.res.status, 200);
+          try {
+            await store.head(twoLinkName);
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.equal(e.code, 'InvalidTargetType');
+          }
+        });
       });
 
       describe('deleteMulti()', () => {
