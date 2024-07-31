@@ -1233,7 +1233,7 @@ describe('test/object.test.js', () => {
         //     contentType: 'application/json',
         //     callbackSNI: true,
         //     customValue: {
-        //       key1: 'value111',
+        //       key1: 'value1',
         //       key2: 'value2'
         //     }
         //   };
