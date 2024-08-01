@@ -1489,7 +1489,8 @@ Success will return:
 - res {Object} response info
 
 ```ts
-type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
+type Field =
+  'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus | ObjectAcl | TaggingCount | ObjectType | Crc64';
 interface Inventory {
   id: string;
   isEnabled: true | false;
@@ -1538,7 +1539,18 @@ const inventory = {
   frequency: 'Daily', // `WEEKLY` | `Daily`
   includedObjectVersions: 'All', // `All` | `Current`
   optionalFields: {
-    field: ['Size', 'LastModifiedDate', 'ETag', 'StorageClass', 'IsMultipartUploaded', 'EncryptionStatus']
+    field: [
+      'Size',
+      'LastModifiedDate',
+      'ETag',
+      'StorageClass',
+      'IsMultipartUploaded',
+      'EncryptionStatus',
+      'ObjectAcl',
+      'TaggingCount',
+      'ObjectType',
+      'Crc64'
+    ]
   }
 };
 
