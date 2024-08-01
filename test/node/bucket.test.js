@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
 const ms = require('humanize-ms');
+const { default: ResourceManager, ListResourceGroupsRequest } = require('@alicloud/resourcemanager20200331');
+const { Config: OpenConfig } = require('@alicloud/openapi-client');
+const { RuntimeOptions } = require('@alicloud/tea-util');
+
 const { oss: config, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
@@ -263,6 +268,29 @@ describe('test/bucket.test.js', () => {
           } else {
             assert(false);
           }
+        });
+
+        it('should list buckets by group id', async () => {
+          const { accessKeyId, accessKeySecret } = config;
+          const openConfig = new OpenConfig({
+            accessKeyId,
+            accessKeySecret
+          });
+          openConfig.endpoint = `resourcemanager.aliyuncs.com`;
+          const client = new ResourceManager(openConfig);
+          const runtime = new RuntimeOptions({});
+          const {
+            body: {
+              resourceGroups: { resourceGroup }
+            }
+          } = await client.listResourceGroupsWithOptions(new ListResourceGroupsRequest({}), runtime);
+          assert(resourceGroup.length > 1);
+          const { id: defaultId } = resourceGroup.find(re => re.name.indexOf('default') > -1);
+          const { buckets } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': defaultId } });
+          assert(buckets.some(b => b.name === bucket));
+          const { id } = resourceGroup.find(re => re.name.indexOf('default') === -1);
+          const { buckets: list } = await store.listBuckets({}, { headers: { 'x-oss-resource-group-id': id } });
+          assert(list === null || !list.some(b => b.name === bucket));
         });
 
         after(async () => {
@@ -1314,6 +1342,18 @@ describe('test/bucket.test.js', () => {
         });
       });
       describe('inventory()', () => {
+        const field = [
+          'Size',
+          'LastModifiedDate',
+          'ETag',
+          'StorageClass',
+          'IsMultipartUploaded',
+          'EncryptionStatus',
+          'ObjectAcl',
+          'TaggingCount',
+          'ObjectType',
+          'Crc64'
+        ];
         const inventory = {
           id: 'default',
           isEnabled: false,
@@ -1328,7 +1368,7 @@ describe('test/bucket.test.js', () => {
           frequency: 'Daily',
           includedObjectVersions: 'All',
           optionalFields: {
-            field: ['Size', 'LastModifiedDate']
+            field
           }
         };
 
@@ -1347,6 +1387,7 @@ describe('test/bucket.test.js', () => {
             const inventoryRes = await store.listBucketInventory(bucket);
             assert(Array.isArray(inventoryRes.inventoryList));
             assert(inventoryRes.inventoryList.length === 1);
+            assert(inventoryRes.inventoryList[0].optionalFields.field.toString(), field.toString());
             assert.strictEqual(inventoryRes.status, 200);
           });
           it('should put bucket inventory when no optionalFields or no field', async () => {
@@ -1399,6 +1440,7 @@ describe('test/bucket.test.js', () => {
           it('should get bucket inventory by inventoryId', async () => {
             try {
               const result = await store.getBucketInventory(bucket, inventory.id);
+              assert(result.inventory.optionalFields.field.toString(), field.toString());
               testGetInventory = result.inventory;
               assert(includesConf(testGetInventory, inventory));
             } catch (err) {

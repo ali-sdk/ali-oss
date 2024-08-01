@@ -460,8 +460,8 @@ try {
   const putObjectResult = await store.put('your bucket name', 'your object name', {
     headers: {
       // The headers of this request
-      'header1': 'value1',
-      'header2': 'value2'
+      header1: 'value1',
+      header2: 'value2'
     },
     // The keys of the request headers that need to be calculated into the V4 signature. Please ensure that these additional headers are included in the request headers.
     additionalHeaders: ['additional header1', 'additional header2']
@@ -1489,7 +1489,8 @@ Success will return:
 - res {Object} response info
 
 ```ts
-type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
+type Field =
+  'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus | ObjectAcl | TaggingCount | ObjectType | Crc64';
 interface Inventory {
   id: string;
   isEnabled: true | false;
@@ -1538,7 +1539,18 @@ const inventory = {
   frequency: 'Daily', // `WEEKLY` | `Daily`
   includedObjectVersions: 'All', // `All` | `Current`
   optionalFields: {
-    field: ['Size', 'LastModifiedDate', 'ETag', 'StorageClass', 'IsMultipartUploaded', 'EncryptionStatus']
+    field: [
+      'Size',
+      'LastModifiedDate',
+      'ETag',
+      'StorageClass',
+      'IsMultipartUploaded',
+      'EncryptionStatus',
+      'ObjectAcl',
+      'TaggingCount',
+      'ObjectType',
+      'Crc64'
+    ]
   }
 };
 
@@ -2671,13 +2683,17 @@ const url = store.signatureUrl('ossdemo.txt', {
 console.log(url);
 
 // --------------------------------------------------
-const url = store.signatureUrl('ossdemo.txt', {
-  expires: 3600,
-  response: {
-    'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
-}, false);
+const url = store.signatureUrl(
+  'ossdemo.txt',
+  {
+    expires: 3600,
+    response: {
+      'content-type': 'text/custom',
+      'content-disposition': 'attachment'
+    }
+  },
+  false
+);
 console.log(url);
 
 // put operation
@@ -2750,13 +2766,17 @@ const url = await store.asyncSignatureUrl('ossdemo.txt', {
 });
 console.log(url);
 // --------------------------------------------------
-const url = await store.asyncSignatureUrl('ossdemo.txt', {
-  expires: 3600,
-  response: {
-    'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
-}, false);
+const url = await store.asyncSignatureUrl(
+  'ossdemo.txt',
+  {
+    expires: 3600,
+    response: {
+      'content-type': 'text/custom',
+      'content-disposition': 'attachment'
+    }
+  },
+  false
+);
 console.log(url);
 // put operation
 ```
@@ -2799,14 +2819,20 @@ example:
 const getObjectUrl = await store.signatureUrlV4('GET', 60, undefined, 'your obejct name');
 console.log(getObjectUrl);
 // --------------------------------------------------
-const getObjectUrl = await store.signatureUrlV4('GET', 60, {
-  headers: {
-    'Cache-Control': 'no-cache'
+const getObjectUrl = await store.signatureUrlV4(
+  'GET',
+  60,
+  {
+    headers: {
+      'Cache-Control': 'no-cache'
+    },
+    queries: {
+      versionId: 'version ID of your object'
+    }
   },
-  queries: {
-    versionId: 'version ID of your object'
-  }
-}, 'your obejct name', ['Cache-Control']);
+  'your obejct name',
+  ['Cache-Control']
+);
 console.log(getObjectUrl);
 
 // -------------------------------------------------
@@ -2814,13 +2840,19 @@ console.log(getObjectUrl);
 const putObejctUrl = await store.signatureUrlV4('PUT', 60, undefined, 'your obejct name');
 console.log(putObejctUrl);
 // --------------------------------------------------
-const putObejctUrl = await store.signatureUrlV4('PUT', 60, {
-  headers: {
-    'Content-Type': 'text/plain',
-    'Content-MD5': 'xxx',
-    'Content-Length': 1
-  }
-}, 'your obejct name', ['Content-Length']);
+const putObejctUrl = await store.signatureUrlV4(
+  'PUT',
+  60,
+  {
+    headers: {
+      'Content-Type': 'text/plain',
+      'Content-MD5': 'xxx',
+      'Content-Length': 1
+    }
+  },
+  'your obejct name',
+  ['Content-Length']
+);
 console.log(putObejctUrl);
 ```
 

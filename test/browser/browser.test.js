@@ -1099,23 +1099,6 @@ describe('browser', () => {
           );
         });
 
-        // it('should signature url with image processed and get object ok', function* () {
-        //   var name = prefix + 'ali-sdk/oss/nodejs-test-signature-1024x768.png';
-        //   var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-        //   var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-        //   var object = yield this.store.put(name, originImagePath, {
-        //     mime: 'image/png'
-        //   });
-        //
-        //   var signUrl = this.store.signatureUrl(name, {expires: 3600, process: 'image/resize,w_200'});
-        //   var processedKeyword = "x-oss-process=image%2Fresize%2Cw_200";
-        //   assert.equal(signUrl.match(processedKeyword), processedKeyword);
-        //   var urlRes = yield urllib.request(signUrl);
-        //   assert.equal(urlRes.status, 200);
-        //   // assert(urlRes.data.toString() == fs.readFileSync(processedImagePath, 'utf8'),
-        //   //   'response content should be same as test/nodejs-processed-w200.png');
-        // });
-        //
         it('should signature url for PUT', async () => {
           const putString = 'Hello World';
           const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
@@ -1561,6 +1544,21 @@ describe('browser', () => {
             });
             assert.equal(true, result.res && Object.keys(result.res).length !== 0);
             assert.equal(result.res.status, 200);
+          });
+
+          it('should set storage-class header', async () => {
+            const fileContent = Array(1024 * 1024)
+              .fill('a')
+              .join('');
+            const file = new File([fileContent], 'multipart-fallback');
+            const name = `${prefix}storage-class`;
+            let result = await store.multipartUpload(name, file, {
+              headers: { 'x-oss-storage-class': 'IA' }
+            });
+            assert.equal(true, result.res && Object.keys(result.res).length !== 0);
+            assert.equal(result.res.status, 200);
+            result = await store.head(name);
+            assert.equal(result.res.headers['x-oss-storage-class'], 'IA');
           });
 
           it('should upload file using multipart upload with exception', async () => {
@@ -2028,6 +2026,26 @@ describe('browser', () => {
           // headObject return targetObject storage class
           // result = await store.getObjectMeta(name);
           // console.log(result);
+        });
+
+        it('error detail from header', async () => {
+          const store = oss({ ...ossConfig, ...moreConfigs });
+          const name = '/oss/return-symlink-软链接403.js';
+          let result = await store.put(name, Buffer.from('test-symlink'));
+          assert.equal(result.res.status, 200);
+
+          const oneLinkName = '/oss/oneLinkName-temp.js';
+          result = await store.putSymlink(oneLinkName, name);
+          assert.equal(result.res.status, 200);
+          const twoLinkName = '/oss/twoLinkName-temp.js';
+          result = await store.putSymlink(twoLinkName, oneLinkName);
+          assert.equal(result.res.status, 200);
+          try {
+            await store.head(twoLinkName);
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.equal(e.code, 'InvalidTargetType');
+          }
         });
       });
 
@@ -2530,7 +2548,7 @@ describe('browser', () => {
           const info = await store.restore(name);
           assert.equal(info.res.status, 202);
 
-          // in 1 minute verify RestoreAlreadyInProgressError
+          // in 1 minute verify RestoreAlreadyInProgressError.
           try {
             await store.restore(name);
           } catch (err) {
