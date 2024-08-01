@@ -139,7 +139,7 @@
     "bowser": "^1.6.0",
     "copy-to": "^2.0.1",
     "dateformat": "^2.0.0",
-    "debug": "^4.3.4",
+    "debug": "^4.3.5",
     "destroy": "^1.0.4",
     "end-or-error": "^1.0.1",
     "get-ready": "^1.0.0",
