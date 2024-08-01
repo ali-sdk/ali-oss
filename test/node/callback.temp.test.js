@@ -2,12 +2,18 @@
 const fs = require('fs');
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
+const urllib = require('urllib');
+const oss = require('../../lib/client');
+const { sts } = require('../config');
 const config = require('../config').oss;
-const { callbackServer } = require('../const');
 const mm = require('mm');
 
-describe.skip('test/callback.test.js', () => {
+const callbackServer = 'http://39.101.77.157:23450';
+/*
+ * multipartUpload
+ * put
+ */
+describe('test/callback.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
@@ -15,29 +21,23 @@ describe.skip('test/callback.test.js', () => {
 
   before(async () => {
     store = oss(config);
-    bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    bucket = bucket.substring(0, bucket.length - 1);
+    bucket = sts.bucket;
     bucketRegion = config.region;
-
-    await store.putBucket(bucket, bucketRegion);
     store.useBucket(bucket, bucketRegion);
   });
 
   after(async () => {
-    await utils.cleanBucket(store, bucket, bucketRegion);
+    // await utils.cleanBucket(store, bucket, bucketRegion);
   });
 
   describe('upload callback', () => {
     afterEach(mm.restore);
-    // callback server on EC2, maybe fail on China, bug pass on travis ci
-    // callback server down, skip it
-    it('should multipart upload parse response with callback', async () => {
-      // create a file with 1M random data
+    it.only('should multipart upload parse response with callback', async () => {
       const fileName = await utils.createTempFile('upload-with-callback', 1024 * 1024);
 
       const name = `${prefix}multipart/upload-with-callback`;
       const result = await store.multipartUpload(name, fileName, {
-        partSize: 100 * 1024,
+        partSize: 300 * 1024,
         callback: {
           url: callbackServer,
           host: 'oss-cn-hangzhou.aliyuncs.com',
@@ -51,6 +51,9 @@ describe.skip('test/callback.test.js', () => {
           }
         }
       });
+      const res = await urllib.request(`${callbackServer}${name}`);
+      console.log('result', result);
+      console.log('cc', res);
       assert.equal(result.res.status, 200);
       assert.equal(result.data.Status, 'OK');
     });
@@ -92,7 +95,6 @@ describe.skip('test/callback.test.js', () => {
     });
 
     it('should multipart upload with no more 100k file parse response with callback', async () => {
-      // create a file with 1M random data
       const fileName = await utils.createTempFile('upload-with-callback', 50 * 1024);
 
       const name = `${prefix}multipart/upload-with-callback`;
