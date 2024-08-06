@@ -8,17 +8,19 @@ const { sts } = require('../config');
 const config = require('../config').oss;
 const mm = require('mm');
 
-const callbackServer = 'https://39.101.77.157:23450';
 /*
  * temp test callback
  * multipartUpload
  * put
  */
-describe.skip('test/callback.test.js', () => {
+describe.only('test/callback.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
   let bucketRegion;
+  const {
+    env: { ALI_SDK_CALLBACK_IP: callbackServer }
+  } = process;
 
   before(async () => {
     store = oss(config);
