@@ -1724,6 +1724,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, `key=${key}&etag=${etag}&my_var=${x:my_var}`.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -1849,6 +1850,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -2653,6 +2655,7 @@ parameters:
     - [host] {String} set the host for callback
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 - [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
@@ -2739,6 +2742,7 @@ parameters:
     - [host] {String} set the host for callback
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 - [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
@@ -3265,6 +3269,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -3350,6 +3355,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
