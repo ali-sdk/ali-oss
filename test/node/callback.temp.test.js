@@ -1,19 +1,19 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // TODO callback server is disable
 const fs = require('fs');
 const assert = require('assert');
 const utils = require('./utils');
-const urllib = require('urllib');
 const oss = require('../../lib/client');
 const { sts } = require('../config');
 const config = require('../config').oss;
 const mm = require('mm');
 
-const callbackServer = 'http://39.101.77.157:23450';
+const callbackServer = 'https://39.101.77.157:23450';
 /*
  * multipartUpload
  * put
  */
-describe('test/callback.test.js', () => {
+describe.skip('test/callback.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
@@ -32,30 +32,58 @@ describe('test/callback.test.js', () => {
 
   describe('upload callback', () => {
     afterEach(mm.restore);
-    it.only('should multipart upload parse response with callback', async () => {
+    it('should multipart upload parse response with callback false', async () => {
       const fileName = await utils.createTempFile('upload-with-callback', 1024 * 1024);
 
       const name = `${prefix}multipart/upload-with-callback`;
+      const host = 'oss-cn-hangzhou.aliyuncs.com';
+      const var1 = 'value1';
       const result = await store.multipartUpload(name, fileName, {
         partSize: 300 * 1024,
         callback: {
           url: callbackServer,
-          host: 'oss-cn-hangzhou.aliyuncs.com',
+          host,
+          /* eslint no-template-curly-in-string: [0] */
+          body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
+          contentType: 'application/x-www-form-urlencoded',
+          callbackSNI: false,
+          customValue: {
+            var1,
+            var2: 'value2'
+          }
+        }
+      });
+      assert.equal(result.res.status, 200);
+      const { sni } = result.data;
+      assert.equal(sni, false);
+    });
+
+    it('should multipart upload parse response with callback', async () => {
+      const fileName = await utils.createTempFile('upload-with-callback', 1024 * 1024);
+
+      const name = `${prefix}multipart/upload-with-callback`;
+      const host = 'oss-cn-hangzhou.aliyuncs.com';
+      const var1 = 'value1';
+      const result = await store.multipartUpload(name, fileName, {
+        partSize: 300 * 1024,
+        callback: {
+          url: callbackServer,
+          host,
           /* eslint no-template-curly-in-string: [0] */
           body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           contentType: 'application/x-www-form-urlencoded',
           callbackSNI: true,
           customValue: {
-            var1: 'value1',
+            var1,
             var2: 'value2'
           }
         }
       });
-      const res = await urllib.request(`${callbackServer}${name}`);
-      console.log('result', result);
-      console.log('cc', res);
       assert.equal(result.res.status, 200);
-      assert.equal(result.data.Status, 'OK');
+      const { sni, var1: va, object: obj } = result.data;
+      assert.equal(sni, host);
+      assert.equal(var1, va);
+      assert.equal(obj, name);
     });
 
     it('should multipart upload copy with callback', async () => {
@@ -91,7 +119,7 @@ describe('test/callback.test.js', () => {
       );
 
       assert.equal(result.res.status, 200);
-      assert.equal(result.data.Status, 'OK');
+      assert.equal(result.data.object, copyName);
     });
 
     it('should multipart upload with no more 100k file parse response with callback', async () => {
@@ -113,7 +141,7 @@ describe('test/callback.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(result.data.Status, 'OK');
+      assert.equal(result.data.object, name);
     });
 
     it('should putStream parse response with callback', async () => {
@@ -133,7 +161,7 @@ describe('test/callback.test.js', () => {
       });
 
       assert.equal(result.res.status, 200);
-      assert.equal(result.data.Status, 'OK');
+      assert.equal(result.data.object, name);
     });
 
     it('should put parse response with callback', async () => {
@@ -153,7 +181,7 @@ describe('test/callback.test.js', () => {
       });
 
       assert.equal(result.res.status, 200);
-      assert.equal(result.data.Status, 'OK');
+      assert.equal(result.data.object, name);
     });
 
     it('should multipart upload with no more 100k file use header x-oss-callback', async () => {
@@ -164,7 +192,6 @@ describe('test/callback.test.js', () => {
         body: 'bucket=${bucket}&object=${object}&var1=${x:var1}'
       };
       const name = `${prefix}multipart/upload-with-callback`;
-      /* eslint no-mixed-spaces-and-tabs: [0] */
       const result = await store.multipartUpload(name, fileName, {
         partSize: 100 * 1024,
         headers: {
@@ -172,7 +199,7 @@ describe('test/callback.test.js', () => {
         }
       });
       assert.equal(result.res.status, 200);
-      assert.equal(result.data.Status, 'OK');
+      assert.equal(result.data.object, name);
     });
   });
 });
