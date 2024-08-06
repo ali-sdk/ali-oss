@@ -13,14 +13,12 @@
 //  * multipartUpload
 //  * put
 //  */
-// describe.skip('test/callback.test.js', () => {
+// describe.only('test/callback.test.js', () => {
 //   const { prefix } = utils;
 //   let store;
 //   let bucket;
 //   let bucketRegion;
-//   const {
-//     env: { ALI_SDK_CALLBACK_IP: callbackServer }
-//   } = process;
+//   const { callbackServer } = sts;
 
 //   before(async () => {
 //     store = oss(config);

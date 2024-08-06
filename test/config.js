@@ -18,7 +18,8 @@ config.sts = {
   roleArn: env.ALI_SDK_STS_ROLE,
   bucket: env.ALI_SDK_STS_BUCKET,
   // endpoint: env.ONCI ? 'https://sts.aliyuncs.com/' : undefined,
-  maxSocket: 50
+  maxSocket: 50,
+  callbackServer: env.ALI_SDK_CALLBACK_IP
 };
 
 config.metaSyncTime = env.ONCI ? '1s' : '1000ms';

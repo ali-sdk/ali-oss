@@ -1790,13 +1790,15 @@ describe('browser', () => {
 
           // TODO fix callback server
           // it('should upload no more 100k file with callback server', async () => {
-          //   const fileContent = Array(50 * 1024).fill('a').join('');
+          //   const fileContent = Array(50 * 1024)
+          //     .fill('a')
+          //     .join('');
           //   const file = new File([fileContent], 'multipart-callback-server');
           //   const name = `${prefix}multipart/callback-server`;
           //   const result = await store.multipartUpload(name, file, {
           //     partSize: 100 * 1024,
           //     callback: {
-          //       url: callbackServer,
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
@@ -1808,19 +1810,22 @@ describe('browser', () => {
           //       }
           //     }
           //   });
+
           //   assert.equal(result.res.status, 200);
-          //   assert.equal(result.data.Status, 'OK');
+          //   assert.equal(result.data.object, name);
           // });
 
           // TODO fix callback server
           // it('should multipart upload file with callback server', async () => {
-          //   const fileContent = Array(1024 * 1024).fill('a').join('');
+          //   const fileContent = Array(1024 * 1024)
+          //     .fill('a')
+          //     .join('');
           //   const file = new File([fileContent], 'multipart-callback-server');
           //   const name = `${prefix}multipart/callback-server`;
           //   const result = await store.multipartUpload(name, file, {
           //     partSize: 100 * 1024,
           //     callback: {
-          //       url: callbackServer,
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
@@ -1832,7 +1837,7 @@ describe('browser', () => {
           //     }
           //   });
           //   assert.equal(result.res.status, 200);
-          //   assert.equal(result.data.Status, 'OK');
+          //   assert.equal(result.data.object, name);
           // });
 
           // TODO fix callback server
@@ -1854,7 +1859,7 @@ describe('browser', () => {
           //     },
           //     partSize: 100 * 1024,
           //     callback: {
-          //       url: 'http://oss-demo.aliyuncs.com:23450',
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
@@ -1881,7 +1886,7 @@ describe('browser', () => {
           //     partSize: 100 * 1024,
           //     checkpoint: tempCheckpoint,
           //     callback: {
-          //       url: 'http://oss-demo.aliyuncs.com:23450',
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
