@@ -13,7 +13,7 @@ const mm = require('mm');
  * multipartUpload
  * put
  */
-describe.only('test/callback.test.js', () => {
+describe.skip('test/callback.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
