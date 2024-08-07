@@ -25,7 +25,8 @@ describe('test/bucket.test.js', () => {
   ].forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
-        store = oss({ ...config, ...moreConfigs });
+        // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
+        store = oss({ ...config, ...moreConfigs, region: 'oss-ap-southeast-1' });
         bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket, { timeout });
