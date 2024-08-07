@@ -13,7 +13,7 @@ describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
-  const bucketRegion = config.region;
+  const bucketRegion = 'oss-ap-southeast-1'; // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
   const { accountId } = config;
   [
     {
@@ -25,8 +25,7 @@ describe('test/bucket.test.js', () => {
   ].forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
-        // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
-        store = oss({ ...config, ...moreConfigs, region: 'oss-ap-southeast-1' });
+        store = oss({ ...config, ...moreConfigs, region: bucketRegion });
         bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket, { timeout });
@@ -1259,7 +1258,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should throw error when rule have no expiration or abortMultipartUpload', async () => {
-          const errorMessage = 'expiration or abortMultipartUpload';
+          const errorMessage = 'expiration or noncurrentVersionExpiration or abortMultipartUpload';
           try {
             await store.putBucketLifecycle(bucket, [
               {
