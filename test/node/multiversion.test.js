@@ -22,7 +22,8 @@ describe('test/multiversion.test.js', () => {
   ].forEach((moreConfigs, idx) => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
-        store = oss({ ...config, ...moreConfigs });
+        // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
+        store = oss({ ...config, ...moreConfigs, region: 'oss-ap-southeast-1' });
         bucket = `ali-oss-test-bucket-version-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket);
@@ -117,17 +118,23 @@ describe('test/multiversion.test.js', () => {
       });
 
       describe('putBucketLifecycle() getBucketLifecycle()', async () => {
-        it('should putBucketLifecycle with NoncurrentVersionExpiration', async () => {
+        it('should putBucketLifecycle with noncurrentVersionExpiration', async () => {
           const putresult1 = await store.putBucketLifecycle(
             bucket,
             [
               {
-                id: 'expiration1',
                 prefix: 'logs/',
                 status: 'Enabled',
                 expiration: {
                   days: 1
                 },
+                noncurrentVersionExpiration: {
+                  noncurrentDays: 1
+                }
+              },
+              {
+                prefix: 'logss/',
+                status: 'Enabled',
                 noncurrentVersionExpiration: {
                   noncurrentDays: 1
                 }
@@ -142,6 +149,7 @@ describe('test/multiversion.test.js', () => {
           const { rules } = await store.getBucketLifecycle(bucket);
           assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
         });
+
         it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
           const putresult1 = await store.putBucketLifecycle(bucket, [
             {
@@ -151,7 +159,7 @@ describe('test/multiversion.test.js', () => {
               expiration: {
                 expiredObjectDeleteMarker: 'true'
               },
-              NoncurrentVersionExpiration: {
+              noncurrentVersionExpiration: {
                 noncurrentDays: 1
               }
             }
@@ -163,26 +171,55 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
-          const putresult1 = await store.putBucketLifecycle(bucket, [
-            {
-              id: 'expiration1',
-              prefix: 'logs/',
-              status: 'Enabled',
-              noncurrentVersionTransition: {
-                noncurrentDays: '10',
-                storageClass: 'IA'
+          const putresult = await store.putBucketLifecycle(
+            bucket,
+            [
+              {
+                prefix: 'log/',
+                status: 'Enabled',
+                noncurrentVersionTransition: {
+                  noncurrentDays: '10',
+                  storageClass: 'IA'
+                }
+              },
+              {
+                prefix: 'log/',
+                status: 'Enabled',
+                noncurrentVersionTransition: {
+                  noncurrentDays: '10',
+                  storageClass: 'Archive'
+                }
+              },
+              {
+                prefix: 'log/',
+                status: 'Enabled',
+                noncurrentVersionTransition: {
+                  noncurrentDays: '10',
+                  storageClass: 'ColdArchive'
+                }
+              },
+              {
+                prefix: 'log/',
+                status: 'Enabled',
+                noncurrentVersionTransition: {
+                  noncurrentDays: '10',
+                  storageClass: 'DeepColdArchive'
+                }
               }
-            }
-          ]);
-          assert.equal(putresult1.res.status, 200);
+            ],
+            { headers: { 'x-oss-allow-same-action-overlap': 'true' } }
+          );
+          assert.equal(putresult.res.status, 200);
           await utils.sleep(1000);
+
           const { rules } = await store.getBucketLifecycle(bucket);
           const [
             {
               noncurrentVersionTransition: { noncurrentDays, storageClass }
             }
           ] = rules;
-          assert(noncurrentDays === '10' && storageClass === 'IA');
+
+          assert(noncurrentDays === '10' && storageClass === 'IA' && rules.length === 4);
         });
       });
 

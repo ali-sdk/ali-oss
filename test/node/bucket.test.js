@@ -13,7 +13,7 @@ describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
-  const bucketRegion = config.region;
+  const bucketRegion = 'oss-ap-southeast-1'; // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
   const { accountId } = config;
   [
     {
@@ -25,7 +25,7 @@ describe('test/bucket.test.js', () => {
   ].forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
-        store = oss({ ...config, ...moreConfigs });
+        store = oss({ ...config, ...moreConfigs, region: bucketRegion });
         bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket, { timeout });
@@ -764,7 +764,25 @@ describe('test/bucket.test.js', () => {
       });
 
       describe('putBucketLifecycle()', () => {
-        // todo delete
+        it('should put the lifecycle throw error', async () => {
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                id: 'expiration1',
+                prefix: 'logs/',
+                status: 'Enabled',
+                day: 1
+              }
+            ]);
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.equal(
+              e.message,
+              'Rule must includes expiration or noncurrentVersionExpiration or abortMultipartUpload or transition or noncurrentVersionTransition'
+            );
+          }
+        });
+
         it('should put the lifecycle with old api', async () => {
           const putresult1 = await store.putBucketLifecycle(bucket, [
             {
@@ -774,6 +792,7 @@ describe('test/bucket.test.js', () => {
               days: 1
             }
           ]);
+
           assert.equal(putresult1.res.status, 200);
 
           const putresult2 = await store.putBucketLifecycle(bucket, [
@@ -864,7 +883,7 @@ describe('test/bucket.test.js', () => {
               status: 'Enabled',
               transition: {
                 createdBeforeDate: '2020-02-18T00:00:00.000Z',
-                storageClass: 'Archive'
+                storageClass: 'IA'
               },
               expiration: {
                 createdBeforeDate: '2020-02-17T00:00:00.000Z'
@@ -893,6 +912,39 @@ describe('test/bucket.test.js', () => {
             }
           ]);
           assert.equal(putresult2.res.status, 200);
+          const putresult3 = await store.putBucketLifecycle(bucket, [
+            {
+              id: 'transition3',
+              prefix: 'logs/',
+              status: 'Enabled',
+              transition: {
+                days: 20,
+                storageClass: 'ColdArchive'
+              },
+              tag: {
+                key: 'test3',
+                value: '123'
+              }
+            }
+          ]);
+          assert.equal(putresult3.res.status, 200);
+          // Regions that need to support DeepColdArchive
+          const putresult4 = await store.putBucketLifecycle(bucket, [
+            {
+              id: 'transition4',
+              prefix: 'logs/',
+              status: 'Enabled',
+              transition: {
+                days: 20,
+                storageClass: 'DeepColdArchive'
+              },
+              tag: {
+                key: 'test4',
+                value: '123'
+              }
+            }
+          ]);
+          assert.equal(putresult4.res.status, 200);
         });
 
         it('should put the lifecycle with expiration and Tag', async () => {
@@ -1023,7 +1075,7 @@ describe('test/bucket.test.js', () => {
             ]);
             assert(false);
           } catch (error) {
-            assert(error.message.includes('IA or Archive'));
+            assert(error.message.includes('IA or Archive or ColdArchive or DeepColdArchive'));
           }
         });
 
@@ -1206,7 +1258,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should throw error when rule have no expiration or abortMultipartUpload', async () => {
-          const errorMessage = 'expiration or abortMultipartUpload';
+          const errorMessage = 'expiration or noncurrentVersionExpiration or abortMultipartUpload';
           try {
             await store.putBucketLifecycle(bucket, [
               {

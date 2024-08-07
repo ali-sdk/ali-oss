@@ -994,12 +994,12 @@ parameters:
     - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
       `createdBeforeDate` and `days` must have one.
   - [transition] {Object} Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle.
-    - storageClass {String} Specifies the storage class that objects that conform to the rule are converted into. allow values: `IA` or `Archive`
+    - storageClass {String} Specifies the storage class that objects that conform to the rule are converted into. allow values: `IA` or `Archive` or `ColdArchive` or `DeepColdArchive`
     - [days] {Number|String} expire after the `days`
     - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
       `createdBeforeDate` and `days` must have one.
   - [noncurrentVersionTransition] {Object} Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle.
-    - storageClass {String} Specifies the storage class that history objects that conform to the rule are converted into. allow values: `IA` or `Archive`
+    - storageClass {String} Specifies the storage class that history objects that conform to the rule are converted into. allow values: `IA` or `Archive` or `ColdArchive` or `DeepColdArchive`
     - noncurrentDays {String} expire after the `noncurrentDays`
       `expiration`、 `abortMultipartUpload`、 `transition`、 `noncurrentVersionTransition` must have one.
   - [noncurrentVersionExpiration] {Object} specifies the expiration attribute of the lifecycle rules for the history object.
