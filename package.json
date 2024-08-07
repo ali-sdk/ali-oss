@@ -24,7 +24,7 @@
     "test": "npm run tsc && mocha -t 120000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
     "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js",
     "jshint": "jshint .",
-    "build-test": "MINIFY=1 node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js && node -r dotenv/config task/browser-test-build.js > test/browser/build/tests.js",
+    "build-test": "mkdir -p ./test/browser/build && MINIFY=1 node browser-build.js > test/browser/build/aliyun-oss-sdk.min.js && node -r dotenv/config task/browser-test-build.js > test/browser/build/tests.js",
     "browser-test": "npm run build-test && karma start",
     "build-dist": "npm run tsc && node browser-build.js > dist/aliyun-oss-sdk.js && MINIFY=1 node browser-build.js > dist/aliyun-oss-sdk.min.js",
     "publish-to-npm": "node publish-npm-check.js && npm publish",
@@ -69,6 +69,9 @@
     "node": ">=8"
   },
   "devDependencies": {
+    "@alicloud/openapi-client": "^0.4.10",
+    "@alicloud/resourcemanager20200331": "^2.3.0",
+    "@alicloud/tea-util": "^1.4.9",
     "@babel/core": "^7.11.6",
     "@babel/plugin-transform-regenerator": "^7.10.4",
     "@babel/plugin-transform-runtime": "^7.11.5",
@@ -153,7 +156,7 @@
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
-    "urllib": "2.42.0",
+    "urllib": "^2.44.0",
     "utility": "^1.18.0",
     "xml2js": "^0.6.2"
   },
