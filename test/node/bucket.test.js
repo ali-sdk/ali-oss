@@ -764,7 +764,25 @@ describe('test/bucket.test.js', () => {
       });
 
       describe('putBucketLifecycle()', () => {
-        // todo delete
+        it('should put the lifecycle throw error', async () => {
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                id: 'expiration1',
+                prefix: 'logs/',
+                status: 'Enabled',
+                day: 1
+              }
+            ]);
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.equal(
+              e.message,
+              'Rule must includes expiration or noncurrentVersionExpiration or abortMultipartUpload or transition or noncurrentVersionTransition'
+            );
+          }
+        });
+
         it('should put the lifecycle with old api', async () => {
           const putresult1 = await store.putBucketLifecycle(bucket, [
             {
@@ -774,6 +792,7 @@ describe('test/bucket.test.js', () => {
               days: 1
             }
           ]);
+
           assert.equal(putresult1.res.status, 200);
 
           const putresult2 = await store.putBucketLifecycle(bucket, [
