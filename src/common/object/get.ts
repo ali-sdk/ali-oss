@@ -2,6 +2,7 @@ import fs from 'fs';
 import is from 'is-type-of';
 import { deleteFileSafe } from '../utils/deleteFileSafe';
 import { isObject } from '../utils/isObject';
+import { checkCrc64, checkCrc64File } from '../utils/crc64';
 import { GetObjectOptions } from '../../types/params';
 
 /**
@@ -46,6 +47,29 @@ export async function get(this: any, name: string, file, options: GetObjectOptio
 
     result = await this.request(params);
 
+    // buffer
+    if (options.crc64 && result.data) {
+      if (isBrowserEnv) {
+        if (
+          typeof options.crc64 === 'function' &&
+          options.crc64(result.data) !== result.headers['x-oss-hash-crc64ecma']
+        ) {
+          throw new Error('crc64 check fail');
+        }
+      } else if (!checkCrc64(result.data, result.headers['x-oss-hash-crc64ecma'])) {
+        throw new Error('crc64 check fail');
+      }
+    }
+    // stream
+    if (options.crc64 && writeStream) {
+      checkCrc64File(writeStream.path, (err, d) => {
+        if (err) throw new Error(err.toString());
+        if (d !== result.headers['x-oss-hash-crc64ecma']) {
+          throw new Error('crc64 check fail');
+        }
+      });
+    }
+
     if (needDestroy) {
       writeStream.destroy();
     }
@@ -63,4 +87,3 @@ export async function get(this: any, name: string, file, options: GetObjectOptio
     content: result.data
   };
 }
-

@@ -32,6 +32,7 @@ import { parseXML } from './parseXML';
 import { policy2Str } from './policy2Str';
 import signUtils from './signUtils';
 import { WebFileReadStream } from './webFileReadStream';
+import { checkCrc64, checkCrc64File } from './crc64';
 
 export default {
   _getObjectMeta,
@@ -69,5 +70,7 @@ export default {
   parseXML,
   policy2Str,
   signUtils,
-  WebFileReadStream
+  WebFileReadStream,
+  checkCrc64,
+  checkCrc64File
 };

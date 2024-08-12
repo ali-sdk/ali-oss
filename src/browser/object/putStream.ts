@@ -50,4 +50,3 @@ export async function putStream(this: any, name: string, stream: any, options: P
 
   return ret;
 }
-

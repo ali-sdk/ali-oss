@@ -185,6 +185,10 @@ All operation use es7 async/await to implement. All api is async function.
   - [imgClient.listStyle([options])](#imgclientliststyleoptions)
   - [imgClient.deleteStyle(name[, options])](#imgclientdeletestylename-options)
   - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
+- [Utils](#utils)
+    - crc
+        - [.checkCrc64(content, result)](#checkcrc64)
+        - [.checkCrc64File(filePath,callback)](#checkcrc64file)
 - [Known Errors](#known-errors)
 
 ## Node Usage
@@ -1660,6 +1664,7 @@ parameters:
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
   - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
+  - [crc64] {Boolean} Whether to enable crc64. If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
 
 Success will return the object information.
 
@@ -1783,6 +1788,7 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
+  - [crc64] {Boolean} Whether to enable crc64. If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
 
 Success will return the object information.
 
@@ -2018,6 +2024,7 @@ parameters:
         otherwise throw PreconditionFailedError
     - 'If-None-Match' object etag not equal this will return 200 and object meta,
         otherwise return 304 not modified
+  - [crc64] {Boolean} Whether to enable crc64. If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
 
 Success will return the info contains response.
 
@@ -3127,6 +3134,7 @@ parameters:
     - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
   - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
+  - [crc64] {Boolean} Whether to enable crc64. If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
 
 Success will return:
 
@@ -4363,6 +4371,42 @@ example:
 const url = imgClient.signatureUrl('
 ');
 // http://thumbnail.myimageservice.com/demo.jpg@200w_200h?OSSAccessKeyId=uZxyLARzYZtGwHKY&Expires=1427803849&Signature=JSPRe06%2FjQpQSj5zlx2ld1V%2B35I%3D
+```
+
+## Utils
+
+### .checkCrc64
+Whether the calculation is consistent with the results
+If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
+
+parameters:
+
+- content {String|Buffer} what needs to be calculated
+- result  {String} results to be compared
+
+Success will return boolean
+
+```js
+store.checkCrc64(123456789, '11051210869376104954')
+store.checkCrc64(Buffer.from('123456789','11051210869376104954'))
+```
+
+### .checkCrc64File
+Compare Documents
+If you are using a browser environment please check the [oss-crc64-plug](https://github.com/taotao7/oss-crc64-plugin) plugin
+
+parameters:
+
+- filePath {String} file path
+- callback {Function} callback functions
+
+```js
+store.checkCrc64File(path.join(__dirname,'test.txt'),(err,res)=>{
+  if(!err){
+    // the returned crc64 value
+    console.log(res)
+  }
+})
 ```
 
 ## Cluster Mode
