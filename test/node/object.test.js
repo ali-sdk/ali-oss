@@ -2618,4 +2618,72 @@ describe('test/object.test.js', () => {
       assert.equal(info.meta.b, latin1_content);
     });
   });
+
+  describe('selectObject()', () => {
+    before(async () => {
+      await store.put('example.csv', path.join(__dirname, '../exampleFile/example.csv'));
+      await store.put('example.json', path.join(__dirname, '../exampleFile/example.json'));
+    });
+
+    it('csv should return 206', async () => {
+      const result = await store.selectObject('example.csv', 'select * from ossobject limit 2', 'csv');
+      assert.equal(
+        result.data.payload.data.toString(),
+        'Year,Industry_aggregation_NZSIOC,Industry_code_NZSIOC,Industry_name_NZSIOC,Units,Variable_code,Variable_name,Variable_category,Value\r\n'
+      );
+      assert.equal(result.res.status, 206);
+    });
+
+    it('json should return 206', async () => {
+      const result = await store.selectObject('example.json', 'select address from ossobject.contacts[*]', 'json');
+      const jsonData = JSON.parse(result.data.payload.data);
+      assert.equal(typeof jsonData, 'object');
+      assert.equal(jsonData.address.city, 'New York');
+      assert.equal(result.res.status, 206);
+    });
+
+    it('json add options', async () => {
+      const result = await store.selectObject('example.json', 'select address from ossobject.contacts[*]', 'json', {
+        InputSerialization: {
+          CompressionType: 'NONE',
+          JSON: {
+            Type: 'LINES',
+            ParseJsonNumberAsString: true
+          }
+        },
+        OutputSerialization: {
+          JSON: {
+            OutputRawData: false,
+            EnablePayloadCrc: true
+          }
+        }
+      });
+      assert.equal(
+        result.data.payload.data,
+        '{"address":{"streetAddress":"21 2nd Street","city":"New York","state":"NY","postalCode":"10021-3100"}}\n'
+      );
+      assert.equal(result.res.status, 206);
+    });
+
+    it('csv add options', async () => {
+      const result = await store.selectObject('example.csv', 'select * from ossobject limit 2', 'csv', {
+        InputSerialization: {
+          CompressionType: 'NONE',
+          CSV: {
+            FileHeaderInfo: 'NONE',
+            AllowQuotedRecordDelimiter: false
+          }
+        },
+        OutputSerialization: {
+          KeepAllColumns: true,
+          OutputRawData: false
+        }
+      });
+      assert.equal(
+        result.data.payload.data.toString(),
+        'Year,Industry_aggregation_NZSIOC,Industry_code_NZSIOC,Industry_name_NZSIOC,Units,Variable_code,Variable_name,Variable_category,Value\r\n'
+      );
+      assert.equal(result.res.status, 206);
+    });
+  });
 });
