@@ -126,6 +126,8 @@ All operation use es7 async/await to implement. All api is async function.
     - [.putBucketInventory(name, inventory[, options])](#putBucketInventoryname-inventory-options)
     - [.deleteBucketInventory(name, inventoryId[, options])](#deleteBucketInventoryname-inventoryid-options)
     - [.listBucketInventory(name, [, options])](#listBucketInventoryname-options)
+- utils
+    - [.queueTask(argList, customFunc[,options])](#queuetaskarglist-custom-options)
 
 - [Object Operations](#object-operations)
   - [.list(query[, options])](#listquery-options)
@@ -1625,6 +1627,64 @@ async function listBucketInventory() {
 
 listBucketInventory();
 ```
+
+## utils
+Some public methods exposed by the sdk
+
+### .queueTask(argList, custom[, options])
+
+Execute tasks in a queue, default number of parallels 5 maximum cannot exceed 10.
+Retry is not supported, please complete the retry operation yourself in the custom function
+
+parameters:
+
+- argList {any[]} Argument array for custom function
+- customFunc {Function} Only async functions are supported
+- [options] {Object} optinal parameters
+  - limit {Number} default 5
+
+
+Success will return the object information.
+
+object:
+
+- sucessList complete tasks 
+- errorList error tasks
+
+```javascript
+client
+  .queueTask(
+    [
+      [
+        '1',
+        Buffer.from(
+          Array(1024 * 1024 * 10)
+            .fill('a')
+            .join('')
+        )
+      ],
+      [
+        '2',
+        Buffer.from(
+          Array(1024 * 1024 * 10)
+            .fill('a')
+            .join('')
+        )
+      ],
+      [
+        '3',
+        Buffer.from(
+          Array(1024 * 1024 * 10)
+            .fill('a')
+            .join('')
+        )
+      ],
+    ],
+    client.multipartUpload
+  ).then(r=>console.log(r))
+
+```
+
 
 ## Object Operations
 

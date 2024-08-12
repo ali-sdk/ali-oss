@@ -59,8 +59,7 @@ describe('browser', () => {
     //   accessKeyId: creds.AccessKeyId,
     //   accessKeySecret: creds.AccessKeySecret,
     //   stsToken: creds.SecurityToken,
-    //   bucket: stsConfig.bucket
-    // });
+    //   bucket: stsConfig.bucket // });
   });
 
   after(async () => {
@@ -1043,7 +1042,6 @@ describe('browser', () => {
     it('should signature url for PUT', async () => {
       const putString = 'Hello World';
       const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
-      console.log(contentMd5);
       const url = await store.signatureUrl(name, {
         method: 'PUT',
         'Content-Type': 'text/plain; charset=UTF-8',
@@ -2219,6 +2217,79 @@ describe('browser', () => {
         assert(false, 'should not reach here');
       } catch (e) {
         assert.strictEqual(e.status, -1);
+      }
+    });
+  });
+
+  describe('utils/queueTask', () => {
+    let store;
+    before(async () => {
+      store = new OSS(ossConfig);
+    });
+
+    it('put()', async () => {
+      const list = [];
+      for (let i = 0; i < 10; i++) {
+        list.push([
+          `put-test-${i}`,
+          Buffer.from(
+            Array(1024 * 1024 * 2)
+              .fill('a')
+              .join('')
+          )
+        ]);
+      }
+      const result = await store.queueTask(list, store.put);
+      assert.equal(result.errorList.length, 0);
+      assert.equal(result.sucessList.length, 10);
+    });
+    it('multipartUpload()', async () => {
+      const list = [];
+      for (let i = 0; i < 10; i++) {
+        list.push([
+          `multipart-test-${i}`,
+          Buffer.from(
+            Array(1024 * 1024 * 3)
+              .fill('a')
+              .join('')
+          )
+        ]);
+      }
+      const result = await store.queueTask(list, store.multipartUpload);
+      assert.equal(result.errorList.length, 0);
+      assert.equal(result.sucessList.length, 10);
+    });
+
+    it('catch error', async () => {
+      const list = [
+        [
+          'object-1',
+          Buffer.from(
+            Array(1024 * 1024 * 2)
+              .fill('a')
+              .join('')
+          )
+        ],
+        [
+          'object-2',
+          Buffer.from(
+            Array(1024 * 1024 * 2)
+              .fill('a')
+              .join('')
+          )
+        ],
+        ['error-1', 'error']
+      ];
+      const result = await store.queueTask(list, store.put);
+      assert.equal(result.sucessList.length, 2);
+      assert.equal(result.errorList.length, 1);
+    });
+
+    it('threads exceeded limit', async () => {
+      try {
+        store.queueTask(['list', './tmp'], store.put, { limit: 11 });
+      } catch (e) {
+        assert.equal(e.toString(), 'Error: no more than 10 threads');
       }
     });
   });
