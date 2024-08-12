@@ -155,14 +155,6 @@
     "utility": "^1.18.0",
     "xml2js": "^0.6.2"
   },
-  "peerDependencies": {
-    "proxy-agent": "^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "proxy-agent": {
-      "optional": true
-    }
-  },
   "snyk": true,
   "lint-staged": {
     "**/!(dist)/*": [

@@ -351,7 +351,7 @@ options:
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
 - [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with
   `fetch` mode ,else `XMLHttpRequest`
-- [enableProxy] {Boolean}, Enable proxy request, default is false. **_NOTE:_** When enabling proxy request, please ensure that proxy-agent@5.0.0 is installed.
+- [enableProxy] {Boolean}, Enable proxy request, default is false. **_NOTE:_** When enabling proxy request, please ensure that proxy-agent is installed.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 - [maxSockets] {Number} Maximum number of sockets to allow per host. Default is infinity
