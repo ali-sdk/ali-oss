@@ -52,7 +52,7 @@ export async function _request(this: any, params) {
     err = await this.requestError(result);
     // not use stream
     if (err.code === 'RequestTimeTooSkewed' && !useStream && !isNode) {
-      this.options.amendTimeSkewed = +new Date(err.serverTime) - new Date().valueOf();
+      this.amendTimeSkewed = +new Date(err.serverTime) - new Date().valueOf();
       return await this.request(params);
     }
     err.params = params;

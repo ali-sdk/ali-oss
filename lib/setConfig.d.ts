@@ -7,6 +7,7 @@ declare class Client {
     userAgent: any;
     _createStream: any;
     stsTokenFreshTime: any;
+    amendTimeSkewed: any;
     constructor(options: any, ctx: any);
     static use(...fn: any): typeof Client;
     setConfig(options: any, ctx: any): void;
