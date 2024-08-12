@@ -28,8 +28,6 @@ build
 test/node/.tmp
 test/browser/.tmp
 test/demo.js
-yarn.lock
-package-lock.json
 .nyc_output/
 .env
 
