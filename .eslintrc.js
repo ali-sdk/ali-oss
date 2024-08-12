@@ -1,37 +1,20 @@
-/* eslint max-len: [0] */
 module.exports = {
-  extends: ['airbnb', 'eslint-config-ali/typescript'],
-  parserOptions: {
-    ecmaFeatures: {
-      experimentalObjectRestSpread: true,
-    },
-  },
-  env: {
-    browser: true,
-    node: true,
-    es6: true,
-    mocha: true,
-    jasmine: true,
-    jest: true,
-  },
+  extends: ['eslint-config-ali/typescript/node', 'prettier', 'prettier/@typescript-eslint'],
   rules: {
-    indent: ['error', 2],
-    // override default options
-    'no-underscore-dangle': [0],
-    'no-plusplus': [0],
-    'no-return-await':[0],
+    '@typescript-eslint/no-require-imports': [0],
+    'node/prefer-global/buffer': [0],
+    'import/newline-after-import': [0],
     'no-param-reassign': [0],
-    'max-len': ['warn', 120, 2, {
-      ignoreUrls: true,
-      ignoreComments: false,
-      ignoreRegExpLiterals: true,
-      ignoreStrings: true,
-      ignoreTemplateLiterals: true,
-    }],
-    'no-buffer-constructor': [2],
-    'comma-dangle': [0],
-    'import/prefer-default-export': [0],
-    'implicit-arrow-linebreak': [0],
-    '@typescript-eslint/no-unused-vars': [0],
-  }
+    'require-atomic-updates': [0],
+    '@typescript-eslint/consistent-type-definitions': [0],
+    '@typescript-eslint/restrict-plus-operands': [0],
+    '@typescript-eslint/explicit-member-accessibility': [0],
+    '@typescript-eslint/no-this-alias': [0],
+    'node/prefer-promises/fs': [0],
+    'no-console': [0],
+    '@typescript-eslint/no-inferrable-types': [0],
+    'no-await-in-loop': [0],
+    'no-throw-literal': [0],
+    '@typescript-eslint/member-ordering': [0],
+  },
 };
