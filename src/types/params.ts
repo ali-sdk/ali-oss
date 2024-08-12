@@ -72,7 +72,7 @@ export interface MultipartUploadOptions extends RequestOptions {
 export interface GetObjectOptions extends MultiVersionCommonOptions {
   process?: string; // image process params, will send with x-oss-process e.g.: {process: 'image/resize,w_200'}
   /** only support Browser.js */
-  responseCacheControl?: string
+  responseCacheControl?: string;
 }
 
 export interface PutObjectOptions extends RequestOptions {
@@ -183,6 +183,7 @@ export interface PutBucketWebsiteConfig {
 
 export interface CompleteMultipartUploadOptions extends RequestOptions {
   callback?: ObjectCallback;
+  progress?: Function;
 }
 
 export interface InitMultipartUploadOptions extends RequestOptions {
@@ -242,13 +243,13 @@ export interface listQuery {
 }
 
 export interface listV2Query {
-  prefix?: string,
-  delimiter?: string,
-  'start-after'?: string,
-  'continuation-token'?: string,
-  'max-keys'?: string,
-  'encoding-type'?: 'url',
-  'fetch-owner'?: boolean,
+  prefix?: string;
+  delimiter?: string;
+  'start-after'?: string;
+  'continuation-token'?: string;
+  'max-keys'?: string;
+  'encoding-type'?: 'url';
+  'fetch-owner'?: boolean;
 }
 
 export interface postAsyncFetchOptions extends RequestOptions {

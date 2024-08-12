@@ -1552,7 +1552,8 @@ describe('browser', () => {
           Array(10)
             .fill(1)
             .map((v, i) =>
-              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024)))
+              store.uploadPart(name, uploadId, i + 1, file, i * partSize, Math.min((i + 1) * partSize, 10 * 100 * 1024))
+            )
         );
         const dones = parts.map((_, i) => ({
           number: i + 1,
