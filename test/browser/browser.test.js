@@ -642,7 +642,7 @@ describe('browser', () => {
     });
   });
 
-  describe.only('get()', () => {
+  describe('get()', () => {
     const name = `${prefix}ali-sdk/get/${Date.now()}-oss.jpg`;
     let store;
     before(async () => {
@@ -681,7 +681,7 @@ describe('browser', () => {
         }
       });
       assert.equal(result.res.headers['content-length'], '4');
-      result = await store.get(name, false, {
+      result = await store.get(name, true, {
         headers: {
           Range: 'bytes=0-3'
         }
