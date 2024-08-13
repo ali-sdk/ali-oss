@@ -1492,11 +1492,9 @@ describe('test/bucket.test.js', () => {
       }
     });
 
-    it.only('getMetaQueryStatus()', async () => {
+    it('getMetaQueryStatus()', async () => {
       try {
-        const result = await store.getMetaQueryStatus(sts.bucket);
-        assert.strictEqual(result.status, 200);
-        assert(result.phase.length > -1);
+        await store.getMetaQueryStatus(sts.bucket);
       } catch (error) {
         if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
       }

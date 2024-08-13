@@ -1688,9 +1688,9 @@ Success will return:
 - status {Number} response status
 - res {Object} response info
 - phase {String} the scan type
-- state {String} he status of the metadata index library
-- createTime {Date} the time when the metadata index library was created
-- updateTime {Date} the time when the metadata index library was updated
+- state {String} the status of the metadata index library
+- createTime {String} the time when the metadata index library was created
+- updateTime {String} the time when the metadata index library was updated
 
 ---
 
