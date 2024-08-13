@@ -1817,7 +1817,7 @@ describe('browser', () => {
           //   const result = await store.multipartUpload(name, file, {
           //     partSize: 100 * 1024,
           //     callback: {
-          //       url: callbackServer,
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
@@ -1828,7 +1828,7 @@ describe('browser', () => {
           //     }
           //   });
           //   assert.equal(result.res.status, 200);
-          //   assert.equal(result.data.Status, 'OK');
+          //   assert.equal(result.data.object, name);
           // });
 
           // TODO fix callback server
