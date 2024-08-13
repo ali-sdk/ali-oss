@@ -18,20 +18,29 @@ export declare function getMetaQueryStatus(
   createTime: any;
   updateTime: any;
 }>;
-interface ISubQuerie {
+interface IQuery {
   field?: string;
   value?: string;
   operation: string;
-  subQueries?: ISubQuerie[];
+  subQueries?: IQuery[];
+}
+declare enum EOperation {
+  min = 'min',
+  max = 'max',
+  average = 'average',
+  sum = 'sum',
+  count = 'count',
+  distinct = 'distinct',
+  group = 'group'
 }
 interface IAggregation {
   field: string;
-  operation: string;
+  operation: EOperation;
 }
 interface IMetaQuery {
   nextToken?: string;
   maxResults?: number;
-  query: ISubQuerie;
+  query: IQuery;
   sort?: string;
   order?: 'asc' | 'desc';
   aggregations?: IAggregation[];
@@ -45,8 +54,8 @@ export declare function doMetaQuery(
   res: any;
   status: any;
   nextToken: any;
-  files: any;
-  aggregations: any;
+  files: any[];
+  aggregations: any[];
 }>;
 export declare function closeMetaQuery(
   this: any,

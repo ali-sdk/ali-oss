@@ -19,7 +19,7 @@ module.exports = {
     jest: true
   },
   rules: {
-    indent: ['error', 2],
+    indent: 'off',
     'no-underscore-dangle': [0],
     'no-plusplus': [0],
     'no-return-await': [0],

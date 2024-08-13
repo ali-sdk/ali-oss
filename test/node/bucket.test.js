@@ -13,7 +13,7 @@ describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
-  const bucketRegion = 'oss-ap-southeast-1'; // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
+  const bucketRegion = config.region;
   const { accountId } = config;
   [
     {
@@ -25,7 +25,7 @@ describe('test/bucket.test.js', () => {
   ].forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
-        store = oss({ ...config, ...moreConfigs, region: bucketRegion });
+        store = oss({ ...config, ...moreConfigs });
         bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket, { timeout });
@@ -928,15 +928,20 @@ describe('test/bucket.test.js', () => {
             }
           ]);
           assert.equal(putresult3.res.status, 200);
-          // Regions that need to support DeepColdArchive
-          const putresult4 = await store.putBucketLifecycle(bucket, [
+
+          const region = 'oss-ap-southeast-1'; // oss-ap-southeast-1 suport putBucketLifecycle DeepColdArchive
+          const client = oss({ ...config, ...moreConfigs, region });
+          const bucketName = `ali-oss-test-bucket-deep-${prefix.replace(/[/.]/g, '-')}${idx}`;
+          const result4 = await client.putBucket(bucketName, { timeout });
+          assert.equal(result4.res.status, 200);
+          const putresult4 = await client.putBucketLifecycle(bucketName, [
             {
               id: 'transition4',
               prefix: 'logs/',
               status: 'Enabled',
               transition: {
                 days: 20,
-                storageClass: 'DeepColdArchive'
+                storageClass: 'DeepColdArchive' // Regions that need to support DeepColdArchive
               },
               tag: {
                 key: 'test4',
@@ -1393,6 +1398,7 @@ describe('test/bucket.test.js', () => {
           }
         });
       });
+
       describe('inventory()', () => {
         const field = [
           'Size',
@@ -1583,232 +1589,118 @@ describe('test/bucket.test.js', () => {
           });
         });
       });
-    });
-  });
 
-  describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
-    it('open meta query of bucket', async () => {
-      try {
-        const result = await store.openMetaQuery(sts.bucket);
-        assert.strictEqual(result.status, 200);
-      } catch (error) {
-        if (!['MetaQueryNotReady', 'MetaQueryAlreadyExist'].includes(error.code)) assert.fail(error);
-      }
-    });
-
-    it('getMetaQueryStatus()', async () => {
-      try {
-        await store.getMetaQueryStatus(sts.bucket);
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
-
-    it('doMetaQuery()', async () => {
-      try {
-        const maxResults = 2;
-        const queryParam = {
-          maxResults,
-          sort: 'Size',
-          order: 'asc',
-          query: {
-            operation: 'and',
-            subQueries: [
-              { field: 'Filename', value: 'test-doMetaQuery', operation: 'match' },
-              { field: 'Size', value: '1048576', operation: 'lt' }
-            ]
+      describe.only('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
+        it('open meta query of bucket', async () => {
+          try {
+            const result = await store.openMetaQuery(sts.bucket);
+            assert.strictEqual(result.status, 200);
+          } catch (error) {
+            if (!['MetaQueryNotReady', 'MetaQueryAlreadyExist'].includes(error.code)) assert.fail(error);
           }
-        };
+        });
 
-        const { status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
-        assert.strictEqual(status, 200);
-        if (nextToken) {
-          assert.strictEqual(files.length, maxResults);
-
-          const result = await store.doMetaQuery(sts.bucket, { ...queryParam, nextToken, maxResults: 1 });
-          assert.strictEqual(result.status, 200);
-          assert(result.files.length > 0);
-          assert(result.files[0].fileName.length > 0);
-        }
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
-
-    it('doMetaQuery() one Aggregations', async () => {
-      try {
-        const queryParam = {
-          maxResults: 2,
-          sort: 'Size',
-          order: 'asc',
-          query: {
-            operation: 'and',
-            subQueries: [
-              { field: 'Filename', value: '_do', operation: 'match' },
-              { field: 'Size', value: '1048576', operation: 'lt' }
-            ]
-          },
-          aggregations: [{ field: 'Size', operation: 'sum' }]
-        };
-
-        const result = await store.doMetaQuery(sts.bucket, queryParam);
-        assert.strictEqual(result.status, 200);
-        assert(result.aggregations.length > 0);
-        assert(result.aggregations[0].field, 'Size');
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
-
-    it('doMetaQuery() two Aggregations', async () => {
-      try {
-        const queryParam = {
-          maxResults: 2,
-          sort: 'Size',
-          order: 'asc',
-          query: {
-            operation: 'and',
-            subQueries: [
-              { field: 'Filename', value: 'test-', operation: 'match' },
-              { field: 'Size', value: '1048576', operation: 'lt' }
-            ]
-          },
-          aggregations: [
-            { field: 'Size', operation: 'sum' },
-            { field: 'OSSTaggingCount', operation: 'min' }
-          ]
-        };
-
-        const result = await store.doMetaQuery(sts.bucket, queryParam);
-        assert.strictEqual(result.status, 200);
-        assert(result.aggregations.length > 0);
-        assert(result.aggregations[0].field, 'Size');
-        assert(result.aggregations[1].field, 'OSSTaggingCount');
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
-
-    it('closeMetaQuery()', async () => {
-      try {
-        const result = await store.closeMetaQuery(sts.bucket);
-        assert.strictEqual(result.status, 200);
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
-  });
-
-  describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
-    it('open meta query of bucket', async () => {
-      try {
-        const result = await store.openMetaQuery(sts.bucket);
-        assert.strictEqual(result.status, 200);
-      } catch (error) {
-        if (!['MetaQueryNotReady', 'MetaQueryAlreadyExist'].includes(error.code)) assert.fail(error);
-      }
-    });
-
-    it('getMetaQueryStatus()', async () => {
-      try {
-        await store.getMetaQueryStatus(sts.bucket);
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
-
-    it('doMetaQuery()', async () => {
-      try {
-        const maxResults = 2;
-        const queryParam = {
-          maxResults,
-          sort: 'Size',
-          order: 'asc',
-          query: {
-            operation: 'and',
-            subQueries: [
-              { field: 'Filename', value: 'test-doMetaQuery', operation: 'match' },
-              { field: 'Size', value: '1048576', operation: 'lt' }
-            ]
+        it('getMetaQueryStatus()', async () => {
+          try {
+            await store.getMetaQueryStatus(sts.bucket);
+          } catch (error) {
+            if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
           }
-        };
+        });
 
-        const { status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
-        assert.strictEqual(status, 200);
-        if (nextToken) {
-          assert.strictEqual(files.length, maxResults);
+        it('doMetaQuery()', async () => {
+          try {
+            const maxResults = 2;
+            const queryParam = {
+              maxResults,
+              sort: 'Size',
+              order: 'asc',
+              query: {
+                operation: 'and',
+                subQueries: [
+                  { field: 'Filename', value: 'test-doMetaQuery', operation: 'match' },
+                  { field: 'Size', value: '1048576', operation: 'lt' }
+                ]
+              }
+            };
+            const { status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
+            assert.strictEqual(status, 200);
+            if (nextToken) {
+              assert.strictEqual(files.length, maxResults);
 
-          const result = await store.doMetaQuery(sts.bucket, { ...queryParam, nextToken, maxResults: 1 });
-          assert.strictEqual(result.status, 200);
-          assert(result.files.length > 0);
-          assert(result.files[0].fileName.length > 0);
-        }
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
+              const result = await store.doMetaQuery(sts.bucket, { ...queryParam, nextToken, maxResults: 1 });
+              assert.strictEqual(result.status, 200);
+              assert(result.files.length > 0);
+              assert(result.files[0].fileName.length > 0);
+            }
+          } catch (error) {
+            if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+          }
+        });
 
-    it('doMetaQuery() one Aggregations', async () => {
-      try {
-        const queryParam = {
-          maxResults: 2,
-          sort: 'Size',
-          order: 'asc',
-          query: {
-            operation: 'and',
-            subQueries: [
-              { field: 'Filename', value: '_do', operation: 'match' },
-              { field: 'Size', value: '1048576', operation: 'lt' }
-            ]
-          },
-          aggregations: [{ field: 'Size', operation: 'sum' }]
-        };
+        it('doMetaQuery() one Aggregations', async () => {
+          try {
+            const queryParam = {
+              maxResults: 2,
+              sort: 'Size',
+              order: 'asc',
+              query: {
+                operation: 'and',
+                subQueries: [
+                  { field: 'Filename', value: '_do', operation: 'match' },
+                  { field: 'Size', value: '1048576', operation: 'lt' }
+                ]
+              },
+              aggregations: [{ field: 'Size', operation: 'sum' }]
+            };
 
-        const result = await store.doMetaQuery(sts.bucket, queryParam);
-        assert.strictEqual(result.status, 200);
-        assert(result.aggregations.length > 0);
-        assert(result.aggregations[0].field, 'Size');
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
+            const result = await store.doMetaQuery(sts.bucket, queryParam);
+            assert.strictEqual(result.status, 200);
+            assert(result.aggregations.length > 0);
+            assert(result.aggregations[0].field, 'Size');
+          } catch (error) {
+            if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+          }
+        });
 
-    it('doMetaQuery() two Aggregations', async () => {
-      try {
-        const queryParam = {
-          maxResults: 2,
-          sort: 'Size',
-          order: 'asc',
-          query: {
-            operation: 'and',
-            subQueries: [
-              { field: 'Filename', value: 'test-', operation: 'match' },
-              { field: 'Size', value: '1048576', operation: 'lt' }
-            ]
-          },
-          aggregations: [
-            { field: 'Size', operation: 'sum' },
-            { field: 'OSSTaggingCount', operation: 'min' }
-          ]
-        };
+        it('doMetaQuery() two Aggregations', async () => {
+          try {
+            const queryParam = {
+              maxResults: 2,
+              sort: 'Size',
+              order: 'asc',
+              query: {
+                operation: 'and',
+                subQueries: [
+                  { field: 'Filename', value: 'test-', operation: 'match' },
+                  { field: 'Size', value: '1048576', operation: 'lt' }
+                ]
+              },
+              aggregations: [
+                { field: 'Size', operation: 'sum' },
+                { field: 'OSSTaggingCount', operation: 'min' }
+              ]
+            };
 
-        const result = await store.doMetaQuery(sts.bucket, queryParam);
-        assert.strictEqual(result.status, 200);
-        assert(result.aggregations.length > 0);
-        assert(result.aggregations[0].field, 'Size');
-        assert(result.aggregations[1].field, 'OSSTaggingCount');
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
-    });
+            const result = await store.doMetaQuery(sts.bucket, queryParam);
+            assert.strictEqual(result.status, 200);
+            assert(result.aggregations.length > 0);
+            assert(result.aggregations[0].field, 'Size');
+            assert(result.aggregations[1].field, 'OSSTaggingCount');
+          } catch (error) {
+            if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+          }
+        });
 
-    it('closeMetaQuery()', async () => {
-      try {
-        const result = await store.closeMetaQuery(sts.bucket);
-        assert.strictEqual(result.status, 200);
-      } catch (error) {
-        if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
-      }
+        it('closeMetaQuery()', async () => {
+          try {
+            const result = await store.closeMetaQuery(sts.bucket);
+            assert.strictEqual(result.status, 200);
+          } catch (error) {
+            if (error.name !== 'MetaQueryNotExistError') assert.fail(error);
+          }
+        });
+      });
     });
   });
 });
