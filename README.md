@@ -2078,8 +2078,9 @@ Get an object from the bucket.
 parameters:
 
 - name {String} object name store on OSS
-- [file] {String|WriteStream} file path or WriteStream instance to store the content
+- [file] {String|WriteStream|Object} file path or WriteStream instance to store the content
   If `file` is null or ignore this parameter, function will return info contains `content` property.
+  If `file` is Object, it will be treated as options.
 - [options] {Object} optional parameters
   - [versionId] {String} the version id of history object
   - [timeout] {Number} the operation timeout
@@ -2155,6 +2156,13 @@ const versionId = 'versionId string';
 await store.get('ossdemo/not-exists-demo.txt', filepath, {
   versionId
 });
+```
+
+- If `file` is Object, it will be treated as options.
+
+```js
+const versionId = 'versionId string';
+await store.get('ossdemo/not-exists-demo.txt', { versionId });
 ```
 
 ### .getStream(name[, options])

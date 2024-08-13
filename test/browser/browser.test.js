@@ -694,6 +694,41 @@ describe('browser', () => {
           });
           assert(!requestUrls2[0].includes('response-cache-control=no-cache'));
         });
+
+        it('test file is not a stream or string', async () => {
+          let result = await store.get(name, null, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+          result = await store.get(name, 2, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+          result = await store.get(name, undefined, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+          result = await store.get(name, true, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+        });
+        it('test file is options', async () => {
+          const result = await store.get(name, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+        });
       });
 
       describe('put', () => {
