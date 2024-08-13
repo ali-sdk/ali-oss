@@ -863,6 +863,44 @@ describe('test/object.test.js', () => {
       );
     });
 
+    it('test file is not a stream or string', async () => {
+      let result = await store.get(name, null, {
+        headers: {
+          Range: 'bytes=0-9'
+        }
+      });
+      assert.equal(result.res.headers['content-length'], '10');
+      assert(Buffer.isBuffer(result.content), 'content should be Buffer');
+      result = await store.get(name, undefined, {
+        headers: {
+          Range: 'bytes=0-9'
+        }
+      });
+      assert.equal(result.res.headers['content-length'], '10');
+      result = await store.get(name, 1, {
+        headers: {
+          Range: 'bytes=0-9'
+        }
+      });
+      assert.equal(result.res.headers['content-length'], '10');
+      result = await store.get(name, true, {
+        headers: {
+          Range: 'bytes=0-9'
+        }
+      });
+      assert.equal(result.res.headers['content-length'], '10');
+    });
+
+    it('test file is options', async () => {
+      const result = await store.get(name, {
+        headers: {
+          Range: 'bytes=0-9'
+        }
+      });
+      assert.equal(result.res.headers['content-length'], '10');
+      assert(Buffer.isBuffer(result.content), 'content should be Buffer');
+    });
+
     describe('If-Modified-Since header', () => {
       it('should 200 when If-Modified-Since < object modified time', async () => {
         let lastYear = new Date(resHeaders.date);
@@ -1016,17 +1054,6 @@ describe('test/object.test.js', () => {
         assert.equal(result.res.headers['content-length'], '10');
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
         assert.equal(result.content.toString(), 'aaaaaaaaaa');
-      });
-    });
-    describe('get(name, null, options)', () => {
-      it('test get(name, null, options)', async () => {
-        const result = await store.get(name, null, {
-          headers: {
-            Range: 'bytes=0-9'
-          }
-        });
-        assert.equal(result.res.headers['content-length'], '10');
-        assert(Buffer.isBuffer(result.content), 'content should be Buffer');
       });
     });
   });
