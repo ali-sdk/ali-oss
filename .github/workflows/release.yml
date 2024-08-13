@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - release
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      # https://docs.github.com/zh/actions/using-jobs/assigning-permissions-to-jobs
+      contents: write # 为 GITHUB_TOKEN 授予更新tag的权限
+    env:
+      GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # semantic-release和create-pull-request.js需要
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # 只有semantic-release需要
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          architecture: x64
+      - name: Install Dependencies
+        run: npm install
+      - name: Snyk Protect
+        run: npm run snyk-protect
+      - name: Release to npm
+        run: npx semantic-release
+      # - name: Publish to cdn
+      #   run: node publish.js  # 因为发cdn 的ak权限比较大，有安全风险，故需要在本地发版到cdn
+      # 为了创建pr，GIT_TOKEN需要public_repo权限（https://github.com/settings/tokens/new）
+      - name: Create Pull Request
+        run: node ./task/create-pull-request.js

@@ -10,8 +10,9 @@ jobs:
   security:
     environment: ali_oss_AK
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - run: npm install
       - name: Run Snyk to check for vulnerabilities

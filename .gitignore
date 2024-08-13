@@ -28,8 +28,6 @@ build
 test/node/.tmp
 test/browser/.tmp
 test/demo.js
-yarn.lock
-package-lock.json
 .nyc_output/
 .env
 
@@ -44,3 +42,6 @@ package-lock.json
 
 es
 .eslintcache
+
+/test/node/fixtures/nodejs-processed-w200-latest.png
+/test/node/fixtures/nodejs-processed-w200.png

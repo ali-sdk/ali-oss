@@ -46,6 +46,10 @@ exports.sleep = function (ms) {
   });
 };
 
+/**
+ * limit ： 最多一次清理多少个bucket
+ * isAll = false，只清理24小时之前的bucket
+ */
 exports.cleanAllBucket = async (store, limit, isAll) => {
   const res = await store.listBuckets();
   const bucketList = [];
@@ -102,9 +106,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
   let isMs = multiversion;
   if (!multiversion) {
     try {
-      await store.getBucketVersions({
-        'max-keys': 1000
-      });
+      await store.getBucketVersions({ 'max-keys': 1000 }, { timeout: 6 * 60 * 60 * 1000 });
       isMs = true;
     } catch (error) {
       isMs = false;
@@ -113,9 +115,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
 
   async function handleDelete(deleteKey) {
     if (isMs) {
-      result = await store.getBucketVersions({
-        'max-keys': 1000
-      });
+      result = await store.getBucketVersions({ 'max-keys': 1000 }, { timeout: 6 * 60 * 60 * 1000 });
     } else {
       result = await store.list({
         'max-keys': 1000
