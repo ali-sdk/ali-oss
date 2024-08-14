@@ -2809,8 +2809,15 @@ describe('browser', () => {
           ]
         },
         aggregations: [
-          { field: 'Size', operation: 'sum' },
-          { field: 'OSSTaggingCount', operation: 'min' }
+          { field: 'ETag', operation: 'count' },
+          { field: 'FileModifiedTime', operation: 'distinct' },
+          { field: 'Filename', operation: 'group' },
+          { field: 'ObjectACL', operation: 'group' },
+          { field: 'OSSCRC64', operation: 'distinct' },
+          { field: 'OSSStorageClass', operation: 'group' },
+          { field: 'OSSTaggingCount', operation: 'max' },
+          { field: 'ServerSideEncryption', operation: 'group' },
+          { field: 'Size', operation: 'sum' }
         ]
       };
 

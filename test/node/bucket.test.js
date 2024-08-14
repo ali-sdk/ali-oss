@@ -1650,7 +1650,7 @@ describe('test/bucket.test.js', () => {
           assert(result.aggregations[0].field, 'Size');
         });
 
-        it('doMetaQuery() two Aggregations', async () => {
+        it.only('doMetaQuery() two Aggregations', async () => {
           const queryParam = {
             maxResults: 2,
             query: {
@@ -1661,8 +1661,15 @@ describe('test/bucket.test.js', () => {
               ]
             },
             aggregations: [
-              { field: 'Size', operation: 'sum' },
-              { field: 'OSSTaggingCount', operation: 'min' }
+              { field: 'ETag', operation: 'count' },
+              { field: 'FileModifiedTime', operation: 'distinct' },
+              { field: 'Filename', operation: 'group' },
+              { field: 'ObjectACL', operation: 'group' },
+              { field: 'OSSCRC64', operation: 'distinct' },
+              { field: 'OSSStorageClass', operation: 'group' },
+              { field: 'OSSTaggingCount', operation: 'max' },
+              { field: 'ServerSideEncryption', operation: 'group' },
+              { field: 'Size', operation: 'sum' }
             ]
           };
 
@@ -1676,7 +1683,7 @@ describe('test/bucket.test.js', () => {
         it('closeMetaQuery()', async () => {
           const result = await store.closeMetaQuery(sts.bucket);
           assert.strictEqual(result.status, 200);
-          // await utils.sleep(sleepTime);
+          await utils.sleep(sleepTime * 2);
         });
       });
     });
