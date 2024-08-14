@@ -1650,7 +1650,7 @@ describe('test/bucket.test.js', () => {
           assert(result.aggregations[0].field, 'Size');
         });
 
-        it.only('doMetaQuery() two Aggregations', async () => {
+        it('doMetaQuery() two Aggregations', async () => {
           const queryParam = {
             maxResults: 2,
             query: {
