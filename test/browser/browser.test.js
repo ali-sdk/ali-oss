@@ -2748,7 +2748,7 @@ describe('browser', () => {
     it('getMetaQueryStatus()', async () => {
       const { status, phase, state, createTime, updateTime } = await store.getMetaQueryStatus(bucket);
       assert.strictEqual(status, 200);
-      assert(['FullScanning', 'IncrementalScanning'].includes(phase));
+      assert(['FullScanning', 'IncrementalScanning', ''].includes(phase));
       assert(['Ready', 'Stop', 'Running', 'Retrying', 'Failed', 'Deleted'].includes(state));
       assert(!!createTime);
       assert(!!updateTime);

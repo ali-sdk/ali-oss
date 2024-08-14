@@ -1676,7 +1676,7 @@ describe('test/bucket.test.js', () => {
         it('closeMetaQuery()', async () => {
           const result = await store.closeMetaQuery(sts.bucket);
           assert.strictEqual(result.status, 200);
-          await utils.sleep(sleepTime * 2);
+          // await utils.sleep(sleepTime);
         });
       });
     });
