@@ -40,7 +40,7 @@ function build(options, callback) {
       stsConfFile,
       JSON.stringify(
         Object.assign({}, stsConf, {
-          callbackServer: env.ALI_SDK_CALLBACK_IP,
+          // callbackServer: env.ALI_SDK_CALLBACK_IP,
           bucket: conf.bucket,
           region: conf.region
         })

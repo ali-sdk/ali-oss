@@ -972,19 +972,18 @@ describe('test/multipart.test.js', () => {
           const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
           const name = `${prefix}multipart/upload-file-${Date.now()}`;
           const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
+
           try {
-            const p1 = store.multipartUpload(name, fileName);
-            const p2 = store.multipartUpload(name1, fileName).catch(error => {
-              console.log('info >', error.message);
-            });
-            await Promise.all([p1, p2]);
-          } catch (e) {}
+            await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert(e.message.includes('mock upload part fail.'));
+          }
+
           mm.restore();
-          const p3 = store.multipartUpload(name, fileName);
-          const p4 = store.multipartUpload(name1, fileName).catch(error => {
-            console.log('info >', error.message);
-          });
-          await Promise.all([p3, p4]);
+
+          await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+
           assert.strictEqual(store.multipartUploadStreams.length, 0);
         });
 

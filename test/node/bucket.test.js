@@ -764,27 +764,21 @@ describe('test/bucket.test.js', () => {
       });
 
       describe('putBucketLifecycle()', () => {
-        it('should put the lifecycle throw error', async () => {
+        it('should the type of rules be Array', async () => {
           try {
-            await store.putBucketLifecycle(bucket, [
-              {
-                id: 'expiration1',
-                prefix: 'logs/',
-                status: 'Enabled',
-                day: 1
-              }
-            ]);
+            await store.putBucketLifecycle(bucket, {
+              id: 'expiration1',
+              prefix: 'test',
+              status: 'Enabled'
+            });
             assert.fail('expected an error to be thrown');
           } catch (e) {
-            assert.equal(
-              e.message,
-              'Rule must includes expiration or noncurrentVersionExpiration or abortMultipartUpload or transition or noncurrentVersionTransition'
-            );
+            assert.strictEqual(e.message, 'rules must be Array');
           }
         });
 
         it('should put the lifecycle with old api', async () => {
-          const putresult1 = await store.putBucketLifecycle(bucket, [
+          const res1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'expiration1',
               prefix: 'logs/',
@@ -793,9 +787,9 @@ describe('test/bucket.test.js', () => {
             }
           ]);
 
-          assert.equal(putresult1.res.status, 200);
+          assert.strictEqual(res1.res.status, 200);
 
-          const putresult2 = await store.putBucketLifecycle(bucket, [
+          const res2 = await store.putBucketLifecycle(bucket, [
             {
               id: 'expiration2',
               prefix: 'logs/',
@@ -803,11 +797,11 @@ describe('test/bucket.test.js', () => {
               date: '2020-02-18T00:00:00.000Z'
             }
           ]);
-          assert.equal(putresult2.res.status, 200);
+          assert.strictEqual(res2.res.status, 200);
         });
 
         it('should put the lifecycle with expiration and id', async () => {
-          const putresult1 = await store.putBucketLifecycle(bucket, [
+          const res1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'expiration1',
               prefix: 'logs/',
@@ -817,12 +811,12 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult1.res.status, 200);
+          assert.strictEqual(res1.res.status, 200);
 
           const getBucketLifecycle = await store.getBucketLifecycle(bucket);
           assert(getBucketLifecycle.rules.length > 0 && getBucketLifecycle.rules.find(v => v.id === 'expiration1'));
 
-          const putresult2 = await store.putBucketLifecycle(bucket, [
+          const res2 = await store.putBucketLifecycle(bucket, [
             {
               id: 'expiration2',
               prefix: 'logs/',
@@ -832,11 +826,11 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult2.res.status, 200);
+          assert.strictEqual(res2.res.status, 200);
         });
 
         it('should put the lifecycle with AbortMultipartUpload', async () => {
-          const putresult1 = await store.putBucketLifecycle(bucket, [
+          const res1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'abortMultipartUpload1',
               prefix: 'logs/',
@@ -846,9 +840,9 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult1.res.status, 200);
+          assert.strictEqual(res1.res.status, 200);
 
-          const putresult2 = await store.putBucketLifecycle(bucket, [
+          const res2 = await store.putBucketLifecycle(bucket, [
             {
               id: 'abortMultipartUpload2',
               prefix: 'logs/',
@@ -858,25 +852,26 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult2.res.status, 200);
+          assert.strictEqual(res2.res.status, 200);
         });
 
         it('should put the lifecycle with empty prefix (whole bucket)', async () => {
-          const putresult = await store.putBucketLifecycle(bucket, [
+          const res = await store.putBucketLifecycle(bucket, [
             {
               id: 'abortMultipartUpload1',
-              prefix: '', // empty prefix (whole bucket)
+              prefix: '',
               status: 'Enabled',
               abortMultipartUpload: {
                 days: 1
               }
             }
           ]);
-          assert.equal(putresult.res.status, 200);
+
+          assert.strictEqual(res.res.status, 200);
         });
 
         it('should put the lifecycle with Transition', async () => {
-          const putresult1 = await store.putBucketLifecycle(bucket, [
+          const res1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'transition',
               prefix: 'logs/',
@@ -894,9 +889,9 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult1.res.status, 200);
+          assert.strictEqual(res1.res.status, 200);
 
-          const putresult2 = await store.putBucketLifecycle(bucket, [
+          const res2 = await store.putBucketLifecycle(bucket, [
             {
               id: 'transition',
               prefix: 'logs/',
@@ -911,8 +906,9 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult2.res.status, 200);
-          const putresult3 = await store.putBucketLifecycle(bucket, [
+          assert.strictEqual(res2.res.status, 200);
+
+          const res3 = await store.putBucketLifecycle(bucket, [
             {
               id: 'transition3',
               prefix: 'logs/',
@@ -927,9 +923,10 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult3.res.status, 200);
+          assert.strictEqual(res3.res.status, 200);
+
           // Regions that need to support DeepColdArchive
-          const putresult4 = await store.putBucketLifecycle(bucket, [
+          const res4 = await store.putBucketLifecycle(bucket, [
             {
               id: 'transition4',
               prefix: 'logs/',
@@ -944,11 +941,11 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult4.res.status, 200);
+          assert.strictEqual(res4.res.status, 200);
         });
 
         it('should put the lifecycle with expiration and Tag', async () => {
-          const putresult1 = await store.putBucketLifecycle(bucket, [
+          const res1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'tag1',
               prefix: 'logs/',
@@ -962,9 +959,9 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult1.res.status, 200);
+          assert.strictEqual(res1.res.status, 200);
 
-          const putresult2 = await store.putBucketLifecycle(bucket, [
+          const res2 = await store.putBucketLifecycle(bucket, [
             {
               id: 'tag2',
               prefix: 'logs/',
@@ -978,9 +975,9 @@ describe('test/bucket.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult2.res.status, 200);
+          assert.strictEqual(res2.res.status, 200);
 
-          const putresult3 = await store.putBucketLifecycle(bucket, [
+          const res3 = await store.putBucketLifecycle(bucket, [
             {
               id: 'tag2',
               prefix: 'logs/',
@@ -1000,7 +997,7 @@ describe('test/bucket.test.js', () => {
               ]
             }
           ]);
-          assert.equal(putresult3.res.status, 200);
+          assert.strictEqual(res3.res.status, 200);
         });
 
         it('should throw error when id more than 255 bytes ', async () => {
@@ -1009,8 +1006,11 @@ describe('test/bucket.test.js', () => {
             await store.putBucketLifecycle(bucket, [
               {
                 id: testID,
-                prefix: 'testid/',
-                status: 'Enabled'
+                prefix: '',
+                status: 'Disabled',
+                expiration: {
+                  days: 1
+                }
               }
             ]);
             assert(false);
@@ -1038,20 +1038,27 @@ describe('test/bucket.test.js', () => {
             await store.putBucketLifecycle(bucket, [
               {
                 id: 'status',
-                prefix: 'fix/',
-                status: 'test'
+                prefix: '',
+                status: 'test',
+                expiration: {
+                  days: 1
+                }
               }
             ]);
             assert(false);
           } catch (error) {
             assert(error.message.includes('Enabled or Disabled'));
           }
+
           try {
             await store.putBucketLifecycle(bucket, [
               {
                 id: 'status',
-                prefix: 'fix/',
-                status: ''
+                prefix: '',
+                status: '',
+                expiration: {
+                  days: 1
+                }
               }
             ]);
             assert(false);
@@ -1060,7 +1067,7 @@ describe('test/bucket.test.js', () => {
           }
         });
 
-        it('should throw error when storageClass is not Archive or IA', async () => {
+        it('should throw error when storageClass is not an illegal value', async () => {
           try {
             await store.putBucketLifecycle(bucket, [
               {
@@ -1124,6 +1131,57 @@ describe('test/bucket.test.js', () => {
                 status: 'Enabled',
                 transition: {
                   days: 'asd',
+                  storageClass: 'Archive'
+                }
+              }
+            ]);
+            assert(false);
+          } catch (error) {
+            assert(error.message.includes(errorMessage));
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                id: 'transition',
+                prefix: 'fix/',
+                status: 'Enabled',
+                transition: {
+                  days: true,
+                  storageClass: 'Archive'
+                }
+              }
+            ]);
+            assert(false);
+          } catch (error) {
+            assert(error.message.includes(errorMessage));
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                id: 'transition',
+                prefix: 'fix/',
+                status: 'Enabled',
+                transition: {
+                  days: [1],
+                  storageClass: 'Archive'
+                }
+              }
+            ]);
+            assert(false);
+          } catch (error) {
+            assert(error.message.includes(errorMessage));
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                id: 'transition',
+                prefix: 'fix/',
+                status: 'Enabled',
+                transition: {
+                  days: -1,
                   storageClass: 'Archive'
                 }
               }
@@ -1257,18 +1315,21 @@ describe('test/bucket.test.js', () => {
           }
         });
 
-        it('should throw error when rule have no expiration or abortMultipartUpload', async () => {
-          const errorMessage = 'expiration or noncurrentVersionExpiration or abortMultipartUpload';
+        it('should throw error when rule have no expiration or noncurrentVersionExpiration or abortMultipartUpload or transition or noncurrentVersionTransition', async () => {
           try {
             await store.putBucketLifecycle(bucket, [
               {
-                prefix: 'expirationAndAbortMultipartUpload/',
+                id: 'expiration1',
+                prefix: '',
                 status: 'Enabled'
               }
             ]);
-            assert(false);
-          } catch (error) {
-            assert(error.message.includes(errorMessage));
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.strictEqual(
+              e.message,
+              'Rule must includes expiration or noncurrentVersionExpiration or abortMultipartUpload or transition or noncurrentVersionTransition'
+            );
           }
         });
 
@@ -1291,16 +1352,66 @@ describe('test/bucket.test.js', () => {
                 }
               }
             ]);
-            assert(false);
+            assert.fail('Expects to throw an error');
           } catch (error) {
             assert(error.message.includes(errorMessage));
+          }
+        });
+
+        it('should type of tag is Array or Object', async () => {
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                expiration: {
+                  days: 1
+                },
+                tag: 1
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (error) {
+            assert.strictEqual(error.message, 'tag must be Object or Array');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                expiration: {
+                  days: 1
+                },
+                tag: true
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (error) {
+            assert.strictEqual(error.message, 'tag must be Object or Array');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                expiration: {
+                  days: 1
+                },
+                tag: 'a'
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (error) {
+            assert.strictEqual(error.message, 'tag must be Object or Array');
           }
         });
       });
 
       describe('getBucketLifecycle()', () => {
         it('should get the lifecycle', async () => {
-          const putresult = await store.putBucketLifecycle(bucket, [
+          const res = await store.putBucketLifecycle(bucket, [
             {
               id: 'get_test',
               prefix: 'logs/',
@@ -1320,17 +1431,51 @@ describe('test/bucket.test.js', () => {
               ]
             }
           ]);
-          assert.equal(putresult.res.status, 200);
+          assert.strictEqual(res.res.status, 200);
 
           const getBucketLifecycle = await store.getBucketLifecycle(bucket);
           assert(getBucketLifecycle.rules.length > 0);
-          assert.equal(getBucketLifecycle.res.status, 200);
+          assert.strictEqual(getBucketLifecycle.res.status, 200);
+        });
+
+        it('should get the lifecycle with one tag', async () => {
+          const putRes = await store.putBucketLifecycle(
+            bucket,
+            [
+              {
+                id: 'get_test',
+                prefix: '',
+                status: 'Enabled',
+                expiration: {
+                  days: 1
+                },
+                tag: [
+                  {
+                    key: 'test2',
+                    value: '2'
+                  }
+                ]
+              }
+            ],
+            {
+              headers: {
+                'x-oss-allow-same-action-overlap': 'true'
+              }
+            }
+          );
+          assert.strictEqual(putRes.res.status, 200);
+
+          const getRes = await store.getBucketLifecycle(bucket);
+
+          assert.strictEqual(getRes.res.status, 200);
+          assert(getRes.rules.length > 0);
+          assert(getRes.rules[0].tag.length === 1);
         });
       });
 
       describe('deleteBucketLifecycle()', () => {
         it('should delete the lifecycle', async () => {
-          const putresult = await store.putBucketLifecycle(bucket, [
+          const putResult = await store.putBucketLifecycle(bucket, [
             {
               id: 'delete',
               prefix: 'logs/',
@@ -1350,11 +1495,11 @@ describe('test/bucket.test.js', () => {
               ]
             }
           ]);
-          assert.equal(putresult.res.status, 200);
+          assert.strictEqual(putResult.res.status, 200);
 
           // delete it
           const deleteResult = await store.deleteBucketLifecycle(bucket);
-          assert.equal(deleteResult.res.status, 204);
+          assert.strictEqual(deleteResult.res.status, 204);
         });
       });
 

@@ -170,6 +170,7 @@ describe('test/object.test.js', () => {
               readerStream.destroy();
             });
             await store.putStream(name, readerStream);
+            assert.fail('Expects to throw an error');
           } catch (error) {
             assert.strictEqual(error.status, -1);
           }
@@ -1080,11 +1081,10 @@ describe('test/object.test.js', () => {
       });
 
       describe('signatureUrl(), asyncSignatureUrl() and signatureUrlV4()', () => {
-        let name;
-        let needEscapeName;
+        const name = `${prefix}ali-sdk/oss/signatureUrl.js`;
+        const needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
         const testSignatureObjectName = `?{测}\r\n[试];,/?:@&=+$<中>-_.!~*'(文)"￥#%！（字）^ \`符|\\${prefix}test.txt`;
         before(async () => {
-          name = `${prefix}ali-sdk/oss/signatureUrl.js`;
           let object = await store.put(name, __filename, {
             meta: {
               uid: 1,
@@ -1094,7 +1094,6 @@ describe('test/object.test.js', () => {
           });
           assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
 
-          needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
           object = await store.put(needEscapeName, __filename, {
             meta: {
               uid: 1,
@@ -1149,14 +1148,17 @@ describe('test/object.test.js', () => {
           );
         });
 
-        it('should signature url with response limitation', () => {
+        it('should signature url with response limitation', async () => {
           const response = {
-            'content-type': 'xml',
-            'content-language': 'zh-cn'
+            'content-disposition': 'a.js',
+            'cache-control': 'no-cache'
           };
           const url = store.signatureUrl(name, { response });
-          assert(url.indexOf('response-content-type=xml') !== -1);
-          assert(url.indexOf('response-content-language=zh-cn') !== -1);
+          const res = await axios.get(url);
+
+          assert.strictEqual(res.status, 200);
+          assert.strictEqual(res.headers['cache-control'], 'no-cache');
+          assert.strictEqual(res.headers['content-disposition'], 'a.js');
         });
 
         it('should signature url with options contains other parameters', async () => {

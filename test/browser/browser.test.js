@@ -1189,12 +1189,17 @@ describe('browser', () => {
 
         it('should signature url with response limitation', async () => {
           const response = {
-            'content-type': 'xml',
-            'content-language': 'zh-cn'
+            'content-disposition': 'a.js',
+            'cache-control': 'no-cache'
           };
           const url = store.signatureUrl(name, { response });
-          assert(url.indexOf('response-content-type=xml') !== -1);
-          assert(url.indexOf('response-content-language=zh-cn') !== -1);
+          const res = await urllib.request(url, {
+            method: 'GET'
+          });
+
+          assert.strictEqual(res.status, 200);
+          assert.strictEqual(res.headers['cache-control'], 'no-cache');
+          assert.strictEqual(res.headers['content-disposition'], 'a.js');
         });
 
         it('should signature url with custom host ok', () => {
@@ -1838,7 +1843,6 @@ describe('browser', () => {
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
-          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -1847,7 +1851,7 @@ describe('browser', () => {
           //   });
 
           //   assert.equal(result.res.status, 200);
-          //   assert.equal(result.data.object, name);
+          //   assert.equal(result.data.Status, 'OK');
           // });
 
           // TODO fix callback server
@@ -1872,7 +1876,7 @@ describe('browser', () => {
           //     }
           //   });
           //   assert.equal(result.res.status, 200);
-          //   assert.equal(result.data.object, name);
+          //   assert.equal(result.data.Status, 'OK');
           // });
 
           // TODO fix callback server
