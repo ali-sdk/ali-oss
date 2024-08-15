@@ -21,8 +21,17 @@ describe('test/rtmp.test.js', () => {
   let store;
   let bucket;
   let bucketRegion;
-  let cid;
-  let conf;
+  const cid = 'channel-1';
+  const conf = {
+    Description: 'this is channel 1',
+    Status: 'enabled',
+    Target: {
+      Type: 'HLS',
+      FragDuration: '10',
+      FragCount: '5',
+      PlaylistName: 'playlist.m3u8'
+    }
+  };
   [
     {
       authorizationV4: false
@@ -38,20 +47,8 @@ describe('test/rtmp.test.js', () => {
         store.useBucket(bucket);
 
         const result = await store.putBucket(bucket, bucketRegion);
-        assert.equal(result.bucket, bucket);
-        assert.equal(result.res.status, 200);
-
-        cid = 'channel-1';
-        conf = {
-          Description: 'this is channel 1',
-          Status: 'enabled',
-          Target: {
-            Type: 'HLS',
-            FragDuration: '10',
-            FragCount: '5',
-            PlaylistName: 'playlist.m3u8'
-          }
-        };
+        assert.strictEqual(result.bucket, bucket);
+        assert.strictEqual(result.res.status, 200);
       });
 
       // github CI will remove buckets
@@ -65,25 +62,25 @@ describe('test/rtmp.test.js', () => {
           const tempConf = conf;
 
           let result = await store.putChannel(tempCid, tempConf);
-          assert.equal(result.res.status, 200);
+          assert.strictEqual(result.res.status, 200);
           assert(is.array(result.publishUrls));
           assert(result.publishUrls.length > 0);
           assert(is.array(result.playUrls));
           assert(result.playUrls.length > 0);
 
           result = await store.getChannel(tempCid);
-          assert.equal(result.res.status, 200);
-          assert.deepEqual(result.data, conf);
+          assert.strictEqual(result.res.status, 200);
+          assert.deepStrictEqual(result.data, conf);
 
           result = await store.deleteChannel(tempCid);
-          assert.equal(result.res.status, 204);
+          assert.strictEqual(result.res.status, 204);
 
           await utils.throws(
             async () => {
               await store.getChannel(tempCid);
             },
             err => {
-              assert.equal(err.status, 404);
+              assert.strictEqual(err.status, 404);
             }
           );
         });
@@ -219,9 +216,13 @@ describe('test/rtmp.test.js', () => {
               endTime: Math.floor(now / 1000)
             });
 
-            assert.equal(result.res.status, 200);
+            assert.strictEqual(result.res.status, 200);
+            // todo verify file
           } catch (err) {
-            console.error(err);
+            // todo remove catch error
+            assert.strictEqual(err.status, 400);
+            assert.strictEqual(err.code, 'InvalidArgument');
+            assert.strictEqual(err.ecCode, '0044-00000308');
           }
         });
       });
@@ -233,7 +234,7 @@ describe('test/rtmp.test.js', () => {
           const getRtmpUrlConf = conf;
           getRtmpUrlConf.Description = 'this is live channel 5';
           const result = await store.putChannel(getRtmpUrlCid, getRtmpUrlConf);
-          assert.equal(result.res.status, 200);
+          assert.strictEqual(result.res.status, 200);
         });
 
         after(async () => {
@@ -248,8 +249,8 @@ describe('test/rtmp.test.js', () => {
             },
             expires: 3600
           });
-          console.log(url);
-          // verify the url is ok used by OBS or ffmpeg
+          assert(url.includes(getRtmpUrlCid) && url.includes(name));
+          // todo verify the url is ok used by OBS or ffmpeg
         });
       });
     });

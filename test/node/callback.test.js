@@ -1,4 +1,3 @@
-// /* eslint-disable @typescript-eslint/no-require-imports */
 // // TODO callback server is disable
 // const fs = require('fs');
 // const assert = require('assert');
@@ -8,11 +7,6 @@
 // const config = require('../config').oss;
 // const mm = require('mm');
 
-// /*
-//  * temp test callback
-//  * multipartUpload
-//  * put
-//  */
 // describe.only('test/callback.test.js', () => {
 //   const { prefix } = utils;
 //   let store;
@@ -25,10 +19,6 @@
 //     bucket = sts.bucket;
 //     bucketRegion = config.region;
 //     store.useBucket(bucket, bucketRegion);
-//   });
-
-//   after(async () => {
-//     // await utils.cleanBucket(store, bucket, bucketRegion);
 //   });
 
 //   describe('upload callback', () => {
@@ -55,8 +45,7 @@
 //         }
 //       });
 //       assert.equal(result.res.status, 200);
-//       const { sni } = result.data;
-//       assert.equal(sni, false);
+//       assert.equal(result.data.Status, 'OK');
 //     });
 
 //     it('should multipart upload parse response with callback', async () => {
@@ -81,10 +70,7 @@
 //         }
 //       });
 //       assert.equal(result.res.status, 200);
-//       const { sni, var1: va, object: obj } = result.data;
-//       assert.equal(sni, host);
-//       assert.equal(var1, va);
-//       assert.equal(obj, name);
+//       assert.equal(result.data.Status, 'OK');
 //     });
 
 //     it('should multipart upload copy with callback', async () => {
@@ -120,7 +106,7 @@
 //       );
 
 //       assert.equal(result.res.status, 200);
-//       assert.equal(result.data.object, copyName);
+//       assert.equal(result.data.Status, 'OK');
 //     });
 
 //     it('should multipart upload with no more 100k file parse response with callback', async () => {
@@ -142,7 +128,7 @@
 //         }
 //       });
 //       assert.equal(result.res.status, 200);
-//       assert.equal(result.data.object, name);
+//       assert.equal(result.data.Status, 'OK');
 //     });
 
 //     it('should putStream parse response with callback', async () => {
@@ -162,7 +148,7 @@
 //       });
 
 //       assert.equal(result.res.status, 200);
-//       assert.equal(result.data.object, name);
+//       assert.equal(result.data.Status, 'OK');
 //     });
 
 //     it('should put parse response with callback', async () => {
@@ -182,7 +168,7 @@
 //       });
 
 //       assert.equal(result.res.status, 200);
-//       assert.equal(result.data.object, name);
+//       assert.equal(result.data.Status, 'OK');
 //     });
 
 //     it('should multipart upload with no more 100k file use header x-oss-callback', async () => {
@@ -200,7 +186,7 @@
 //         }
 //       });
 //       assert.equal(result.res.status, 200);
-//       assert.equal(result.data.object, name);
+//       assert.equal(result.data.Status, 'OK');
 //     });
 //   });
 // });

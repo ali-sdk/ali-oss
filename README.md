@@ -1760,22 +1760,22 @@ store.put('ossdemo/demo.txt', filepath).then((result) => {
   console.log(result);
 });
 
-{
-  name: 'ossdemo/demo.txt',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"BF7A03DA01440845BC5D487B369BC168"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829244'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/demo.txt',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"BF7A03DA01440845BC5D487B369BC168"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829244'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 - Add an object through content buffer
@@ -1785,23 +1785,23 @@ store.put('ossdemo/buffer', Buffer.from('foo content')).then((result) => {
   console.log(result);
 });
 
-{
-  name: 'ossdemo/buffer',
-  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/buffer',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"xxx"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829243'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/buffer',
+//   url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/buffer',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"xxx"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829243'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 - Add an object through readstream
@@ -1812,23 +1812,23 @@ store.put('ossdemo/readstream.txt', fs.createReadStream(filepath)).then((result)
   console.log(result);
 });
 
-{
-  name: 'ossdemo/readstream.txt',
-  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"BF7A03DA01440845BC5D487B369BC168"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829242'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/readstream.txt',
+//   url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"BF7A03DA01440845BC5D487B369BC168"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829242'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 ### .putStream(name, stream[, options])
@@ -1883,23 +1883,23 @@ store.putStream('ossdemo/readstream.txt', fs.createReadStream(filepath)).then((r
   console.log(result);
 });
 
-{
-  name: 'ossdemo/readstream.txt',
-  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"BF7A03DA01440845BC5D487B369BC168"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829242'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/readstream.txt',
+//   url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"BF7A03DA01440845BC5D487B369BC168"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829242'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 ### .append(name, file[, options])
@@ -2020,14 +2020,14 @@ await this.store.put('ossdemo/head-meta', Buffer.from('foo'), {
 const object = await this.store.head('ossdemo/head-meta');
 console.log(object);
 
-{
-  status: 200,
-  meta: {
-    uid: '1',
-    path: 'foo/demo.txt'
-  },
-  res: { ... }
-}
+// {
+//   status: 200,
+//   meta: {
+//     uid: '1',
+//     path: 'foo/demo.txt'
+//   },
+//   res: { ... }
+// }
 ```
 
 - Head a not exists object
@@ -2065,10 +2065,10 @@ await this.store.put('ossdemo/object-meta', Buffer.from('foo'));
 const object = await this.store.getObjectMeta('ossdemo/object-meta');
 console.log(object);
 
-{
-  status: 200,
-  res: { ... }
-}
+// {
+//   status: 200,
+//   res: { ... }
+// }
 ```
 
 ### .get(name[, file, options])
@@ -3341,7 +3341,7 @@ parameters:
 - file {String|File(only support Browser)|Blob(only support Browser)|Buffer} file path or HTML5 Web File or web Blob or content buffer
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
-  - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
+  - [partSize] {Number} the suggested size for each part, default `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
@@ -3452,7 +3452,6 @@ const result2 = await store.multipartUpload('object', '/tmp/file', {
 > tips: abort multipartUpload support on node and browser
 
 ```js
-
 //start upload
 let abortCheckpoint;
 store.multipartUpload('object', '/tmp/file', {
@@ -3461,17 +3460,16 @@ store.multipartUpload('object', '/tmp/file', {
   }
 }).then(res => {
   // do something
-}.catch(err => {
+}).catch(err => {
    //if abort will catch abort event
   if (err.name === 'abort') {
     // handle abort
     console.log('error: ', err.message)
   }
-}))
+});
 
 // abort
-store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
-
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId);
 ```
 
 - multipartUpload with cancel
@@ -3624,8 +3622,7 @@ console.log(result);
 - multipartUploadCopy with abort
 
 ```js
-
-//start upload
+// start upload
 let abortCheckpoint;
 store.multipartUploadCopy('object', {
     sourceKey: 'sourceKey',
@@ -3636,18 +3633,17 @@ store.multipartUploadCopy('object', {
   }
 }).then(res => {
   // do something
-}.catch(err => {
+}).catch(err => {
    //if abort will catch abort event
   if (err.name === 'abort') {
     // handle abort
     console.log('error: ', err.message)
   }
-}))
+});
 
-//the other event to abort, for example: click event
-//to abort upload must use the same client instance
-store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
-
+// the other event to abort, for example: click event
+// to abort upload must use the same client instance
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId);
 ```
 
 - multipartUploadCopy with cancel
@@ -4245,7 +4241,7 @@ const oss = require('ali-oss');
 const imgClient = oss.ImageClient({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
-  bucket: 'my_image_bucket'
+  bucket: 'my_image_bucket',
   imageHost: 'thumbnail.myimageservice.com'
 });
 ```
@@ -4616,9 +4612,7 @@ Success will return full signature url.
 example:
 
 ```js
-const url = imgClient.signatureUrl('
-');
-// http://thumbnail.myimageservice.com/demo.jpg@200w_200h?OSSAccessKeyId=uZxyLARzYZtGwHKY&Expires=1427803849&Signature=JSPRe06%2FjQpQSj5zlx2ld1V%2B35I%3D
+const url = imgClient.signatureUrl('name');
 ```
 
 ## Cluster Mode

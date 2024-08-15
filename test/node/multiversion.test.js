@@ -58,6 +58,36 @@ describe('test/multiversion.test.js', () => {
             assert(false, err.message);
           }
         });
+
+        it('should set bucket version valid', async () => {
+          try {
+            await store.putBucketVersioning(bucket, 'Start');
+            assert.fail('Expects to throw an error');
+          } catch (err) {
+            assert.strictEqual(err.message, 'status must be Enabled or Suspended');
+          }
+
+          try {
+            await store.putBucketVersioning(bucket, 'Close');
+            assert.fail('Expects to throw an error');
+          } catch (err) {
+            assert.strictEqual(err.message, 'status must be Enabled or Suspended');
+          }
+
+          try {
+            await store.putBucketVersioning(bucket, true);
+            assert.fail('Expects to throw an error');
+          } catch (err) {
+            assert.strictEqual(err.message, 'status must be Enabled or Suspended');
+          }
+
+          try {
+            await store.putBucketVersioning(bucket, 1);
+            assert.fail('Expects to throw an error');
+          } catch (err) {
+            assert.strictEqual(err.message, 'status must be Enabled or Suspended');
+          }
+        });
       });
 
       describe('getBucketVersions()', () => {
@@ -119,7 +149,7 @@ describe('test/multiversion.test.js', () => {
 
       describe('putBucketLifecycle() getBucketLifecycle()', async () => {
         it('should putBucketLifecycle with noncurrentVersionExpiration', async () => {
-          const putresult1 = await store.putBucketLifecycle(
+          const res = await store.putBucketLifecycle(
             bucket,
             [
               {
@@ -133,7 +163,7 @@ describe('test/multiversion.test.js', () => {
                 }
               },
               {
-                prefix: 'logss/',
+                prefix: 'logs2/',
                 status: 'Enabled',
                 noncurrentVersionExpiration: {
                   noncurrentDays: 1
@@ -145,13 +175,13 @@ describe('test/multiversion.test.js', () => {
             }
           );
           await utils.sleep(ms(metaSyncTime));
-          assert.strictEqual(putresult1.res.status, 200);
+          assert.strictEqual(res.res.status, 200);
           const { rules } = await store.getBucketLifecycle(bucket);
           assert.strictEqual(rules[0].noncurrentVersionExpiration.noncurrentDays, '1');
         });
 
         it('should putBucketLifecycle with expiredObjectDeleteMarker', async () => {
-          const putresult1 = await store.putBucketLifecycle(bucket, [
+          const res = await store.putBucketLifecycle(bucket, [
             {
               id: 'expiration1',
               prefix: 'logs/',
@@ -164,14 +194,50 @@ describe('test/multiversion.test.js', () => {
               }
             }
           ]);
-          assert.equal(putresult1.res.status, 200);
+
+          assert.strictEqual(res.res.status, 200);
           await utils.sleep(2000);
+
           const { rules } = await store.getBucketLifecycle(bucket);
           assert.strictEqual(rules[0].expiration.expiredObjectDeleteMarker, 'true');
         });
 
+        it('should expiredObjectDeleteMarker cannot be used with days or createdBeforeDate', async () => {
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                expiration: {
+                  expiredObjectDeleteMarker: 'true',
+                  days: 1
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'expiredObjectDeleteMarker cannot be used with days or createdBeforeDate');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                expiration: {
+                  expiredObjectDeleteMarker: 'true',
+                  createdBeforeDate: '2020-02-18T00:00:00.000Z'
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'expiredObjectDeleteMarker cannot be used with days or createdBeforeDate');
+          }
+        });
+
         it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
-          const putresult = await store.putBucketLifecycle(
+          const res = await store.putBucketLifecycle(
             bucket,
             [
               {
@@ -186,7 +252,7 @@ describe('test/multiversion.test.js', () => {
                 prefix: 'log/',
                 status: 'Enabled',
                 noncurrentVersionTransition: {
-                  noncurrentDays: '10',
+                  noncurrentDays: '20',
                   storageClass: 'Archive'
                 }
               },
@@ -194,7 +260,7 @@ describe('test/multiversion.test.js', () => {
                 prefix: 'log/',
                 status: 'Enabled',
                 noncurrentVersionTransition: {
-                  noncurrentDays: '10',
+                  noncurrentDays: '30',
                   storageClass: 'ColdArchive'
                 }
               },
@@ -202,14 +268,19 @@ describe('test/multiversion.test.js', () => {
                 prefix: 'log/',
                 status: 'Enabled',
                 noncurrentVersionTransition: {
-                  noncurrentDays: '10',
+                  noncurrentDays: '40',
                   storageClass: 'DeepColdArchive'
                 }
               }
             ],
-            { headers: { 'x-oss-allow-same-action-overlap': 'true' } }
+            {
+              headers: {
+                'x-oss-allow-same-action-overlap': 'true'
+              }
+            }
           );
-          assert.equal(putresult.res.status, 200);
+
+          assert.strictEqual(res.res.status, 200);
           await utils.sleep(1000);
 
           const { rules } = await store.getBucketLifecycle(bucket);
@@ -220,6 +291,116 @@ describe('test/multiversion.test.js', () => {
           ] = rules;
 
           assert(noncurrentDays === '10' && storageClass === 'IA' && rules.length === 4);
+        });
+
+        it('should noncurrentVersionExpiration and noncurrentVersionTransition include noncurrentDays', async () => {
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                noncurrentVersionExpiration: {}
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'NoncurrentVersionExpiration must includes noncurrentDays');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                noncurrentVersionTransition: {
+                  noncurrentDays: null,
+                  storageClass: 'Archive'
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'NoncurrentVersionTransition must includes noncurrentDays');
+          }
+        });
+
+        it('should noncurrentDays be valid', async () => {
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                noncurrentVersionExpiration: {
+                  noncurrentDays: '2.0'
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'noncurrentDays must be a positive integer');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                noncurrentVersionExpiration: {
+                  noncurrentDays: 'a'
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'noncurrentDays must be a positive integer');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                noncurrentVersionExpiration: {
+                  noncurrentDays: [1]
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'noncurrentDays must be a positive integer');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                noncurrentVersionTransition: {
+                  noncurrentDays: true,
+                  storageClass: 'Archive'
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'noncurrentDays must be a positive integer');
+          }
+
+          try {
+            await store.putBucketLifecycle(bucket, [
+              {
+                prefix: '',
+                status: 'Enabled',
+                noncurrentVersionTransition: {
+                  noncurrentDays: -1,
+                  storageClass: 'Archive'
+                }
+              }
+            ]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert.strictEqual(e.message, 'noncurrentDays must be a positive integer');
+          }
         });
       });
 
