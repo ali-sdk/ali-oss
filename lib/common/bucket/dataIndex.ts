@@ -107,22 +107,38 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
   const result = await this.request(params);
 
   const { NextToken, Files, Aggregations: aggRes } = await this.parseXML(result.data);
-
+  // console.log('Files', JSON.stringify(Files));
   let files: any[] = [];
   if (Files && Files.File) {
     const getFileObject = item => {
-      const ossTagging = item.OSSTagging
-        ? item.OSSTagging.map(tagging => ({
+      let ossTagging: any[] = [];
+      const { OSSTagging } = item;
+      if (OSSTagging && OSSTagging.Tagging) {
+        const { Tagging } = OSSTagging;
+        if (Tagging instanceof Array) {
+          ossTagging = Tagging.map(tagging => ({
             key: tagging.Key,
             value: tagging.Value
-          }))
-        : [];
-      const ossUserMeta = item.OSSUserMeta
-        ? item.OSSUserMeta.map(meta => ({
+          }));
+        } else if (Tagging instanceof Object) {
+          ossTagging = [{ key: Tagging.Key, vlaue: Tagging.Value }];
+        }
+      }
+
+      let ossUserMeta: any[] = [];
+      const { OSSUserMeta } = item;
+      if (OSSUserMeta && OSSUserMeta.UserMeta) {
+        const { UserMeta } = OSSUserMeta;
+        if (UserMeta instanceof Array) {
+          ossUserMeta = UserMeta.map(meta => ({
             key: meta.Key,
             value: meta.Value
-          }))
-        : [];
+          }));
+        } else if (UserMeta instanceof Object) {
+          ossUserMeta = [{ key: UserMeta.Key, vlaue: UserMeta.Value }];
+        }
+      }
+
       return {
         fileName: item.Filename,
         size: item.Size,
@@ -131,7 +147,7 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
         ossStorageClass: item.OSSStorageClass,
         objectACL: item.ObjectACL,
         eTag: item.ETag,
-        ossTaggingCount: item.OSSTaggingCount,
+        ossTaggingCount: item.OSSTaggingCount || 0,
         ossTagging,
         ossUserMeta,
         ossCRC64: item.OSSCRC64,

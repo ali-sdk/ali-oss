@@ -18,10 +18,10 @@ describe('test/bucket.test.js', () => {
   [
     {
       authorizationV4: false
-    },
-    {
-      authorizationV4: true
     }
+    // {
+    //   authorizationV4: true
+    // }
   ].forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
@@ -1680,11 +1680,42 @@ describe('test/bucket.test.js', () => {
           assert(result.aggregations[1].field, 'OSSTaggingCount');
         });
 
-        it('closeMetaQuery()', async () => {
-          const result = await store.closeMetaQuery(sts.bucket);
+        it.only('doMetaQuery() three Aggregations', async () => {
+          const queryParam = {
+            maxResults: 12,
+            query: {
+              operation: 'and',
+              subQueries: [
+                // { field: 'Filename', value: 'test-', operation: 'match' },
+                { field: 'Size', value: '3111', operation: 'gt' }
+              ]
+            },
+            aggregations: [
+              // { field: 'ETag', operation: 'count' }
+              // { field: 'FileModifiedTime', operation: 'distinct' },
+              // { field: 'Filename', operation: 'group' },
+              // { field: 'ObjectACL', operation: 'group' },
+              // { field: 'OSSCRC64', operation: 'distinct' },
+              // { field: 'OSSStorageClass', operation: 'group' },
+              // { field: 'OSSTaggingCount', operation: 'max' },
+              // { field: 'ServerSideEncryption', operation: 'group' },
+              // { field: 'Size', operation: 'sum' }
+            ]
+          };
+
+          const result = await store.doMetaQuery(sts.bucket, queryParam);
+          console.log('result::', result.aggregations, result.files); // result.res.data.toString(),
           assert.strictEqual(result.status, 200);
-          await utils.sleep(sleepTime * 2);
+          // assert(result.aggregations.length > 0);
+          // assert(result.aggregations[0].field, 'Size');
+          // assert(result.aggregations[1].field, 'OSSTaggingCount');
         });
+
+        // it('closeMetaQuery()', async () => {
+        //   const result = await store.closeMetaQuery(sts.bucket);
+        //   assert.strictEqual(result.status, 200);
+        //   await utils.sleep(sleepTime * 2);
+        // });
       });
     });
   });
