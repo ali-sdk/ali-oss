@@ -38,8 +38,8 @@ const cleanBucket = async store => {
   const uploads = result.uploads || [];
   await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
 };
+
 describe('browser', () => {
-  /* eslint require-yield: [0] */
   before(() => {
     ossConfig = {
       region: stsConfig.region,
@@ -48,14 +48,8 @@ describe('browser', () => {
       stsToken: stsConfig.Credentials.SecurityToken,
       bucket: stsConfig.bucket
     };
-    // this.store = oss({
-    //   region: stsConfig.region,
-    //   accessKeyId: creds.AccessKeyId,
-    //   accessKeySecret: creds.AccessKeySecret,
-    //   stsToken: creds.SecurityToken,
-    //   bucket: stsConfig.bucket
-    // });
   });
+
   after(async () => {
     const store = oss(ossConfig);
     await cleanBucket(store);
@@ -1852,9 +1846,7 @@ describe('browser', () => {
 
           // TODO fix callback server
           // it('should multipart upload file with callback server', async () => {
-          //   const fileContent = Array(1024 * 1024)
-          //     .fill('a')
-          //     .join('');
+          //   const fileContent = Array(1024 * 1024).fill('a').join('');
           //   const file = new File([fileContent], 'multipart-callback-server');
           //   const name = `${prefix}multipart/callback-server`;
           //   const result = await store.multipartUpload(name, file, {
@@ -1864,7 +1856,6 @@ describe('browser', () => {
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
-          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -2768,6 +2759,114 @@ describe('browser', () => {
           }
         });
       });
+    });
+  });
+
+  describe('test bucket data indexing', () => {
+    let store;
+    const { bucket } = stsConfig;
+    const sleepTime = 5000; // Opening and closing require delayed effectiveness
+    before(async () => {
+      store = oss({ ...ossConfig, refreshSTSTokenInterval: 1000 });
+      await store.put('test-doMetaQuery--1', Buffer.from('test-doMetaQuery'));
+      await store.put('test-doMetaQuery--2', Buffer.from('test-doMetaQuery'));
+      await store.put('test-doMetaQuery--3', Buffer.from('test-doMetaQuery'));
+      await store.put('test-doMetaQuery--4', Buffer.from('test-doMetaQuery'));
+    });
+
+    it('open meta query of bucket', async () => {
+      const result = await store.openMetaQuery(bucket);
+      assert.strictEqual(result.status, 200);
+      await sleep(sleepTime);
+    });
+
+    it('getMetaQueryStatus()', async () => {
+      const { status, phase, state, createTime, updateTime } = await store.getMetaQueryStatus(bucket);
+      assert.strictEqual(status, 200);
+      assert(['FullScanning', 'IncrementalScanning', ''].includes(phase));
+      assert(['Ready', 'Stop', 'Running', 'Retrying', 'Failed', 'Deleted'].includes(state));
+      assert(!!createTime);
+      assert(!!updateTime);
+    });
+
+    it('doMetaQuery()', async () => {
+      const maxResults = 2;
+      const queryParam = {
+        maxResults,
+        query: {
+          operation: 'and',
+          subQueries: [
+            { field: 'Filename', value: 'test-doMetaQuery', operation: 'match' },
+            { field: 'Size', value: '1048576', operation: 'lt' }
+          ]
+        }
+      };
+
+      const { status, files, nextToken } = await store.doMetaQuery(bucket, queryParam);
+      assert.strictEqual(status, 200);
+      if (nextToken) {
+        assert.strictEqual(files.length, maxResults);
+
+        const result = await store.doMetaQuery(bucket, { ...queryParam, nextToken, maxResults: 1 });
+        assert.strictEqual(result.status, 200);
+        assert(result.files.length > 0);
+        assert(result.files[0].fileName.length > 0);
+      }
+    });
+
+    it('doMetaQuery() one Aggregations', async () => {
+      const queryParam = {
+        maxResults: 2,
+        query: {
+          operation: 'and',
+          subQueries: [
+            { field: 'Filename', value: '_do', operation: 'match' },
+            { field: 'Size', value: '1048576', operation: 'lt' }
+          ]
+        },
+        aggregations: [{ field: 'Size', operation: 'sum' }]
+      };
+
+      const result = await store.doMetaQuery(bucket, queryParam);
+      assert.strictEqual(result.status, 200);
+      assert(result.aggregations.length > 0);
+      assert(result.aggregations[0].field, 'Size');
+    });
+
+    it('doMetaQuery() two Aggregations', async () => {
+      const queryParam = {
+        maxResults: 2,
+        query: {
+          operation: 'and',
+          subQueries: [
+            { field: 'Filename', value: 'test-', operation: 'match' },
+            { field: 'Size', value: '1048576', operation: 'lt' }
+          ]
+        },
+        aggregations: [
+          { field: 'ETag', operation: 'count' },
+          { field: 'FileModifiedTime', operation: 'distinct' },
+          { field: 'Filename', operation: 'group' },
+          { field: 'ObjectACL', operation: 'group' },
+          { field: 'OSSCRC64', operation: 'distinct' },
+          { field: 'OSSStorageClass', operation: 'group' },
+          { field: 'OSSTaggingCount', operation: 'max' },
+          { field: 'ServerSideEncryption', operation: 'group' },
+          { field: 'Size', operation: 'sum' }
+        ]
+      };
+
+      const result = await store.doMetaQuery(bucket, queryParam);
+      assert.strictEqual(result.status, 200);
+      assert(result.aggregations.length > 0);
+      assert(result.aggregations[0].field, 'Size');
+      assert(result.aggregations[1].field, 'OSSTaggingCount');
+    });
+
+    it('closeMetaQuery()', async () => {
+      const result = await store.closeMetaQuery(bucket);
+      assert.strictEqual(result.status, 200);
+      await sleep(sleepTime * 2);
     });
   });
 });

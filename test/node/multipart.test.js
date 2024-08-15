@@ -985,6 +985,7 @@ describe('test/multipart.test.js', () => {
             console.log('info >', error.message);
           });
           await Promise.all([p3, p4]);
+          await utils.sleep(2000);
           assert.strictEqual(store.multipartUploadStreams.length, 0);
         });
 

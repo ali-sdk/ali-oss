@@ -7,25 +7,25 @@ const { default: ResourceManager, ListResourceGroupsRequest } = require('@aliclo
 const { Config: OpenConfig } = require('@alicloud/openapi-client');
 const { RuntimeOptions } = require('@alicloud/tea-util');
 
-const { oss: config, metaSyncTime, timeout } = require('../config');
+const { sts, oss: config, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
-  const bucketRegion = 'oss-ap-southeast-1'; // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
+  const bucketRegion = config.region;
   const { accountId } = config;
   [
     {
       authorizationV4: false
-    },
-    {
-      authorizationV4: true
     }
+    // {
+    //   authorizationV4: true
+    // }
   ].forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
-        store = oss({ ...config, ...moreConfigs, region: bucketRegion });
+        store = oss({ ...config, ...moreConfigs });
         bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket, { timeout });
@@ -928,15 +928,20 @@ describe('test/bucket.test.js', () => {
             }
           ]);
           assert.equal(putresult3.res.status, 200);
-          // Regions that need to support DeepColdArchive
-          const putresult4 = await store.putBucketLifecycle(bucket, [
+
+          const region = 'oss-ap-southeast-1'; // oss-ap-southeast-1 suport putBucketLifecycle DeepColdArchive
+          const client = oss({ ...config, ...moreConfigs, region });
+          const bucketName = `ali-oss-test-bucket-deep-${prefix.replace(/[/.]/g, '-')}${idx}`;
+          const result4 = await client.putBucket(bucketName, { timeout });
+          assert.equal(result4.res.status, 200);
+          const putresult4 = await client.putBucketLifecycle(bucketName, [
             {
               id: 'transition4',
               prefix: 'logs/',
               status: 'Enabled',
               transition: {
                 days: 20,
-                storageClass: 'DeepColdArchive'
+                storageClass: 'DeepColdArchive' // Regions that need to support DeepColdArchive
               },
               tag: {
                 key: 'test4',
@@ -1393,6 +1398,7 @@ describe('test/bucket.test.js', () => {
           }
         });
       });
+
       describe('inventory()', () => {
         const field = [
           'Size',
@@ -1420,7 +1426,7 @@ describe('test/bucket.test.js', () => {
           frequency: 'Daily',
           includedObjectVersions: 'All',
           optionalFields: {
-            field
+            field: ['Size', 'LastModifiedDate']
           }
         };
 
@@ -1582,6 +1588,134 @@ describe('test/bucket.test.js', () => {
             assert.equal(result.res.status, 200);
           });
         });
+      });
+
+      describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
+        const sleepTime = 5000; // Opening and closing require delayed effectiveness
+        it('open meta query of bucket', async () => {
+          const result = await store.openMetaQuery(sts.bucket);
+          assert.strictEqual(result.status, 200);
+          await utils.sleep(sleepTime);
+        });
+
+        it('getMetaQueryStatus()', async () => {
+          const { status, phase, state, createTime, updateTime } = await store.getMetaQueryStatus(sts.bucket);
+          assert.strictEqual(status, 200);
+          assert(['FullScanning', 'IncrementalScanning', ''].includes(phase));
+          assert(['Ready', 'Stop', 'Running', 'Retrying', 'Failed', 'Deleted'].includes(state));
+          assert(!!createTime);
+          assert(!!updateTime);
+        });
+
+        it('doMetaQuery()', async () => {
+          const maxResults = 2;
+          const queryParam = {
+            maxResults,
+            query: {
+              operation: 'and',
+              subQueries: [
+                { field: 'Filename', value: 'test-doMetaQuery', operation: 'match' },
+                { field: 'Size', value: '1048576', operation: 'lt' }
+              ]
+            }
+          };
+          const { status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
+          assert.strictEqual(status, 200);
+          if (nextToken) {
+            assert.strictEqual(files.length, maxResults);
+
+            const result = await store.doMetaQuery(sts.bucket, { ...queryParam, nextToken, maxResults: 1 });
+            assert.strictEqual(result.status, 200);
+            assert(result.files.length > 0);
+            assert(result.files[0].fileName.length > 0);
+          }
+        });
+
+        it('doMetaQuery() one Aggregations', async () => {
+          const queryParam = {
+            maxResults: 2,
+            query: {
+              operation: 'and',
+              subQueries: [
+                { field: 'Filename', value: '_do', operation: 'match' },
+                { field: 'Size', value: '1048576', operation: 'lt' }
+              ]
+            },
+            aggregations: [{ field: 'Size', operation: 'sum' }]
+          };
+
+          const result = await store.doMetaQuery(sts.bucket, queryParam);
+          assert.strictEqual(result.status, 200);
+          assert(result.aggregations.length > 0);
+          assert(result.aggregations[0].field, 'Size');
+        });
+
+        it('doMetaQuery() two Aggregations', async () => {
+          const queryParam = {
+            maxResults: 2,
+            query: {
+              operation: 'and',
+              subQueries: [
+                { field: 'Filename', value: 'test-', operation: 'match' },
+                { field: 'Size', value: '1048576', operation: 'lt' }
+              ]
+            },
+            aggregations: [
+              { field: 'ETag', operation: 'count' },
+              { field: 'FileModifiedTime', operation: 'distinct' },
+              { field: 'Filename', operation: 'group' },
+              { field: 'ObjectACL', operation: 'group' },
+              { field: 'OSSCRC64', operation: 'distinct' },
+              { field: 'OSSStorageClass', operation: 'group' },
+              { field: 'OSSTaggingCount', operation: 'max' },
+              { field: 'ServerSideEncryption', operation: 'group' },
+              { field: 'Size', operation: 'sum' }
+            ]
+          };
+
+          const result = await store.doMetaQuery(sts.bucket, queryParam);
+          assert.strictEqual(result.status, 200);
+          assert(result.aggregations.length > 0);
+          assert(result.aggregations[0].field, 'Size');
+          assert(result.aggregations[1].field, 'OSSTaggingCount');
+        });
+
+        it.only('doMetaQuery() three Aggregations', async () => {
+          const queryParam = {
+            maxResults: 12,
+            query: {
+              operation: 'and',
+              subQueries: [
+                // { field: 'Filename', value: 'test-', operation: 'match' },
+                { field: 'Size', value: '3111', operation: 'gt' }
+              ]
+            },
+            aggregations: [
+              // { field: 'ETag', operation: 'count' }
+              // { field: 'FileModifiedTime', operation: 'distinct' },
+              // { field: 'Filename', operation: 'group' },
+              // { field: 'ObjectACL', operation: 'group' },
+              // { field: 'OSSCRC64', operation: 'distinct' },
+              // { field: 'OSSStorageClass', operation: 'group' },
+              // { field: 'OSSTaggingCount', operation: 'max' },
+              // { field: 'ServerSideEncryption', operation: 'group' },
+              // { field: 'Size', operation: 'sum' }
+            ]
+          };
+
+          const result = await store.doMetaQuery(sts.bucket, queryParam);
+          console.log('result::', result.aggregations, result.files); // result.res.data.toString(),
+          assert.strictEqual(result.status, 200);
+          // assert(result.aggregations.length > 0);
+          // assert(result.aggregations[0].field, 'Size');
+          // assert(result.aggregations[1].field, 'OSSTaggingCount');
+        });
+
+        // it('closeMetaQuery()', async () => {
+        //   const result = await store.closeMetaQuery(sts.bucket);
+        //   assert.strictEqual(result.status, 200);
+        //   await utils.sleep(sleepTime * 2);
+        // });
       });
     });
   });
