@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
@@ -6,6 +7,31 @@ const config = require('../config').oss;
 const { md5 } = require('utility');
 const mm = require('mm');
 const sinon = require('sinon');
+
+const tmpdir = path.join(__dirname, '.tmp');
+if (!fs.existsSync(tmpdir)) {
+  fs.mkdirSync(tmpdir);
+}
+
+const createFile = async (name, size) => {
+  size = size || 200 * 1024;
+  await new Promise((resolve, reject) => {
+    const rs = fs.createReadStream('/dev/random', {
+      start: 0,
+      end: size - 1
+    });
+    const ws = fs.createWriteStream(name);
+    rs.pipe(ws);
+    ws.on('finish', (err, res) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+  return name;
+};
 
 describe('test/multipart.test.js', () => {
   const { prefix } = utils;
@@ -946,19 +972,18 @@ describe('test/multipart.test.js', () => {
           const fileName = await utils.createTempFile(`multipart-upload-file-${Date.now()}`, 1024 * 1024);
           const name = `${prefix}multipart/upload-file-${Date.now()}`;
           const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
+
           try {
-            const p1 = store.multipartUpload(name, fileName);
-            const p2 = store.multipartUpload(name1, fileName).catch(error => {
-              console.log('info >', error.message);
-            });
-            await Promise.all([p1, p2]);
-          } catch (e) {}
+            await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+            assert.fail('Expects to throw an error');
+          } catch (e) {
+            assert(e.message.includes('mock upload part fail.'));
+          }
+
           mm.restore();
-          const p3 = store.multipartUpload(name, fileName);
-          const p4 = store.multipartUpload(name1, fileName).catch(error => {
-            console.log('info >', error.message);
-          });
-          await Promise.all([p3, p4]);
+
+          await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+
           assert.strictEqual(store.multipartUploadStreams.length, 0);
         });
 
@@ -1003,6 +1028,19 @@ describe('test/multipart.test.js', () => {
 
           assert.equal(header['x-oss-traffic-limit'], 645763);
           assert.equal(header['x-oss-server-side-encryption'], undefined);
+        });
+
+        it('should set storage-class header', async () => {
+          const filepath = path.join(tmpdir, 'content-storage-class-file.jpg');
+          await createFile(filepath);
+          const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
+          await store.multipartUpload(name, filepath, {
+            mime: 'text/plain',
+            headers: { 'x-oss-storage-class': 'IA' }
+          });
+          const result = await store.head(name);
+          assert.equal(result.res.headers['content-type'], 'text/plain');
+          assert.equal(result.res.headers['x-oss-storage-class'], 'IA');
         });
       });
     });

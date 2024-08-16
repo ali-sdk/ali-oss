@@ -1,2 +1,10 @@
 node_modules/
 dist/
+
+lib/common/utils/createRequest.js
+lib/common/utils/encodeString.js
+lib/common/utils/getStandardRegion.js
+lib/common/utils/checkEnv.js
+lib/common/utils/isDingTalk.js
+
+lib/common/bucket/putBucketInventory.d.ts

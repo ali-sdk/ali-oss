@@ -694,6 +694,41 @@ describe('browser', () => {
           });
           assert(!requestUrls2[0].includes('response-cache-control=no-cache'));
         });
+
+        it('test file is not a stream or string', async () => {
+          let result = await store.get(name, null, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+          result = await store.get(name, 2, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+          result = await store.get(name, undefined, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+          result = await store.get(name, true, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+        });
+        it('test file is options', async () => {
+          const result = await store.get(name, {
+            headers: {
+              Range: 'bytes=0-3'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '4');
+        });
       });
 
       describe('put', () => {
@@ -1099,23 +1134,6 @@ describe('browser', () => {
           );
         });
 
-        // it('should signature url with image processed and get object ok', function* () {
-        //   var name = prefix + 'ali-sdk/oss/nodejs-test-signature-1024x768.png';
-        //   var originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-        //   var processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-        //   var object = yield this.store.put(name, originImagePath, {
-        //     mime: 'image/png'
-        //   });
-        //
-        //   var signUrl = this.store.signatureUrl(name, {expires: 3600, process: 'image/resize,w_200'});
-        //   var processedKeyword = "x-oss-process=image%2Fresize%2Cw_200";
-        //   assert.equal(signUrl.match(processedKeyword), processedKeyword);
-        //   var urlRes = yield urllib.request(signUrl);
-        //   assert.equal(urlRes.status, 200);
-        //   // assert(urlRes.data.toString() == fs.readFileSync(processedImagePath, 'utf8'),
-        //   //   'response content should be same as test/nodejs-processed-w200.png');
-        // });
-        //
         it('should signature url for PUT', async () => {
           const putString = 'Hello World';
           const contentMd5 = crypto1.createHash('md5').update(Buffer.from(putString, 'utf8')).digest('base64');
@@ -1171,12 +1189,17 @@ describe('browser', () => {
 
         it('should signature url with response limitation', async () => {
           const response = {
-            'content-type': 'xml',
-            'content-language': 'zh-cn'
+            'content-disposition': 'a.js',
+            'cache-control': 'no-cache'
           };
           const url = store.signatureUrl(name, { response });
-          assert(url.indexOf('response-content-type=xml') !== -1);
-          assert(url.indexOf('response-content-language=zh-cn') !== -1);
+          const res = await urllib.request(url, {
+            method: 'GET'
+          });
+
+          assert.strictEqual(res.status, 200);
+          assert.strictEqual(res.headers['cache-control'], 'no-cache');
+          assert.strictEqual(res.headers['content-disposition'], 'a.js');
         });
 
         it('should signature url with custom host ok', () => {
@@ -1563,6 +1586,21 @@ describe('browser', () => {
             assert.equal(result.res.status, 200);
           });
 
+          it('should set storage-class header', async () => {
+            const fileContent = Array(1024 * 1024)
+              .fill('a')
+              .join('');
+            const file = new File([fileContent], 'multipart-fallback');
+            const name = `${prefix}storage-class`;
+            let result = await store.multipartUpload(name, file, {
+              headers: { 'x-oss-storage-class': 'IA' }
+            });
+            assert.equal(true, result.res && Object.keys(result.res).length !== 0);
+            assert.equal(result.res.status, 200);
+            result = await store.head(name);
+            assert.equal(result.res.headers['x-oss-storage-class'], 'IA');
+          });
+
           it('should upload file using multipart upload with exception', async () => {
             // create a file with 1M random data
             const fileContent = Array(1024 * 1024)
@@ -1792,13 +1830,15 @@ describe('browser', () => {
 
           // TODO fix callback server
           // it('should upload no more 100k file with callback server', async () => {
-          //   const fileContent = Array(50 * 1024).fill('a').join('');
+          //   const fileContent = Array(50 * 1024)
+          //     .fill('a')
+          //     .join('');
           //   const file = new File([fileContent], 'multipart-callback-server');
           //   const name = `${prefix}multipart/callback-server`;
           //   const result = await store.multipartUpload(name, file, {
           //     partSize: 100 * 1024,
           //     callback: {
-          //       url: callbackServer,
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
@@ -1809,22 +1849,26 @@ describe('browser', () => {
           //       }
           //     }
           //   });
+
           //   assert.equal(result.res.status, 200);
           //   assert.equal(result.data.Status, 'OK');
           // });
 
           // TODO fix callback server
           // it('should multipart upload file with callback server', async () => {
-          //   const fileContent = Array(1024 * 1024).fill('a').join('');
+          //   const fileContent = Array(1024 * 1024)
+          //     .fill('a')
+          //     .join('');
           //   const file = new File([fileContent], 'multipart-callback-server');
           //   const name = `${prefix}multipart/callback-server`;
           //   const result = await store.multipartUpload(name, file, {
           //     partSize: 100 * 1024,
           //     callback: {
-          //       url: callbackServer,
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
+          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -1854,11 +1898,12 @@ describe('browser', () => {
           //     },
           //     partSize: 100 * 1024,
           //     callback: {
-          //       url: 'http://oss-demo.aliyuncs.com:23450',
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
+          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -1880,11 +1925,12 @@ describe('browser', () => {
           //     partSize: 100 * 1024,
           //     checkpoint: tempCheckpoint,
           //     callback: {
-          //       url: 'http://oss-demo.aliyuncs.com:23450',
+          //       url: stsConfig.callbackServer,
           //       host: 'oss-cn-hangzhou.aliyuncs.com',
           //       /* eslint no-template-curly-in-string: [0] */
           //       body: 'bucket=${bucket}&object=${object}&var1=${x:var1}',
           //       contentType: 'application/x-www-form-urlencoded',
+          //       callbackSNI: true,
           //       customValue: {
           //         var1: 'value1',
           //         var2: 'value2'
@@ -2028,6 +2074,26 @@ describe('browser', () => {
           // headObject return targetObject storage class
           // result = await store.getObjectMeta(name);
           // console.log(result);
+        });
+
+        it('error detail from header', async () => {
+          const store = oss({ ...ossConfig, ...moreConfigs });
+          const name = '/oss/return-symlink-软链接403.js';
+          let result = await store.put(name, Buffer.from('test-symlink'));
+          assert.equal(result.res.status, 200);
+
+          const oneLinkName = '/oss/oneLinkName-temp.js';
+          result = await store.putSymlink(oneLinkName, name);
+          assert.equal(result.res.status, 200);
+          const twoLinkName = '/oss/twoLinkName-temp.js';
+          result = await store.putSymlink(twoLinkName, oneLinkName);
+          assert.equal(result.res.status, 200);
+          try {
+            await store.head(twoLinkName);
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.equal(e.code, 'InvalidTargetType');
+          }
         });
       });
 
@@ -2530,7 +2596,7 @@ describe('browser', () => {
           const info = await store.restore(name);
           assert.equal(info.res.status, 202);
 
-          // in 1 minute verify RestoreAlreadyInProgressError
+          // in 1 minute verify RestoreAlreadyInProgressError.
           try {
             await store.restore(name);
           } catch (err) {

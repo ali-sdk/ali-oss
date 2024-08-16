@@ -1,4 +1,4 @@
-declare type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
+declare type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus | ObjectAcl | TaggingCount | ObjectType | Crc64';
 interface Inventory {
     id: string;
     isEnabled: true | false;

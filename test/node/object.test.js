@@ -108,7 +108,7 @@ describe('test/object.test.js', () => {
 
         it('should add image with file streaming way', async () => {
           const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
-          const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+          const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           const object = await store.putStream(name, fs.createReadStream(imagepath), {
             mime: 'image/png'
           });
@@ -129,7 +129,7 @@ describe('test/object.test.js', () => {
         it('should put object with http streaming way', async () => {
           const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
           const nameCpy = `${prefix}ali-sdk/oss/nodejs-1024x768`;
-          const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+          const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
           const signUrl = await store.signatureUrl(name, { expires: 3600 });
           const stream = fs.createWriteStream(imagepath);
@@ -170,6 +170,7 @@ describe('test/object.test.js', () => {
               readerStream.destroy();
             });
             await store.putStream(name, readerStream);
+            assert.fail('Expects to throw an error');
           } catch (error) {
             assert.strictEqual(error.status, -1);
           }
@@ -179,7 +180,7 @@ describe('test/object.test.js', () => {
       describe('processObjectSave()', () => {
         const name = 'sourceObject.png';
         before(async () => {
-          const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+          const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           await store.putStream(name, fs.createReadStream(imagepath), {
             mime: 'image/png'
           });
@@ -566,6 +567,22 @@ describe('test/object.test.js', () => {
           resHeaders = object.res.headers;
         });
 
+        it('error detail from header', async () => {
+          const oneLinkName = 'oneLinkName-temp.js';
+          let result = await store.putSymlink(oneLinkName, name);
+          assert.equal(result.res.status, 200);
+          const twoLinkName = 'twoLinkName-temp.js';
+          result = await store.putSymlink(twoLinkName, oneLinkName);
+          assert.equal(result.res.status, 200);
+
+          try {
+            await store.head(twoLinkName);
+            assert.fail('expected an error to be thrown');
+          } catch (e) {
+            assert.equal(e.code, 'InvalidTargetType');
+          }
+        });
+
         it('should head not exists object throw NoSuchKeyError', async () => {
           await utils.throws(
             async () => {
@@ -832,8 +849,8 @@ describe('test/object.test.js', () => {
 
         it('should get object content buffer with image process', async () => {
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          path.join(__dirname, 'nodejs-processed-w200.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          // path.join(__dirname, 'nodejs-processed-w200.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
@@ -866,6 +883,44 @@ describe('test/object.test.js', () => {
               assert.equal(err.message, 'The specified key does not exist.');
             }
           );
+        });
+
+        it('test file is not a stream or string', async () => {
+          let result = await store.get(name, null, {
+            headers: {
+              Range: 'bytes=0-9'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '10');
+          assert(Buffer.isBuffer(result.content), 'content should be Buffer');
+          result = await store.get(name, undefined, {
+            headers: {
+              Range: 'bytes=0-9'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '10');
+          result = await store.get(name, 1, {
+            headers: {
+              Range: 'bytes=0-9'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '10');
+          result = await store.get(name, true, {
+            headers: {
+              Range: 'bytes=0-9'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '10');
+        });
+
+        it('test file is options', async () => {
+          const result = await store.get(name, {
+            headers: {
+              Range: 'bytes=0-9'
+            }
+          });
+          assert.equal(result.res.headers['content-length'], '10');
+          assert(Buffer.isBuffer(result.content), 'content should be Buffer');
         });
 
         describe('If-Modified-Since header', () => {
@@ -1026,11 +1081,10 @@ describe('test/object.test.js', () => {
       });
 
       describe('signatureUrl(), asyncSignatureUrl() and signatureUrlV4()', () => {
-        let name;
-        let needEscapeName;
+        const name = `${prefix}ali-sdk/oss/signatureUrl.js`;
+        const needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
         const testSignatureObjectName = `?{测}\r\n[试];,/?:@&=+$<中>-_.!~*'(文)"￥#%！（字）^ \`符|\\${prefix}test.txt`;
         before(async () => {
-          name = `${prefix}ali-sdk/oss/signatureUrl.js`;
           let object = await store.put(name, __filename, {
             meta: {
               uid: 1,
@@ -1040,7 +1094,6 @@ describe('test/object.test.js', () => {
           });
           assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
 
-          needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
           object = await store.put(needEscapeName, __filename, {
             meta: {
               uid: 1,
@@ -1095,14 +1148,17 @@ describe('test/object.test.js', () => {
           );
         });
 
-        it('should signature url with response limitation', () => {
+        it('should signature url with response limitation', async () => {
           const response = {
-            'content-type': 'xml',
-            'content-language': 'zh-cn'
+            'content-disposition': 'a.js',
+            'cache-control': 'no-cache'
           };
           const url = store.signatureUrl(name, { response });
-          assert(url.indexOf('response-content-type=xml') !== -1);
-          assert(url.indexOf('response-content-language=zh-cn') !== -1);
+          const res = await axios.get(url);
+
+          assert.strictEqual(res.status, 200);
+          assert.strictEqual(res.headers['cache-control'], 'no-cache');
+          assert.strictEqual(res.headers['content-disposition'], 'a.js');
         });
 
         it('should signature url with options contains other parameters', async () => {
@@ -1116,8 +1172,8 @@ describe('test/object.test.js', () => {
             testParameters: 'xxx'
           };
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          path.join(__dirname, 'nodejs-processed-w200.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          // path.join(__dirname, 'nodejs-processed-w200.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
@@ -1152,8 +1208,8 @@ describe('test/object.test.js', () => {
         // todo 这个用例和上面的重复了
         it('should signature url with image processed and get object ok', async () => {
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          path.join(__dirname, 'nodejs-processed-w200.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          // path.join(__dirname, 'nodejs-processed-w200.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
@@ -1215,18 +1271,19 @@ describe('test/object.test.js', () => {
         //     body: `bucket=${bucket}`,
         //     host: 'oss-demo.aliyuncs.com',
         //     contentType: 'application/json',
+        //     callbackSNI: true,
         //     customValue: {
         //       key1: 'value1',
         //       key2: 'value2'
         //     }
         //   };
-        //
+
         //   const options = {
         //     method: 'PUT',
         //     expires: 3600,
         //     callback
         //   };
-        //
+
         //   const url = store.signatureUrl(name, options);
         //   const res = await urllib.request(url, options);
         //   assert.equal(res.status, 200);
@@ -1398,36 +1455,41 @@ describe('test/object.test.js', () => {
         });
 
         /**
-         * Image processing uses different compression algorithms,
+         * Image processing uses different compression algorithms
          * and the performance may be inconsistent
          * between different regions
          */
         it('should get image stream with image process', async () => {
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
-          const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
-          const processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
-          const processedImagePath2 = path.join(__dirname, 'nodejs-processed-w200-latest.png');
+          const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
+          const processedImagePath = path.join(__dirname, './fixtures/nodejs-processed-w200.png');
+          const processedImagePath2 = path.join(__dirname, './fixtures/nodejs-processed-w200-latest.png');
           await store.put(imageName, originImagePath, {
             mime: 'image/png'
           });
 
-          let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
-          let result2 = await store.getStream(imageName, { process: 'image/resize,w_200' });
+          let opts = { process: 'image/resize,w_200' };
+          let result = await store.getStream(imageName, opts);
+          let result2 = await store.getStream(imageName, opts);
           assert.equal(result.res.status, 200);
           assert.equal(result2.res.status, 200);
+          await store.get(imageName, processedImagePath, opts);
+          await store.get(imageName, processedImagePath2, opts);
+
           let isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
           let isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
           assert(isEqual || isEqual2);
-          result = await store.getStream(imageName, {
+
+          opts = {
             process: 'image/resize,w_200',
             subres: { 'x-oss-process': 'image/resize,w_100' }
-          });
-          result2 = await store.getStream(imageName, {
-            process: 'image/resize,w_200',
-            subres: { 'x-oss-process': 'image/resize,w_100' }
-          });
+          };
+          result = await store.getStream(imageName, opts);
+          result2 = await store.getStream(imageName, opts);
           assert.equal(result.res.status, 200);
           assert.equal(result2.res.status, 200);
+          await store.get(imageName, processedImagePath, opts);
+          await store.get(imageName, processedImagePath2, opts);
           isEqual = await streamEqual(result.stream, fs.createReadStream(processedImagePath));
           isEqual2 = await streamEqual(result2.stream, fs.createReadStream(processedImagePath2));
           assert(isEqual || isEqual2);
@@ -1452,7 +1514,6 @@ describe('test/object.test.js', () => {
               await store.getStream(`${name}not-exists`);
               throw new Error('should not run this');
             } catch (err) {
-              console.log('error is', err);
               assert.equal(err.name, 'NoSuchKeyError');
               assert.equal(Object.keys(store.agent.freeSockets).length, 0);
               await utils.sleep(ms(metaSyncTime));

@@ -146,6 +146,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.deleteMulti(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.asyncSignatureUrl(name[, options])](#signatureurlname-options)
+  - [.signatureUrlV4(method, expires[, request, objectName, additionalHeaders])](#signatureurlv4method-expires-request-objectname-additionalheaders)
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
@@ -351,7 +352,7 @@ options:
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
 - [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with
   `fetch` mode ,else `XMLHttpRequest`
-- [enableProxy] {Boolean}, Enable proxy request, default is false.
+- [enableProxy] {Boolean}, Enable proxy request, default is false. **_NOTE:_** When enabling proxy request, please ensure that proxy-agent is installed.
 - [proxy] {String | Object}, proxy agent uri or options, default is null.
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 - [maxSockets] {Number} Maximum number of sockets to allow per host. Default is infinity
@@ -460,8 +461,8 @@ try {
   const putObjectResult = await store.put('your bucket name', 'your object name', {
     headers: {
       // The headers of this request
-      'header1': 'value1',
-      'header2': 'value2'
+      header1: 'value1',
+      header2: 'value2'
     },
     // The keys of the request headers that need to be calculated into the V4 signature. Please ensure that these additional headers are included in the request headers.
     additionalHeaders: ['additional header1', 'additional header2']
@@ -994,12 +995,12 @@ parameters:
     - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
       `createdBeforeDate` and `days` must have one.
   - [transition] {Object} Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle.
-    - storageClass {String} Specifies the storage class that objects that conform to the rule are converted into. allow values: `IA` or `Archive`
+    - storageClass {String} Specifies the storage class that objects that conform to the rule are converted into. allow values: `IA` or `Archive` or `ColdArchive` or `DeepColdArchive`
     - [days] {Number|String} expire after the `days`
     - [createdBeforeDate] {String} expire date, e.g.: `2022-10-11T00:00:00.000Z`
       `createdBeforeDate` and `days` must have one.
   - [noncurrentVersionTransition] {Object} Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle.
-    - storageClass {String} Specifies the storage class that history objects that conform to the rule are converted into. allow values: `IA` or `Archive`
+    - storageClass {String} Specifies the storage class that history objects that conform to the rule are converted into. allow values: `IA` or `Archive` or `ColdArchive` or `DeepColdArchive`
     - noncurrentDays {String} expire after the `noncurrentDays`
       `expiration`、 `abortMultipartUpload`、 `transition`、 `noncurrentVersionTransition` must have one.
   - [noncurrentVersionExpiration] {Object} specifies the expiration attribute of the lifecycle rules for the history object.
@@ -1489,7 +1490,8 @@ Success will return:
 - res {Object} response info
 
 ```ts
-type Field = 'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus';
+type Field =
+  'Size | LastModifiedDate | ETag | StorageClass | IsMultipartUploaded | EncryptionStatus | ObjectAcl | TaggingCount | ObjectType | Crc64';
 interface Inventory {
   id: string;
   isEnabled: true | false;
@@ -1538,7 +1540,18 @@ const inventory = {
   frequency: 'Daily', // `WEEKLY` | `Daily`
   includedObjectVersions: 'All', // `All` | `Current`
   optionalFields: {
-    field: ['Size', 'LastModifiedDate', 'ETag', 'StorageClass', 'IsMultipartUploaded', 'EncryptionStatus']
+    field: [
+      'Size',
+      'LastModifiedDate',
+      'ETag',
+      'StorageClass',
+      'IsMultipartUploaded',
+      'EncryptionStatus',
+      'ObjectAcl',
+      'TaggingCount',
+      'ObjectType',
+      'Crc64'
+    ]
   }
 };
 
@@ -1712,6 +1725,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, `key=${key}&etag=${etag}&my_var=${x:my_var}`.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -1747,22 +1761,22 @@ store.put('ossdemo/demo.txt', filepath).then((result) => {
   console.log(result);
 });
 
-{
-  name: 'ossdemo/demo.txt',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"BF7A03DA01440845BC5D487B369BC168"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829244'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/demo.txt',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"BF7A03DA01440845BC5D487B369BC168"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829244'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 - Add an object through content buffer
@@ -1772,23 +1786,23 @@ store.put('ossdemo/buffer', Buffer.from('foo content')).then((result) => {
   console.log(result);
 });
 
-{
-  name: 'ossdemo/buffer',
-  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/buffer',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"xxx"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829243'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/buffer',
+//   url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/buffer',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"xxx"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829243'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 - Add an object through readstream
@@ -1799,23 +1813,23 @@ store.put('ossdemo/readstream.txt', fs.createReadStream(filepath)).then((result)
   console.log(result);
 });
 
-{
-  name: 'ossdemo/readstream.txt',
-  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"BF7A03DA01440845BC5D487B369BC168"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829242'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/readstream.txt',
+//   url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"BF7A03DA01440845BC5D487B369BC168"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829242'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 ### .putStream(name, stream[, options])
@@ -1837,6 +1851,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -1869,23 +1884,23 @@ store.putStream('ossdemo/readstream.txt', fs.createReadStream(filepath)).then((r
   console.log(result);
 });
 
-{
-  name: 'ossdemo/readstream.txt',
-  url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
-  res: {
-    status: 200,
-    headers: {
-      date: 'Tue, 17 Feb 2015 13:28:17 GMT',
-      'content-length': '0',
-      connection: 'close',
-      etag: '"BF7A03DA01440845BC5D487B369BC168"',
-      server: 'AliyunOSS',
-      'x-oss-request-id': '54E341F1707AA0275E829242'
-    },
-    size: 0,
-    rt: 92
-  }
-}
+// {
+//   name: 'ossdemo/readstream.txt',
+//   url: 'http://demo.oss-cn-hangzhou.aliyuncs.com/ossdemo/readstream.txt',
+//   res: {
+//     status: 200,
+//     headers: {
+//       date: 'Tue, 17 Feb 2015 13:28:17 GMT',
+//       'content-length': '0',
+//       connection: 'close',
+//       etag: '"BF7A03DA01440845BC5D487B369BC168"',
+//       server: 'AliyunOSS',
+//       'x-oss-request-id': '54E341F1707AA0275E829242'
+//     },
+//     size: 0,
+//     rt: 92
+//   }
+// }
 ```
 
 ### .append(name, file[, options])
@@ -2006,14 +2021,14 @@ await this.store.put('ossdemo/head-meta', Buffer.from('foo'), {
 const object = await this.store.head('ossdemo/head-meta');
 console.log(object);
 
-{
-  status: 200,
-  meta: {
-    uid: '1',
-    path: 'foo/demo.txt'
-  },
-  res: { ... }
-}
+// {
+//   status: 200,
+//   meta: {
+//     uid: '1',
+//     path: 'foo/demo.txt'
+//   },
+//   res: { ... }
+// }
 ```
 
 - Head a not exists object
@@ -2051,10 +2066,10 @@ await this.store.put('ossdemo/object-meta', Buffer.from('foo'));
 const object = await this.store.getObjectMeta('ossdemo/object-meta');
 console.log(object);
 
-{
-  status: 200,
-  res: { ... }
-}
+// {
+//   status: 200,
+//   res: { ... }
+// }
 ```
 
 ### .get(name[, file, options])
@@ -2064,8 +2079,9 @@ Get an object from the bucket.
 parameters:
 
 - name {String} object name store on OSS
-- [file] {String|WriteStream} file path or WriteStream instance to store the content
+- [file] {String|WriteStream|Object} file path or WriteStream instance to store the content
   If `file` is null or ignore this parameter, function will return info contains `content` property.
+  If `file` is Object, it will be treated as options.
 - [options] {Object} optional parameters
   - [versionId] {String} the version id of history object
   - [timeout] {Number} the operation timeout
@@ -2141,6 +2157,13 @@ const versionId = 'versionId string';
 await store.get('ossdemo/not-exists-demo.txt', filepath, {
   versionId
 });
+```
+
+- If `file` is Object, it will be treated as options.
+
+```js
+const versionId = 'versionId string';
+await store.get('ossdemo/not-exists-demo.txt', { versionId });
 ```
 
 ### .getStream(name[, options])
@@ -2641,6 +2664,7 @@ parameters:
     - [host] {String} set the host for callback
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 - [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
@@ -2671,13 +2695,17 @@ const url = store.signatureUrl('ossdemo.txt', {
 console.log(url);
 
 // --------------------------------------------------
-const url = store.signatureUrl('ossdemo.txt', {
-  expires: 3600,
-  response: {
-    'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
-}, false);
+const url = store.signatureUrl(
+  'ossdemo.txt',
+  {
+    expires: 3600,
+    response: {
+      'content-type': 'text/custom',
+      'content-disposition': 'attachment'
+    }
+  },
+  false
+);
 console.log(url);
 
 // put operation
@@ -2723,6 +2751,7 @@ parameters:
     - [host] {String} set the host for callback
     - body {String} set the body for callback
     - [contentType] {String} set the type for body
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client
     - [customValue] {Object} set the custom value for callback,eg. {var1: value1,var2:value2}
 - [strictObjectNameValidation] {boolean} the flag of verifying object name strictly, default is true
 
@@ -2750,13 +2779,17 @@ const url = await store.asyncSignatureUrl('ossdemo.txt', {
 });
 console.log(url);
 // --------------------------------------------------
-const url = await store.asyncSignatureUrl('ossdemo.txt', {
-  expires: 3600,
-  response: {
-    'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
-}, false);
+const url = await store.asyncSignatureUrl(
+  'ossdemo.txt',
+  {
+    expires: 3600,
+    response: {
+      'content-type': 'text/custom',
+      'content-disposition': 'attachment'
+    }
+  },
+  false
+);
 console.log(url);
 // put operation
 ```
@@ -2799,14 +2832,20 @@ example:
 const getObjectUrl = await store.signatureUrlV4('GET', 60, undefined, 'your obejct name');
 console.log(getObjectUrl);
 // --------------------------------------------------
-const getObjectUrl = await store.signatureUrlV4('GET', 60, {
-  headers: {
-    'Cache-Control': 'no-cache'
+const getObjectUrl = await store.signatureUrlV4(
+  'GET',
+  60,
+  {
+    headers: {
+      'Cache-Control': 'no-cache'
+    },
+    queries: {
+      versionId: 'version ID of your object'
+    }
   },
-  queries: {
-    versionId: 'version ID of your object'
-  }
-}, 'your obejct name', ['Cache-Control']);
+  'your obejct name',
+  ['Cache-Control']
+);
 console.log(getObjectUrl);
 
 // -------------------------------------------------
@@ -2814,13 +2853,19 @@ console.log(getObjectUrl);
 const putObejctUrl = await store.signatureUrlV4('PUT', 60, undefined, 'your obejct name');
 console.log(putObejctUrl);
 // --------------------------------------------------
-const putObejctUrl = await store.signatureUrlV4('PUT', 60, {
-  headers: {
-    'Content-Type': 'text/plain',
-    'Content-MD5': 'xxx',
-    'Content-Length': 1
-  }
-}, 'your obejct name', ['Content-Length']);
+const putObejctUrl = await store.signatureUrlV4(
+  'PUT',
+  60,
+  {
+    headers: {
+      'Content-Type': 'text/plain',
+      'Content-MD5': 'xxx',
+      'Content-Length': 1
+    }
+  },
+  'your obejct name',
+  ['Content-Length']
+);
 console.log(putObejctUrl);
 ```
 
@@ -3233,6 +3278,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -3296,7 +3342,7 @@ parameters:
 - file {String|File(only support Browser)|Blob(only support Browser)|Buffer} file path or HTML5 Web File or web Blob or content buffer
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
-  - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
+  - [partSize] {Number} the suggested size for each part, default `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
   - [progress] {Function} function | async | Promise, the progress callback called after each
     successful upload of one part, it will be given three parameters:
     (percentage {Number}, checkpoint {Object}, res {Object})
@@ -3318,6 +3364,7 @@ parameters:
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
+    - [callbackSNI] {Boolean} Specifies whether OSS sends Server Name Indication (SNI) to the origin address specified by callbackUrl when a callback request is initiated from the client.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
       e.g.:
       ```js
@@ -3406,7 +3453,6 @@ const result2 = await store.multipartUpload('object', '/tmp/file', {
 > tips: abort multipartUpload support on node and browser
 
 ```js
-
 //start upload
 let abortCheckpoint;
 store.multipartUpload('object', '/tmp/file', {
@@ -3415,17 +3461,16 @@ store.multipartUpload('object', '/tmp/file', {
   }
 }).then(res => {
   // do something
-}.catch(err => {
+}).catch(err => {
    //if abort will catch abort event
   if (err.name === 'abort') {
     // handle abort
     console.log('error: ', err.message)
   }
-}))
+});
 
 // abort
-store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
-
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId);
 ```
 
 - multipartUpload with cancel
@@ -3578,8 +3623,7 @@ console.log(result);
 - multipartUploadCopy with abort
 
 ```js
-
-//start upload
+// start upload
 let abortCheckpoint;
 store.multipartUploadCopy('object', {
     sourceKey: 'sourceKey',
@@ -3590,18 +3634,17 @@ store.multipartUploadCopy('object', {
   }
 }).then(res => {
   // do something
-}.catch(err => {
+}).catch(err => {
    //if abort will catch abort event
   if (err.name === 'abort') {
     // handle abort
     console.log('error: ', err.message)
   }
-}))
+});
 
-//the other event to abort, for example: click event
-//to abort upload must use the same client instance
-store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
-
+// the other event to abort, for example: click event
+// to abort upload must use the same client instance
+store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId);
 ```
 
 - multipartUploadCopy with cancel
@@ -4199,7 +4242,7 @@ const oss = require('ali-oss');
 const imgClient = oss.ImageClient({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
-  bucket: 'my_image_bucket'
+  bucket: 'my_image_bucket',
   imageHost: 'thumbnail.myimageservice.com'
 });
 ```
@@ -4570,9 +4613,7 @@ Success will return full signature url.
 example:
 
 ```js
-const url = imgClient.signatureUrl('
-');
-// http://thumbnail.myimageservice.com/demo.jpg@200w_200h?OSSAccessKeyId=uZxyLARzYZtGwHKY&Expires=1427803849&Signature=JSPRe06%2FjQpQSj5zlx2ld1V%2B35I%3D
+const url = imgClient.signatureUrl('name');
 ```
 
 ## Cluster Mode
