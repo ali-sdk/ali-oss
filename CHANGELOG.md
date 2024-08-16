@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.21.0](https://github.com/ali-sdk/ali-oss/compare/v6.20.0...v6.21.0) (2024-08-16)
+
+
+### Features
+
+*  bucket options support set headers ([#1306](https://github.com/ali-sdk/ali-oss/issues/1306)) ([b4fb361](https://github.com/ali-sdk/ali-oss/commit/b4fb361fa3b8bbc55e0d08b7a4103b44bc5e9c2a))
+* callback supports callbackSNI ([#1291](https://github.com/ali-sdk/ali-oss/issues/1291)) ([fc6040b](https://github.com/ali-sdk/ali-oss/commit/fc6040bc2412c6fb1f5918754857cbbb127dc521))
+* multipartUpload supports setting storage-class header ([#1308](https://github.com/ali-sdk/ali-oss/issues/1308)) ([c29e15a](https://github.com/ali-sdk/ali-oss/commit/c29e15ab93164d1e246da2e488f26121d53302c4)), closes [#56237770](https://github.com/ali-sdk/ali-oss/issues/56237770)
+* putBucketInventory supports new fields ([#1290](https://github.com/ali-sdk/ali-oss/issues/1290)) ([6bde1c2](https://github.com/ali-sdk/ali-oss/commit/6bde1c29bee6b0d5de5493ab494eb5ca736b584b))
+* putBucketLifecycle supports ColdArchive and DeepColdArchive ([#1256](https://github.com/ali-sdk/ali-oss/issues/1256)) ([4c028d6](https://github.com/ali-sdk/ali-oss/commit/4c028d614d1911e4b8d9ab879f30d801b484df91))
+* support EC Code and get error detail from header  ([#1317](https://github.com/ali-sdk/ali-oss/issues/1317)) ([5a95778](https://github.com/ali-sdk/ali-oss/commit/5a95778ae51790e3bd2d9cbc47e40da54f4863e8))
+
+
+### Bug Fixes
+
+* add check to file of get([#1228](https://github.com/ali-sdk/ali-oss/issues/1228)) ([c52bd5b](https://github.com/ali-sdk/ali-oss/commit/c52bd5b36d725365bf820ee3cea44b9ed0370ae4))
+* queries sort in signatureUrl and add cases ([b3cc7a0](https://github.com/ali-sdk/ali-oss/commit/b3cc7a0de2d949f87a4e91a6d4d76f2ab634a37c))
+
 ## [6.20.0](https://github.com/ali-sdk/ali-oss/compare/v6.19.0...v6.20.0) (2024-01-19)
 
 ### Features
