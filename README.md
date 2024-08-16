@@ -146,6 +146,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.deleteMulti(names[, options])](#deletemultinames-options)
   - [.signatureUrl(name[, options])](#signatureurlname-options)
   - [.asyncSignatureUrl(name[, options])](#signatureurlname-options)
+  - [.signatureUrlV4(method, expires[, request, objectName, additionalHeaders])](#signatureurlv4method-expires-request-objectname-additionalheaders)
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
   - [.restore(name[, options])](#restorename-options)
