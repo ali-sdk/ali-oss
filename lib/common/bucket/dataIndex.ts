@@ -107,7 +107,7 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
   const result = await this.request(params);
 
   const { NextToken, Files, Aggregations: aggRes } = await this.parseXML(result.data);
-  // console.log('Files', JSON.stringify(Files));
+
   let files: any[] = [];
   if (Files && Files.File) {
     const getFileObject = item => {
@@ -138,16 +138,18 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
           ossUserMeta = [{ key: UserMeta.Key, vlaue: UserMeta.Value }];
         }
       }
+      let ossTaggingCount = 0;
+      if (item.OSSTaggingCount && item.OSSTaggingCount.length > 0) ossTaggingCount = parseInt(item.OSSTaggingCount, 10);
 
       return {
         fileName: item.Filename,
-        size: item.Size,
+        size: parseInt(item.Size, 10),
         fileModifiedTime: item.FileModifiedTime,
         ossObjectType: item.OSSObjectType,
         ossStorageClass: item.OSSStorageClass,
         objectACL: item.ObjectACL,
         eTag: item.ETag,
-        ossTaggingCount: item.OSSTaggingCount || 0,
+        ossTaggingCount,
         ossTagging,
         ossUserMeta,
         ossCRC64: item.OSSCRC64,
@@ -164,17 +166,33 @@ export async function doMetaQuery(this: any, bucketName: string, queryParam: IMe
 
   let aggList: any[] = [];
   if (aggRes) {
-    const getAggregationObject = item => ({
-      field: item.Field,
-      operation: item.Operation,
-      value: item.Value,
-      groups: item.Groups
-        ? item.Groups.map(group => ({
+    const getAggregationObject = item => {
+      let groups: any[] = [];
+      const { Groups } = item;
+      if (Groups && Groups.Group) {
+        const { Group } = Groups;
+        if (Group instanceof Array) {
+          groups = Group.map(group => ({
             value: group.Value,
-            count: group.Count
-          }))
-        : []
-    });
+            count: group.Count?.length > 0 ? parseInt(group.Count, 10) : 0
+          }));
+        } else if (Group instanceof Object) {
+          groups = [
+            {
+              value: Group.Value,
+              count: Group.Count?.length > 0 ? parseInt(Group.Count, 10) : 0
+            }
+          ];
+        }
+      }
+
+      return {
+        field: item.Field,
+        operation: item.Operation,
+        value: item.Value ? parseFloat(item.Value) : 0,
+        groups
+      };
+    };
     if (aggRes.Aggregation instanceof Array) {
       aggList = aggRes.Aggregation.map(getAggregationObject);
     } else {
