@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.20.0
+// Aliyun OSS SDK for JavaScript v6.21.0
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(global){(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -806,16 +806,16 @@ function request(_x2) {
   return _request.apply(this, arguments);
 }
 function _request() {
-  _request = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3(params) {
+  _request = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4(params) {
     var reqParams, result, reqErr, useStream, err, parseData;
-    return _regenerator.default.wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
+    return _regenerator.default.wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
         case 0:
           if (!(this.options.stsToken && isFunction(this.options.refreshSTSToken))) {
-            _context3.next = 3;
+            _context4.next = 3;
             break;
           }
-          _context3.next = 3;
+          _context4.next = 3;
           return setSTSToken.call(this);
         case 3:
           reqParams = createRequest.call(this, params);
@@ -823,72 +823,72 @@ function _request() {
             reqParams.params.mode = 'disable-fetch';
           }
           useStream = !!params.stream;
-          _context3.prev = 6;
-          _context3.next = 9;
+          _context4.prev = 6;
+          _context4.next = 9;
           return this.urllib.request(reqParams.url, reqParams.params);
         case 9:
-          result = _context3.sent;
+          result = _context4.sent;
           this.debug('response %s %s, got %s, headers: %j', params.method, reqParams.url, result.status, result.headers, 'info');
-          _context3.next = 16;
+          _context4.next = 16;
           break;
         case 13:
-          _context3.prev = 13;
-          _context3.t0 = _context3["catch"](6);
-          reqErr = _context3.t0;
+          _context4.prev = 13;
+          _context4.t0 = _context4["catch"](6);
+          reqErr = _context4.t0;
         case 16:
           if (!(result && params.successStatuses && params.successStatuses.indexOf(result.status) === -1)) {
-            _context3.next = 28;
+            _context4.next = 28;
             break;
           }
-          _context3.next = 19;
+          _context4.next = 19;
           return this.requestError(result);
         case 19:
-          err = _context3.sent;
+          err = _context4.sent;
           if (!(err.code === 'RequestTimeTooSkewed' && !useStream)) {
-            _context3.next = 25;
+            _context4.next = 25;
             break;
           }
           this.options.amendTimeSkewed = +new Date(err.serverTime) - new Date();
-          _context3.next = 24;
+          _context4.next = 24;
           return this.request(params);
         case 24:
-          return _context3.abrupt("return", _context3.sent);
+          return _context4.abrupt("return", _context4.sent);
         case 25:
           err.params = params;
-          _context3.next = 32;
+          _context4.next = 32;
           break;
         case 28:
           if (!reqErr) {
-            _context3.next = 32;
+            _context4.next = 32;
             break;
           }
-          _context3.next = 31;
+          _context4.next = 31;
           return this.requestError(reqErr);
         case 31:
-          err = _context3.sent;
+          err = _context4.sent;
         case 32:
           if (!err) {
-            _context3.next = 34;
+            _context4.next = 34;
             break;
           }
           throw err;
         case 34:
           if (!params.xmlResponse) {
-            _context3.next = 39;
+            _context4.next = 39;
             break;
           }
-          _context3.next = 37;
+          _context4.next = 37;
           return this.parseXML(result.data);
         case 37:
-          parseData = _context3.sent;
+          parseData = _context4.sent;
           result.data = parseData;
         case 39:
-          return _context3.abrupt("return", result);
+          return _context4.abrupt("return", result);
         case 40:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
-    }, _callee3, this, [[6, 13]]);
+    }, _callee4, this, [[6, 13]]);
   }));
   return _request.apply(this, arguments);
 }
@@ -969,89 +969,133 @@ proto.parseXML = function parseXMLThunk(str) {
  */
 
 proto.requestError = /*#__PURE__*/function () {
-  var _requestError = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(result) {
-    var err, message, info, msg;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
+  var _requestError = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3(result) {
+    var _this2 = this;
+    var err, setError, ossErr, message, _message;
+    return _regenerator.default.wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
         case 0:
           err = null;
+          setError = /*#__PURE__*/function () {
+            var _ref2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(message) {
+              var info, msg;
+              return _regenerator.default.wrap(function _callee2$(_context2) {
+                while (1) switch (_context2.prev = _context2.next) {
+                  case 0:
+                    _context2.prev = 0;
+                    _context2.next = 3;
+                    return _this2.parseXML(message);
+                  case 3:
+                    _context2.t0 = _context2.sent;
+                    if (_context2.t0) {
+                      _context2.next = 6;
+                      break;
+                    }
+                    _context2.t0 = {};
+                  case 6:
+                    info = _context2.t0;
+                    _context2.next = 16;
+                    break;
+                  case 9:
+                    _context2.prev = 9;
+                    _context2.t1 = _context2["catch"](0);
+                    _this2.debug(message, 'error');
+                    _context2.t1.message += "\nraw xml: ".concat(message);
+                    _context2.t1.status = result.status;
+                    _context2.t1.requestId = result.headers['x-oss-request-id'];
+                    return _context2.abrupt("return", _context2.t1);
+                  case 16:
+                    msg = info.Message || "unknow request error, status: ".concat(result.status);
+                    if (info.Condition) {
+                      msg += " (condition: ".concat(info.Condition, ")");
+                    }
+                    err = new Error(msg);
+                    err.name = info.Code ? "".concat(info.Code, "Error") : 'UnknownError';
+                    err.status = result.status;
+                    err.code = info.Code;
+                    err.ecCode = info.EC;
+                    err.requestId = info.RequestId;
+                    err.hostId = info.HostId;
+                    err.serverTime = info.ServerTime;
+                  case 26:
+                  case "end":
+                    return _context2.stop();
+                }
+              }, _callee2, null, [[0, 9]]);
+            }));
+            return function setError(_x4) {
+              return _ref2.apply(this, arguments);
+            };
+          }();
           if (!(!result.data || !result.data.length)) {
-            _context2.next = 5;
+            _context3.next = 37;
             break;
           }
-          if (result.status === -1 || result.status === -2) {
-            // -1 is net error , -2 is timeout
-            err = new Error(result.message);
-            err.name = result.name;
-            err.status = result.status;
-            err.code = result.name;
-          } else {
-            // HEAD not exists resource
-            if (result.status === 404) {
-              err = new Error('Object not exists');
-              err.name = 'NoSuchKeyError';
-              err.status = 404;
-              err.code = 'NoSuchKey';
-            } else if (result.status === 412) {
-              err = new Error('Pre condition failed');
-              err.name = 'PreconditionFailedError';
-              err.status = 412;
-              err.code = 'PreconditionFailed';
-            } else {
-              err = new Error("Unknow error, status: ".concat(result.status));
-              err.name = 'UnknownError';
-              err.status = result.status;
-            }
-            err.requestId = result.headers['x-oss-request-id'];
-            err.host = '';
-          }
-          _context2.next = 32;
-          break;
-        case 5:
-          message = String(result.data);
-          this.debug('request response error data: %s', message, 'error');
-          _context2.prev = 7;
-          _context2.next = 10;
-          return this.parseXML(message);
-        case 10:
-          _context2.t0 = _context2.sent;
-          if (_context2.t0) {
-            _context2.next = 13;
+          if (!(result.status === -1 || result.status === -2)) {
+            _context3.next = 10;
             break;
           }
-          _context2.t0 = {};
-        case 13:
-          info = _context2.t0;
-          _context2.next = 23;
-          break;
-        case 16:
-          _context2.prev = 16;
-          _context2.t1 = _context2["catch"](7);
-          this.debug(message, 'error');
-          _context2.t1.message += "\nraw xml: ".concat(message);
-          _context2.t1.status = result.status;
-          _context2.t1.requestId = result.headers['x-oss-request-id'];
-          return _context2.abrupt("return", _context2.t1);
-        case 23:
-          msg = info.Message || "unknow request error, status: ".concat(result.status);
-          if (info.Condition) {
-            msg += " (condition: ".concat(info.Condition, ")");
-          }
-          err = new Error(msg);
-          err.name = info.Code ? "".concat(info.Code, "Error") : 'UnknownError';
+          // -1 is net error , -2 is timeout
+          err = new Error(result.message);
+          err.name = result.name;
           err.status = result.status;
-          err.code = info.Code;
-          err.requestId = info.RequestId;
-          err.hostId = info.HostId;
-          err.serverTime = info.ServerTime;
-        case 32:
+          err.code = result.name;
+          _context3.next = 35;
+          break;
+        case 10:
+          if (!(result.status === 404)) {
+            _context3.next = 17;
+            break;
+          }
+          err = new Error('Object not exists');
+          err.name = 'NoSuchKeyError';
+          err.status = 404;
+          err.code = 'NoSuchKey';
+          _context3.next = 33;
+          break;
+        case 17:
+          if (!(result.status === 412)) {
+            _context3.next = 24;
+            break;
+          }
+          err = new Error('Pre condition failed');
+          err.name = 'PreconditionFailedError';
+          err.status = 412;
+          err.code = 'PreconditionFailed';
+          _context3.next = 33;
+          break;
+        case 24:
+          err = new Error("Unknow error, status: ".concat(result.status));
+          err.name = 'UnknownError';
+          err.status = result.status;
+          err.res = result;
+          ossErr = result.headers['x-oss-err'];
+          if (!ossErr) {
+            _context3.next = 33;
+            break;
+          }
+          message = atob(ossErr);
+          _context3.next = 33;
+          return setError(message);
+        case 33:
+          err.requestId = result.headers['x-oss-request-id'];
+          err.host = '';
+        case 35:
+          _context3.next = 41;
+          break;
+        case 37:
+          _message = String(result.data);
+          this.debug('request response error data: %s', _message, 'error');
+          _context3.next = 41;
+          return setError(_message);
+        case 41:
           this.debug('generate error %j', err, 'error');
-          return _context2.abrupt("return", err);
-        case 34:
+          return _context3.abrupt("return", err);
+        case 43:
         case "end":
-          return _context2.stop();
+          return _context3.stop();
       }
-    }, _callee2, this, [[7, 16]]);
+    }, _callee3, this);
   }));
   function requestError(_x3) {
     return _requestError.apply(this, arguments);
@@ -1126,12 +1170,13 @@ var proto = exports;
  * @param {String} name
  * @param {String|File|Buffer} file
  * @param {Object} options
- *        {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
+ *        {Object} [options.callback] The callback parameter is composed of a JSON string encoded in Base64
  *        {String} options.callback.url the OSS sends a callback request to this URL
- *        {String} options.callback.host The host header value for initiating callback requests
+ *        {String} [options.callback.host] The host header value for initiating callback requests
  *        {String} options.callback.body The value of the request body when a callback is initiated
- *        {String} options.callback.contentType The Content-Type of the callback requests initiatiated
- *        {Object} options.callback.customValue Custom parameters are a map of key-values, e.g:
+ *        {String} [options.callback.contentType] The Content-Type of the callback requests initiated
+ *        {Boolean} [options.callback.callbackSNI] Whether OSS sends SNI to the origin address specified by callbackUrl when a callback request is initiated from the client
+ *        {Object} [options.callback.customValue] Custom parameters are a map of key-values, e.g:
  *                  customValue = {
  *                    key1: 'value1',
  *                    key2: 'value2'
@@ -1688,12 +1733,13 @@ proto.append = /*#__PURE__*/function () {
  * @param {String} name the object key
  * @param {Mixed} file String(file path)/Buffer/ReadableStream
  * @param {Object} options
- *        {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
+ *        {Object} [options.callback] The callback parameter is composed of a JSON string encoded in Base64
  *        {String} options.callback.url  the OSS sends a callback request to this URL
- *        {String} options.callback.host  The host header value for initiating callback requests
+ *        {String} [options.callback.host]  The host header value for initiating callback requests
  *        {String} options.callback.body  The value of the request body when a callback is initiated
- *        {String} options.callback.contentType  The Content-Type of the callback requests initiatiated
- *        {Object} options.callback.customValue  Custom parameters are a map of key-values, e.g:
+ *        {String} [options.callback.contentType]  The Content-Type of the callback requests initiated
+ *        {Boolean} [options.callback.callbackSNI] Whether OSS sends SNI to the origin address specified by callbackUrl when a callback request is initiated from the client
+ *        {Object} [options.callback.customValue]  Custom parameters are a map of key-values, e.g:
  *                  customValue = {
  *                    key1: 'value1',
  *                    key2: 'value2'
@@ -2153,7 +2199,7 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
 },{"../common/callback":24,"../common/image":27,"../common/object/asyncSignatureUrl":31,"../common/object/copyObject":32,"../common/object/delete":33,"../common/object/deleteMulti":34,"../common/object/deleteObjectTagging":35,"../common/object/generateObjectUrl":36,"../common/object/get":37,"../common/object/getACL":38,"../common/object/getBucketVersions":39,"../common/object/getObjectMeta":40,"../common/object/getObjectTagging":41,"../common/object/getObjectUrl":42,"../common/object/getSymlink":43,"../common/object/head":44,"../common/object/putACL":45,"../common/object/putObjectTagging":46,"../common/object/putSymlink":47,"../common/object/signatureUrl":48,"../common/object/signatureUrlV4":49,"../common/utils/isBlob":67,"../common/utils/isBuffer":68,"../common/utils/isFile":70,"../common/utils/obj2xml":75,"@babel/runtime/helpers/asyncToGenerator":82,"@babel/runtime/helpers/interopRequireDefault":84,"@babel/runtime/regenerator":93,"copy-to":107,"core-js/modules/es.array.map.js":318,"core-js/modules/es.function.name.js":322,"core-js/modules/es.number.constructor.js":324,"core-js/modules/es.object.assign.js":325,"core-js/modules/es.object.keys.js":330,"core-js/modules/es.object.to-string.js":331,"core-js/modules/es.promise.js":335,"core-js/modules/es.regexp.exec.js":340,"core-js/modules/es.regexp.to-string.js":341,"core-js/modules/es.string.replace.js":347,"core-js/modules/web.dom-collections.for-each.js":382,"fs":102,"merge-descriptors":430,"mime":432,"path":441}],6:[function(require,module,exports){
 "use strict";
 
-exports.version = '6.20.0';
+exports.version = '6.21.0';
 
 },{}],7:[function(require,module,exports){
 "use strict";
@@ -3012,10 +3058,18 @@ function checkDaysAndDate(obj, key) {
     createdBeforeDate = obj.createdBeforeDate;
   if (!days && !createdBeforeDate) {
     throw new Error("".concat(key, " must includes days or createdBeforeDate"));
-  } else if (days && !/^[1-9][0-9]*$/.test(days)) {
+  } else if (days && (isArray(days) || !/^[1-9][0-9]*$/.test(days))) {
     throw new Error('days must be a positive integer');
   } else if (createdBeforeDate && !/\d{4}-\d{2}-\d{2}T00:00:00.000Z/.test(createdBeforeDate)) {
     throw new Error('createdBeforeDate must be date and conform to iso8601 format');
+  }
+}
+function checkNoncurrentDays(obj, key) {
+  var noncurrentDays = obj.noncurrentDays;
+  if (!noncurrentDays) {
+    throw new Error("".concat(key, " must includes noncurrentDays"));
+  } else if (noncurrentDays && (isArray(noncurrentDays) || !/^[1-9][0-9]*$/.test(noncurrentDays))) {
+    throw new Error('noncurrentDays must be a positive integer');
   }
 }
 function handleCheckTag(tag) {
@@ -3030,12 +3084,18 @@ function handleCheckTag(tag) {
   });
   checkObjectTag(tagObj);
 }
+function checkStorageClass(storageClass) {
+  if (!['IA', 'Archive', 'ColdArchive', 'DeepColdArchive'].includes(storageClass)) throw new Error("StorageClass must be IA or Archive or ColdArchive or DeepColdArchive");
+}
 function checkRule(rule) {
   if (rule.id && getStrBytesCount(rule.id) > 255) throw new Error('ID is composed of 255 bytes at most');
   if (rule.prefix === undefined) throw new Error('Rule must includes prefix');
-  if (!['Enabled', 'Disabled'].includes(rule.status)) throw new Error('Status must be  Enabled or Disabled');
+  if (!['Enabled', 'Disabled'].includes(rule.status)) throw new Error('Status must be Enabled or Disabled');
+  if (!rule.expiration && !rule.noncurrentVersionExpiration && !rule.abortMultipartUpload && !rule.transition && !rule.noncurrentVersionTransition) {
+    throw new Error('Rule must includes expiration or noncurrentVersionExpiration or abortMultipartUpload or transition or noncurrentVersionTransition');
+  }
   if (rule.transition) {
-    if (!['IA', 'Archive'].includes(rule.transition.storageClass)) throw new Error('StorageClass must be  IA or Archive');
+    checkStorageClass(rule.transition.storageClass);
     checkDaysAndDate(rule.transition, 'Transition');
   }
   if (rule.expiration) {
@@ -3048,8 +3108,12 @@ function checkRule(rule) {
   if (rule.abortMultipartUpload) {
     checkDaysAndDate(rule.abortMultipartUpload, 'AbortMultipartUpload');
   }
-  if (!rule.expiration && !rule.abortMultipartUpload && !rule.transition && !rule.noncurrentVersionTransition) {
-    throw new Error('Rule must includes expiration or abortMultipartUpload or transition or noncurrentVersionTransition');
+  if (rule.noncurrentVersionTransition) {
+    checkStorageClass(rule.noncurrentVersionTransition.storageClass);
+    checkNoncurrentDays(rule.noncurrentVersionTransition, 'NoncurrentVersionTransition');
+  }
+  if (rule.noncurrentVersionExpiration) {
+    checkNoncurrentDays(rule.noncurrentVersionExpiration, 'NoncurrentVersionExpiration');
   }
   if (rule.tag) {
     if (rule.abortMultipartUpload) {
@@ -3234,6 +3298,9 @@ exports.encodeCallback = function encodeCallback(reqParams, options) {
       }
       if (options.callback.contentType) {
         json.callbackBodyType = options.callback.contentType;
+      }
+      if (options.callback.callbackSNI) {
+        json.callbackSNI = options.callback.callbackSNI;
       }
       var callback = Buffer.from(JSON.stringify(json)).toString('base64');
       reqParams.headers['x-oss-callback'] = callback;
@@ -4139,12 +4206,13 @@ proto.uploadPart = /*#__PURE__*/function () {
  *        {Integer} number partNo
  *        {String} etag  part etag  uploadPartCopy result.res.header.etag
  * @param {Object} options
- *         {Object} options.callback The callback parameter is composed of a JSON string encoded in Base64
+ *         {Object} [options.callback] The callback parameter is composed of a JSON string encoded in Base64
  *         {String} options.callback.url  the OSS sends a callback request to this URL
- *         {String} options.callback.host  The host header value for initiating callback requests
+ *         {String} [options.callback.host]  The host header value for initiating callback requests
  *         {String} options.callback.body  The value of the request body when a callback is initiated
- *         {String} options.callback.contentType  The Content-Type of the callback requests initiatiated
- *         {Object} options.callback.customValue  Custom parameters are a map of key-values, e.g:
+ *         {String} [options.callback.contentType]  The Content-Type of the callback requests initiated
+ *         {Boolean} [options.callback.callbackSNI] Whether OSS sends SNI to the origin address specified by callbackUrl when a callback request is initiated from the client
+ *         {Object} [options.callback.customValue]  Custom parameters are a map of key-values, e.g:
  *                   customValue = {
  *                     key1: 'value1',
  *                     key2: 'value2'
@@ -4240,8 +4308,8 @@ proto._uploadPart = /*#__PURE__*/function () {
           opt.headers = opt.headers || {};
           opt.headers['Content-Length'] = data.size;
 
-          // Uploading shards does not require x-oss server side encryption
-          opt.headers = omit(opt.headers, ['x-oss-server-side-encryption']);
+          // Uploading shards does not require x-oss headers.
+          opt.headers = omit(opt.headers, ['x-oss-server-side-encryption', 'x-oss-storage-class']);
           opt.subres = {
             partNumber: partNo,
             uploadId: uploadId
@@ -4706,11 +4774,13 @@ require("core-js/modules/es.object.assign.js");
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 var fs = require('fs');
 var is = require('is-type-of');
+var _require = require('../utils/isObject'),
+  isObject = _require.isObject;
 var proto = exports;
 /**
  * get
  * @param {String} name - object name
- * @param {String | Stream} file
+ * @param {String | Stream | Object} file - file path or file stream or options
  * @param {Object} options
  * @param {{res}}
  */
@@ -4736,7 +4806,7 @@ proto.get = /*#__PURE__*/function () {
           } else if (is.string(file)) {
             writeStream = fs.createWriteStream(file);
             needDestroy = true;
-          } else {
+          } else if (isObject(file)) {
             // get(name, options)
             options = file;
           }
@@ -4797,7 +4867,7 @@ proto.get = /*#__PURE__*/function () {
 }();
 
 }).call(this)}).call(this,require('_process'))
-},{"@babel/runtime/helpers/asyncToGenerator":82,"@babel/runtime/helpers/interopRequireDefault":84,"@babel/runtime/regenerator":93,"_process":540,"core-js/modules/es.object.assign.js":325,"fs":102,"is-type-of":539}],38:[function(require,module,exports){
+},{"../utils/isObject":73,"@babel/runtime/helpers/asyncToGenerator":82,"@babel/runtime/helpers/interopRequireDefault":84,"@babel/runtime/regenerator":93,"_process":540,"core-js/modules/es.object.assign.js":325,"fs":102,"is-type-of":539}],38:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5867,14 +5937,6 @@ exports.buildCanonicalizedResource = function buildCanonicalizedResource(resourc
     parameters.sort();
     canonicalizedResource += separatorString + parameters.join('&');
   } else if (parameters) {
-    var compareFunc = function compareFunc(entry1, entry2) {
-      if (entry1[0] > entry2[0]) {
-        return 1;
-      } else if (entry1[0] < entry2[0]) {
-        return -1;
-      }
-      return 0;
-    };
     var processFunc = function processFunc(key) {
       canonicalizedResource += separatorString + key;
       if (parameters[key] || parameters[key] === 0) {
@@ -5882,7 +5944,7 @@ exports.buildCanonicalizedResource = function buildCanonicalizedResource(resourc
       }
       separatorString = '&';
     };
-    Object.keys(parameters).sort(compareFunc).forEach(processFunc);
+    Object.keys(parameters).sort().forEach(processFunc);
   }
   return canonicalizedResource;
 };
@@ -6129,6 +6191,9 @@ exports._signatureForURL = function _signatureForURL(accessKeySecret) {
     }
     if (options.callback.contentType) {
       json.callbackBodyType = options.callback.contentType;
+    }
+    if (options.callback.callbackSNI) {
+      json.callbackSNI = options.callback.callbackSNI;
     }
     subResource.callback = Buffer.from(JSON.stringify(json)).toString('base64');
     if (options.callback.customValue) {
