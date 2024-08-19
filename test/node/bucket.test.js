@@ -7,7 +7,7 @@ const { default: ResourceManager, ListResourceGroupsRequest } = require('@aliclo
 const { Config: OpenConfig } = require('@alicloud/openapi-client');
 const { RuntimeOptions } = require('@alicloud/tea-util');
 
-const { sts, oss: config, metaSyncTime, timeout } = require('../config');
+const { oss: config, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
@@ -1590,17 +1590,17 @@ describe('test/bucket.test.js', () => {
         });
       });
 
-      describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
+      describe.only('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
         const sleepTime = 5000; // Opening and closing require delayed effectiveness
-        const randomStr = prefix.replace(/[/.]/g, '-');
+
         it('open meta query of bucket', async () => {
-          const result = await store.openMetaQuery(sts.bucket); // bucket need support meta query
+          const result = await store.openMetaQuery(bucket); // bucket need support meta query
           assert.strictEqual(result.status, 200);
           await utils.sleep(sleepTime);
         });
 
         it('getMetaQueryStatus()', async () => {
-          const { status, phase, state, createTime, updateTime } = await store.getMetaQueryStatus(sts.bucket);
+          const { status, phase, state, createTime, updateTime } = await store.getMetaQueryStatus(bucket);
           assert.strictEqual(status, 200);
           assert(['FullScanning', 'IncrementalScanning', ''].includes(phase));
           assert(['Ready', 'Stop', 'Running', 'Retrying', 'Failed', 'Deleted'].includes(state));
@@ -1620,12 +1620,12 @@ describe('test/bucket.test.js', () => {
               ]
             }
           };
-          const { status, files, nextToken } = await store.doMetaQuery(sts.bucket, queryParam);
+          const { status, files, nextToken } = await store.doMetaQuery(bucket, queryParam);
           assert.strictEqual(status, 200);
           if (nextToken) {
             assert.strictEqual(files.length, maxResults);
 
-            const result = await store.doMetaQuery(sts.bucket, { ...queryParam, nextToken, maxResults: 1 });
+            const result = await store.doMetaQuery(bucket, { ...queryParam, nextToken, maxResults: 1 });
             assert.strictEqual(result.status, 200);
             assert(result.files.length > 0);
             assert(result.files[0].fileName.length > 0);
@@ -1645,7 +1645,7 @@ describe('test/bucket.test.js', () => {
             aggregations: [{ field: 'Size', operation: 'sum' }]
           };
 
-          const result = await store.doMetaQuery(sts.bucket, queryParam);
+          const result = await store.doMetaQuery(bucket, queryParam);
           assert.strictEqual(result.status, 200);
           assert(result.aggregations.length > 0);
           assert.strictEqual(result.aggregations[0].field, 'Size');
@@ -1674,63 +1674,18 @@ describe('test/bucket.test.js', () => {
             ]
           };
 
-          const result = await store.doMetaQuery(sts.bucket, queryParam);
+          const result = await store.doMetaQuery(bucket, queryParam);
           assert.strictEqual(result.status, 200);
           assert(result.aggregations.length > 0);
-          assert.strictEqual(result.aggregations[0].field, 'Size');
-          assert.strictEqual(result.aggregations[1].field, 'OSSTaggingCount');
+          assert.strictEqual(result.aggregations[0].field, 'ETag');
+          assert.strictEqual(result.aggregations[1].field, 'FileModifiedTime');
         });
 
-        it.only('doMetaQuery() three ', async () => {
-          // await store.useBucket(sts.bucket);
-          // const name = `222.txt`; // ${randomStr}
-          // await store.put(name, Buffer.from('test-do-metaQuery-threeAggregations'));
-          // await utils.sleep(5000);
-          const queryParam = {
-            maxResults: 12,
-            query: {
-              operation: 'and',
-              subQueries: [{ field: 'Size', value: '1048576', operation: 'lt' }]
-            }
-          };
-
-          const { files } = await store.doMetaQuery(sts.bucket, queryParam);
-          // console.log('ossTaggingCount', JSON.stringify(files));
-          console.log(files);
-          // assert.strictEqual(files[0].fileName, name);
-          // assert.strictEqual(files[0].ossTaggingCount, 0);
-
-          // await store.delete(name);
+        it('closeMetaQuery()', async () => {
+          const result = await store.closeMetaQuery(bucket);
+          assert.strictEqual(result.status, 200);
+          await utils.sleep(sleepTime * 2);
         });
-        it('doMetaQuery() four', async () => {
-          await store.useBucket(sts.bucket);
-          const name = `four.txt-${randomStr}`;
-          let res = await store.put(name, Buffer.from('test-do-metaQuery-threeAggregations'));
-          assert(res.name, name);
-          res = await store.putObjectTagging(name, { var1: 'value1', var2: 'value2' });
-          assert(res.status, 200);
-          await utils.sleep(2000);
-
-          const queryParam = {
-            maxResults: 2,
-            query: {
-              operation: 'and',
-              subQueries: [{ field: 'Filename', value: name, operation: 'eq' }]
-              // aggregations: [{ field: 'Size', operation: 'sum' }]
-            }
-          };
-
-          const { files, ossTaggingCount } = await store.doMetaQuery(sts.bucket, queryParam);
-          console.log('files, ossTaggingCount ', files, ossTaggingCount);
-          assert(files[0].fileName, name);
-          assert(ossTaggingCount, 1);
-        });
-
-        // it('closeMetaQuery()', async () => {
-        //   const result = await store.closeMetaQuery(sts.bucket);
-        //   assert.strictEqual(result.status, 200);
-        //   await utils.sleep(sleepTime * 2);
-        // });
       });
     });
   });

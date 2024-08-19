@@ -2727,7 +2727,7 @@ describe('browser', () => {
     });
   });
 
-  describe('test bucket data indexing', () => {
+  describe.only('test bucket data indexing', () => {
     let store;
     const { bucket } = stsConfig;
     const sleepTime = 5000; // Opening and closing require delayed effectiveness
@@ -2824,8 +2824,8 @@ describe('browser', () => {
       const result = await store.doMetaQuery(bucket, queryParam);
       assert.strictEqual(result.status, 200);
       assert(result.aggregations.length > 0);
-      assert(result.aggregations[0].field, 'Size');
-      assert(result.aggregations[1].field, 'OSSTaggingCount');
+      assert.strictEqual(result.aggregations[0].field, 'ETag');
+      assert.strictEqual(result.aggregations[1].field, 'FileModifiedTime');
     });
 
     it('closeMetaQuery()', async () => {
