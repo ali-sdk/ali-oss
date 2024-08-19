@@ -1590,7 +1590,7 @@ describe('test/bucket.test.js', () => {
         });
       });
 
-      describe.only('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
+      describe('openMetaQuery() openMetaQuery() doMetaQuery() closeMetaQuery()', () => {
         const sleepTime = 5000; // Opening and closing require delayed effectiveness
 
         it('open meta query of bucket', async () => {

@@ -2727,7 +2727,7 @@ describe('browser', () => {
     });
   });
 
-  describe.only('test bucket data indexing', () => {
+  describe('test bucket data indexing', () => {
     let store;
     const { bucket } = stsConfig;
     const sleepTime = 5000; // Opening and closing require delayed effectiveness
