@@ -42,7 +42,7 @@ describe('test/rtmp.test.js', () => {
   ].forEach((moreConfigs, index) => {
     describe(`test rtmp in iterate ${index}`, () => {
       before(async () => {
-        store = oss(config);
+        store = oss({ ...config, ...moreConfigs });
         bucket = `ali-oss-test-bucket-rtmp-${prefix.replace(/[/.]/g, '-')}${index}`;
         store.useBucket(bucket);
 
