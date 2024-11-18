@@ -170,5 +170,8 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "resolutions": {
+    "@sinonjs/fake-timers": "10.3.0"
   }
 }
