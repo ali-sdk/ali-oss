@@ -144,8 +144,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
   - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti(names[, options])](#deletemultinames-options)
-  - [.signatureUrl(name[, options])](#signatureurlname-options)
-  - [.asyncSignatureUrl(name[, options])](#signatureurlname-options)
+  - [.signatureUrl(name[, options, strictObjectNameValidation])](#signatureurlname-options-strictobjectnamevalidation)
+  - [.asyncSignatureUrl(name[, options, strictObjectNameValidation])](#asyncsignatureurlname-options-strictobjectnamevalidation)
   - [.signatureUrlV4(method, expires[, request, objectName, additionalHeaders])](#signatureurlv4method-expires-request-objectname-additionalheaders)
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
@@ -2449,6 +2449,9 @@ Success will return objects list on `objects` properties.
   - size {Number} object size, e.g.: `344606`
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is complete
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
@@ -2515,6 +2518,9 @@ Success will return objects list on `objects` properties.
   - size {Number} object size, e.g.: `344606`
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object|null} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is complete
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextContinuationToken {String} next continuation-token string
@@ -2595,6 +2601,9 @@ Success will return objects list on `objects` properties.
   - versionId {String} object versionId
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is complete
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - deleteMarker {Array<ObjectDeleteMarker>} object delete marker info list
   Each `ObjectDeleteMarker`
   - name {String} object name on oss

@@ -508,6 +508,26 @@ describe('browser', () => {
           assert(!result.isTruncated);
           assert.equal(result.prefixes, null);
         });
+
+        it('should list files with restore info', async () => {
+          const testFile = `${listPrefix}restoreInfoTest.txt`;
+          await client.put(testFile, Buffer.from('test'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+          await client.restore(testFile);
+
+          const listResult = await client.list({
+            prefix: testFile
+          });
+          assert.strictEqual(listResult.res.status, 200);
+          assert.strictEqual(listResult.objects.length, 1);
+          assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
+          assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
+
+          await client.delete(testFile);
+        });
       });
 
       describe('listV2()', () => {
@@ -672,6 +692,26 @@ describe('browser', () => {
             nextContinuationToken = result.nextContinuationToken;
           } while (nextContinuationToken);
           assert.strictEqual(keyCount, 6);
+        });
+
+        it('should list files with restore info', async () => {
+          const testFile = `${listPrefix}restoreInfoTest.txt`;
+          await store.put(testFile, Buffer.from('test'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+          await store.restore(testFile);
+
+          const listResult = await store.listV2({
+            prefix: testFile
+          });
+          assert.strictEqual(listResult.res.status, 200);
+          assert.strictEqual(listResult.objects.length, 1);
+          assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
+          assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
+
+          await store.delete(testFile);
         });
       });
 
@@ -2344,6 +2384,43 @@ describe('browser', () => {
           }
           assert.strictEqual(netErrs.name, 'ResponseTimeoutError');
           store.urllib.request.restore();
+        });
+
+        it('should normal processing of non-OSS errors', async () => {
+          const stubNetError = sinon.stub(store.urllib, 'request');
+          const netErr = new Error('TestNonOSSErrorException');
+          netErr.status = 400;
+          netErr.code = 'TestNonOSSError';
+          stubNetError.throws(netErr);
+          let nonOSSErr;
+          try {
+            await store.head('test.txt');
+            assert.fail('Expect to throw an error.');
+          } catch (err) {
+            nonOSSErr = err;
+          }
+
+          assert.strictEqual(nonOSSErr.message, `Unknow error, status: ${netErr.status}`);
+          assert.strictEqual(nonOSSErr.name, 'UnknownError');
+          assert.strictEqual(nonOSSErr.status, netErr.status);
+          stubNetError.restore();
+
+          nonOSSErr = undefined;
+          const stubNetError2 = sinon.stub(store.urllib, 'request');
+          const netErr2 = new Error('TestNonOSSErrorException');
+          netErr2.status = 400;
+          netErr2.data = 'TestNonOSSError';
+          stubNetError2.throws(netErr2);
+          try {
+            await store.getBucketACL('test');
+            assert.fail('Expect to throw an error.');
+          } catch (err) {
+            nonOSSErr = err;
+          }
+
+          assert(nonOSSErr.message.includes(`\nraw xml: ${netErr2.data}`));
+          assert.strictEqual(nonOSSErr.status, netErr2.status);
+          stubNetError2.restore();
         });
       });
 
