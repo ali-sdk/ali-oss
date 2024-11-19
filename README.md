@@ -2449,6 +2449,9 @@ Success will return objects list on `objects` properties.
   - size {Number} object size, e.g.: `344606`
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is complete
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
@@ -2515,6 +2518,9 @@ Success will return objects list on `objects` properties.
   - size {Number} object size, e.g.: `344606`
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object|null} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is complete
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextContinuationToken {String} next continuation-token string
@@ -2595,6 +2601,9 @@ Success will return objects list on `objects` properties.
   - versionId {String} object versionId
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is complete
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - deleteMarker {Array<ObjectDeleteMarker>} object delete marker info list
   Each `ObjectDeleteMarker`
   - name {String} object name on oss

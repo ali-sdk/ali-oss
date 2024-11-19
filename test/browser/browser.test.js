@@ -508,6 +508,26 @@ describe('browser', () => {
           assert(!result.isTruncated);
           assert.equal(result.prefixes, null);
         });
+
+        it('should list files with restore info', async () => {
+          const testFile = `${listPrefix}restoreInfoTest.txt`;
+          await client.put(testFile, Buffer.from('test'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+          await client.restore(testFile);
+
+          const listResult = await client.list({
+            prefix: testFile
+          });
+          assert.strictEqual(listResult.res.status, 200);
+          assert.strictEqual(listResult.objects.length, 1);
+          assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
+          assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
+
+          await client.delete(testFile);
+        });
       });
 
       describe('listV2()', () => {
@@ -672,6 +692,26 @@ describe('browser', () => {
             nextContinuationToken = result.nextContinuationToken;
           } while (nextContinuationToken);
           assert.strictEqual(keyCount, 6);
+        });
+
+        it('should list files with restore info', async () => {
+          const testFile = `${listPrefix}restoreInfoTest.txt`;
+          await store.put(testFile, Buffer.from('test'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+          await store.restore(testFile);
+
+          const listResult = await store.listV2({
+            prefix: testFile
+          });
+          assert.strictEqual(listResult.res.status, 200);
+          assert.strictEqual(listResult.objects.length, 1);
+          assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
+          assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
+
+          await store.delete(testFile);
         });
       });
 
