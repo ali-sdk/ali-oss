@@ -42,7 +42,7 @@ describe('browser', () => {
   /* eslint require-yield: [0] */
   before(() => {
     ossConfig = {
-      region: 'oss-cn-beijing' || stsConfig.region,
+      region: stsConfig.region,
       accessKeyId: stsConfig.Credentials.AccessKeyId,
       accessKeySecret: stsConfig.Credentials.AccessKeySecret,
       stsToken: stsConfig.Credentials.SecurityToken,

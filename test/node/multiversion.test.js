@@ -23,7 +23,7 @@ describe('test/multiversion.test.js', () => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
         // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
-        store = oss({ ...config, ...moreConfigs, region: 'oss-ap-southeast-1' });
+        store = oss({ ...config, ...moreConfigs });
         bucket = `ali-oss-test-bucket-version-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket);

@@ -3,7 +3,7 @@ const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
-const { oss: ossConfig, metaSyncTime } = require('../config');
+const { oss: config, metaSyncTime } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
@@ -15,8 +15,6 @@ const crypto = require('crypto');
 const urlutil = require('url');
 const axios = require('axios');
 const FormData = require('form-data');
-
-const config = { ...ossConfig, region: 'oss-cn-beijing' };
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
