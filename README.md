@@ -2995,6 +2995,33 @@ const result = await store.restore('ossdemo.txt', { type: 'ColdArchive', Days: 2
 console.log(result.status);
 ```
 
+- JobParameters for unfreezing Specifies the JobParameters for unfreezing
+```js
+const result = await store.restore('ossdemo.txt', { type: 'ColdArchive', Days: 2, JobParameters: 'Standard' });
+console.log(result.status);
+```
+
+- Restore an object with DeepColdArchive type
+
+```js
+const result = await store.restore('ossdemo.txt', { type: 'DeepColdArchive' });
+console.log(result.status);
+```
+
+- Days for unfreezing Specifies the days for unfreezing
+
+```js
+const result = await store.restore('ossdemo.txt', { type: 'DeepColdArchive', Days: 2 });
+console.log(result.status);
+```
+
+- JobParameters for unfreezing Specifies the JobParameters for unfreezing
+
+```js
+const result = await store.restore('ossdemo.txt', { type: 'DeepColdArchive', Days: 2, JobParameters: 'Standard' });
+console.log(result.status);
+```
+
 - Restore an history object
 
 ```js

@@ -2475,10 +2475,35 @@ describe('test/object.test.js', () => {
         });
 
         it('ColdArchive choice Days', async () => {
-          const name = '/oss/daysRestore.js';
+          const name = '/oss/daysColdRestore.js';
+          const options = {
+            headers: {
+              'x-oss-storage-class': 'ColdArchive'
+            }
+          };
+          await store.put(name, Buffer.from('abc'), options);
           const result = await store.restore(name, {
             type: 'ColdArchive',
             Days: 2
+          });
+          assert.equal(
+            ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+            true
+          );
+        });
+
+        it('ColdArchive choice JobParameters', async () => {
+          const name = '/oss/JobParametersColdRestore.js';
+          const options = {
+            headers: {
+              'x-oss-storage-class': 'ColdArchive'
+            }
+          };
+          await store.put(name, Buffer.from('abc'), options);
+          const result = await store.restore(name, {
+            type: 'ColdArchive',
+            Days: 2,
+            JobParameters: 'Standard'
           });
           assert.equal(
             ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
@@ -2490,6 +2515,60 @@ describe('test/object.test.js', () => {
           const name = '/oss/coldRestore.js';
           const result = await store.restore(name, {
             type: 'ColdArchive'
+          });
+          assert.equal(
+            ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+            true
+          );
+        });
+
+        it('DeepColdArchive choice Days', async () => {
+          const name = '/oss/daysDeepColdRestore.js';
+          const options = {
+            headers: {
+              'x-oss-storage-class': 'DeepColdArchive'
+            }
+          };
+          await store.put(name, Buffer.from('abc'), options);
+          const result = await store.restore(name, {
+            type: 'DeepColdArchive',
+            Days: 2
+          });
+          assert.equal(
+            ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+            true
+          );
+        });
+
+        it('DeepColdArchive choice JobParameters', async () => {
+          const name = '/oss/JobParametersDeepColdRestore.js';
+          const options = {
+            headers: {
+              'x-oss-storage-class': 'DeepColdArchive'
+            }
+          };
+          await store.put(name, Buffer.from('abc'), options);
+          const result = await store.restore(name, {
+            type: 'DeepColdArchive',
+            Days: 2,
+            JobParameters: 'Standard'
+          });
+          assert.equal(
+            ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+            true
+          );
+        });
+
+        it('DeepColdArchive is Accepted', async () => {
+          const name = '/oss/deepColdRestore.js';
+          const options = {
+            headers: {
+              'x-oss-storage-class': 'DeepColdArchive'
+            }
+          };
+          await store.put(name, Buffer.from(__filename), options);
+          const result = await store.restore(name, {
+            type: 'DeepColdArchive'
           });
           assert.equal(
             ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
