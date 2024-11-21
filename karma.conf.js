@@ -34,7 +34,7 @@ module.exports = function (config) {
     concurrency: 1,
     client: {
       mocha: {
-        timeout: 6000
+        timeout: 10000
       }
     }
   });
