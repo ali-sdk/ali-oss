@@ -2106,7 +2106,7 @@ describe('test/object.test.js', () => {
           assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
         });
 
-        it.only('should parse restore info correctly with expiry date', () => {
+        it('should parse restore info correctly with expiry date', () => {
           const date = new Date();
           const restoreInfoStr = `ongoing-request="false", expiry-date="${date.toUTCString()}"`;
           const restoreInfo = parseRestoreInfo(restoreInfoStr);
