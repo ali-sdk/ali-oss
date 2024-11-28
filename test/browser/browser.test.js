@@ -18,6 +18,7 @@ const { Readable } = require('stream');
 const { prefix } = require('./browser-utils');
 const { getCredential } = require('../../lib/common/signUtils');
 const { getStandardRegion } = require('../../lib/common/utils/getStandardRegion');
+const { parseRestoreInfo } = require('../../lib/common/utils/parseRestoreInfo');
 const { policy2Str } = require('../../lib/common/utils/policy2Str');
 
 let ossConfig;
@@ -532,6 +533,15 @@ describe('browser', () => {
           assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
 
           await client.delete(testFile);
+        });
+
+        it.only('should parse restore info correctly with expiry date', () => {
+          const date = new Date();
+          const restoreInfoStr = `ongoing-request="false", expiry-date="${date.toUTCString()}"`;
+          const restoreInfo = parseRestoreInfo(restoreInfoStr);
+
+          assert.strictEqual(restoreInfo.ongoingRequest, false);
+          assert.strictEqual(restoreInfo.expiryDate.toUTCString(), date.toUTCString());
         });
       });
 

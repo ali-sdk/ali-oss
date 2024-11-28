@@ -2,27 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [6.22.0](https://github.com/ali-sdk/ali-oss/compare/v6.20.0...v6.22.0) (2024-11-26)
-
+## [6.22.0](https://github.com/ali-sdk/ali-oss/compare/v6.21.0...v6.22.0) (2024-11-28)
 
 ### Features
 
-*  bucket options support set headers ([#1306](https://github.com/ali-sdk/ali-oss/issues/1306)) ([b4fb361](https://github.com/ali-sdk/ali-oss/commit/b4fb361fa3b8bbc55e0d08b7a4103b44bc5e9c2a))
-* callback supports callbackSNI ([#1291](https://github.com/ali-sdk/ali-oss/issues/1291)) ([fc6040b](https://github.com/ali-sdk/ali-oss/commit/fc6040bc2412c6fb1f5918754857cbbb127dc521))
 * list object functions support return restore info ([#1339](https://github.com/ali-sdk/ali-oss/issues/1339)) ([986b743](https://github.com/ali-sdk/ali-oss/commit/986b7432f06b216eea24ae0f7b437aaf8786a3d4))
-* multipartUpload supports setting storage-class header ([#1308](https://github.com/ali-sdk/ali-oss/issues/1308)) ([c29e15a](https://github.com/ali-sdk/ali-oss/commit/c29e15ab93164d1e246da2e488f26121d53302c4)), closes [#56237770](https://github.com/ali-sdk/ali-oss/issues/56237770)
-* putBucketInventory supports new fields ([#1290](https://github.com/ali-sdk/ali-oss/issues/1290)) ([6bde1c2](https://github.com/ali-sdk/ali-oss/commit/6bde1c29bee6b0d5de5493ab494eb5ca736b584b))
-* putBucketLifecycle supports ColdArchive and DeepColdArchive ([#1256](https://github.com/ali-sdk/ali-oss/issues/1256)) ([4c028d6](https://github.com/ali-sdk/ali-oss/commit/4c028d614d1911e4b8d9ab879f30d801b484df91))
-* restore support DeepColdArchive type ([#1337](https://github.com/ali-sdk/ali-oss/issues/1337)) ([ac500d3](https://github.com/ali-sdk/ali-oss/commit/ac500d3d87a911ec359d9ba781006034a78c1db2))
-* support EC Code and get error detail from header  ([#1317](https://github.com/ali-sdk/ali-oss/issues/1317)) ([5a95778](https://github.com/ali-sdk/ali-oss/commit/5a95778ae51790e3bd2d9cbc47e40da54f4863e8))
-* support PostObject policy v4 signature and restore archive object set days ([#1340](https://github.com/ali-sdk/ali-oss/issues/1340)) ([ca8c027](https://github.com/ali-sdk/ali-oss/commit/ca8c027264a875e56f2740fa88b45dd562c2b809))
-
+* support restore Deep Cold Archive object ([#1337](https://github.com/ali-sdk/ali-oss/issues/1337)) ([ac500d3](https://github.com/ali-sdk/ali-oss/commit/ac500d3d87a911ec359d9ba781006034a78c1db2))
+* support PostObject policy V4 signature and restore archive object with setting of days ([#1340](https://github.com/ali-sdk/ali-oss/issues/1340)) ([ca8c027](https://github.com/ali-sdk/ali-oss/commit/ca8c027264a875e56f2740fa88b45dd562c2b809))
 
 ### Bug Fixes
 
-* add check to file of get([#1228](https://github.com/ali-sdk/ali-oss/issues/1228)) ([c52bd5b](https://github.com/ali-sdk/ali-oss/commit/c52bd5b36d725365bf820ee3cea44b9ed0370ae4))
-* fix requestError return null and signatureV4 run in Node 8.x ([#1338](https://github.com/ali-sdk/ali-oss/issues/1338)) ([439ffde](https://github.com/ali-sdk/ali-oss/commit/439ffded0bf9f8b9e73bed9a917d5265b80e8286))
-* queries sort in signatureUrl and add cases ([b3cc7a0](https://github.com/ali-sdk/ali-oss/commit/b3cc7a0de2d949f87a4e91a6d4d76f2ab634a37c))
+* fix requestError return null and signatureUrlV4 run in Node 8.x ([#1338](https://github.com/ali-sdk/ali-oss/issues/1338)) ([439ffde](https://github.com/ali-sdk/ali-oss/commit/439ffded0bf9f8b9e73bed9a917d5265b80e8286))
 
 ## [6.21.0](https://github.com/ali-sdk/ali-oss/compare/v6.20.0...v6.21.0) (2024-08-16)
 
