@@ -1017,6 +1017,8 @@ describe('test/multipart.test.js', () => {
             assert(e.message.includes('mock upload part fail.'));
           }
 
+          await utils.sleep(2000);
+
           mm.restore();
 
           await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
