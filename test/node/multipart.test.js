@@ -1017,7 +1017,7 @@ describe('test/multipart.test.js', () => {
             assert(e.message.includes('mock upload part fail.'));
           }
 
-          await utils.sleep(2000);
+          await utils.sleep(3000);
 
           mm.restore();
 

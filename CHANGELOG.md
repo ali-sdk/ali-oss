@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [6.22.0](https://github.com/ali-sdk/ali-oss/compare/v6.21.0...v6.22.0) (2024-11-28)
+## [6.22.0](https://github.com/ali-sdk/ali-oss/compare/v6.21.0...v6.22.0) (2024-11-29)
 
 ### Features
 
