@@ -18,6 +18,7 @@ const FormData = require('form-data');
 const dateFormat = require('dateformat');
 const { getCredential } = require('../../lib/common/signUtils');
 const { getStandardRegion } = require('../../lib/common/utils/getStandardRegion');
+const { parseRestoreInfo } = require('../../lib/common/utils/parseRestoreInfo');
 const { policy2Str } = require('../../lib/common/utils/policy2Str');
 
 const tmpdir = path.join(__dirname, '.tmp');
@@ -2103,6 +2104,15 @@ describe('test/object.test.js', () => {
           assert.strictEqual(listResult.objects.length, 1);
           assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
           assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
+        });
+
+        it('should parse restore info correctly with expiry date', () => {
+          const date = new Date();
+          const restoreInfoStr = `ongoing-request="false", expiry-date="${date.toUTCString()}"`;
+          const restoreInfo = parseRestoreInfo(restoreInfoStr);
+
+          assert.strictEqual(restoreInfo.ongoingRequest, false);
+          assert.strictEqual(restoreInfo.expiryDate.toUTCString(), date.toUTCString());
         });
       });
 
