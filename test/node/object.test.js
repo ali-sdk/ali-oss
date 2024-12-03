@@ -15,6 +15,11 @@ const crypto = require('crypto');
 const urlutil = require('url');
 const axios = require('axios');
 const FormData = require('form-data');
+const dateFormat = require('dateformat');
+const { getCredential } = require('../../lib/common/signUtils');
+const { getStandardRegion } = require('../../lib/common/utils/getStandardRegion');
+const { parseRestoreInfo } = require('../../lib/common/utils/parseRestoreInfo');
+const { policy2Str } = require('../../lib/common/utils/policy2Str');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -2082,6 +2087,33 @@ describe('test/object.test.js', () => {
           assert(!result.isTruncated);
           assert.equal(result.prefixes, null);
         });
+
+        it('should list files with restore info', async () => {
+          const testFile = `${listPrefix}restoreInfoTest.txt`;
+          await store.put(testFile, Buffer.from('test'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+          await store.restore(testFile);
+
+          const listResult = await store.list({
+            prefix: testFile
+          });
+          assert.strictEqual(listResult.res.status, 200);
+          assert.strictEqual(listResult.objects.length, 1);
+          assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
+          assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
+        });
+
+        it('should parse restore info correctly with expiry date', () => {
+          const date = new Date();
+          const restoreInfoStr = `ongoing-request="false", expiry-date="${date.toUTCString()}"`;
+          const restoreInfo = parseRestoreInfo(restoreInfoStr);
+
+          assert.strictEqual(restoreInfo.ongoingRequest, false);
+          assert.strictEqual(restoreInfo.expiryDate.toUTCString(), date.toUTCString());
+        });
       });
 
       describe('listV2()', () => {
@@ -2245,6 +2277,24 @@ describe('test/object.test.js', () => {
           } while (nextContinuationToken);
           assert.strictEqual(keyCount, 6);
         });
+
+        it('should list files with restore info', async () => {
+          const testFile = `${listPrefix}restoreInfoTest.txt`;
+          await store.put(testFile, Buffer.from('test'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+          await store.restore(testFile);
+
+          const listResult = await store.listV2({
+            prefix: testFile
+          });
+          assert.strictEqual(listResult.res.status, 200);
+          assert.strictEqual(listResult.objects.length, 1);
+          assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
+          assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
+        });
       });
 
       describe('object key encoding', () => {
@@ -2385,80 +2435,158 @@ describe('test/object.test.js', () => {
       });
 
       describe('restore()', () => {
-        before(async () => {
-          await store.put('/oss/coldRestore.js', __filename, {
-            headers: {
-              'x-oss-storage-class': 'ColdArchive'
-            }
-          });
-          await store.put('/oss/daysRestore.js', __filename, {
-            headers: {
-              'x-oss-storage-class': 'ColdArchive'
-            }
-          });
-        });
-        after(async () => {
-          await store.useBucket(bucket);
-        });
-
-        it('Should return OperationNotSupportedError when the type of bucket is not archive', async () => {
+        it('Should return OperationNotSupportedError when the type of object is not archive', async () => {
           const name = '/oss/restore.js';
           await store.put(name, __filename);
 
           try {
             await store.restore(name);
-            throw new Error('should not run this');
+            assert.fail('Expect throw an error');
           } catch (err) {
-            assert.equal(err.status, 400);
+            assert.strictEqual(err.status, 400);
           }
         });
+
         it('Should return 202 when restore is called first', async () => {
-          store.setBucket(archiveBucket);
           const name = '/oss/restore.js';
-          await store.put(name, __filename);
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
 
           const info = await store.restore(name);
-          assert.equal(info.res.status, 202);
+          assert.strictEqual(info.res.status, 202);
 
           // in 1 minute verify RestoreAlreadyInProgressError
           try {
             await store.restore(name);
+            assert.fail('Expect throw an error');
           } catch (err) {
-            assert.equal(err.name, 'RestoreAlreadyInProgressError');
+            assert.strictEqual(err.name, 'RestoreAlreadyInProgressError');
           }
         });
 
-        it('Category should be Archive', async () => {
+        it('Restore Archive object with setting of Days', async () => {
+          const name = '/oss/restore2.js';
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+
+          const info = await store.restore(name, {
+            Days: 1
+          });
+          assert.strictEqual(info.res.status, 202);
+        });
+
+        it('Should not set JobParameters when restore Archive object', async () => {
           const name = '/oss/restore.js';
+
           try {
             await store.restore(name, { type: 'ColdArchive' });
+            assert.fail('expect Error');
           } catch (err) {
-            assert.equal(err.code, 'MalformedXML');
+            assert.strictEqual(err.code, 'MalformedXML');
           }
-          await store.useBucket(bucket, bucketRegion);
         });
 
-        it('ColdArchive choice Days', async () => {
-          const name = '/oss/daysRestore.js';
-          const result = await store.restore(name, {
-            type: 'ColdArchive',
-            Days: 2
-          });
-          assert.equal(
-            ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
-            true
-          );
-        });
-
-        it('ColdArchive is Accepted', async () => {
+        it('Restore Cold Archive object with default settings', async () => {
           const name = '/oss/coldRestore.js';
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'ColdArchive'
+            }
+          });
           const result = await store.restore(name, {
             type: 'ColdArchive'
           });
-          assert.equal(
-            ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
-            true
-          );
+          assert.strictEqual(result.res.headers['x-oss-object-restore-priority'], 'Standard');
+        });
+
+        it('Restore Cold Archive object with setting of Days', async () => {
+          const name = '/oss/daysColdRestore.js';
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'ColdArchive'
+            }
+          });
+          const result = await store.restore(name, {
+            type: 'ColdArchive',
+            Days: 1
+          });
+          assert.strictEqual(result.res.headers['x-oss-object-restore-priority'], 'Standard');
+        });
+
+        it('Restore Cold Archive object with settings of Days and JobParameters', async () => {
+          const name = '/oss/JobParametersColdRestore.js';
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'ColdArchive'
+            }
+          });
+          const result = await store.restore(name, {
+            type: 'ColdArchive',
+            Days: 3,
+            JobParameters: 'Expedited'
+          });
+          assert.strictEqual(result.res.headers['x-oss-object-restore-priority'], 'Expedited');
+
+          const name2 = 'oss/JobParametersColdRestore2.js';
+          await store.put(name2, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'ColdArchive'
+            }
+          });
+          const result2 = await store.restore(name2, {
+            type: 'ColdArchive',
+            Days: 5,
+            JobParameters: 'Bulk'
+          });
+          assert.strictEqual(result2.res.headers['x-oss-object-restore-priority'], 'Bulk');
+        });
+
+        it('Restore Deep Cold Archive object with default settings', async () => {
+          const name = '/oss/deepColdRestore.js';
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'DeepColdArchive'
+            }
+          });
+          const result = await store.restore(name, {
+            type: 'DeepColdArchive'
+          });
+          assert.strictEqual(result.res.headers['x-oss-object-restore-priority'], 'Standard');
+        });
+
+        it('Restore Deep Cold Archive object with setting of Days', async () => {
+          const name = '/oss/daysDeepColdRestore.js';
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'DeepColdArchive'
+            }
+          });
+          const result = await store.restore(name, {
+            type: 'DeepColdArchive',
+            Days: 1
+          });
+          assert.strictEqual(result.res.headers['x-oss-object-restore-priority'], 'Standard');
+        });
+
+        it('Restore Deep Cold Archive object with settings of Days and JobParameters', async () => {
+          const name = '/oss/JobParametersDeepColdRestore.js';
+          await store.put(name, Buffer.from('abc'), {
+            headers: {
+              'x-oss-storage-class': 'DeepColdArchive'
+            }
+          });
+          const result = await store.restore(name, {
+            type: 'DeepColdArchive',
+            Days: 3,
+            JobParameters: 'Expedited'
+          });
+          assert.strictEqual(result.res.headers['x-oss-object-restore-priority'], 'Expedited');
         });
       });
 
@@ -2555,6 +2683,75 @@ describe('test/object.test.js', () => {
             assert(false);
           } catch (error) {
             assert.strictEqual(errorMessage, error.message);
+          }
+        });
+      });
+
+      describe('signPostObjectPolicyV4()', () => {
+        it('should PostObject with V4 signature', async () => {
+          const name = 'testPostObjectUseV4Signature.txt';
+          const formData = new FormData();
+          formData.append('key', name);
+          formData.append('Content-Type', 'text/plain');
+          formData.append('Cache-Control', 'max-age=30');
+          const url = store.generateObjectUrl(name).replace(name, '');
+          const date = new Date();
+          const expirationDate = new Date(date);
+          expirationDate.setMinutes(date.getMinutes() + 1);
+          const formattedDate = dateFormat(date, "UTC:yyyymmdd'T'HHMMss'Z'");
+          const credential = getCredential(
+            formattedDate.split('T')[0],
+            getStandardRegion(store.options.region),
+            store.options.accessKeyId
+          );
+          formData.append('x-oss-date', formattedDate);
+          formData.append('x-oss-credential', credential);
+          formData.append('x-oss-signature-version', 'OSS4-HMAC-SHA256');
+          const policy = {
+            expiration: expirationDate.toISOString(),
+            conditions: [
+              { bucket: store.options.bucket },
+              { 'x-oss-credential': credential },
+              { 'x-oss-date': formattedDate },
+              { 'x-oss-signature-version': 'OSS4-HMAC-SHA256' },
+              ['content-length-range', 1, 10],
+              ['eq', '$success_action_status', '200'],
+              ['starts-with', '$key', 'testPostObject'],
+              ['in', '$content-type', ['image/jpg', 'text/plain']],
+              ['not-in', '$cache-control', ['no-cache']]
+            ]
+          };
+
+          if (store.options.stsToken) {
+            policy.conditions.push({ 'x-oss-security-token': store.options.stsToken });
+            formData.append('x-oss-security-token', store.options.stsToken);
+          }
+
+          const signature = store.signPostObjectPolicyV4(policy, date);
+          const signature2 = store.signPostObjectPolicyV4(JSON.stringify(policy), date);
+          assert.strictEqual(signature, signature2);
+
+          formData.append('policy', Buffer.from(policy2Str(policy), 'utf8').toString('base64'));
+          formData.append('x-oss-signature', signature);
+          formData.append('success_action_status', '200');
+          formData.append('file', 'test');
+
+          const result = await axios.post(url, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          assert.strictEqual(result.status, 200);
+          const headRes = await store.head(name);
+          assert.strictEqual(headRes.status, 200);
+        });
+
+        it('should throw error when policy is not legal JSON string or Object', () => {
+          try {
+            store.signPostObjectPolicyV4('test', new Date());
+            assert(false);
+          } catch (error) {
+            assert(error.message.startsWith('Policy string is not a valid JSON:'));
           }
         });
       });

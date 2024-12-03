@@ -23,7 +23,7 @@ describe('test/multiversion.test.js', () => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
         // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
-        store = oss({ ...config, ...moreConfigs, region: 'oss-ap-southeast-1' });
+        store = oss({ ...config, ...moreConfigs });
         bucket = `ali-oss-test-bucket-version-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket);
@@ -144,6 +144,24 @@ describe('test/multiversion.test.js', () => {
           } catch (err) {
             assert(false, err.message);
           }
+        });
+
+        it('should list files with restore info', async () => {
+          const testFile = 'restoreInfoTest.txt';
+          await store.put(testFile, Buffer.from('test'), {
+            headers: {
+              'x-oss-storage-class': 'Archive'
+            }
+          });
+          await store.restore(testFile);
+
+          const listResult = await store.getBucketVersions({
+            prefix: testFile
+          });
+          assert.strictEqual(listResult.res.status, 200);
+          assert.strictEqual(listResult.objects.length, 1);
+          assert.strictEqual(listResult.objects[0].restoreInfo.ongoingRequest, true);
+          assert.strictEqual(listResult.objects[0].restoreInfo.expiryDate, undefined);
         });
       });
 

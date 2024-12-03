@@ -42,9 +42,7 @@ Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
 
 ### QA
 
-You can join DingDing Talk Group, [Group Link](https://qr.dingtalk.com/action/joingroup?code=v1,k1,E60EuCmxajfilkaR/kknRcGR9UissskPEXu/1td36z0=)
-
-<img src="task/dingding.jpg" height="400" title="dingding" width="300">
+Please log in to the official website and contact technical support.
 
 ## License
 
@@ -144,8 +142,8 @@ All operation use es7 async/await to implement. All api is async function.
   - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
   - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
   - [.deleteMulti(names[, options])](#deletemultinames-options)
-  - [.signatureUrl(name[, options])](#signatureurlname-options)
-  - [.asyncSignatureUrl(name[, options])](#signatureurlname-options)
+  - [.signatureUrl(name[, options, strictObjectNameValidation])](#signatureurlname-options-strictobjectnamevalidation)
+  - [.asyncSignatureUrl(name[, options, strictObjectNameValidation])](#asyncsignatureurlname-options-strictobjectnamevalidation)
   - [.signatureUrlV4(method, expires[, request, objectName, additionalHeaders])](#signatureurlv4method-expires-request-objectname-additionalheaders)
   - [.putACL(name, acl[, options])](#putaclname-acl-options)
   - [.getACL(name[, options])](#getaclname-options)
@@ -162,6 +160,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [.listUploads(query[, options])](#listuploadsquery-options)
   - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
   - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
+  - [.signPostObjectPolicyV4(policy, date)](#signpostobjectpolicyv4policy-date)
   - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
   - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
   - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
@@ -2449,6 +2448,9 @@ Success will return objects list on `objects` properties.
   - size {Number} object size, e.g.: `344606`
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is ongoing
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
@@ -2515,6 +2517,9 @@ Success will return objects list on `objects` properties.
   - size {Number} object size, e.g.: `344606`
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object|null} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is ongoing
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextContinuationToken {String} next continuation-token string
@@ -2595,6 +2600,9 @@ Success will return objects list on `objects` properties.
   - versionId {String} object versionId
   - storageClass {String} storage class type, e.g.: `Standard`
   - owner {Object} object owner, including `id` and `displayName`
+  - restoreInfo {Object|undefined} The restoration status of the object
+    - ongoingRequest {Boolean} Whether the restoration is ongoing
+    - expireDate {Date|undefined} The time before which the restored object can be read
 - deleteMarker {Array<ObjectDeleteMarker>} object delete marker info list
   Each `ObjectDeleteMarker`
   - name {String} object name on oss
@@ -2954,6 +2962,8 @@ parameters:
   - [timeout] {Number} the operation timeout
   - [versionId] {String} the version id of history object
   - [type] {String} the default type is Archive
+  - [Days] {number} The duration within which the object remains in the restored state. The default value is 2.
+  - [JobParameters] {string} The container that stores the restoration priority. This parameter is valid only when you restore Cold Archive or Deep Cold Archive objects. The default value is Standard.
 
 Success will return:
 
@@ -2965,24 +2975,51 @@ Success will return:
 
 example:
 
-- Restore an object with Archive type
+- Restore an Archive object
 
 ```js
 const result = await store.restore('ossdemo.txt');
 console.log(result.status);
 ```
 
-- Restore an object with ColdArchive type
+- Restore a Cold Archive object
 
 ```js
 const result = await store.restore('ossdemo.txt', { type: 'ColdArchive' });
 console.log(result.status);
 ```
 
-- Days for unfreezing Specifies the days for unfreezing
+- Restore a Cold Archive object with Days
 
 ```js
 const result = await store.restore('ossdemo.txt', { type: 'ColdArchive', Days: 2 });
+console.log(result.status);
+```
+
+- Restore a Cold Archive object with Days and JobParameters
+```js
+const result = await store.restore('ossdemo.txt', { type: 'ColdArchive', Days: 2, JobParameters: 'Standard' });
+console.log(result.status);
+```
+
+- Restore a Deep Cold Archive object
+
+```js
+const result = await store.restore('ossdemo.txt', { type: 'DeepColdArchive' });
+console.log(result.status);
+```
+
+- Restore a Deep Cold Archive object with Days
+
+```js
+const result = await store.restore('ossdemo.txt', { type: 'DeepColdArchive', Days: 2 });
+console.log(result.status);
+```
+
+- Restore a Deep Cold Archive object with Days and JobParameters
+
+```js
+const result = await store.restore('ossdemo.txt', { type: 'DeepColdArchive', Days: 2, JobParameters: 'Standard' });
 console.log(result.status);
 ```
 
@@ -3815,6 +3852,89 @@ Object:
 - OSSAccessKeyId {String}
 - Signature {String}
 - policy {Object} response info
+
+### .signPostObjectPolicyV4(policy, date)
+
+Get a V4 signature of the PostObject request.
+
+parameters:
+
+- policy {string | Object} The policy form field in a PostObject request is used to specify the expiration time and conditions of the PostObject request that you initiate to upload an object by using an HTML form. The value of the policy form field is a JSON string or an object.
+- date {Date} The time when the request was initiated.
+
+Success will return a V4 signature of the PostObject request.
+
+example:
+
+```js
+const axios = require('axios');
+const dateFormat = require('dateformat');
+const FormData = require('form-data');
+const { getCredential } = require('ali-oss/lib/common/signUtils');
+const { getStandardRegion } = require('ali-oss/lib/common/utils/getStandardRegion');
+const { policy2Str } = require('ali-oss/lib/common/utils/policy2Str');
+const OSS = require('ali-oss');
+
+const client = new OSS({
+  accessKeyId: 'yourAccessKeyId',
+  accessKeySecret: 'yourAccessKeySecret',
+  stsToken: 'yourSecurityToken',
+  bucket: 'yourBucket',
+  region: 'oss-cn-hangzhou'
+});
+const name = 'yourObjectName';
+const formData = new FormData();
+formData.append('key', name);
+formData.append('Content-Type', 'yourObjectContentType');
+// your object cache control
+formData.append('Cache-Control', 'max-age=30');
+const url = client.generateObjectUrl(name).replace(name, '');
+const date = new Date();
+// The expiration parameter specifies the expiration time of the request.
+const expirationDate = new Date(date);
+expirationDate.setMinutes(date.getMinutes() + 1);
+// The time must follow the ISO 8601 standard
+const formattedDate = dateFormat(date, "UTC:yyyymmdd'T'HHMMss'Z'");
+const credential = getCredential(formattedDate.split('T')[0], getStandardRegion(client.options.region), client.options.accessKeyId);
+formData.append('x-oss-date', formattedDate);
+formData.append('x-oss-credential', credential);
+formData.append('x-oss-signature-version', 'OSS4-HMAC-SHA256');
+const policy = {
+  expiration: expirationDate.toISOString(),
+  conditions: [
+    { bucket: client.options.bucket },
+    {'x-oss-credential': credential},
+    {'x-oss-date': formattedDate},
+    {'x-oss-signature-version': 'OSS4-HMAC-SHA256'},
+    ['content-length-range', 1, 10],
+    ['eq', '$success_action_status', '200'],
+    ['starts-with', '$key', 'yourObjectName'],
+    ['in', '$content-type', ['image/jpg', 'text/plain']],
+    ['not-in', '$cache-control', ['no-cache']]
+  ]
+};
+
+if (client.options.stsToken) {
+  policy.conditions.push({'x-oss-security-token': client.options.stsToken});
+  formData.append('x-oss-security-token', client.options.stsToken);
+}
+
+const signature = client.signPostObjectPolicyV4(policy, date);
+formData.append('policy', Buffer.from(policy2Str(policy), 'utf8').toString('base64'));
+formData.append('x-oss-signature', signature);
+formData.append('success_action_status', '200');
+formData.append('file', 'yourFileContent');
+
+axios.post(url, formData, {
+  headers: {
+    'Content-Type': 'multipart/form-data'
+  }
+}).then((result) => {
+  console.log(result.status);
+}).catch((e) => {
+  console.log(e);
+});
+```
 
 ### .getObjectTagging(name[, options])
 

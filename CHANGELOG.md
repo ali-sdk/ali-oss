@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.22.0](https://github.com/ali-sdk/ali-oss/compare/v6.21.0...v6.22.0) (2024-11-29)
+
+### Features
+
+* list object functions support return restore info ([#1339](https://github.com/ali-sdk/ali-oss/issues/1339)) ([986b743](https://github.com/ali-sdk/ali-oss/commit/986b7432f06b216eea24ae0f7b437aaf8786a3d4))
+* support restore Deep Cold Archive object ([#1337](https://github.com/ali-sdk/ali-oss/issues/1337)) ([ac500d3](https://github.com/ali-sdk/ali-oss/commit/ac500d3d87a911ec359d9ba781006034a78c1db2))
+* support PostObject policy V4 signature and restore archive object with setting of days ([#1340](https://github.com/ali-sdk/ali-oss/issues/1340)) ([ca8c027](https://github.com/ali-sdk/ali-oss/commit/ca8c027264a875e56f2740fa88b45dd562c2b809))
+
+### Bug Fixes
+
+* fix requestError return null and signatureUrlV4 run in Node 8.x ([#1338](https://github.com/ali-sdk/ali-oss/issues/1338)) ([439ffde](https://github.com/ali-sdk/ali-oss/commit/439ffded0bf9f8b9e73bed9a917d5265b80e8286))
+
 ## [6.21.0](https://github.com/ali-sdk/ali-oss/compare/v6.20.0...v6.21.0) (2024-08-16)
 
 ### Features

@@ -688,6 +688,43 @@ describe('test/multipart.test.js', () => {
           assert.strictEqual(netErrs.name, 'abort');
           store._uploadPart.restore();
         });
+
+        it('should normal processing of non-OSS errors', async () => {
+          const stubNetError = sinon.stub(store.urllib, 'request');
+          const netErr = new Error('TestNonOSSErrorException');
+          netErr.status = 400;
+          netErr.code = 'TestNonOSSError';
+          stubNetError.throws(netErr);
+          let nonOSSErr;
+          try {
+            await store.head('test.txt');
+            assert.fail('Expect to throw an error.');
+          } catch (err) {
+            nonOSSErr = err;
+          }
+
+          assert.strictEqual(nonOSSErr.message, `Unknow error, status: ${netErr.status}`);
+          assert.strictEqual(nonOSSErr.name, 'UnknownError');
+          assert.strictEqual(nonOSSErr.status, netErr.status);
+          stubNetError.restore();
+
+          nonOSSErr = undefined;
+          const stubNetError2 = sinon.stub(store.urllib, 'request');
+          const netErr2 = new Error('TestNonOSSErrorException');
+          netErr2.status = 400;
+          netErr2.data = 'TestNonOSSError';
+          stubNetError2.throws(netErr2);
+          try {
+            await store.listBuckets();
+            assert.fail('Expect to throw an error.');
+          } catch (err) {
+            nonOSSErr = err;
+          }
+
+          assert(nonOSSErr.message.includes(`\nraw xml: ${netErr2.data}`));
+          assert.strictEqual(nonOSSErr.status, netErr2.status);
+          stubNetError2.restore();
+        });
       });
 
       describe('multipartCopy()', () => {
@@ -979,6 +1016,8 @@ describe('test/multipart.test.js', () => {
           } catch (e) {
             assert(e.message.includes('mock upload part fail.'));
           }
+
+          await utils.sleep(3000);
 
           mm.restore();
 

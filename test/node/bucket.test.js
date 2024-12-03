@@ -13,7 +13,6 @@ describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
-  const bucketRegion = 'oss-ap-southeast-1'; // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
   const { accountId } = config;
   [
     {
@@ -25,7 +24,7 @@ describe('test/bucket.test.js', () => {
   ].forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
-        store = oss({ ...config, ...moreConfigs, region: bucketRegion });
+        store = oss({ ...config, ...moreConfigs });
         bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
 
         const result = await store.putBucket(bucket, { timeout });
@@ -134,9 +133,9 @@ describe('test/bucket.test.js', () => {
           const result = await store.getBucketInfo(bucket);
           assert.equal(result.res.status, 200);
 
-          assert.equal(result.bucket.Location, `${bucketRegion}`);
-          assert.equal(result.bucket.ExtranetEndpoint, `${bucketRegion}.aliyuncs.com`);
-          assert.equal(result.bucket.IntranetEndpoint, `${bucketRegion}-internal.aliyuncs.com`);
+          assert.equal(result.bucket.Location, `${config.region}`);
+          assert.equal(result.bucket.ExtranetEndpoint, `${config.region}.aliyuncs.com`);
+          assert.equal(result.bucket.IntranetEndpoint, `${config.region}-internal.aliyuncs.com`);
           assert.equal(result.bucket.AccessControlList.Grant, 'private');
           assert.equal(result.bucket.StorageClass, 'Standard');
         });
@@ -151,7 +150,7 @@ describe('test/bucket.test.js', () => {
       describe('getBucketLoaction', () => {
         it('it should return loaction this.region', async () => {
           const result = await store.getBucketLocation(bucket);
-          assert.equal(result.location, bucketRegion);
+          assert.equal(result.location, config.region);
         });
 
         it('it should return NoSuchBucketError when bucket not exist', async () => {
