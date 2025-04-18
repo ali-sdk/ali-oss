@@ -8,13 +8,10 @@ config.oss = {
   accessKeySecret: env.ALI_SDK_OSS_SECRET,
   accountId: env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i)[1], // Obtain the main account ID through roleRan
   region: env.ALI_SDK_OSS_REGION,
-  // endpoint: env.ONCI ? `https://${USWEST}.aliyuncs.com` : undefined,
   cloudBoxId: env.ALI_CLOUD_BOX_ID,
-  endpoint:
-    env.ALI_CLOUD_BOX_ID === undefined
-      ? undefined
-      : `https://${env.ALI_CLOUD_BOX_ID}.cn-chengdu.oss-cloudbox.aliyuncs.com`,
+  endpoint: env.ALI_CLOUD_ENDPOINT,
   authorizationV4: env.ALI_CLOUD_BOX_ID ? true : undefined,
+  // endpoint: env.ONCI ? `https://${USWEST}.aliyuncs.com` : undefined,
   maxSocket: 50
 };
 
@@ -27,6 +24,11 @@ config.sts = {
   maxSocket: 50
   // callbackServer: env.ALI_SDK_CALLBACK_IP
 };
+
+config.conditions = [
+  { authorizationV4: true },
+  env.ALI_CLOUD_BOX_ID === undefined ? undefined : { authorizationV4: false }
+].filter(item => item !== undefined);
 
 config.metaSyncTime = env.ONCI ? '1s' : '1000ms';
 config.timeout = '120s';

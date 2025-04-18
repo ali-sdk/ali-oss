@@ -5,7 +5,6 @@ const config = require('../config').oss;
 const fs = require('fs');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
-const constValue = require('../const');
 
 describe('test/multiversion.test.js', () => {
   const { prefix } = utils;
@@ -13,7 +12,7 @@ describe('test/multiversion.test.js', () => {
   const suspended = 'Suspended';
   let store;
   let bucket;
-  constValue.conditions.forEach((moreConfigs, idx) => {
+  config.conditions.forEach((moreConfigs, idx) => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
         // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
@@ -141,6 +140,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
           const testFile = 'restoreInfoTest.txt';
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -249,6 +249,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
           const res = await store.putBucketLifecycle(
             bucket,
             [

@@ -3,7 +3,6 @@ const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../../lib/client');
 const config = require('../config').oss;
-const constValue = require('../const');
 
 async function getIP(hostname) {
   return new Promise((resolve, reject) => {
@@ -18,10 +17,13 @@ async function getIP(hostname) {
 }
 
 describe('test/endpoint.test.js', () => {
+  before(function () {
+    if (config.cloudBoxId) this.skip(); // 云盒跳过endpointIsIP测试
+  });
   const { prefix } = utils;
   let store;
   let bucket;
-  constValue.conditions.forEach((moreConfigs, index) => {
+  config.conditions.forEach((moreConfigs, index) => {
     describe(`test endpoint in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });

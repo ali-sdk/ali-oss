@@ -5,11 +5,13 @@ const OSS = require('../..');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
 const mm = require('mm');
-const constValue = require('../const');
 
 describe('test/sts.test.js', () => {
+  before(function () {
+    if (config.cloudBoxId) this.skip(); // 云盒暂时不测试sts
+  });
   const { prefix } = utils;
-  constValue.conditions.forEach((moreConfigs, index) => {
+  config.conditions.forEach((moreConfigs, index) => {
     describe(`test sts in iterate ${index}`, () => {
       describe('assumeRole()', () => {
         it('should assume role', async () => {

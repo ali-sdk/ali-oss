@@ -15,9 +15,11 @@ const utils = require('./utils');
 const is = require('is-type-of');
 const oss = require('../..');
 const config = require('../config').oss;
-const constValue = require('../const');
 
 describe('test/rtmp.test.js', () => {
+  before(function () {
+    if (store.options.cloudBoxId) this.skip(); // 云盒不支持channel
+  });
   const { prefix } = utils;
   let store;
   let bucket;
@@ -33,7 +35,7 @@ describe('test/rtmp.test.js', () => {
       PlaylistName: 'playlist.m3u8'
     }
   };
-  constValue.conditions.forEach((moreConfigs, index) => {
+  config.conditions.forEach((moreConfigs, index) => {
     describe(`test rtmp in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
