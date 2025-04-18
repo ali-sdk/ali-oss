@@ -20,6 +20,7 @@ const { getCredential } = require('../../lib/common/signUtils');
 const { getStandardRegion } = require('../../lib/common/utils/getStandardRegion');
 const { parseRestoreInfo } = require('../../lib/common/utils/parseRestoreInfo');
 const { policy2Str } = require('../../lib/common/utils/policy2Str');
+const constValue = require('../const');
 
 let ossConfig;
 
@@ -67,14 +68,7 @@ describe('browser', () => {
     await cleanBucket(store);
   });
 
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  constValue.conditions.forEach((moreConfigs, index) => {
     describe(`test browser in iterate ${index}`, () => {
       describe('stsTokenFreshTime', () => {
         it('init stsTokenFreshTime', () => {

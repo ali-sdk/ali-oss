@@ -9,6 +9,12 @@ config.oss = {
   accountId: env.ALI_SDK_STS_ROLE.match(/^acs:ram::(\d+):role/i)[1], // Obtain the main account ID through roleRan
   region: env.ALI_SDK_OSS_REGION,
   // endpoint: env.ONCI ? `https://${USWEST}.aliyuncs.com` : undefined,
+  cloudBoxId: env.ALI_CLOUD_BOX_ID,
+  endpoint:
+    env.ALI_CLOUD_BOX_ID === undefined
+      ? undefined
+      : `https://${env.ALI_CLOUD_BOX_ID}.cn-chengdu.oss-cloudbox.aliyuncs.com`,
+  authorizationV4: env.ALI_CLOUD_BOX_ID ? true : undefined,
   maxSocket: 50
 };
 

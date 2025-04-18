@@ -20,6 +20,7 @@ const { getCredential } = require('../../lib/common/signUtils');
 const { getStandardRegion } = require('../../lib/common/utils/getStandardRegion');
 const { parseRestoreInfo } = require('../../lib/common/utils/parseRestoreInfo');
 const { policy2Str } = require('../../lib/common/utils/policy2Str');
+const constValue = require('../const');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -32,14 +33,7 @@ describe('test/object.test.js', () => {
   let bucket;
   const bucketRegion = config.region;
   let archiveBucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  constValue.conditions.forEach((moreConfigs, idx) => {
     describe(`test object in iterate ${idx}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
@@ -56,7 +50,7 @@ describe('test/object.test.js', () => {
         await store.putBucket(bucket);
         store.useBucket(bucket, bucketRegion);
 
-        await store.putBucket(archiveBucket, { StorageClass: 'Archive' });
+        await store.putBucket(archiveBucket, { StorageClass: 'Standard' });
         // store.useBucket(archiveBucket, bucketRegion);
       });
 

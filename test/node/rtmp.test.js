@@ -15,6 +15,7 @@ const utils = require('./utils');
 const is = require('is-type-of');
 const oss = require('../..');
 const config = require('../config').oss;
+const constValue = require('../const');
 
 describe('test/rtmp.test.js', () => {
   const { prefix } = utils;
@@ -32,14 +33,7 @@ describe('test/rtmp.test.js', () => {
       PlaylistName: 'playlist.m3u8'
     }
   };
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  constValue.conditions.forEach((moreConfigs, index) => {
     describe(`test rtmp in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });

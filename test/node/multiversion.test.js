@@ -5,6 +5,7 @@ const config = require('../config').oss;
 const fs = require('fs');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
+const constValue = require('../const');
 
 describe('test/multiversion.test.js', () => {
   const { prefix } = utils;
@@ -12,14 +13,7 @@ describe('test/multiversion.test.js', () => {
   const suspended = 'Suspended';
   let store;
   let bucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  constValue.conditions.forEach((moreConfigs, idx) => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
         // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive

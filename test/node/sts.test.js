@@ -5,17 +5,11 @@ const OSS = require('../..');
 const config = require('../config').oss;
 const stsConfig = require('../config').sts;
 const mm = require('mm');
+const constValue = require('../const');
 
 describe('test/sts.test.js', () => {
   const { prefix } = utils;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  constValue.conditions.forEach((moreConfigs, index) => {
     describe(`test sts in iterate ${index}`, () => {
       describe('assumeRole()', () => {
         it('should assume role', async () => {

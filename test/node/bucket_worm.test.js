@@ -2,22 +2,20 @@ const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
 const { oss: config, timeout } = require('../config');
+const constValue = require('../const');
 
 describe('test/bucket_worm.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  constValue.conditions.forEach((moreConfigs, index) => {
     describe(`test worm in iterate ${index}`, () => {
+      before(function () {
+        if (config.cloudBoxId !== undefined) this.skip();
+      });
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
+        // if(store.options.cloudBoxId!==undefined) this.skip();
         bucket = `ali-oss-test-worm-bucket-worm-${prefix.replace(/[/.]/g, '-')}${index}`;
 
         const result = await store.putBucket(bucket, { timeout });

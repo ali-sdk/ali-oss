@@ -8,20 +8,14 @@ const { Config: OpenConfig } = require('@alicloud/openapi-client');
 const { RuntimeOptions } = require('@alicloud/tea-util');
 
 const { oss: config, metaSyncTime, timeout } = require('../config');
+const constValue = require('../const');
 
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
   const { accountId } = config;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  constValue.conditions.forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });

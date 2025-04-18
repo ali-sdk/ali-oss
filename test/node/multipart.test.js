@@ -7,6 +7,7 @@ const config = require('../config').oss;
 const { md5 } = require('utility');
 const mm = require('mm');
 const sinon = require('sinon');
+const constValue = require('../const');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
@@ -38,14 +39,7 @@ describe('test/multipart.test.js', () => {
   let store;
   let bucket;
   const bucketRegion = config.region;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  constValue.conditions.forEach((moreConfigs, index) => {
     describe(`test multipart in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
