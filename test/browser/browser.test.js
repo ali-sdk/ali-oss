@@ -67,14 +67,7 @@ describe('browser', () => {
     await cleanBucket(store);
   });
 
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  config.conditions.forEach((moreConfigs, index) => {
     describe(`test browser in iterate ${index}`, () => {
       describe('stsTokenFreshTime', () => {
         it('init stsTokenFreshTime', () => {

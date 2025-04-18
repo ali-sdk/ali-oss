@@ -19,6 +19,7 @@ describe('test/cluster.test.js', () => {
   });
 
   before(function (done) {
+    if (config.cloudBoxId) this.skip(); // 云盒跳过测试cluster
     const options = {
       cluster: [
         {

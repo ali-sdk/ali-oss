@@ -12,14 +12,7 @@ describe('test/multiversion.test.js', () => {
   const suspended = 'Suspended';
   let store;
   let bucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  config.conditions.forEach((moreConfigs, idx) => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
         // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
@@ -147,6 +140,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
           const testFile = 'restoreInfoTest.txt';
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -255,6 +249,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
           const res = await store.putBucketLifecycle(
             bucket,
             [

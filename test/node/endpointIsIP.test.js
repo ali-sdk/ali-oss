@@ -17,17 +17,13 @@ async function getIP(hostname) {
 }
 
 describe('test/endpoint.test.js', () => {
+  before(function () {
+    if (config.cloudBoxId) this.skip(); // 云盒跳过endpointIsIP测试
+  });
   const { prefix } = utils;
   let store;
   let bucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  config.conditions.forEach((moreConfigs, index) => {
     describe(`test endpoint in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });

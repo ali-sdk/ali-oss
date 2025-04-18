@@ -7,15 +7,11 @@ const stsConfig = require('../config').sts;
 const mm = require('mm');
 
 describe('test/sts.test.js', () => {
+  before(function () {
+    if (config.cloudBoxId) this.skip(); // 云盒暂时不测试sts
+  });
   const { prefix } = utils;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  config.conditions.forEach((moreConfigs, index) => {
     describe(`test sts in iterate ${index}`, () => {
       describe('assumeRole()', () => {
         it('should assume role', async () => {

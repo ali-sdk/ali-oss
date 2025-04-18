@@ -38,14 +38,7 @@ describe('test/multipart.test.js', () => {
   let store;
   let bucket;
   const bucketRegion = config.region;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  config.conditions.forEach((moreConfigs, index) => {
     describe(`test multipart in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });

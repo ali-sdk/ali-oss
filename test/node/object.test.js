@@ -32,14 +32,7 @@ describe('test/object.test.js', () => {
   let bucket;
   const bucketRegion = config.region;
   let archiveBucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  config.conditions.forEach((moreConfigs, idx) => {
     describe(`test object in iterate ${idx}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
@@ -853,6 +846,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should get object content buffer with image process', async () => {
+          if (store.options.cloudBoxId) this.skip(); // 云盒不支持处理image
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
           const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           // path.join(__dirname, 'nodejs-processed-w200.png');
@@ -1086,6 +1080,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('signatureUrl(), asyncSignatureUrl() and signatureUrlV4()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // 云盒不支持url签名
+        });
         const name = `${prefix}ali-sdk/oss/signatureUrl.js`;
         const needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
         const testSignatureObjectName = `?{测}\r\n[试];,/?:@&=+$<中>-_.!~*'(文)"￥#%！（字）^ \`符|\\${prefix}test.txt`;
@@ -2089,6 +2086,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -2279,6 +2277,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -2435,6 +2434,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('restore()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
+        });
         it('Should return OperationNotSupportedError when the type of object is not archive', async () => {
           const name = '/oss/restore.js';
           await store.put(name, __filename);
@@ -2598,7 +2600,7 @@ describe('test/object.test.js', () => {
           assert.equal(result.res.status, 200);
 
           result = await store.putSymlink(name, targetName, {
-            storageClass: 'IA',
+            storageClass: store.options.cloudBoxId ? 'Standard' : 'IA', // 云盒只支持标准存储类型
             meta: {
               uid: '1',
               slus: 'test.html'
@@ -2626,6 +2628,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('calculatePostSignature()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持head v4签名
+        });
         it('should get signature for postObject', async () => {
           const name = 'calculatePostSignature.js';
           const url = store.generateObjectUrl(name).replace(name, '');
@@ -2688,6 +2693,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('signPostObjectPolicyV4()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // 云盒只支持head v4签名
+        });
         it('should PostObject with V4 signature', async () => {
           const name = 'testPostObjectUseV4Signature.txt';
           const formData = new FormData();
