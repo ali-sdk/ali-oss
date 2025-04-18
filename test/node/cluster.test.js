@@ -47,6 +47,7 @@ describe('test/cluster.test.js', () => {
   });
 
   after(async function () {
+    if (config.cloudBoxId) return; // 云盒跳过测试cluster
     await utils.cleanBucket(this.store.clients[0], this.bucket1);
     await utils.cleanBucket(this.store.clients[1], this.bucket2);
     this.store.close();

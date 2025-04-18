@@ -2,7 +2,7 @@ const dns = require('dns');
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../../lib/client');
-const config = require('../config').oss;
+const { oss: config, conditions } = require('../config');
 
 async function getIP(hostname) {
   return new Promise((resolve, reject) => {
@@ -23,7 +23,7 @@ describe('test/endpoint.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
-  config.conditions.forEach((moreConfigs, index) => {
+  conditions.forEach((moreConfigs, index) => {
     describe(`test endpoint in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });

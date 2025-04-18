@@ -27,7 +27,7 @@ config.sts = {
 
 config.conditions = [
   { authorizationV4: true },
-  env.ALI_CLOUD_BOX_ID === undefined ? undefined : { authorizationV4: false }
+  env.ALI_CLOUD_BOX_ID === undefined ? { authorizationV4: false } : undefined
 ].filter(item => item !== undefined);
 
 config.metaSyncTime = env.ONCI ? '1s' : '1000ms';

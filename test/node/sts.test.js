@@ -2,7 +2,7 @@ const assert = require('assert');
 const utils = require('./utils');
 const sts = require('../..').STS;
 const OSS = require('../..');
-const config = require('../config').oss;
+const { oss: config, conditions } = require('../config');
 const stsConfig = require('../config').sts;
 const mm = require('mm');
 
@@ -11,7 +11,7 @@ describe('test/sts.test.js', () => {
     if (config.cloudBoxId) this.skip(); // 云盒暂时不测试sts
   });
   const { prefix } = utils;
-  config.conditions.forEach((moreConfigs, index) => {
+  conditions.forEach((moreConfigs, index) => {
     describe(`test sts in iterate ${index}`, () => {
       describe('assumeRole()', () => {
         it('should assume role', async () => {

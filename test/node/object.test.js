@@ -3,7 +3,7 @@ const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
-const { oss: config, metaSyncTime } = require('../config');
+const { oss: config, metaSyncTime, conditions } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
@@ -32,7 +32,7 @@ describe('test/object.test.js', () => {
   let bucket;
   const bucketRegion = config.region;
   let archiveBucket;
-  config.conditions.forEach((moreConfigs, idx) => {
+  conditions.forEach((moreConfigs, idx) => {
     describe(`test object in iterate ${idx}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
@@ -177,6 +177,9 @@ describe('test/object.test.js', () => {
 
       describe('processObjectSave()', () => {
         const name = 'sourceObject.png';
+        before(function () {
+          if (store.options.cloudBoxId) this.skip();
+        });
         before(async () => {
           const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           await store.putStream(name, fs.createReadStream(imagepath), {
@@ -846,7 +849,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should get object content buffer with image process', async () => {
-          if (store.options.cloudBoxId) this.skip(); // 云盒不支持处理image
+          if (store.options.cloudBoxId) return; // 云盒不支持处理image
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
           const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           // path.join(__dirname, 'nodejs-processed-w200.png');
@@ -1462,6 +1465,7 @@ describe('test/object.test.js', () => {
          * between different regions
          */
         it('should get image stream with image process', async () => {
+          if (store.options.cloudBoxId) return;
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
           const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           const processedImagePath = path.join(__dirname, './fixtures/nodejs-processed-w200.png');
@@ -2027,7 +2031,7 @@ describe('test/object.test.js', () => {
             marker: result.nextMarker
           });
           assert(result2.objects.length <= 2);
-          result.objects.map(checkObjectProperties);
+          result2.objects.map(checkObjectProperties);
           assert.equal(typeof result2.nextMarker, 'string');
           assert(result2.isTruncated);
           assert.equal(result2.prefixes, null);
@@ -2086,7 +2090,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
-          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
+          if (store.options.cloudBoxId) return; // 云盒只支持标准存储
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -2277,7 +2281,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
-          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
+          if (store.options.cloudBoxId) return; // 云盒只支持标准存储
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
