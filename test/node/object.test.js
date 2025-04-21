@@ -2020,7 +2020,6 @@ describe('test/object.test.js', () => {
         });
 
         it('should list top 3 objects', async () => {
-          // todo cloudBox it.only can pass,if run all,will fail
           const result = await store.list({
             'max-keys': 3,
             prefix: listPrefix
