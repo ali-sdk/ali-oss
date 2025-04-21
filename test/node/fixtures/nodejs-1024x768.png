@@ -2,8 +2,8 @@
 <Error>
   <Code>InvalidArgument</Code>
   <Message>Only support header authorization for OSS4-HMAC-SHA256</Message>
-  <RequestId>6805A56573FC7B31357B3FC9</RequestId>
-  <HostId>ali-oss-test-object-bucket-win32-v22-14-0-1745200394990-0.cb-2vc86r7hcz1n8u18jruh.cn-chengdu.oss-cloudbox.aliyuncs.com</HostId>
+  <RequestId>6805AE6873FC7B3033635DC9</RequestId>
+  <HostId>ali-oss-test-object-bucket-win32-v22-14-0-1745202788354-0.cb-2vc86r7hcz1n8u18jruh.cn-chengdu.oss-cloudbox.aliyuncs.com</HostId>
   <EC>0002-00000034</EC>
   <RecommendDoc>https://help.aliyun.com/zh/oss/support/0002-00000034</RecommendDoc>
 </Error>

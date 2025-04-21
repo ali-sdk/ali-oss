@@ -2009,7 +2009,8 @@ describe('test/object.test.js', () => {
 
         it('should list only 1 object', async () => {
           const result = await store.list({
-            'max-keys': 1
+            'max-keys': 1,
+            prefix: listPrefix
           });
           assert(result.objects.length <= 1);
           result.objects.map(checkObjectProperties);
@@ -2020,9 +2021,9 @@ describe('test/object.test.js', () => {
 
         it('should list top 3 objects', async () => {
           // todo cloudBox it.only can pass,if run all,will fail
-          if (store.options.cloudBoxId) return;
           const result = await store.list({
-            'max-keys': 3
+            'max-keys': 3,
+            prefix: listPrefix
           });
           assert(result.objects.length <= 3);
           result.objects.map(checkObjectProperties);
