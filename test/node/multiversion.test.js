@@ -140,7 +140,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
-          if (store.options.cloudBoxId) return; // 云盒只支持标准存储
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const testFile = 'restoreInfoTest.txt';
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -249,7 +249,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
-          if (store.options.cloudBoxId) return; // 云盒只支持标准存储
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const res = await store.putBucketLifecycle(
             bucket,
             [

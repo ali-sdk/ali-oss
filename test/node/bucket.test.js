@@ -57,7 +57,7 @@ describe('test/bucket.test.js', () => {
           name = `ali-oss-test-putbucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
           // just for archive bucket test
           archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
-          // 云盒值支持标准存储类型
+          // cloudbox only support standard
           await store.putBucket(archvieBucket, {
             StorageClass: store.options.cloudBoxId ? 'Standard' : 'Archive',
             timeout

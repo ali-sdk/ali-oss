@@ -1512,21 +1512,18 @@ describe('test/object.test.js', () => {
 
         if (!process.env.ONCI) {
           it('should throw error and consume the response stream', async () => {
-            // todo 云盒这里跑不过，原因不明
-            if (store.options.cloudBoxId) return;
-            store.agent = new AgentKeepalive({
-              keepAlive: true
-            });
-
+            store.agent = new AgentKeepalive({ keepAlive: true });
             store.httpsAgent = new HttpsAgentKeepalive();
+            const isHttps = store.options.endpoint.protocol === 'https:';
             try {
               await store.getStream(`${name}not-exists`);
               throw new Error('should not run this');
             } catch (err) {
+              const agent = isHttps ? store.httpsAgent : store.agent;
               assert.equal(err.name, 'NoSuchKeyError');
-              assert.equal(Object.keys(store.agent.freeSockets).length, 0);
+              assert.equal(Object.keys(agent.freeSockets).length, 0);
               await utils.sleep(ms(metaSyncTime));
-              assert.equal(Object.keys(store.agent.freeSockets).length, 1);
+              assert.equal(Object.keys(agent.freeSockets).length, 1);
             }
           });
         }
@@ -2095,7 +2092,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
-          if (store.options.cloudBoxId) return; // 云盒只支持标准存储
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -2286,7 +2283,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
-          if (store.options.cloudBoxId) return; // 云盒只支持标准存储
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -2444,7 +2441,7 @@ describe('test/object.test.js', () => {
 
       describe('restore()', () => {
         before(function () {
-          if (store.options.cloudBoxId) this.skip(); // 云盒只支持标准存储
+          if (store.options.cloudBoxId) this.skip(); // cloudbox only support standard
         });
         it('Should return OperationNotSupportedError when the type of object is not archive', async () => {
           const name = '/oss/restore.js';
@@ -2609,7 +2606,7 @@ describe('test/object.test.js', () => {
           assert.equal(result.res.status, 200);
 
           result = await store.putSymlink(name, targetName, {
-            storageClass: store.options.cloudBoxId ? 'Standard' : 'IA', // 云盒只支持标准存储类型
+            storageClass: store.options.cloudBoxId ? 'Standard' : 'IA', // cloudbox only support standard
             meta: {
               uid: '1',
               slus: 'test.html'
