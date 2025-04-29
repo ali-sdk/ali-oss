@@ -9,25 +9,3 @@ fengmk2 <m@fengmk2.com> (https://github.com/fengmk2)
 Yan Qing <admin@zensh.com> (https://github.com/zensh)
 mars-coder <mars.ll@alibaba-inc.com> (https://github.com/mars-coder)
 Jacky Tang <jackytck@gmail.com> (https://github.com/jackytck)
-
-export ALIBABA_CLOUD_ACCESS_KEY_ID=<凭证ID>
-export ALIBABA_CLOUD_ACCESS_KEY_SECRET=<凭证>
-export ALIBABA_CLOUD_ROLE_ARN=acs:ram::1166860201058798:role/sdk-test-role
-export ALIBABA_CLOUD_REGION=oss-cn-hangzhou
-export ALIBABA_CLOUD_BUCKET=alioss-sdk-github-test-common
-export ALIBABA_CLOUD_VERSIONING_BUCKET=alioss-sdk-github-test-common-versioning
-export ALIBABA_CLOUD_ENABLED_ACCESS_TRACKING_BUCKET=alioss-sdk-github-test-hangzhou
-
-export ALI_SDK_OSS_ID=$ALIBABA_CLOUD_ACCESS_KEY_ID
-export ALI_SDK_OSS_SECRET=$ALIBABA_CLOUD_ACCESS_KEY_SECRET
-export ALI_SDK_OSS_REGION=$ALIBABA_CLOUD_REGION
-export ALI_SDK_OSS_ENABLED_ACCESS_TRACKING_BUCKET=$ALIBABA_CLOUD_ENABLED_ACCESS_TRACKING_BUCKETen
-export ALI_SDK_OSS_BUCKET=$ALIBABA_CLOUD_BUCKET
-export ALI_SDK_OSS_VERSIONING_BUCKET=$ALIBABA_CLOUD_VERSIONING_BUCKET
-export DEBUG=urllib
-
-export ALI_SDK_STS_ID=$ALIBABA_CLOUD_ACCESS_KEY_ID
-export ALI_SDK_STS_SECRET=$ALIBABA_CLOUD_ACCESS_KEY_SECRET
-export ALI_SDK_STS_ROLE=$ALIBABA_CLOUD_ROLE_ARN
-export ALI_SDK_STS_REGION=$ALIBABA_CLOUD_REGION
-export ALI_SDK_STS_BUCKET=alioss-sdk-github-test-browser
