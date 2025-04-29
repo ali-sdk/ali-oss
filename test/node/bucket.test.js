@@ -132,10 +132,11 @@ describe('test/bucket.test.js', () => {
           const result = await store.getBucketInfo(bucket);
           assert.equal(result.res.status, 200);
 
-          assert.equal(result.bucket.ExtranetEndpoint, store.options.endpoint);
           assert.equal(result.bucket.Location, `${config.region}`);
           assert.equal(result.bucket.ExtranetEndpoint, `${config.region}.aliyuncs.com`);
           assert.equal(result.bucket.IntranetEndpoint, `${config.region}-internal.aliyuncs.com`);
+          assert.equal(result.bucket.AccessControlList.Grant, 'private');
+          assert.equal(result.bucket.StorageClass, 'Standard');
 
           assert.equal(result.bucket.AccessControlList.Grant, 'private');
           assert.equal(result.bucket.StorageClass, 'Standard');
