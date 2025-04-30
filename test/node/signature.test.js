@@ -18,12 +18,10 @@ function getProductAndSignRegion(isCloudBox) {
 
 describe('signature v4 should support cloudbox', () => {
   const bucket = 'cloud-box-test';
-  const date = new Date();
-  const formattedDate = dateFormat(date, "UTC:yyyymmdd'T'HHMMss'Z'");
-  const onlyDate = formattedDate.split('T')[0];
   [true, false].forEach(isCloudBox => {
     const { product, signRegion } = getProductAndSignRegion(isCloudBox);
     it(`should signatureUrlV4 support ${isCloudBox ? 'cloudBox' : 'publicCloud'}`, async () => {
+      sinon.restore();
       const getProductSpy = sinon.spy(signHelper, 'getProductName'); // (cloudBoxId)
       sinon.spy(signHelper, 'getCredential'); // (onlyDate, signRegion, this.options.accessKeyId, product)
       const getStringToSignSpy = sinon.spy(signHelper, 'getStringToSign'); // (signRegion, formattedDate, canonicalRequest, product)
@@ -31,6 +29,9 @@ describe('signature v4 should support cloudbox', () => {
       const store = isCloudBox
         ? new OSS({ ...config, cloudBoxId, bucket })
         : new OSS({ ...config, cloudBoxId: undefined, bucket });
+      const date = new Date();
+      const formattedDate = dateFormat(date, "UTC:yyyymmdd'T'HHMMss'Z'");
+      const onlyDate = formattedDate.split('T')[0];
       await store.signatureUrlV4(
         'GET',
         600,
@@ -73,9 +74,9 @@ describe('signature v4 should support cloudbox', () => {
         stringToSign,
         product
       ]);
-      sinon.restore();
     });
     it(`should authorizationV4 support  ${isCloudBox ? 'cloudBox' : 'publicCloud'}`, async () => {
+      sinon.restore();
       const getProductSpy = sinon.spy(signHelper, 'getProductName'); // (cloudBoxId)
       sinon.spy(signHelper, 'getCredential'); // (onlyDate, signRegion, this.options.accessKeyId, product)
       const getStringToSignSpy = sinon.spy(signHelper, 'getStringToSign'); // (signRegion, formattedDate, canonicalRequest, product)
@@ -83,6 +84,9 @@ describe('signature v4 should support cloudbox', () => {
       const store = isCloudBox
         ? new OSS({ ...config, cloudBoxId, bucket, authorizationV4: true })
         : new OSS({ ...config, cloudBoxId: undefined, bucket, authorizationV4: true });
+      const date = new Date();
+      const formattedDate = dateFormat(date, "UTC:yyyymmdd'T'HHMMss'Z'");
+      const onlyDate = formattedDate.split('T')[0];
       try {
         await store.put('test-object', __filename);
       } catch (e) {
