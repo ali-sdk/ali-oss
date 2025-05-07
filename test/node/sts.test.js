@@ -6,10 +6,9 @@ const { oss: config, conditions } = require('../config');
 const stsConfig = require('../config').sts;
 const mm = require('mm');
 
-const product = config.cloudBoxId === undefined ? 'oss' : 'oss-cloudbox';
-
 describe('test/sts.test.js', () => {
   const { prefix } = utils;
+  const product = config.cloudBoxId === undefined ? 'oss' : 'oss-cloudbox';
   conditions.forEach((moreConfigs, index) => {
     describe(`test sts in iterate ${index}`, () => {
       describe('assumeRole()', () => {
