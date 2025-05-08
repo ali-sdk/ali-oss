@@ -128,15 +128,19 @@ describe('test/bucket.test.js', () => {
 
       describe('getBucketInfo', () => {
         it('it should return correct bucketInfo when bucket exist', async () => {
-          if (store.options.cloudBoxId) return;
           const result = await store.getBucketInfo(bucket);
           assert.equal(result.res.status, 200);
 
           assert.equal(result.bucket.Location, `${config.region}`);
-          assert.equal(result.bucket.ExtranetEndpoint, `${config.region}.aliyuncs.com`);
-          assert.equal(result.bucket.IntranetEndpoint, `${config.region}-internal.aliyuncs.com`);
+          if (store.options.cloudBoxId) {
+            assert.equal(result.bucket.ExtranetEndpoint, store.options.endpoint.host);
+            assert.equal(result.bucket.IntranetEndpoint, store.options.endpoint.host);
+          } else {
+            assert.equal(result.bucket.ExtranetEndpoint, `${config.region}.aliyuncs.com`);
+            assert.equal(result.bucket.IntranetEndpoint, `${config.region}-internal.aliyuncs.com`);
+          }
+
           assert.equal(result.bucket.AccessControlList.Grant, 'private');
-          assert.equal(result.bucket.StorageClass, 'Standard');
           assert.equal(result.bucket.StorageClass, 'Standard');
         });
 
