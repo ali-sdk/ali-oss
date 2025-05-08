@@ -81,7 +81,6 @@ describe('test/sts.test.js', () => {
           const stsClient = sts(stsConfig);
           let result = await stsClient.assumeRole(stsConfig.roleArn);
           assert.strictEqual(result.res.status, 200);
-          console.log(stsConfig.bucket);
           const ossClient = new OSS({
             // region: config.region,
             ...config,

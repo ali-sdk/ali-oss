@@ -79,7 +79,6 @@ describe('signature v4 should support cloudbox', () => {
       ]);
     });
     it(`should authorizationV4 support  ${isCloudBox ? 'cloudBox' : 'publicCloud'}`, async () => {
-      sinon.restore();
       const getProductSpy = sinon.spy(signHelper, 'getProduct'); // (cloudBoxId)
       sinon.spy(signHelper, 'getCredential'); // (onlyDate, signRegion, this.options.accessKeyId, product)
       const getStringToSignSpy = sinon.spy(signHelper, 'getStringToSign'); // (signRegion, formattedDate, canonicalRequest, product)

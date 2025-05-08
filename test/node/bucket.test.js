@@ -137,8 +137,6 @@ describe('test/bucket.test.js', () => {
           assert.equal(result.bucket.IntranetEndpoint, `${config.region}-internal.aliyuncs.com`);
           assert.equal(result.bucket.AccessControlList.Grant, 'private');
           assert.equal(result.bucket.StorageClass, 'Standard');
-
-          assert.equal(result.bucket.AccessControlList.Grant, 'private');
           assert.equal(result.bucket.StorageClass, 'Standard');
         });
 

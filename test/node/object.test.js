@@ -1084,7 +1084,7 @@ describe('test/object.test.js', () => {
 
       describe('signatureUrl(), asyncSignatureUrl() and signatureUrlV4()', () => {
         before(function () {
-          if (store.options.cloudBoxId) this.skip(); // 云盒不支持url签名
+          if (store.options.cloudBoxId) this.skip();
         });
         const name = `${prefix}ali-sdk/oss/signatureUrl.js`;
         const needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
@@ -2635,7 +2635,7 @@ describe('test/object.test.js', () => {
 
       describe('calculatePostSignature()', () => {
         before(function () {
-          if (store.options.cloudBoxId) this.skip(); // 云盒只支持head v4签名
+          if (store.options.cloudBoxId) this.skip();
         });
         it('should get signature for postObject', async () => {
           const name = 'calculatePostSignature.js';
@@ -2700,7 +2700,7 @@ describe('test/object.test.js', () => {
 
       describe('signPostObjectPolicyV4()', () => {
         before(function () {
-          if (store.options.cloudBoxId) this.skip(); // 云盒只支持head v4签名
+          if (store.options.cloudBoxId) this.skip();
         });
         it('should PostObject with V4 signature', async () => {
           const name = 'testPostObjectUseV4Signature.txt';
