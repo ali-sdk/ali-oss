@@ -7,21 +7,14 @@ const { default: ResourceManager, ListResourceGroupsRequest } = require('@aliclo
 const { Config: OpenConfig } = require('@alicloud/openapi-client');
 const { RuntimeOptions } = require('@alicloud/tea-util');
 
-const { oss: config, metaSyncTime, timeout } = require('../config');
+const { oss: config, conditions, metaSyncTime, timeout } = require('../config');
 
 describe('test/bucket.test.js', () => {
   const { prefix, includesConf } = utils;
   let store;
   let bucket;
   const { accountId } = config;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  conditions.forEach((moreConfigs, idx) => {
     describe(`test bucket in iterate ${idx}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
@@ -64,7 +57,11 @@ describe('test/bucket.test.js', () => {
           name = `ali-oss-test-putbucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
           // just for archive bucket test
           archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}${idx}`;
-          await store.putBucket(archvieBucket, { StorageClass: 'Archive', timeout });
+          // cloudbox only support standard
+          await store.putBucket(archvieBucket, {
+            StorageClass: store.options.cloudBoxId ? 'Standard' : 'Archive',
+            timeout
+          });
         });
 
         it('should create a new bucket', async () => {
@@ -80,6 +77,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should create an archive bucket', async () => {
+          if (store.options.cloudBoxId) return;
           await utils.sleep(ms(metaSyncTime));
           const result2 = await store.listBuckets(
             {},
@@ -134,8 +132,14 @@ describe('test/bucket.test.js', () => {
           assert.equal(result.res.status, 200);
 
           assert.equal(result.bucket.Location, `${config.region}`);
-          assert.equal(result.bucket.ExtranetEndpoint, `${config.region}.aliyuncs.com`);
-          assert.equal(result.bucket.IntranetEndpoint, `${config.region}-internal.aliyuncs.com`);
+          if (store.options.cloudBoxId) {
+            assert.equal(result.bucket.ExtranetEndpoint, store.options.endpoint.host);
+            assert.equal(result.bucket.IntranetEndpoint, store.options.endpoint.host);
+          } else {
+            assert.equal(result.bucket.ExtranetEndpoint, `${config.region}.aliyuncs.com`);
+            assert.equal(result.bucket.IntranetEndpoint, `${config.region}-internal.aliyuncs.com`);
+          }
+
           assert.equal(result.bucket.AccessControlList.Grant, 'private');
           assert.equal(result.bucket.StorageClass, 'Standard');
         });
@@ -247,6 +251,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should list buckets by subres', async () => {
+          if (store.options.cloudBoxId) return; // 云盒不支持tag
           const tag = {
             a: '1',
             b: '2'
@@ -270,6 +275,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should list buckets by group id', async () => {
+          if (store.options.cloudBoxId) return; // 云盒不支持group
           const { accessKeyId, accessKeySecret } = config;
           const openConfig = new OpenConfig({
             accessKeyId,
@@ -472,11 +478,13 @@ describe('test/bucket.test.js', () => {
       describe('putBucketCORS(), getBucketCORS(), deleteBucketCORS()', () => {
         afterEach(async () => {
           // delete it
+          if (store.options.cloudBoxId) return;
           const result = await store.deleteBucketCORS(bucket, { timeout });
           assert.equal(result.res.status, 204);
         });
 
         it('should create, get and delete the cors', async () => {
+          if (store.options.cloudBoxId) return; // 云盒不支持跨域
           const rules = [
             {
               allowedOrigin: '*',
@@ -503,6 +511,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should overwrite cors', async () => {
+          if (store.options.cloudBoxId) return;
           const rules1 = [
             {
               allowedOrigin: '*',
@@ -578,6 +587,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should throw error when rules not exist', async () => {
+          if (store.options.cloudBoxId) return;
           try {
             await store.getBucketCORS(bucket);
             throw new Error('should not run');
@@ -588,6 +598,9 @@ describe('test/bucket.test.js', () => {
       });
 
       describe('putBucketRequestPayment(), getBucketRequestPayment()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // 云盒不支持请求着付费
+        });
         it('should create, get the request payment', async () => {
           try {
             await store.putBucketRequestPayment(bucket, 'Requester');
@@ -608,6 +621,9 @@ describe('test/bucket.test.js', () => {
       });
 
       describe('getBucketTags() putBucketTags() deleteBucketTags()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // 云盒不支持tag
+        });
         it('should get the tags of bucket', async () => {
           try {
             const result = await store.getBucketTags(bucket);
@@ -870,6 +886,7 @@ describe('test/bucket.test.js', () => {
         });
 
         it('should put the lifecycle with Transition', async () => {
+          if (store.options.cloudBoxId) return; // 云盒不支持tag
           const res1 = await store.putBucketLifecycle(bucket, [
             {
               id: 'transition',
@@ -1538,6 +1555,9 @@ describe('test/bucket.test.js', () => {
         });
       });
       describe('inventory()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // 云盒不支持清单
+        });
         const field = [
           'Size',
           'LastModifiedDate',

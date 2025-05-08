@@ -1,7 +1,7 @@
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
-const config = require('../config').oss;
+const { oss: config, conditions } = require('../config');
 const fs = require('fs');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('../config');
@@ -12,14 +12,7 @@ describe('test/multiversion.test.js', () => {
   const suspended = 'Suspended';
   let store;
   let bucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  conditions.forEach((moreConfigs, idx) => {
     describe(`test multiversion in iterate ${idx}`, () => {
       before(async () => {
         // oss-ap-southeast-1 suport PutBucketLifecycle DeepColdArchive
@@ -147,6 +140,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const testFile = 'restoreInfoTest.txt';
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -255,6 +249,7 @@ describe('test/multiversion.test.js', () => {
         });
 
         it('should putBucketLifecycle with noncurrentVersionTransition', async () => {
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const res = await store.putBucketLifecycle(
             bucket,
             [
@@ -564,6 +559,9 @@ describe('test/multiversion.test.js', () => {
       });
 
       describe('restore()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip();
+        });
         const name = `${prefix}-multiversion-restore-file.js`;
         let putResult;
         let versionId;

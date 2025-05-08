@@ -79,7 +79,7 @@ exports.cleanAllBucket = async (store, limit, isAll) => {
     const list = bucketList.splice(0, limit);
     const pros = [];
     for (const bucketListItem of list) {
-      store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
+      //   store.options.endpoint.parse(`https://${bucketListItem.region}.aliyuncs.com`);
       const client = new OSS({
         ...JSON.parse(JSON.stringify(store.options)),
         bucket: bucketListItem.bucket,
@@ -137,9 +137,11 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
   });
   const uploads = result.uploads || [];
   await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
+  if (store.cloudBoxId !== undefined) {
+    const channels = (await store.listChannels()).channels.map(_ => _.Name);
+    await Promise.all(channels.map(_ => store.deleteChannel(_)));
+  }
 
-  const channels = (await store.listChannels()).channels.map(_ => _.Name);
-  await Promise.all(channels.map(_ => store.deleteChannel(_)));
   await store.deleteBucket(bucket);
 };
 

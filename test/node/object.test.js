@@ -3,7 +3,7 @@ const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
-const { oss: config, metaSyncTime } = require('../config');
+const { oss: config, metaSyncTime, conditions } = require('../config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
@@ -32,14 +32,7 @@ describe('test/object.test.js', () => {
   let bucket;
   const bucketRegion = config.region;
   let archiveBucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, idx) => {
+  conditions.forEach((moreConfigs, idx) => {
     describe(`test object in iterate ${idx}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
@@ -56,7 +49,7 @@ describe('test/object.test.js', () => {
         await store.putBucket(bucket);
         store.useBucket(bucket, bucketRegion);
 
-        await store.putBucket(archiveBucket, { StorageClass: 'Archive' });
+        await store.putBucket(archiveBucket, { StorageClass: store.options.cloudBoxId ? 'Standard' : 'Archive' });
         // store.useBucket(archiveBucket, bucketRegion);
       });
 
@@ -184,6 +177,9 @@ describe('test/object.test.js', () => {
 
       describe('processObjectSave()', () => {
         const name = 'sourceObject.png';
+        before(function () {
+          if (store.options.cloudBoxId) this.skip();
+        });
         before(async () => {
           const imagepath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           await store.putStream(name, fs.createReadStream(imagepath), {
@@ -853,6 +849,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should get object content buffer with image process', async () => {
+          if (store.options.cloudBoxId) return; // 云盒不支持处理image
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-get-image-1024x768.png`;
           const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           // path.join(__dirname, 'nodejs-processed-w200.png');
@@ -1086,6 +1083,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('signatureUrl(), asyncSignatureUrl() and signatureUrlV4()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip();
+        });
         const name = `${prefix}ali-sdk/oss/signatureUrl.js`;
         const needEscapeName = `${prefix}ali-sdk/oss/%3get+meta-signatureUrl.js`;
         const testSignatureObjectName = `?{测}\r\n[试];,/?:@&=+$<中>-_.!~*'(文)"￥#%！（字）^ \`符|\\${prefix}test.txt`;
@@ -1465,6 +1465,7 @@ describe('test/object.test.js', () => {
          * between different regions
          */
         it('should get image stream with image process', async () => {
+          if (store.options.cloudBoxId) return;
           const imageName = `${prefix}ali-sdk/oss/nodejs-test-getstream-image-1024x768.png`;
           const originImagePath = path.join(__dirname, './fixtures/nodejs-1024x768.png');
           const processedImagePath = path.join(__dirname, './fixtures/nodejs-processed-w200.png');
@@ -1511,18 +1512,18 @@ describe('test/object.test.js', () => {
 
         if (!process.env.ONCI) {
           it('should throw error and consume the response stream', async () => {
-            store.agent = new AgentKeepalive({
-              keepAlive: true
-            });
+            store.agent = new AgentKeepalive({ keepAlive: true });
             store.httpsAgent = new HttpsAgentKeepalive();
+            const isHttps = store.options.endpoint.protocol === 'https:';
             try {
               await store.getStream(`${name}not-exists`);
               throw new Error('should not run this');
             } catch (err) {
+              const agent = isHttps ? store.httpsAgent : store.agent;
               assert.equal(err.name, 'NoSuchKeyError');
-              assert.equal(Object.keys(store.agent.freeSockets).length, 0);
+              assert.equal(Object.keys(agent.freeSockets).length, 0);
               await utils.sleep(ms(metaSyncTime));
-              assert.equal(Object.keys(store.agent.freeSockets).length, 1);
+              assert.equal(Object.keys(agent.freeSockets).length, 1);
             }
           });
         }
@@ -2005,7 +2006,8 @@ describe('test/object.test.js', () => {
 
         it('should list only 1 object', async () => {
           const result = await store.list({
-            'max-keys': 1
+            'max-keys': 1,
+            prefix: listPrefix
           });
           assert(result.objects.length <= 1);
           result.objects.map(checkObjectProperties);
@@ -2016,7 +2018,8 @@ describe('test/object.test.js', () => {
 
         it('should list top 3 objects', async () => {
           const result = await store.list({
-            'max-keys': 3
+            'max-keys': 3,
+            prefix: listPrefix
           });
           assert(result.objects.length <= 3);
           result.objects.map(checkObjectProperties);
@@ -2030,7 +2033,7 @@ describe('test/object.test.js', () => {
             marker: result.nextMarker
           });
           assert(result2.objects.length <= 2);
-          result.objects.map(checkObjectProperties);
+          result2.objects.map(checkObjectProperties);
           assert.equal(typeof result2.nextMarker, 'string');
           assert(result2.isTruncated);
           assert.equal(result2.prefixes, null);
@@ -2089,6 +2092,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -2279,6 +2283,7 @@ describe('test/object.test.js', () => {
         });
 
         it('should list files with restore info', async () => {
+          if (store.options.cloudBoxId) return; // cloudbox only support standard
           const testFile = `${listPrefix}restoreInfoTest.txt`;
           await store.put(testFile, Buffer.from('test'), {
             headers: {
@@ -2435,6 +2440,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('restore()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip(); // cloudbox only support standard
+        });
         it('Should return OperationNotSupportedError when the type of object is not archive', async () => {
           const name = '/oss/restore.js';
           await store.put(name, __filename);
@@ -2598,7 +2606,7 @@ describe('test/object.test.js', () => {
           assert.equal(result.res.status, 200);
 
           result = await store.putSymlink(name, targetName, {
-            storageClass: 'IA',
+            storageClass: store.options.cloudBoxId ? 'Standard' : 'IA', // cloudbox only support standard
             meta: {
               uid: '1',
               slus: 'test.html'
@@ -2626,6 +2634,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('calculatePostSignature()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip();
+        });
         it('should get signature for postObject', async () => {
           const name = 'calculatePostSignature.js';
           const url = store.generateObjectUrl(name).replace(name, '');
@@ -2688,6 +2699,9 @@ describe('test/object.test.js', () => {
       });
 
       describe('signPostObjectPolicyV4()', () => {
+        before(function () {
+          if (store.options.cloudBoxId) this.skip();
+        });
         it('should PostObject with V4 signature', async () => {
           const name = 'testPostObjectUseV4Signature.txt';
           const formData = new FormData();

@@ -2,20 +2,14 @@ const assert = require('assert');
 const utils = require('./utils');
 const sts = require('../..').STS;
 const OSS = require('../..');
-const config = require('../config').oss;
+const { oss: config, conditions } = require('../config');
 const stsConfig = require('../config').sts;
 const mm = require('mm');
 
 describe('test/sts.test.js', () => {
   const { prefix } = utils;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  const product = config.cloudBoxId === undefined ? 'oss' : 'oss-cloudbox';
+  conditions.forEach((moreConfigs, index) => {
     describe(`test sts in iterate ${index}`, () => {
       describe('assumeRole()', () => {
         it('should assume role', async () => {
@@ -29,9 +23,9 @@ describe('test/sts.test.js', () => {
           const policy = {
             Statement: [
               {
-                Action: ['oss:*'],
+                Action: [`${product}:*`],
                 Effect: 'Allow',
-                Resource: ['acs:oss:*:*:*']
+                Resource: [`acs:${product}:*:*:*`]
               }
             ],
             Version: '1'
@@ -47,10 +41,10 @@ describe('test/sts.test.js', () => {
             "Statement": [
               {
                 "Action": [
-                  "oss:*"
+                  "${product}:*"
                 ],
                 "Effect": "Allow",
-                "Resource": ["acs:oss:*:*:*"]
+                "Resource": ["acs:${product}:*:*:*"]
               }
             ],
             "Version": "1"
@@ -66,10 +60,10 @@ describe('test/sts.test.js', () => {
             "Statements": [
               {
                 "Action": [
-                  "oss:*"
+                  "${product}:*"
                 ],
                 "Effect": "Allow",
-                "Resource": ["acs:oss:*:*:*"]
+                "Resource": ["acs:${product}:*:*:*"]
               }
             ],
             "Version": "1"
@@ -87,9 +81,9 @@ describe('test/sts.test.js', () => {
           const stsClient = sts(stsConfig);
           let result = await stsClient.assumeRole(stsConfig.roleArn);
           assert.strictEqual(result.res.status, 200);
-
           const ossClient = new OSS({
-            region: config.region,
+            // region: config.region,
+            ...config,
             accessKeyId: result.credentials.AccessKeyId,
             accessKeySecret: result.credentials.AccessKeySecret,
             stsToken: result.credentials.SecurityToken,
@@ -114,9 +108,9 @@ describe('test/sts.test.js', () => {
           let policy = {
             Statement: [
               {
-                Action: ['oss:PutObject'],
+                Action: [`${product}:PutObject`],
                 Effect: 'Allow',
-                Resource: ['acs:oss:*:*:*']
+                Resource: [`acs:${product}:*:*:*`]
               }
             ],
             Version: '1'
@@ -126,7 +120,7 @@ describe('test/sts.test.js', () => {
           assert.strictEqual(result.res.status, 200);
 
           let ossClient = new OSS({
-            region: config.region,
+            ...config,
             accessKeyId: result.credentials.AccessKeyId,
             accessKeySecret: result.credentials.AccessKeySecret,
             stsToken: result.credentials.SecurityToken,
@@ -152,9 +146,9 @@ describe('test/sts.test.js', () => {
           policy = {
             Statement: [
               {
-                Action: ['oss:DeleteObject'],
+                Action: [`${product}:DeleteObject`],
                 Effect: 'Allow',
-                Resource: ['acs:oss:*:*:*']
+                Resource: [`acs:${product}:*:*:*`]
               }
             ],
             Version: '1'
@@ -164,7 +158,7 @@ describe('test/sts.test.js', () => {
           assert.strictEqual(result.res.status, 200);
 
           ossClient = new OSS({
-            region: config.region,
+            ...config,
             accessKeyId: result.credentials.AccessKeyId,
             accessKeySecret: result.credentials.AccessKeySecret,
             stsToken: result.credentials.SecurityToken,
