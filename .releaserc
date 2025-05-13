@@ -13,7 +13,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "npm run build-dist"
+        "prepareCmd": "npm install && npm run build-dist"
       }
     ],
     [
@@ -21,6 +21,7 @@
       {
         "assets": [
           "package.json",
+          "package-lock.json",
           "lib/browser/version.js",
           "dist/*.js"
         ],
