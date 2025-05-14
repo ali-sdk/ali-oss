@@ -13,7 +13,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "npm install && npm run build-dist"
+        "prepareCmd": "npm run build-dist"
       }
     ],
     [
