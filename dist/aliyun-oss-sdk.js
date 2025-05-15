@@ -1,4 +1,4 @@
-// Aliyun OSS SDK for JavaScript v6.22.0
+// Aliyun OSS SDK for JavaScript v6.23.0
 // Copyright Aliyun.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://github.com/ali-sdk/ali-oss/blob/master/LICENSE
 (function(global){(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OSS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
@@ -2209,7 +2209,7 @@ proto._deleteFileSafe = function _deleteFileSafe(filepath) {
 },{"../common/callback":24,"../common/image":27,"../common/object/asyncSignatureUrl":31,"../common/object/copyObject":32,"../common/object/delete":33,"../common/object/deleteMulti":34,"../common/object/deleteObjectTagging":35,"../common/object/generateObjectUrl":36,"../common/object/get":37,"../common/object/getACL":38,"../common/object/getBucketVersions":39,"../common/object/getObjectMeta":40,"../common/object/getObjectTagging":41,"../common/object/getObjectUrl":42,"../common/object/getSymlink":43,"../common/object/head":44,"../common/object/putACL":45,"../common/object/putObjectTagging":46,"../common/object/putSymlink":47,"../common/object/signPostObjectPolicyV4":48,"../common/object/signatureUrl":49,"../common/object/signatureUrlV4":50,"../common/utils/isBlob":68,"../common/utils/isBuffer":69,"../common/utils/isFile":71,"../common/utils/obj2xml":76,"../common/utils/parseRestoreInfo":78,"@babel/runtime/helpers/asyncToGenerator":85,"@babel/runtime/helpers/interopRequireDefault":86,"@babel/runtime/regenerator":93,"copy-to":107,"core-js/modules/es.array.map.js":318,"core-js/modules/es.function.name.js":322,"core-js/modules/es.number.constructor.js":324,"core-js/modules/es.object.assign.js":325,"core-js/modules/es.object.keys.js":328,"core-js/modules/es.object.to-string.js":329,"core-js/modules/es.promise.js":333,"core-js/modules/es.regexp.exec.js":338,"core-js/modules/es.regexp.to-string.js":339,"core-js/modules/es.string.replace.js":345,"core-js/modules/web.dom-collections.for-each.js":380,"fs":102,"merge-descriptors":428,"mime":430,"path":439}],6:[function(require,module,exports){
 "use strict";
 
-exports.version = '6.22.0';
+exports.version = '6.23.0';
 
 },{}],7:[function(require,module,exports){
 "use strict";
@@ -5657,31 +5657,33 @@ var proto = exports;
  */
 proto.signatureUrlV4 = /*#__PURE__*/function () {
   var _signatureUrlV = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(method, expires, request, objectName, additionalHeaders) {
-    var headers, queries, date, formattedDate, onlyDate, fixedAdditionalHeaders, region, canonicalRequest, stringToSign, signedUrl;
+    var cloudBoxId, product, signRegion, headers, queries, date, formattedDate, onlyDate, fixedAdditionalHeaders, canonicalRequest, stringToSign, signedUrl;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
+          cloudBoxId = this.options.cloudBoxId;
+          product = signHelper.getProduct(cloudBoxId);
+          signRegion = signHelper.getSignRegion(getStandardRegion(this.options.region), cloudBoxId);
           headers = request && request.headers || {};
           queries = Object.assign({}, request && request.queries || {});
           date = new Date();
           formattedDate = dateFormat(date, "UTC:yyyymmdd'T'HHMMss'Z'");
           onlyDate = formattedDate.split('T')[0];
           fixedAdditionalHeaders = signHelper.fixAdditionalHeaders(additionalHeaders);
-          region = getStandardRegion(this.options.region);
           if (fixedAdditionalHeaders.length > 0) {
             queries['x-oss-additional-headers'] = fixedAdditionalHeaders.join(';');
           }
-          queries['x-oss-credential'] = signHelper.getCredential(onlyDate, region, this.options.accessKeyId);
+          queries['x-oss-credential'] = signHelper.getCredential(onlyDate, signRegion, this.options.accessKeyId, product);
           queries['x-oss-date'] = formattedDate;
           queries['x-oss-expires'] = expires;
           queries['x-oss-signature-version'] = 'OSS4-HMAC-SHA256';
           if (!(this.options.stsToken && isFunction(this.options.refreshSTSToken))) {
-            _context.next = 15;
+            _context.next = 17;
             break;
           }
-          _context.next = 15;
+          _context.next = 17;
           return setSTSToken.call(this);
-        case 15:
+        case 17:
           if (this.options.stsToken) {
             queries['x-oss-security-token'] = this.options.stsToken;
           }
@@ -5689,15 +5691,15 @@ proto.signatureUrlV4 = /*#__PURE__*/function () {
             headers: headers,
             queries: queries
           }, this.options.bucket, objectName, fixedAdditionalHeaders);
-          stringToSign = signHelper.getStringToSign(region, formattedDate, canonicalRequest);
-          queries['x-oss-signature'] = signHelper.getSignatureV4(this.options.accessKeySecret, onlyDate, region, stringToSign);
+          stringToSign = signHelper.getStringToSign(signRegion, formattedDate, canonicalRequest, product);
+          queries['x-oss-signature'] = signHelper.getSignatureV4(this.options.accessKeySecret, onlyDate, signRegion, stringToSign, product);
           signedUrl = urlUtil.parse(this._getReqUrl({
             bucket: this.options.bucket,
             object: objectName
           }));
           signedUrl.query = Object.assign({}, queries);
           return _context.abrupt("return", signedUrl.format());
-        case 22:
+        case 24:
         case "end":
           return _context.stop();
       }
@@ -5956,6 +5958,26 @@ var _require2 = require('./utils/encodeString'),
 
 /**
  *
+ * @param {string} [cloudBoxId]
+ * @return {string}
+ */
+exports.getProduct = function getProduct(cloudBoxId) {
+  if (cloudBoxId === undefined) return 'oss';
+  return 'oss-cloudbox';
+};
+/**
+ *
+ * @param {string} region
+ * @param {string} [cloudBoxId]
+ * @return {string}
+ */
+exports.getSignRegion = function getSignRegion(region, cloudBoxId) {
+  if (cloudBoxId === undefined) return region;
+  return cloudBoxId;
+};
+
+/**
+ *
  * @param {String} resourcePath
  * @param {Object} parameters
  * @return
@@ -6126,12 +6148,14 @@ exports.getCredential = function getCredential(date, region, accessKeyId) {
  * @param {string} region Standard region, e.g. cn-hangzhou
  * @param {string} date ISO8601 UTC:yyyymmdd'T'HHMMss'Z'
  * @param {string} canonicalRequest
+ * @param {string} [product]
  * @returns {string}
  */
 exports.getStringToSign = function getStringToSign(region, date, canonicalRequest) {
+  var product = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'oss';
   var stringToSign = ['OSS4-HMAC-SHA256', date,
   // TimeStamp
-  this.getCredential(date.split('T')[0], region),
+  this.getCredential(date.split('T')[0], region, undefined, product),
   // Scope
   crypto.createHash('sha256').update(canonicalRequest).digest('hex') // Hashed Canonical Request
   ];
@@ -6143,12 +6167,14 @@ exports.getStringToSign = function getStringToSign(region, date, canonicalReques
  * @param {string} date yyyymmdd
  * @param {string} region Standard region, e.g. cn-hangzhou
  * @param {string} stringToSign
+ * @param {string} [product]
  * @returns {string}
  */
 exports.getSignatureV4 = function getSignatureV4(accessKeySecret, date, region, stringToSign) {
+  var product = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'oss';
   var signingDate = crypto.createHmac('sha256', "aliyun_v4".concat(accessKeySecret)).update(date).digest();
   var signingRegion = crypto.createHmac('sha256', signingDate).update(region).digest();
-  var signingOss = crypto.createHmac('sha256', signingRegion).update('oss').digest();
+  var signingOss = crypto.createHmac('sha256', signingRegion).update(product).digest();
   var signingKey = crypto.createHmac('sha256', signingOss).update('aliyun_v4_request').digest();
   var signatureValue = crypto.createHmac('sha256', signingKey).update(stringToSign).digest('hex');
   return signatureValue;
@@ -6166,10 +6192,13 @@ exports.getSignatureV4 = function getSignatureV4(accessKeySecret, date, region, 
  * @param {string} [objectName]
  * @param {string[]} [additionalHeaders]
  * @param {string} [headerEncoding='utf-8']
+ * @param {string} [cloudBoxId]
  * @returns {string}
  */
 exports.authorizationV4 = function authorizationV4(accessKeyId, accessKeySecret, region, method, request, bucketName, objectName, additionalHeaders) {
   var headerEncoding = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 'utf-8';
+  var cloudBoxId = arguments.length > 9 ? arguments[9] : undefined;
+  var product = this.getProduct(cloudBoxId);
   var fixedAdditionalHeaders = this.fixAdditionalHeaders(additionalHeaders);
   var fixedHeaders = {};
   Object.entries(request.headers).forEach(function (v) {
@@ -6180,11 +6209,11 @@ exports.authorizationV4 = function authorizationV4(accessKeyId, accessKeySecret,
     headers: fixedHeaders,
     queries: request.queries
   }, bucketName, objectName, fixedAdditionalHeaders);
-  var stringToSign = this.getStringToSign(region, date, canonicalRequest);
+  var stringToSign = this.getStringToSign(region, date, canonicalRequest, product);
   var onlyDate = date.split('T')[0];
-  var signatureValue = this.getSignatureV4(accessKeySecret, onlyDate, region, stringToSign);
+  var signatureValue = this.getSignatureV4(accessKeySecret, onlyDate, region, stringToSign, product);
   var additionalHeadersValue = fixedAdditionalHeaders.length > 0 ? "AdditionalHeaders=".concat(fixedAdditionalHeaders.join(';'), ",") : '';
-  return "OSS4-HMAC-SHA256 Credential=".concat(this.getCredential(onlyDate, region, accessKeyId), ",").concat(additionalHeadersValue, "Signature=").concat(signatureValue);
+  return "OSS4-HMAC-SHA256 Credential=".concat(this.getCredential(onlyDate, region, accessKeyId, product), ",").concat(additionalHeadersValue, "Signature=").concat(signatureValue);
 };
 
 /**
