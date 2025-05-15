@@ -3,7 +3,7 @@ const path = require('path');
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
-const config = require('../config').oss;
+const { oss: config, conditions } = require('../config');
 const { md5 } = require('utility');
 const mm = require('mm');
 const sinon = require('sinon');
@@ -38,14 +38,7 @@ describe('test/multipart.test.js', () => {
   let store;
   let bucket;
   const bucketRegion = config.region;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  conditions.forEach((moreConfigs, index) => {
     describe(`test multipart in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
@@ -197,6 +190,7 @@ describe('test/multipart.test.js', () => {
         });
 
         it('should multipartUpload with x-oss-server-side-encryption', async () => {
+          if (store.options.cloudBoxId) return;
           const name = 'multipart-x-oss-server-side-encryption';
           const fileName = await utils.createTempFile('multipart-fallback', 1003 * 1020);
           const result = await store.multipartUpload(name, fileName, {
@@ -1049,6 +1043,7 @@ describe('test/multipart.test.js', () => {
         afterEach(mm.restore);
 
         it('Test whether the speed limit setting for sharded upload is effective', async () => {
+          if (store.options.cloudBoxId) return;
           const file = await utils.createTempFile('multipart-upload-file-set-header', 101 * 1024);
           const objectKey = `${prefix}multipart/upload-file-set-header`;
           const req = store.urllib.request;
@@ -1073,13 +1068,14 @@ describe('test/multipart.test.js', () => {
           const filepath = path.join(tmpdir, 'content-storage-class-file.jpg');
           await createFile(filepath);
           const name = `${prefix}ali-sdk/oss/content-type-by-file.png`;
+          const storageClass = store.options.cloudBoxId ? 'Standard' : 'IA';
           await store.multipartUpload(name, filepath, {
             mime: 'text/plain',
-            headers: { 'x-oss-storage-class': 'IA' }
+            headers: { 'x-oss-storage-class': storageClass }
           });
           const result = await store.head(name);
           assert.equal(result.res.headers['content-type'], 'text/plain');
-          assert.equal(result.res.headers['x-oss-storage-class'], 'IA');
+          assert.equal(result.res.headers['x-oss-storage-class'], storageClass);
         });
       });
     });

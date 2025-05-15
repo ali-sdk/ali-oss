@@ -1,21 +1,17 @@
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../..');
-const { oss: config, timeout } = require('../config');
+const { oss: config, conditions, timeout } = require('../config');
 
 describe('test/bucket_worm.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  conditions.forEach((moreConfigs, index) => {
     describe(`test worm in iterate ${index}`, () => {
+      before(function () {
+        if (config.cloudBoxId) this.skip(); // 云盒暂不支持worm
+      });
       before(async () => {
         store = oss({ ...config, ...moreConfigs });
         bucket = `ali-oss-test-worm-bucket-worm-${prefix.replace(/[/.]/g, '-')}${index}`;

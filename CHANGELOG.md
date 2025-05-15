@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [6.22.0](https://github.com/ali-sdk/ali-oss/compare/v6.21.0...v6.22.0) (2024-11-29)
+## [6.23.0](https://github.com/ali-sdk/ali-oss/compare/v6.22.0...v6.23.0) (2025-05-14)
+
+### Features
+
+* support CloudBox ([#1355](https://github.com/ali-sdk/ali-oss/issues/1355)) ([9107688](https://github.com/ali-sdk/ali-oss/commit/91076880e00ba569533518f40ab7ebbdb0378c6a))
+
+### Bug Fixes
+
+* update agentkeepalive ([#1357](https://github.com/ali-sdk/ali-oss/issues/1357) [#1350](https://github.com/ali-sdk/ali-oss/issues/1350)) ([0be893e](https://github.com/ali-sdk/ali-oss/commit/0be893e09188e76937d8ce7ab18e8e63a8816bc9))
+
+## [6.22.0](https://github.com/ali-sdk/ali-oss/compare/v6.21.0...v6.22.0) (2024-12-03)
 
 ### Features
 
@@ -43,7 +53,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 * verify object names strictly when signing URLs and enabled by default ([#1265](https://github.com/ali-sdk/ali-oss/issues/1265)) ([830e36e](https://github.com/ali-sdk/ali-oss/commit/830e36ea143b57e09e42d0634bc0c4d07474a2a5))
 
-### [6.18.1](https://github.com/ali-sdk/ali-oss/compare/v6.18.0...v6.18.1) (2023-09-08)
+### [6.18.1](https://github.com/ali-sdk/ali-oss/compare/v6.18.0...v6.18.1) (2023-09-11)
 
 ### Features
 
@@ -54,7 +64,7 @@ All notable changes to this project will be documented in this file. See [standa
 * opt.headers in _uploadPart does not use es6 ([#1248](https://github.com/ali-sdk/ali-oss/issues/1248)) ([e2872a0](https://github.com/ali-sdk/ali-oss/commit/e2872a0046af9c5bf537c6eb67e8c32bd119021e))
 * upgrade urllib to 2.41.0 to avoid deps vm2 ([#1239](https://github.com/ali-sdk/ali-oss/issues/1239) [#1232](https://github.com/ali-sdk/ali-oss/issues/1232)) ([7656d6f](https://github.com/ali-sdk/ali-oss/commit/7656d6f49489451a7862015b0893ef1286b2e948))
 
-## [6.18.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.17.0...v6.18.0) (2023-07-27)
+## [6.18.0](https://github.com/aliyun/oss-nodejs-sdk/compare/v6.17.0...v6.18.0) (2023-07-31)
 
 ### Features
 

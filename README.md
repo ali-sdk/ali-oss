@@ -16,7 +16,7 @@
 
 aliyun OSS(Object Storage Service) js client for Node and Browser env.
 
-`NOTE`： For SDK `5.X` document, please go to [README.md](https://github.com/ali-sdk/ali-oss/blob/5.x/README.md)
+`NOTE`： For SDK `5.X` document, please go to [5.X README.md](https://github.com/ali-sdk/ali-oss/blob/5.x/README.md)
 
 ## Install
 
@@ -356,6 +356,7 @@ options:
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout. **_NOTE:_** Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
 - [maxSockets] {Number} Maximum number of sockets to allow per host. Default is infinity
 - [authorizationV4] {Boolean} Use V4 signature. Default is false.
+- [cloudBoxId] {String} the CloudBox ID you want to access. When configuring this option, please set the endpoint option to the CloudBox endpoint and set the authorizationV4 option to true.
 
 example:
 

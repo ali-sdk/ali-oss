@@ -2,7 +2,7 @@ const dns = require('dns');
 const assert = require('assert');
 const utils = require('./utils');
 const oss = require('../../lib/client');
-const config = require('../config').oss;
+const { oss: config, conditions } = require('../config');
 
 async function getIP(hostname) {
   return new Promise((resolve, reject) => {
@@ -17,17 +17,13 @@ async function getIP(hostname) {
 }
 
 describe('test/endpoint.test.js', () => {
+  before(function () {
+    if (config.cloudBoxId) this.skip(); // 云盒跳过endpointIsIP测试
+  });
   const { prefix } = utils;
   let store;
   let bucket;
-  [
-    {
-      authorizationV4: false
-    },
-    {
-      authorizationV4: true
-    }
-  ].forEach((moreConfigs, index) => {
+  conditions.forEach((moreConfigs, index) => {
     describe(`test endpoint in iterate ${index}`, () => {
       before(async () => {
         store = oss({ ...config, ...moreConfigs });

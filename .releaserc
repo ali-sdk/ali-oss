@@ -21,6 +21,7 @@
       {
         "assets": [
           "package.json",
+          "package-lock.json",
           "lib/browser/version.js",
           "dist/*.js"
         ],
