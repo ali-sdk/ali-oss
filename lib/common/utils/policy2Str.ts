@@ -4,7 +4,7 @@ export function policy2Str(policy: string | object) {
     if (typeof policy === 'string') {
       try {
         policyStr = JSON.stringify(JSON.parse(policy));
-      } catch (err) {
+      } catch (err:any) {
         throw new Error(`Policy string is not a valid JSON: ${err.message}`);
       }
     } else {
